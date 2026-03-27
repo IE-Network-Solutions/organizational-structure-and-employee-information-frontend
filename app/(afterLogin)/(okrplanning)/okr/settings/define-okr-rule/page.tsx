@@ -2,16 +2,16 @@
 
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
-import { Button, List } from 'antd';
+import { Spin, Dropdown, MenuProps } from 'antd';
 import React from 'react';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
 import { useDeleteOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/mutations';
 import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/queries';
-import OkrRuleDrawer from './okr-rule';
+import OkrRuleModal from './okr-rule';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { FaPlus } from 'react-icons/fa';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 
 const DefineOkrRule = () => {
   const {
@@ -26,23 +26,25 @@ const DefineOkrRule = () => {
   } = useOkrRuleStore();
 
   const { mutate: deleteOkrRule } = useDeleteOkrRule();
-  const showDrawer = () => {
-    setOpen(true);
-  };
+
   const onClose = () => {
     setOpen(false);
   };
+
   const showDeleteModal = (id: string) => {
     setOpenDeleteModal(true);
     setDeletedId(id);
   };
+
   const onCloseDeleteModal = () => {
     setOpenDeleteModal(false);
   };
+
   const handleEditModal = (value: OkrRule) => {
     setOkrRule(value);
     setOpen(true);
   };
+
   function handleDeleteOkrRule(id: string) {
     deleteOkrRule(id, {
       onSuccess: () => {
@@ -50,125 +52,156 @@ const DefineOkrRule = () => {
       },
     });
   }
+
   const { data: OkrRules, isLoading } = useGetOkrRule();
+
+  const getMenuItems = (item: any): MenuProps['items'] => {
+    return [
+      {
+        key: 'edit',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.UpdateOkrRule]}
+            data-cy={`okr-rule-card-edit-access-guard-${item.id}`}
+          >
+            <div
+              className="flex items-center gap-3 py-1"
+              onClick={() => handleEditModal(item)}
+              id={`okr-rule-card-edit-menu-item-${item.id}`}
+              data-cy={`okr-rule-card-edit-menu-item-${item.id}`}
+            >
+              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <span
+                className="text-[15px] text-[#262626]"
+                data-cy={`okr-rule-card-edit-text-${item.id}`}
+              >
+                Edit OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'delete',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.DeleteOkrRule]}
+            data-cy={`okr-rule-card-delete-access-guard-${item.id}`}
+          >
+            <div
+              className="flex items-center gap-3 py-1 text-red-600"
+              onClick={() => showDeleteModal(item.id)}
+              id={`okr-rule-card-delete-menu-item-${item.id}`}
+              data-cy={`okr-rule-card-delete-menu-item-${item.id}`}
+            >
+              <MdDeleteForever className="text-xl" />
+              <span
+                className="text-[15px]"
+                data-cy={`okr-rule-card-delete-text-${item.id}`}
+              >
+                Delete OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+    ];
+  };
+
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
+      className="w-full"
       id="okr-define-okr-rule-container"
       data-cy="okr-define-okr-rule-container"
     >
+      {/* Container with Border */}
       <div
-        className="flex justify-between items-center mb-4"
-        id="okr-define-okr-rule-header"
-        data-cy="okr-define-okr-rule-header"
+        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+        id="okr-define-okr-rule-main-container"
+        data-cy="okr-define-okr-rule-main-container"
       >
-        <h2
-          className="text-lg font-semibold"
-          id="okr-define-okr-rule-title"
-          data-cy="okr-define-okr-rule-title"
-        >
-          OKR Rule
-        </h2>
-        <AccessGuard
-          data-cy="okr-define-okr-rule-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateOkrRule]}
-        >
-          <Button
-            type="primary"
-            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 h-10"
-            icon={<FaPlus className="text-xs" />}
-            onClick={showDrawer}
-            id="okr-define-okr-rule-add-button"
-            data-cy="okr-define-okr-rule-add-button"
+        {isLoading ? (
+          <div
+            className="flex justify-center items-center py-20"
+            data-cy="okr-define-okr-rule-loading"
           >
-            <span
-              className="hidden md:block "
-              id="okr-define-okr-rule-add-button-label"
-              data-cy="okr-define-okr-rule-add-button-label"
-            >
-              Add Rule
-            </span>
-          </Button>
-        </AccessGuard>
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="okr-define-okr-rule-grid"
+            data-cy="okr-define-okr-rule-grid"
+          >
+            {OkrRules?.items?.map((item: any) => (
+              <div
+                key={item.id}
+                className="bg-white border border-[#d9d9d9] rounded-[12px] p-5 hover:shadow-sm transition-shadow relative"
+                id={`okr-rule-card-${item.id}`}
+                data-cy={`okr-rule-card-${item.id}`}
+              >
+                {/* Top Row: Title and Menu */}
+                <div
+                  className="flex justify-between items-start mb-6"
+                  data-cy={`okr-rule-card-header-${item.id}`}
+                >
+                  <p
+                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    id={`okr-rule-card-title-${item.id}`}
+                    data-cy={`okr-rule-card-title-${item.id}`}
+                  >
+                    {item.title || 'Unknown title'}
+                  </p>
+                  <div
+                    id={`okr-rule-card-menu-wrapper-${item.id}`}
+                    data-cy={`okr-rule-card-menu-wrapper-${item.id}`}
+                  >
+                    <Dropdown
+                      menu={{ items: getMenuItems(item) }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                    >
+                      <button
+                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        data-cy={`okr-rule-card-menu-button-${item.id}`}
+                      >
+                        <EllipsisOutlined className="text-lg" />
+                      </button>
+                    </Dropdown>
+                  </div>
+                </div>
+
+                {/* Bottom Row: Contribution Boxes */}
+                <div
+                  className="flex items-center gap-3"
+                  data-cy={`okr-rule-card-footer-${item.id}`}
+                >
+                  <div
+                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                    id={`okr-rule-card-self-${item.id}`}
+                    data-cy={`okr-rule-card-self-${item.id}`}
+                  >
+                    Self Contribution: {item.myOkrPercentage || 0}
+                  </div>
+                  <div
+                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                    id={`okr-rule-card-team-${item.id}`}
+                    data-cy={`okr-rule-card-team-${item.id}`}
+                  >
+                    Team Contribution: {item.teamOkrPercentage || 0}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <List
-        dataSource={OkrRules?.items}
-        loading={isLoading}
-        bordered={false}
-        id="okr-define-okr-rule-list"
-        data-cy="okr-define-okr-rule-list"
-        renderItem={(item) => (
-          <List.Item
-            className="flex justify-between items-center py-3 px-4 rounded-xl my-3"
-            style={{
-              border: '1px solid #d1d5db',
-              borderRadius: '0.75rem',
-              margin: '0.75rem 0',
-              padding: '1rem',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-            id={`okr-define-okr-rule-list-item-${item?.id}`}
-            data-cy={`okr-define-okr-rule-list-item-${item?.id}`}
-          >
-            <div
-              className="w-full flex flex-row items-center justify-between gap-4 "
-              id={`okr-define-okr-rule-list-item-content-${item?.id}`}
-              data-cy={`okr-define-okr-rule-list-item-content-${item?.id}`}
-            >
-              <span
-                id={`okr-define-okr-rule-list-item-title-${item?.id}`}
-                data-cy={`okr-define-okr-rule-list-item-title-${item?.id}`}
-              >
-                {item?.title || 'Unknown title'}
-              </span>
-              <div
-                className="flex items-center gap-2"
-                id={`okr-define-okr-rule-list-item-actions-${item?.id}`}
-                data-cy={`okr-define-okr-rule-list-item-actions-${item?.id}`}
-              >
-                <AccessGuard
-                  data-cy="okr-define-okr-rule-table-edit-button-access-guard-display-guard"
-                  permissions={[Permissions.UpdateOkrRule]}
-                >
-                  <Button
-                    icon={
-                      <EditOutlined
-                        data-cy={`okr-define-okr-rule-table-edit-button-icon-${item?.id}`}
-                      />
-                    }
-                    className="mr-2 bg-blue text-white border-none"
-                    shape="circle"
-                    onClick={() => handleEditModal(item)}
-                    id={`okr-define-okr-rule-edit-button-${item?.id}`}
-                    data-cy={`okr-define-okr-rule-edit-button-${item?.id}`}
-                  />
-                </AccessGuard>
-                <AccessGuard
-                  data-cy="okr-define-okr-rule-table-delete-button-access-guard-display-guard"
-                  permissions={[Permissions.DeleteOkrRule]}
-                >
-                  <Button
-                    icon={
-                      <DeleteOutlined
-                        data-cy={`okr-define-okr-rule-table-delete-button-icon-${item?.id}`}
-                      />
-                    }
-                    className="mr-2 bg-red-500 text-white border-none"
-                    shape="circle"
-                    onClick={() => showDeleteModal(item?.id as string)}
-                    id={`okr-define-okr-rule-delete-button-${item?.id}`}
-                    data-cy={`okr-define-okr-rule-delete-button-${item?.id}`}
-                  />
-                </AccessGuard>
-              </div>
-            </div>
-          </List.Item>
-        )}
-      />
-      <OkrRuleDrawer
+      <OkrRuleModal
         okrRule={okrRule}
         open={open}
         onClose={onClose}

@@ -1,13 +1,18 @@
 import { FC, useEffect, useState } from 'react';
 import { Button, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import { HiOutlineDotsVertical } from 'react-icons/hi';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { classNames } from '@/utils/classNames';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import PowerSettingsNewOutlinedIcon from '@mui/icons-material/PowerSettingsNewOutlined';
 
 export interface ActionButtonProps {
   onOpen?: (e?: any) => void;
   onEdit?: (e?: any) => void;
+  onStatusToggle?: (e?: any) => void;
+  statusToggleLabel?: string;
   onDelete?: (e?: any) => void;
   onCancelDelete?: (e?: any) => void;
   className?: string;
@@ -17,6 +22,8 @@ export interface ActionButtonProps {
 const ActionButton: FC<ActionButtonProps> = ({
   onOpen,
   onEdit,
+  onStatusToggle,
+  statusToggleLabel,
   onDelete,
   onCancelDelete,
   className = '',
@@ -67,13 +74,14 @@ const ActionButton: FC<ActionButtonProps> = ({
         <Button
           size="large"
           id={`${id}actionButtonForEditId`}
-          className="w-full justify-normal"
+          className="w-full justify-normal flex items-center gap-2 text-[#4d4d4d] text-sm font-normal"
           type="text"
           onClick={(e) => {
             setOpen(false);
             onEdit(e);
           }}
         >
+          <EditOutlinedIcon className="text-sm text-black" />
           Edit
         </Button>
       ),
@@ -95,12 +103,35 @@ const ActionButton: FC<ActionButtonProps> = ({
           <Button
             id={`${id}deleteActionButtonId`}
             size="large"
-            className="w-full justify-normal"
+            className="w-full justify-normal flex items-center gap-2 text-[#4d4d4d] text-sm font-normal"
             type="text"
           >
+            <DeleteOutlinedIcon className="text-sm text-black" />
             Delete
           </Button>
         </DeletePopover>
+      ),
+      className: 'p-0 hover:bg-transparent',
+    });
+  }
+
+  if (onStatusToggle) {
+    items.push({
+      key: '1.5',
+      label: (
+        <Button
+          size="large"
+          id={`${id}actionButtonForStatusToggleId`}
+          className="w-full justify-normal flex items-center gap-2 text-[#4d4d4d] text-sm font-normal"
+          type="text"
+          onClick={(e) => {
+            setOpen(false);
+            onStatusToggle(e);
+          }}
+        >
+          <PowerSettingsNewOutlinedIcon className="text-sm text-black" />
+          {statusToggleLabel || 'Toggle Status'}
+        </Button>
       ),
       className: 'p-0 hover:bg-transparent',
     });
@@ -115,15 +146,16 @@ const ActionButton: FC<ActionButtonProps> = ({
       className={classNames(className)}
     >
       <Button
-        icon={<HiOutlineDotsVertical size={20} className="text-gray-500" />}
-        className="h-7 w-7"
+        type="default"
+        className="border border-[#D9D9D9] h-7 w-6"
         id={`${id}buttonDropDownActionId`}
-        type="text"
         onClick={(e) => {
           e.stopPropagation();
           setOpen(true);
         }}
-      />
+      >
+        <MoreHorizIcon />
+      </Button>
     </Dropdown>
   );
 };

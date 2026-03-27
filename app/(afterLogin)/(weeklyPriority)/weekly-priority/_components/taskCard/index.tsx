@@ -160,11 +160,11 @@ const TaskCard: React.FC = () => {
             border-color: #254ec2;
         }
         .completed-task-checkbox .ant-checkbox-checked .ant-checkbox-inner {
-            background-color: #84cc16 !important;
-            border-color: #84cc16 !important;
+            background-color: #52c41a !important;
+            border-color: #52c41a !important;
         }
         .text-strike-green {
-            color: #374151; /* Darker text for completed task */
+            color: #6b7280; /* Standard gray for completed task */
         }
         .text-strike-red {
             color: #374151;
@@ -173,14 +173,15 @@ const TaskCard: React.FC = () => {
             position: absolute;
             left: 16px;
             right: 16px;
-            top: 52%;
-            height: 1px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1.5px;
             z-index: 5;
             pointer-events: none;
         }
         @media (min-width: 768px) {
             .task-row-line {
-                left: 24px;
+                left: 20px;
                 right: 24px;
             }
         }
@@ -189,7 +190,7 @@ const TaskCard: React.FC = () => {
             height: 100%;
         }
         .bg-strike-green {
-            background-color: #22c55e; /* Standard green */
+            background-color: #52c41a; /* Matching specified green */
         }
         .bg-strike-red {
             background-color: #ef4444; /* Standard red */
@@ -197,20 +198,28 @@ const TaskCard: React.FC = () => {
         
         /* Custom styled checkboxes for the left side */
         .completed-checkbox .ant-checkbox-inner {
-            background-color: #22c55e !important;
-            border-color: #22c55e !important;
+            width: 18px !important;
+            height: 18px !important;
+            background-color: #52c41a !important;
+            border-color: #52c41a !important;
+            border-radius: 4px !important;
+        }
+        .completed-checkbox .ant-checkbox-checked .ant-checkbox-inner::after {
+            width: 5.5px !important;
+            height: 10px !important;
+            left: 21.5% !important;
         }
         .failed-checkbox-icon {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             background-color: #ef4444;
             border: 1px solid #ef4444;
-            border-radius: 2px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 10px;
+            font-size: 13px;
         }
         @media (max-width: 767px) {
             .task-row-line {
@@ -237,7 +246,7 @@ const TaskCard: React.FC = () => {
               data-cy={`task-card-header-${itemIndex}`}
             >
               <div
-                className="flex justify-between items-start"
+                className="flex justify-between items-center"
                 data-cy={`task-card-header-content-${itemIndex}`}
               >
                 <div
@@ -269,7 +278,7 @@ const TaskCard: React.FC = () => {
                       data-cy={`task-card-avatar-${itemIndex}`}
                     />
                     <div
-                      className="flex items-center text-[11.5px] md:text-[12.5px] text-gray-500 font-medium"
+                      className="flex items-center text-[13px] md:text-[14px] text-gray-500 font-medium"
                       data-cy={`task-card-user-info-${itemIndex}`}
                     >
                       <span
@@ -279,13 +288,13 @@ const TaskCard: React.FC = () => {
                         {fullName}
                       </span>
                       <span
-                        className="mx-1 text-gray-300"
+                        className="mx-1.5 text-gray-400"
                         data-cy={`task-card-separator-${itemIndex}`}
                       >
                         •
                       </span>
                       <span
-                        className="text-gray-400 font-normal"
+                        className="text-[#4b5563] font-medium"
                         data-cy={`task-card-date-${itemIndex}`}
                       >
                         {dayjs(item?.tasks[0]?.createdAt).format('DD MMM YYYY')}
@@ -295,7 +304,7 @@ const TaskCard: React.FC = () => {
                 </div>
 
                 <div
-                  className="flex-shrink-0 -mt-1 -mr-2"
+                  className="flex-shrink-0 -mr-2"
                   data-cy={`task-card-actions-${itemIndex}`}
                 >
                   <Dropdown
@@ -306,10 +315,10 @@ const TaskCard: React.FC = () => {
                   >
                     <Button
                       type="text"
-                      className="flex items-center justify-center h-8 w-8 hover:bg-white hover:shadow-sm border border-transparent rounded-[6px] transition-all"
+                      className="flex items-center justify-center h-9 w-9 bg-white border border-gray-200 rounded-[8px] transition-all"
                       icon={
                         <RiMoreFill
-                          className="text-gray-400 text-[20px]"
+                          className="text-[#111827] text-[22px] translate-y-[1px]"
                           data-cy={`task-card-dropdown-icon-${itemIndex}`}
                         />
                       }
@@ -338,7 +347,7 @@ const TaskCard: React.FC = () => {
                     data-cy={`task-item-${itemIndex}-${taskIndex}`}
                   >
                     <div
-                      className={`${isReported ? 'grid grid-cols-[auto_1fr]' : 'flex'} transition-colors ${isCompleted ? 'bg-[#f7fee7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
+                      className={`${isReported ? 'grid grid-cols-[auto_1fr]' : 'flex'} transition-colors ${isCompleted ? 'bg-[#F7FEE7]' : isNotCompleted ? 'bg-[#fff1f2]' : 'bg-white'}`}
                       data-cy={`task-item-content-${itemIndex}-${taskIndex}`}
                     >
                       {/* Left Column: Icon - Only show for reported tasks */}
@@ -363,7 +372,7 @@ const TaskCard: React.FC = () => {
                                 data-cy={`task-item-popconfirm-completed-${itemIndex}-${taskIndex}`}
                               >
                                 <div
-                                  className="relative z-10 bg-[#f7fee7] px-1"
+                                  className="relative z-10 bg-[#F7FEE7] px-1"
                                   data-cy={`task-item-completed-wrapper-${itemIndex}-${taskIndex}`}
                                 >
                                   <Checkbox
@@ -403,7 +412,7 @@ const TaskCard: React.FC = () => {
                         >
                           {(isCompleted || isNotCompleted) && (
                             <div
-                              className="task-row-line -ml-4 md:-ml-5"
+                              className="task-row-line"
                               data-cy={`task-item-line-wrapper-${itemIndex}-${taskIndex}`}
                             >
                               <div
@@ -434,7 +443,7 @@ const TaskCard: React.FC = () => {
                               >
                                 {isCompleted && (
                                   <HiCheckCircle
-                                    className="text-[#22c55e] text-[15px] flex-shrink-0 relative z-10 bg-[#f7fee7] rounded-full"
+                                    className="text-[#52c41a] text-[15px] flex-shrink-0 relative z-10 bg-[#F7FEE7] rounded-full"
                                     data-cy={`task-item-completed-icon-${itemIndex}-${taskIndex}`}
                                   />
                                 )}

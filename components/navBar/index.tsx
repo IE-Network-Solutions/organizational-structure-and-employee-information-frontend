@@ -2,27 +2,54 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
-import {
-  AppstoreOutlined,
-  MenuOutlined,
-  FileTextOutlined,
-} from '@ant-design/icons';
+import Image from 'next/image';
+import { MenuOutlined } from '@ant-design/icons';
+import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
-import { Layout, Button, theme, Skeleton, message, Popover } from 'antd';
+import {
+  MdPeople,
+  MdPersonSearch,
+  MdSchool,
+  MdAccountBalanceWallet,
+  MdCardGiftcard,
+  MdWidgets,
+  MdHowToReg,
+  MdAdminPanelSettings,
+} from 'react-icons/md';
+import AlbumIcon from '@mui/icons-material/Album';
+import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
-import NavBar from './topNavBar';
-import { CiCalendar, CiSettings, CiStar } from 'react-icons/ci';
-import { TbMessage2 } from 'react-icons/tb';
-import { AiOutlineDollarCircle, AiOutlineRight } from 'react-icons/ai';
-import { CiBookmark } from 'react-icons/ci';
-import { PiMoneyLight, PiUserGearLight } from 'react-icons/pi';
-import { PiSuitcaseSimpleThin } from 'react-icons/pi';
-import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { removeCookie } from '@/helpers/storageHelper';
+
+// Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
+const isRouteMatch = (routePattern: string, pathname: string) => {
+  // Exact match
+  if (routePattern === pathname) return true;
+
+  // Match [id] to UUIDs (or any non-slash segment)
+  if (routePattern.includes('[id]')) {
+    const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+    const regex = new RegExp('^' + regexPattern + '(/.*)?$');
+    return regex.test(pathname);
+  }
+
+  // Generic dynamic segment: [something] => [^/]+
+  if (routePattern.match(/\[.*?\]/g)) {
+    const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+    const regex = new RegExp('^' + regexPattern + '(/.*)?$');
+    return regex.test(pathname);
+  }
+
+  // Prefix match for subpages
+  return pathname === routePattern || pathname.startsWith(routePattern + '/');
+};
+
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import Logo from '../common/logo';
-import SimpleLogo from '../common/logo/simpleLogo';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -34,6 +61,8 @@ import { useCreateEmployee } from '@/store/server/features/employees/employeeDet
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -48,6 +77,7 @@ interface CustomMenuItem {
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module } from '@/types/tenant-management';
+import { AiOutlineRight } from 'react-icons/ai';
 
 interface MyComponentProps {
   children: ReactNode;
@@ -56,6 +86,8 @@ interface MyComponentProps {
 const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
+  colorPrimary: string;
+  fontSize: number;
   selectedKeys: (string | number | bigint)[];
   setSelectedKeys: React.Dispatch<
     React.SetStateAction<(string | number | bigint)[]>
@@ -63,143 +95,149 @@ const NavMenuItem: React.FC<{
   router: any;
   pathname: string;
   triggerRouteLoaderStart: () => void;
+  expandedKeys: (string | number | bigint)[];
+  setExpandedKeys: React.Dispatch<
+    React.SetStateAction<(string | number | bigint)[]>
+  >;
 }> = ({
   item,
   collapsed,
+  colorPrimary,
+  fontSize,
   selectedKeys,
   setSelectedKeys,
   router,
   pathname,
   triggerRouteLoaderStart,
+  expandedKeys,
+  setExpandedKeys,
 }) => {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const hasChildren = item.children && item.children.length > 0;
+  const isExpanded = expandedKeys.includes(item.key);
 
-  // Check if this item or any of its children matches the current specific active path
-  const isDirectlyActive = selectedKeys.includes(item.key);
-  const isChildActive =
-    hasChildren &&
-    item.children.some((child: any) => selectedKeys.includes(child.key));
+  const bestMatchingChildKey = React.useMemo(() => {
+    if (!hasChildren) return undefined;
+    const matches = item.children
+      .map((child: any) => String(child.key))
+      .filter((key: string) => isRouteMatch(key, pathname));
+    if (matches.length === 0) return undefined;
+    return matches.sort((a: string, b: string) => b.length - a.length)[0];
+  }, [hasChildren, item.children, pathname]);
+
+  // Check if this item or any of its children matches the current path
+  const isDirectlyActive =
+    selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
+  const isChildActive = Boolean(bestMatchingChildKey);
   const isActive =
-    isDirectlyActive || isChildActive || (hasChildren && isPopoverOpen);
+    isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
-  const popoverContent = (
-    <div
-      data-cy="nav-popover-content"
-      className="flex flex-col min-w-[220px] p-1 bg-white"
-    >
-      {item.children?.map((child: any) => (
-        <button
-          data-cy="nav-popover-item"
-          key={child.key}
-          onClick={() => {
-            const path = String(child.key);
-            setIsPopoverOpen(false);
-            if (pathname !== path) {
-              triggerRouteLoaderStart();
-              router.push(path);
-              setSelectedKeys([path]);
-            }
-          }}
-          className="text-left py-2 px-4 hover:bg-[#F0F7FF] hover:text-[#3636F0] rounded-lg text-[13px] transition-colors text-gray-600 font-medium"
-        >
-          {child.label}
-        </button>
-      ))}
-    </div>
-  );
+  const handleToggle = () => {
+    if (hasChildren) {
+      setExpandedKeys((prev) =>
+        prev.includes(item.key)
+          ? prev.filter((k) => k !== item.key)
+          : [...prev, item.key],
+      );
+    } else {
+      const path = String(item.key);
+      if (pathname !== path) {
+        triggerRouteLoaderStart();
+        router.push(path);
+        setSelectedKeys([path]);
+      }
+    }
+  };
 
   return (
-    <Popover
-      key={item.key}
-      content={hasChildren ? popoverContent : null}
-      trigger={hasChildren ? (collapsed ? 'hover' : 'click') : []}
-      onOpenChange={(open) => hasChildren && setIsPopoverOpen(open)}
-      placement="rightTop"
-      arrow={false}
-      overlayClassName="nav-popover"
-      rootClassName="nav-popover-root"
-    >
+    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
       <div
         data-cy="nav-menu-item"
-        onClick={() => {
-          if (!hasChildren) {
-            const path = String(item.key);
-            if (pathname !== path) {
-              triggerRouteLoaderStart();
-              router.push(path);
-              setSelectedKeys([path]);
-            }
-          }
-        }}
+        onClick={handleToggle}
         className={`
-          group relative flex items-center gap-3 px-3 py-[9px] cursor-pointer transition-all duration-200
+          group flex items-center gap-3 py-2 cursor-pointer transition-all duration-200 rounded-[6px]
           ${
-            isActive
-              ? 'bg-white border border-[#3636F0] rounded-xl shadow-sm'
-              : 'hover:bg-[#EBF5FF] rounded-xl'
+            isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
           }
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'ml-[-1px]'}
+          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
+        style={isActive ? { color: colorPrimary } : undefined}
       >
-        {isActive && (
-          <div
-            data-cy="nav-menu-item-indicator"
-            className="absolute top-1/2 -translate-y-1/2 w-[8px] h-[26px] bg-[#3636F0] rounded-r-full left-0"
-          />
-        )}
-
         <div
           data-cy="nav-menu-item-icon"
-          className={`text-[19px] transition-colors ${
-            isActive
-              ? 'text-[#3636F0]'
-              : 'text-[#475569] group-hover:text-[#3636F0]'
-          } ${isActive && !collapsed ? 'ml-3' : ''}`}
+          className={`text-[21px] transition-colors ${
+            isActive ? '' : 'text-black'
+          }`}
+          style={isActive ? { color: colorPrimary } : undefined}
         >
           {item.icon}
         </div>
 
         {!collapsed && (
-          <>
-            <span
-              data-cy="nav-menu-item-label"
-              className={`flex-1 text-[13.5px] tracking-tight transition-colors ${
-                isActive
-                  ? 'text-[#3636F0] font-semibold'
-                  : 'text-[#475569] font-medium group-hover:text-gray-900'
-              }`}
-            >
-              {item.label}
-            </span>
-            {hasChildren && (
-              <AiOutlineRight
-                size={12}
-                className={`transition-colors ${
-                  isActive
-                    ? 'text-[#3636F0]'
-                    : 'text-[#94A3B8] group-hover:text-gray-600'
-                }`}
-              />
-            )}
-          </>
+          <span
+            data-cy="nav-menu-item-label"
+            className="flex-1 transition-colors"
+            style={{ fontSize }}
+          >
+            {item.label}
+          </span>
         )}
       </div>
-    </Popover>
+
+      {hasChildren && !collapsed && isExpanded && (
+        <div
+          className="flex flex-col mt-1 ml-[33px] space-y-1"
+          data-cy="nav-menu-item-children-container"
+        >
+          {item.children.map((child: any) => {
+            const isChildSelected =
+              selectedKeys.includes(child.key) ||
+              String(child.key) === bestMatchingChildKey;
+            return (
+              <div
+                key={child.key}
+                data-cy="nav-menu-item-child"
+                onClick={() => {
+                  const path = String(child.key);
+                  if (pathname !== path) {
+                    triggerRouteLoaderStart();
+                    router.push(path);
+                    setSelectedKeys([path]);
+                  }
+                }}
+                className={`
+                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
+                  ${
+                    isChildSelected
+                      ? 'font-normal'
+                      : 'text-black font-medium hover:bg-[#E6F4FF]'
+                  }
+                `}
+                style={{
+                  fontSize,
+                  ...(isChildSelected ? { color: colorPrimary } : {}),
+                }}
+              >
+                {child.label}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 };
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { borderRadiusLG },
+    token: { borderRadiusLG, colorPrimary, fontSize, fontSizeSM },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId } = useAuthenticationStore();
-  const { isLoading } = useGetEmployee(userId);
+  const { userId, tenantId } = useAuthenticationStore();
+  useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -217,7 +255,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     isCheckingPermissions,
     setIsCheckingPermissions,
   } = useAuthenticationStore();
-  const isAdminPage = pathname.startsWith('/admin');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
@@ -274,7 +311,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   useEffect(() => {
     refetch();
-  }, [token]);
+  }, [token, refetch]);
 
   const hasEndedFiscalYear =
     !!activeFiscalYear?.isActive &&
@@ -315,584 +352,573 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
+  const getRoutesAndPermissions = React.useCallback(
+    (
+      menuItems: CustomMenuItem[],
+    ): { route: string; permissions: string[] }[] => {
+      const routes: { route: string; permissions: string[] }[] = [];
 
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        if (item.key && item.permissions) {
+      const traverse = (items: CustomMenuItem[]) => {
+        items.forEach((item) => {
+          if (item.key && item.permissions) {
+            routes.push({
+              route: item.key,
+              permissions: item.permissions,
+            });
+          }
+
+          if (item.children) {
+            traverse(item.children);
+          }
+        });
+      };
+
+      // First add hidden routes
+      hiddenRoutes.forEach((route) => {
+        if (route.key && route.permissions) {
           routes.push({
-            route: item.key,
-            permissions: item.permissions,
+            route: route.key,
+            permissions: route.permissions,
           });
         }
-
-        if (item.children) {
-          traverse(item.children);
-        }
       });
-    };
 
-    // First add hidden routes
-    hiddenRoutes.forEach((route) => {
-      if (route.key && route.permissions) {
-        routes.push({
-          route: route.key,
-          permissions: route.permissions,
-        });
-      }
-    });
+      // Then add visible menu routes
+      traverse(menuItems);
+      return routes;
+    },
+    [hiddenRoutes],
+  );
 
-    // Then add visible menu routes
-    traverse(menuItems);
-    return routes;
-  };
+  const treeData: CustomMenuItem[] = React.useMemo(
+    () => [
+      {
+        icon: <DashboardIcon style={{ fontSize: 20 }} />,
+        title: 'Dashboard',
+        key: '/dashboard',
+        className: 'font-bold',
+        permissions: [],
+        moduleCode: 'DASHBOARD',
+      },
+      {
+        icon: <AccountTreeIcon style={{ fontSize: 20 }} />,
+        title: 'Organization',
+        key: '/organization',
+        className: 'font-bold',
+        permissions: ['view_organization'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'ORGANIZATION',
+        children: [
+          {
+            title: <span data-cy="nav-tree-org-structure">Org Structure</span>,
+            key: '/organization/chart',
+            className: 'font-bold',
+            permissions: ['view_organization_chart'],
+            disabled: hasEndedFiscalYear,
+          },
+          {
+            title: <span data-cy="nav-tree-org-settings">Settings</span>,
+            key: '/organization/settings',
+            className: 'font-bold',
+            permissions: ['view_organization_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdPeople style={{ fontSize: 20 }} />,
+        title: 'Employees',
+        key: '/employees',
+        className: 'font-bold',
+        permissions: ['view_employees'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'EMPLOYEES',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-manage-employees">Manage Employees</span>
+            ),
+            key: '/employees/manage-employees',
+            className: 'font-bold',
+            permissions: ['manage_employees'],
+          },
+          {
+            title: <span data-cy="nav-tree-employees-settings">Settings</span>,
+            key: '/employees/settings',
+            className: 'font-bold',
+            permissions: ['manage_employee_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdPersonSearch style={{ fontSize: 20 }} />,
+        title: 'Talent Acquisition',
+        key: '/recruitment',
+        className: 'font-bold',
+        permissions: ['view_recruitment'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'RECRUITMENT',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
+            ),
+            key: '/recruitment/dashboard',
+            className: 'font-bold',
+            permissions: ['view_recruitment_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
+            key: '/recruitment/jobs',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_jobs'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
+            ),
+            key: '/recruitment/ai-job-matching',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_jobs'],
+            disabled: hasEndedFiscalYear,
+          },
+          {
+            title: <span data-cy="nav-tree-candidates">Candidates</span>,
+            key: '/recruitment/candidate',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_candidates'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-talent-resource">Talent Resource</span>
+            ),
+            key: '/recruitment/talent-resource',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_talent_pool'],
+          },
+          {
+            title: (
+              <span
+                data-cy="nav-tree-recruitment-settings"
+                className="font-bold"
+              >
+                Settings
+              </span>
+            ),
+            key: '/recruitment/settings',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_settings'],
+          },
+        ],
+      },
+      {
+        icon: <AlbumIcon style={{ fontSize: 20 }} />,
+        title: 'OKR',
+        key: '/okr-menu',
+        className: 'font-bold',
+        permissions: ['view_okr'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
+        children: [
+          {
+            title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
+            key: '/okr/dashboard',
+            className: 'font-bold',
+            permissions: ['view_okr_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-okr">OKR</span>,
+            key: '/okr',
+            className: 'font-bold',
+            permissions: ['view_okr_overview'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-planning-reporting">
+                Planning and Reporting
+              </span>
+            ),
+            key: '/planning-and-reporting',
+            className: 'font-bold',
+            permissions: ['manage_planning_reporting'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
+            ),
+            key: '/weekly-priority',
+            className: 'font-bold h-8',
+            permissions: ['view_weekly_priority'],
+          },
+          {
+            title: <span data-cy="nav-tree-okr-settings">Settings</span>,
+            key: '/okr/settings',
+            className: 'font-bold',
+            permissions: ['manage_okr_settings'],
+          },
+        ],
+      },
+      {
+        icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
+        title: 'CFR',
+        key: 'feedback-menu',
+        className: 'font-bold',
+        permissions: ['view_feedback'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'CFR',
+        children: [
+          {
+            title: <span data-cy="nav-tree-conversation">Conversation</span>,
+            key: '/feedback/conversation',
+            className: 'font-bold',
+            permissions: ['view_feedback_conversation'],
+          },
+          {
+            title: <span data-cy="nav-tree-feedback">Feedback</span>,
+            key: '/feedback/feedback',
+            className: 'font-bold',
+            permissions: ['view_feedback_list'],
+          },
+          {
+            title: <span data-cy="nav-tree-recognition">Recognition</span>,
+            key: '/feedback/recognition',
+            className: 'font-bold',
+            permissions: ['view_feedback_recognition'],
+          },
+          {
+            title: 'Settings',
+            key: '/feedback/settings',
+            className: 'font-bold',
+            permissions: ['manage_feedback_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdSchool style={{ fontSize: 20 }} />,
+        title: 'Learning & Growth',
+        key: 'tna-menu',
+        className: 'font-bold',
+        permissions: ['view_learning_growth'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'TNA',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-training-management">
+                Training Management
+              </span>
+            ),
+            key: '/tna/management',
+            className: 'font-bold',
+            permissions: ['manage_training'],
+          },
+          {
+            title: <span data-cy="nav-tree-tna-settings">Settings</span>,
+            key: '/tna/settings/course-category',
+            className: 'font-bold',
+            permissions: ['manage_tna_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAccountBalanceWallet style={{ fontSize: 20 }} />,
+        title: 'Payroll',
+        key: '/payroll-menu',
+        className: 'font-bold',
+        permissions: ['view_payroll_menu'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'PAYROLL',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-employee-information">
+                Employee Information
+              </span>
+            ),
+            key: '/employee-information',
+            className: 'font-bold',
+            permissions: ['view_employee_information'],
+          },
+          {
+            title: <span data-cy="nav-tree-payroll">Payroll</span>,
+            key: '/payroll',
+            className: 'font-bold',
+            permissions: ['view_payroll_overview'],
+          },
+          {
+            title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
+            key: '/myPayroll',
+            className: 'font-bold',
+            permissions: ['view_my_payroll'],
+          },
+          {
+            title: <span data-cy="nav-tree-payroll-settings">Settings</span>,
+            key: '/settings',
+            className: 'font-bold',
+            permissions: ['manage_payroll_settings'],
+          },
+        ],
+      },
+      {
+        icon: <AccessTimeFilledIcon style={{ fontSize: 20 }} />,
+        title: 'Time & Attendance',
+        key: 'timesheet-menu',
+        className: 'font-bold',
+        permissions: ['view_timesheet'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'TIMESHEET',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
+            ),
+            key: '/timesheet/dashboard',
+            className: 'font-bold',
+            permissions: ['view_timesheet_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
+            key: '/timesheet/my-timesheet',
+            className: 'font-bold',
+            permissions: ['view_my_timesheet'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-employee-attendance">
+                Employee Attendance
+              </span>
+            ),
+            key: '/timesheet/employee-attendance',
+            className: 'font-bold',
+            permissions: ['view_employee_attendance'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-leave-management">Leave Management</span>
+            ),
+            key: '/timesheet/leave-management/leaves',
+            className: 'font-bold',
+            permissions: ['manage_leave_management'],
+          },
+          {
+            title: <span data-cy="nav-tree-timesheet-settings">Settings</span>,
+            key: '/timesheet/settings/closed-date',
+            className: 'font-bold',
+            permissions: ['manage_timesheet_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdWidgets style={{ fontSize: 20 }} />,
+        title: 'Compensation & Benefit',
+        key: 'compensation-menu',
+        className: 'font-bold',
+        permissions: ['view_compensation'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'COMPENSATION',
+        children: [
+          {
+            title: <span data-cy="nav-tree-allowance">Allowance</span>,
+            key: '/allowance',
+            className: 'font-bold',
+            permissions: ['view_allowance'],
+          },
+          {
+            title: <span data-cy="nav-tree-benefit">Benefit</span>,
+            key: '/benefit',
+            className: 'font-bold',
+            permissions: ['view_benefit'],
+          },
+          {
+            title: <span data-cy="nav-tree-deduction">Deduction</span>,
+            key: '/deduction',
+            className: 'font-bold',
+            permissions: ['view_deduction'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-compensation-settings">Settings</span>
+            ),
+            key: '/compensationSetting',
+            className: 'font-bold',
+            permissions: ['manage_compensation_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdCardGiftcard style={{ fontSize: 20 }} />,
+        title: 'Incentives',
+        key: 'incentive-menu',
+        className: 'font-bold',
+        permissions: ['view_incentive'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'INCENTIVE',
+        children: [
+          {
+            title: <span data-cy="nav-tree-incentive">Incentive</span>,
+            key: '/incentives',
+            className: 'font-bold',
+            permissions: ['view_incentive_page'],
+          },
+          {
+            title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
+            key: '/variable-pay',
+            className: 'font-bold',
+            permissions: ['view_variable_pay'],
+          },
+          {
+            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+            key: '/incentives/settings',
+            className: 'font-bold',
+            permissions: ['manage_incentive_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
+        title: 'Audit Log',
+        key: '/audit-log',
+        className: 'font-bold',
+        permissions: ['view_audit_log'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'AUDIT_LOG',
+      },
+      {
+        icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
+        title: 'Admin',
+        key: 'admin-menu',
+        className: 'font-bold',
+        permissions: ['view_admin_configuration'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'ADMIN',
+        children: [
+          {
+            title: <span data-cy="nav-tree-admin-dashboard">Dashboard</span>,
+            key: '/admin/dashboard',
+            className: 'font-bold',
+            permissions: ['view_admin_dashboard'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-admin-billing">Billing and Invoice</span>
+            ),
+            key: '/admin/billing',
+            className: 'font-bold',
+            permissions: ['view_admin_billing'],
+          },
+          {
+            title: <span data-cy="nav-tree-admin-profile">Update Profile</span>,
+            key: '/admin/profile',
+            className: 'font-bold',
+            permissions: ['view_admin_profile'],
+          },
+        ],
+      },
+    ],
+    [hasEndedFiscalYear],
+  );
 
-  const treeData: CustomMenuItem[] = [
-    {
-      icon: <AppstoreOutlined style={{ fontSize: 18 }} />,
-      title: 'Dashboard',
-      key: '/dashboard',
-      className: 'font-bold',
-      permissions: [], // Public or basic?
-      moduleCode: 'DASHBOARD',
-    },
-    {
-      icon: <CiSettings size={18} />,
-      title: 'Organization',
-      key: '/organization',
-      className: 'font-bold',
-      permissions: ['view_organization'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'ORGANIZATION',
-      children: [
-        {
-          title: <span data-cy="nav-tree-org-structure">Org Structure</span>,
-          key: '/organization/chart',
-          className: 'font-bold',
-          permissions: ['view_organization_chart'],
-          disabled: hasEndedFiscalYear,
-        },
-        {
-          title: <span data-cy="nav-tree-org-settings">Settings</span>,
-          key: '/organization/settings',
-          className: 'font-bold',
-          permissions: ['view_organization_settings'],
-        },
-      ],
-    },
-    {
-      icon: <LuUsers size={18} />,
-      title: 'Employees',
-      key: '/employees',
-      className: 'font-bold',
-      permissions: ['view_employees'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'EMPLOYEES',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-manage-employees">Manage Employees</span>
-          ),
-          key: '/employees/manage-employees',
-          className: 'font-bold',
-          permissions: ['manage_employees'],
-        },
-        // {
-        //   title: <span>Department Request</span>,
-        //   key: '/employees/departmentRequest',
-        //   className: 'font-bold',
-        //   permissions: ['manage_department_requests'],
-        // },
-        {
-          title: <span data-cy="nav-tree-employees-settings">Settings</span>,
-          key: '/employees/settings',
-          className: 'font-bold',
-          permissions: ['manage_employee_settings'],
-        },
-      ],
-    },
-    {
-      icon: <PiSuitcaseSimpleThin size={18} />,
-      title: 'Talent Acquisition',
-      key: '/recruitment',
-      className: 'font-bold',
-      permissions: ['view_recruitment'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'RECRUITMENT',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
-          ),
-          key: '/recruitment/dashboard',
-          className: 'font-bold',
-          permissions: ['view_recruitment_dashboard'],
-        },
-        {
-          title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
-          key: '/recruitment/jobs',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_jobs'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
-          ),
-          key: '/recruitment/ai-job-matching',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_jobs'],
-          disabled: hasEndedFiscalYear,
-          //  || isSubscriptionExpired,
-        },
-        {
-          title: <span data-cy="nav-tree-candidates">Candidates</span>,
-          key: '/recruitment/candidate',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_candidates'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-talent-resource">Talent Resource</span>
-          ),
-          key: '/recruitment/talent-resource',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_talent_pool'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-recruitment-settings" className="font-bold">
-              Settings
-            </span>
-          ),
-          key: '/recruitment/settings',
-          className: 'font-bold',
-          permissions: ['manage_recruitment_settings'],
-        },
-      ],
-    },
-    {
-      icon: <CiStar size={18} />,
-      title: 'OKR',
-      key: '/okr-menu',
-      className: 'font-bold',
-      permissions: ['view_okr'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'OKR',
-      children: [
-        {
-          title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
-          key: '/okr/dashboard',
-          className: 'font-bold',
-          permissions: ['view_okr_dashboard'],
-        },
-        {
-          title: <span data-cy="nav-tree-okr">OKR</span>,
-          key: '/okr',
-          className: 'font-bold',
-          permissions: ['view_okr_overview'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-planning-reporting">
-              Planning and Reporting
-            </span>
-          ),
-          key: '/planning-and-reporting',
-          className: 'font-bold',
-          permissions: ['manage_planning_reporting'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
-          ),
-          key: '/weekly-priority',
-          className: 'font-bold h-8',
-          permissions: ['view_weekly_priority'],
-        },
-        {
-          title: <span data-cy="nav-tree-okr-settings">Settings</span>,
-          key: '/okr/settings',
-          className: 'font-bold',
-          permissions: ['manage_okr_settings'],
-        },
-      ],
-    },
-    {
-      icon: <TbMessage2 size={18} />,
-      title: 'CFR',
-      key: 'feedback-menu',
-      className: 'font-bold',
-      permissions: ['view_feedback'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'CFR',
-      children: [
-        {
-          title: <span data-cy="nav-tree-conversation">Conversation</span>,
-          key: '/feedback/conversation',
-          className: 'font-bold',
-          permissions: ['view_feedback_conversation'],
-        },
-        {
-          title: <span data-cy="nav-tree-feedback">Feedback</span>,
-          key: '/feedback/feedback',
-          className: 'font-bold',
-          permissions: ['view_feedback_list'],
-        },
-        {
-          title: <span data-cy="nav-tree-recognition">Recognition</span>,
-          key: '/feedback/recognition',
-          className: 'font-bold',
-          permissions: ['view_feedback_recognition'],
-        },
-        {
-          title: 'Settings',
-          key: '/feedback/settings',
-          className: 'font-bold',
-          permissions: ['manage_feedback_settings'],
-        },
-      ],
-    },
-    {
-      icon: <CiBookmark size={18} />,
-      title: 'Learning & Growth',
-      key: 'tna-menu',
-      className: 'font-bold',
-      permissions: ['view_learning_growth'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'TNA',
-      children: [
-        // {
-        //   title: <span>My-TNA</span>,
-        //   key: '/tna/my-training',
-        //   className: 'font-bold',
-        //   permissions: ['view_my_training'],
+  // Helper function moved to global scope
 
-        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
+  const checkPathnamePermissions = React.useCallback(
+    (pathname: string): boolean => {
+      // Get all routes and their permissions
+      const routesWithPermissions = getRoutesAndPermissions(treeData);
 
-        // },
-        {
-          title: (
-            <span data-cy="nav-tree-training-management">
-              Training Management
-            </span>
-          ),
-          key: '/tna/management',
-          className: 'font-bold',
-          permissions: ['manage_training'],
-        },
-        // {
-        //   title: <span>TNA</span>,
-        //   key: '/tna/review',
-        //   className: 'font-bold',
-        //   permissions: ['view_tna_review'],
-
-        //   disabled: hasEndedFiscalYear || isSubscriptionExpired,
-
-        // },
-        {
-          title: <span data-cy="nav-tree-tna-settings">Settings</span>,
-          key: '/tna/settings/course-category',
-          className: 'font-bold',
-          permissions: ['manage_tna_settings'],
-        },
-      ],
-    },
-    {
-      icon: <AiOutlineDollarCircle size={18} />,
-      title: 'Payroll',
-      key: '/payroll-menu',
-      className: 'font-bold',
-      permissions: ['view_payroll_menu'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'PAYROLL',
-      children: [
-        {
-          title: (
-            <span data-cy="nav-tree-employee-information">
-              Employee Information
-            </span>
-          ),
-          key: '/employee-information',
-          className: 'font-bold',
-          permissions: ['view_employee_information'],
-        },
-        {
-          title: <span data-cy="nav-tree-payroll">Payroll</span>,
-          key: '/payroll',
-          className: 'font-bold',
-          permissions: ['view_payroll_overview'],
-        },
-        {
-          title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
-          key: '/myPayroll',
-          className: 'font-bold',
-          permissions: ['view_my_payroll'],
-        },
-        {
-          title: <span data-cy="nav-tree-payroll-settings">Settings</span>,
-          key: '/settings',
-          className: 'font-bold',
-          permissions: ['manage_payroll_settings'],
-        },
-      ],
-    },
-    {
-      icon: <CiCalendar size={18} />,
-      title: 'Time & Attendance',
-      key: 'timesheet-menu',
-      className: 'font-bold',
-      permissions: ['view_timesheet'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'TIMESHEET',
-      children: [
-        {
-          title: <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>,
-          key: '/timesheet/dashboard',
-          className: 'font-bold',
-          permissions: ['view_timesheet_dashboard'],
-        },
-        {
-          title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
-          key: '/timesheet/my-timesheet',
-          className: 'font-bold',
-          permissions: ['view_my_timesheet'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-employee-attendance">
-              Employee Attendance
-            </span>
-          ),
-          key: '/timesheet/employee-attendance',
-          className: 'font-bold',
-          permissions: ['view_employee_attendance'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-leave-management">Leave Management</span>
-          ),
-          key: '/timesheet/leave-management/leaves',
-          className: 'font-bold',
-          permissions: ['manage_leave_management'],
-        },
-        {
-          title: <span data-cy="nav-tree-timesheet-settings">Settings</span>,
-          key: '/timesheet/settings/closed-date',
-          className: 'font-bold',
-          permissions: ['manage_timesheet_settings'],
-        },
-      ],
-    },
-    {
-      icon: <PiMoneyLight size={18} />,
-      title: 'Compensation & Benefit',
-      key: 'compensation-menu',
-      className: 'font-bold',
-      permissions: ['view_compensation'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'COMPENSATION',
-      children: [
-        {
-          title: <span data-cy="nav-tree-allowance">Allowance</span>,
-          key: '/allowance',
-          className: 'font-bold',
-          permissions: ['view_allowance'],
-        },
-        {
-          title: <span data-cy="nav-tree-benefit">Benefit</span>,
-          key: '/benefit',
-          className: 'font-bold',
-          permissions: ['view_benefit'],
-        },
-        {
-          title: <span data-cy="nav-tree-deduction">Deduction</span>,
-          key: '/deduction',
-          className: 'font-bold',
-          permissions: ['view_deduction'],
-        },
-        {
-          title: <span data-cy="nav-tree-compensation-settings">Settings</span>,
-          key: '/compensationSetting',
-          className: 'font-bold',
-          permissions: ['manage_compensation_settings'],
-        },
-      ],
-    },
-    {
-      icon: <LuCircleDollarSign size={18} />,
-      title: 'Incentives',
-      key: 'incentive-menu',
-      className: 'font-bold',
-      permissions: ['view_incentive'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'INCENTIVE',
-      children: [
-        {
-          title: <span data-cy="nav-tree-incentive">Incentive</span>,
-          key: '/incentives',
-          className: 'font-bold',
-          permissions: ['view_incentive_page'],
-        },
-        {
-          title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
-          key: '/variable-pay',
-          className: 'font-bold',
-          permissions: ['view_variable_pay'],
-        },
-        {
-          title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
-          key: '/incentives/settings',
-          className: 'font-bold',
-          permissions: ['manage_incentive_settings'],
-        },
-      ],
-    },
-    {
-      icon: <FileTextOutlined style={{ fontSize: 18 }} />,
-      title: 'Audit Log',
-      key: '/audit-log',
-      className: 'font-bold',
-      permissions: ['view_audit_log'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'AUDIT_LOG',
-    },
-    {
-      icon: <CiSettings size={18} />,
-      title: 'Admin',
-      key: 'admin-menu',
-      className: 'font-bold',
-      permissions: ['view_admin_configuration'],
-      disabled: hasEndedFiscalYear,
-      moduleCode: 'ADMIN',
-      children: [
-        {
-          title: <span data-cy="nav-tree-admin-dashboard">Dashboard</span>,
-          key: '/admin/dashboard',
-          className: 'font-bold',
-          permissions: ['view_admin_dashboard'],
-        },
-        {
-          title: (
-            <span data-cy="nav-tree-admin-billing">Billing and Invoice</span>
-          ),
-          key: '/admin/billing',
-          className: 'font-bold',
-          permissions: ['view_admin_billing'],
-        },
-        {
-          title: <span data-cy="nav-tree-admin-profile">Update Profile</span>,
-          key: '/admin/profile',
-          className: 'font-bold',
-          permissions: ['view_admin_profile'],
-        },
-      ],
-    },
-  ];
-
-  // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
-  const isRouteMatch = (routePattern: string, pathname: string) => {
-    // Match [id] to UUIDs (or any non-slash segment)
-    if (routePattern.includes('[id]')) {
-      // UUID regex: [0-9a-fA-F-]{36} (simple version)
-      const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
-      const regex = new RegExp('^' + regexPattern + '$');
-      return regex.test(pathname);
-    }
-    // Generic dynamic segment: [something] => [^/]+
-    if (routePattern.match(/\[.*?\]/g)) {
-      const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
-      const regex = new RegExp('^' + regexPattern + '$');
-      return regex.test(pathname);
-    }
-    return routePattern === pathname;
-  };
-
-  const checkPathnamePermissions = (pathname: string): boolean => {
-    // Get all routes and their permissions
-    const routesWithPermissions = getRoutesAndPermissions(treeData);
-
-    // Check if user is owner - owners have access to all routes
-    const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
-    if (isOwner) {
-      return true;
-    }
-
-    // First check if the pathname matches any defined route (supporting dynamic segments)
-    const matchingRoute = routesWithPermissions.find((route) => {
-      if (isRouteMatch(route.route, pathname)) {
+      // Check if user is owner - owners have access to all routes
+      const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
+      if (isOwner) {
         return true;
       }
-      // Check for parent-child relationship - allow any level of nesting
-      if (pathname.startsWith(route.route + '/')) {
-        return true;
-      }
-      return false;
-    });
 
-    // If no matching route found, check if it's a deeply nested route
-    if (!matchingRoute) {
-      // For deeply nested routes without explicit permissions,
-      // check if any parent route exists and has permissions
-      const pathParts = pathname.split('/').filter(Boolean);
+      // First check if the pathname matches any defined route (supporting dynamic segments)
+      const matchingRoute = routesWithPermissions.find((route) => {
+        if (isRouteMatch(route.route, pathname)) {
+          return true;
+        }
+        // Check for parent-child relationship - allow any level of nesting
+        if (pathname.startsWith(route.route + '/')) {
+          return true;
+        }
+        return false;
+      });
 
-      // Try to find a parent route that has permissions
-      for (let i = pathParts.length - 1; i > 0; i--) {
-        const parentPath = '/' + pathParts.slice(0, i).join('/');
-        const parentRoute = routesWithPermissions.find((route) =>
-          isRouteMatch(route.route, parentPath),
-        );
+      // If no matching route found, check if it's a deeply nested route
+      if (!matchingRoute) {
+        // For deeply nested routes without explicit permissions,
+        // check if any parent route exists and has permissions
+        const pathParts = pathname.split('/').filter(Boolean);
 
-        if (parentRoute) {
-          // Check if user has permissions for parent route
-          const userPermissions = userData?.userPermissions || [];
-          const hasParentPermissions = parentRoute.permissions.every(
-            (requiredPermission: any) => {
-              const found = userPermissions?.find(
-                (permission: any) =>
-                  permission.permission.slug === requiredPermission,
-              );
-              return found;
-            },
+        // Try to find a parent route that has permissions
+        for (let i = pathParts.length - 1; i > 0; i--) {
+          const parentPath = '/' + pathParts.slice(0, i).join('/');
+          const parentRoute = routesWithPermissions.find((route) =>
+            isRouteMatch(route.route, parentPath),
           );
 
-          if (hasParentPermissions) {
-            return true;
+          if (parentRoute) {
+            // Check if user has permissions for parent route
+            const userPermissions = userData?.userPermissions || [];
+            const hasParentPermissions = parentRoute.permissions.every(
+              (requiredPermission: any) => {
+                const found = userPermissions?.find(
+                  (permission: any) =>
+                    permission.permission.slug === requiredPermission,
+                );
+                return found;
+              },
+            );
+
+            if (hasParentPermissions) {
+              return true;
+            }
           }
         }
+
+        // If no parent route found or no permissions, deny access
+        return false;
       }
 
-      // If no parent route found or no permissions, deny access
-      return false;
-    }
+      // If route exists but has no permissions, allow access
+      if (
+        !matchingRoute.permissions ||
+        matchingRoute.permissions.length === 0
+      ) {
+        return true;
+      }
 
-    // If route exists but has no permissions, allow access
-    if (!matchingRoute.permissions || matchingRoute.permissions.length === 0) {
-      return true;
-    }
+      // Get user's permissions from the authentication store
 
-    // Get user's permissions from the authentication store
+      const userPermissions = userData?.userPermissions || [];
 
-    const userPermissions = userData?.userPermissions || [];
+      // Check if user has ALL required permissions for this route
 
-    // Check if user has ALL required permissions for this route
-
-    const hasAllPermissions = matchingRoute.permissions.every(
-      (requiredPermission: any) => {
-        const found = userPermissions?.find(
-          (permission: any) =>
-            permission.permission.slug === requiredPermission,
-        );
-        return found;
-      },
-    );
-    return hasAllPermissions;
-  };
+      const hasAllPermissions = matchingRoute.permissions.every(
+        (requiredPermission: any) => {
+          const found = userPermissions?.find(
+            (permission: any) =>
+              permission.permission.slug === requiredPermission,
+          );
+          return found;
+        },
+      );
+      return hasAllPermissions;
+    },
+    [treeData, userData],
+  );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
   });
+  const { data: subscriptionData } = useGetSubscriptionByTenant(
+    tenantId,
+    !!tenantId,
+  );
+  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
+    useGetSubscriptions({
+      filter: {
+        isActive: true,
+        ...(tenantId ? { tenantId: [tenantId] } : {}),
+      },
+    });
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
@@ -903,6 +929,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     departmentsLoading ||
     employeeDataLoading ||
     modulesLoading ||
+    subscriptionsLoading ||
     !departments ||
     !employeeData;
 
@@ -922,7 +949,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
-  }, [departments, employeeData, router, isLoadingData, pathName, userId]);
+  }, [
+    departments,
+    employeeData,
+    router,
+    isLoadingData,
+    pathName,
+    userId,
+    setIsAddEmployeeJobInfoModalVisible,
+  ]);
 
   const handleOk = () => {
     router.push(`/employees/manage-employees/${userId}`);
@@ -948,36 +983,36 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     };
 
     checkPermissions();
-  }, [pathname, router]);
+  }, [pathname, router, checkPathnamePermissions, setIsCheckingPermissions]);
 
-  const findParentMenuKey = (
-    pathname: string,
-    menuItems: CustomMenuItem[],
-  ): string | null => {
-    for (const item of menuItems) {
-      if (item.children) {
-        const matchesChild = item.children.some((child) => {
-          const childKey = String(child.key);
-          return (
-            pathname === childKey ||
-            pathname.startsWith(childKey + '/') ||
-            (childKey.includes('[id]') &&
-              pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
-          );
-        });
+  const findParentMenuKey = React.useCallback(
+    (pathname: string, menuItems: CustomMenuItem[]): string | null => {
+      for (const item of menuItems) {
+        if (item.children) {
+          const matchesChild = item.children.some((child) => {
+            const childKey = String(child.key);
+            return (
+              pathname === childKey ||
+              pathname.startsWith(childKey + '/') ||
+              (childKey.includes('[id]') &&
+                pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
+            );
+          });
 
-        if (matchesChild) {
-          return String(item.key);
-        }
+          if (matchesChild) {
+            return String(item.key);
+          }
 
-        const nestedParent = findParentMenuKey(pathname, item.children);
-        if (nestedParent) {
-          return String(item.key);
+          const nestedParent = findParentMenuKey(pathname, item.children);
+          if (nestedParent) {
+            return String(item.key);
+          }
         }
       }
-    }
-    return null;
-  };
+      return null;
+    },
+    [],
+  );
 
   useEffect(() => {
     saveExpandedKeysToStorage(expandedKeys);
@@ -997,7 +1032,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname]);
+  }, [pathname, findParentMenuKey, treeData]);
 
   useEffect(() => {
     setSelectedKeys([pathname]);
@@ -1019,7 +1054,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
-  }, []);
+  }, [expandedKeys.length, findParentMenuKey, pathname, treeData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1069,7 +1104,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const groupedMenuItems = React.useMemo(() => {
-    // 1. Filter treeData items by user permissions
+    const normalizeRoute = (value?: string | null) => {
+      if (!value) return '';
+      const v = String(value).toLowerCase().trim();
+      if (!v) return '';
+      return v.replace(/\/+$/, '') || '/';
+    };
+
     const accessibleTreeItems = treeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
@@ -1089,13 +1130,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 2. Map treeData items by title for easy lookup
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<string, (typeof accessibleTreeItems)[0]>();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
+
+      const itemKey = normalizeRoute(String(item.key));
+      if (itemKey.startsWith('/')) {
+        treeItemByRouteMap.set(itemKey, item);
+      }
+
+      item.children?.forEach((child) => {
+        const childKey = normalizeRoute(String(child.key));
+        if (!childKey.startsWith('/')) return;
+        const firstSegment = childKey.split('/').filter(Boolean)[0];
+        if (!firstSegment) return;
+        const parentRoute = `/${firstSegment}`;
+        if (!treeItemByRouteMap.has(parentRoute)) {
+          treeItemByRouteMap.set(parentRoute, item);
+        }
+      });
     });
 
-    // Handles mismatches between backend names and sidebar titles
     const nameMapping: Record<string, string> = {
       overview: 'dashboard',
       people: 'employees',
@@ -1103,106 +1159,150 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       finance: 'payroll',
       administration: 'admin',
       organization: 'organization',
+      'org structure': 'organization',
       employee: 'employees',
       'learning and growth': 'learning & growth',
+      tna: 'learning & growth',
+      'talent acquisition': 'talent acquisition',
+      'talent aquisation': 'talent acquisition',
+      'talent aquisatiom': 'talent acquisition',
       'time and attendance': 'time & attendance',
       incentive: 'incentives',
+      compensation: 'compensation & benefit',
       'compensation & benefit': 'compensation & benefit',
       timesheet: 'time & attendance',
       'employee info': 'employees',
+      'okr and planning': 'okr',
+      feedback: 'cfr',
+      cfr: 'cfr',
+      recruitment: 'talent acquisition',
     };
 
     const modules: Module[] = modulesData?.items || [];
+    const activeSubscriptionFromTenant =
+      subscriptionData?.items?.find((subscription) => subscription?.isActive) ||
+      subscriptionData?.item;
+    const activeSubscriptionFromList = subscriptionsData?.items?.find(
+      (subscription) => subscription?.isActive,
+    );
+    const activeSubscription =
+      activeSubscriptionFromTenant || activeSubscriptionFromList;
+    const subscriptionPlanModules = activeSubscription?.plan?.modules || [];
+    const subscribedModuleIds = new Set(
+      subscriptionPlanModules
+        .map((planModule: any) => planModule.moduleId || planModule?.module?.id)
+        .filter(Boolean),
+    );
 
-    // In the new API, items like "Overview", "People", "Performance", "Finance"
-    // are the parents, and their `moduleGroup` is a comma‑separated list of
-    // child module names. Leaf modules (Dashboard, Organization, Employee, ...)
-    // have `moduleGroup: null`.
-    const parentModules = modules
+    const groupedByParent = new Map<
+      string,
+      { type: 'group'; key: string; label: string; children: any[] }
+    >();
+
+    const sortedModules = modules
       .filter(
         (m) =>
-          m.isActive &&
-          m.moduleGroup &&
-          typeof m.moduleGroup === 'string' &&
-          (m.moduleGroup as unknown as string).trim().length > 0,
+          m.isActive && m.moduleGroup && subscribedModuleIds.has((m as any).id),
       )
       .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
-    const leafModules = modules.filter(
-      (m) => m.isActive && (!m.moduleGroup || (m.moduleGroup as any) === null),
-    );
+    sortedModules.forEach((module) => {
+      const normalizedModuleName = module.name.toLowerCase().trim();
+      const mappedName =
+        nameMapping[normalizedModuleName] || normalizedModuleName;
+      const normalizedDescription = normalizeRoute((module as any).description);
+      const treeItemFromDescription = normalizedDescription
+        ? treeItemByRouteMap.get(normalizedDescription)
+        : undefined;
+      const treeItem = treeItemFromDescription || treeItemMap.get(mappedName);
+      if (!treeItem) return;
 
-    const menuItems: any[] = [];
+      const groupLabelRaw = String(module.moduleGroup).trim();
+      if (!groupLabelRaw) return;
+      const groupKey = groupLabelRaw.toLowerCase();
 
-    parentModules.forEach((parent) => {
-      const rawGroup = (parent.moduleGroup as unknown as string) || '';
-      const childNames = rawGroup
-        .split(',')
-        .map((n) => n.trim())
-        .filter(Boolean);
-
-      if (childNames.length === 0) {
-        // moduleGroup effectively empty → do not show the parent
-        return;
-      }
-
-      const groupChildren: any[] = [];
-
-      childNames.forEach((childName) => {
-        // Find the leaf module that corresponds to this child name
-        const leaf = leafModules.find(
-          (m) => m.name.toLowerCase().trim() === childName.toLowerCase().trim(),
-        );
-
-        // Even if we don't need `leaf` data directly, this guarantees the
-        // child exists in the subscription; otherwise we skip it.
-        if (!leaf) return;
-
-        const normalized = childName.toLowerCase().trim();
-        const mappedName = nameMapping[normalized] || normalized;
-        const treeItem = treeItemMap.get(mappedName);
-
-        if (!treeItem) return;
-
-        groupChildren.push({
-          key: treeItem.key,
-          icon: treeItem.icon,
-          label: treeItem.title,
-          children:
-            treeItem.children && treeItem.children.length > 0
-              ? treeItem.children.map((child) => ({
-                  key: child.key,
-                  label: child.title,
-                }))
-              : undefined,
+      if (!groupedByParent.has(groupKey)) {
+        groupedByParent.set(groupKey, {
+          type: 'group',
+          key: `group-${groupKey}`,
+          label: groupLabelRaw,
+          children: [],
         });
-      });
-
-      // If this parent has no resolved children, skip it as requested
-      if (groupChildren.length === 0) {
-        return;
       }
 
-      menuItems.push({
-        type: 'group',
-        key: parent.id,
-        label: (
-          <span
-            data-cy="nav-group-label"
-            className="text-xs font-semibold text-gray-500 px-4"
-          >
-            {parent.name}
-          </span>
-        ),
-        children: groupChildren,
+      const currentGroup = groupedByParent.get(groupKey)!;
+      const alreadyAdded = currentGroup.children.some(
+        (child) => String(child.key) === String(treeItem.key),
+      );
+      if (alreadyAdded) return;
+
+      currentGroup.children.push({
+        key: treeItem.key,
+        icon: treeItem.icon,
+        label: treeItem.title,
+        children:
+          treeItem.children && treeItem.children.length > 0
+            ? treeItem.children.map((child) => ({
+                key: child.key,
+                label: child.title,
+              }))
+            : undefined,
       });
     });
 
-    return menuItems;
-  }, [treeData, modulesData]);
+    return Array.from(groupedByParent.values()).filter(
+      (group) => group.children.length > 0,
+    );
+  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
 
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    {},
+  // Fallback skeleton structure used while modules data is not yet available
+  const skeletonMenuItems = React.useMemo(
+    () =>
+      groupedMenuItems.length > 0
+        ? groupedMenuItems
+        : [
+            {
+              type: 'group',
+              key: 'skeleton-overview',
+              label: 'Overview',
+              // Dashboard, Organization
+              children: [
+                { key: 'skeleton-overview-item-1' },
+                { key: 'skeleton-overview-item-2' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-people',
+              label: 'People',
+              children: [
+                { key: 'skeleton-people-item-1' },
+                { key: 'skeleton-people-item-2' },
+                { key: 'skeleton-people-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-performance',
+              label: 'Performance',
+              children: [
+                { key: 'skeleton-performance-item-1' },
+                { key: 'skeleton-performance-item-2' },
+                { key: 'skeleton-performance-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-finance',
+              label: 'Finance',
+              children: [
+                { key: 'skeleton-finance-item-1' },
+                { key: 'skeleton-finance-item-2' },
+                { key: 'skeleton-finance-item-3' },
+              ],
+            },
+          ],
+    [groupedMenuItems],
   );
   const { mutate: employeeInfo } = useCreateEmployee();
   const handleUserInfoUpdate = () => {
@@ -1242,6 +1342,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
+        className="scrollbar-hide flex flex-col"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1249,13 +1350,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 1010,
-          backgroundColor: '#F0F7FF',
-          borderRight: '1px solid #E5E7EB',
+          zIndex: 100,
+          backgroundColor: '#F5fbff',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
-          display: 'flex',
-          flexDirection: 'column',
         }}
         trigger={null}
         collapsible
@@ -1269,52 +1367,118 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }}
         collapsedWidth={80}
       >
-        <div data-cy="nav-sider-logo-collapsed" className="my-2">
-          {collapsed && <SimpleLogo />}
-        </div>
-
         <div
-          data-cy="nav-sider-logo-wrap"
-          className="flex items-center justify-between px-4 pt-6 pb-0"
-        >
-          <div data-cy="nav-sider-logo" className="flex items-center gap-2">
-            {!collapsed && <Logo type="selamnew" />}
-          </div>
-        </div>
-
-        <button
-          data-cy="nav-sider-toggle"
-          onClick={toggleCollapsed}
-          className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1D4ED8] text-white shadow-md hover:bg-[#1e40af] transition-all"
-          style={{ zIndex: 10001 }}
-        >
-          {collapsed ? (
-            <AiOutlineRight size={12} />
-          ) : (
-            <AiOutlineRight size={12} className="rotate-180" />
-          )}
-        </button>
-        <div
-          data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar"
+          data-cy="nav-sider-children-wrap"
+          className="relative flex flex-col flex-1 min-h-0"
         >
           <div
-            data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-20 ${collapsed ? 'px-0' : 'px-3'}`}
+            data-cy="nav-sider-logo-wrap"
+            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
           >
-            {!isMounted || isLoading ? (
-              <div
-                data-cy="nav-sider-loading"
-                className="px-5 w-full h-full flex justify-center items-center my-5"
-              >
-                <Skeleton active />
-              </div>
-            ) : (
-              <div data-cy="nav-sider-groups" className="space-y-6">
-                {groupedMenuItems.map((group: any) => {
-                  const isExpanded = expandedGroups[group.key] ?? true;
+            <div
+              data-cy="nav-sider-logo"
+              className="relative h-10 w-full flex items-center"
+            >
+              {collapsed ? (
+                <div
+                  data-cy="nav-sider-logo-collapsed-container"
+                  className="w-full flex justify-center"
+                >
+                  <Image
+                    src="/image/selamnew-workspace-logo.svg"
+                    alt="SelamNew Workspace Logo"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
+              ) : (
+                <Image
+                  src="/image/selamnew-workspace-logo.svg"
+                  alt="SelamNew Workspace Logo"
+                  width={150}
+                  height={40}
+                  style={{ objectFit: 'contain' }}
+                />
+              )}
+            </div>
+          </div>
 
-                  return (
+          <button
+            data-cy="nav-sider-toggle"
+            onClick={toggleCollapsed}
+            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
+            style={{ zIndex: 101, backgroundColor: colorPrimary }}
+          >
+            {collapsed ? (
+              <AiOutlineRight size={12} />
+            ) : (
+              <AiOutlineRight size={12} className="rotate-180" />
+            )}
+          </button>
+
+          <div
+            data-cy="nav-sider-menu-scroll"
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            style={{ minHeight: 0 }}
+          >
+            <div
+              data-cy="nav-sider-menu-inner"
+              className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
+            >
+              {!isMounted || isLoadingData ? (
+                <div
+                  data-cy="nav-sider-loading"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {skeletonMenuItems.map((group: any) => (
+                    <div
+                      data-cy="nav-sider-group-skeleton"
+                      key={group.key}
+                      className="space-y-1"
+                    >
+                      <div
+                        data-cy="nav-sider-group-header-skeleton"
+                        className="mb-2 mt-4 first:mt-2"
+                      >
+                        <div
+                          data-cy="nav-sider-group-label-skeleton"
+                          className="w-full font-light text-[#64748B] tracking-wide"
+                          style={{ fontSize: fontSizeSM }}
+                        >
+                          {group.label}
+                        </div>
+                      </div>
+
+                      <div
+                        data-cy="nav-sider-group-children-skeleton"
+                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
+                      >
+                        {group.children?.map((item: any) => (
+                          <div
+                            key={item.key}
+                            data-cy="nav-sider-menu-item-skeleton"
+                            className={`
+                              group flex items-center py-2 rounded-xl
+                              ${collapsed ? 'justify-center mx-[10px]' : ''}
+                            `}
+                          >
+                            <div
+                              data-cy="nav-sider-menu-item-skeleton-bar"
+                              className="h-[16px] w-full rounded-md bg-gray-200"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  data-cy="nav-sider-groups"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {groupedMenuItems.map((group: any) => (
                     <div
                       data-cy="nav-sider-group"
                       key={group.key}
@@ -1322,50 +1486,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="px-2 mb-1"
+                        className="mb-2 mt-4 first:mt-2"
                       >
-                        <button
-                          data-cy="nav-sider-group-toggle"
-                          type="button"
-                          onClick={() =>
-                            setExpandedGroups((prev) => ({
-                              ...prev,
-                              [group.key]: !isExpanded,
-                            }))
-                          }
-                          className={`w-full flex items-center justify-between text-[13px] font-medium text-[#94A3B8] hover:text-gray-600 transition-colors ${
-                            collapsed ? 'h-4' : ''
-                          }`}
-                        >
-                          {!collapsed && (
-                            <>
-                              <span data-cy="nav-sider-group-label">
-                                {group.label}
-                              </span>
-                              <span
-                                data-cy="nav-sider-group-chevron"
-                                className={`transition-transform duration-200 text-[#94A3B8] ${
-                                  isExpanded ? 'rotate-180' : ''
-                                }`}
-                              >
-                                <AiOutlineRight
-                                  size={10}
-                                  className="-rotate-90"
-                                />
-                              </span>
-                            </>
-                          )}
-                        </button>
                         <div
-                          data-cy="nav-sider-group-divider"
-                          className={`h-[1px] bg-[#E2E8F0] my-3 ${collapsed ? 'w-[50px] mx-auto' : 'w-full'}`}
-                        />
+                          data-cy="nav-sider-group-label-wrap"
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
+                            collapsed ? 'hidden' : ''
+                          }`}
+                          style={{ fontSize: fontSizeSM }}
+                        >
+                          {group.label}
+                        </div>
                       </div>
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${
-                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
+                        className={`space-y-1 transition-all duration-300 opacity-100 ${
+                          collapsed ? '' : 'pl-2'
                         }`}
                       >
                         {group.children?.map((item: any) => (
@@ -1373,50 +1510,55 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             key={item.key}
                             item={item}
                             collapsed={collapsed}
+                            colorPrimary={colorPrimary}
+                            fontSize={fontSize}
                             selectedKeys={selectedKeys}
                             setSelectedKeys={setSelectedKeys}
                             router={router}
                             pathname={pathname}
                             triggerRouteLoaderStart={triggerRouteLoaderStart}
+                            expandedKeys={expandedKeys}
+                            setExpandedKeys={setExpandedKeys}
                           />
                         ))}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        <div
-          data-cy="nav-sider-admin-wrap"
-          className={`absolute bottom-6 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'left-4 right-4'}`}
-        >
-          <Button
-            data-cy="nav-sider-admin-btn"
-            type="primary"
-            size="large"
-            icon={<PiUserGearLight size={22} />}
-            className={`
-              flex items-center justify-center bg-[#1D4ED8] hover:bg-[#1e40af] border-none shadow-lg shadow-blue-200/50 transition-all duration-300
-              ${
-                collapsed
-                  ? 'w-[52px] h-[52px] rounded-xl'
-                  : 'w-full h-12 rounded-xl text-[14px] font-semibold gap-2'
-              }
-            `}
-            onClick={() => router.push('/admin/dashboard')}
+          <div
+            data-cy="nav-sider-admin-wrap"
+            className="w-full flex justify-center py-3 mt-4 bg-[#F5fbff]"
           >
-            {!collapsed && 'Admin Console'}
-          </Button>
+            <Button
+              data-cy="nav-sider-admin-btn"
+              type="primary"
+              size="large"
+              icon={<MdHowToReg size={22} />}
+              className={`
+                flex items-center justify-center border-none shadow-lg transition-all duration-300 font-normal hover:opacity-90
+                ${
+                  collapsed
+                    ? 'w-[52px] h-[52px] rounded-[10px]'
+                    : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
+                }
+              `}
+              style={{ backgroundColor: colorPrimary }}
+              onClick={() => router.push('/admin/dashboard')}
+            >
+              {!collapsed && 'Admin Console'}
+            </Button>
+          </div>
         </div>
       </Sider>
       <Layout
         style={{
           marginLeft: 0,
           transition: 'margin-left 0.3s ease',
-          background: '#fff',
+          background: '#ffffff',
         }}
       >
         <Header
@@ -1431,7 +1573,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               : collapsed
                 ? 'calc(100% - 80px)'
                 : 'calc(100% - 280px)',
-            zIndex: 1000,
+            zIndex: 40,
             top: 0,
             left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
             transition: 'left 0.3s ease, width 0.3s ease',
@@ -1476,7 +1618,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             paddingRight: isMobile ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
-            background: '#fff',
+            background: '#ffffff',
           }}
         >
           {isMounted && isCheckingPermissions ? (
@@ -1489,11 +1631,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ) : (
             <div
               data-cy="nav-content-inner"
-              className={`overflow-auto ${!isAdminPage ? 'bg-white' : ''}`}
+              className="overflow-auto"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: 0,
+                paddingRight: 24,
+                paddingLeft: 24,
+                background: '#ffffff',
               }}
             >
               {children}

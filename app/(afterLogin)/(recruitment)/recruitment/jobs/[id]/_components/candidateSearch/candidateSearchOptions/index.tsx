@@ -15,9 +15,11 @@ const { RangePicker } = DatePicker;
 
 interface OptionParams {
   jobId?: string;
+  /** When true, only render the filter row (no mobile header/modal). Used inside card toolbar. */
+  embedded?: boolean;
 }
 
-const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
+const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
   const {
     searchParams,
     setSearchParams,
@@ -156,6 +158,17 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId }) => {
       </Row>
     </>
   );
+  if (embedded) {
+    return (
+      <div
+        id="talent-acquisition-candidate-search-options-div-container"
+        data-cy="talent-acquisition-candidate-search-options-div-container"
+      >
+        {Filters}
+      </div>
+    );
+  }
+
   return (
     <div
       id="talent-acquisition-candidate-search-options-div-container"

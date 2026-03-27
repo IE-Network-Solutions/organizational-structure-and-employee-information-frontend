@@ -1,12 +1,14 @@
-import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useDeleteBreakType } from '@/store/server/features/timesheet/breakType/mutation';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import AccessGuard from '@/utils/permissionGuard';
-import { Spin, Table, TableColumnsType } from 'antd';
+import { Button, Dropdown, MenuProps, Spin } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { Permissions } from '@/types/commons/permissionEnum';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 
 const BreakTypeTable = () => {
   const { setIsShowBreakTypeSidebar, setSelectedBreakType } =
@@ -15,124 +17,119 @@ const BreakTypeTable = () => {
     useGetBreakTypes();
   const { mutate: setDeleteBreakType } = useDeleteBreakType();
 
-  const columns: TableColumnsType<any> = [
-    {
-      title: 'Name',
-      dataIndex: 'title',
-      key: 'title',
-      sorter: true,
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-break-type-table-row-name"
-          data-cy="time-attendance-settings-break-type-table-row-name"
-        >
-          {text || '-'}
-        </div>
-      ),
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      sorter: true,
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-break-type-table-row-description"
-          data-cy="time-attendance-settings-break-type-table-row-description"
-        >
-          {text || '-'}
-        </div>
-      ),
-    },
-    {
-      title: 'Start Time',
-      dataIndex: 'startAt',
-      key: 'startAt',
-      sorter: true,
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-break-type-table-row-start-time"
-          data-cy="time-attendance-settings-break-type-table-row-start-time"
-        >
-          {dayjs(text, 'HH:mm:ss').format('HH:mm') || '-'}
-        </div>
-      ),
-    },
-    {
-      title: 'End Time',
-      dataIndex: 'endAt',
-      key: 'endAt',
-      sorter: true,
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-break-type-table-row-end-time"
-          data-cy="time-attendance-settings-break-type-table-row-end-time"
-        >
-          <div
-            id="time-attendance-settings-break-type-table-row-end-time-div"
-            data-cy="time-attendance-settings-break-type-table-row-end-time-div"
-          >
-            {dayjs(text, 'HH:mm:ss').format('HH:mm') || ''}
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      render: (rule: any, record: any) => (
-        <div
-          className="flex items-center space-x-2"
-          id="time-attendance-settings-break-type-table-row-actions-container"
-          data-cy="time-attendance-settings-break-type-table-row-actions-container"
-        >
-          <AccessGuard
-            permissions={[Permissions.UpdateBreakType]}
-            data-cy="time-attendance-settings-break-type-table-row-edit-access-guard"
-          >
-            <ActionButtons
-              id={record?.id ?? null}
-              onEdit={() => handleEdit(record)}
-              data-cy="time-attendance-settings-break-type-table-row-edit-buttons"
-            />
-          </AccessGuard>{' '}
-          <AccessGuard
-            permissions={[Permissions.DeleteBreakType]}
-            data-cy="time-attendance-settings-break-type-table-row-delete-access-guard"
-          >
-            <ActionButtons
-              id={record?.id ?? null}
-              onDelete={() => handleDelete(record)}
-              data-cy="time-attendance-settings-break-type-table-row-delete-buttons"
-            />
-          </AccessGuard>
-        </div>
-      ),
-    },
-  ];
   const handleEdit = (record: any) => {
     setSelectedBreakType(record);
     setIsShowBreakTypeSidebar(true);
   };
+
   const handleDelete = (record: any) => {
     setDeleteBreakType(record?.id, {
       onSuccess: () => {},
     });
   };
+
+  const items = (record: any): MenuProps['items'] => [
+    {
+      key: 'edit',
+      label: 'Edit',
+      icon: <EditOutlinedIcon fontSize="small" />,
+      onClick: () => handleEdit(record),
+    },
+    {
+      key: 'delete',
+      label: 'Delete',
+      icon: <DeleteOutlinedIcon fontSize="small" />,
+      onClick: () => handleDelete(record),
+    },
+  ];
+
+  const list = breakTypeData?.items || [];
+
   return (
     <Spin
       spinning={breakTypeIsLoading}
       data-cy="time-attendance-settings-break-type-table-spin"
     >
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={breakTypeData?.items || []}
-        pagination={false}
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 border border-[#D9D9D9] rounded-lg p-4"
         id="time-attendance-settings-break-type-table"
         data-cy="time-attendance-settings-break-type-table"
-      />
+      >
+        {list.map((record: any) => (
+          <div
+            key={record?.id}
+            className="rounded-lg border border-[#D9D9D9] bg-white p-4 relative"
+            id={`time-attendance-settings-break-type-card-${record?.id}`}
+            data-cy={`time-attendance-settings-break-type-card-${record?.id}`}
+          >
+            <div
+              id="time-attendance-settings-break-type-table-row-header"
+              data-cy="time-attendance-settings-break-type-table-row-header"
+              className="flex items-start justify-between gap-2"
+            >
+              <h3
+                className="font-bold text-gray-900 text-base m-0 flex-1 min-w-0"
+                id="time-attendance-settings-break-type-table-row-name"
+                data-cy="time-attendance-settings-break-type-table-row-name"
+              >
+                {record?.title || '-'}
+              </h3>
+              <AccessGuard
+                permissions={[
+                  Permissions.UpdateBreakType,
+                  Permissions.DeleteBreakType,
+                ]}
+                data-cy="time-attendance-settings-break-type-table-row-actions-access-guard"
+              >
+                <Dropdown
+                  trigger={['click']}
+                  menu={{ items: items(record) }}
+                  placement="bottomRight"
+                >
+                  <Button
+                    type="text"
+                    className="!w-8 !h-8 !min-w-8 !min-h-8 flex items-center justify-center border border-[#D9D9D9] rounded-lg hover:!bg-gray-50 shrink-0"
+                    id={`time-attendance-settings-break-type-menu-btn-${record?.id}`}
+                    data-cy={`time-attendance-settings-break-type-menu-btn-${record?.id}`}
+                  >
+                    <MoreHorizIcon />
+                  </Button>
+                </Dropdown>
+              </AccessGuard>
+            </div>
+            <div
+              className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#D9D9D9] bg-gray-50/80 text-sm text-gray-700"
+              id="time-attendance-settings-break-type-table-row-time-range"
+              data-cy="time-attendance-settings-break-type-table-row-time-range"
+            >
+              <span
+                id="time-attendance-settings-break-type-table-row-start-time"
+                data-cy="time-attendance-settings-break-type-table-row-start-time"
+              >
+                {record?.startAt
+                  ? dayjs(record.startAt, 'HH:mm:ss').format('HH:mm')
+                  : '-'}
+              </span>
+              <span
+                id="time-attendance-settings-break-type-table-row-time-range-separator"
+                data-cy="time-attendance-settings-break-type-table-row-time-range-separator"
+                className="text-gray-400"
+                aria-hidden
+              >
+                →
+              </span>
+              <span
+                id="time-attendance-settings-break-type-table-row-end-time"
+                data-cy="time-attendance-settings-break-type-table-row-end-time"
+              >
+                {record?.endAt
+                  ? dayjs(record.endAt, 'HH:mm:ss').format('HH:mm')
+                  : '-'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </Spin>
   );
 };

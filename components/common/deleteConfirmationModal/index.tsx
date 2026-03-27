@@ -1,8 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Modal, Button } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { Button, Modal } from 'antd';
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 interface DeleteModalProps {
   open: boolean;
@@ -16,6 +22,8 @@ interface DeleteModalProps {
   id?: string;
   title?: string;
   'data-cy'?: string;
+  /** When set, the modal is positioned just below this rect (e.g. under the trigger button) instead of centered */
+  triggerRect?: TriggerRect | null;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -28,29 +36,44 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   cancelText,
   loading,
   id,
-  title = 'Delete OKR',
+  title = 'Delete',
   'data-cy': dataCy,
+  triggerRect,
 }) => {
+  const isPositioned = Boolean(triggerRect);
+
+  const modalStyle: React.CSSProperties | undefined = isPositioned
+    ? {
+        position: 'fixed',
+        top: triggerRect!.top + triggerRect!.height + 8,
+        left: triggerRect!.left,
+        margin: 0,
+        paddingBottom: 0,
+        maxHeight: `calc(100vh - ${triggerRect!.top + triggerRect!.height + 8}px)`,
+      }
+    : undefined;
+
   const messageContent =
-    customMessage ??
-    deleteMessage ??
-    'Are you sure you want to delete this Objective? All Key results under it will be removed.';
+    customMessage ?? deleteMessage ?? 'Are you sure you want to delete this item?';
 
   const deleteModalFooter = (
     <div
-      className="w-full flex flex-row justify-end items-center gap-3"
+      className="w-full flex justify-end items-center gap-3 mt-6"
       data-cy="delete-confirmation-modal-footer"
     >
       <Button
-        className="px-5 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-400"
+        className="px-5 h-9 text-sm font-medium border-gray-300"
         id="deleteModalCancelButtonId"
         onClick={onCancel}
       >
         {cancelText ?? 'Cancel'}
       </Button>
+
       <Button
         id="confirmDeleteId"
-        className="px-5 py-2 text-sm font-medium bg-[#2563EB] text-white border-none hover:bg-[#1d4ed8]"
+        className="px-5 h-9 text-sm font-medium"
+        type="primary"
+        danger
         loading={loading ?? false}
         onClick={onConfirm}
       >
@@ -65,43 +88,30 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       width={420}
       onCancel={onCancel}
       footer={deleteModalFooter}
-      closable={false}
-      centered
-      className="delete-confirmation-modal"
-      styles={{
-        content: { borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
-        body: { padding: '24px 24px 20px' },
-      }}
+      centered={!isPositioned}
+      {...(modalStyle !== undefined && { style: modalStyle })}
+      title={
+        <span
+          className="text-base font-semibold text-gray-900"
+          data-cy="delete-confirmation-modal-title"
+        >
+          {title}
+        </span>
+      }
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
           {modal}
         </div>
       )}
+      data-cy="delete-confirmation-modal"
     >
-      <div className="flex gap-3" data-cy="delete-confirmation-modal-content">
-        <div
-          className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FFE4E4] flex items-center justify-center"
-          data-cy="delete-confirmation-modal-icon"
+      <div className="py-2" data-cy="delete-confirmation-modal-content">
+        <p
+          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+          className="text-sm text-gray-700"
         >
-          <CloseOutlined style={{ color: '#B91C1C', fontSize: 18 }} />
-        </div>
-        <div
-          className="flex-1 min-w-0"
-          data-cy="delete-confirmation-modal-text-container"
-        >
-          <h3
-            className="text-[17px] font-bold text-[#333333] m-0 mb-2 tracking-tight"
-            data-cy="delete-confirmation-modal-title"
-          >
-            {title}
-          </h3>
-          <p
-            data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
-            className="text-[14px] font-normal text-[#666666] leading-[1.5] m-0"
-          >
-            {messageContent}
-          </p>
-        </div>
+          {messageContent}
+        </p>
       </div>
     </Modal>
   );

@@ -8,17 +8,28 @@ import {
   Button,
   Divider,
   Avatar,
-  Collapse,
   Tag,
-  List,
+  Skeleton,
+  Space,
+  Progress,
+  Pagination,
 } from 'antd';
-import { PhoneOutlined, PrinterOutlined } from '@ant-design/icons';
-import { useEffect, useRef } from 'react';
+import {
+  ArrowLeftOutlined,
+  UserOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
   useGetPayrollHistory,
 } from '@/store/server/features/payroll/payroll/queries';
+import {
+  useGetSettlementTracking,
+  useEmployeeSettlementTracking,
+} from '@/store/server/features/payroll/settlementTracking/queries';
+import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
@@ -29,25 +40,99 @@ import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
-import { HiOutlineMail } from 'react-icons/hi';
-import { MdKeyboardArrowRight } from 'react-icons/md';
-import SettlementDetail from './_components/settlementDetail';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { EmptyImage } from '@/components/emptyIndicator';
-import { IoChevronBackSharp } from 'react-icons/io5';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
+const InfoItem = ({
+  label,
+  value,
+  tags,
+  large,
+}: {
+  label: string;
+  value: string | number;
+  tags?: { label: string; value: string | number }[];
+  large?: boolean;
+}) => (
+  <div className="info-item" data-cy="payroll-info-item">
+    <Text
+      style={{
+        fontSize: '14px',
+        color: 'rgba(0, 0, 0, 0.65)',
+        display: 'block',
+        marginBottom: '2px',
+      }}
+      data-cy="payroll-info-item-label"
+    >
+      {label}
+    </Text>
+    <Text
+      style={{
+        fontSize: large ? '18px' : '16px',
+        color: 'rgba(0, 0, 0, 0.65)',
+        display: 'block',
+        marginBottom: '2px',
+      }}
+      data-cy="payroll-info-item-value"
+    >
+      {value}
+    </Text>
+    {tags && tags.length > 0 && (
+      <Space wrap size={[8, 8]} data-cy="payroll-info-item-tags">
+        {tags.map((tag, index) => (
+          <Tag
+            key={index}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+              border: '1px solid #D9D9D9',
+              borderRadius: '4px',
+              padding: '2px 8px',
+              fontSize: '14px',
+              margin: 0,
+            }}
+            data-cy="payroll-info-item-tag"
+          >
+            <span
+              style={{
+                color: 'rgba(0, 0, 0, 0.65)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '120px',
+              }}
+              data-cy="payroll-info-item-tag-label"
+            >
+              {tag.label}
+            </span>
+            <span
+              style={{ color: 'rgba(0, 0, 0, 0.65)', whiteSpace: 'nowrap' }}
+              data-cy="payroll-info-item-tag-value"
+            >
+              {' '}
+              : {tag.value}
+            </span>
+          </Tag>
+        ))}
+      </Space>
+    )}
+  </div>
+);
+
 const EmployeeProfile = () => {
   const { data: payPeriodData } = useGetPayPeriod();
   const { profileFileList } = useEmployeeManagementStore();
   const router = useRouter();
 
-  const openPayPeriods = payPeriodData?.filter(
-    (period: any) => period.status === 'OPEN',
+  const openPayPeriods = useMemo(
+    () => payPeriodData?.filter((period: any) => period.status === 'OPEN'),
+    [payPeriodData],
   );
   const { id } = useParams();
   const empId = id as string;
@@ -55,12 +140,14 @@ const EmployeeProfile = () => {
   const { data: employee, isLoading } = useGetEmployee(empId);
 
   const { pageSize } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll(
+  const { data: payroll, isLoading: isPayrollLoading } = useGetActivePayroll(
     `&employeeId=${empId}`,
     pageSize,
     1,
   );
   const { data: payrollHistory } = useGetPayrollHistory(empId);
+  const [historyCurrentPage, setHistoryCurrentPage] = useState(1);
+  const historyPageSize = 3;
 
   const {
     activeMergedPayroll,
@@ -118,36 +205,31 @@ const EmployeeProfile = () => {
       );
       setActivePayPeriod(currentPayPeriod);
     }
-  }, [activeMergedPayroll, payPeriodData]);
+  }, [activeMergedPayroll, payPeriodData, setActivePayPeriod]);
 
   useEffect(() => {
     if (payroll?.items && employee) {
-      const mergedData = payroll.items
-        .filter((pay: any) => pay.employeeId === employee.id)
-        .map((pay: any) => ({ ...pay, employeeInfo: employee || null }));
+      const mergedData = payroll.items.map((pay: any) => ({
+        ...pay,
+        employeeInfo: employee || null,
+      }));
 
       setMergedPayroll(mergedData);
 
-      const activeMergedData = mergedData?.filter(
-        (pay: any) => openPayPeriods?.[0]?.id === pay.payPeriodId,
-      );
-      setActiveMergedPayroll(activeMergedData[0]);
+      const activeMergedData =
+        mergedData?.find(
+          (pay: any) => openPayPeriods?.[0]?.id === pay.payPeriodId,
+        ) || mergedData?.[0];
+
+      setActiveMergedPayroll(activeMergedData || null);
     }
-  }, [payroll, employee, empId, payPeriodData]);
-
-  interface Allowances {
-    amount: string | number;
-  }
-
-  const totalAmount = (items: Allowances[]) => {
-    if (!items || items.length === 0) return '0.00';
-    return items
-      .reduce(
-        (total: number, item: any) => total + parseFloat(item.amount || 0),
-        0,
-      )
-      .toFixed(2);
-  };
+  }, [
+    payroll?.items,
+    employee,
+    openPayPeriods,
+    setMergedPayroll,
+    setActiveMergedPayroll,
+  ]);
 
   const getImageUrl = (fileList: UploadFile[]): string => {
     if (fileList.length > 0) {
@@ -164,1294 +246,1464 @@ const EmployeeProfile = () => {
 
   const { isMobile } = useIsMobile();
 
+  const serviceYear = useMemo(() => {
+    const joinedDate = employee?.employeeInformation?.joinedDate;
+    if (!joinedDate) return '-';
+    const start = dayjs(joinedDate);
+    const now = dayjs();
+    const years = now.diff(start, 'year');
+    const months = now.diff(start.add(years, 'year'), 'month');
+
+    const yearStr = years > 0 ? `${years} year${years > 1 ? 's' : ''}` : '';
+    const monthStr =
+      months > 0 ? `${months} month${months > 1 ? 's' : ''}` : '';
+
+    if (yearStr && monthStr) return `${yearStr}, ${monthStr}`;
+    return yearStr || monthStr || 'Less than a month';
+  }, [employee]);
+
+  const formattedAddress = useMemo(() => {
+    const addresses = employee?.employeeInformation?.addresses;
+    if (!addresses || typeof addresses !== 'object') return '--';
+    const parts = [
+      (addresses as any).subCity,
+      (addresses as any).city,
+      (addresses as any).country,
+    ].filter(Boolean);
+    return parts.length ? parts.join(' ') : '--';
+  }, [employee]);
+
+  const renderInformation = () => {
+    if (isLoading || isPayrollLoading)
+      return <Skeleton active data-cy="payroll-info-loading-skeleton" />;
+    if (!activeMergedPayroll)
+      return (
+        <Text type="secondary" data-cy="payroll-info-empty">
+          No payroll data available for this period.
+        </Text>
+      );
+
+    const breakdown = activeMergedPayroll?.breakdown;
+
+    const entitledBenefitTotal =
+      (breakdown?.merits?.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+        0,
+      ) || 0) +
+      (breakdown?.variablePay
+        ? parseFloat(breakdown.variablePay.amount || '0')
+        : 0) +
+      (breakdown?.incentives
+        ? parseFloat(breakdown.incentives.amount || '0')
+        : 0);
+
+    const entitledDeductionTotal =
+      (breakdown?.pension?.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+        0,
+      ) || 0) +
+      (breakdown?.totalDeductionWithPension?.reduce(
+        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+        0,
+      ) || 0);
+
+    return (
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Text
+                strong
+                style={{ fontSize: '15px', color: '#434343', fontWeight: 600 }}
+                data-cy="payroll-employee-detail-payroll-info-header-title"
+              >
+                Payroll Information
+              </Text>
+            }
+            bordered
+            style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+            headStyle={{ borderBottom: 'none', padding: '16px 20px 0 20px' }}
+            bodyStyle={{ padding: '0 20px 20px 20px' }}
+          >
+            <Row gutter={[16, 24]}>
+              <Col span={12}>
+                <InfoItem
+                  label="Basic Salary"
+                  value={
+                    activeMergedPayroll?.employeeInfo?.basicSalaries?.[0]
+                      ?.basicSalary || '--'
+                  }
+                />
+              </Col>
+              <Col span={12}>
+                <InfoItem
+                  label="Account Number"
+                  value={
+                    activeMergedPayroll?.employeeInfo?.employeeInformation
+                      ?.bankInformation?.accountNumber || '--'
+                  }
+                />
+              </Col>
+              <Col span={12}>
+                <InfoItem
+                  label="Bank Information"
+                  value={
+                    activeMergedPayroll?.employeeInfo?.employeeInformation
+                      ?.bankInformation?.bankName || '--'
+                  }
+                />
+              </Col>
+              <Col span={12}>
+                <InfoItem
+                  label="Branch"
+                  value={
+                    activeMergedPayroll?.employeeInfo
+                      ?.employeeJobInformation?.[0]?.branch?.name || '--'
+                  }
+                />
+              </Col>
+            </Row>
+          </Card>
+        </Col>
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Row justify="space-between" align="middle">
+                <Text
+                  strong
+                  style={{
+                    fontSize: '15px',
+                    color: '#434343',
+                    fontWeight: 600,
+                  }}
+                >
+                  {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
+                </Text>
+                <Button
+                  onClick={downloadPayslip}
+                  icon={<DownloadOutlined style={{ fontSize: '18px' }} />}
+                  style={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #d9d9d9',
+                    color: '#595959',
+                    fontSize: '16px',
+                    fontWeight: 400,
+                    height: '42px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '0 16px',
+                    boxShadow: 'none',
+                  }}
+                >
+                  Download
+                </Button>
+              </Row>
+            }
+            bordered
+            style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
+            headStyle={{ borderBottom: 'none', padding: '16px 20px 0 20px' }}
+            bodyStyle={{ padding: '0 20px 20px 20px' }}
+          >
+            <Row gutter={[16, 16]}>
+              <Col span={12}>
+                <InfoItem
+                  label="Salary Period"
+                  value={dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
+                />
+              </Col>
+              <Col span={12}>
+                <InfoItem
+                  label="Pay Date"
+                  value={dayjs(activePayPeriod?.updatedAt).format(
+                    'MMM-DD-YYYY',
+                  )}
+                />
+              </Col>
+            </Row>
+            <Divider style={{ margin: '8px 0', borderColor: '#f0f0f0' }} />
+            <InfoItem
+              label="Entitled Allowance"
+              value={parseFloat(
+                activeMergedPayroll?.totalAllowance || '0',
+              ).toFixed(2)}
+              large
+              tags={breakdown?.allowances?.map((a: any) => ({
+                label: a.type,
+                value: parseFloat(a.amount || '0').toFixed(2),
+              }))}
+            />
+            <Divider style={{ margin: '8px 0', borderColor: '#f0f0f0' }} />
+            <InfoItem
+              label="Entitled Benefit"
+              value={entitledBenefitTotal.toFixed(2)}
+              large
+              tags={[
+                ...(breakdown?.merits?.map((m: any) => ({
+                  label: m.type,
+                  value: parseFloat(m.amount || '0').toFixed(2),
+                })) || []),
+                ...(breakdown?.variablePay
+                  ? [
+                      {
+                        label: breakdown.variablePay.type,
+                        value: parseFloat(
+                          breakdown.variablePay.amount || '0',
+                        ).toFixed(2),
+                      },
+                    ]
+                  : []),
+                ...(breakdown?.incentives
+                  ? [
+                      {
+                        label: 'Incentive',
+                        value: parseFloat(
+                          breakdown.incentives.amount || '0',
+                        ).toFixed(2),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+            <Divider style={{ margin: '8px 0', borderColor: '#f0f0f0' }} />
+            <InfoItem
+              label="Entitled Deduction"
+              value={entitledDeductionTotal.toFixed(2)}
+              large
+              tags={[
+                ...(breakdown?.pension?.map((p: any) => ({
+                  label: p.type,
+                  value: parseFloat(p.amount || '0').toFixed(2),
+                })) || []),
+                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
+                  label: d.type,
+                  value: parseFloat(d.amount || '0').toFixed(2),
+                })) || []),
+              ]}
+            />
+          </Card>
+        </Col>
+      </Row>
+    );
+  };
+
+  const renderHistory = () => {
+    if (!payPeriodData || !payrollHistory || payrollHistory.length === 0) {
+      return (
+        <div
+          style={{ textAlign: 'center', padding: '40px' }}
+          data-cy="payroll-history-empty-wrapper"
+        >
+          <EmptyImage data-cy="payroll-history-empty" />
+          <Text type="secondary" data-cy="payroll-history-empty-text">
+            No payroll history found.
+          </Text>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <Row
+          gutter={[
+            { xs: 16, sm: 24, md: 32, lg: 48 },
+            { xs: 16, sm: 24, md: 32, lg: 48 },
+          ]}
+          data-cy="payroll-history-cards-row"
+        >
+          {payrollHistory
+            .slice(
+              (historyCurrentPage - 1) * historyPageSize,
+              historyCurrentPage * historyPageSize,
+            )
+            .map((historyItem: any, index: number) => {
+              const period = payPeriodData?.find(
+                (p: any) => p.id === historyItem.payPeriodId,
+              );
+              const breakdown = historyItem.breakdown;
+
+              const entitledBenefitTotal =
+                (breakdown?.merits?.reduce(
+                  (acc: number, item: any) =>
+                    acc + parseFloat(item.amount || '0'),
+                  0,
+                ) || 0) +
+                (breakdown?.variablePay
+                  ? parseFloat(breakdown.variablePay.amount || '0')
+                  : 0) +
+                (breakdown?.incentives
+                  ? parseFloat(breakdown.incentives.amount || '0')
+                  : 0);
+
+              const entitledDeductionTotal =
+                (breakdown?.pension?.reduce(
+                  (acc: number, item: any) =>
+                    acc + parseFloat(item.amount || '0'),
+                  0,
+                ) || 0) +
+                (breakdown?.totalDeductionWithPension?.reduce(
+                  (acc: number, item: any) =>
+                    acc + parseFloat(item.amount || '0'),
+                  0,
+                ) || 0);
+
+              return (
+                <Col
+                  xs={24}
+                  md={12}
+                  lg={8}
+                  key={index}
+                  data-cy="payroll-history-card-column"
+                >
+                  <Card
+                    title={
+                      <Text
+                        strong
+                        style={{
+                          fontSize: '16px',
+                          color: '#262626',
+                        }}
+                        data-cy="payroll-history-card-title"
+                      >
+                        {period
+                          ? dayjs(period.startDate).format('MMMM-YYYY')
+                          : 'Unknown'}
+                      </Text>
+                    }
+                    bordered
+                    style={{
+                      borderRadius: '8px',
+                      border: '1px solid #e0e0e0',
+                    }}
+                    headStyle={{
+                      borderBottom: 'none',
+                      padding: '16px 20px 0 20px',
+                    }}
+                    bodyStyle={{ padding: '16px 20px' }}
+                    data-cy="payroll-history-card"
+                  >
+                    <Row gutter={[16, 16]}>
+                      <Col span={12}>
+                        <InfoItem
+                          label="Salary Period"
+                          value={
+                            period
+                              ? dayjs(period.startDate).format('MMM-YYYY')
+                              : '--'
+                          }
+                        />
+                      </Col>
+                      <Col span={12}>
+                        <InfoItem
+                          label="Pay Date"
+                          value={
+                            period
+                              ? dayjs(period.updatedAt).format('MMM-DD-YYYY')
+                              : '--'
+                          }
+                        />
+                      </Col>
+                    </Row>
+                    <Divider
+                      style={{
+                        margin: '12px 0',
+                        borderColor: '#e0e0e0',
+                      }}
+                    />
+                    <InfoItem
+                      label="Entitled Allowance"
+                      value={parseFloat(
+                        historyItem.totalAllowance || '0',
+                      ).toFixed(2)}
+                      large
+                      tags={breakdown?.allowances?.map((a: any) => ({
+                        label: a.type,
+                        value: parseFloat(a.amount || '0').toFixed(2),
+                      }))}
+                    />
+                    <Divider
+                      style={{
+                        margin: '12px 0',
+                        borderColor: '#e0e0e0',
+                      }}
+                    />
+                    <InfoItem
+                      label="Entitled Benefit"
+                      value={entitledBenefitTotal.toFixed(2)}
+                      large
+                      tags={[
+                        ...(breakdown?.merits?.map((m: any) => ({
+                          label: m.type,
+                          value: parseFloat(m.amount || '0').toFixed(2),
+                        })) || []),
+                        ...(breakdown?.variablePay
+                          ? [
+                              {
+                                label: breakdown.variablePay.type,
+                                value: parseFloat(
+                                  breakdown.variablePay.amount || '0',
+                                ).toFixed(2),
+                              },
+                            ]
+                          : []),
+                        ...(breakdown?.incentives
+                          ? [
+                              {
+                                label: 'Incentive',
+                                value: parseFloat(
+                                  breakdown.incentives.amount || '0',
+                                ).toFixed(2),
+                              },
+                            ]
+                          : []),
+                      ]}
+                    />
+                    <Divider
+                      style={{
+                        margin: '12px 0',
+                        borderColor: '#e0e0e0',
+                      }}
+                    />
+                    <InfoItem
+                      label="Entitled Deduction"
+                      value={entitledDeductionTotal.toFixed(2)}
+                      large
+                      tags={[
+                        ...(breakdown?.pension?.map((p: any) => ({
+                          label: p.type,
+                          value: parseFloat(p.amount || '0').toFixed(2),
+                        })) || []),
+                        ...(breakdown?.totalDeductionWithPension?.map(
+                          (d: any) => ({
+                            label: d.type,
+                            value: parseFloat(d.amount || '0').toFixed(2),
+                          }),
+                        ) || []),
+                      ]}
+                    />
+                    <Divider
+                      style={{
+                        margin: '12px 0',
+                        borderColor: '#e0e0e0',
+                      }}
+                    />
+                    <Row gutter={16}>
+                      <Col span={12}>
+                        <InfoItem
+                          label="Gross Earning"
+                          value={parseFloat(
+                            historyItem.grossSalary || '0',
+                          ).toFixed(2)}
+                        />
+                      </Col>
+                      <Col span={12}>
+                        <InfoItem
+                          label="Net Pay"
+                          value={parseFloat(historyItem.netPay || '0').toFixed(
+                            2,
+                          )}
+                        />
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+              );
+            })}
+        </Row>
+        <div
+          style={{ marginTop: '32px' }}
+          data-cy="payroll-history-pagination-wrapper"
+        >
+          <style data-cy="payroll-history-pagination-styles">{`
+            .custom-pagination {
+              display: flex !important;
+              width: 100% !important;
+              justify-content: flex-start !important;
+              align-items: center !important;
+            }
+            .custom-pagination .ant-pagination-options {
+              margin-left: auto !important;
+              display: flex;
+              align-items: center;
+            }
+            .custom-pagination .ant-pagination-options-quick-jumper {
+              color: #8c8c8c;
+              font-size: 13px;
+            }
+            .custom-pagination .ant-pagination-options-quick-jumper input {
+              border-radius: 4px;
+            }
+          `}</style>
+          <Pagination
+            className="custom-pagination"
+            current={historyCurrentPage}
+            total={payrollHistory.length}
+            pageSize={historyPageSize}
+            onChange={(page) => setHistoryCurrentPage(page)}
+            showSizeChanger={false}
+            showQuickJumper
+            itemRender={(page, type, originalElement) => {
+              if (type === 'jump-prev' || type === 'jump-next') return '...';
+              return originalElement;
+            }}
+            data-cy="payroll-history-pagination"
+          />
+        </div>
+      </>
+    );
+  };
+
+  const { data: allowanceDatas } = useGetAllowance();
+  const { data: settlementTrackingData, isLoading: isSettlementLoading } =
+    useGetSettlementTracking({
+      employeeId: empId,
+    });
+
+  const groupedSettlements = useMemo(() => {
+    if (!settlementTrackingData || !Array.isArray(settlementTrackingData))
+      return {};
+    return settlementTrackingData.reduce((acc: any, item: any) => {
+      const id = item.compensationItemId;
+      if (!acc[id]) acc[id] = [];
+      acc[id].push(item);
+      return acc;
+    }, {});
+  }, [settlementTrackingData]);
+
+  const [selectedCompensationId, setSelectedCompensationId] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    const keys = Object.keys(groupedSettlements);
+    if (keys.length > 0 && !selectedCompensationId) {
+      setSelectedCompensationId(keys[0]);
+    }
+  }, [groupedSettlements, selectedCompensationId]);
+
+  const currentEntitlementId = useMemo(() => {
+    if (!selectedCompensationId) return null;
+    const group = groupedSettlements[selectedCompensationId];
+    return group?.[0]?.compensationItemEntitlementId || group?.[0]?.id;
+  }, [groupedSettlements, selectedCompensationId]);
+
+  const { data: entitlementDetail, isLoading: isDetailLoading } =
+    useEmployeeSettlementTracking(currentEntitlementId || '', empId);
+
+  const renderSettlement = () => {
+    if (isSettlementLoading)
+      return <Skeleton active data-cy="payroll-settlement-loading-skeleton" />;
+
+    if (!settlementTrackingData || settlementTrackingData.length === 0) {
+      return (
+        <div
+          style={{ textAlign: 'center', padding: '40px' }}
+          data-cy="payroll-settlement-empty"
+        >
+          <Text type="secondary">No settlement tracking data available.</Text>
+        </div>
+      );
+    }
+
+    const settlementTracking =
+      (entitlementDetail as any)?.settlementTracking || [];
+
+    const totalAmount = settlementTracking.reduce(
+      (acc: any, item: any) => acc + (Number(item.amount) || 0),
+      0,
+    );
+    const totalPaid = settlementTracking
+      .filter((item: any) => item.isPaid === true)
+      .reduce((acc: any, item: any) => acc + (Number(item.amount) || 0), 0);
+    const remaining = totalAmount - totalPaid;
+
+    const progressPercent =
+      totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
+
+    const payments = settlementTracking.filter(
+      (item: any) => item.isPaid === true,
+    );
+
+    return (
+      <Row gutter={[24, 24]} data-cy="payroll-settlement-view">
+        {/* Sidebar List */}
+        <Col xs={24} lg={10}>
+          <Space
+            direction="vertical"
+            style={{ width: '100%' }}
+            size={12}
+            data-cy="payroll-settlement-list"
+          >
+            {Object.entries(groupedSettlements).map(([compId, items]: any) => (
+              <Card
+                key={compId}
+                onClick={() => setSelectedCompensationId(compId)}
+                style={{
+                  borderRadius: '12px',
+                  border:
+                    selectedCompensationId === compId
+                      ? '1px solid #1E40AF'
+                      : '1px solid #e0e0e0',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+                bodyStyle={{ padding: '16px' }}
+                data-cy="payroll-settlement-item-card"
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                  data-cy="payroll-settlement-item-header"
+                >
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      color: 'rgba(0, 0, 0, 0.65)',
+                      fontWeight: 500,
+                    }}
+                    data-cy="payroll-settlement-item-title"
+                  >
+                    {allowanceDatas?.find((a: any) => a.id === compId)?.name ||
+                      'Settlement Item'}
+                  </Text>
+                  <Tag
+                    color={
+                      items.every((item: any) => item.isPaid === true)
+                        ? 'success'
+                        : undefined
+                    }
+                    style={{
+                      borderRadius: '4px',
+                      margin: 0,
+                      backgroundColor: items.every(
+                        (item: any) => item.isPaid === true,
+                      )
+                        ? undefined
+                        : '#fffbe6',
+                      border: items.every((item: any) => item.isPaid === true)
+                        ? undefined
+                        : '1px solid #FFE58F',
+                      color: items.every((item: any) => item.isPaid === true)
+                        ? undefined
+                        : '#FAAD14',
+                    }}
+                    data-cy="payroll-settlement-item-status-tag"
+                  >
+                    {items.every((item: any) => item.isPaid === true)
+                      ? 'Paid'
+                      : 'Pending'}
+                  </Tag>
+                </div>
+              </Card>
+            ))}
+          </Space>
+        </Col>
+
+        {/* Main Details View */}
+        <Col xs={24} lg={14}>
+          <div
+            style={{
+              border: '1px solid #1E40AF',
+              borderRadius: '12px',
+              padding: '24px',
+              backgroundColor: '#fff',
+            }}
+            data-cy="payroll-settlement-details"
+          >
+            {isDetailLoading ? (
+              <Skeleton active paragraph={{ rows: 6 }} />
+            ) : (
+              <>
+                <Row gutter={[16, 16]} data-cy="payroll-settlement-summary-row">
+                  {[
+                    { label: 'Total Amount', value: totalAmount },
+                    { label: 'Total Paid', value: totalPaid },
+                    { label: 'Remaining', value: remaining },
+                  ].map((card, i) => (
+                    <Col xs={24} sm={8} key={i}>
+                      <div
+                        style={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          padding: '16px',
+                        }}
+                        data-cy="payroll-settlement-summary-card"
+                      >
+                        <Text
+                          style={{
+                            fontSize: '14px',
+                            color: 'rgba(0, 0, 0, 0.65)',
+                            display: 'block',
+                            marginBottom: '4px',
+                          }}
+                          data-cy="payroll-settlement-summary-label"
+                        >
+                          {card.label}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: '30px',
+                            color: 'rgba(0, 0, 0, 0.65)',
+                            fontWeight: 600,
+                          }}
+                          data-cy="payroll-settlement-summary-value"
+                        >
+                          {card.value.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </Text>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+
+                <div
+                  style={{
+                    marginTop: '16px',
+                    padding: '16px',
+                    backgroundColor: '#fff',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                  }}
+                  data-cy="payroll-settlement-progress-wrapper"
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '8px',
+                    }}
+                    data-cy="payroll-settlement-progress-header"
+                  >
+                    <Text
+                      style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.65)' }}
+                      data-cy="payroll-settlement-progress-label"
+                    >
+                      Repayment Progress
+                    </Text>
+                    <Text
+                      style={{
+                        color: '#4db818',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                      }}
+                      data-cy="payroll-settlement-progress-percent"
+                    >
+                      {progressPercent}%
+                    </Text>
+                  </div>
+                  <Progress
+                    percent={progressPercent}
+                    strokeColor="#4db818"
+                    showInfo={false}
+                    strokeWidth={8}
+                    trailColor="#f0f0f0"
+                    data-cy="payroll-settlement-progress-bar"
+                  />
+                </div>
+
+                <div
+                  className="settlement-scroll-hidden"
+                  style={{
+                    marginTop: '24px',
+                    overflowX: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                  data-cy="payroll-settlement-payments-container"
+                >
+                  <div
+                    style={{
+                      padding: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      backgroundColor: '#fafafa',
+                      borderRadius: '4px',
+                      marginBottom: '8px',
+                      minWidth: '720px',
+                    }}
+                    data-cy="payroll-settlement-payments-header"
+                  >
+                    <div
+                      style={{
+                        flex: 1,
+                        borderRight: '1px solid #e0e0e0',
+                        paddingRight: '16px',
+                      }}
+                      data-cy="payroll-settlement-header-date-cell"
+                    >
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Date
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        flex: 1,
+                        borderRight: '1px solid #e0e0e0',
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
+                      }}
+                      data-cy="payroll-settlement-header-amount-cell"
+                    >
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Pay Amount
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        flex: 2,
+                        borderRight: '1px solid #e0e0e0',
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
+                      }}
+                      data-cy="payroll-settlement-header-period-cell"
+                    >
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Pay Period
+                      </Text>
+                    </div>
+                    <div
+                      style={{ flex: 1, paddingLeft: '16px' }}
+                      data-cy="payroll-settlement-header-reason-cell"
+                    >
+                      <Text
+                        strong
+                        style={{ fontSize: '14px', color: '#434343' }}
+                      >
+                        Reason
+                      </Text>
+                    </div>
+                  </div>
+
+                  <div
+                    style={{ padding: '0 8px' }}
+                    data-cy="payroll-settlement-payments-list"
+                  >
+                    {payments.length > 0 ? (
+                      payments.map((payment: any, idx: number) => (
+                        <div
+                          key={idx}
+                          style={{
+                            padding: '16px 8px',
+                            backgroundColor: idx % 2 === 1 ? '#fafafa' : '#fff',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            marginBottom: '4px',
+                            minWidth: '720px',
+                          }}
+                          data-cy="payroll-settlement-payment-row"
+                        >
+                          <div
+                            style={{ flex: 1, paddingRight: '16px' }}
+                            data-cy="payroll-settlement-payment-date-cell"
+                          >
+                            <Text
+                              style={{ fontSize: '14px', color: '#595959' }}
+                            >
+                              {payment.date ||
+                                dayjs(payment.createdAt).format('MMM DD, YYYY')}
+                            </Text>
+                          </div>
+                          <div
+                            style={{
+                              flex: 1,
+                              paddingLeft: '16px',
+                              paddingRight: '16px',
+                            }}
+                            data-cy="payroll-settlement-payment-amount-cell"
+                          >
+                            <Text
+                              style={{ fontSize: '14px', color: '#595959' }}
+                            >
+                              {parseFloat(payment.amount || '0').toLocaleString(
+                                undefined,
+                                { minimumFractionDigits: 2 },
+                              )}
+                            </Text>
+                          </div>
+                          <div
+                            style={{
+                              flex: 2,
+                              paddingLeft: '16px',
+                              paddingRight: '16px',
+                            }}
+                            data-cy="payroll-settlement-payment-period-cell"
+                          >
+                            <Tag
+                              style={{
+                                backgroundColor: '#fff',
+                                border: '1px solid #d9d9d9',
+                                borderRadius: '4px',
+                                padding: '2px 8px',
+                                fontSize: '13px',
+                                color: '#595959',
+                              }}
+                              data-cy="payroll-settlement-payment-period-tag"
+                            >
+                              {(() => {
+                                const p = payment.period || payment.payPeriod;
+                                if (!p) return '--';
+                                if (typeof p === 'string') return p;
+                                if (typeof p === 'object' && p.startDate) {
+                                  return `${dayjs(p.startDate).format('MMM DD, YYYY')} - ${dayjs(p.endDate).format('MMM DD, YYYY')}`;
+                                }
+                                return '--';
+                              })()}
+                            </Tag>
+                          </div>
+                          <div
+                            style={{ flex: 1, paddingLeft: '16px' }}
+                            data-cy="payroll-settlement-payment-reason-cell"
+                          >
+                            <Text
+                              style={{ fontSize: '14px', color: '#595959' }}
+                            >
+                              {payment.reason || '--'}
+                            </Text>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div
+                        style={{ textAlign: 'center', padding: '20px' }}
+                        data-cy="payroll-settlement-payments-empty"
+                      >
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                          No payment history recorded.
+                        </Text>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </Col>
+      </Row>
+    );
+  };
+
   return (
     <div
-      style={{ padding: isMobile ? '2px' : '24px' }}
+      style={{
+        padding: isMobile ? '16px 0' : '24px 0',
+        overflowX: 'hidden',
+        width: '100%',
+      }}
       id="payroll-employee-profile-view-container"
       data-cy="payroll-employee-profile-view-container"
     >
-      <Card
-        id="payroll-employee-profile-view-card"
-        data-cy="payroll-employee-profile-view-card"
-        title={
-          isMobile && (
-            <span
-              id="payroll-employee-profile-mobile-header-view-text"
-              data-cy="payroll-employee-profile-mobile-header-view-text"
-              onClick={() => router.back()}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <IoChevronBackSharp
-                id="payroll-employee-profile-back-click-icon"
-                data-cy="payroll-employee-profile-back-click-icon"
-              />
-              <span
-                className="text-lg font-bold"
-                id="payroll-employee-profile-title-view-text"
-                data-cy="payroll-employee-profile-title-view-text"
-              >
-                Detail Employee
-              </span>
-            </span>
-          )
-        }
-        className={isMobile ? 'p-0' : 'p-4'}
-        bordered={false}
+      {/* Header & Breadcrumbs */}
+      <div
+        className="mb-4"
+        data-cy="payroll-employee-detail-header"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '16px',
+        }}
       >
-        <Row
-          id="payroll-employee-profile-layout-view-row"
-          data-cy="payroll-employee-profile-layout-view-row"
-          gutter={[32, 32]}
+        <Button
+          icon={<ArrowLeftOutlined style={{ fontSize: '14px' }} />}
+          onClick={() => router.back()}
+          style={{
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '6px',
+            border: '1px solid #d9d9d9',
+            padding: 0,
+            color: '#595959',
+            backgroundColor: '#fff',
+            boxShadow: 'none',
+            flexShrink: 0,
+          }}
+        />
+        <div
+          style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+          data-cy="payroll-employee-detail-title-group"
         >
-          <Col
-            id="payroll-employee-profile-summary-view-column"
-            data-cy="payroll-employee-profile-summary-view-column"
-            sm={24}
-            md={24}
-            xs={24}
-            lg={10}
-            xl={10}
+          <Title
+            level={4}
+            style={{
+              margin: 0,
+              fontWeight: 600,
+              fontSize: '24px',
+              lineHeight: '1.2',
+            }}
           >
-            <Card
-              id="payroll-employee-profile-summary-view-card"
-              data-cy="payroll-employee-profile-summary-view-card"
-              loading={isLoading}
-              className={`mb-3 ${isMobile ? 'w-full m-0' : ''}`}
-              style={isMobile ? { width: '100%' } : {}}
-              bordered={!isMobile}
-            >
-              <div
-                className="flex flex-col gap-3 items-center"
-                id="payroll-employee-profile-info-view-container"
-                data-cy="payroll-employee-profile-info-view-container"
-              >
-                <div
-                  className="relative group"
-                  id="payroll-employee-profile-avatar-view-wrapper"
-                  data-cy="payroll-employee-profile-avatar-view-wrapper"
-                >
-                  <Avatar
-                    data-cy="payroll-employee-profile-avatar-view-component"
-                    size={144}
-                    src={
-                      profileFileList.length > 0
-                        ? getImageUrl(profileFileList)
-                        : employee?.profileImage
-                    }
-                    className="relative z-0"
-                  />
-                </div>
-                <h5
-                  id="payroll-employee-profile-name-view-heading"
-                  data-cy="payroll-employee-profile-name-view-heading"
-                >
-                  {employee?.firstName} {employee?.middleName}{' '}
-                  {employee?.lastName}
-                </h5>
-                <p
-                  id="payroll-employee-profile-position-view-text"
-                  data-cy="payroll-employee-profile-position-view-text"
-                >
-                  {employee?.employeeJobInformation?.find(
-                    (e: any) => e.isPositionActive === true,
-                  )?.position?.name || '-'}
-                </p>
-                <Tag
-                  id="payroll-employee-profile-employmenttype-view-tag"
-                  data-cy="payroll-employee-profile-employmenttype-view-tag"
-                  color="purple-inverse"
-                >
-                  {employee?.employeeJobInformation?.find(
-                    (e: any) => e.isPositionActive === true,
-                  )?.employementType?.name || '-'}
-                </Tag>
-                <Divider
-                  data-cy="payroll-employee-profile-info-divider-view-divider"
-                  className="my-2"
-                />
-              </div>
+            Employee Payroll Detail
+          </Title>
+          <Text type="secondary" style={{ fontSize: '14px', color: '#8c8c8c' }}>
+            Payroll /{' '}
+            <Text style={{ fontSize: '14px', color: '#595959' }}>
+              Employee Payroll Information
+            </Text>
+          </Text>
+        </div>
+      </div>
 
+      <Divider style={{ margin: '12px 0', borderColor: '#f0f0f0' }} />
+
+      {/* Profile Summary Card */}
+      <Card
+        bordered
+        style={{
+          borderRadius: '12px',
+          border: '1px solid #e0e0e0',
+          marginTop: '24px',
+          marginBottom: '16px',
+          boxShadow: 'none',
+        }}
+        bodyStyle={{ padding: '20px' }}
+      >
+        {isLoading ? (
+          <Skeleton avatar active paragraph={{ rows: 2 }} />
+        ) : (
+          <>
+            <Space
+              size={14}
+              style={{ marginBottom: '28px', display: 'flex' }}
+              align="center"
+            >
+              <Avatar
+                size={56}
+                src={
+                  profileFileList.length > 0
+                    ? getImageUrl(profileFileList)
+                    : employee?.profileImage
+                }
+                icon={<UserOutlined />}
+                style={{ border: '1px solid #f0f0f0' }}
+              />
               <div
-                className="flex gap-5 my-2 items-center"
-                id="payroll-employee-profile-email-view-container"
-                data-cy="payroll-employee-profile-email-view-container"
+                style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}
+                data-cy="payroll-employee-detail-name-email-wrapper"
               >
-                <HiOutlineMail
-                  id="payroll-employee-profile-email-view-icon"
-                  data-cy="payroll-employee-profile-email-view-icon"
-                  color="#BFBFBF"
-                />
-                <p
-                  className="font-semibold break-all"
-                  id="payroll-employee-profile-email-view-text"
-                  data-cy="payroll-employee-profile-email-view-text"
+                <Text
+                  style={{
+                    fontSize: '14px',
+                    color: 'rgba(0, 0, 0, 0.70)',
+                    fontWeight: 600,
+                    lineHeight: '1.2',
+                  }}
+                >
+                  {[
+                    employee?.firstName,
+                    employee?.middleName,
+                    employee?.lastName,
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                </Text>
+                <Text
+                  style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.45)' }}
                 >
                   {employee?.email}
-                </p>
+                </Text>
+              </div>
+            </Space>
+
+            <Row gutter={[0, 16]} style={{ paddingLeft: '16px' }}>
+              <Col xs={12} sm={6}>
+                <div
+                  data-cy="payroll-employee-detail-joined-date-wrapper"
+                  style={{ paddingRight: '8px' }}
+                >
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      color: 'rgba(0, 0, 0, 0.40)',
+                      display: 'block',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Joined at
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: '16px',
+                      color: 'rgba(0, 0, 0, 0.70)',
+                      display: 'block',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {employee?.employeeInformation?.joinedDate
+                      ? dayjs(employee.employeeInformation.joinedDate).format(
+                          'DD MMMM, YYYY',
+                        )
+                      : '--'}
+                  </Text>
+                </div>
+              </Col>
+
+              <Col
+                xs={12}
+                sm={6}
+                style={{
+                  borderLeft: '1px solid #f0f0f0',
+                  paddingLeft: '8px',
+                  paddingRight: '8px',
+                }}
+              >
+                <div data-cy="payroll-employee-detail-address-wrapper">
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      color: 'rgba(0, 0, 0, 0.40)',
+                      display: 'block',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Address
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: '16px',
+                      color: 'rgba(0, 0, 0, 0.70)',
+                      display: 'block',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {formattedAddress}
+                  </Text>
+                </div>
+              </Col>
+
+              <Col
+                xs={12}
+                sm={6}
+                style={{
+                  borderLeft: '1px solid #f0f0f0',
+                  paddingLeft: '8px',
+                  paddingRight: '8px',
+                }}
+              >
+                <div data-cy="payroll-employee-detail-service-year-wrapper">
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      color: 'rgba(0, 0, 0, 0.40)',
+                      display: 'block',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Service Year
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: '16px',
+                      color: 'rgba(0, 0, 0, 0.70)',
+                      display: 'block',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {serviceYear}
+                  </Text>
+                </div>
+              </Col>
+
+              <Col
+                xs={12}
+                sm={6}
+                style={{
+                  borderLeft: '1px solid #f0f0f0',
+                  paddingLeft: '8px',
+                }}
+              >
+                <div data-cy="payroll-employee-detail-office-wrapper">
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      color: 'rgba(0, 0, 0, 0.40)',
+                      display: 'block',
+                      marginBottom: '4px',
+                    }}
+                  >
+                    Office
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: '16px',
+                      color: 'rgba(0, 0, 0, 0.70)',
+                      display: 'block',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {employee?.employeeJobInformation?.find(
+                      (e: any) => e.isPositionActive,
+                    )?.branch?.name || '--'}
+                  </Text>
+                </div>
+              </Col>
+            </Row>
+          </>
+        )}
+      </Card>
+
+      {/* Tabs Section */}
+      <Tabs defaultActiveKey="1" className="custom-tabs">
+        <TabPane tab="Information" key="1">
+          <div
+            style={{ paddingTop: '8px' }}
+            data-cy="payroll-employee-detail-info-tab-content"
+          >
+            {renderInformation()}
+          </div>
+        </TabPane>
+        <TabPane tab="Payroll History" key="2">
+          <div
+            style={{ paddingTop: '8px' }}
+            data-cy="payroll-employee-detail-history-tab-content"
+          >
+            {renderHistory()}
+          </div>
+        </TabPane>
+        <TabPane tab="Settlement Tracking" key="3">
+          <div
+            style={{ paddingTop: '8px' }}
+            data-cy="payroll-employee-detail-settlement-tab-content"
+          >
+            {renderSettlement()}
+          </div>
+        </TabPane>
+      </Tabs>
+
+      {/* Hidden Payslip for PDF generation */}
+      <div
+        className="h-0 overflow-hidden"
+        data-cy="payroll-employee-detail-hidden-payslip-wrapper"
+      >
+        <div
+          ref={payslipRef}
+          className="p-4"
+          style={{
+            width: '210mm',
+            minWidth: '210mm',
+            maxWidth: '210mm',
+            backgroundColor: '#ffffff',
+          }}
+          data-cy="payroll-employee-detail-payslip-content"
+        >
+          <header
+            className="text-center border-b pb-4 mb-4"
+            data-cy="payroll-employee-detail-payslip-header"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="payroll-employee-detail-payslip-title"
+            >
+              Payslip for the month of{' '}
+              <span
+                className="text-violet-500"
+                data-cy="payroll-employee-detail-payslip-period"
+              >
+                {dayjs(activePayPeriod?.startDate).format('MMMM-YYYY')}
+              </span>
+            </h2>
+          </header>
+          <div
+            className="flex justify-between"
+            data-cy="payroll-employee-detail-payslip-summary"
+          >
+            <div
+              className="mx-2 flex flex-col gap-2"
+              data-cy="payroll-employee-detail-payslip-info"
+            >
+              <div
+                className="font-bold text-xl"
+                data-cy="payroll-employee-detail-payslip-summary-title"
+              >
+                Employee Pay Summary
               </div>
               <div
-                className="flex gap-5 my-2 items-center"
-                id="payroll-employee-profile-phone-view-container"
-                data-cy="payroll-employee-profile-phone-view-container"
-              >
-                <PhoneOutlined
-                  id="payroll-employee-profile-phone-view-icon"
-                  data-cy="payroll-employee-profile-phone-view-icon"
-                  className="text-[#BFBFBF]"
-                />
-                <p
-                  className="font-semibold"
-                  id="payroll-employee-profile-phone-view-text"
-                  data-cy="payroll-employee-profile-phone-view-text"
-                >
-                  {employee?.employeeInformation?.addresses?.phoneNumber ||
-                    '--'}
-                </p>
-              </div>
-
-              <Divider
-                className="my-2"
-                key="arrows"
-                data-cy="payroll-employee-profile-contact-divider-view-divider"
-              />
-              <List
-                split={false}
-                size="small"
-                id="payroll-employee-profile-details-view-list"
-                data-cy="payroll-employee-profile-details-view-list"
-              >
-                <List.Item
-                  key={'department'}
-                  id="payroll-employee-profile-department-view-listitem"
-                  data-cy="payroll-employee-profile-department-view-listitem"
-                  actions={[
-                    <MdKeyboardArrowRight
-                      id="payroll-employee-profile-department-view-icon"
-                      data-cy="payroll-employee-profile-department-view-icon"
-                      key="arrow"
-                    />,
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={
-                      <p
-                        className="text-xs font-light"
-                        id="payroll-employee-profile-department-label-view-text"
-                        data-cy="payroll-employee-profile-department-label-view-text"
-                      >
-                        Department
-                      </p>
-                    }
-                    description={
-                      <p
-                        className="font-bold text-black text-sm"
-                        id="payroll-employee-profile-department-value-view-text"
-                        data-cy="payroll-employee-profile-department-value-view-text"
-                      >
-                        {employee?.employeeJobInformation?.find(
-                          (e: any) => e.isPositionActive === true,
-                        )?.department?.name || '-'}
-                      </p>
-                    }
-                  />
-                </List.Item>
-                <List.Item
-                  key={'office'}
-                  id="payroll-employee-profile-office-view-listitem"
-                  data-cy="payroll-employee-profile-office-view-listitem"
-                  actions={[
-                    <MdKeyboardArrowRight
-                      id="payroll-employee-profile-office-view-icon"
-                      data-cy="payroll-employee-profile-office-view-icon"
-                      key="arrow"
-                    />,
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={
-                      <p
-                        className="text-xs font-light"
-                        id="payroll-employee-profile-office-label-view-text"
-                        data-cy="payroll-employee-profile-office-label-view-text"
-                      >
-                        Office
-                      </p>
-                    }
-                    description={
-                      <p
-                        className="font-bold text-black text-sm"
-                        id="payroll-employee-profile-office-value-view-text"
-                        data-cy="payroll-employee-profile-office-value-view-text"
-                      >
-                        {employee?.employeeJobInformation?.find(
-                          (e: any) => e.isPositionActive === true,
-                        )?.branch?.name || '-'}
-                      </p>
-                    }
-                  />
-                </List.Item>
-              </List>
-            </Card>
-          </Col>
-
-          <Col
-            id="payroll-employee-profile-details-view-column"
-            data-cy="payroll-employee-profile-details-view-column"
-            xs={24}
-            sm={24}
-            md={24}
-            lg={14}
-            xl={14}
-          >
-            <Tabs
-              id="payroll-employee-profile-tabs-view-tabs"
-              data-cy="payroll-employee-profile-tabs-view-tabs"
-              defaultActiveKey="1"
-            >
-              <TabPane
-                id="payroll-employee-profile-information-tab-view-tabpane"
-                data-cy="payroll-employee-profile-information-tab-view-tabpane"
-                tab="Information"
-                key="1"
-                className={isMobile ? 'border border-solid rounded-xl p-4' : ''}
-              >
-                {!openPayPeriods || openPayPeriods.length === 0 ? (
-                  <div
-                    className="text-center py-8"
-                    id="payroll-employee-profile-no-payperiod-view-container"
-                    data-cy="payroll-employee-profile-no-payperiod-view-container"
-                  >
-                    <Title
-                      level={4}
-                      className="text-gray-500"
-                      id="payroll-employee-profile-no-payperiod-view-title"
-                      data-cy="payroll-employee-profile-no-payperiod-view-title"
-                    >
-                      No Active Pay Period
-                    </Title>
-                    <Text
-                      className="text-gray-400"
-                      id="payroll-employee-profile-no-payperiod-view-text"
-                      data-cy="payroll-employee-profile-no-payperiod-view-text"
-                    >
-                      There is currently no active pay period available.
-                    </Text>
-                  </div>
-                ) : !payroll?.items || payroll.items.length === 0 ? (
-                  <div
-                    className="text-center py-8"
-                    id="payroll-employee-profile-no-payroll-view-container"
-                    data-cy="payroll-employee-profile-no-payroll-view-container"
-                  >
-                    <Title
-                      level={4}
-                      className="text-gray-500"
-                      id="payroll-employee-profile-no-payroll-view-title"
-                      data-cy="payroll-employee-profile-no-payroll-view-title"
-                    >
-                      No Payroll Data
-                    </Title>
-                    <Text
-                      className="text-gray-400"
-                      id="payroll-employee-profile-no-payroll-view-text"
-                      data-cy="payroll-employee-profile-no-payroll-view-text"
-                    >
-                      There is no payroll data available for this pay period.
-                    </Text>
-                  </div>
-                ) : !activeMergedPayroll ? (
-                  <div
-                    className="text-center py-8"
-                    id="payroll-employee-profile-no-employee-payroll-view-container"
-                    data-cy="payroll-employee-profile-no-employee-payroll-view-container"
-                  >
-                    <Title
-                      level={4}
-                      className="text-gray-500"
-                      id="payroll-employee-profile-no-employee-payroll-view-title"
-                      data-cy="payroll-employee-profile-no-employee-payroll-view-title"
-                    >
-                      No Employee Payroll Data
-                    </Title>
-                    <Text
-                      className="text-gray-400"
-                      id="payroll-employee-profile-no-employee-payroll-view-text"
-                      data-cy="payroll-employee-profile-no-employee-payroll-view-text"
-                    >
-                      No payroll data found for this employee in the current pay
-                      period.
-                    </Text>
-                  </div>
-                ) : (
-                  <>
-                    <div
-                      id="payroll-employee-profile-information-section-view-container"
-                      data-cy="payroll-employee-profile-information-section-view-container"
-                    >
-                      <Title
-                        level={4}
-                        id="payroll-employee-profile-information-section-view-title"
-                        data-cy="payroll-employee-profile-information-section-view-title"
-                      >
-                        Payroll Information
-                      </Title>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 16,
-                        }}
-                        id="payroll-employee-profile-information-section-grid"
-                        data-cy="payroll-employee-profile-information-section-grid"
-                      >
-                        {/* Base Salary Row */}
-                        <div
-                          className="flex flex-col md:flex-row gap-2"
-                          id="payroll-employee-profile-base-salary-view-row"
-                          data-cy="payroll-employee-profile-base-salary-view-row"
-                        >
-                          <Text
-                            className="min-w-[120px]"
-                            id="payroll-employee-profile-base-salary-label-view-text"
-                            data-cy="payroll-employee-profile-base-salary-label-view-text"
-                          >
-                            Base Salary:
-                          </Text>
-                          <Text
-                            strong
-                            id="payroll-employee-profile-base-salary-value-view-text"
-                            data-cy="payroll-employee-profile-base-salary-value-view-text"
-                          >
-                            {activeMergedPayroll?.employeeInfo?.basicSalaries[0]
-                              ?.basicSalary || '--'}
-                          </Text>
-                        </div>
-                        {/* Bank Information Row */}
-                        <div
-                          className="flex flex-col md:flex-row gap-2"
-                          id="payroll-employee-profile-bank-info-view-row"
-                          data-cy="payroll-employee-profile-bank-info-view-row"
-                        >
-                          <Text
-                            className="min-w-[120px]"
-                            id="payroll-employee-profile-bank-info-label-view-text"
-                            data-cy="payroll-employee-profile-bank-info-label-view-text"
-                          >
-                            Bank Information:
-                          </Text>
-                          <Text
-                            strong
-                            id="payroll-employee-profile-bank-info-value-view-text"
-                            data-cy="payroll-employee-profile-bank-info-value-view-text"
-                          >
-                            {activeMergedPayroll?.employeeInfo
-                              ?.employeeInformation?.bankInformation
-                              ?.bankName || '--'}
-                          </Text>
-                        </div>
-                        {/* Branch Row */}
-                        <div
-                          className="flex flex-col md:flex-row gap-2"
-                          id="payroll-employee-profile-branch-view-row"
-                          data-cy="payroll-employee-profile-branch-view-row"
-                        >
-                          <Text
-                            className="min-w-[120px]"
-                            id="payroll-employee-profile-branch-label-view-text"
-                            data-cy="payroll-employee-profile-branch-label-view-text"
-                          >
-                            Branch:
-                          </Text>
-                          <Text
-                            strong
-                            id="payroll-employee-profile-branch-value-view-text"
-                            data-cy="payroll-employee-profile-branch-value-view-text"
-                          >
-                            {activeMergedPayroll?.employeeInfo
-                              ?.employeeJobInformation[0]?.branch?.name || '--'}
-                          </Text>
-                        </div>
-                        {/* Account Number Row */}
-                        <div
-                          className="flex flex-col md:flex-row gap-2"
-                          id="payroll-employee-profile-account-view-row"
-                          data-cy="payroll-employee-profile-account-view-row"
-                        >
-                          <Text
-                            className="min-w-[120px]"
-                            id="payroll-employee-profile-account-label-view-text"
-                            data-cy="payroll-employee-profile-account-label-view-text"
-                          >
-                            Account Number:
-                          </Text>
-                          <Text
-                            strong
-                            id="payroll-employee-profile-account-value-view-text"
-                            data-cy="payroll-employee-profile-account-value-view-text"
-                          >
-                            {activeMergedPayroll?.employeeInfo
-                              ?.employeeInformation?.bankInformation
-                              ?.accountNumber || '--'}
-                          </Text>
-                        </div>
-                      </div>
-                    </div>
-                    <Divider data-cy="payroll-employee-profile-information-section-divider" />
-                    <div
-                      className="flex justify-between"
-                      id="payroll-employee-profile-payslip-header-view-container"
-                      data-cy="payroll-employee-profile-payslip-header-view-container"
-                    >
-                      <Title
-                        level={4}
-                        id="payroll-employee-profile-payslip-title-view-title"
-                        data-cy="payroll-employee-profile-payslip-title-view-title"
-                      >
-                        {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay
-                        Slip
-                      </Title>
-                      <Button
-                        id="payroll-employee-profile-payslip-print-click-button"
-                        data-cy="payroll-employee-profile-payslip-print-click-button"
-                        type="primary"
-                        onClick={downloadPayslip}
-                        icon={
-                          <PrinterOutlined
-                            id="payroll-employee-profile-payslip-print-click-icon"
-                            data-cy="payroll-employee-profile-payslip-print-click-icon"
-                          />
-                        }
-                        style={{ marginTop: 12, backgroundColor: '#635BFF' }}
-                      >
-                        Print
-                      </Button>
-                    </div>
-                    <Divider data-cy="payroll-employee-profile-payslip-divider" />
-                    <div
-                      className="flex gap-6 w-full m-4"
-                      id="payroll-employee-profile-paydates-view-container"
-                      data-cy="payroll-employee-profile-paydates-view-container"
-                    >
-                      <div
-                        className="flex flex-col gap-4 w-1/3"
-                        id="payroll-employee-profile-paydates-labels-view-column"
-                        data-cy="payroll-employee-profile-paydates-labels-view-column"
-                      >
-                        <Text
-                          className=" text-gray-600"
-                          id="payroll-employee-profile-salary-period-label-view-text"
-                          data-cy="payroll-employee-profile-salary-period-label-view-text"
-                        >
-                          Salary Period
-                        </Text>
-                        <Text
-                          className=" text-gray-600"
-                          id="payroll-employee-profile-pay-date-label-view-text"
-                          data-cy="payroll-employee-profile-pay-date-label-view-text"
-                        >
-                          Pay Date
-                        </Text>
-                      </div>
-                      <div
-                        className="flex flex-col gap-4 font-bold"
-                        id="payroll-employee-profile-paydates-values-view-column"
-                        data-cy="payroll-employee-profile-paydates-values-view-column"
-                      >
-                        <Text
-                          id="payroll-employee-profile-salary-period-value-view-text"
-                          data-cy="payroll-employee-profile-salary-period-value-view-text"
-                        >
-                          {dayjs(openPayPeriods?.[0]?.startDate).format(
-                            'MMM-YYYY',
-                          )}
-                        </Text>
-                        <Text
-                          id="payroll-employee-profile-pay-date-value-view-text"
-                          data-cy="payroll-employee-profile-pay-date-value-view-text"
-                        >
-                          {dayjs(openPayPeriods?.[0]?.updatedAt).format(
-                            'MMM-DD-YYYY',
-                          )}
-                        </Text>
-                      </div>
-                    </div>
-                    <PayrollDetails
-                      data-cy="payroll-employee-profile-active-details-view-component"
-                      activeMergedPayroll={activeMergedPayroll || undefined}
-                    />
-                    <div
-                      className="h-0 overflow-hidden"
-                      id="payroll-employee-profile-payslip-hidden-view-container"
-                      data-cy="payroll-employee-profile-payslip-hidden-view-container"
-                    >
-                      <div
-                        ref={payslipRef}
-                        className="p-4"
-                        style={{
-                          width: '210mm',
-                          minWidth: '210mm',
-                          maxWidth: '210mm',
-                          backgroundColor: '#ffffff',
-                        }}
-                        id="payroll-employee-profile-payslip-hidden-view-card"
-                        data-cy="payroll-employee-profile-payslip-hidden-view-card"
-                      >
-                        <Divider
-                          className="m-2"
-                          data-cy="payroll-employee-profile-payslip-hidden-divider-top"
-                        />
-                        <header
-                          className="text-center border-b pb-4 mb-4"
-                          id="payroll-employee-profile-payslip-hidden-header"
-                          data-cy="payroll-employee-profile-payslip-hidden-header"
-                        >
-                          <h2
-                            className="text-xl font-semibold text-center"
-                            id="payroll-employee-profile-payslip-hidden-title"
-                            data-cy="payroll-employee-profile-payslip-hidden-title"
-                          >
-                            Payslip for the month of{' '}
-                            <span
-                              className="text-violet-500"
-                              id="payroll-employee-profile-payslip-hidden-title-highlight"
-                              data-cy="payroll-employee-profile-payslip-hidden-title-highlight"
-                            >
-                              {dayjs(openPayPeriods?.[0]?.startDate).format(
-                                'MMMM-YYYY',
-                              )}
-                            </span>
-                          </h2>
-                        </header>
-                        <div
-                          className="flex justify-between"
-                          id="payroll-employee-profile-payslip-summary-view-container"
-                          data-cy="payroll-employee-profile-payslip-summary-view-container"
-                        >
-                          <div
-                            className="mx-2 flex flex-col gap-2"
-                            id="payroll-employee-profile-payslip-summary-left"
-                            data-cy="payroll-employee-profile-payslip-summary-left"
-                          >
-                            <div
-                              className="font-bold text-xl"
-                              id="payroll-employee-profile-payslip-summary-title"
-                              data-cy="payroll-employee-profile-payslip-summary-title"
-                            >
-                              Employee Pay Summary
-                            </div>
-                            <div
-                              className="flex gap-6 w-full"
-                              id="payroll-employee-profile-payslip-summary-grid"
-                              data-cy="payroll-employee-profile-payslip-summary-grid"
-                            >
-                              <div
-                                className="flex flex-col gap-2"
-                                id="payroll-employee-profile-payslip-summary-labels"
-                                data-cy="payroll-employee-profile-payslip-summary-labels"
-                              >
-                                <Text
-                                  id="payroll-employee-profile-summary-label-name"
-                                  data-cy="payroll-employee-profile-summary-label-name"
-                                >
-                                  Employee name:
-                                </Text>
-                                <Text
-                                  id="payroll-employee-profile-summary-label-job"
-                                  data-cy="payroll-employee-profile-summary-label-job"
-                                >
-                                  Job title:
-                                </Text>
-                                <Text
-                                  id="payroll-employee-profile-summary-label-period"
-                                  data-cy="payroll-employee-profile-summary-label-period"
-                                >
-                                  Pay period:
-                                </Text>
-                                <Text
-                                  id="payroll-employee-profile-summary-label-date"
-                                  data-cy="payroll-employee-profile-summary-label-date"
-                                >
-                                  Pay Date:
-                                </Text>
-                              </div>
-                              <div
-                                className="flex flex-col gap-2 font-bold"
-                                id="payroll-employee-profile-payslip-summary-values"
-                                data-cy="payroll-employee-profile-payslip-summary-values"
-                              >
-                                <Text
-                                  id="payroll-employee-profile-summary-value-name"
-                                  data-cy="payroll-employee-profile-summary-value-name"
-                                >
-                                  {[
-                                    activeMergedPayroll?.employeeInfo
-                                      ?.firstName,
-                                    activeMergedPayroll?.employeeInfo
-                                      ?.middleName,
-                                  ]
-                                    .filter(Boolean)
-                                    .join(' ')}
-                                </Text>
-                                <Text
-                                  id="payroll-employee-profile-summary-value-job"
-                                  data-cy="payroll-employee-profile-summary-value-job"
-                                >
-                                  {
-                                    activeMergedPayroll?.employeeInfo?.employeeJobInformation?.find(
-                                      (job: any) => job.isPositionActive,
-                                    )?.position?.name
-                                  }
-                                </Text>
-                                <Text
-                                  id="payroll-employee-profile-summary-value-period"
-                                  data-cy="payroll-employee-profile-summary-value-period"
-                                >
-                                  {' '}
-                                  {dayjs(openPayPeriods?.[0]?.startDate).format(
-                                    'MMM-YYYY',
-                                  )}
-                                </Text>
-                                <Text
-                                  id="payroll-employee-profile-summary-value-date"
-                                  data-cy="payroll-employee-profile-summary-value-date"
-                                >
-                                  {dayjs(openPayPeriods?.[0]?.updatedAt).format(
-                                    'MMM-DD-YYYY',
-                                  )}
-                                </Text>
-                              </div>
-                            </div>
-                          </div>
-                          <div
-                            id="payroll-employee-profile-payslip-summary-right"
-                            data-cy="payroll-employee-profile-payslip-summary-right"
-                          >
-                            <div
-                              className="flex flex-col justify-center items-center m-2"
-                              id="payroll-employee-profile-payslip-netpay-view-container"
-                              data-cy="payroll-employee-profile-payslip-netpay-view-container"
-                            >
-                              <span
-                                className="font-bold text-xl"
-                                id="payroll-employee-profile-payslip-netpay-label"
-                                data-cy="payroll-employee-profile-payslip-netpay-label"
-                              >
-                                Employee Net Pay
-                              </span>
-                              <span
-                                className="text-violet-500 text-4xl font-bold mb-2"
-                                id="payroll-employee-profile-payslip-netpay-value"
-                                data-cy="payroll-employee-profile-payslip-netpay-value"
-                              >
-                                {activeMergedPayroll?.netPay}
-                              </span>
-                              <span
-                                className="font-bold text-xl"
-                                id="payroll-employee-profile-payslip-basic-label"
-                                data-cy="payroll-employee-profile-payslip-basic-label"
-                              >
-                                Employee Basic Salary
-                              </span>
-                              <span
-                                className=" text-2xl font-bold"
-                                id="payroll-employee-profile-payslip-basic-value"
-                                data-cy="payroll-employee-profile-payslip-basic-value"
-                              >
-                                {
-                                  activeMergedPayroll?.employeeInfo
-                                    ?.basicSalaries[0]?.basicSalary
-                                }{' '}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <Divider
-                          className="my-2"
-                          data-cy="payroll-employee-profile-payslip-hidden-divider-mid"
-                        />
-
-                        <header
-                          className=" border-b pb-2 mb-2"
-                          id="payroll-employee-profile-earnings-header-view-header"
-                          data-cy="payroll-employee-profile-earnings-header-view-header"
-                        >
-                          <h2
-                            className="text-xl font-semibold"
-                            id="payroll-employee-profile-earnings-header-view-title"
-                            data-cy="payroll-employee-profile-earnings-header-view-title"
-                          >
-                            Employee Earnings
-                          </h2>
-                        </header>
-
-                        {/* Total Allowance */}
-                        <div
-                          id="payroll-employee-profile-allowances-section-view-container"
-                          data-cy="payroll-employee-profile-allowances-section-view-container"
-                        >
-                          <div
-                            className="flex flex-col w-full gap-4"
-                            id="payroll-employee-profile-allowances-list-view-container"
-                            data-cy="payroll-employee-profile-allowances-list-view-container"
-                          >
-                            <div
-                              className=" pl-4 flex justify-between  items-center my-2"
-                              id="payroll-employee-profile-allowances-header-view-container"
-                              data-cy="payroll-employee-profile-allowances-header-view-container"
-                            >
-                              <Text
-                                className="text-xl"
-                                id="payroll-employee-profile-allowances-header-label"
-                                data-cy="payroll-employee-profile-allowances-header-label"
-                              >
-                                Employee Allowance
-                              </Text>
-                              <Text
-                                className="text-xl pr-10"
-                                id="payroll-employee-profile-allowances-header-amount"
-                                data-cy="payroll-employee-profile-allowances-header-amount"
-                              >
-                                Amount
-                              </Text>
-                            </div>
-                            <div
-                              className="flex justify-between"
-                              id="payroll-employee-profile-allowances-values-view-row"
-                              data-cy="payroll-employee-profile-allowances-values-view-row"
-                            >
-                              <div
-                                className="flex flex-col gap-2 justify-center items-start pl-4 text-gray-600"
-                                id="payroll-employee-profile-allowances-types-view-column"
-                                data-cy="payroll-employee-profile-allowances-types-view-column"
-                              >
-                                {activeMergedPayroll?.breakdown?.allowances?.map(
-                                  (item: any, index: any) => (
-                                    <Text
-                                      className="text-gray-600"
-                                      key={`allowance-type-${index}`}
-                                      id={`payroll-employee-profile-allowance-type-view-text-${index}`}
-                                      data-cy={`payroll-employee-profile-allowance-type-view-text-${index}`}
-                                    >
-                                      {item.type}
-                                    </Text>
-                                  ),
-                                )}
-                              </div>
-
-                              <div
-                                className="flex flex-col gap-2 text-right font-bold pr-10"
-                                id="payroll-employee-profile-allowances-amounts-view-column"
-                                data-cy="payroll-employee-profile-allowances-amounts-view-column"
-                              >
-                                {activeMergedPayroll?.breakdown?.allowances?.map(
-                                  (item: any, index: any) => (
-                                    <Text
-                                      key={`allowance-amount-${index}`}
-                                      id={`payroll-employee-profile-allowance-amount-view-text-${index}`}
-                                      data-cy={`payroll-employee-profile-allowance-amount-view-text-${index}`}
-                                    >
-                                      {parseFloat(item.amount).toFixed(2)}
-                                    </Text>
-                                  ),
-                                )}
-                              </div>
-                            </div>
-
-                            <div
-                              className=" pl-4 flex justify-between  items-center my-2 pr-10"
-                              id="payroll-employee-profile-allowances-total-view-row"
-                              data-cy="payroll-employee-profile-allowances-total-view-row"
-                            >
-                              <Text
-                                className="text-purple"
-                                id="payroll-employee-profile-allowances-total-label"
-                                data-cy="payroll-employee-profile-allowances-total-label"
-                              >
-                                Entitled Allowance:
-                              </Text>
-                              <Text
-                                className="text-purple"
-                                id="payroll-employee-profile-allowances-total-value"
-                                data-cy="payroll-employee-profile-allowances-total-value"
-                              >
-                                {totalAmount(
-                                  activeMergedPayroll?.breakdown?.allowances ||
-                                    [],
-                                )}{' '}
-                              </Text>
-                            </div>
-                          </div>
-                          <Divider data-cy="payroll-employee-profile-allowances-divider" />
-
-                          <div
-                            className="flex flex-col w-full gap-4"
-                            id="payroll-employee-profile-benefits-view-container"
-                            data-cy="payroll-employee-profile-benefits-view-container"
-                          >
-                            <div
-                              className=" pl-4 flex justify-between  items-center my-2"
-                              id="payroll-employee-profile-benefits-header-view-container"
-                              data-cy="payroll-employee-profile-benefits-header-view-container"
-                            >
-                              <Text
-                                className="text-xl"
-                                id="payroll-employee-profile-benefits-header-label"
-                                data-cy="payroll-employee-profile-benefits-header-label"
-                              >
-                                Employee Benefits
-                              </Text>
-                              <Text
-                                className="text-xl pr-10"
-                                id="payroll-employee-profile-benefits-header-amount"
-                                data-cy="payroll-employee-profile-benefits-header-amount"
-                              >
-                                Amount
-                              </Text>
-                            </div>
-                            <div
-                              className="flex justify-between gap-2 w-full"
-                              id="payroll-employee-profile-benefits-values-view-row"
-                              data-cy="payroll-employee-profile-benefits-values-view-row"
-                            >
-                              <div
-                                className="flex flex-col gap-2 justify-center items-start pl-4"
-                                id="payroll-employee-profile-benefits-types-view-column"
-                                data-cy="payroll-employee-profile-benefits-types-view-column"
-                              >
-                                {activeMergedPayroll?.breakdown?.merits?.map(
-                                  (item: any, index: any) => (
-                                    <Text
-                                      className="text-gray-600"
-                                      key={`benefits-type-${index}`}
-                                      id={`payroll-employee-profile-benefit-type-view-text-${index}`}
-                                      data-cy={`payroll-employee-profile-benefit-type-view-text-${index}`}
-                                    >
-                                      {item.type}
-                                    </Text>
-                                  ),
-                                )}
-                                {activeMergedPayroll?.breakdown
-                                  ?.variablePay && (
-                                  <Text
-                                    className="text-gray-600"
-                                    id="payroll-employee-profile-variablepay-type-view-text"
-                                    data-cy="payroll-employee-profile-variablepay-type-view-text"
-                                  >
-                                    {
-                                      activeMergedPayroll?.breakdown
-                                        ?.variablePay?.type
-                                    }
-                                  </Text>
-                                )}
-                              </div>
-                              <div
-                                className="flex flex-col gap-2 text-right justify-end items-start pr-10"
-                                id="payroll-employee-profile-benefits-amounts-view-column"
-                                data-cy="payroll-employee-profile-benefits-amounts-view-column"
-                              >
-                                {activeMergedPayroll?.breakdown?.merits?.map(
-                                  (item: any, index: any) => (
-                                    <Text
-                                      className="font-bold"
-                                      key={`benefits-amount-${index}`}
-                                      id={`payroll-employee-profile-benefit-amount-view-text-${index}`}
-                                      data-cy={`payroll-employee-profile-benefit-amount-view-text-${index}`}
-                                    >
-                                      {parseFloat(item.amount).toFixed(2)}
-                                    </Text>
-                                  ),
-                                )}
-                                {activeMergedPayroll?.breakdown
-                                  ?.variablePay && (
-                                  <Text
-                                    className="font-bold"
-                                    id="payroll-employee-profile-variablepay-amount-view-text"
-                                    data-cy="payroll-employee-profile-variablepay-amount-view-text"
-                                  >
-                                    {parseFloat(
-                                      activeMergedPayroll?.breakdown
-                                        ?.variablePay?.amount,
-                                    ).toFixed(2)}{' '}
-                                  </Text>
-                                )}
-                              </div>
-                            </div>
-
-                            <div
-                              className=" pl-4 flex justify-between  items-center my-2"
-                              id="payroll-employee-profile-benefits-total-view-row"
-                              data-cy="payroll-employee-profile-benefits-total-view-row"
-                            >
-                              <Text
-                                className="text-purple "
-                                id="payroll-employee-profile-benefits-total-label"
-                                data-cy="payroll-employee-profile-benefits-total-label"
-                              >
-                                Entitled Benefit:
-                              </Text>
-                              <Text
-                                className="text-purple pr-10"
-                                id="payroll-employee-profile-benefits-total-value"
-                                data-cy="payroll-employee-profile-benefits-total-value"
-                              >
-                                {totalAmount([
-                                  ...(activeMergedPayroll?.breakdown?.merits ||
-                                    []),
-                                  ...(activeMergedPayroll?.breakdown
-                                    ?.variablePay
-                                    ? [
-                                        {
-                                          amount:
-                                            activeMergedPayroll?.breakdown
-                                              ?.variablePay.amount,
-                                        },
-                                      ]
-                                    : []),
-                                ])}{' '}
-                              </Text>
-                            </div>
-                          </div>
-                        </div>
-                        <Divider className="my-2" />
-
-                        <header
-                          className=" border-b pb-2 mb-2"
-                          data-cy="employee-information-deductions-header"
-                        >
-                          <h2
-                            className="text-xl font-semibold"
-                            data-cy="employee-information-deductions-heading"
-                          >
-                            Employee Deductions
-                          </h2>
-                        </header>
-
-                        {/* Total Deduction */}
-                        <div
-                          className="flex flex-col"
-                          id="payroll-employee-profile-deductions-section-view-container"
-                          data-cy="payroll-employee-profile-deductions-section-view-container"
-                        >
-                          <div
-                            className=" p-4 flex justify-between  items-center my-2"
-                            id="payroll-employee-profile-deductions-header-view-container"
-                            data-cy="payroll-employee-profile-deductions-header-view-container"
-                          >
-                            <Text
-                              className="text-xl"
-                              id="payroll-employee-profile-deductions-header-label"
-                              data-cy="payroll-employee-profile-deductions-header-label"
-                            >
-                              Employee Deductions
-                            </Text>
-                            <Text
-                              className="text-xl pr-10"
-                              id="payroll-employee-profile-deductions-header-amount"
-                              data-cy="payroll-employee-profile-deductions-header-amount"
-                            >
-                              Amount
-                            </Text>
-                          </div>
-
-                          <div
-                            className="flex justify-between gap-2 w-full"
-                            id="payroll-employee-profile-deductions-values-view-row"
-                            data-cy="payroll-employee-profile-deductions-values-view-row"
-                          >
-                            <div
-                              className="flex flex-col gap-2 justify-center items-start pl-4"
-                              id="payroll-employee-profile-deductions-types-view-column"
-                              data-cy="payroll-employee-profile-deductions-types-view-column"
-                            >
-                              {activeMergedPayroll?.breakdown?.pension?.map(
-                                (item: any, index: any) => (
-                                  <Text
-                                    className="text-gray-600"
-                                    key={`pension-type-${index}`}
-                                    id={`payroll-employee-profile-pension-type-view-text-${index}`}
-                                    data-cy={`payroll-employee-profile-pension-type-view-text-${index}`}
-                                  >
-                                    {item.type}
-                                  </Text>
-                                ),
-                              )}
-                              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
-                                (item: any, index: any) => (
-                                  <Text
-                                    className="text-gray-600"
-                                    key={`deduction-type-${index}`}
-                                    id={`payroll-employee-profile-deduction-type-view-text-${index}`}
-                                    data-cy={`payroll-employee-profile-deduction-type-view-text-${index}`}
-                                  >
-                                    {item.type}
-                                  </Text>
-                                ),
-                              )}
-                            </div>
-                            <div
-                              className="flex flex-col gap-2 text-right justify-end items-start pr-10"
-                              id="payroll-employee-profile-deductions-amounts-view-column"
-                              data-cy="payroll-employee-profile-deductions-amounts-view-column"
-                            >
-                              {activeMergedPayroll?.breakdown?.pension?.map(
-                                (item: any, index: any) => (
-                                  <Text
-                                    className="font-bold"
-                                    key={`pension-amount-${index}`}
-                                    id={`payroll-employee-profile-pension-amount-view-text-${index}`}
-                                    data-cy={`payroll-employee-profile-pension-amount-view-text-${index}`}
-                                  >
-                                    {parseFloat(item.amount).toFixed(2)}
-                                  </Text>
-                                ),
-                              )}
-                              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
-                                (item: any, index: any) => (
-                                  <Text
-                                    className="font-bold"
-                                    key={`deduction-amount-${index}`}
-                                    id={`payroll-employee-profile-deduction-amount-view-text-${index}`}
-                                    data-cy={`payroll-employee-profile-deduction-amount-view-text-${index}`}
-                                  >
-                                    {parseFloat(item.amount).toFixed(2)}
-                                  </Text>
-                                ),
-                              )}
-                            </div>
-                          </div>
-                          <div
-                            className="pl-4 my-6 flex justify-between "
-                            id="payroll-employee-profile-deductions-total-view-row"
-                            data-cy="payroll-employee-profile-deductions-total-view-row"
-                          >
-                            <Text
-                              className="text-purple"
-                              id="payroll-employee-profile-deductions-total-label"
-                              data-cy="payroll-employee-profile-deductions-total-label"
-                            >
-                              {' '}
-                              Total Deduction
-                            </Text>
-                            <Text
-                              className="text-purple pr-10"
-                              id="payroll-employee-profile-deductions-total-value"
-                              data-cy="payroll-employee-profile-deductions-total-value"
-                            >
-                              {totalAmount([
-                                ...(activeMergedPayroll?.breakdown?.pension ||
-                                  []),
-                                ...(activeMergedPayroll?.breakdown
-                                  ?.totalDeductionWithPension || []),
-                              ])}{' '}
-                            </Text>
-                          </div>
-                        </div>
-
-                        <Divider
-                          className="my-2"
-                          data-cy="payroll-employee-profile-bank-info-divider"
-                        />
-                        <header
-                          className=" border-b pb-2 mb-2"
-                          id="payroll-employee-profile-bank-info-header"
-                          data-cy="payroll-employee-profile-bank-info-header"
-                        >
-                          <h2
-                            className="text-xl font-semibold"
-                            id="payroll-employee-profile-bank-info-title"
-                            data-cy="payroll-employee-profile-bank-info-title"
-                          >
-                            Employee Bank Information
-                          </h2>
-                        </header>
-                        <div
-                          id="payroll-employee-profile-bank-info-section-view-container"
-                          data-cy="payroll-employee-profile-bank-info-section-view-container"
-                        >
-                          <div
-                            className=" p-4 flex justify-between  items-center my-2"
-                            id="payroll-employee-profile-bank-info-header-row"
-                            data-cy="payroll-employee-profile-bank-info-header-row"
-                          >
-                            <Text
-                              className="text-xl"
-                              id="payroll-employee-profile-bank-detail-label"
-                              data-cy="payroll-employee-profile-bank-detail-label"
-                            >
-                              Employee Bank Details
-                            </Text>
-                            <Text
-                              className="text-xl pr-10"
-                              id="payroll-employee-profile-bank-detail-amount-label"
-                              data-cy="payroll-employee-profile-bank-detail-amount-label"
-                            >
-                              Details
-                            </Text>
-                          </div>
-                          <div
-                            className="flex justify-between  w-full"
-                            id="payroll-employee-profile-bank-info-values-row"
-                            data-cy="payroll-employee-profile-bank-info-values-row"
-                          >
-                            <div
-                              className="flex flex-col gap-2 pl-4"
-                              id="payroll-employee-profile-bank-info-labels-column"
-                              data-cy="payroll-employee-profile-bank-info-labels-column"
-                            >
-                              <Text
-                                id="payroll-employee-profile-bank-name-label"
-                                data-cy="payroll-employee-profile-bank-name-label"
-                              >
-                                Bank Information:
-                              </Text>
-                              <Text
-                                id="payroll-employee-profile-bank-account-label"
-                                data-cy="payroll-employee-profile-bank-account-label"
-                              >
-                                Account Number:
-                              </Text>
-                            </div>
-                            <div
-                              className="flex flex-col gap-3 font-bold"
-                              id="payroll-employee-profile-bank-info-values-column"
-                              data-cy="payroll-employee-profile-bank-info-values-column"
-                            >
-                              <Text
-                                id="payroll-employee-profile-bank-name-value"
-                                data-cy="payroll-employee-profile-bank-name-value"
-                              >
-                                {
-                                  activeMergedPayroll?.employeeInfo
-                                    ?.employeeInformation?.bankInformation
-                                    ?.bankName
-                                }
-                              </Text>
-                              <Text
-                                id="payroll-employee-profile-bank-account-value"
-                                data-cy="payroll-employee-profile-bank-account-value"
-                              >
-                                {
-                                  activeMergedPayroll?.employeeInfo
-                                    ?.employeeInformation?.bankInformation
-                                    ?.accountNumber
-                                }
-                              </Text>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </TabPane>
-
-              <TabPane
-                id="payroll-employee-profile-history-tab-view-tabpane"
-                data-cy="payroll-employee-profile-history-tab-view-tabpane"
-                tab="Payroll History"
-                key="2"
+                className="flex gap-6 w-full"
+                data-cy="payroll-employee-detail-payslip-info-grid"
               >
                 <div
-                  id="payroll-employee-profile-history-content-view-container"
-                  data-cy="payroll-employee-profile-history-content-view-container"
+                  className="flex flex-col gap-2"
+                  data-cy="payroll-employee-detail-payslip-labels"
                 >
-                  {payPeriodData ? (
-                    payPeriodData
-                      ?.filter(
-                        (period: PayPeriod) =>
-                          payrollHistory?.some(
-                            (pay: any) => pay.payPeriodId === period.id,
-                          ), // Filter only periods with merged data
-                      )
-                      .map((period: any, index: any) => {
-                        const activeMergedPayroll = payrollHistory?.find(
-                          (pay: any) => pay.payPeriodId === period.id,
-                        );
-
-                        return (
-                          <Collapse
-                            data-cy={`payroll-employee-profile-history-collapse-view-component-${period.id}`}
-                            size="large"
-                            className="p-4 m-2"
-                            key={index}
-                          >
-                            <Collapse.Panel
-                              key={period.id}
-                              id={`payroll-employee-profile-history-panel-view-panel-${period.id}`}
-                              data-cy={`payroll-employee-profile-history-panel-view-panel-${period.id}`}
-                              header={`${dayjs(period.startDate).format('MMMM-YYYY')}`}
-                            >
-                              <div
-                                className="flex gap-6 w-full m-4"
-                                id={`payroll-employee-profile-history-period-view-container-${period.id}`}
-                                data-cy={`payroll-employee-profile-history-period-view-container-${period.id}`}
-                              >
-                                <div
-                                  className="flex flex-col gap-4 w-1/3"
-                                  id={`payroll-employee-profile-history-labels-view-column-${period.id}`}
-                                  data-cy={`payroll-employee-profile-history-labels-view-column-${period.id}`}
-                                >
-                                  <Text
-                                    className=" text-gray-600"
-                                    id={`payroll-employee-profile-history-salary-label-${period.id}`}
-                                    data-cy={`payroll-employee-profile-history-salary-label-${period.id}`}
-                                  >
-                                    Salary Period
-                                  </Text>
-                                  <Text
-                                    className=" text-gray-600"
-                                    id={`payroll-employee-profile-history-paydate-label-${period.id}`}
-                                    data-cy={`payroll-employee-profile-history-paydate-label-${period.id}`}
-                                  >
-                                    Pay Date
-                                  </Text>
-                                </div>
-                                <div
-                                  className="flex flex-col gap-4 font-bold"
-                                  id={`payroll-employee-profile-history-values-view-column-${period.id}`}
-                                  data-cy={`payroll-employee-profile-history-values-view-column-${period.id}`}
-                                >
-                                  <Text
-                                    id={`payroll-employee-profile-history-salary-value-${period.id}`}
-                                    data-cy={`payroll-employee-profile-history-salary-value-${period.id}`}
-                                  >
-                                    {dayjs(period.startDate).format('MMM-YYYY')}
-                                  </Text>
-                                  <Text
-                                    id={`payroll-employee-profile-history-paydate-value-${period.id}`}
-                                    data-cy={`payroll-employee-profile-history-paydate-value-${period.id}`}
-                                  >
-                                    {dayjs(period.updatedAt).format(
-                                      'MMM-DD-YYYY',
-                                    )}
-                                  </Text>
-                                </div>
-                              </div>
-                              <PayrollDetails
-                                data-cy={`payroll-employee-profile-history-details-view-component-${period.id}`}
-                                activeMergedPayroll={activeMergedPayroll}
-                              />
-                            </Collapse.Panel>
-                          </Collapse>
-                        );
-                      })
-                  ) : (
-                    <EmptyImage data-cy="payroll-employee-profile-history-empty-view-component" />
-                  )}
+                  <Text data-cy="payroll-employee-detail-payslip-label-name">
+                    Employee name:
+                  </Text>
+                  <Text data-cy="payroll-employee-detail-payslip-label-job">
+                    Job title:
+                  </Text>
+                  <Text data-cy="payroll-employee-detail-payslip-label-period">
+                    Pay period:
+                  </Text>
+                  <Text data-cy="payroll-employee-detail-payslip-label-date">
+                    Pay Date:
+                  </Text>
                 </div>
-              </TabPane>
-              <TabPane
-                id="payroll-employee-profile-settlement-tab-view-tabpane"
-                data-cy="payroll-employee-profile-settlement-tab-view-tabpane"
-                tab="Settlement Tracking"
-                key="3"
+                <div
+                  className="flex flex-col gap-2 font-bold"
+                  data-cy="payroll-employee-detail-payslip-values"
+                >
+                  <Text data-cy="payroll-employee-detail-payslip-value-name">
+                    {[employee?.firstName, employee?.middleName]
+                      .filter(Boolean)
+                      .join(' ')}
+                  </Text>
+                  <Text data-cy="payroll-employee-detail-payslip-value-job">
+                    {
+                      employee?.employeeJobInformation?.find(
+                        (job: any) => job.isPositionActive,
+                      )?.position?.name
+                    }
+                  </Text>
+                  <Text data-cy="payroll-employee-detail-payslip-value-period">
+                    {dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
+                  </Text>
+                  <Text data-cy="payroll-employee-detail-payslip-value-date">
+                    {dayjs(activePayPeriod?.updatedAt).format('MMM-DD-YYYY')}
+                  </Text>
+                </div>
+              </div>
+            </div>
+            <div
+              className="flex flex-col justify-center items-center m-2"
+              data-cy="payroll-employee-detail-payslip-amounts"
+            >
+              <span
+                className="font-bold text-xl"
+                data-cy="payroll-employee-detail-payslip-net-label"
               >
-                <SettlementDetail data-cy="payroll-employee-profile-settlement-view-component" />
-              </TabPane>
-            </Tabs>
-          </Col>
-        </Row>
-      </Card>
+                Employee Net Pay
+              </span>
+              <span
+                className="text-violet-500 text-4xl font-bold mb-2"
+                data-cy="payroll-employee-detail-payslip-net-value"
+              >
+                {activeMergedPayroll?.netPay}
+              </span>
+              <span
+                className="font-bold text-xl"
+                data-cy="payroll-employee-detail-payslip-basic-label"
+              >
+                Employee Basic Salary
+              </span>
+              <span
+                className=" text-2xl font-bold"
+                data-cy="payroll-employee-detail-payslip-basic-value"
+              >
+                {
+                  activeMergedPayroll?.employeeInfo?.basicSalaries[0]
+                    ?.basicSalary
+                }{' '}
+              </span>
+            </div>
+          </div>
+          <Divider className="my-2" />
+          <header
+            className=" border-b pb-2 mb-2"
+            data-cy="payroll-employee-detail-payslip-earnings-header"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="payroll-employee-detail-payslip-earnings-title"
+            >
+              Employee Earnings
+            </h2>
+          </header>
+          <div
+            className="flex flex-col w-full gap-4"
+            data-cy="payroll-employee-detail-payslip-earnings-grid"
+          >
+            <div
+              className=" pl-4 flex justify-between items-center my-2"
+              data-cy="payroll-employee-detail-payslip-earnings-labels"
+            >
+              <Text
+                className="text-xl"
+                data-cy="payroll-employee-detail-payslip-earnings-label-allowance"
+              >
+                Employee Allowance
+              </Text>
+              <Text
+                className="text-xl pr-10"
+                data-cy="payroll-employee-detail-payslip-earnings-label-amount"
+              >
+                Amount
+              </Text>
+            </div>
+            <div
+              className="flex justify-between"
+              data-cy="payroll-employee-detail-payslip-allowances"
+            >
+              <div
+                className="flex flex-col gap-2 pl-4"
+                data-cy="payroll-employee-detail-payslip-allowance-names"
+              >
+                {activeMergedPayroll?.breakdown?.allowances?.map(
+                  (item: any, index: any) => (
+                    <Text
+                      key={index}
+                      data-cy={`payroll-employee-detail-payslip-allowance-name-${index}`}
+                    >
+                      {item.type}
+                    </Text>
+                  ),
+                )}
+              </div>
+              <div
+                className="flex flex-col gap-2 text-right font-bold pr-10"
+                data-cy="payroll-employee-detail-payslip-allowance-amounts"
+              >
+                {activeMergedPayroll?.breakdown?.allowances?.map(
+                  (item: any, index: any) => (
+                    <Text
+                      key={index}
+                      data-cy={`payroll-employee-detail-payslip-allowance-amount-${index}`}
+                    >
+                      {parseFloat(item.amount).toFixed(2)}
+                    </Text>
+                  ),
+                )}
+              </div>
+            </div>
+          </div>
+          <PayrollDetails
+            activeMergedPayroll={activeMergedPayroll || undefined}
+          />
+        </div>
+      </div>
+      <style jsx data-cy="payroll-employee-detail-local-styles">{`
+        :global(.settlement-scroll-hidden) {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        :global(.settlement-scroll-hidden::-webkit-scrollbar) {
+          width: 0;
+          height: 0;
+          display: none;
+        }
+        :global(.ant-tabs-tab .ant-tabs-tab-btn) {
+          font-size: 16px !important;
+        }
+        :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
+          font-weight: 700 !important;
+          color: #1e40af !important;
+        }
+      `}</style>
     </div>
   );
 };
