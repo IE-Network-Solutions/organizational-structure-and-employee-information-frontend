@@ -6,20 +6,49 @@ import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/surve
 import ServayCategoryCard from '../_components/surveyCategory/servayCategoryCard';
 import CustomPagination from '@/components/customPagination';
 import EditCategoryModal from '../../categories/_components/categoriesCard/editCategory';
+import { Input } from 'antd';
 
 const page = () => {
-  const { pageSize, current, setCurrent, setPageSize, searchParams } =
-    EmployeeSurveyStore();
+  const {
+    pageSize,
+    current,
+    setCurrent,
+    setPageSize,
+    searchParams,
+    setSearchParams,
+  } = EmployeeSurveyStore();
   const { data: categories, isLoading: isCategoriesLoading } =
     useFetchCategories(
       pageSize,
-      current,
+      searchParams?.category_name ? 1 : current,
       searchParams?.category_name || '',
       searchParams?.category_description || '',
       searchParams?.createdBy || '',
     );
   return (
     <div data-cy="survey-category-page" id="surveyCategoryPage">
+      <div
+        className="flex justify-between text-xs mx-2 overflow-x-auto "
+        data-cy={`survey-category-page-actions`}
+        id={`surveyCategoryPageActions`}
+      >
+        <div
+          style={{ marginBottom: 16 }}
+          data-cy={`survey-category-page-search-container`}
+          id={`surveyCategoryPageSearchContainer`}
+        >
+          <Input.Search
+            placeholder="Search categories..."
+            allowClear
+            onChange={(e) => {
+              setSearchParams('category_name', e.target.value);
+            }}
+            className="w-full sm:w-80 md:w-96 lg:w-[300px]"
+            data-cy={`survey-category-page-search`}
+            id={`surveyCategoryPageSearch`}
+          />
+        </div>
+      </div>
       <div
         className="grid grid-cols-12 flex-col-reverse justify-between"
         data-cy="survey-category-page-grid"

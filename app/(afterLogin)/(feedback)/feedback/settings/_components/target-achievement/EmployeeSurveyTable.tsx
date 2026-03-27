@@ -352,7 +352,7 @@ const EmployeeSurveyTable: React.FC = () => {
         <Select
           showSearch
           placeholder="Search Employee"
-          className="h-8 rounded-lg border border-gray-400"
+          className="h-8 rounded-lg border border-gray-500  p-0 m-0"
           style={{ width: 300 }}
           allowClear
           loading={empLoading}
@@ -360,7 +360,9 @@ const EmployeeSurveyTable: React.FC = () => {
             userId ? (
               ''
             ) : (
-              <SearchIcon className="text-gray-400" fontSize="small" />
+              <span className="ml-1 pl-2 border-l border-gray-500 flex items-center  ">
+                <SearchIcon className="text-gray-900 " fontSize="small" />
+              </span>
             )
           }
           value={userId ?? undefined}
@@ -380,7 +382,6 @@ const EmployeeSurveyTable: React.FC = () => {
           data-cy="employee-survey-table-employee-filter"
           id="employeeSurveyTableEmployeeFilter"
         />
-
         <div
           className="flex items-center gap-2 flex-wrap bg-blue-600"
           id="employee-survey-table-active-filters"
