@@ -608,10 +608,6 @@ const RecognitionForm: React.FC<PropsData> = ({
       setFormulaTokens(parsedExpression);
     } else {
       setFormulaTokens([]);
-      form.setFieldsValue({
-        incentiveAmountType: 'Fixed',
-        incentiveFixedAmount: undefined,
-      });
     }
   }, [
     isWizardOpen,
