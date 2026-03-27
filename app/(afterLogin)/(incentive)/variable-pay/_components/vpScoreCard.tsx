@@ -20,25 +20,32 @@ const VPScoreCard: React.FC = () => {
 
   const criteria = vpScore?.criteria || [];
   const displayCriteria = showAll ? criteria : criteria.slice(0, 7);
+  const getProgressColor = (criteriaName: string) =>
+    criteriaName?.trim()?.toLowerCase() === 'employee attendance'
+      ? '#f0484a'
+      : '#1c3ca5';
 
   const labels = criteria.map((c: any) => c.name);
   const dataValues = criteria.map((c: any) => Number(c.score));
+  const donutFallbackColors = [
+    '#1e3a8a',
+    '#4ade80',
+    '#d1d5db',
+    '#9ca3af',
+    '#003366',
+  ];
+  const donutColors = criteria.map((c: any, index: number) =>
+    c?.name?.trim()?.toLowerCase() === 'employee attendance'
+      ? '#f0484a'
+      : donutFallbackColors[index % donutFallbackColors.length],
+  );
 
   const chartData = {
     labels: labels,
     datasets: [
       {
         data: dataValues.length > 0 ? dataValues : [1],
-        backgroundColor:
-          dataValues.length > 0
-            ? [
-                '#1e3a8a', // Dark blue
-                '#4ade80', // Green
-                '#d1d5db', // Light Gray
-                '#9ca3af',
-                '#003366',
-              ]
-            : ['#e5e7eb'],
+        backgroundColor: dataValues.length > 0 ? donutColors : ['#e5e7eb'],
         borderWidth: 0,
         borderRadius: 2, // Rounded segment ends
         spacing: 2, // Gap between slices
@@ -195,7 +202,7 @@ const VPScoreCard: React.FC = () => {
                         <Progress
                           percent={percentage}
                           showInfo={false}
-                          strokeColor="#1c3ca5"
+                          strokeColor={getProgressColor(item?.name || '')}
                           trailColor="#e5e7eb"
                           className="m-0 w-full min-w-0 flex-1"
                           strokeWidth={8}
@@ -260,7 +267,7 @@ const VPScoreCard: React.FC = () => {
                       <Progress
                         percent={percentage}
                         showInfo={false}
-                        strokeColor="#1c3ca5"
+                        strokeColor={getProgressColor(item?.name || '')}
                         trailColor="#e5e7eb"
                         className="m-0 w-full min-w-0 flex-1"
                         strokeWidth={8}

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Spin, Table, Progress, Button } from 'antd';
+import React, { useRef, useState } from 'react';
+import { Spin, Table, Progress, Button, Modal, Select } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import VariablePayModal from './VariablePayModal';
 import { FaRegEye, FaEyeSlash } from 'react-icons/fa';
 import { AiOutlineReload } from 'react-icons/ai';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
 import {
   useGetActiveMonth,
   useGetVariablePay,
@@ -18,6 +19,8 @@ import {
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 const ExpandedVPDetails = ({ userId }: { userId: string }) => {
   const { data: vpScore, isLoading } = useGetVPScore(userId);
@@ -43,6 +46,10 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
   const change = (totalScore - previousScore).toFixed(2);
   const isNegative = totalScore - previousScore < 0;
   const criteria = vpScore?.criteria || [];
+  const getCriteriaProgressColor = (criteriaName: string) =>
+    criteriaName?.trim()?.toLowerCase() === 'employee attendance'
+      ? '#f0484a'
+      : '#1c3ca5';
 
   const totalWeight =
     criteria.reduce((acc: number, c: any) => acc + Number(c.weight || 0), 0) ||
@@ -196,7 +203,7 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
                   <Progress
                     percent={curPercentage}
                     showInfo={false}
-                    strokeColor="#1c3ca5"
+                    strokeColor={getCriteriaProgressColor(card?.name || '')}
                     trailColor="#f3f4f6"
                     className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
                     data-cy={`expanded-vp-details-metric-card-progress-${index}`}
@@ -239,10 +246,31 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
 
 const VariablePayTable = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
-  const { currentPage, pageSize, searchParams, setCurrentPage, setPageSize } =
-    useVariablePayStore();
+  const [employeeSearch, setEmployeeSearch] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(
+    null,
+  );
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filterModalPosition, setFilterModalPosition] = useState({
+    top: 260,
+    left: 0,
+  });
+  const [selectedSessionId, setSelectedSessionId] = useState<string>('');
+  const [selectedMonthId, setSelectedMonthId] = useState<string>('');
+  const filterButtonRef = useRef<HTMLDivElement | null>(null);
+  const {
+    currentPage,
+    pageSize,
+    searchParams,
+    setCurrentPage,
+    setPageSize,
+    setSearchParams,
+  } = useVariablePayStore();
   const { isMobile, isTablet } = useIsMobile();
   const { data: activeMonth } = useGetActiveMonth();
+  const { data: allUsers } = useGetAllUsers();
+  const { data: activeCalender } = useGetActiveFiscalYears();
 
   const selectedMonthIds =
     typeof searchParams?.selectedMonth === 'string'
@@ -253,6 +281,22 @@ const VariablePayTable = () => {
         : [activeMonth?.id];
 
   const selectedMonthIdsObject = { monthIds: selectedMonthIds };
+  const sessionOptions =
+    activeCalender?.sessions?.map((session: any) => ({
+      label: session?.name,
+      value: session?.id,
+      months: session?.months || [],
+    })) || [];
+
+  const selectedSession = sessionOptions.find(
+    (session: any) => session.value === selectedSessionId,
+  );
+
+  const monthOptions =
+    selectedSession?.months?.map((month: any) => ({
+      label: month?.name,
+      value: month?.id,
+    })) || [];
 
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay(
     selectedMonthIdsObject,
@@ -268,6 +312,27 @@ const VariablePayTable = () => {
       VpScore: variablePay?.vpScore,
       Benefit: 'Benefits',
     })) || [];
+
+  const getEmployeeFullName = (employeeId: string) => {
+    const employee = allUsers?.items?.find(
+      (user: any) => user?.id === employeeId,
+    );
+    if (!employee) return employeeId;
+    return `${employee?.firstName || ''} ${employee?.middleName || ''} ${employee?.lastName || ''}`
+      .trim()
+      .replace(/\s+/g, ' ');
+  };
+
+  const employeeOptions = tableData.map((employee: any) => ({
+    value: employee.userId,
+    label: getEmployeeFullName(employee.userId),
+  }));
+
+  const uniqueEmployeeOptions = Array.from(
+    new Map(
+      employeeOptions.map((option: any) => [option.value, option]),
+    ).values(),
+  );
 
   const columns: TableColumnsType<any> = [
     {
@@ -395,11 +460,21 @@ const VariablePayTable = () => {
     },
   ];
 
-  const filteredDataSource = searchParams?.employeeName
-    ? tableData.filter(
-        (employee: any) => employee?.name === searchParams?.employeeName,
-      )
-    : tableData;
+  const filteredDataSource = tableData.filter((employee: any) => {
+    const employeeName = getEmployeeFullName(employee.userId).toLowerCase();
+    const normalizedSearch = employeeSearch.trim().toLowerCase();
+    const matchesSearch = normalizedSearch
+      ? employeeName.includes(normalizedSearch)
+      : true;
+    const matchesSelectedEmployee = selectedEmployeeId
+      ? employee.userId === selectedEmployeeId
+      : true;
+    const matchesStoredSearch = searchParams?.employeeName
+      ? employee?.name === searchParams?.employeeName
+      : true;
+
+    return matchesSearch && matchesSelectedEmployee && matchesStoredSearch;
+  });
 
   const allEmployeesIds: string[] = tableData.map(
     (employee: any) => employee.name,
@@ -414,25 +489,222 @@ const VariablePayTable = () => {
     currentPage * pageSize,
   );
 
+  const handleOpenFilterModal = () => {
+    const modalWidth = 360;
+    if (filterButtonRef.current) {
+      const rect = filterButtonRef.current.getBoundingClientRect();
+      setFilterModalPosition({
+        top: rect.bottom + 8,
+        left: Math.max(16, rect.right - modalWidth),
+      });
+    }
+
+    setSelectedSessionId(
+      typeof searchParams?.selectedSession === 'string'
+        ? searchParams.selectedSession
+        : '',
+    );
+
+    if (typeof searchParams?.selectedMonth === 'string') {
+      const [firstMonthId = ''] = searchParams.selectedMonth.split(',');
+      setSelectedMonthId(firstMonthId);
+    } else {
+      setSelectedMonthId('');
+    }
+    setIsFilterModalOpen(true);
+  };
+
+  const handleApplyFilter = () => {
+    setSearchParams('selectedSession', selectedSessionId || '');
+    setSearchParams('selectedMonth', selectedMonthId || '');
+    setCurrentPage(1);
+    setIsFilterModalOpen(false);
+  };
+
   return (
     <div
-      className="bg-white rounded-xl mt-6"
+      className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white"
       data-testid="variable-pay-table-container"
       id="compensation-benefit-variable-pay-table-container"
       data-cy="compensation-benefit-variable-pay-table-container"
     >
       <div
+        className="relative"
         id="compensation-benefit-variable-pay-table-wrapper"
         data-cy="compensation-benefit-variable-pay-table-wrapper"
         data-testid="variable-pay-table-wrapper"
       >
+        <div
+          className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-4"
+          data-cy="compensation-benefit-variable-pay-table-toolbar"
+        >
+          <Select
+            className="w-full max-w-[360px]"
+            options={uniqueEmployeeOptions}
+            value={selectedEmployeeId || undefined}
+            open={isSearchDropdownOpen}
+            showSearch
+            allowClear
+            placeholder="Search Employee"
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              String(option?.label || '')
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            onSearch={(value) => {
+              setEmployeeSearch(value || '');
+              setCurrentPage(1);
+            }}
+            onDropdownVisibleChange={(open) => setIsSearchDropdownOpen(open)}
+            onChange={(value) => {
+              if (!value) {
+                setSelectedEmployeeId(null);
+                setEmployeeSearch('');
+                setCurrentPage(1);
+                return;
+              }
+              const selectedOption = uniqueEmployeeOptions.find(
+                (option: any) => option.value === value,
+              );
+              setSelectedEmployeeId(value);
+              setEmployeeSearch(selectedOption?.label || '');
+              setIsSearchDropdownOpen(false);
+              setCurrentPage(1);
+            }}
+            suffixIcon={
+              <span
+                className="flex items-center gap-2"
+                data-cy="compensation-benefit-variable-pay-table-search-suffix"
+              >
+                <span
+                  className="h-10 w-px bg-gray-300"
+                  data-cy="compensation-benefit-variable-pay-table-search-suffix-divider"
+                />
+                <SearchOutlined
+                  className="text-gray-400"
+                  data-cy="compensation-benefit-variable-pay-table-search-icon"
+                />
+              </span>
+            }
+            size="large"
+            listHeight={280}
+            popupClassName="rounded-xl shadow-lg"
+            dropdownStyle={{ padding: 4 }}
+            data-cy="compensation-benefit-variable-pay-table-search-autocomplete"
+          />
+
+          <div
+            ref={filterButtonRef}
+            data-cy="compensation-benefit-variable-pay-table-filter-wrapper"
+          >
+            <Button
+              icon={<FilterOutlined />}
+              className="h-10 px-4 border border-gray-300 text-gray-600"
+              data-cy="compensation-benefit-variable-pay-table-filter-button"
+              onClick={handleOpenFilterModal}
+            >
+              Filter
+            </Button>
+          </div>
+        </div>
+        <Modal
+          title={
+            <span
+              className="text-[20px] font-semibold text-gray-700"
+              data-cy="compensation-benefit-variable-pay-filter-modal-title"
+            >
+              Filter
+            </span>
+          }
+          open={isFilterModalOpen}
+          onCancel={() => setIsFilterModalOpen(false)}
+          closable
+          centered={false}
+          footer={
+            <div
+              className="flex items-center justify-end gap-2"
+              data-cy="compensation-benefit-variable-pay-filter-modal-footer"
+            >
+              <Button
+                onClick={() => setIsFilterModalOpen(false)}
+                className="h-9 rounded-md px-4 text-gray-600"
+                data-cy="compensation-benefit-variable-pay-filter-modal-cancel"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleApplyFilter}
+                className="h-9 rounded-md px-5"
+                data-cy="compensation-benefit-variable-pay-filter-modal-apply"
+              >
+                Filter
+              </Button>
+            </div>
+          }
+          width={360}
+          style={{
+            top: filterModalPosition.top,
+            left: filterModalPosition.left,
+            margin: 0,
+            position: 'absolute',
+          }}
+          data-cy="compensation-benefit-variable-pay-filter-modal"
+        >
+          <div
+            className="grid grid-cols-1 gap-4 md:grid-cols-2"
+            data-cy="compensation-benefit-variable-pay-filter-modal-content"
+          >
+            <div data-cy="compensation-benefit-variable-pay-filter-modal-session-wrapper">
+              <label
+                className="mb-2 block text-sm text-gray-700"
+                data-cy="compensation-benefit-variable-pay-filter-modal-session-label"
+              >
+                Session
+              </label>
+              <Select
+                value={selectedSessionId || undefined}
+                placeholder="Select"
+                options={sessionOptions}
+                onChange={(value) => {
+                  setSelectedSessionId(value);
+                  setSelectedMonthId('');
+                }}
+                className="w-full"
+                size="large"
+                allowClear
+                data-cy="compensation-benefit-variable-pay-filter-modal-session"
+              />
+            </div>
+            <div data-cy="compensation-benefit-variable-pay-filter-modal-month-wrapper">
+              <label
+                className="mb-2 block text-sm text-gray-700"
+                data-cy="compensation-benefit-variable-pay-filter-modal-month-label"
+              >
+                Month
+              </label>
+              <Select
+                value={selectedMonthId || undefined}
+                placeholder="Select"
+                options={monthOptions}
+                onChange={(value) => setSelectedMonthId(value)}
+                className="w-full"
+                size="large"
+                allowClear
+                disabled={!selectedSessionId}
+                data-cy="compensation-benefit-variable-pay-filter-modal-month"
+              />
+            </div>
+          </div>
+        </Modal>
         <Spin
           spinning={isLoading || isFetching || refreshLoading}
           data-testid="variable-pay-table-loading"
           data-cy="compensation-benefit-variable-pay-table-loading"
         >
           <div
-            className="overflow-x-hidden"
+            className={`${isMobile || isTablet ? 'overflow-x-auto' : 'overflow-x-hidden'}`}
             id="compensation-benefit-variable-pay-scroll-container"
             data-cy="compensation-benefit-variable-pay-scroll-container"
           >
@@ -442,6 +714,7 @@ const VariablePayTable = () => {
               }
               columns={columns}
               dataSource={paginatedData}
+              scroll={isMobile || isTablet ? { x: 900 } : undefined}
               pagination={false}
               expandable={{
                 expandedRowRender: (record) => (
