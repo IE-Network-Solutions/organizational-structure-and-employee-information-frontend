@@ -124,6 +124,7 @@ const BenefitTracking = () => {
 
   const benefitTitle =
     employeeEntitlementData?.compensationItem?.name ?? 'Benefit';
+  const isRepayable = employeeEntitlementData?.compensationItem?.mode === 'DEBIT';
 
   const trackingOpen = employeeBenefitData != null;
 
@@ -193,7 +194,9 @@ const BenefitTracking = () => {
             data-cy="compensation-benefit-tracker-progress"
           >
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-[#262626]">Repayment Progress</span>
+              <span className="text-sm text-[#262626]">
+                {isRepayable ? 'Repayment Progress' : 'Payment Status'}
+              </span>
               <span
                 className="text-sm font-medium rounded-md text-[#52C41A]"
                 data-cy="compensation-benefit-tracker-progress-percent"
@@ -216,7 +219,7 @@ const BenefitTracking = () => {
             id="compensation-benefit-tracker-paid-back-header"
             data-cy="compensation-benefit-tracker-paid-back-header"
           >
-            Repaid Amount
+            {isRepayable ? 'Repaid Amount' : 'Payment History'}
           </h3>
 
           <div
