@@ -423,6 +423,18 @@ export const useOKRStore = create<OKRState>()(
       set((state) => ({
         searchObjParams: { ...state.searchObjParams, [key]: value },
       })),
+    employeeSearchObjParams: {
+      userId: '',
+      metricTypeId: '',
+      departmentId: '',
+    },
+    setEmployeeSearchObjParams: (key, value) =>
+      set((state) => ({
+        employeeSearchObjParams: {
+          ...state.employeeSearchObjParams,
+          [key]: value,
+        },
+      })),
     pageSize: 5,
     setPageSize: (pageSize: number) => set({ pageSize }),
     currentPage: 1,
@@ -450,6 +462,12 @@ export const useOKRStore = create<OKRState>()(
     setFiscalYearId: (fiscalYearId: string) => set({ fiscalYearId }),
     sessionIds: [],
     setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
+    employeeFiscalYearId: '',
+    setEmployeeFiscalYearId: (employeeFiscalYearId: string) =>
+      set({ employeeFiscalYearId }),
+    employeeSessionIds: [],
+    setEmployeeSessionIds: (employeeSessionIds: string[]) =>
+      set({ employeeSessionIds }),
     deletedKeyResultIds: [],
     setDeletedKeyResultIds: (ids: string[]) =>
       set({ deletedKeyResultIds: ids }),

@@ -35,7 +35,8 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+  const { mutate: updateAndDelete, isLoading: isDeletingKeyResult } =
+    useUpdateObjectiveNestedDelete();
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
   const isBasicOkr = useIsBasicOkr();
@@ -271,6 +272,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         open={openDeleteModal}
         onConfirm={() => handleKeyResultDelete(keyResult?.id)}
         onCancel={onCloseDeleteModal}
+        loading={isDeletingKeyResult}
       />
     </>
   );

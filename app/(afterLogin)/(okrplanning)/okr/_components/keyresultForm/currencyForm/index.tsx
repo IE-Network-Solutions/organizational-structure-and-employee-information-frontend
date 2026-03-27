@@ -53,6 +53,42 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   const isCardView = useAchieveOrNotStore(
     (s) => s.cardViewByKey[cardViewKey] ?? false,
   );
+  const initialValueRules = [
+    { required: true, message: 'Please enter the initial value' },
+    ({ getFieldValue }: { getFieldValue: (name: string) => number | undefined }) => ({
+      validator(_: unknown, value: number | undefined) {
+        const targetValue = getFieldValue('targetValue');
+        if (
+          value == null ||
+          targetValue == null ||
+          Number(value) <= Number(targetValue)
+        ) {
+          return Promise.resolve();
+        }
+        return Promise.reject(
+          new Error('Initial value must be less than or equal to target value'),
+        );
+      },
+    }),
+  ];
+  const targetValueRules = [
+    { required: true, message: 'Please enter the target value' },
+    ({ getFieldValue }: { getFieldValue: (name: string) => number | undefined }) => ({
+      validator(_: unknown, value: number | undefined) {
+        const initialValue = getFieldValue('initialValue');
+        if (
+          value == null ||
+          initialValue == null ||
+          Number(value) >= Number(initialValue)
+        ) {
+          return Promise.resolve();
+        }
+        return Promise.reject(
+          new Error('Target value must be greater than or equal to initial value'),
+        );
+      },
+    }),
+  ];
 
   useEffect(() => {
     if (keyItem?.deadline) {
@@ -247,9 +283,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               <Form.Item
                 className="w-60 mb-0"
                 name="initialValue"
-                rules={[
-                  { required: true, message: 'Please enter the initial value' },
-                ]}
+                dependencies={['targetValue']}
+                rules={initialValueRules}
                 data-cy={`okr-currency-desktop-initial-item-${index}`}
               >
                 <InputNumber
@@ -289,9 +324,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               <Form.Item
                 className="w-60 mb-0"
                 name="targetValue"
-                rules={[
-                  { required: true, message: 'Please enter the target value' },
-                ]}
+                dependencies={['initialValue']}
+                rules={targetValueRules}
                 data-cy={`okr-currency-desktop-target-item-${index}`}
               >
                 <InputNumber
@@ -490,12 +524,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         tooltip="Starting currency value"
                       />
                     }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please enter the initial value',
-                      },
-                    ]}
+                    dependencies={['targetValue']}
+                    rules={initialValueRules}
                     data-cy={`okr-currency-desktop-initial-item-${index}`}
                   >
                     <InputNumber
@@ -540,12 +570,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         tooltip="Target currency value"
                       />
                     }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please enter the target value',
-                      },
-                    ]}
+                    dependencies={['initialValue']}
+                    rules={targetValueRules}
                     data-cy={`okr-currency-desktop-target-item-${index}`}
                   >
                     <InputNumber
@@ -740,12 +766,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         tooltip="Starting currency value"
                       />
                     }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please enter the initial value',
-                      },
-                    ]}
+                    dependencies={['targetValue']}
+                    rules={initialValueRules}
                     data-cy={`okr-currency-mobile-initial-item-${index}`}
                   >
                     <InputNumber
@@ -791,12 +813,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         tooltip="Target currency value"
                       />
                     }
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please enter the target value',
-                      },
-                    ]}
+                    dependencies={['initialValue']}
+                    rules={targetValueRules}
                     data-cy={`okr-currency-mobile-target-item-${index}`}
                   >
                     <InputNumber

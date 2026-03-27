@@ -83,6 +83,11 @@ interface SearchObjParams {
   metricTypeId: string;
   departmentId: string;
 }
+interface EmployeeSearchObjParams {
+  userId: string;
+  metricTypeId: string;
+  departmentId: string;
+}
 export interface OKRProps {
   keyValue: KeyResult;
   index: number;
@@ -165,6 +170,11 @@ export interface OKRState {
   removeKeyResultValue: (index: number) => void;
   searchObjParams: SearchObjParams;
   setSearchObjParams: (key: keyof SearchObjParams, value: string) => void;
+  employeeSearchObjParams: EmployeeSearchObjParams;
+  setEmployeeSearchObjParams: (
+    key: keyof EmployeeSearchObjParams,
+    value: string,
+  ) => void;
   pageSize: number;
   currentPage: number;
   setPageSize: (pageSize: number) => void;
@@ -192,6 +202,10 @@ export interface OKRState {
   setFiscalYearId: (fiscalYearId: string) => void;
   sessionIds: string[];
   setSessionIds: (sessionId: string[]) => void;
+  employeeFiscalYearId: string;
+  setEmployeeFiscalYearId: (employeeFiscalYearId: string) => void;
+  employeeSessionIds: string[];
+  setEmployeeSessionIds: (sessionIds: string[]) => void;
   deletedKeyResultIds: string[];
   setDeletedKeyResultIds: (ids: string[]) => void;
   deletedMilestoneIds: string[];

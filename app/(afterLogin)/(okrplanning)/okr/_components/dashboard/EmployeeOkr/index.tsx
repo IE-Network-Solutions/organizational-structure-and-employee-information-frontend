@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
-import { Table, Avatar, Input, Button, Popover, Modal, Select } from 'antd';
+import { Table, Avatar, Button, Popover, Modal, Select } from 'antd';
 import { UserOutlined, CloseOutlined } from '@ant-design/icons';
-import { AiOutlineSearch } from 'react-icons/ai';
 import { LuSettings2 } from 'react-icons/lu';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetEmployeeOkr } from '@/store/server/features/okrplanning/okr/objective/queries';
@@ -13,7 +12,11 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
-import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import {
+  useGetActiveFiscalYears,
+  useGetAllFiscalYears,
+} from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
 const { Option } = Select;
 
@@ -121,19 +124,18 @@ const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
 });
 
 const EmployeeOKRTable: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
   const {
-    searchObjParams,
-    sessionIds,
+    employeeSearchObjParams,
+    employeeSessionIds,
     employeePageSize,
     employeeCurrentPage,
     setEmployeePageSize,
     setEmployeeCurrentPage,
-    setSearchObjParams,
-    fiscalYearId,
-    setFiscalYearId,
-    setSessionIds,
+    setEmployeeSearchObjParams,
+    employeeFiscalYearId,
+    setEmployeeFiscalYearId,
+    setEmployeeSessionIds,
   } = useOKRStore();
 
   const {
@@ -141,8 +143,8 @@ const EmployeeOKRTable: React.FC = () => {
     isLoading,
     refetch,
   } = useGetEmployeeOkr(
-    sessionIds,
-    searchObjParams,
+    employeeSessionIds,
+    employeeSearchObjParams,
     employeePageSize,
     employeeCurrentPage,
   );
@@ -150,23 +152,35 @@ const EmployeeOKRTable: React.FC = () => {
   const { isMobile, isTablet } = useIsMobile();
   const { data: getAllFiscalYears, isLoading: fyLoading } =
     useGetAllFiscalYears();
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const { data: Departments } = useGetUserDepartment();
   const { data: allUsers } = useGetAllUsers();
+  const { data: Metrics } = useGetMetrics();
 
   const DepartmentWithUsers = Departments?.filter(
     (i: any) => i.users?.length > 0,
   );
 
-  const handleFilter = (value: string, key: keyof typeof searchObjParams) => {
-    setSearchObjParams(key, value);
+  const handleFilter = (
+    value: string,
+    key: keyof typeof employeeSearchObjParams,
+  ) => {
+    setEmployeeSearchObjParams(key, value);
   };
 
   const handleReset = () => {
-    setFiscalYearId('');
-    setSessionIds([]);
+    const defaultFiscalYear =
+      activeFiscalYear ||
+      getAllFiscalYears?.items?.find((fy: any) => fy?.active) ||
+      getAllFiscalYears?.items?.[0];
+    const allSessionIds =
+      defaultFiscalYear?.sessions?.map((session: any) => session?.id) || [];
+
+    setEmployeeFiscalYearId(defaultFiscalYear?.id || '');
+    setEmployeeSessionIds(allSessionIds);
     handleFilter('', 'departmentId');
     handleFilter('', 'userId');
-    setSearchTerm('');
+    handleFilter('', 'metricTypeId');
   };
 
   // Memoize data source to prevent unnecessary re-renders
@@ -174,33 +188,6 @@ const EmployeeOKRTable: React.FC = () => {
     () => (Array.isArray(employeeOkr?.items) ? employeeOkr?.items : []),
     [employeeOkr?.items],
   );
-
-  // Create a map of userId to employee name for search filtering
-  const employeeNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    if (allUsers?.items) {
-      allUsers.items.forEach((user: any) => {
-        const fullName =
-          `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`
-            .trim()
-            .toLowerCase();
-        map.set(user.id, fullName);
-      });
-    }
-    return map;
-  }, [allUsers?.items]);
-
-  // Filter dataSource based on search term
-  const filteredDataSource = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return dataSource;
-    }
-    const searchLower = searchTerm.toLowerCase();
-    return dataSource.filter((item: any) => {
-      const employeeName = employeeNameMap.get(item.userId) || '';
-      return employeeName.includes(searchLower);
-    });
-  }, [dataSource, searchTerm, employeeNameMap]);
 
   // Memoize columns to prevent unnecessary re-renders
   const columns = useMemo(
@@ -252,18 +239,100 @@ const EmployeeOKRTable: React.FC = () => {
     <div
       id="employee-okr-filter-content"
       data-cy="employee-okr-filter-content"
-      className="flex flex-col"
+      className="flex flex-col gap-4"
     >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Employee Filter */}
+        <div
+          id="employee-okr-employee-field"
+          data-cy="employee-okr-employee-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="employee-okr-employee-label"
+            data-cy="employee-okr-employee-label"
+            className="text-sm font-medium text-gray-700"
+          >
+            Employee{' '}
+            <span
+              className="text-red-500"
+              data-cy="employee-okr-employee-required"
+            >
+              *
+            </span>
+          </label>
+          <Select
+            id="employee-okr-employee-select"
+            data-cy="employee-okr-employee-select"
+            showSearch
+            placeholder="Select a person"
+            className="w-full h-10 rounded-md"
+            allowClear
+            value={employeeSearchObjParams.userId}
+            onChange={(value) => handleFilter(value, 'userId')}
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
+            options={allUsers?.items?.map((item: any) => ({
+              ...item,
+              value: item?.id,
+              label:
+                item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
+            }))}
+          />
+        </div>
+
+        {/* Department */}
+        <div
+          id="employee-okr-department-field"
+          data-cy="employee-okr-department-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="employee-okr-department-label"
+            data-cy="employee-okr-department-label"
+            className="text-sm font-medium text-gray-700"
+          >
+            Department
+          </label>
+          <Select
+            id="employee-okr-department-select"
+            data-cy="employee-okr-department-select"
+            placeholder="Filter by Department"
+            className="w-full h-10 rounded-md"
+            allowClear
+            showSearch
+            value={employeeSearchObjParams.departmentId}
+            onChange={(value) => handleFilter(value, 'departmentId')}
+            filterOption={(input, option) =>
+              (option?.children as any)
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
+            {DepartmentWithUsers?.map((dept: any) => (
+              <Option
+                data-cy={`employee-okr-department-select-option-${dept?.id}`}
+                key={dept.id}
+                value={dept.id}
+              >
+                {dept.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
       {/* Fiscal Year */}
       <div
         id="employee-okr-fiscal-year-field"
         data-cy="employee-okr-fiscal-year-field"
-        className="flex flex-col gap-2 mb-4"
+        className="flex flex-col gap-2"
       >
         <label
           id="employee-okr-fiscal-year-label"
           data-cy="employee-okr-fiscal-year-label"
-          className="text-sm text-gray-700"
+          className="text-sm font-medium text-gray-700"
         >
           Fiscal Year{' '}
           <span
@@ -275,14 +344,24 @@ const EmployeeOKRTable: React.FC = () => {
         </label>
         <Select
           loading={fyLoading}
-          value={fiscalYearId}
+          value={employeeFiscalYearId}
           id="employee-okr-fiscal-year-select"
           data-cy="employee-okr-fiscal-year-select"
           placeholder="Filter by Fiscal Year"
-          onChange={(value) => setFiscalYearId(value)}
+          onChange={(value) => {
+            const selectedFiscalYear = getAllFiscalYears?.items?.find(
+              (fy: any) => fy?.id === value,
+            );
+            const allSessionIds =
+              selectedFiscalYear?.sessions?.map((session: any) => session?.id) ||
+              [];
+
+            setEmployeeFiscalYearId(value || '');
+            setEmployeeSessionIds(allSessionIds);
+          }}
           allowClear
           showSearch
-          className="w-full h-14"
+          className="w-full h-10 rounded-md"
           optionFilterProp="children"
           filterOption={(input, option) =>
             (option?.children as any)
@@ -306,12 +385,12 @@ const EmployeeOKRTable: React.FC = () => {
       <div
         id="employee-okr-session-field"
         data-cy="employee-okr-session-field"
-        className="flex flex-col gap-2 mb-4"
+        className="flex flex-col gap-2"
       >
         <label
           id="employee-okr-session-label"
           data-cy="employee-okr-session-label"
-          className="text-sm text-gray-700"
+          className="text-sm font-medium text-gray-700"
         >
           Session{' '}
           <span
@@ -323,15 +402,22 @@ const EmployeeOKRTable: React.FC = () => {
         </label>
         <Select
           loading={fyLoading}
-          value={sessionIds}
+          value={employeeSessionIds}
           id="employee-okr-session-select"
           data-cy="employee-okr-session-select"
           placeholder="Filter by Session"
-          className="w-full h-14 overflow-y-auto"
+          className="w-full min-h-[40px] rounded-md"
           allowClear
           showSearch
+          maxTagCount="responsive"
+          maxTagTextLength={14}
+          maxTagPlaceholder={(omittedValues) => `+${omittedValues.length} more`}
+          listHeight={200}
+          dropdownStyle={{ maxHeight: 220, overflowY: 'auto' }}
           onChange={(value: any) => {
-            setSessionIds(Array.isArray(value) ? value : value ? [value] : []);
+            setEmployeeSessionIds(
+              Array.isArray(value) ? value : value ? [value] : [],
+            );
           }}
           mode="multiple"
           filterOption={(input, option) =>
@@ -341,7 +427,7 @@ const EmployeeOKRTable: React.FC = () => {
           }
         >
           {getAllFiscalYears?.items
-            ?.find((fy: any) => fy.id === fiscalYearId)
+            ?.find((fy: any) => fy.id === employeeFiscalYearId)
             ?.sessions?.map((session: any) => (
               <Option
                 data-cy={`employee-okr-session-select-option-${session?.id}`}
@@ -354,81 +440,47 @@ const EmployeeOKRTable: React.FC = () => {
         </Select>
       </div>
 
-      {/* Employee Filter */}
+      {/* Metric Type */}
       <div
-        id="employee-okr-employee-field"
-        data-cy="employee-okr-employee-field"
-        className="flex flex-col gap-2 mb-4"
+        id="employee-okr-metric-type-field"
+        data-cy="employee-okr-metric-type-field"
+        className="flex flex-col gap-2"
       >
         <label
-          id="employee-okr-employee-label"
-          data-cy="employee-okr-employee-label"
-          className="text-sm text-gray-700"
+          id="employee-okr-metric-type-label"
+          data-cy="employee-okr-metric-type-label"
+          className="text-sm font-medium text-gray-700"
         >
-          Employee{' '}
+          Metric Type{' '}
           <span
             className="text-red-500"
-            data-cy="employee-okr-employee-required"
+            data-cy="employee-okr-metric-type-required"
           >
             *
           </span>
         </label>
         <Select
-          id="employee-okr-employee-select"
-          data-cy="employee-okr-employee-select"
-          showSearch
-          placeholder="Select a person"
-          className="w-full h-14"
+          id="employee-okr-metric-type-select"
+          data-cy="employee-okr-metric-type-select"
+          placeholder="Filter by Metric Type"
+          className="w-full h-10 rounded-md"
           allowClear
-          value={searchObjParams.userId}
-          onChange={(value) => handleFilter(value, 'userId')}
-          filterOption={(input: any, option: any) =>
-            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
-          }
-          options={allUsers?.items?.map((item: any) => ({
-            ...item,
-            value: item?.id,
-            label:
-              item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
-          }))}
-        />
-      </div>
-
-      {/* Department */}
-      <div
-        id="employee-okr-department-field"
-        data-cy="employee-okr-department-field"
-        className="flex flex-col gap-2 mb-4"
-      >
-        <label
-          id="employee-okr-department-label"
-          data-cy="employee-okr-department-label"
-          className="text-sm text-gray-700"
+          value={employeeSearchObjParams.metricTypeId}
+          onChange={(value) => handleFilter(value, 'metricTypeId')}
         >
-          Department
-        </label>
-        <Select
-          id="employee-okr-department-select"
-          data-cy="employee-okr-department-select"
-          placeholder="Filter by Department"
-          className="w-full h-14"
-          allowClear
-          showSearch
-          value={searchObjParams.departmentId}
-          onChange={(value) => handleFilter(value, 'departmentId')}
-          filterOption={(input, option) =>
-            (option?.children as any)
-              .toLowerCase()
-              .includes(input.toLowerCase())
-          }
-        >
-          {DepartmentWithUsers?.map((dept: any) => (
+          <Option
+            data-cy="employee-okr-metric-type-select-option-all"
+            value=""
+          >
+            All
+          </Option>
+          {Metrics?.items?.map((metric: any) => (
             <Option
-              data-cy={`employee-okr-department-select-option-${dept?.id}`}
-              key={dept.id}
-              value={dept.id}
+              data-cy={`employee-okr-metric-type-select-option-${metric?.id}`}
+              key={metric.id}
+              value={metric.id}
             >
-              {dept.name}
+              {metric.name}
             </Option>
           ))}
         </Select>
@@ -440,19 +492,19 @@ const EmployeeOKRTable: React.FC = () => {
     <div
       id="employee-okr-filter-popover-content"
       data-cy="employee-okr-filter-popover-content"
-      className="w-[460px]"
+      className="w-[460px] max-w-[460px]"
     >
       <FilterContent />
       <div
         id="employee-okr-filter-popover-footer"
         data-cy="employee-okr-filter-popover-footer"
-        className="flex justify-end gap-3 pt-4"
+        className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
       >
         <Button
           id="employee-okr-filter-reset-button"
           data-cy="employee-okr-filter-reset-button"
           onClick={handleReset}
-          className="px-6 rounded-lg text-sm text-gray-700 border-gray-300"
+          className="h-8 px-4 rounded-md text-xs text-gray-700 border-gray-300"
         >
           Reset
         </Button>
@@ -461,7 +513,7 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-filter-save-button"
           type="primary"
           onClick={() => setIsFilterModalOpen(false)}
-          className="px-6 rounded-lg text-sm bg-okr-primary border-okr-primary"
+          className="h-8 px-4 rounded-md text-xs bg-okr-primary border-okr-primary"
         >
           Save Filter
         </Button>
@@ -479,14 +531,14 @@ const EmployeeOKRTable: React.FC = () => {
         <h3
           id="employee-okr-filter-popover-title"
           data-cy="employee-okr-filter-popover-title"
-          className="text-lg font-bold text-gray-900"
+          className="text-base font-bold text-gray-900"
         >
           Filter
         </h3>
         <p
           id="employee-okr-filter-popover-subtitle"
           data-cy="employee-okr-filter-popover-subtitle"
-          className="text-sm text-gray-500 mt-1"
+          className="text-xs text-gray-500 mt-1"
         >
           Select All filters that apply
         </p>
@@ -550,7 +602,30 @@ const EmployeeOKRTable: React.FC = () => {
 
   useEffect(() => {
     refetch();
-  }, [sessionIds, refetch, searchObjParams]);
+  }, [employeeSessionIds, refetch, employeeSearchObjParams]);
+
+  useEffect(() => {
+    if (employeeFiscalYearId) return;
+
+    const defaultFiscalYear =
+      activeFiscalYear ||
+      getAllFiscalYears?.items?.find((fy: any) => fy?.active) ||
+      getAllFiscalYears?.items?.[0];
+
+    if (!defaultFiscalYear?.id) return;
+
+    const allSessionIds =
+      defaultFiscalYear?.sessions?.map((session: any) => session?.id) || [];
+
+    setEmployeeFiscalYearId(defaultFiscalYear?.id);
+    setEmployeeSessionIds(allSessionIds);
+  }, [
+    activeFiscalYear,
+    getAllFiscalYears?.items,
+    employeeFiscalYearId,
+    setEmployeeFiscalYearId,
+    setEmployeeSessionIds,
+  ]);
 
   return (
     <div
@@ -570,20 +645,24 @@ const EmployeeOKRTable: React.FC = () => {
           data-cy="employee-okr-search-input-container"
           className="flex-1 sm:flex-none min-w-0"
         >
-          <Input
+          <Select
             id="employee-okr-search-input"
             data-cy="employee-okr-search-input"
-            placeholder="Search Employee"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            showSearch
             allowClear
+            placeholder="Search Employee"
+            value={employeeSearchObjParams.userId || undefined}
+            onChange={(value) => handleFilter(value || '', 'userId')}
             className="h-10 w-full sm:w-[300px]"
-            suffix={
-              <AiOutlineSearch
-                className="text-gray-400"
-                data-cy="employee-okr-search-icon"
-              />
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
+            options={allUsers?.items?.map((item: any) => ({
+              ...item,
+              value: item?.id,
+              label:
+                item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
+            }))}
           />
         </div>
 
@@ -680,7 +759,7 @@ const EmployeeOKRTable: React.FC = () => {
           id="okr-employee-okr-table"
           data-cy="okr-employee-okr-table"
           columns={columns}
-          dataSource={filteredDataSource}
+          dataSource={dataSource}
           pagination={false}
           loading={isLoading}
           scroll={{

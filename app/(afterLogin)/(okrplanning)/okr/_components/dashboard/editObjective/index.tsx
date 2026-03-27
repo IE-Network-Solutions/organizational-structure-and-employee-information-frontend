@@ -500,6 +500,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       title={modalHeader}
       centered={!isMobile}
       width={isMobile ? '100%' : 1200}
+      zIndex={12000}
       wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : ''}
       bodyStyle={{
         padding: isMobile ? 12 : 32,

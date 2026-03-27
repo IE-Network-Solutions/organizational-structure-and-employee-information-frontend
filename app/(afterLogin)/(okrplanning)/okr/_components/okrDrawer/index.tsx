@@ -201,6 +201,18 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 return; // Stop submission if no milestone is added
               }
 
+              const hasEmptyMilestoneTitle = keyResult.milestones.some(
+                (milestone: Record<string, any>) =>
+                  !String(milestone?.title ?? '').trim(),
+              );
+
+              if (hasEmptyMilestoneTitle) {
+                NotificationMessage.warning({
+                  message: `On Number: ${index + 1} Title:${keyResult.title} Please enter all milestone names before creating objective.`,
+                });
+                return;
+              }
+
               // Calculate the sum of milestone values
               const milestoneSum = keyResult.milestones.reduce(
                 (sum: number, milestone: Record<string, any>) =>
@@ -538,7 +550,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       title={modalHeader}
       centered={!isMobile}
       width={isMobile ? '100%' : 1200}
-      wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : ''}
+      zIndex={12000}
+      wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'}
       bodyStyle={{
         padding: isMobile ? 12 : 24,
         maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
@@ -577,10 +590,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           >
             Please select objective alignment to add objective
           </p>
-          <div
-            className="border-b border-gray-200 mt-4"
-            data-cy="okr-drawer-objective-section-divider"
-          />
         </div>
 
         {isMobile ? (
@@ -799,12 +808,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           <div
             id="okr-drawer-desktop-form"
             data-cy="okr-drawer-desktop-form"
-            className="flex gap-4 w-full mt-4"
+            className="grid grid-cols-12 gap-4 w-full mt-0 items-start"
           >
             <Form.Item
               id="okr-drawer-desktop-title-input"
               data-cy="okr-drawer-desktop-title-input"
-              className="h-11 mb-10 flex-1"
+              className="col-span-12 lg:col-span-6 mb-6"
               name="title"
               label={
                 <span
@@ -868,7 +877,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <Form.Item
               id="okr-drawer-desktop-alignment-select"
               data-cy="okr-drawer-desktop-alignment-select"
-              className="h-11 mb-10 w-1/4"
+              className="col-span-12 lg:col-span-3 mb-6"
               name="allignedKeyResultId"
               label={
                 <span
@@ -955,7 +964,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <Form.Item
               id="okr-drawer-desktop-deadline-picker"
               data-cy="okr-drawer-desktop-deadline-picker"
-              className="h-11 mb-10 w-1/5"
+              className="col-span-12 lg:col-span-3 mb-6"
               name="ObjectiveDeadline"
               label={
                 <span
@@ -1080,10 +1089,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 </Button>
               )}
             </div>
-            <div
-              className="border-b border-gray-200 mt-4"
-              data-cy="okr-drawer-key-result-section-divider"
-            />
           </div>
 
           {/* Basic mode: inline form at top only when ADDING a new KR (not when editing) */}

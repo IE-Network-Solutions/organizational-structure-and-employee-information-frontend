@@ -20,8 +20,14 @@ import { Spin } from 'antd';
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
-  const { pageSize, currentPage, searchObjParams, okrTab, sessionIds } =
-    useOKRStore();
+  const {
+    pageSize,
+    currentPage,
+    searchObjParams,
+    employeeSearchObjParams,
+    okrTab,
+    employeeSessionIds,
+  } = useOKRStore();
 
   // OKR Mode Selection Integration
   const {
@@ -74,9 +80,9 @@ const OKR: React.FC<any> = () => {
     } else if (okrTab == 4) {
       downloadEmployeeOkrScore(
         {
-          sessions: sessionIds,
-          userId: searchObjParams?.userId,
-          departmentId: searchObjParams?.departmentId,
+          sessions: employeeSessionIds,
+          userId: employeeSearchObjParams?.userId,
+          departmentId: employeeSearchObjParams?.departmentId,
         },
         {
           onSuccess: () => {

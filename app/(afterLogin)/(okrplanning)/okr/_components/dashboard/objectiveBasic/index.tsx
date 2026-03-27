@@ -47,7 +47,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     closeEditKeyResult,
     toggleExpanded,
   } = useObjectiveBasicStore();
-  const { mutate: deleteObjective } = useDeleteObjective();
+  const { mutate: deleteObjective, isLoading: isDeletingObjective } =
+    useDeleteObjective();
 
   const objectiveIdStr = String(objective?.id ?? '');
   const open = editObjectiveModalObjectiveId === objectiveIdStr;
@@ -234,7 +235,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}
                   >
                     <span
-                      className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 whitespace-nowrap"
+                      className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
                       data-cy={`okr-objective-progress-badge-${objective?.id}`}
                     >
                       {Number(objective?.objectiveProgress)?.toLocaleString()}%
@@ -580,6 +581,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         open={isDeleteModalOpen}
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
         onCancel={onCloseDeleteModal}
+        loading={isDeletingObjective}
       />
 
       <EditObjective

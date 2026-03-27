@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from 'antd';
 import { PlusOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import {
@@ -82,6 +83,15 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   };
 
   const handleAddMilestone = () => {
+    const currentMilestoneTitle = String(milestones?.[0]?.title ?? '').trim();
+
+    if (milestones.length > 0 && !currentMilestoneTitle) {
+      NotificationMessage.warning({
+        message: 'Please enter milestone name before adding another one.',
+      });
+      return;
+    }
+
     const newMilestone = { title: '', weight: 0 };
     const updatedMilestones = [newMilestone, ...milestones];
     const distributedMilestones =

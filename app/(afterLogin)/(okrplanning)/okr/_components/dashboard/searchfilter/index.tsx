@@ -76,18 +76,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       );
 
       if (selectedFiscalYear) {
-        if (okrTab == 4) {
-          const allSessionIds =
-            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-          setSessionIds(allSessionIds);
-        } else {
-          const activeSessionId = selectedFiscalYear?.sessions?.find(
-            (s: any) => s?.active,
-          )?.id;
-          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-          const chosen = activeSessionId || fallbackFirstSessionId || '';
-          setSessionIds(chosen ? [chosen] : []);
-        }
+        const activeSessionId = selectedFiscalYear?.sessions?.find(
+          (s: any) => s?.active,
+        )?.id;
+        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+        const chosen = activeSessionId || fallbackFirstSessionId || '';
+        setSessionIds(chosen ? [chosen] : []);
       }
       // Update refs after handling the change
       prevFiscalYearIdRef.current = fiscalYearId;
@@ -106,18 +100,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
 
       const newFiscalYearId = selectedFiscalYear?.id || '';
 
-      if (okrTab == 4) {
-        const allSessionIds =
-          selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-        setSessionIds(allSessionIds);
-      } else {
-        const activeSessionId = selectedFiscalYear?.sessions?.find(
-          (s: any) => s?.active,
-        )?.id;
-        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-        const chosen = activeSessionId || fallbackFirstSessionId || '';
-        setSessionIds(chosen ? [chosen] : []);
-      }
+      const activeSessionId = selectedFiscalYear?.sessions?.find(
+        (s: any) => s?.active,
+      )?.id;
+      const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+      const chosen = activeSessionId || fallbackFirstSessionId || '';
+      setSessionIds(chosen ? [chosen] : []);
 
       setFiscalYearId(newFiscalYearId);
       prevFiscalYearIdRef.current = newFiscalYearId;
@@ -133,18 +121,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       );
 
       if (selectedFiscalYear) {
-        if (okrTab == 4) {
-          const allSessionIds =
-            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-          setSessionIds(allSessionIds);
-        } else {
-          const activeSessionId = selectedFiscalYear?.sessions?.find(
-            (s: any) => s?.active,
-          )?.id;
-          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-          const chosen = activeSessionId || fallbackFirstSessionId || '';
-          setSessionIds(chosen ? [chosen] : []);
-        }
+        const activeSessionId = selectedFiscalYear?.sessions?.find(
+          (s: any) => s?.active,
+        )?.id;
+        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+        const chosen = activeSessionId || fallbackFirstSessionId || '';
+        setSessionIds(chosen ? [chosen] : []);
       }
       // Update ref after handling the change
       prevOkrTabRef.current = okrTab;
@@ -338,7 +320,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
         </label>
         <Select
           loading={fyLoading}
-          value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
+          value={sessionIds?.[0]}
           id="mobile-session-select"
           data-cy="okr-mobile-session-select"
           placeholder="Select"
@@ -347,15 +329,8 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
           showSearch
           getPopupContainer={(node) => node.parentElement ?? document.body}
           onChange={(value: any) => {
-            if (okrTab == 4) {
-              setSessionIds(
-                Array.isArray(value) ? value : value ? [value] : [],
-              );
-            } else {
-              setSessionIds(value ? [value] : []);
-            }
+            setSessionIds(value ? [value] : []);
           }}
-          mode={okrTab == 4 ? 'multiple' : undefined}
           filterOption={(input, option) =>
             (option?.children as any)
               .toLowerCase()
@@ -702,7 +677,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
           >
             <Select
               loading={fyLoading}
-              value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
+              value={sessionIds?.[0]}
               id="desktop-session-select"
               data-cy="okr-desktop-session-select"
               placeholder="Filter by Session"
@@ -710,15 +685,8 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               allowClear
               showSearch
               onChange={(value: any) => {
-                if (okrTab == 4) {
-                  setSessionIds(
-                    Array.isArray(value) ? value : value ? [value] : [],
-                  );
-                } else {
-                  setSessionIds(value ? [value] : []);
-                }
+                setSessionIds(value ? [value] : []);
               }}
-              mode={okrTab == 4 ? 'multiple' : undefined}
               filterOption={(input, option) =>
                 (option?.children as any)
                   .toLowerCase()

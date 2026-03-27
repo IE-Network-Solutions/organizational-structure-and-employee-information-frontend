@@ -53,7 +53,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 
   const queryClient = useQueryClient();
 
-  const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+  const { mutate: updateAndDelete, isLoading: isDeletingKeyResult } =
+    useUpdateObjectiveNestedDelete();
 
   const isEditModalOpen = editModalKeyResultId === String(keyResult?.id ?? '');
   const isDeleteModalOpen =
@@ -469,6 +470,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         open={isDeleteModalOpen}
         onConfirm={() => handleKeyResultDelete(keyResultValue.id)}
         onCancel={onCloseDeleteModal}
+        loading={isDeletingKeyResult}
         data-cy={`okr-key-result-delete-modal-${keyResult?.id}`}
       />
     </div>
