@@ -36,7 +36,7 @@ export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
       open={isNotificationDetailVisible}
       onCancel={handleClose}
       footer={false}
-      destroyOnHidden
+      destroyOnClose
       data-cy={`notification-detail-modal-${detailSlug}`}
     >
       <h2
