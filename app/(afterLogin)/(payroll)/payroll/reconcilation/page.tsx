@@ -1231,6 +1231,7 @@ const PayrollReconcilation = () => {
             </div>
           </div>
         )}
+      </Modal>
       </BlockWrapper>
     </div>
   );
