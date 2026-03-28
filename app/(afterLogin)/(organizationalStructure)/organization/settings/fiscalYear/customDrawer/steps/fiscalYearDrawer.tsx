@@ -591,7 +591,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           className="font-medium text-sm"
                           data-cy="org-settings-fiscal-year-calendar-input-option-monthly-title"
                         >
-                          Monthly
+                          Annually
                         </span>
                         <span
                           className="text-xs text-[rgba(0,0,0,0.45)] mt-1"
@@ -635,7 +635,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                           className="font-medium text-sm"
                           data-cy="org-settings-fiscal-year-calendar-input-option-bianual-title"
                         >
-                          Biannual
+                          Semiannual
                         </span>
                         <span
                           className="text-xs text-[rgba(0,0,0,0.45)] mt-1"
