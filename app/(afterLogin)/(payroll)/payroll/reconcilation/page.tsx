@@ -741,32 +741,36 @@ const PayrollReconcilation = () => {
           data-cy="payroll-reconciliation-summary-cards"
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
-            className="text-[#707070] text-base mb-2 font-normal"
+          <Card
+            className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+            loading={isLoading}
           >
-            Total Payroll Cost
-          </p>
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
-            className="text-3xl font-bold text-black"
-          >
-            {formatETB(data?.summary?.totalPayrollCost)}
-          </p>
-
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-338"
-            className="text-sm text-[#4d4d4d] mt-3 font-normal"
-          >
-            Previous:{' '}
-            <span
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
-              className="font-normal text-[#4d4d4d]"
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
+              className="text-[#707070] text-base mb-2 font-normal"
             >
-              {formatNumber(data?.summary?.previousPayrollCost)}
-            </span>
-          </p>
-        </Card>
+              Total Payroll Cost
+            </p>
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
+              className="text-3xl font-bold text-black"
+            >
+              {formatETB(data?.summary?.totalPayrollCost)}
+            </p>
+
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-338"
+              className="text-sm text-[#4d4d4d] mt-3 font-normal"
+            >
+              Previous:{' '}
+              <span
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
+                className="font-normal text-[#4d4d4d]"
+              >
+                {formatNumber(data?.summary?.previousPayrollCost)}
+              </span>
+            </p>
+          </Card>
         {/* Net Variance */}
         <Card
           className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
@@ -1233,3 +1237,4 @@ const PayrollReconcilation = () => {
 };
 
 export default PayrollReconcilation;
+
