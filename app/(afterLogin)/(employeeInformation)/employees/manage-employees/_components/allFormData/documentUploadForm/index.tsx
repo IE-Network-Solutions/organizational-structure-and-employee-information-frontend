@@ -51,7 +51,6 @@ const DocumentUploadForm = () => {
 
   return (
     <div
-      className="p-3"
       id="document-upload-form"
       data-cy="document-upload-form"
     >

@@ -286,7 +286,14 @@ const BasicInformationForm = ({ form }: any) => {
                 id="basic-info-first-name-label"
                 data-cy="basic-info-first-name-label"
               >
-                First Name
+                First Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-first-name-required`}
+              >
+                *
+              </span>
+
               </span>
             }
             id="userFirstNameId"
@@ -323,7 +330,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-middle-name-label"
               >
-                Middle Name
+                Middle Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-middle-name-required`}
+              >
+                *
+              </span>
               </span>
             }
             id="userMiddleNameId"
@@ -360,7 +373,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-last-name-label"
               >
-                Last Name
+                Last Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-last-name-required`}
+              >
+                *
+              </span>
               </span>
             }
             id="userLastNameId"
@@ -403,7 +422,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-email-label"
               >
-                Email Address
+                Email Address{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-email-required`}
+              >
+                *
+              </span>
               </span>
             }
             id="userEmailId"
@@ -438,7 +463,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-gender-label"
               >
-                Gender
+                Gender{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-gender-required`}
+              >
+                *
+              </span>
               </span>
             }
             id="userEmployeeGenderId"
@@ -489,7 +520,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-dob-label"
               >
-                Date of Birth
+                Date of Birth{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-dob-required`}
+              >
+                *
+              </span>
               </span>
             }
             id="userDateOfBirthId"
@@ -527,7 +564,13 @@ const BasicInformationForm = ({ form }: any) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-marital-status-label"
               >
-                Marital Status
+                Marital Status{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`basic-info-marital-status-required`}
+              >
+                *
+              </span>
               </span>
             }
             id="userMaritalStatusId"

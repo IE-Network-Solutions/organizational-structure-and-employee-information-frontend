@@ -268,7 +268,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       data-cy="employee-detail-page"
     >
       <div
-        className="flex gap-4 items-center mb-4 w-full"
+        className="flex gap-4 items-center py-4 w-full"
         id="employee-detail-header"
         data-cy="employee-detail-header"
       >

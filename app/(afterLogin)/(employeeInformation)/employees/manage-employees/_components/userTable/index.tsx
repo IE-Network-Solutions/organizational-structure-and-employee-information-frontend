@@ -47,7 +47,7 @@ const columns: TableColumnsType<EmployeeData> = [
       </span>
     ),
     dataIndex: 'job_title',
-    width: 260,
+    width: 300,
     // sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
   {
@@ -86,7 +86,7 @@ const columns: TableColumnsType<EmployeeData> = [
       </span>
     ),
     dataIndex: 'role',
-    width: 120,
+    width: 100,
     // sorter: (a, b) => a.role.localeCompare(b.role),
   },
 ];
@@ -118,7 +118,6 @@ const UserTable = () => {
   const data = allFilterData?.items?.map((item: any) => {
     const fullName =
       item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
-    const shortEmail = item?.email;
     const displayName =
       fullName.length > MAX_NAME_LENGTH
         ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
@@ -127,21 +126,7 @@ const UserTable = () => {
       key: item?.id,
       employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
       employee_name: (
-        <Tooltip
-          title={
-            <div data-cy={`user-table-employee-tooltip-content-${item?.id}`}>
-              <span data-cy={`user-table-employee-tooltip-name-${item?.id}`}>
-                {fullName}
-              </span>
-              <br data-cy={`user-table-employee-tooltip-break-${item?.id}`} />
-              <span data-cy={`user-table-employee-tooltip-email-${item?.id}`}>
-                {shortEmail}
-              </span>
-            </div>
-          }
-          id={`user-table-employee-tooltip-${item?.id}`}
-          data-cy={`user-table-employee-tooltip-${item?.id}`}
-        >
+        
           <div
             className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
             id={`user-table-employee-name-${item?.id}`}
@@ -217,12 +202,11 @@ const UserTable = () => {
               </span>
             </div>
           </div>
-        </Tooltip>
       ),
       job_title: (
         <span
           data-cy="user-table-employee-job-title-span"
-          className="text-[#4d4d4d] text-xs font-normal"
+          className="text-[#4d4d4d] text-sm font-normal"
         >
           {' '}
           {item?.employeeJobInformation[0]?.position?.name
@@ -233,7 +217,7 @@ const UserTable = () => {
       department: (
         <span
           data-cy="user-table-employee-department-span"
-          className="text-[#4d4d4d] text-xs font-normal"
+          className="text-[#4d4d4d] text-sm font-normal"
         >
           {' '}
           {item?.employeeJobInformation[0]?.department?.name
@@ -244,7 +228,7 @@ const UserTable = () => {
       employee_status: (
         <div
           data-cy="user-table-employee-status-div"
-          className="pr-2 text-[#4d4d4d] text-xs font-normal"
+          className="pr-2 text-[#4d4d4d] text-sm font-normal"
         >
           {userTypeButton(
             item?.employeeJobInformation[0]?.employementType?.name,
@@ -260,7 +244,7 @@ const UserTable = () => {
         <div data-cy="user-table-employee-role-div" className="pr-2">
           <span
             data-cy="user-table-employee-role-span"
-            className="text-[#4d4d4d] text-xs font-normal"
+            className="text-[#4d4d4d] text-sm font-normal"
           >
             {item?.role?.name ? item?.role?.name : ' - '}
           </span>
@@ -304,6 +288,11 @@ const UserTable = () => {
                 })
               : undefined
           }
+          rowHoverable={false}
+          rowClassName={(notUsed, index) =>
+            index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+          }
+
         />
         {isMobile || isTablet ? (
           <CustomMobilePagination

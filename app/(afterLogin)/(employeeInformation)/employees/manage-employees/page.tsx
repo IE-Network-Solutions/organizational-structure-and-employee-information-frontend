@@ -186,7 +186,7 @@ const ManageEmployees: React.FC<any> = () => {
   return (
     <div id="manage-employees-page" data-cy="manage-employees-page">
       <div
-        className="flex flex-wrap justify-between items-center px-3"
+        className="flex flex-wrap justify-between items-center px-3 pt-4"
         id="manage-employees-header"
         data-cy="manage-employees-header"
       >
@@ -208,12 +208,12 @@ const ManageEmployees: React.FC<any> = () => {
               },
               {
                 title: (
-                  <Link
-                    className="text-xs sm:text-sm"
-                    href="/employees/manage-employees"
+                  <span
+                    className="text-xs sm:text-sm text-[#4d4d4d]"
+                    data-cy="manage-employees-breadcrumb-employee-management"
                   >
                     Employee Management
-                  </Link>
+                  </span>
                 ),
               },
             ]}
@@ -317,7 +317,7 @@ const ManageEmployees: React.FC<any> = () => {
                 size="large"
                 id="createUserButton"
                 data-cy="manage-employees-create-btn"
-                className="hover:bg-[#1D4ED8] bg-[#1e40af] h-10 w-10 sm:w-auto"
+                className="h-10 w-10 sm:w-auto"
                 icon={
                   <PersonAddOutlinedIcon
                     id="manage-employees-create-icon"
@@ -329,7 +329,7 @@ const ManageEmployees: React.FC<any> = () => {
                 disabled={!isAvailableSlots}
               >
                 <span
-                  className="hidden sm:inline"
+                  className="hidden sm:inline font-normal"
                   id="manage-employees-create-btn-text"
                   data-cy="manage-employees-create-btn-text"
                 >

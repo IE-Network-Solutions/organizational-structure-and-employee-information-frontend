@@ -28,7 +28,7 @@ const userTypeButton = (val: string) => {
         data-cy="roleTypeProbation"
         className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
-        PROBATION
+        Probation
       </Tag>
     );
   } else if (val === 'On Leave') {

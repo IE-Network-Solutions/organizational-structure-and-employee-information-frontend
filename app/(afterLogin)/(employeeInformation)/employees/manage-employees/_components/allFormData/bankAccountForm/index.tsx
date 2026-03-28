@@ -35,7 +35,7 @@ const BankInformationForm = () => {
             </span>
           </div>
         }
-        className="h-full shadow-sm"
+        className="h-full"
         bodyStyle={{ padding: '16px' }}
       >
         <Form.Item
@@ -45,7 +45,13 @@ const BankInformationForm = () => {
               className="text-sm font-normal text-[#030712]"
               data-cy="bank-account-form-bank-name-label"
             >
-              Bank Name
+              Bank Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`bank-account-form-bank-name-required`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[{ required: true, message: 'Bank Name is required' }]}
@@ -60,7 +66,13 @@ const BankInformationForm = () => {
               className="text-sm font-normal text-[#030712]"
               data-cy="bank-account-form-account-number-label"
             >
-              Account Number
+              Account Number{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`bank-account-form-account-number-required`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[

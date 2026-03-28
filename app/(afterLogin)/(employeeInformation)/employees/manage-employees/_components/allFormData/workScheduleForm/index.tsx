@@ -53,7 +53,13 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
                 className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="work-schedule-form-category-label"
               >
-                Work Schedule Category
+                Work Schedule Category{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`work-schedule-form-category-required`}
+              >
+                *
+              </span>
               </span>
             }
             rules={[

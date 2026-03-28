@@ -31,7 +31,7 @@ const EmployeeAddressForm = () => {
             </span>
           </div>
         }
-        className="h-full shadow-sm"
+        className="h-full"
         bodyStyle={{ padding: '16px' }}
       >
         <Form.Item
@@ -42,7 +42,13 @@ const EmployeeAddressForm = () => {
               className="text-sm font-normal text-[#030712]"
               data-cy="employee-address-country-label"
             >
-              Country
+              Country{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`employee-address-country-required`}
+              >
+                *
+              </span>
             </span>
           }
           id="addressCountryId"
@@ -75,7 +81,13 @@ const EmployeeAddressForm = () => {
                   className="text-sm font-normal text-[#030712] mb-1"
                   data-cy="employee-address-city-label"
                 >
-                  City
+                  City{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`employee-address-city-required`}
+              >
+                *
+              </span>
                 </span>
               }
               id="addressCityId"
@@ -126,7 +138,13 @@ const EmployeeAddressForm = () => {
               className="text-sm font-normal text-[#030712]"
               data-cy="employee-address-phone-label"
             >
-              Phone Number
+              Phone Number{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`employee-address-phone-number-required`}
+              >
+                *
+              </span>
             </span>
           }
           id="phoneNumber"

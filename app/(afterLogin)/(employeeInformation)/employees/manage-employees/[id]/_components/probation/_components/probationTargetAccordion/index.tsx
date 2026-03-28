@@ -959,13 +959,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       id={`probation-target-empty-tasks-wrapper-${targetSlug}`}
                       data-cy={`probation-target-empty-tasks-wrapper-${targetSlug}`}
                     >
-                      <Empty
-                        description="No tasks found for this probation target"
-                        image={
-                          <EmptyImage data-cy="probation-target-empty-tasks-image" />
-                        }
-                        data-cy={`probation-target-empty-tasks-${targetSlug}`}
-                      />
+                      No tasks found for this probation target
                     </div>
                   )}
                 </div>

@@ -146,6 +146,7 @@ const AddEmployeeModal = (props: any) => {
             name="dependencies"
             autoComplete="off"
             style={{ maxWidth: '100%' }}
+            requiredMark={false}
             layout="vertical"
             onFinish={handleCreateUser}
             onFinishFailed={() =>
@@ -178,6 +179,7 @@ const AddEmployeeModal = (props: any) => {
               </>
             )}
             {current === 1 && (
+              <>
               <Card
                 bodyStyle={{ padding: 0 }}
                 className="px-2 pt-2 border-[1px] border-[#D9D9D9]"
@@ -188,43 +190,52 @@ const AddEmployeeModal = (props: any) => {
                   form={form}
                   data-cy="user-sidebar-job-timeline-form"
                 />
-                <ButtonContinue
+              </Card>
+              <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
                   data-cy="user-sidebar-button-continue"
                 />
-              </Card>
+              </>
             )}
             {current === 2 && (
+              <>
               <Card
                 bodyStyle={{ padding: 0 }}
-                className="px-2 pt-2"
+                className="pt-2"
                 id="user-sidebar-card-additional"
                 data-cy="user-sidebar-card-additional"
+                bordered={false}
+                style={{ border: 'none', boxShadow: 'none' }}
               >
                 <DocumentUploadForm data-cy="user-sidebar-document-upload-form" />
-                <ButtonContinue
+              </Card>
+              <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
                   data-cy="user-sidebar-button-continue"
                 />
-              </Card>
+              </>
             )}
             {current === 3 && (
+              <>
               <Card
                 bodyStyle={{ padding: 0 }}
-                className="px-2 pt-2"
+                className="px-2 py-2"
                 id="user-sidebar-card-custom"
                 data-cy="user-sidebar-card-custom"
+                bordered={false}
+                style={{ border: 'none', boxShadow: 'none' }}
               >
                 <CustomFieldsForm />
-                <ButtonContinue
+              </Card>
+              <ButtonContinue
                   handleBackClick={handleBackClick}
                   handleContinueClick={handleContinueClick}
                   isLoading={isLoading}
                   data-cy="user-sidebar-button-continue"
                 />
-              </Card>
+              </>
             )}
           </Form>
         </Modal>

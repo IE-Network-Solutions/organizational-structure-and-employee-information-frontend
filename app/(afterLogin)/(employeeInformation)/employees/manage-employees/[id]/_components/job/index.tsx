@@ -554,6 +554,7 @@ function Job({ id }: { id: string }) {
                   >
                     <Button
                       type="default"
+                      size="small"
                       onClick={handleEditModalClose}
                       className="border border-red-500 h-6 w-6"
                       id="job-edit-inline-close-btn"
@@ -563,6 +564,7 @@ function Job({ id }: { id: string }) {
                     </Button>
                     <Button
                       type="primary"
+                      size="small"
                       onClick={() => editForm.submit()}
                       className="h-6 w-6"
                       loading={isUpdating || updateLoading}
@@ -647,7 +649,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-title-label"
                         >
-                          Title *
+                          Title
                         </span>
                       }
                       rules={[
@@ -671,7 +673,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-salary-label"
                         >
-                          Salary *
+                          Salary
                         </span>
                       }
                       rules={[
@@ -705,7 +707,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-type-label"
                         >
-                          Type *
+                          Type
                         </span>
                       }
                       rules={[
@@ -735,7 +737,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-status-label"
                         >
-                          Status *
+                          Status
                         </span>
                       }
                       rules={[
@@ -767,7 +769,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-joined-date-label"
                         >
-                          Joined Date *
+                          Joined Date
                         </span>
                       }
                       rules={[
@@ -795,7 +797,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 font-semibold text-xs"
                           data-cy="job-edit-position-label"
                         >
-                          Position *
+                          Position
                         </span>
                       }
                       rules={[
@@ -909,7 +911,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-department-label"
                         >
-                          Department *
+                          Department
                         </span>
                       }
                       rules={[
@@ -952,7 +954,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-branch-label"
                         >
-                          Branch Office *
+                          Branch Office
                         </span>
                       }
                       rules={[

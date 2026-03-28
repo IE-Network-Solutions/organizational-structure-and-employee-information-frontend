@@ -100,12 +100,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
             form={form}
             data-cy="job-add-job-info-timeline"
           />
-          {/* <WorkScheduleForm
-            selectedWorkScheduleDetails={
-              employeeData?.employeeJobInformation?.[0]?.workSchedule?.detail
-            }
-            data-cy="job-add-job-info-schedule"
-          /> */}
           <Form.Item
             id="job-add-job-info-submit-form-item"
             data-cy="job-add-job-info-submit-form-item"
@@ -115,18 +109,9 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
               id="job-add-job-info-submit-row"
               data-cy="job-add-job-info-submit-row"
             >
-              <Button
-                type="primary"
-                htmlType="submit"
-                name="submit"
-                loading={isLoading}
-                id="job-add-job-info-submit-btn"
-                data-cy="job-add-job-info-submit-btn"
-              >
-                Submit
-              </Button>
-              <Button
-                className="text-indigo-500"
+               <Button
+              type="default"
+                className="border border-[#D9D9D9] font-normal text-[#4d4d4d]"
                 htmlType="button"
                 value={'cancel'}
                 name="cancel"
@@ -136,6 +121,18 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
               >
                 Cancel
               </Button>
+              <Button
+                type="primary"
+                htmlType="submit"
+                name="submit"
+                loading={isLoading}
+                id="job-add-job-info-submit-btn"
+                data-cy="job-add-job-info-submit-btn"
+                className="font-normal"
+              >
+                Save
+              </Button>
+             
             </Row>
           </Form.Item>
         </Form>

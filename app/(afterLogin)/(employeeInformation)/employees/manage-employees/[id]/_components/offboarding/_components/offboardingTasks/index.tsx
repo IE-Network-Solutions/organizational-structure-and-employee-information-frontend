@@ -1,6 +1,6 @@
 'use client';
 import React, { useCallback } from 'react';
-import { Card, Checkbox, Button, Empty, Avatar } from 'antd';
+import { Card, Checkbox, Button, Avatar } from 'antd';
 import {
   PlusOutlined,
   DownloadOutlined,
@@ -293,12 +293,12 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   Loading...
                 </div>
               ) : templateList.length === 0 ? (
-                <Empty
-                  description="No template tasks"
-                  image={<EmptyImage />}
-                  className="py-4"
+                <div
+                  className="py-4 text-center text-gray-500"
                   data-cy="core-tasks-empty"
-                />
+                >
+                  No template tasks
+                </div>
               ) : (
                 templateList.map((item: TemplateTaskItem, index: number) => (
                   <TemplateTaskDraggable
@@ -527,14 +527,8 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   id="offboarding-tasks-empty-wrapper"
                   data-cy="offboarding-tasks-empty-wrapper"
                 >
-                  <Empty
-                    description="Drop tasks here or add manually"
-                    image={
-                      <EmptyImage data-cy="offboarding-tasks-empty-icon" />
-                    }
-                    data-cy="offboarding-tasks-empty"
-                  />
-                </div>
+                    No offboarding tasks
+                  </div>
               )}
             </DroppableArea>
             {isDeleteModalVisible && taskToDelete && (
