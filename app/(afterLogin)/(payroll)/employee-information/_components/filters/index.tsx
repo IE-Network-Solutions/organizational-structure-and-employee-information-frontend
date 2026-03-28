@@ -5,7 +5,8 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Button, Col, Modal, Row, Select } from 'antd';
-import { LuSettings2 } from 'react-icons/lu';
+import { SearchOutlined } from '@ant-design/icons';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 
 interface FiltersProps {
   onSearch: (filters: { [key: string]: string }) => void;
@@ -64,8 +65,28 @@ const Filters: React.FC<FiltersProps> = () => {
               data-cy="payroll-mobile-employee-search-interact-select"
               showSearch
               allowClear
-              className="h-10 w-[100%]"
-              placeholder="Search by name"
+              className="w-full search-select-mobile"
+              style={{ height: '40px' }}
+              placeholder="Search Employee"
+              suffixIcon={
+                <div
+                  id="payroll-mobile-employee-search-suffix-icon-container"
+                  data-cy="payroll-mobile-employee-search-suffix-icon-container"
+                  style={{
+                    borderLeft: '1px solid #d9d9d9',
+                    paddingLeft: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '40px',
+                    margin: '-8px 0',
+                    marginLeft: '-4px',
+                  }}
+                >
+                  <SearchOutlined
+                    style={{ color: '#bfbfbf', fontSize: '18px' }}
+                  />
+                </div>
+              }
               onChange={(value) => handleEmployeeSelect(value)}
               filterOption={(input, option) => {
                 const label = option?.label;
@@ -80,15 +101,65 @@ const Filters: React.FC<FiltersProps> = () => {
           <Button
             id="payroll-mobile-filter-open-click-button"
             data-cy="payroll-mobile-filter-open-click-button"
-            className="p-5 h-10  text-gray-500 border border-gray-300"
+            className="flex items-center justify-center rounded-lg overflow-hidden"
+            style={{
+              height: '40px',
+              width: '40px',
+              minWidth: '40px',
+              padding: 0,
+              backgroundColor: '#fff',
+              border: '1px solid #d9d9d9',
+              borderRadius: '10px',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
+            }}
             onClick={() => setIsModalOpen(true)}
             icon={
-              <LuSettings2
+              <MdOutlineFilterAlt
                 id="payroll-mobile-filter-open-click-icon"
                 data-cy="payroll-mobile-filter-open-click-icon"
+                style={{ fontSize: 22, color: '#374151', display: 'block' }}
               />
             }
           />
+          <style jsx global data-cy="payroll-mobile-filter-select-styles">{`
+            .search-select-mobile .ant-select-selector {
+              height: 40px !important;
+              padding: 0 12px !important;
+              border-radius: 8px !important;
+              display: flex !important;
+              align-items: center !important;
+            }
+            .search-select-mobile .ant-select-selection-search {
+              height: 40px !important;
+              display: flex !important;
+              align-items: center !important;
+            }
+            .search-select-mobile .ant-select-selection-placeholder {
+              line-height: 38px !important;
+            }
+          `}</style>
+          <style jsx global data-cy="payroll-mobile-dropdown-custom-styles">{`
+            .ant-select-item-option-selected:not(
+              .ant-select-item-option-disabled
+            ) {
+              background-color: #e6f4ff !important;
+              font-weight: 600 !important;
+              color: #262626 !important;
+            }
+            .ant-select-item-option-active:not(
+              .ant-select-item-option-selected
+            ) {
+              background-color: transparent !important;
+            }
+            .ant-select-item-option-selected .ant-select-item-option-state {
+              color: #1677ff !important;
+              position: absolute !important;
+              right: 12px !important;
+            }
+            .ant-select-item-option-content {
+              padding-right: 30px !important;
+            }
+          `}</style>
         </div>
 
         <Modal
@@ -100,13 +171,25 @@ const Filters: React.FC<FiltersProps> = () => {
             <div
               id="payroll-mobile-filter-modal-footer-view-container"
               data-cy="payroll-mobile-filter-modal-footer-view-container"
-              style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+              }}
             >
               <Button
                 id="payroll-mobile-filter-cancel-click-button"
                 data-cy="payroll-mobile-filter-cancel-click-button"
                 key="cancel"
                 onClick={() => setIsModalOpen(false)}
+                style={{
+                  height: '40px',
+                  padding: '0 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  color: '#595959',
+                  border: '1px solid #d9d9d9',
+                }}
               >
                 Cancel
               </Button>
@@ -116,7 +199,15 @@ const Filters: React.FC<FiltersProps> = () => {
                 data-cy="payroll-mobile-filter-apply-click-button"
                 type="primary"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-purple-600"
+                style={{
+                  height: '40px',
+                  padding: '0 24px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  backgroundColor: '#1d39c4',
+                  border: 'none',
+                  fontWeight: 500,
+                }}
               >
                 Filter
               </Button>
@@ -159,6 +250,25 @@ const Filters: React.FC<FiltersProps> = () => {
       id="payroll-desktop-filter-view-container"
       data-cy="payroll-desktop-filter-view-container"
     >
+      <style jsx global data-cy="payroll-desktop-dropdown-custom-styles">{`
+        .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+          background-color: #e6f4ff !important;
+          font-weight: 600 !important;
+          color: #262626 !important;
+        }
+        .ant-select-item-option-active:not(.ant-select-item-option-selected) {
+          background-color: transparent !important;
+        }
+        .ant-select-item-option-selected .ant-select-item-option-state {
+          color: #1677ff !important;
+          position: absolute !important;
+          right: 12px !important;
+        }
+        /* Ensure content doesn't overlap the absolute check icon */
+        .ant-select-item-option-content {
+          padding-right: 30px !important;
+        }
+      `}</style>
       <Row
         id="payroll-desktop-filter-row-view-row"
         data-cy="payroll-desktop-filter-row-view-row"
@@ -170,8 +280,8 @@ const Filters: React.FC<FiltersProps> = () => {
         <Col
           id="payroll-desktop-filter-employee-view-column"
           data-cy="payroll-desktop-filter-employee-view-column"
-          lg={16}
-          md={14}
+          lg={6}
+          md={12}
           sm={24}
           xs={24}
         >
@@ -180,9 +290,30 @@ const Filters: React.FC<FiltersProps> = () => {
             data-cy="payroll-desktop-employee-search-interact-select"
             showSearch
             allowClear
-            className="min-h-12 w-[100%]"
-            placeholder="Search by name"
+            className="w-full"
+            style={{ borderRadius: '8px' }}
+            placeholder="Search Employee"
+            suffixIcon={
+              <div
+                id="payroll-desktop-employee-search-suffix-icon-container"
+                data-cy="payroll-desktop-employee-search-suffix-icon-container"
+                style={{
+                  borderLeft: '1px solid #d9d9d9',
+                  paddingLeft: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: '40px',
+                  margin: '-12px 0',
+                  marginLeft: '-8px',
+                }}
+              >
+                <SearchOutlined
+                  style={{ color: '#bfbfbf', fontSize: '18px' }}
+                />
+              </div>
+            }
             onChange={(value) => handleEmployeeSelect(value)}
+            size="large"
             filterOption={(input, option) => {
               const label = option?.label;
               return (
@@ -196,17 +327,20 @@ const Filters: React.FC<FiltersProps> = () => {
         <Col
           id="payroll-desktop-filter-department-view-column"
           data-cy="payroll-desktop-filter-department-view-column"
-          lg={8}
+          lg={6}
+          md={8}
           sm={12}
           xs={24}
         >
           <Select
             id={`selectDepartment${searchParams.allJobs}`}
             data-cy="payroll-desktop-department-filter-interact-select"
-            placeholder="All Departments"
+            placeholder="Department"
             onChange={handleDepartmentChange}
             allowClear
-            className="w-full h-14"
+            className="w-full"
+            size="large"
+            style={{ borderRadius: '4px' }}
           >
             {EmployeeDepartment?.map((item: any) => (
               <Option

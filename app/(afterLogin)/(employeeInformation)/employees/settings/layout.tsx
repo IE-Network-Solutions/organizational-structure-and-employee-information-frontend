@@ -42,7 +42,7 @@ const RolePermissionNewButton: FC = () => {
           className="hidden lg:inline"
           id="settings-role-permission-new-btn-text"
           data-cy="settings-role-permission-new-btn-text"
-        >{`New ${tabButton}`}</span>
+        >{`Add New ${tabButton}`}</span>
       </Button>
     </AccessGuard>
   );
@@ -99,22 +99,56 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
     }
   };
 
+  const activeKey = getActiveKey();
+
   const items: TabsProps['items'] = [
     {
       key: 'employementType',
-      label: 'Employement Type',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'employementType' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="settings-employement-type-tab-label"
+          id="settings-employement-type-tab-label"
+        >
+          Employement Type
+        </div>
+      ),
     },
     {
       key: 'rolePermission',
-      label: 'Role Permission',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'rolePermission' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="settings-role-permission-tab-label"
+          id="settings-role-permission-tab-label"
+        >
+          Role Permission
+        </div>
+      ),
     },
     {
       key: 'positions',
-      label: 'Positions',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'positions' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="settings-positions-tab-label"
+          id="settings-positions-tab-label"
+        >
+          Positions
+        </div>
+      ),
     },
     {
       key: 'customFields',
-      label: 'Custom Fields',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'customFields' ? 'text-primary' : 'text-gray-800'}`}
+          data-cy="settings-custom-fields-tab-label"
+          id="settings-custom-fields-tab-label"
+        >
+          Custom Fields
+        </div>
+      ),
     },
   ];
 
@@ -130,7 +164,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         data-cy={`settings-layout-content-${layoutSlug}`}
       >
         <div
-          className="pb-4 px-4 py-4"
+          className="pb-4 py-4"
           data-cy={`settings-page-header-${layoutSlug}`}
         >
           <Title level={4} className="!mb-1 !font-bold !text-gray-700">
@@ -155,14 +189,12 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           data-cy={`settings-layout-body-${layoutSlug}`}
         >
           {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
-          <div
-            data-cy="settings-layout-tabs-container"
-            className="px-4 pr-6 mb-4"
-          >
+          <div data-cy="settings-layout-tabs-container" className="mb-4">
             <Tabs
               activeKey={getActiveKey()}
               onChange={handleTabChange}
               items={items}
+              tabBarGutter={24}
               tabBarStyle={{
                 marginBottom: 0,
                 marginLeft: 0,
@@ -196,14 +228,12 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                   <RolePermissionNewButton />
                 ) : null
               }
-              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              className="text-base [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
             />
           </div>
-          <div className="sm:px-5 px-1" data-cy="settings-content-wrapper">
-            {children}
-          </div>
+          <div data-cy="settings-content-wrapper">{children}</div>
         </div>
       </div>
     </div>

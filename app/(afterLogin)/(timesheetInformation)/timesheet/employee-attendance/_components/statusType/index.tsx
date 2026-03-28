@@ -16,7 +16,7 @@ const statusType = (val: string) => {
       <Tag
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
+        className="text-[#f5222d] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffa39e] h-[22px]"
       >
         ABSENT
       </Tag>
@@ -26,7 +26,7 @@ const statusType = (val: string) => {
       <Tag
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-[#f5222d] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffa39e] h-[22px]"
+        className="text-[#fa8c16] text-sm font-normal px-2 bg-[#fff7e6] border border-[#ffd591] h-[22px]"
       >
         LATE
       </Tag>

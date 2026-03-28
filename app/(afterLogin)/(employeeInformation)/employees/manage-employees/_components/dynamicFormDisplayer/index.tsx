@@ -35,10 +35,10 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
     if (!field.isActive) return null; // Skip inactive fields
 
     const commonProps = {
-      className: 'font-semibold text-xs',
+      className: 'text-sm font-normal text-[#030712]',
       label: (
         <span
-          className="mb-1 font-semibold text-xs"
+          className="mb-1 text-sm font-normal text-[#030712]"
           data-cy={`dynamic-form-field-label-${field.fieldName}`}
         >
           {field.fieldName}

@@ -23,7 +23,6 @@ import { useAttendanceImport } from '@/store/server/features/timesheet/attendanc
 import { fileUpload } from '@/utils/fileUpload';
 import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import EmployeeAttendanceSideBar from './_components/sideBar';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import BreakImportSidebar from './_components/breakImportSidebar';
 import { HiOutlineTemplate } from 'react-icons/hi';
@@ -422,7 +421,6 @@ const EmployeeAttendance = () => {
           />
         </div>
       </div>
-      <EmployeeAttendanceSideBar data-cy="time-attendance-employee-attendance-side-bar" />
       <BreakImportSidebar data-cy="time-attendance-employee-attendance-break-import-side-bar" />
       <AttendanceImportErrorModal data-cy="time-attendance-employee-attendance-import-error-modal" />
     </>

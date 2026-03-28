@@ -56,11 +56,13 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-import dayjs from 'dayjs';
-import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+// import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+// import dayjs from 'dayjs';
+// import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -234,10 +236,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId } = useAuthenticationStore();
+  const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -431,6 +433,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: hasEndedFiscalYear,
         moduleCode: 'EMPLOYEES',
         children: [
+          {
+            title: (
+              <span data-cy="nav-tree-manage-employees-dashboard">Dashboard</span>
+            ),
+            key: '/employees/dashboard',
+            className: 'font-bold',
+            permissions: ['view_employees_dashboard'],
+          },
           {
             title: (
               <span data-cy="nav-tree-manage-employees">Manage Employees</span>
@@ -906,6 +916,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
   });
+  const { data: subscriptionData } = useGetSubscriptionByTenant(
+    tenantId,
+    !!tenantId,
+  );
+  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
+    useGetSubscriptions({
+      filter: {
+        isActive: true,
+        ...(tenantId ? { tenantId: [tenantId] } : {}),
+      },
+    });
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
@@ -916,6 +937,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     departmentsLoading ||
     employeeDataLoading ||
     modulesLoading ||
+    subscriptionsLoading ||
     !departments ||
     !employeeData;
 
@@ -1090,7 +1112,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const groupedMenuItems = React.useMemo(() => {
-    // 1. Filter treeData items by user permissions
+    const normalizeRoute = (value?: string | null) => {
+      if (!value) return '';
+      const v = String(value).toLowerCase().trim();
+      if (!v) return '';
+      return v.replace(/\/+$/, '') || '/';
+    };
+
     const accessibleTreeItems = treeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
@@ -1110,13 +1138,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 2. Map treeData items by title for easy lookup
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<string, (typeof accessibleTreeItems)[0]>();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
+
+      const itemKey = normalizeRoute(String(item.key));
+      if (itemKey.startsWith('/')) {
+        treeItemByRouteMap.set(itemKey, item);
+      }
+
+      item.children?.forEach((child) => {
+        const childKey = normalizeRoute(String(child.key));
+        if (!childKey.startsWith('/')) return;
+        const firstSegment = childKey.split('/').filter(Boolean)[0];
+        if (!firstSegment) return;
+        const parentRoute = `/${firstSegment}`;
+        if (!treeItemByRouteMap.has(parentRoute)) {
+          treeItemByRouteMap.set(parentRoute, item);
+        }
+      });
     });
 
-    // Handles mismatches between backend names and sidebar titles
     const nameMapping: Record<string, string> = {
       overview: 'dashboard',
       people: 'employees',
@@ -1124,96 +1167,101 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       finance: 'payroll',
       administration: 'admin',
       organization: 'organization',
+      'org structure': 'organization',
       employee: 'employees',
       'learning and growth': 'learning & growth',
+      tna: 'learning & growth',
+      'talent acquisition': 'talent acquisition',
+      'talent aquisation': 'talent acquisition',
+      'talent aquisatiom': 'talent acquisition',
       'time and attendance': 'time & attendance',
       incentive: 'incentives',
+      compensation: 'compensation & benefit',
       'compensation & benefit': 'compensation & benefit',
       timesheet: 'time & attendance',
       'employee info': 'employees',
+      'okr and planning': 'okr',
+      feedback: 'cfr',
+      cfr: 'cfr',
+      recruitment: 'talent acquisition',
     };
 
     const modules: Module[] = modulesData?.items || [];
+    const activeSubscriptionFromTenant =
+      subscriptionData?.items?.find((subscription) => subscription?.isActive) ||
+      subscriptionData?.item;
+    const activeSubscriptionFromList = subscriptionsData?.items?.find(
+      (subscription) => subscription?.isActive,
+    );
+    const activeSubscription =
+      activeSubscriptionFromTenant || activeSubscriptionFromList;
+    const subscriptionPlanModules = activeSubscription?.plan?.modules || [];
+    const subscribedModuleIds = new Set(
+      subscriptionPlanModules
+        .map((planModule: any) => planModule.moduleId || planModule?.module?.id)
+        .filter(Boolean),
+    );
 
-    // In the new API, items like "Overview", "People", "Performance", "Finance"
-    // are the parents, and their `moduleGroup` is a comma‑separated list of
-    // child module names. Leaf modules (Dashboard, Organization, Employee, ...)
-    // have `moduleGroup: null`.
-    const parentModules = modules
+    const groupedByParent = new Map<
+      string,
+      { type: 'group'; key: string; label: string; children: any[] }
+    >();
+
+    const sortedModules = modules
       .filter(
         (m) =>
-          m.isActive &&
-          m.moduleGroup &&
-          typeof m.moduleGroup === 'string' &&
-          (m.moduleGroup as unknown as string).trim().length > 0,
+          m.isActive && m.moduleGroup && subscribedModuleIds.has((m as any).id),
       )
       .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
-    const leafModules = modules.filter(
-      (m) => m.isActive && (!m.moduleGroup || (m.moduleGroup as any) === null),
-    );
+    sortedModules.forEach((module) => {
+      const normalizedModuleName = module.name.toLowerCase().trim();
+      const mappedName =
+        nameMapping[normalizedModuleName] || normalizedModuleName;
+      const normalizedDescription = normalizeRoute((module as any).description);
+      const treeItemFromDescription = normalizedDescription
+        ? treeItemByRouteMap.get(normalizedDescription)
+        : undefined;
+      const treeItem = treeItemFromDescription || treeItemMap.get(mappedName);
+      if (!treeItem) return;
 
-    const menuItems: any[] = [];
+      const groupLabelRaw = String(module.moduleGroup).trim();
+      if (!groupLabelRaw) return;
+      const groupKey = groupLabelRaw.toLowerCase();
 
-    parentModules.forEach((parent) => {
-      const rawGroup = (parent.moduleGroup as unknown as string) || '';
-      const childNames = rawGroup
-        .split(',')
-        .map((n) => n.trim())
-        .filter(Boolean);
-
-      if (childNames.length === 0) {
-        // moduleGroup effectively empty → do not show the parent
-        return;
-      }
-
-      const groupChildren: any[] = [];
-
-      childNames.forEach((childName) => {
-        // Find the leaf module that corresponds to this child name
-        const leaf = leafModules.find(
-          (m) => m.name.toLowerCase().trim() === childName.toLowerCase().trim(),
-        );
-
-        // Even if we don't need `leaf` data directly, this guarantees the
-        // child exists in the subscription; otherwise we skip it.
-        if (!leaf) return;
-
-        const normalized = childName.toLowerCase().trim();
-        const mappedName = nameMapping[normalized] || normalized;
-        const treeItem = treeItemMap.get(mappedName);
-
-        if (!treeItem) return;
-
-        groupChildren.push({
-          key: treeItem.key,
-          icon: treeItem.icon,
-          label: treeItem.title,
-          children:
-            treeItem.children && treeItem.children.length > 0
-              ? treeItem.children.map((child) => ({
-                  key: child.key,
-                  label: child.title,
-                }))
-              : undefined,
+      if (!groupedByParent.has(groupKey)) {
+        groupedByParent.set(groupKey, {
+          type: 'group',
+          key: `group-${groupKey}`,
+          label: groupLabelRaw,
+          children: [],
         });
-      });
-
-      // If this parent has no resolved children, skip it as requested
-      if (groupChildren.length === 0) {
-        return;
       }
 
-      menuItems.push({
-        type: 'group',
-        key: parent.id,
-        label: parent.name,
-        children: groupChildren,
+      const currentGroup = groupedByParent.get(groupKey)!;
+      const alreadyAdded = currentGroup.children.some(
+        (child) => String(child.key) === String(treeItem.key),
+      );
+      if (alreadyAdded) return;
+
+      currentGroup.children.push({
+        key: treeItem.key,
+        icon: treeItem.icon,
+        label: treeItem.title,
+        children:
+          treeItem.children && treeItem.children.length > 0
+            ? treeItem.children.map((child) => ({
+                key: child.key,
+                label: child.title,
+              }))
+            : undefined,
       });
     });
 
-    return menuItems;
-  }, [treeData, modulesData]);
+    return Array.from(groupedByParent.values()).filter(
+      (group) => group.children.length > 0,
+    );
+  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
 
   // Fallback skeleton structure used while modules data is not yet available
   const skeletonMenuItems = React.useMemo(
@@ -1264,36 +1312,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ],
     [groupedMenuItems],
   );
-  const { mutate: employeeInfo } = useCreateEmployee();
-  const handleUserInfoUpdate = () => {
-    const fullName = employeeData?.firstName?.split(' ') || [];
-    const payloadUser = {
-      firstName: fullName[0] || '-',
-      middleName: fullName[1] || '-',
-      lastName: fullName[2] || '-',
-    };
-    const payloadEmp = {
-      joinedDate: employeeData?.createdAt
-        ? new Date(employeeData?.createdAt).toISOString()
-        : new Date().toISOString(),
-      dateOfBirth: dayjs().subtract(30, 'year'),
-      employeeAttendanceId: 1,
-      gender: 'male',
-      maritalStatus: 'SINGLE',
-      addresses: {},
-      additionalInformation: {},
-      bankInformation: {},
-      userId: userId,
-    };
+  // const { mutate: employeeInfo } = useCreateEmployee();
 
-    updateEmployeeInformation({
-      id: userId,
-      values: payloadUser,
-    });
-    employeeInfo({
-      values: payloadEmp,
-    });
-  };
+  // const handleUserInfoUpdate = () => {
+  //   const fullName = employeeData?.firstName?.split(' ') || [];
+  //   const payloadUser = {
+  //     firstName: fullName[0] || '-',
+  //     middleName: fullName[1] || '-',
+  //     lastName: fullName[2] || '-',
+  //   };
+  //   const payloadEmp = {
+  //     joinedDate: employeeData?.createdAt
+  //       ? new Date(employeeData?.createdAt).toISOString()
+  //       : new Date().toISOString(),
+  //     dateOfBirth: dayjs().subtract(30, 'year'),
+  //     employeeAttendanceId: 1,
+  //     gender: 'male',
+  //     maritalStatus: 'SINGLE',
+  //     addresses: {},
+  //     additionalInformation: {},
+  //     bankInformation: {},
+  //     userId: userId,
+  //   };
+
+  //   updateEmployeeInformation({
+  //     id: userId,
+  //     values: payloadUser,
+  //   });
+  //   employeeInfo({
+  //     values: payloadEmp,
+  //   });
+  // };
 
   // Render the component with the layout and navigation on the left
 
@@ -1491,7 +1540,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           <div
             data-cy="nav-sider-admin-wrap"
-            className="w-full flex justify-center py-6 mt-4 bg-[#F5fbff]"
+            className="w-full flex justify-center py-3 mt-4 bg-[#F5fbff]"
           >
             <Button
               data-cy="nav-sider-admin-btn"
@@ -1595,20 +1644,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: isMobile ? 12 : 24,
-                marginLeft: isMobile ? 12 : 24,
+                paddingRight: isMobile ? 8 : 24,
+                paddingLeft: isMobile ? 8 : 24,
                 background: '#ffffff',
               }}
             >
               {children}
             </div>
           )}
-          <CreateEmployeeJobInformation
+          {/* <CreateEmployeeJobInformation
             onInfoSubmition={() => {
               handleUserInfoUpdate();
             }}
             id={userId}
-          />
+          /> */}
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}
