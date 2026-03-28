@@ -3,8 +3,9 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/mutation';
 import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/queries';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
-import { Spin } from 'antd';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Dropdown, Spin } from 'antd';
+import type { MenuProps } from 'antd';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
 import AccessGuard from '@/utils/permissionGuard';
@@ -12,6 +13,22 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+
+function fieldTypeToLabel(fieldType: string | undefined): string {
+  if (!fieldType) return 'Short text';
+  const map: Record<string, string> = {
+    short_text: 'Short text',
+    paragraph: 'Paragraph',
+    multiple_choice: 'Multiple choice',
+    checkbox: 'Checkbox',
+  };
+  return map[fieldType] ?? fieldType;
+}
+
+const canUpdate = () =>
+  AccessGuard.checkAccess({ permissions: [Permissions.UpdateCustomFields] });
+const canDelete = () =>
+  AccessGuard.checkAccess({ permissions: [Permissions.DeleteCustomFields] });
 
 const CustomFieldsCard: React.FC = () => {
   const {
@@ -81,57 +98,80 @@ const CustomFieldsCard: React.FC = () => {
   return (
     <>
       {customFields?.items && customFields?.items?.length > 0 ? (
-        customFields?.items.map((questions: any, index: number) => (
-          <div
-            key={index}
-            className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
-            data-cy="recruitment-recruitment-settings-customfields-customfieldscard-index-tsx-div-85"
-          >
+        customFields?.items.map((templateItem: any, index: number) => {
+          const form = templateItem?.form;
+          const formFirst = Array.isArray(form) ? form[0] : form;
+          const firstQuestion = templateItem?.questions?.[0] ?? formFirst;
+          const fieldType = firstQuestion?.fieldType;
+          const typeLabel = fieldTypeToLabel(fieldType);
+          const displayTitle =
+            templateItem?.title ?? firstQuestion?.question ?? 'Untitled';
+
+          const menuItems: MenuProps['items'] = [
+            canUpdate() && {
+              key: 'edit',
+              label: 'Edit',
+              icon: <Pencil size={14} />,
+              onClick: () => handleCustomFieldsModalOpen(templateItem),
+            },
+            canDelete() && {
+              key: 'delete',
+              label: 'Delete',
+              icon: <Trash2 size={14} />,
+              danger: true,
+              onClick: () => handleDeleteModalOpen(templateItem),
+            },
+          ].filter(Boolean) as MenuProps['items'];
+
+          const showMenu = menuItems && menuItems.length > 0;
+
+          return (
             <div
-              className="text-medium font-medium"
-              data-cy={`talent-acquisition-custom-fields-card-title-${questions?.id}`}
+              key={templateItem?.id ?? index}
+              className="recruitment-settings-card relative p-4"
+              data-cy="recruitment-recruitment-settings-customfields-customfieldscard-index-tsx-div-85"
             >
-              {questions?.title}
-            </div>
-            <div
-              data-cy="settings-customfields-customfieldscard-index-tsx-index-div-95"
-              className="flex items-center justify-center gap-2"
-            >
-              <AccessGuard permissions={[Permissions.UpdateCustomFields]}>
+              {showMenu && (
                 <div
-                  data-cy="settings-customfields-customfieldscard-index-tsx-index-div-97"
-                  className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
+                  className="absolute top-3 right-3"
+                  data-cy="talent-acquisition-custom-fields-card-menu-wrapper"
                 >
-                  <Pencil
-                    id={`talent-acquisition-custom-fields-button-edit-${questions?.id}`}
-                    data-cy={`talent-acquisition-custom-fields-button-edit-${questions?.id}`}
-                    size={15}
-                    className="text-white cursor-pointer"
-                    onClick={() => handleCustomFieldsModalOpen(questions)}
-                  />
+                  <Dropdown
+                    menu={{ items: menuItems }}
+                    trigger={['click']}
+                    placement="bottomRight"
+                    overlayClassName="recruitment-settings-dropdown-overlay"
+                  >
+                    <button
+                      type="button"
+                      className="recruitment-settings-more-btn p-1 text-gray-500"
+                      data-cy={`talent-acquisition-custom-fields-card-menu-${templateItem?.id}`}
+                      aria-label="More options"
+                    >
+                      <MoreHorizontal size={18} />
+                    </button>
+                  </Dropdown>
                 </div>
-              </AccessGuard>
-              <AccessGuard permissions={[Permissions.DeleteCustomFields]}>
-                <div
-                  data-cy="settings-customfields-customfieldscard-index-tsx-index-div-108"
-                  className="bg-[#e03137] w-7 h-7 rounded-md flex items-center justify-center"
-                >
-                  <Trash2
-                    id={`talent-acquisition-custom-fields-button-delete-${questions?.id}`}
-                    data-cy={`talent-acquisition-custom-fields-button-delete-${questions?.id}`}
-                    size={15}
-                    className="text-white cursor-pointer"
-                    onClick={() => handleDeleteModalOpen(questions)}
-                  />
-                </div>
-              </AccessGuard>
+              )}
+              <h3
+                className="recruitment-settings-question-title text-[16px] font-normal pr-8"
+                data-cy={`talent-acquisition-custom-fields-card-title-${templateItem?.id}`}
+              >
+                {displayTitle}
+              </h3>
+              <span
+                className="recruitment-settings-card-type-pill inline-block mt-2 px-2.5 py-0.5 rounded"
+                data-cy={`talent-acquisition-custom-fields-card-type-${templateItem?.id}`}
+              >
+                {typeLabel}
+              </span>
             </div>
-          </div>
-        ))
+          );
+        })
       ) : (
         <div
           data-cy="settings-customfields-customfieldscard-index-tsx-index-div-122"
-          className="text-center my-5"
+          className="text-center py-8 text-gray-500 rounded-lg border border-gray-200 bg-gray-50/50"
         >
           No custom fields available.
         </div>

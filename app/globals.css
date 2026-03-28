@@ -358,22 +358,6 @@ h6 {
   width: 100%;
 }
 
-.ql-container.ql-snow {
-  border: none !important;
-  font-family: 'Calibre', sans-serif;
-  @apply text-gray-900 font-medium text-sm;
-}
-
-.ql-container.ql-snow h3 {
-  font-size: 24px !important;
-}
-
-.ql-container .ql-editor.ql-blank::before {
-  font-style: normal;
-  color: rgba(0, 0, 0, 0.35);
-  @apply font-medium text-sm;
-}
-
 .ant-form-item-control .control {
   @apply mt-2.5 h-[54px] w-full;
 }
@@ -387,7 +371,9 @@ h6 {
 }
 
 .form-item {
-  @apply font-semibold text-xs;
+  font-weight: 600;
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .menu-item-label {
@@ -443,12 +429,11 @@ h6 {
 
 .ant-tree-treenode .ant-tree-title {
   height: 2.25rem !important;
-  /* h-9 */
   width: 14rem !important;
-  /* w-60 */
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: flex-start;
+  transition: background-color 0.2s ease-in-out;
 }
 
 .ant-tree-treenode-selected .ant-tree-title {
@@ -459,10 +444,6 @@ h6 {
 .ant-tree-treenode:hover .ant-tree-title {
   background-color: #f5f5f5 !important;
   /* Light grey on hover */
-}
-
-.ant-tree-treenode .ant-tree-title {
-  transition: background-color 0.2s ease-in-out;
 }
 
 /* Quill Editor styles */
@@ -501,12 +482,10 @@ h6 {
   max-height: 80px !important;
 }
 
-@layer components {
-  @media (max-width: 640px) {
-    /* Ant Design menu active item */
-    .ant-menu-item-selected {
-      @apply text-primary;
-    }
+@media (max-width: 640px) {
+  /* Ant Design menu active item (mobile) */
+  .ant-menu-item-selected {
+    color: #1677ff !important; /* AntD primary blue */
   }
 }
 
@@ -1430,9 +1409,80 @@ h6 {
   }
 }
 
-/* Leave Management table: thin light gray borders, no vertical lines */
-.leave-management-table .ant-table {
-  border: none !important;
+/* Talent acquisition settings: context menu (Edit/Delete) - white card, rounded corners */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu {
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px 0 !important;
+  min-width: 120px;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item {
+  padding: 8px 12px !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item .ant-dropdown-menu-item-icon {
+  color: #000 !important;
+}
+
+/* Talent acquisition settings: primary button blue #1E40AF */
+.recruitment-settings-primary-btn.ant-btn-primary,
+.recruitment-settings-primary-btn.ant-btn-primary:hover,
+.recruitment-settings-primary-btn.ant-btn-primary:focus {
+  background: #1E40AF !important;
+  border-color: #1E40AF !important;
+}
+.recruitment-settings-primary-btn.ant-btn-primary:hover {
+  background: #1D3A9F !important;
+  border-color: #1D3A9F !important;
+}
+
+/* Talent acquisition settings: shared design tokens and components (reuse across tabs) */
+:root {
+  --recruitment-settings-border: #D9D9D9;
+  --recruitment-settings-radius: 8px;
+  --recruitment-settings-title-size: 14px;
+  --recruitment-settings-title-weight: 400;
+  --recruitment-settings-level-size: 12px;
+  --recruitment-settings-level-color: rgba(0, 0, 0, 0.7);
+  --recruitment-settings-description-size: 14px;
+  --recruitment-settings-description-color: rgba(0, 0, 0, 0.45);
+}
+
+/* Card container: border, radius, background (Define Status, Talent Pool Category, Template Questions cards) */
+.recruitment-settings-card {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: rgb(249 250 251 / 0.8);
+}
+
+/* Define Status / Template Questions: card title (14px, 400, black) */
+.recruitment-settings-card-title {
+  font-size: var(--recruitment-settings-title-size);
+  font-weight: var(--recruitment-settings-title-weight);
+  color: #000;
+}
+
+/* Define Status: level label pill - bg black 2%, border #D9D9D9, text 12px 400 black 70% */
+.recruitment-settings-card-level {
+  font-size: var(--recruitment-settings-level-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-level-color);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #D9D9D9;
+}
+
+/* Define Status: description text (14px, 400, black 45%) */
+.recruitment-settings-card-description {
+  font-size: var(--recruitment-settings-description-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-description-color);
+}
+
+/* Template Questions: input type description (12px, black 45%) */
+.recruitment-settings-input-type-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .leave-management-table .ant-table-thead > tr > th {
@@ -1483,41 +1533,119 @@ h6 {
   box-shadow: 0 0 0 1px #e5e7eb !important;
 }
 
-/* Leave Management filter: popover + date dropdown render inside filter root */
-#time-attendance-leave-management-filter-root {
-  position: relative !important;
-  overflow: visible !important;
+/* Template Questions: type pill on question cards - border #D1D5DB, bg #F9FAFB, text #9CA3AF 12px 400 */
+.recruitment-settings-card-type-pill {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9CA3AF;
+  background: #F9FAFB;
+  border: 1px solid #D1D5DB;
 }
 
-#time-attendance-leave-management-filter-root .ant-picker-dropdown {
-  z-index: 1060 !important;
+/* More (ellipsis) action button - bordered, used on all tabs */
+.recruitment-settings-more-btn {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+.recruitment-settings-more-btn:hover {
+  background: rgb(243 244 246);
 }
 
-#time-attendance-leave-management-filter-popover-content {
-  overflow: visible !important;
+/* Template Questions: drag source card animation when dragging */
+/* Source card when dragging: subtle rotation and fade */
+.recruitment-settings-dragging-card {
+  transform: scale(0.98) rotate(8deg);
+  transform-origin: center center;
+  opacity: 0.7;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
-/* Leave Request Detail Modal – Figma node 1943-11843: size & colors */
-.leave-request-detail-modal.ant-modal .ant-modal-content {
-  background: #ffffff !important;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 12px !important;
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+/* Define Status: dashed placeholder slot left behind when an item is being dragged */
+.recruitment-settings-status-drag-placeholder {
+  background: rgba(0, 0, 0, 0.02);
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  pointer-events: none;
 }
 
-.leave-request-detail-modal.ant-modal .ant-modal-body {
-  padding: 24px !important;
+/* Define Status: DragOverlay ghost — tilted card that follows the cursor.
+   Works identically in Chrome, Firefox and Safari because @dnd-kit uses
+   pointer events rather than the native HTML5 drag API. */
+.recruitment-settings-drag-ghost {
+  transform: rotate(3deg);
+  transform-origin: center top;
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.18), 0 4px 10px -4px rgba(0, 0, 0, 0.1);
+  opacity: 0.95;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #D9D9D9;
+  cursor: grabbing;
+}
+
+/* Outer panel for Template Questions left/right columns */
+.recruitment-settings-panel {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: rgb(249 250 251 / 0.3);
+}
+
+/* Template Questions: existing question card title (16px, 400, black) */
+.recruitment-settings-question-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+}
+
+/* Define Status / Edit Status / Delete Status modals - match design */
+.recruitment-settings-status-modal .ant-modal-content,
+.recruitment-settings-delete-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-status-modal .ant-modal-header,
+.recruitment-settings-delete-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+}
+.recruitment-settings-status-modal .ant-modal-title {
+  font-size: 18px;
+  font-weight: 600;
   color: #111827;
 }
-
-.leave-request-detail-modal.ant-modal .ant-modal-close {
-  color: #6b7280;
-}
-
-.leave-request-detail-modal.ant-modal .ant-modal-close:hover {
+.recruitment-settings-delete-modal .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
   color: #111827;
+}
+.recruitment-settings-status-modal .ant-input,
+.recruitment-settings-status-modal .ant-input-affix-wrapper,
+.recruitment-settings-status-modal textarea.ant-input {
+  border-color: #D1D5DB !important;
+  border-radius: 6px !important;
+}
+.recruitment-settings-status-modal .ant-form-item-label > label {
+  font-size: 14px;
+  font-weight: 400;
+  color: #374151;
+}
+.recruitment-settings-status-modal .ant-btn-default {
+  border-color: #D1D5DB !important;
+  background: #fff !important;
+  color: #374151 !important;
+}
+.recruitment-settings-status-modal .recruitment-settings-status-primary-btn.ant-btn-primary {
+  background: #3B82F6 !important;
+  border-color: #3B82F6 !important;
+}
+.recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
+.recruitment-settings-delete-modal .ant-btn-dangerous {
+  background: #EF4444 !important;
+  border-color: #EF4444 !important;
+}
+.recruitment-settings-delete-modal .ant-btn-default {
+  border-color: #D1D5DB !important;
+  background: #fff !important;
+  color: #374151 !important;
 }
 
 /* Org Structure: Add/Edit/Delete Department modals close button position */
