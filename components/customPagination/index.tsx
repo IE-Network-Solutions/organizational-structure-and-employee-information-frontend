@@ -5,12 +5,16 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
+const DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 75, 100];
+
 interface CustomPaginationProps {
   current: number;
   total: number;
   pageSize: number;
   onChange: (page: number, pageSize: number) => void;
   onShowSizeChange: (size: number) => void;
+  /** When omitted, uses 5 / 10 / 25 / 50 / 75 / 100. Current `pageSize` is always included in the list. */
+  pageSizeOptions?: number[];
   id?: string;
   'data-cy'?: string;
   grayBackground?: boolean; // Only for planning and reporting page
@@ -22,10 +26,15 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   pageSize,
   onChange,
   onShowSizeChange,
+  pageSizeOptions,
   id,
   'data-cy': dataCy,
   grayBackground = false,
 }) => {
+  const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
+  const selectPageSizes = [...new Set([...basePageSizes, pageSize])].sort(
+    (a, b) => a - b,
+  );
   const handlePageChange = (page: number) => {
     onChange(page, pageSize);
   };
@@ -273,55 +282,18 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           className={isMobile ? 'w-20' : 'w-24'}
           size={isMobile ? 'small' : 'middle'}
           onChange={(value) => handleSizeChange(value)}
+          data-cy="pagination-page-size-select"
         >
-          <Option value={5}>
-            <span
-              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-228"
-              className="text-xs text-[#111827]"
-            >
-              {isMobile ? '5' : 'Show 5'}
-            </span>
-          </Option>
-          <Option value={10}>
-            <span
-              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-233"
-              className="text-xs text-[#111827]"
-            >
-              {isMobile ? '10' : 'Show 10'}
-            </span>
-          </Option>
-          <Option value={25}>
-            <span
-              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-238"
-              className="text-xs text-[#111827]"
-            >
-              {isMobile ? '25' : 'Show 25'}
-            </span>
-          </Option>
-          <Option value={50}>
-            <span
-              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-243"
-              className="text-xs text-[#111827]"
-            >
-              {isMobile ? '50' : 'Show 50'}
-            </span>
-          </Option>
-          <Option value={75}>
-            <span
-              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-248"
-              className="text-xs text-[#111827]"
-            >
-              {isMobile ? '75' : 'Show 75'}
-            </span>
-          </Option>
-          <Option value={100}>
-            <span
-              data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-253"
-              className="text-xs text-[#111827]"
-            >
-              {isMobile ? '100' : 'Show 100'}
-            </span>
-          </Option>
+          {selectPageSizes.map((size) => (
+            <Option key={size} value={size}>
+              <span
+                className="text-xs text-[#111827]"
+                data-cy={`pagination-page-size-option-${size}`}
+              >
+                {isMobile ? String(size) : `Show ${size}`}
+              </span>
+            </Option>
+          ))}
         </Select>
       </div>
     </div>

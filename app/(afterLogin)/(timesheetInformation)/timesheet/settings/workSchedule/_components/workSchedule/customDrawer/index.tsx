@@ -317,7 +317,7 @@ const CustomWorkingScheduleDrawer = () => {
                     className={`h-10 min-w-[72px] px-4 rounded-lg border text-base transition-colors ${
                       item.workDay
                         ? 'border-primary text-primary bg-white'
-                        : 'border-gray-300 text-gray-500 bg-[#f5f5f5]'
+                        : 'border-gray-300 text-[#4d4d4d]'
                     }`}
                     onClick={() => handleSwitchChange(item.day, !item.workDay)}
                     data-cy={`org-settings-work-schedule-day-chip-${dayKey}`}

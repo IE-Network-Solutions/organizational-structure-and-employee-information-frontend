@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Select, DatePicker, Form } from 'antd';
 import { useGetAllRecognitionTypeChild } from '@/store/server/features/CFR/recognition/queries';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
@@ -52,9 +52,11 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
       },
     );
   }
-  const recognitionType = { recognitionTypeId, dateRange }; // Get recognitionType from store
+  const recognitionType = useMemo(
+    () => ({ recognitionTypeId, dateRange }),
+    [recognitionTypeId, dateRange],
+  );
   useEffect(() => {
-    // Convert dateRange to dayjs object if it exists
     const formattedRecognitionType = {
       ...recognitionType,
       dateRange: recognitionType.dateRange
@@ -65,7 +67,7 @@ const RecognitionTypeSelector: React.FC<RecognitionTypeSelectorProps> = ({
         : undefined,
     };
 
-    form.setFieldsValue(formattedRecognitionType); // Set form fields with converted values
+    form.setFieldsValue(formattedRecognitionType);
   }, [form, recognitionType]);
   return (
     <div data-cy="recognition-type-selector" id="recognitionTypeSelector">

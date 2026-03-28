@@ -9,7 +9,6 @@ const Page = () => {
   const { data } = useGetLeaveTypes();
   return (
     <div
-      className="px-2 sm:px-5 py-2"
       id="time-attendance-settings-leave-types-and-policies-container"
       data-cy="time-attendance-settings-leave-types-and-policies-container"
     >

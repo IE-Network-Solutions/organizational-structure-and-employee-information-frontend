@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Popover, Select } from 'antd';
-import { FilterOutlined } from '@ant-design/icons';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetWeeks } from '@/store/server/features/okrplanning/weeklyPriority/queries';
@@ -172,8 +172,8 @@ const FilterPopover: React.FC = () => {
       data-cy="filter-popover"
     >
       <Button
-        icon={<FilterOutlined className="text-xs" />}
-        className="flex items-center gap-2 h-9 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
+        icon={<MdOutlineFilterAlt className="text-lg text-[#111827]" />}
+        className="flex items-center gap-2 h-9 border-gray-200 text-gray-600 rounded-[8px] px-3 md:px-4 font-medium mb-3 mr-1"
         data-cy="filter-popover-trigger-button"
       >
         <span

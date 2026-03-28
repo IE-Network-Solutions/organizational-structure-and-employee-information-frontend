@@ -8,6 +8,9 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { Button, Card, Col, Row, Select, Table, Tag, Tabs } from 'antd';
 import { PiExportLight } from 'react-icons/pi';
 import { useState, useEffect } from 'react';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 import {
   useGetPayPeriod,
@@ -22,14 +25,19 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { useRouter } from 'next/navigation';
-import { MdKeyboardArrowLeft } from 'react-icons/md';
+import {
+  useGetPayrollApprovalByPayPeriodId,
+  useGetPendingPayrollApprovals,
+} from '@/store/server/features/payroll/payrollApproval/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import {
+  useApprovePayrollApproval,
+  useLastApprovingPayroll,
+} from '@/store/server/features/payroll/payrollApproval/mutation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const { Option } = Select;
-const impactColors = {
-  High: 'red',
-  Medium: 'orange',
-  Low: 'green',
-};
 
 const reconciliationTabs = [
   { key: 'all', label: 'All Category' },
@@ -114,10 +122,30 @@ const PayrollReconcilation = () => {
     previousPayPeriodId,
     currentPayPeriodId,
   });
+
   const { data: payPeriodData } = useGetPayPeriod();
   const { pageSize: employeePageSize, currentPage: employeeCurrentPage } =
     useEmployeeStore();
-  const { data: payroll } = useGetActivePayroll(
+  const [activeTab, setActiveTab] = useState('1');
+  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isShowMobileFilters, setIsShowMobileFilters] = useState(false);
+
+  const authStore = useAuthenticationStore.getState();
+  const { userId } = useAuthenticationStore();
+  const tenantId = authStore.tenantId;
+  const userRollId = authStore.userData?.roleId;
+
+  // Fetch pending approvals with payPeriodId
+  const { data: pendingApprovals, refetch: refetchPendingApprovals } =
+    useGetPendingPayrollApprovals(currentPayPeriodId, 1, 10);
+  const { mutate: approvePayroll, isLoading: isApproving } =
+    useApprovePayrollApproval();
+  const { mutate: lastApproving, isLoading: isLastApproving } =
+    useLastApprovingPayroll();
+  // Fetch payroll approval by payPeriodId
+  const { refetch: refetchPayrollApprovalByPayPeriod } =
+    useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
+  const { data: payroll, refetch } = useGetActivePayroll(
     '',
     employeePageSize || 10,
     employeeCurrentPage || 1,
@@ -220,7 +248,15 @@ const PayrollReconcilation = () => {
 
   const columns = [
     {
-      title: 'Types',
+      title: (
+        <span
+          id="payroll-reconciliation-types-title"
+          data-cy="payroll-reconciliation-types-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Types
+        </span>
+      ),
       dataIndex: 'types',
       key: 'types',
       minWidth: 200,
@@ -236,7 +272,15 @@ const PayrollReconcilation = () => {
       ),
     },
     {
-      title: 'Previous',
+      title: (
+        <span
+          id="payroll-reconciliation-previous-title"
+          data-cy="payroll-reconciliation-previous-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Previous
+        </span>
+      ),
       dataIndex: 'previous',
       key: 'previous',
       minWidth: 150,
@@ -250,7 +294,15 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: 'Current',
+      title: (
+        <span
+          id="payroll-reconciliation-current-title"
+          data-cy="payroll-reconciliation-current-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Current
+        </span>
+      ),
       dataIndex: 'current',
       key: 'current',
       minWidth: 150,
@@ -265,7 +317,15 @@ const PayrollReconcilation = () => {
     },
 
     {
-      title: 'Variance(AMT)',
+      title: (
+        <span
+          id="payroll-reconciliation-variance-title"
+          data-cy="payroll-reconciliation-variance-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Variance(AMT)
+        </span>
+      ),
       dataIndex: 'variance',
       key: 'variance',
       minWidth: 150,
@@ -294,7 +354,15 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: 'Variance(%)',
+      title: (
+        <span
+          id="payroll-reconciliation-variance-percentage-title"
+          data-cy="payroll-reconciliation-variance-percentage-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Variance(%)
+        </span>
+      ),
       dataIndex: 'variancePercentage',
       key: 'variancePercentage',
       minWidth: 150,
@@ -325,7 +393,15 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: 'Impact',
+      title: (
+        <span
+          id="payroll-reconciliation-impact-title"
+          data-cy="payroll-reconciliation-impact-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Impact
+        </span>
+      ),
       dataIndex: 'impact',
       key: 'impact',
       minWidth: 150,
@@ -357,11 +433,195 @@ const PayrollReconcilation = () => {
       </Tag>
     ),
   }));
-  return (
+
+  // Tab key -> category label (used to find component type from data?.components)
+  const TAB_KEY_TO_LABEL: Record<string, string> = {
+    '2': 'Basic',
+    '3': 'Allowance',
+    '4': 'Benefit',
+    '5': 'VP',
+    '6': 'Incentive',
+    '7': 'Gross',
+    '8': 'Tax',
+    '9': 'Pension',
+    '10': 'Cost Sharing',
+    '11': 'Deduction',
+    '12': 'Net Pay',
+  };
+
+  /** Resolve API componentType for a tab (e.g. BASIC_SALARY for Basic) from reconciliation components */
+  const getComponentForTabKey = (tabKey: string): any | undefined => {
+    if (!data?.components?.length) return undefined;
+
+    const label = TAB_KEY_TO_LABEL[tabKey];
+    let matched = label
+      ? data.components.find((c: any) =>
+          c.label?.toLowerCase().includes(label.toLowerCase()),
+        )
+      : undefined;
+
+    // Special handling for VP tab: fall back to VARIABLE_PAY type
+    if (!matched && tabKey === '5') {
+      matched = data.components.find(
+        (c: any) => c.type === 'VARIABLE_PAY' || c.label === 'Variable Pay',
+      );
+    }
+
+    return matched;
+  };
+
+  /** Tab 1: summary table (All Category). Tabs 2–12: detail table (same as modal). */
+  const renderTabContent = (tabKey: string) => {
+    if (tabKey === '1') {
+      return (
+        <div
+          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-405"
+          className="w-full overflow-x-auto scrollbar-hide"
+        >
+          <Table
+            loading={isLoading}
+            dataSource={payrollVarianceData}
+            columns={columns}
+            pagination={false}
+            rowHoverable={false}
+            rowClassName={(notUsed, index) =>
+              index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+            }
+          />
+        </div>
+      );
+    }
+    const component = getComponentForTabKey(tabKey);
+    const componentType = component?.type;
+    return (
+      <ReconciliationDetailTable
+        previousPayPeriodId={previousPayPeriodId ?? ''}
+        currentPayPeriodId={currentPayPeriodId ?? ''}
+        componentType={componentType ?? ''}
+        enabled={Boolean(componentType)}
+        componentSummary={component}
+      />
+    );
+  };
+
+  const getTabLabel = (key: string, text: string) => (
+    <span
+      data-cy="payroll-reconciliation-tab-label"
+      className={activeTab === key ? 'font-bold' : 'font-normal'}
+    >
+      {text}
+    </span>
+  );
+
+  const items: any = [
+    {
+      key: '1',
+      label: getTabLabel('1', 'All Category'),
+      children: renderTabContent('1'),
+    },
+    {
+      key: '2',
+      label: getTabLabel('2', 'Basic'),
+      children: renderTabContent('2'),
+    },
+    {
+      key: '3',
+      label: getTabLabel('3', 'Allowance'),
+      children: renderTabContent('3'),
+    },
+    {
+      key: '4',
+      label: getTabLabel('4', 'Benefit'),
+      children: renderTabContent('4'),
+    },
+    {
+      key: '5',
+      label: getTabLabel('5', 'VP'),
+      children: renderTabContent('5'),
+    },
+    {
+      key: '6',
+      label: getTabLabel('6', 'Incentive'),
+      children: renderTabContent('6'),
+    },
+    {
+      key: '7',
+      label: getTabLabel('7', 'Gross'),
+      children: renderTabContent('7'),
+    },
+    {
+      key: '8',
+      label: getTabLabel('8', 'Tax'),
+      children: renderTabContent('8'),
+    },
+    {
+      key: '9',
+      label: getTabLabel('9', 'Pension'),
+      children: renderTabContent('9'),
+    },
+    {
+      key: '10',
+      label: getTabLabel('10', 'Cost Sharing'),
+      children: renderTabContent('10'),
+    },
+    {
+      key: '11',
+      label: getTabLabel('11', 'Deduction'),
+      children: renderTabContent('11'),
+    },
+    {
+      key: '12',
+      label: getTabLabel('12', 'Net Pay'),
+      children: renderTabContent('12'),
+    },
+  ];
+
+  const handleApprovePayroll = () => {
+    if (!pendingApproval) return;
+
+    const approvalWorkflowId = String(pendingApproval.approvalWorkflowId || '');
+    const stepOrder = Number(pendingApproval.nextApprover?.[0]?.stepOrder || 0);
+
+    if (!approvalWorkflowId || stepOrder === 0) {
+      notification.error({
+        message: 'Invalid Approval Data',
+        description: 'Missing required approval information. Please try again.',
+      });
+      return;
+    }
+
+    const approvalData = {
+      approvalWorkflowId,
+      stepOrder,
+      requestId: pendingApproval.id,
+      approvedUserId: userId,
+      approverRoleId: userRollId,
+      action: 'Approved',
+      tenantId,
+    };
+
+    const handleSuccess = () => {
+      setIsApproveModalOpen(false);
+      refetchPendingApprovals();
+      refetchPayrollApprovalByPayPeriod();
+      refetch();
+    };
+
+    approvePayroll(approvalData, {
+      onSuccess: (data) => {
+        if (data?.last === true) {
+          lastApproving(undefined, { onSuccess: handleSuccess });
+        } else {
+          handleSuccess();
+        }
+      },
+    });
+  };
+
+  const MobileFilters = () => (
     <div
-      className="min-h-screen w-full px-3 sm:px-6 "
-      id="manage-employees-page"
-      data-cy="manage-employees-page"
+      data-cy="reconciliation-detail-table-mobile-filters-container"
+      className="flex flex-col gap-4 bg-white border border-[#D9D9D9] rounded-lg p-4"
     >
       <BlockWrapper className="h-auto w-full bg-white">
         {/* Header */}
@@ -414,6 +674,20 @@ const PayrollReconcilation = () => {
                 Approve Payroll
               </span>
             </Button>
+            {true && (
+              <Button
+                id="payroll-approve-button"
+                data-cy="payroll-approve-button"
+                type="primary"
+                icon={<DoneOutlineIcon className="text-[10px]" />}
+                className="h-8 w-8 sm:w-auto sm:px-4"
+                onClick={() => setIsApproveModalOpen(true)}
+                loading={isApproving || isLastApproving}
+                size="small"
+              >
+                {!isMobile && 'Approve Payroll'}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -467,118 +741,134 @@ const PayrollReconcilation = () => {
           data-cy="payroll-reconciliation-summary-cards"
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          {/* Total Payroll Cost */}
-          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
-              className="text-black text-sm mb-2 font-semibold"
-            >
-              Total Payroll Cost
-            </p>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
-              className="text-2xl font-bold text-black"
-            >
-              {data?.summary?.totalPayrollCost
-                ? Number(data?.summary?.totalPayrollCost).toLocaleString()
-                : 0}
-            </p>
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
+            className="text-[#707070] text-base mb-2 font-normal"
+          >
+            Total Payroll Cost
+          </p>
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
+            className="text-3xl font-bold text-black"
+          >
+            {formatETB(data?.summary?.totalPayrollCost)}
+          </p>
 
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-338"
+            className="text-sm text-[#4d4d4d] mt-3 font-normal"
+          >
+            Previous:{' '}
+            <span
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
+              className="font-normal text-[#4d4d4d]"
+            >
+              {formatNumber(data?.summary?.previousPayrollCost)}
+            </span>
+          </p>
+        </Card>
+        {/* Net Variance */}
+        <Card
+          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+          loading={isLoading}
+        >
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
+            className="text-[#707070] text-base mb-2 font-normal"
+          >
+            Net Variance
+          </p>
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
+            className="text-3xl font-bold text-black"
+          >
+            {formatETB(data?.summary?.netVariance)}
+          </p>
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-355"
+            className="text-sm text-[#4d4d4d] mt-3 font-normal"
+          >
+            <span
+              data-cy="reconciliation-detail-table-net-variance-negative-container"
+              className="text-[#F04438]"
+            >
+              -4
+            </span>{' '}
+            <span
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-357"
+              className="font-normal text-[#4d4d4d]"
+            >
+              Since Last pay period
+            </span>
+          </p>
+        </Card>
+        {/* Headcount Impact */}
+        <Card
+          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+          loading={isLoading}
+        >
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
+            className="text-[#707070] text-base mb-2 font-normal"
+          >
+            Headcount Impact
+          </p>
+          <p
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
+            className="text-3xl font-bold text-black"
+          >
+            {formatNumber(data?.summary?.headcount)} Employees
+          </p>
+
+          <div
+            data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-388"
+            className="flex gap-4 text-sm mt-3 text-black"
+          >
             <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-338"
-              className="text-sm text-black mt-3 font-semibold"
+              className="font-normal text-[#4d4d4d]"
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-389"
             >
               Previous:{' '}
               <span
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
-                className="font-semibold"
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
+                className="font-normal text-[#4d4d4d]"
               >
-                {data?.summary?.previousPayrollCost
-                  ? Number(data?.summary?.previousPayrollCost).toLocaleString()
-                  : 0}
+                {formatNumber(data?.summary?.previousHeadcount)}
               </span>
             </p>
-          </Card>
-          {/* Net Variance */}
-          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
             <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
-              className="text-black text-sm mb-2 font-semibold"
+              className="font-normal text-[#4d4d4d]"
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395"
             >
-              Net Variance
+              Termination:{' '}
+              <span
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
+                className="font-normal text-[#4d4d4d]"
+              >
+                {formatNumber(data?.summary?.terminations)}
+              </span>
             </p>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
-              className="text-2xl font-bold text-black"
-            >
-              {data?.summary?.netVariance
-                ? Number(data?.summary?.netVariance).toLocaleString()
-                : 0}
-            </p>
-
-            <p
-              className={`text-sm mt-3 font-semibold ${(() => {
-                const varianceValue = Number(
-                  data?.summary?.netVariancePercentage || 0,
-                );
-                if (varianceValue > 0) return 'text-red-500';
-                if (varianceValue < 0) return 'text-green-500';
-                return '';
-              })()}`}
-              data-cy="payroll-payroll-reconcilation-page-tsx-p-419"
-            >
-              {(() => {
-                const varianceValue = Number(
-                  data?.summary?.netVariancePercentage || 0,
-                );
-                if (isNaN(varianceValue)) {
-                  return '--';
-                }
-                return varianceValue;
-              })()}
-            </p>
-          </Card>
-          {/* Headcount Impact */}
-          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
-              className="text-black text-sm mb-2 font-semibold"
-            >
-              Headcount Impact
-            </p>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
-              className="text-2xl font-bold text-black"
-            >
-              {data?.summary?.headcount} Employees
-            </p>
-
-            <div
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-388"
-              className="flex gap-4 text-sm mt-3 text-black"
-            >
-              <p data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-389">
-                Previous:{' '}
-                <span
-                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
-                  className="font-semibold"
-                >
-                  {data?.summary?.previousHeadcount}
-                </span>
-              </p>
-              <p data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395">
-                Terminations:{' '}
-                <span
-                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
-                  className="font-semibold"
-                >
-                  {data?.summary?.terminations}
-                </span>
-              </p>
-            </div>
-          </Card>
-        </div>
-
+          </div>
+        </Card>
+      </div>
+      <Tabs
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={items}
+        tabBarGutter={24}
+        size="large"
+        tabBarStyle={{ textAlign: 'center' }}
+        data-cy="employee-detail-tabs"
+      />
+      <Modal
+        data-cy="payroll-approve-modal"
+        open={isApproveModalOpen}
+        onCancel={() => setIsApproveModalOpen(false)}
+        footer={null}
+        centered
+        width={600}
+        className="p-6"
+      >
         <div
           data-cy="payroll-reconciliation-tabs"
           className="w-full mt-8 overflow-x-auto"
