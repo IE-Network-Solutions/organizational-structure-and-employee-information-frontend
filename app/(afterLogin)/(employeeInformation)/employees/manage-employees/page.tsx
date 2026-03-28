@@ -1,37 +1,57 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
-import UserSidebar from './_components/userSidebar';
-import { FaPlus } from 'react-icons/fa';
 import UserTable from './_components/userTable';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import EmployeeSearch from './_components/userSearch';
-import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { SearchOutlined } from '@ant-design/icons';
 
-import { Button, Popover, Input, Tag, Tooltip } from 'antd';
-import { IoMdSwitch } from 'react-icons/io';
-import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
+import {
+  Button,
+  Popover,
+  Input,
+  Tag,
+  Tooltip,
+  Breadcrumb,
+  Divider,
+  Typography,
+  Dropdown,
+} from 'antd';
 import {
   useEmployeeBranches,
   useEmployeeDepartments,
+  useGetEmployeeStatus,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
-import { BsFileEarmarkArrowDownFill } from 'react-icons/bs';
 import { CiBookmark } from 'react-icons/ci';
 import { TbLayoutList } from 'react-icons/tb';
 import { useDownloadEmployeeDataByFilter } from '@/store/server/features/employees/employeeManagment/mutations';
+import AddEmployeeModal from './_components/add-employee-modal';
+import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import StatsCard from './_components/statsCard';
+import GroupsIcon from '@mui/icons-material/Groups';
+import BusinessIcon from '@mui/icons-material/Business';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import { useIsMobile } from '@/hooks/useIsMobile';
+
 const ManageEmployees: React.FC<any> = () => {
-  const { setOpen, setSearchParams, setIsMobileFilterVisible } =
-    useEmployeeManagementStore();
+  const {
+    setOpen,
+    setSearchParams,
+    setIsMobileFilterVisible,
+    isMobileFilterVisible,
+  } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
-  useGetEmployeeStatus('');
   const { data: EmployeeBranches } = useEmployeeBranches();
   const { data: EmployeeDepartment } = useEmployeeDepartments();
   const { data: EmploymentTypes } = useGetEmployementTypes();
-
+  const { data: EmployeeStatus } = useGetEmployeeStatus();
+  const { isMobile } = useIsMobile();
   const showDrawer = () => {
     setOpen(true);
   };
@@ -163,167 +183,234 @@ const ManageEmployees: React.FC<any> = () => {
   };
 
   return (
-    <div
-      className="h-auto w-full px-3 sm:px-6"
-      id="manage-employees-page"
-      data-cy="manage-employees-page"
-    >
-      <BlockWrapper className="h-auto w-full bg-white">
-        <div
-          className="flex flex-wrap justify-between items-center"
-          id="manage-employees-header"
-          data-cy="manage-employees-header"
-        >
-          <CustomBreadcrumb
-            title="Employees"
-            subtitle="Manage your Employees"
-            data-cy="manage-employees-breadcrumb"
+    <div id="manage-employees-page" data-cy="manage-employees-page">
+      <div
+        className="flex flex-wrap justify-between items-center px-3 pt-4"
+        id="manage-employees-header"
+        data-cy="manage-employees-header"
+      >
+        <div data-cy="manage-employees-header-title">
+          <Typography.Title className="text-xl font-bold text-black">
+            Employee Management
+          </Typography.Title>
+          <Breadcrumb
+            items={[
+              {
+                title: (
+                  <span
+                    className="text-xs sm:text-sm"
+                    data-cy="manage-employees-breadcrumb-employee"
+                  >
+                    Employee
+                  </span>
+                ),
+              },
+              {
+                title: (
+                  <span
+                    className="text-xs sm:text-sm text-[#4d4d4d]"
+                    data-cy="manage-employees-breadcrumb-employee-management"
+                  >
+                    Employee Management
+                  </span>
+                ),
+              },
+            ]}
           />
-          <div
-            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-            id="manage-employees-actions"
-            data-cy="manage-employees-actions"
-          >
-            <AccessGuard
-              permissions={[Permissions.DownloadEmployeeDocument]}
-              id="manage-employees-download-guard"
-              data-cy="manage-employees-download-guard"
-            >
-              <Popover
-                placement="bottom"
-                trigger="click"
-                id="manage-employees-download-popover"
-                data-cy="manage-employees-download-popover"
-                content={
-                  <div
-                    className="flex flex-col items-center gap-4 min-w-[220px] p-2"
-                    id="manage-employees-download-content"
-                    data-cy="manage-employees-download-content"
-                  >
-                    <div
-                      className="font-medium text-gray-700 mb-1"
-                      id="manage-employees-download-title"
-                      data-cy="manage-employees-download-title"
-                    >
-                      What file you want to export?
-                    </div>
-                    <div
-                      className="flex gap-2 w-full"
-                      id="manage-employees-download-buttons"
-                      data-cy="manage-employees-download-buttons"
-                    >
-                      <Button
-                        type="primary"
-                        size="large"
-                        className="flex-1 !border-[#7C3AED] !text-white"
-                        icon={<CiBookmark size={18} />}
-                        onClick={() => {
-                          handleDownloadUserData('excel');
-                        }}
-                        id="manage-employees-download-excel-btn"
-                        data-cy="manage-employees-download-excel-btn"
-                      >
-                        Excel
-                      </Button>
-                      <Button
-                        type="primary"
-                        size="large"
-                        className="flex-1 !border-[#7C3AED] !text-white"
-                        icon={<TbLayoutList size={18} />}
-                        onClick={() => {
-                          handleDownloadUserData('pdf');
-                        }}
-                        id="manage-employees-download-pdf-btn"
-                        data-cy="manage-employees-download-pdf-btn"
-                      >
-                        PDF
-                      </Button>
-                    </div>
-                  </div>
-                }
-              >
-                <Button
-                  type="default"
-                  size="large"
-                  id="downloadUserButton"
-                  data-cy="manage-employees-download-trigger-btn"
-                  className="h-10 w-10 sm:w-auto"
-                  icon={<BsFileEarmarkArrowDownFill />}
-                >
-                  <span
-                    className="hidden sm:inline"
-                    id="manage-employees-download-btn-text"
-                    data-cy="manage-employees-download-btn-text"
-                  >
-                    Download
-                  </span>
-                </Button>
-              </Popover>
-            </AccessGuard>
-            <AccessGuard
-              permissions={[Permissions.RegisterNewEmployee]}
-              id="manage-employees-create-guard"
-              data-cy="manage-employees-create-guard"
-            >
-              <Tooltip
-                title={
-                  isAvailableSlots
-                    ? null
-                    : 'User limit reached. Purchase additional slots or contact support.'
-                }
-                id="manage-employees-create-tooltip"
-                data-cy="manage-employees-create-tooltip"
-              >
-                <Button
-                  type="primary"
-                  size="large"
-                  id="createUserButton"
-                  data-cy="manage-employees-create-btn"
-                  className="h-10 w-10 sm:w-auto"
-                  icon={
-                    <FaPlus
-                      id="manage-employees-create-icon"
-                      data-cy="manage-employees-create-icon"
-                    />
-                  }
-                  onClick={showDrawer}
-                  loading={isLoading || subscriptionLoading}
-                  disabled={!isAvailableSlots}
-                >
-                  <span
-                    className="hidden sm:inline"
-                    id="manage-employees-create-btn-text"
-                    data-cy="manage-employees-create-btn-text"
-                  >
-                    Create user
-                  </span>
-                </Button>
-              </Tooltip>
-            </AccessGuard>
-            <UserSidebar
-              onClose={onClose}
-              data-cy="manage-employees-user-sidebar"
-            />
-          </div>
         </div>
+
+        <div
+          className="flex flex-wrap justify-start items-center my-2 gap-3"
+          id="manage-employees-actions"
+          data-cy="manage-employees-actions"
+        >
+          <AccessGuard
+            permissions={[Permissions.DownloadEmployeeDocument]}
+            id="manage-employees-download-guard"
+            data-cy="manage-employees-download-guard"
+          >
+            <Popover
+              placement="bottom"
+              trigger="click"
+              id="manage-employees-download-popover"
+              data-cy="manage-employees-download-popover"
+              content={
+                <div
+                  className="flex flex-col items-center gap-4 min-w-[220px] p-2"
+                  id="manage-employees-download-content"
+                  data-cy="manage-employees-download-content"
+                >
+                  <div
+                    className="font-medium text-gray-700 mb-1"
+                    id="manage-employees-download-title"
+                    data-cy="manage-employees-download-title"
+                  >
+                    What file you want to export?
+                  </div>
+                  <div
+                    className="flex gap-2 w-full"
+                    id="manage-employees-download-buttons"
+                    data-cy="manage-employees-download-buttons"
+                  >
+                    <Button
+                      type="primary"
+                      className="flex-1 !border-[#7C3AED] !text-white"
+                      icon={<CiBookmark size={18} />}
+                      onClick={() => {
+                        handleDownloadUserData('excel');
+                      }}
+                      id="manage-employees-download-excel-btn"
+                      data-cy="manage-employees-download-excel-btn"
+                    >
+                      Excel
+                    </Button>
+                    <Button
+                      type="primary"
+                      className="flex-1 !border-[#7C3AED] !text-white"
+                      icon={<TbLayoutList size={18} />}
+                      onClick={() => {
+                        handleDownloadUserData('pdf');
+                      }}
+                      id="manage-employees-download-pdf-btn"
+                      data-cy="manage-employees-download-pdf-btn"
+                    >
+                      PDF
+                    </Button>
+                  </div>
+                </div>
+              }
+            >
+              <Button
+                type="default"
+                id="downloadUserButton"
+                data-cy="manage-employees-download-trigger-btn"
+                className="h-10 w-10 sm:w-auto border border-[#D9D9D9]"
+                icon={<SaveAltIcon fontSize="small" />}
+              >
+                <span
+                  className="hidden sm:inline text-[#4d4d4d] text-base font-normal"
+                  id="manage-employees-download-btn-text"
+                  data-cy="manage-employees-download-btn-text"
+                >
+                  Export
+                </span>
+              </Button>
+            </Popover>
+          </AccessGuard>
+          <AccessGuard
+            permissions={[Permissions.RegisterNewEmployee]}
+            id="manage-employees-create-guard"
+            data-cy="manage-employees-create-guard"
+          >
+            <Tooltip
+              title={
+                isAvailableSlots
+                  ? null
+                  : 'User limit reached. Purchase additional slots or contact support.'
+              }
+              id="manage-employees-create-tooltip"
+              data-cy="manage-employees-create-tooltip"
+            >
+              <Button
+                type="primary"
+                size="large"
+                id="createUserButton"
+                data-cy="manage-employees-create-btn"
+                className="h-10 w-10 sm:w-auto"
+                icon={
+                  <PersonAddOutlinedIcon
+                    id="manage-employees-create-icon"
+                    data-cy="manage-employees-create-icon"
+                  />
+                }
+                onClick={showDrawer}
+                loading={isLoading || subscriptionLoading}
+                disabled={!isAvailableSlots}
+              >
+                <span
+                  className="hidden sm:inline font-normal"
+                  id="manage-employees-create-btn-text"
+                  data-cy="manage-employees-create-btn-text"
+                >
+                  Add Employee
+                </span>
+              </Button>
+            </Tooltip>
+          </AccessGuard>
+          <AddEmployeeModal onClose={onClose} />
+        </div>
+      </div>
+      <Divider size="large" />
+      <div className="mb-6 px-3" data-cy="manage-employees-stats-section">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          data-cy="manage-employees-stats-grid"
+        >
+          <StatsCard
+            icon={<GroupsIcon />}
+            title="Total Employees"
+            value={EmployeeStatus?.totalEmployees?.value || 0}
+            change={EmployeeStatus?.totalEmployees?.changeSinceLastMonth || 0}
+            id="stats-total-employees"
+            data-cy="stats-total-employees"
+          />
+          <StatsCard
+            icon={<GroupAddIcon />}
+            title="New Hires This Month"
+            value={EmployeeStatus?.newHires?.value || 0}
+            change={EmployeeStatus?.newHires?.changeSinceLastMonth || 0}
+            id="stats-new-hires"
+            data-cy="stats-new-hires"
+          />
+          <StatsCard
+            icon={<BusinessIcon />}
+            title="Active Departments"
+            value={EmployeeStatus?.activeDepartments?.value || 0}
+            change={
+              EmployeeStatus?.activeDepartments?.changeSinceLastMonth || 0
+            }
+            id="stats-active-departments"
+            data-cy="stats-active-departments"
+          />
+          <StatsCard
+            icon={<AirplanemodeActiveIcon />}
+            title="Active Accounts"
+            value={100}
+            change={3}
+            id="stats-active-accounts"
+            data-cy="stats-active-accounts"
+          />
+        </div>
+      </div>
+      <div
+        className="border border-gray-200 rounded-lg mx-3"
+        data-cy="manage-employees-table-section"
+      >
         <div
           className="w-full h-auto"
           id="manage-employees-content"
           data-cy="manage-employees-content"
         >
           <div
-            className="flex items-center gap-4 mb-6"
+            className="flex justify-between gap-4 mb-2 px-3 pt-3"
             id="manage-employees-filter-row"
             data-cy="manage-employees-filter-row"
           >
             <Input
               placeholder="Search employee"
-              className="flex-1 h-12 rounded-lg border-gray-200"
               allowClear
-              onChange={(e) => setSearchParams('employee_name', e.target.value)}
               value={searchParams.employee_name}
-              id="manage-employees-search-input"
+              onChange={(e) => setSearchParams('employee_name', e.target.value)}
+              className="w-[300px] pr-0 py-0 h-10 sm:h-8"
               data-cy="manage-employees-search-input"
+              suffix={
+                <div
+                  className="text-gray-400 border-l border-gray-300 py-1 px-2"
+                  data-cy="manage-employees-search-input"
+                >
+                  <SearchOutlined data-cy="manage-employees-search-icon" />
+                </div>
+              }
             />
 
             <div
@@ -334,45 +421,49 @@ const ManageEmployees: React.FC<any> = () => {
               {getActiveFilters().map((filter) => (
                 <Tag
                   key={filter.key}
-                  closable
-                  onClose={() => removeFilter(filter.key)}
-                  className="bg-white text-blue border-blue  rounded-lg px-3 py-1 flex items-center text-sm font-medium"
+                  className="bg-white text-primary border-primary  rounded-md px-3 h-6  flex items-center text-xs font-normal"
                   id={`manage-employees-filter-tag-${filter.key}`}
                   data-cy={`manage-employees-filter-tag-${filter.key}`}
-                  closeIcon={
-                    <span
-                      className="text-blue hover:!text-[#FF8787] ml-2 text-base"
-                      id={`manage-employees-filter-tag-close-icon-${filter.key}`}
-                      data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
-                    >
-                      ×
-                    </span>
-                  }
                 >
+                  <span
+                    onClick={() => removeFilter(filter.key)}
+                    className="text-primary hover:!text-[#FF8787] mr-2 text-lg"
+                    id={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                    data-cy={`manage-employees-filter-tag-close-icon-${filter.key}`}
+                  >
+                    ×
+                  </span>
                   {filter.label}
                 </Tag>
               ))}
             </div>
 
-            <Button
-              type="primary"
-              size="large"
-              className="h-12 px-6 rounded-lg bg-blue-600 border-blue-600 flex items-center gap-2"
-              onClick={() => setIsMobileFilterVisible(true)}
-              id="manage-employees-filter-toggle-btn"
-              data-cy="manage-employees-filter-toggle-btn"
+            <Dropdown
+              placement="bottomRight"
+              trigger={['click']}
+              open={isMobileFilterVisible}
+              onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
+              dropdownRender={() => <EmployeeSearch />}
             >
-              <IoMdSwitch
-                id="manage-employees-filter-toggle-icon"
-                data-cy="manage-employees-filter-toggle-icon"
-              />
-              Filter
-            </Button>
+              <Button
+                type="default"
+                id="manage-employees-filter-toggle-btn"
+                data-cy="manage-employees-filter-toggle-btn"
+                className="border border-[#D9D9D9] font-normal text-[#4d4d4d]"
+                icon={<FilterAltOutlinedIcon className="py-1" />}
+              >
+                {!isMobile && 'Filter'}
+              </Button>
+            </Dropdown>
           </div>
-          <UserTable />
+          <div
+            className="overflow-x-auto"
+            data-cy="manage-employees-table-wrapper"
+          >
+            <UserTable />
+          </div>
         </div>
-        <EmployeeSearch />
-      </BlockWrapper>
+      </div>
     </div>
   );
 };

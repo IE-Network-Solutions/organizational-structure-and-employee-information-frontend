@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, Table } from 'antd';
-import { TbFileDownload } from 'react-icons/tb';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
@@ -13,6 +12,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
@@ -51,7 +51,15 @@ const TalentPoolTable: React.FC<any> = () => {
   };
   const columns = [
     {
-      title: 'Name',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-name"
+          data-cy="talent-acquisition-talent-pool-table-column-name"
+        >
+          Name
+        </span>
+      ),
       dataIndex: ['jobCandidateInformation', 'fullName'],
       key: 'name',
       render: (_: any, record: any) => (
@@ -60,10 +68,11 @@ const TalentPoolTable: React.FC<any> = () => {
           data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}
         >
           <p
-            className="font-bold"
+            className="font-bold text-sm text-[#4b4b4b]"
             data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-${record?.jobCandidateInformation?.id || record?.id}`}
           >
             <span
+              className="text-sm text-[#4b4b4b]"
               data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
             >
               {record?.jobCandidateInformation?.fullName ?? '-'}
@@ -83,22 +92,59 @@ const TalentPoolTable: React.FC<any> = () => {
       ),
     },
     {
-      title: 'Phone Number',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-phone"
+          data-cy="talent-acquisition-talent-pool-table-column-phone"
+        >
+          Phone Number
+        </span>
+      ),
       dataIndex: ['jobCandidateInformation', 'phone'],
       key: 'phoneNumber',
+      className: 'text-sm text-[#4b4b4b]',
     },
     {
-      title: 'Talent Pool Category',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-talent-pool-category"
+          data-cy="talent-acquisition-talent-pool-table-column-talent-pool-category"
+        >
+          Talent Pool Category
+        </span>
+      ),
       dataIndex: ['talentPoolCategory', 'title'],
       key: 'title',
+      className: 'text-sm text-[#4b4b4b]',
+      width: 200,
     },
     {
-      title: 'Reason',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-reason"
+          data-cy="talent-acquisition-talent-pool-table-column-reason"
+        >
+          Reason
+        </span>
+      ),
       dataIndex: 'reason',
       key: 'reason',
+      className: 'text-sm text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'CV',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-cv"
+          data-cy="talent-acquisition-talent-pool-table-column-cv"
+        >
+          CV
+        </span>
+      ),
       dataIndex: ['jobCandidateInformation', 'resumeUrl'],
       key: 'cv',
       render: (text: string) => {
@@ -120,41 +166,58 @@ const TalentPoolTable: React.FC<any> = () => {
             rel="noopener noreferrer"
           >
             {/* <div className="text-wrap">{truncatedText}</div> */}
-            <TbFileDownload size={20} />
+            <SaveAltIcon fontSize="small" className="text-[#1e40af]" />
           </a>
         );
       },
     },
     {
-      title: 'Moved in Date',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-moved-in-date"
+          data-cy="talent-acquisition-talent-pool-table-column-moved-in-date"
+        >
+          Moved in Date
+        </span>
+      ),
       dataIndex: 'createdAt',
       key: 'movedInDate',
       render: (text: string) => (
         <div
           id="talent-acquisition-talent-pool-table-cell-date"
           data-cy={`talent-acquisition-talent-pool-table-cell-date-${text}`}
-          className=""
+          className="text-sm text-[#4b4b4b]"
         >
           {dayjs(text).format('DD/MMM/YYYY')}
         </div>
       ),
+      width: 150,
     },
     {
-      title: 'Action',
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-action"
+          data-cy="talent-acquisition-talent-pool-table-column-action"
+        >
+          Action
+        </span>
+      ),
       key: 'actions',
       render: (_: any, record: any) => (
         <AccessGuard permissions={[Permissions.TransferCandidate]}>
           <Button
+            type="text"
             id={`talent-acquisition-talent-pool-table-button-reonboard-${record?.jobCandidateInformation?.id || record?.id}`}
             data-cy={`talent-acquisition-talent-pool-table-button-reonboard-${record?.jobCandidateInformation?.id || record?.id}`}
-            className="bg-[#ADD5F0] border-none"
             onClick={() => showModal(record)}
           >
             <div
               data-cy="talent-resource-talent-pool-components-talentpooltable-tsx-talentpooltable-div-153"
-              className="text-[#1D9BF0]"
+              className="text-[#1e40af] text-sm"
             >
-              Re-onboard
+              Add to Candidates
             </div>
           </Button>
         </AccessGuard>

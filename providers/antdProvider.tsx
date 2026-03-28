@@ -5,7 +5,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
   const theme: ThemeConfig = {
     token: {
       // Font Family - Calibre with fallbacks
-      fontFamily: `'Calibre', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
+      fontFamily: `'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`,
 
       // Typography - Base Text Styles
       fontSize: 14, // Base font size
@@ -33,10 +33,10 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       colorPrimaryBg: '#E6F7FF', // Primary-3: Default state background
       colorPrimaryBgHover: '#BAE7FF', // Primary-4: Hover background
       colorPrimaryBorder: '#91D5FF', // Primary-5: Border color
-      colorPrimaryBorderHover: '#40A9FF', // Primary-6: Hover border
-      colorPrimaryHover: '#40A9FF', // Primary-6: Hover color
+      colorPrimaryBorderHover: '#4096FF', // Primary hover border
+      colorPrimaryHover: '#4096FF', // Primary hover color
       colorPrimaryActive: '#096DD9', // Primary-8: Active color
-      colorPrimaryTextHover: '#40A9FF', // Primary-6: Text hover
+      colorPrimaryTextHover: '#4096FF', // Primary text hover
       colorPrimaryText: '#1890FF', // Primary-7: Text color
       colorPrimaryTextActive: '#096DD9', // Primary-8: Text active
 
@@ -90,7 +90,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Link Colors
       colorLink: '#1890FF', // Default link color
-      colorLinkHover: '#40A9FF', // Link hover state
+      colorLinkHover: '#4096FF', // Link hover state
       colorLinkActive: '#096DD9', // Link active state
 
       // Neutral Colors - Text
@@ -165,8 +165,8 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       },
       Table: {
         headerBg: '#FAFAFA',
-        headerColor: '#718096',
-        fontSize: 12,
+        headerColor: '#000000B2',
+        fontSize: 14,
       },
       Empty: {},
       Button: {

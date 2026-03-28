@@ -26,7 +26,6 @@ import {
   CheckCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  DownOutlined,
 } from '@ant-design/icons';
 import {
   ProbationTarget,
@@ -49,8 +48,10 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useCreateProbationTaskSaveAll } from '@/store/server/features/probation-task/mutation';
-import { MdEdit } from 'react-icons/md';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -60,6 +61,23 @@ const toSlug = (value: string | number | null | undefined) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+
+// Display weights as integers (e.g. "99.00" -> "99")
+const formatWeightForDisplay = (weight: ProbationTask['weight']) => {
+  if (weight === null || weight === undefined) return '';
+
+  if (typeof weight === 'number') {
+    return String(Math.trunc(weight));
+  }
+
+  if (typeof weight === 'string') {
+    const trimmed = weight.trim();
+    if (!trimmed) return '';
+    return trimmed.split('.')[0];
+  }
+
+  return String(weight);
+};
 
 const TaskItem: React.FC<{
   task: ProbationTask;
@@ -115,195 +133,212 @@ const TaskItem: React.FC<{
 
   const taskSlug = toSlug(task.id);
 
+  const canEdit = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateProbationTask],
+  });
+  const canDelete = AccessGuard.checkAccess({
+    permissions: [Permissions.DeleteProbationTask],
+  });
+  const taskMenuItems = [
+    canEdit
+      ? {
+          key: 'edit',
+          label: 'Edit',
+          icon: <EditOutlined />,
+          onClick: () => onEdit(task),
+        }
+      : null,
+    canDelete
+      ? {
+          key: 'delete',
+          label: (
+            <span
+              data-cy="probation-task-delete-label"
+              className="text-red-500"
+            >
+              Delete
+            </span>
+          ),
+          icon: <DeleteOutlined className="text-red-500" />,
+          onClick: onDelete,
+        }
+      : null,
+  ].filter(Boolean) as any[];
+
   return (
     <div
-      className="rounded-lg py-1 px-4 mb-3 border border-gray-200 hover:shadow-sm transition-shadow "
+      className="rounded-lg p-4 mb-3 border border-gray-200 bg-white hover:shadow-sm transition-shadow"
       id={`probation-task-${taskSlug}`}
       data-cy={`probation-task-${taskSlug}`}
     >
+      {/* Top row: task title (with checkbox) + options */}
       <div
-        className="flex md:flex-row flex-col md:items-center justify-between"
+        className="flex items-center justify-between gap-2"
         id={`probation-task-row-${taskSlug}`}
         data-cy={`probation-task-row-${taskSlug}`}
       >
         <div
-          className="flex items-center flex-1"
+          className="flex items-center min-w-0 flex-1"
           id={`probation-task-info-${taskSlug}`}
           data-cy={`probation-task-info-${taskSlug}`}
         >
           <Checkbox
             checked={task?.isCompleted}
             onChange={handleCheckBox}
-            className="mr-3 flex-shrink-0"
+            className="mr-2 flex-shrink-0"
             disabled={userId !== task.evaluator}
             id={`probation-task-checkbox-${taskSlug}`}
             data-cy={`probation-task-checkbox-${taskSlug}`}
           />
-
           <div
-            className="flex flex-col min-w-0"
-            id={`probation-task-title-wrapper-${taskSlug}`}
-            data-cy={`probation-task-title-wrapper-${taskSlug}`}
+            className={`text-base font-semibold truncate min-w-0 ${task?.isCompleted ? 'text-gray-400 line-through' : 'text-gray-900'}`}
+            id={`probation-task-title-${taskSlug}`}
+            data-cy={`probation-task-title-${taskSlug}`}
           >
-            <div
-              className={`text-sm font-medium ${task?.isCompleted ? 'text-gray-400 line-through' : 'text-gray-900'}`}
-              id={`probation-task-title-${taskSlug}`}
-              data-cy={`probation-task-title-${taskSlug}`}
-            >
-              {task.taskName}
-            </div>
-
-            <div
-              className="flex items-center"
-              id={`probation-task-evaluator-${taskSlug}`}
-              data-cy={`probation-task-evaluator-${taskSlug}`}
-            >
-              <div
-                className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2 flex-shrink-0"
-                id={`probation-task-avatar-${taskSlug}`}
-                data-cy={`probation-task-avatar-${taskSlug}`}
-              >
-                {task.evaluatorUser?.profileImage ? (
-                  <Image
-                    src={task.evaluatorUser.profileImage}
-                    alt="avatar"
-                    width={24}
-                    height={24}
-                    className="w-6 h-6 rounded-full object-cover"
-                    id={`probation-task-avatar-img-${taskSlug}`}
-                    data-cy={`probation-task-avatar-img-${taskSlug}`}
-                  />
-                ) : (
-                  getInitials(
-                    task.evaluatorUser?.firstName,
-                    task.evaluatorUser?.lastName,
-                  )
-                )}
-              </div>
-              <span
-                className="text-sm text-gray-700 truncate"
-                id={`probation-task-evaluator-name-${taskSlug}`}
-                data-cy={`probation-task-evaluator-name-${taskSlug}`}
-              >
-                {`${task.evaluatorUser?.firstName || ''} ${task.evaluatorUser?.lastName || ''}`.trim() ||
-                  'Unassigned'}
-              </span>
-            </div>
+            {task.taskName}
           </div>
         </div>
-
-        <div
-          className="flex items-center space-x-3 flex-shrink-0"
-          id={`probation-task-actions-${taskSlug}`}
-          data-cy={`probation-task-actions-${taskSlug}`}
-        >
-          <div
-            className="text-right flex gap-2 items-center"
-            id={`probation-task-weight-${taskSlug}`}
-            data-cy={`probation-task-weight-${taskSlug}`}
-          >
-            <div
-              className="text-sm font-medium"
-              id={`probation-task-weight-text-${taskSlug}`}
-              data-cy={`probation-task-weight-text-${taskSlug}`}
-            >
-              <span
-                className="text-gray-500"
-                id={`probation-task-weight-text-span-${taskSlug}`}
-                data-cy={`probation-task-weight-text-span-${taskSlug}`}
-              >
-                Weight:
-              </span>{' '}
-              <strong
-                id={`probation-task-weight-strong-${taskSlug}`}
-                data-cy={`probation-task-weight-strong-${taskSlug}`}
-              >
-                {task.weight}
-              </strong>
-            </div>
-            {task.isCompleted && task.evaluationScore == '0.00' && (
-              <div
-                className="flex items-center gap-2"
-                id={`probation-task-score-input-${taskSlug}`}
-                data-cy={`probation-task-score-input-${taskSlug}`}
-              >
-                <Input
-                  placeholder="Score"
-                  value={scoreInput}
-                  onChange={handleScoreChange}
-                  className="w-20 h-8 text-center text-sm"
-                  size="small"
-                  disabled={task.isCompleted && userId !== task.evaluator}
-                  id={`probation-task-score-field-${taskSlug}`}
-                  data-cy={`probation-task-score-field-${taskSlug}`}
-                />
-                <Button
-                  type="primary"
-                  size="small"
-                  icon={<CheckOutlined />}
-                  onClick={handleScoreSubmit}
-                  className="w-6 h-6 p-0 flex items-center justify-center"
-                  disabled={task.isCompleted && userId !== task.evaluator}
-                  id={`probation-task-score-submit-${taskSlug}`}
-                  data-cy={`probation-task-score-submit-${taskSlug}`}
-                />
-              </div>
-            )}
-            {task.isCompleted && (
-              <div
-                className="text-sm font-medium"
-                id={`probation-task-score-display-${taskSlug}`}
-                data-cy={`probation-task-score-display-${taskSlug}`}
-              >
-                <span
-                  className="text-gray-500"
-                  id={`probation-task-score-text-span-${taskSlug}`}
-                  data-cy={`probation-task-score-text-span-${taskSlug}`}
-                >
-                  Score:
-                </span>{' '}
-                <strong
-                  id={`probation-task-score-strong-${taskSlug}`}
-                  data-cy={`probation-task-score-strong-${taskSlug}`}
-                >
-                  {task.evaluationScore}
-                </strong>
-              </div>
-            )}
-          </div>
-          <AccessGuard
-            permissions={[Permissions.UpdateProbationTask]}
-            id={`probation-task-edit-btn-guard-${taskSlug}`}
-            data-cy={`probation-task-edit-btn-guard-${taskSlug}`}
+        {taskMenuItems.length > 0 && (
+          <Dropdown
+            menu={{ items: taskMenuItems }}
+            trigger={['click']}
+            placement="bottomRight"
+            data-cy={`probation-task-options-dropdown-${taskSlug}`}
           >
             <Button
               type="default"
               size="small"
-              icon={<EditOutlined />}
-              className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
-              onClick={() => {
-                onEdit(task);
-              }}
-              id={`probation-task-edit-btn-${taskSlug}`}
-              data-cy={`probation-task-edit-btn-${taskSlug}`}
-            />
-          </AccessGuard>
+              className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center rounded border border-gray-200 bg-white hover:bg-gray-50"
+              id={`probation-task-options-btn-${taskSlug}`}
+              data-cy={`probation-task-options-btn-${taskSlug}`}
+            >
+              <MoreHorizIcon className="text-sm" />
+            </Button>
+          </Dropdown>
+        )}
+      </div>
 
-          <AccessGuard
-            permissions={[Permissions.DeleteProbationTask]}
-            id={`probation-task-delete-btn-guard-${taskSlug}`}
-            data-cy={`probation-task-delete-btn-guard-${taskSlug}`}
+      {/* Bottom row: assigned person + weight tag (and score when applicable) */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-2 mt-2"
+        id={`probation-task-meta-${taskSlug}`}
+        data-cy={`probation-task-meta-${taskSlug}`}
+      >
+        <div
+          className="flex items-center min-w-0"
+          id={`probation-task-evaluator-${taskSlug}`}
+          data-cy={`probation-task-evaluator-${taskSlug}`}
+        >
+          <div
+            className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium mr-2 mt-1 flex-shrink-0 overflow-hidden bg-gray-300"
+            id={`probation-task-avatar-${taskSlug}`}
+            data-cy={`probation-task-avatar-${taskSlug}`}
           >
-            <Button
-              onClick={onDelete}
-              danger
-              size="small"
-              icon={<DeleteOutlined />}
-              className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
-              id={`probation-task-delete-btn-${taskSlug}`}
-              data-cy={`probation-task-delete-btn-${taskSlug}`}
-            />
-          </AccessGuard>
+            {task.evaluatorUser?.profileImage ? (
+              <Image
+                src={task.evaluatorUser.profileImage}
+                alt="avatar"
+                width={24}
+                height={24}
+                className="w-6 h-6 rounded-full object-cover"
+                id={`probation-task-avatar-img-${taskSlug}`}
+                data-cy={`probation-task-avatar-img-${taskSlug}`}
+              />
+            ) : (
+              getInitials(
+                task.evaluatorUser?.firstName,
+                task.evaluatorUser?.lastName,
+              )
+            )}
+          </div>
+          <div
+            className="flex items-center gap-5 mt-1"
+            id={`probation-task-evaluator-meta-${taskSlug}`}
+            data-cy={`probation-task-evaluator-meta-${taskSlug}`}
+          >
+            <span
+              className="text-sm text-gray-500 truncate"
+              id={`probation-task-evaluator-name-${taskSlug}`}
+              data-cy={`probation-task-evaluator-name-${taskSlug}`}
+            >
+              {`${task.evaluatorUser?.firstName || ''} ${task.evaluatorUser?.lastName || ''}`.trim() ||
+                'Assigned Person'}
+            </span>
+            <span
+              className="inline-flex items-center rounded border border-gray-200 bg-white px-2.5 py-1 text-sm text-gray-800"
+              id={`probation-task-weight-text-${taskSlug}`}
+              data-cy={`probation-task-weight-text-${taskSlug}`}
+            >
+              <span
+                className="text-gray-500 mr-1"
+                id={`probation-task-weight-text-span-${taskSlug}`}
+                data-cy={`probation-task-weight-text-span-${taskSlug}`}
+              >
+                Weight:
+              </span>
+              <strong
+                id={`probation-task-weight-strong-${taskSlug}`}
+                data-cy={`probation-task-weight-strong-${taskSlug}`}
+              >
+                {formatWeightForDisplay(task.weight)}
+              </strong>
+            </span>
+          </div>
+        </div>
+        <div
+          className="flex items-center gap-2 flex-wrap"
+          id={`probation-task-weight-${taskSlug}`}
+          data-cy={`probation-task-weight-${taskSlug}`}
+        >
+          {task.isCompleted && task.evaluationScore == '0.00' && (
+            <div
+              className="flex items-center gap-2"
+              id={`probation-task-score-input-${taskSlug}`}
+              data-cy={`probation-task-score-input-${taskSlug}`}
+            >
+              <Input
+                placeholder="Score"
+                value={scoreInput}
+                onChange={handleScoreChange}
+                className="w-20 h-8 text-center text-sm"
+                size="small"
+                disabled={task.isCompleted && userId !== task.evaluator}
+                id={`probation-task-score-field-${taskSlug}`}
+                data-cy={`probation-task-score-field-${taskSlug}`}
+              />
+              <Button
+                type="primary"
+                size="small"
+                icon={<CheckOutlined />}
+                onClick={handleScoreSubmit}
+                className="w-6 h-6 p-0 flex items-center justify-center"
+                disabled={task.isCompleted && userId !== task.evaluator}
+                id={`probation-task-score-submit-${taskSlug}`}
+                data-cy={`probation-task-score-submit-${taskSlug}`}
+              />
+            </div>
+          )}
+          {task.isCompleted && (
+            <div
+              className="text-sm font-medium"
+              id={`probation-task-score-display-${taskSlug}`}
+              data-cy={`probation-task-score-display-${taskSlug}`}
+            >
+              <span
+                className="text-gray-500"
+                id={`probation-task-score-text-span-${taskSlug}`}
+                data-cy={`probation-task-score-text-span-${taskSlug}`}
+              >
+                Score:
+              </span>{' '}
+              <strong
+                id={`probation-task-score-strong-${taskSlug}`}
+                data-cy={`probation-task-score-strong-${taskSlug}`}
+              >
+                {task.evaluationScore}
+              </strong>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -632,307 +667,320 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      className="w-full p-2 border-none"
+      className="w-full border-none"
       id="probation-targets-card"
       data-cy="probation-targets-card"
     >
-      <Collapse
-        defaultActiveKey={probationTargets.map((target) => target.id)}
-        size="large"
-        data-cy="probation-targets-collapse"
+      <div
+        data-cy="probation-targets-collapse-wrapper"
+        className="border-[1px] border-[#D9D9D9] rounded-md"
       >
-        {probationTargets.map((target) => {
-          const targetSlug = toSlug(target.id);
-          const totalScore = calculateTotalScore(target.probationTasks);
-          const completedTasks = target.probationTasks.filter(
-            (task) => task.isCompleted,
-          ).length;
+        <Collapse
+          defaultActiveKey={probationTargets.map((target) => target.id)}
+          size="large"
+          data-cy="probation-targets-collapse"
+          bordered={false}
+          expandIcon={() => (
+            <Button
+              type="default"
+              className="border border-[#D9D9D9]"
+              icon={<KeyboardArrowDownIcon />}
+            />
+          )}
+        >
+          {probationTargets.map((target) => {
+            const targetSlug = toSlug(target.id);
+            const totalScore = calculateTotalScore(target.probationTasks);
+            const completedTasks = target.probationTasks.filter(
+              (task) => task.isCompleted,
+            ).length;
 
-          return (
-            <Panel
-              id={`probation-target-panel-${targetSlug}`}
-              data-cy={`probation-target-panel-${targetSlug}`}
-              key={target.id}
-              header={
-                <div
-                  className="flex md:flex-row flex-col items-start md:items-center justify-between w-full pr-0 gap-2"
-                  style={{ padding: 0 }}
-                  id={`probation-target-header-${targetSlug}`}
-                  data-cy={`probation-target-header-${targetSlug}`}
-                >
+            return (
+              <Panel
+                id={`probation-target-panel-${targetSlug}`}
+                data-cy={`probation-target-panel-${targetSlug}`}
+                key={target.id}
+                header={
                   <div
-                    className="flex items-center"
-                    id={`probation-target-user-${targetSlug}`}
-                    data-cy={`probation-target-user-${targetSlug}`}
+                    className="flex flex-row items-start md:items-center justify-between w-full pr-0 gap-2"
+                    style={{ padding: 0 }}
+                    id={`probation-target-header-${targetSlug}`}
+                    data-cy={`probation-target-header-${targetSlug}`}
                   >
-                    <Avatar
-                      size="default"
-                      src={target.user.profileImage}
-                      icon={<UserOutlined />}
-                      className="mr-3"
-                      data-cy={`probation-target-avatar-${targetSlug}`}
-                    >
-                      {!target.user.profileImage &&
-                        getInitials(
-                          target.user.firstName,
-                          target.user.lastName,
-                        )}
-                    </Avatar>
                     <div
-                      className="flex flex-col"
-                      id={`probation-target-name-wrapper-${targetSlug}`}
-                      data-cy={`probation-target-name-wrapper-${targetSlug}`}
+                      className="flex items-center"
+                      id={`probation-target-user-${targetSlug}`}
+                      data-cy={`probation-target-user-${targetSlug}`}
                     >
-                      <Text
-                        className="mb-0 text-md font-bold"
-                        id={`probation-target-name-${targetSlug}`}
-                        data-cy={`probation-target-name-${targetSlug}`}
+                      <div
+                        className="flex flex-col px-3"
+                        id={`probation-target-name-wrapper-${targetSlug}`}
+                        data-cy={`probation-target-name-wrapper-${targetSlug}`}
                       >
-                        {target.name}
-                      </Text>
-                      <Text
-                        className="text-gray-600"
-                        id={`probation-target-employee-${targetSlug}`}
-                        data-cy={`probation-target-employee-${targetSlug}`}
-                      >
-                        {`${target.user.firstName} ${target.user.middleName} ${target.user.lastName}`.trim()}
-                      </Text>
-                    </div>
-                  </div>
+                        <Text
+                          className="mb-0 text-base font-bold"
+                          id={`probation-target-name-${targetSlug}`}
+                          data-cy={`probation-target-name-${targetSlug}`}
+                        >
+                          {target.name}
+                        </Text>
+                        <div
+                          className="flex mt-3"
+                          id={`probation-target-employee-avatar-${targetSlug}`}
+                          data-cy={`probation-target-employee-avatar-${targetSlug}`}
+                        >
+                          <Avatar
+                            size="default"
+                            src={target.user.profileImage}
+                            icon={<UserOutlined />}
+                            className="mr-3 hidden sm:flex"
+                            data-cy={`probation-target-avatar-${targetSlug}`}
+                          >
+                            {!target.user.profileImage &&
+                              getInitials(
+                                target.user.firstName,
+                                target.user.lastName,
+                              )}
+                          </Avatar>
 
-                  <div
-                    className="flex items-center gap-2 sm:gap-4"
-                    id={`probation-target-actions-${targetSlug}`}
-                    data-cy={`probation-target-actions-${targetSlug}`}
-                  >
+                          <Text
+                            className="text-[#666666] text-xs font-normal mt-2"
+                            id={`probation-target-employee-${targetSlug}`}
+                            data-cy={`probation-target-employee-${targetSlug}`}
+                          >
+                            {`${target.user.firstName} ${target.user.middleName} ${target.user.lastName}`.trim()}
+                          </Text>
+                        </div>
+                      </div>
+                    </div>
+
                     <div
                       className="flex items-center gap-2 sm:gap-4"
-                      id={`probation-target-status-tags-wrapper-${targetSlug}`}
-                      data-cy={`probation-target-status-tags-wrapper-${targetSlug}`}
+                      id={`probation-target-actions-${targetSlug}`}
+                      data-cy={`probation-target-actions-${targetSlug}`}
                     >
-                      <Space
-                        id={`probation-target-status-tags-${targetSlug}`}
-                        data-cy={`probation-target-status-tags-${targetSlug}`}
+                      <div
+                        className="flex items-center gap-2 sm:gap-4"
+                        id={`probation-target-status-tags-wrapper-${targetSlug}`}
+                        data-cy={`probation-target-status-tags-wrapper-${targetSlug}`}
                       >
-                        {completedTargets.has(target.id) && (
-                          <Tag
-                            className="cursor-pointer"
-                            onClick={() => handleUncompleteProbation(target)}
-                            color="green"
-                            id={`probation-target-completed-tag-${targetSlug}`}
-                            data-cy={`probation-target-completed-tag-${targetSlug}`}
-                          >
-                            ✓ Completed
-                          </Tag>
-                        )}
-
-                        {completedTasks === target.probationTasks.length &&
-                          target.probationTasks.length > 0 &&
-                          !completedTargets.has(target.id) && (
-                            <Tooltip
-                              title="Complete Probation"
-                              id={`probation-target-complete-btn-tooltip-${targetSlug}`}
-                              data-cy={`probation-target-complete-btn-tooltip-${targetSlug}`}
+                        <Space
+                          id={`probation-target-status-tags-${targetSlug}`}
+                          data-cy={`probation-target-status-tags-${targetSlug}`}
+                        >
+                          {completedTargets.has(target.id) && (
+                            <Tag
+                              className="cursor-pointer"
+                              onClick={() => handleUncompleteProbation(target)}
+                              color="green"
+                              id={`probation-target-completed-tag-${targetSlug}`}
+                              data-cy={`probation-target-completed-tag-${targetSlug}`}
                             >
-                              <Button
-                                type={'primary'}
-                                size="small"
-                                className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
-                                icon={<CheckCircleOutlined />}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (completedTargets.has(target.id)) {
-                                    // handleUncompleteProbation(target);
-                                  } else {
-                                    handleCompleteProbation(target);
-                                  }
-                                }}
-                                loading={
-                                  updateProbationTargetMutation.isLoading
-                                }
-                                id={`probation-target-complete-btn-${targetSlug}`}
-                                data-cy={`probation-target-complete-btn-${targetSlug}`}
-                              ></Button>
-                            </Tooltip>
+                              ✓ Completed
+                            </Tag>
                           )}
-                      </Space>
-                    </div>
-                    {target.probationTasks.length === 0 && (
-                      <Tooltip
-                        title="Add Probation Task"
-                        id={`probation-target-add-task-btn-tooltip-${targetSlug}`}
-                        data-cy={`probation-target-add-task-btn-tooltip-${targetSlug}`}
-                      >
-                        <AccessGuard
-                          permissions={[Permissions.CreateProbationTask]}
-                          id={`probation-target-add-task-btn-guard-${targetSlug}`}
-                          data-cy={`probation-target-add-task-btn-guard-${targetSlug}`}
-                        >
-                          <Button
-                            type="primary"
-                            size="small"
-                            icon={<PlusOutlined />}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddTask(target.id);
-                            }}
-                            className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
-                            id={`probation-target-add-task-btn-${targetSlug}`}
-                            data-cy={`probation-target-add-task-btn-${targetSlug}`}
-                          />
-                        </AccessGuard>
-                      </Tooltip>
-                    )}
-                    {(() => {
-                      const canEditTarget = AccessGuard.checkAccess({
-                        permissions: [Permissions.UpdateProbationTarget],
-                      });
-                      const canEditTask = AccessGuard.checkAccess({
-                        permissions: [Permissions.UpdateProbationTask],
-                      });
-                      const items = [
-                        canEditTarget
-                          ? {
-                              key: 'edit-target',
-                              label: 'Edit Probation Target',
-                              onClick: (e: any) => {
-                                e?.domEvent?.stopPropagation?.();
-                                handleEditTarget(target);
-                              },
-                            }
-                          : null,
-                        canEditTask
-                          ? {
-                              key: 'edit-task',
-                              label: 'Edit Probation Task',
-                              onClick: (e: any) => {
-                                e?.domEvent?.stopPropagation?.();
-                                openTaskEditDrawer(target);
-                              },
-                            }
-                          : null,
-                      ].filter(Boolean) as any[];
 
-                      if (!items.length) return null;
-
-                      return (
-                        <Dropdown
-                          menu={{ items }}
-                          trigger={['click']}
-                          placement="bottomRight"
-                          data-cy={`probation-target-actions-dropdown-${targetSlug}`}
-                        >
-                          <Button
-                            size="small"
-                            className="flex items-center w-full"
-                            onClick={(e) => e.stopPropagation()}
-                            id={`probation-target-actions-dropdown-btn-${targetSlug}`}
-                            data-cy={`probation-target-actions-dropdown-btn-${targetSlug}`}
-                          >
-                            <MdEdit
-                              className="mr-1"
-                              id={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
-                              data-cy={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
-                            />
-                            <DownOutlined
-                              id={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
-                              data-cy={`probation-target-actions-dropdown-btn-icon-${targetSlug}`}
-                            />
-                          </Button>
-                        </Dropdown>
-                      );
-                    })()}
-
-                    <Tooltip title="Delete Probation Target">
+                          {completedTasks === target.probationTasks.length &&
+                            target.probationTasks.length > 0 &&
+                            !completedTargets.has(target.id) && (
+                              <Tooltip
+                                title="Complete Probation"
+                                id={`probation-target-complete-btn-tooltip-${targetSlug}`}
+                                data-cy={`probation-target-complete-btn-tooltip-${targetSlug}`}
+                              >
+                                <Button
+                                  type={'primary'}
+                                  size="small"
+                                  className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center"
+                                  icon={<CheckCircleOutlined />}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (completedTargets.has(target.id)) {
+                                      // handleUncompleteProbation(target);
+                                    } else {
+                                      handleCompleteProbation(target);
+                                    }
+                                  }}
+                                  loading={
+                                    updateProbationTargetMutation.isLoading
+                                  }
+                                  id={`probation-target-complete-btn-${targetSlug}`}
+                                  data-cy={`probation-target-complete-btn-${targetSlug}`}
+                                ></Button>
+                              </Tooltip>
+                            )}
+                        </Space>
+                      </div>
                       <AccessGuard
-                        permissions={[Permissions.DeleteProbationTarget]}
-                        id={`probation-target-delete-btn-guard-${targetSlug}`}
-                        data-cy={`probation-target-delete-btn-guard-${targetSlug}`}
+                        permissions={[Permissions.CreateProbationTask]}
+                        id={`probation-target-add-task-btn-guard-${targetSlug}`}
+                        data-cy={`probation-target-add-task-btn-guard-${targetSlug}`}
                       >
                         <Button
-                          type="default"
+                          type="primary"
                           size="small"
-                          danger
-                          icon={<DeleteOutlined />}
+                          icon={<AddIcon fontSize="small" />}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteTarget(target);
+                            handleAddTask(target.id);
                           }}
-                          className="flex-shrink-0 w-6 h-6 p-0 flex items-center justify-center text-red-600 hover:text-red-800"
-                          id={`probation-target-delete-btn-${targetSlug}`}
-                          data-cy={`probation-target-delete-btn-${targetSlug}`}
-                        />
+                          className="hidden sm:flex h-8 text-sm font-normal"
+                          id={`probation-target-add-task-btn-${targetSlug}`}
+                          data-cy={`probation-target-add-task-btn-${targetSlug}`}
+                        >
+                          Add Probation Task
+                        </Button>
                       </AccessGuard>
-                    </Tooltip>
-                  </div>
-                </div>
-              }
-            >
-              <div
-                className="space-y-3 max-h-96 sm:max-h-72 overflow-y-auto scrollbar-hide pr-1"
-                id={`probation-target-panel-body-${targetSlug}`}
-                data-cy={`probation-target-panel-body-${targetSlug}`}
-              >
-                {/* Inline Task Panel */}
-                <InlineTaskPanel
-                  probationTargetId={target.id}
-                  isVisible={showInlinePanel === target.id}
-                  onClose={
-                    isEditMode ? handleEditClose : handleCloseInlinePanel
-                  }
-                  onTaskAdded={handleTaskAdded}
-                  onTaskUpdated={handleTaskUpdated}
-                  existingTasks={target.probationTasks}
-                  editMode={isEditMode}
-                  taskToEdit={taskToEdit}
-                  data-cy={`probation-target-inline-task-panel-${targetSlug}`}
-                />
+                      {(() => {
+                        const canEditTarget = AccessGuard.checkAccess({
+                          permissions: [Permissions.UpdateProbationTarget],
+                        });
+                        const canEditTask = AccessGuard.checkAccess({
+                          permissions: [Permissions.UpdateProbationTask],
+                        });
+                        const canDeleteTarget = AccessGuard.checkAccess({
+                          permissions: [Permissions.DeleteProbationTarget],
+                        });
+                        const items = [
+                          isMobile
+                            ? {
+                                key: 'add-task',
+                                label: 'Add Probation Task',
+                                icon: <PlusOutlined />,
+                                onClick: (e: any) => {
+                                  e?.domEvent?.stopPropagation?.();
+                                  handleAddTask(target.id);
+                                },
+                              }
+                            : null,
+                          canEditTarget
+                            ? {
+                                key: 'edit-target',
+                                label: 'Edit Probation Target',
+                                icon: <EditOutlined />,
+                                onClick: (e: any) => {
+                                  e?.domEvent?.stopPropagation?.();
+                                  handleEditTarget(target);
+                                },
+                              }
+                            : null,
+                          canEditTask
+                            ? {
+                                key: 'edit-task',
+                                label: 'Edit Probation Task',
+                                icon: <EditOutlined />,
+                                onClick: (e: any) => {
+                                  e?.domEvent?.stopPropagation?.();
+                                  openTaskEditDrawer(target);
+                                },
+                              }
+                            : null,
+                          canDeleteTarget
+                            ? {
+                                key: 'delete-target',
+                                label: 'Delete Probation Target',
+                                icon: <DeleteOutlined />,
+                                danger: true,
+                                onClick: (e: any) => {
+                                  e?.domEvent?.stopPropagation?.();
+                                  handleDeleteTarget(target);
+                                },
+                              }
+                            : null,
+                        ].filter(Boolean) as any[];
 
-                {target.probationTasks.length > 0 ? (
-                  target.probationTasks.map((task) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      onToggle={() => onToggleTaskComplete?.(task.id)}
-                      onDelete={() => handleDeleteClick(task)}
-                      onUpdateScore={onUpdateTaskScore || (() => {})}
-                      onEdit={() => handleEditClick(task)}
-                      data-cy={`probation-target-task-item-${targetSlug}-${task.id}`}
-                    />
-                  ))
-                ) : (
-                  <div
-                    className="flex justify-center items-center py-8"
-                    id={`probation-target-empty-tasks-wrapper-${targetSlug}`}
-                    data-cy={`probation-target-empty-tasks-wrapper-${targetSlug}`}
-                  >
-                    <Empty
-                      description="No tasks found for this probation target"
-                      image={
-                        <EmptyImage data-cy="probation-target-empty-tasks-image" />
-                      }
-                      data-cy={`probation-target-empty-tasks-${targetSlug}`}
-                    />
+                        if (!items.length) return null;
+
+                        return (
+                          <Dropdown
+                            menu={{ items }}
+                            trigger={['click']}
+                            placement="bottomRight"
+                            data-cy={`probation-target-actions-dropdown-${targetSlug}`}
+                          >
+                            <Button
+                              type="default"
+                              className="flex items-center justify-center border border-[#D9D9D9] h-8 w-8"
+                              onClick={(e) => e.stopPropagation()}
+                              id={`probation-target-actions-dropdown-btn-${targetSlug}`}
+                              data-cy={`probation-target-actions-dropdown-btn-${targetSlug}`}
+                              size="small"
+                            >
+                              <MoreHorizIcon />
+                            </Button>
+                          </Dropdown>
+                        );
+                      })()}
+                    </div>
                   </div>
-                )}
-              </div>
-              <div
-                className="flex justify-end mt-3 sm:mt-4 mr-0 sm:mr-4 px-2 sm:px-0"
-                id={`probation-target-total-wrapper-${targetSlug}`}
-                data-cy={`probation-target-total-wrapper-${targetSlug}`}
+                }
               >
                 <div
-                  className="text-[14px] font-bold text-gray-900"
-                  id={`probation-target-total-score-${targetSlug}`}
-                  data-cy={`probation-target-total-score-${targetSlug}`}
+                  className="space-y-3 max-h-96 sm:max-h-72 overflow-y-auto scrollbar-hide pr-1"
+                  id={`probation-target-panel-body-${targetSlug}`}
+                  data-cy={`probation-target-panel-body-${targetSlug}`}
                 >
-                  Total: {totalScore.toFixed(2)}
+                  {/* Inline Task Panel */}
+                  <InlineTaskPanel
+                    probationTargetId={target.id}
+                    isVisible={showInlinePanel === target.id}
+                    onClose={
+                      isEditMode ? handleEditClose : handleCloseInlinePanel
+                    }
+                    onTaskAdded={handleTaskAdded}
+                    onTaskUpdated={handleTaskUpdated}
+                    existingTasks={target.probationTasks}
+                    editMode={isEditMode}
+                    taskToEdit={taskToEdit}
+                    data-cy={`probation-target-inline-task-panel-${targetSlug}`}
+                  />
+
+                  {target.probationTasks.length > 0 ? (
+                    <div
+                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+                      id={`probation-target-tasks-grid-${targetSlug}`}
+                      data-cy={`probation-target-tasks-grid-${targetSlug}`}
+                    >
+                      {target.probationTasks.map((task) => (
+                        <TaskItem
+                          key={task.id}
+                          task={task}
+                          onToggle={() => onToggleTaskComplete?.(task.id)}
+                          onDelete={() => handleDeleteClick(task)}
+                          onUpdateScore={onUpdateTaskScore || (() => {})}
+                          onEdit={() => handleEditClick(task)}
+                          data-cy={`probation-target-task-item-${targetSlug}-${task.id}`}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div
+                      className="flex justify-center items-center py-8"
+                      id={`probation-target-empty-tasks-wrapper-${targetSlug}`}
+                      data-cy={`probation-target-empty-tasks-wrapper-${targetSlug}`}
+                    >
+                      No tasks found for this probation target
+                    </div>
+                  )}
                 </div>
-              </div>
-            </Panel>
-          );
-        })}
-      </Collapse>
+                <div
+                  className="flex justify-end mt-3 sm:mt-4 mr-0 sm:mr-4 px-2 sm:px-0"
+                  id={`probation-target-total-wrapper-${targetSlug}`}
+                  data-cy={`probation-target-total-wrapper-${targetSlug}`}
+                >
+                  <div
+                    className="text-[14px] font-bold text-gray-900"
+                    id={`probation-target-total-score-${targetSlug}`}
+                    data-cy={`probation-target-total-score-${targetSlug}`}
+                  >
+                    Total: {totalScore.toFixed(2)}
+                  </div>
+                </div>
+              </Panel>
+            );
+          })}
+        </Collapse>
+      </div>
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -1031,7 +1079,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                 id="probation-task-drawer-total-weight"
                 data-cy="probation-task-drawer-total-weight"
               >
-                Total Weight: {drawerTotalWeight}/100
+                {/* Total Weight: {drawerTotalWeight}/100 */}
               </div>
               <div
                 className="flex flex-col-reverse sm:flex-row gap-2 w-full sm:w-auto"

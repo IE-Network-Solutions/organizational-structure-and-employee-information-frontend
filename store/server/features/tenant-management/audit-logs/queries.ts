@@ -81,6 +81,12 @@ const getAggregateAuditLogs = async (
   if (params.entityType) {
     queryParams.entityType = params.entityType;
   }
+  if (params.startDate) {
+    queryParams.startDate = params.startDate;
+  }
+  if (params.endDate) {
+    queryParams.endDate = params.endDate;
+  }
 
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,

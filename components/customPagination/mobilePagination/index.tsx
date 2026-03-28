@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { usePaginationStore } from '@/store/uistate/features/pagination';
 
@@ -52,40 +51,99 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
     }
   };
 
+  const handlePageClick = (page: number) => {
+    if (page !== activeCurrentPage && page >= 1 && page <= totalPages) {
+      if (currentPage === undefined) {
+        setCurrentPage(page);
+      }
+      onChange?.(page, pageSize);
+      onShowSizeChange?.(page, pageSize);
+    }
+  };
+
+  // Show first 5 pages, ellipsis, and last page (e.g. 1 2 3 4 5 ... 50)
+  const getVisiblePageItems = (): (number | 'ellipsis')[] => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (unused, i) => {
+        void unused;
+        return i + 1;
+      });
+    }
+    return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
+  };
+
+  const visiblePageItems = getVisiblePageItems();
+
   return (
-    <div
-      id={id}
-      data-cy={dataCy}
-      className="flex items-center justify-between w-full px-4 py-2 bg-gray-100"
-    >
+    <div id={id} data-cy={dataCy} className="flex w-full px-2 py-2 rounded-lg">
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
-        className="flex items-center gap-6"
+        className="flex items-center justify-between gap-2 w-full"
       >
-        <Button
-          icon={<LeftOutlined />}
+        <button
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-button-11"
           onClick={handlePrevious}
           disabled={activeCurrentPage === 1}
-          className="border-gray-200"
-        />
-        <div
-          data-cy="components-custompagination-mobilepagination-index-tsx-index-div-68"
-          className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 font-medium"
+          className={`flex items-center justify-center ${
+            activeCurrentPage === 1
+              ? 'text-gray-300 cursor-not-allowed'
+              : 'text-gray-500 hover:text-gray-700 cursor-pointer'
+          }`}
+          aria-label="Previous page"
         >
-          {activeCurrentPage}
+          <LeftOutlined />
+        </button>
+
+        <div
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-div-71"
+          className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center"
+        >
+          {visiblePageItems.map((item) => {
+            if (item === 'ellipsis') {
+              return (
+                <span
+                  key="ellipsis"
+                  className="w-8 h-8 flex items-center justify-center text-gray-400"
+                  aria-hidden
+                  data-cy="components-custompagination-mobilepagination-ellipsis"
+                >
+                  …
+                </span>
+              );
+            }
+            const isActive = item === activeCurrentPage;
+            return (
+              <button
+                key={item}
+                onClick={() => handlePageClick(item)}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg font-medium transition-colors ${
+                  isActive
+                    ? 'text-[#1e40af] border border-[#1e40af] bg-white'
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+                data-cy={`mobile-pagination-page-${item}`}
+                aria-label={`Go to page ${item}`}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                {item}
+              </button>
+            );
+          })}
         </div>
-        <Button
-          icon={<RightOutlined className="text-gray-800" />}
+
+        <button
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-button-12"
           onClick={handleNext}
           disabled={activeCurrentPage === totalPages}
-          className="border-gray-200"
-        />
-      </div>
-      <div
-        data-cy="components-custompagination-mobilepagination-index-tsx-index-div-78"
-        className="text-sm text-gray-600"
-      >
-        {totalResults} Result{totalResults !== 1 && 's'}
+          className={`flex items-center justify-center ${
+            activeCurrentPage === totalPages
+              ? 'text-gray-300 cursor-not-allowed'
+              : 'text-gray-500 hover:text-gray-700 cursor-pointer'
+          }`}
+          aria-label="Next page"
+        >
+          <RightOutlined />
+        </button>
       </div>
     </div>
   );

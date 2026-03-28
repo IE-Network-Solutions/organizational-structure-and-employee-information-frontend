@@ -1,6 +1,11 @@
 // components/ApprovalRequestCard.tsx
 import { FC } from 'react';
-import { Button, Input, Popconfirm } from 'antd';
+import { Avatar, Input, Popconfirm, Skeleton } from 'antd';
+import {
+  CheckCircleFilled,
+  CloseCircleFilled,
+  UserOutlined,
+} from '@ant-design/icons';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import {
   useSetApproveLeaveRequest,
@@ -10,13 +15,13 @@ import {
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { LuFileDown } from 'react-icons/lu';
+import { MdOutlineClose, MdOutlineFileDownload } from 'react-icons/md';
+import { LuCircleCheck } from 'react-icons/lu';
 
 interface ApprovalRequestCardProps {
+  isLoading: boolean;
   name: string;
   days?: number;
   startAt: string;
@@ -32,7 +37,9 @@ interface ApprovalRequestCardProps {
 }
 
 const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
+  isLoading,
   name,
+  days,
   startAt,
   endAt,
   leaveType,
@@ -134,9 +141,101 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
   const cancel: any = () => {};
   const { isMobile, isTablet } = useIsMobile();
 
+  const leaveDurationDays =
+    requestType === 'Leave' && startAt && endAt
+      ? (days ??
+        dayjs(endAt).endOf('day').diff(dayjs(startAt).startOf('day'), 'day') +
+          1)
+      : undefined;
+
+  const formattedDateRange =
+    requestType === 'Leave'
+      ? isMobile || isTablet
+        ? `${dayjs(startAt).format('MMM DD')} - ${dayjs(endAt).format('MMM DD')}${
+            leaveDurationDays ? ` (${leaveDurationDays} days)` : ''
+          }`
+        : `${dayjs(startAt).format('MMM DD')} - ${dayjs(endAt).format(
+            'MMM DD, YYYY',
+          )}${leaveDurationDays ? ` (${leaveDurationDays} days)` : ''}`
+      : '';
+
+  if (isLoading) {
+    return (
+      <div
+        className="flex h-[60px] items-center justify-between bg-white py-1 px-3 rounded-lg border border-gray-200 overflow-y-auto scrollbar-none mb-3"
+        data-cy="approval-status-card-skeleton"
+      >
+        <div
+          className="flex items-center space-x-3"
+          data-cy="approval-status-card-skeleton-content"
+        >
+          <div
+            className="relative w-[36px] h-[36px] rounded-full overflow-hidden"
+            data-cy="approval-status-card-skeleton-avatar"
+          >
+            <Skeleton.Avatar active size={36} />
+          </div>
+
+          <div
+            className="flex flex-col gap-1 flex-1"
+            data-cy="approval-status-card-skeleton-info"
+          >
+            <div
+              className="flex items-center justify-between gap-2"
+              data-cy="approval-status-card-skeleton-top-row"
+            >
+              <div
+                className="flex flex-col gap-1 flex-1"
+                data-cy="approval-status-card-skeleton-top-row-left"
+              >
+                <Skeleton.Input
+                  active
+                  size="small"
+                  className="!h-4 !w-28 !min-w-0 hidden md:block"
+                />
+              </div>
+              <Skeleton.Input
+                active
+                size="small"
+                className="!h-5 !w-24 !min-w-0 !rounded-[4px]"
+              />
+            </div>
+
+            <Skeleton.Input
+              active
+              size="small"
+              className="!h-3 !w-40 !min-w-0"
+            />
+            <Skeleton.Input
+              active
+              size="small"
+              className="!h-3 !w-28 !min-w-0"
+            />
+          </div>
+        </div>
+
+        <div
+          className="flex items-center gap-2"
+          data-cy="approval-status-card-skeleton-actions"
+        >
+          <Skeleton.Button
+            active
+            shape="circle"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !rounded-[4px]"
+          />
+          <Skeleton.Button
+            active
+            shape="circle"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !rounded-[4px]"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className="flex items-center justify-between bg-white p-2 rounded-lg  overflow-y-auto scrollbar-none mb-3"
+      className="flex h-[60px] items-center justify-between bg-white py-1 px-3 rounded-lg border border-gray-200 overflow-y-auto scrollbar-none mb-3"
       data-cy="approval-status-card"
     >
       <div
@@ -144,10 +243,11 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         data-cy="approval-status-card-content"
       >
         <div
-          className="relative w-7 h-7 rounded-full overflow-hidden"
+          className="relative w-[36px] h-[36px] rounded-full overflow-hidden"
           data-cy="approval-status-card-avatar"
         >
-          <Image
+          <Avatar
+            className="w-[36px] h-[36px]"
             src={
               employeeData?.profileImage &&
               typeof employeeData?.profileImage === 'string'
@@ -156,70 +256,96 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
                       const parsed = JSON.parse(employeeData.profileImage);
                       return parsed.url && parsed.url.startsWith('http')
                         ? parsed.url
-                        : Avatar;
+                        : undefined;
                     } catch {
                       return employeeData.profileImage.startsWith('http')
                         ? employeeData.profileImage
-                        : Avatar;
+                        : undefined;
                     }
                   })()
-                : Avatar
+                : undefined
             }
+            icon={<UserOutlined />}
             alt="Description of image"
-            layout="fill"
-            className="object-cover"
           />
         </div>
-        <div className="flex flex-col" data-cy="approval-status-card-info">
-          <p
-            className="font-semibold text-xs"
-            data-cy="approval-status-card-leave-type"
+        <div
+          className="flex flex-col gap-1"
+          data-cy="approval-status-card-info"
+        >
+          <div
+            className="flex items-center justify-between gap-2"
+            data-cy="approval-status-card-top-row"
           >
-            {leaveType?.length >= 15
-              ? leaveType?.slice(0, 15) + '...'
-              : leaveType}
-          </p>
-          <p
-            className="font-normal text-gray-500 text-[10px]"
-            data-cy="approval-status-card-employee-name"
-          >
-            {employeeData?.firstName} {employeeData?.middleName}
-          </p>
+            <div
+              className="flex items-center gap-1"
+              data-cy="approval-status-card-employee-names"
+            >
+              <p
+                className="font-normal text-sm text-black truncate"
+                data-cy="approval-status-card-employee-name"
+              >
+                {employeeData?.firstName || '-'}
+              </p>
+              <p
+                className="font-normal text-sm text-black/90 truncate md:block hidden"
+                data-cy="approval-status-card-employee-name"
+              >
+                {employeeData?.middleName || '-'}
+              </p>
+            </div>
+
+            <div className="flex gap-2 " data-cy="approval-status-card-meta">
+              <span
+                className="truncate inline-flex items-center px-2 py-[1px] rounded-[4px] text-[10px] font-medium border bg-gray-50 text-gray-700 border-gray-200"
+                data-cy="approval-status-card-leave-type"
+              >
+                {leaveType}
+              </span>
+              <div
+                className="flex items-center gap-2"
+                data-cy="approval-status-card-attachments"
+              >
+                {fileAttachment && (
+                  <a
+                    href={fileAttachment}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center w-6 h-6 rounded-[4px] bg-white border border-gray-300 !text-black"
+                    data-cy="approval-status-card-file-attachment"
+                  >
+                    <MdOutlineFileDownload className="text-xs" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
           {requestType === 'BranchTransfer' ? (
             <>
               <p
-                className="font-normal text-gray-500 text-[10px]"
+                className="font-normal text-gray-500 text-xs"
                 data-cy="approval-status-card-branch-transfer-dates"
               >
-                {startAt || '-'} to {endAt || '-'}
+                {startAt ? dayjs(startAt).format('MMM DD') : '-'} to {endAt}
               </p>
             </>
           ) : requestType === 'Leave' ? (
             <div
-              className="flex justify-between items-center gap-5 font-normal text-gray-500 text-[10px]"
-              data-cy="approval-status-card-leave-dates"
+              className="flex items-center justify-between gap-4"
+              data-cy="approval-status-card-date-row"
             >
-              <p className="" data-cy="approval-status-card-date-range">
-                {isMobile || isTablet
-                  ? `${dayjs(startAt).format('MMM DD') || '-'} to ${dayjs(endAt).format('MMM DD') || '-'}`
-                  : `${dayjs(startAt).format('MMM DD, YYYY') || '-'} to ${dayjs(endAt).format('MMM DD, YYYY') || '-'}`}
+              <p
+                className="font-normal text-gray-500 text-xs"
+                data-cy="approval-status-card-date-range"
+              >
+                {formattedDateRange}
               </p>
-
-              {fileAttachment && (
-                <a
-                  href={fileAttachment}
-                  target="_blank"
-                  data-cy="approval-status-card-file-attachment"
-                >
-                  <LuFileDown className="text-[#2F78EE] text-base " />
-                </a>
-              )}
             </div>
           ) : (
             ''
           )}
           <p
-            className="text-[10px] text-gray-500"
+            className="text-[10px] text-gray-400"
             data-cy="approval-status-card-approver-name"
           >
             {name}
@@ -227,11 +353,67 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
         </div>
       </div>
       <div
-        className="space-x-1 space-y-1 "
+        className="flex items-center gap-2"
         data-cy="approval-status-card-actions"
       >
         <Popconfirm
-          title="Reject Request"
+          icon={null}
+          description="Are you sure you want to approve this leave request ?"
+          placement="bottomRight"
+          title={
+            <span
+              className="flex items-center gap-1"
+              data-cy="approval-status-card-approve-popconfirm-title"
+            >
+              <CheckCircleFilled className="text-[#52C41A]" />
+              <span data-cy="approval-status-card-approve-popconfirm-title-text">
+                Approve
+              </span>
+            </span>
+          }
+          onConfirm={() => {
+            confirm({
+              approvalWorkflowId: approvalWorkflowId,
+              stepOrder: nextApprover,
+              requestId: id,
+              approvedUserId: userId,
+              approverRoleId: userRollId,
+              action: 'Approved',
+              tenantId: tenantId,
+            });
+          }}
+          onCancel={cancel}
+          okText="OK"
+          cancelText="Cancel"
+        >
+          <button
+            type="button"
+            className="inline-flex items-center justify-center w-6 h-6 rounded-[4px] border border-[#52C41A] text-[#52C41A]"
+            disabled={
+              isLoading ||
+              isLoadingEditApprover ||
+              isLoadingFinalLeaveApprover ||
+              isLoadingFinalBranchApprover
+            }
+            data-cy={`approval-status-card-approve-btn-${id}`}
+          >
+            <LuCircleCheck size={14} className="text-[#52C41A]" />
+          </button>
+        </Popconfirm>
+        <Popconfirm
+          icon={null}
+          title={
+            <span
+              className="flex items-center gap-1"
+              data-cy="approval-status-card-decline-popconfirm-title"
+            >
+              <CloseCircleFilled className="text-[#FF4D4F]" />
+              <span data-cy="approval-status-card-decline-popconfirm-title-text">
+                Decline
+              </span>
+            </span>
+          }
+          placement="bottomRight"
           description={
             <>
               <p data-cy="approval-status-card-reject-confirmation">
@@ -262,50 +444,23 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
             });
           }}
           onCancel={cancel}
-          okText="Reject"
+          okText="OK"
           cancelText="Cancel"
-          okButtonProps={{ disabled: !rejectComment }}
+          okButtonProps={{ disabled: isLoading || !rejectComment }}
         >
-          <Button
-            className="p-1 lg:p-4 text-xs lg:text-base"
+          <button
+            type="button"
+            className="inline-flex items-center justify-center w-6 h-6 rounded-[4px] border border-[#FF4D4F] text-[#FF4D4F]"
             disabled={
+              isLoading ||
               isLoadingEditApprover ||
               isLoadingFinalLeaveApprover ||
               isLoadingFinalBranchApprover
             }
+            data-cy={`approval-status-card-reject-btn-${id}`}
           >
-            Reject
-          </Button>
-        </Popconfirm>
-        <Popconfirm
-          title="Approve Request"
-          description="Are you sure to approve this leave request?"
-          onConfirm={() => {
-            confirm({
-              approvalWorkflowId: approvalWorkflowId,
-              stepOrder: nextApprover,
-              requestId: id,
-              approvedUserId: userId,
-              approverRoleId: userRollId,
-              action: 'Approved',
-              tenantId: tenantId,
-            });
-          }}
-          onCancel={cancel}
-          okText="Approve"
-          cancelText="Cancel"
-        >
-          <Button
-            type="primary"
-            className="p-1 lg:p-4 text-xs lg:text-base"
-            disabled={
-              isLoadingEditApprover ||
-              isLoadingFinalLeaveApprover ||
-              isLoadingFinalBranchApprover
-            }
-          >
-            Approve
-          </Button>
+            <MdOutlineClose size={14} className="text-[#FF4D4F]" />
+          </button>
         </Popconfirm>
       </div>
     </div>

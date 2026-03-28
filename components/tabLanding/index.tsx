@@ -127,7 +127,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           </div>
         </div>
         <div
-          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
+          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120 border border-gray-200 "
           className="w-full h-auto"
         >
           {children}

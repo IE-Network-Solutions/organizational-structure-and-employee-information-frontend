@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { Form, Input, Button, Select, Card, Space } from 'antd';
-import { CloseOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Select, Card, Space, Modal } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useCreateProbationTaskBulk,
@@ -83,11 +83,6 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
       (total: number, task: any) => total + (parseInt(task?.weight) || 0),
       0,
     );
-  };
-
-  const getCurrentTaskCount = () => {
-    const formValues = form.getFieldsValue();
-    return (formValues.tasks || []).length;
   };
 
   const calculateTotalWeight = () => {
@@ -208,27 +203,20 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
 
   if (!isVisible) return null;
   return (
-    <div
-      className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 border border-gray-200 shadow-sm"
-      id={`probation-inline-panel-${panelSlug}`}
-      data-cy={`probation-inline-panel-${panelSlug}`}
+    <Modal
+      open={isVisible}
+      onCancel={handleClose}
+      footer={null}
+      title={
+        <div
+          className="text-lg font-medium"
+          data-cy="probation-inline-panel-title"
+        >
+          Add New Task
+        </div>
+      }
+      zIndex={10002}
     >
-      {/* Close button */}
-      <div
-        className="flex justify-end mb-3 sm:mb-4"
-        id={`probation-inline-panel-close-${panelSlug}`}
-        data-cy={`probation-inline-panel-close-${panelSlug}`}
-      >
-        <Button
-          type="text"
-          icon={<CloseOutlined />}
-          onClick={handleClose}
-          className="w-8 h-8 p-0 flex items-center justify-center text-blue-600 hover:bg-blue-50 rounded-full"
-          id={`probation-inline-panel-close-btn-${panelSlug}`}
-          data-cy={`probation-inline-panel-close-btn-${panelSlug}`}
-        />
-      </div>
-
       {/* Task Forms */}
       <Form
         form={form}
@@ -242,67 +230,42 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
           initialValue={editMode ? [{}] : [{}]}
           data-cy={`probation-inline-panel-form-list-${panelSlug}`}
         >
-          {(fields, { add, remove }) => (
+          {(fields, { add }) => (
             <>
               <div
                 className="space-y-3 sm:space-y-4"
                 id={`probation-inline-panel-task-list-${panelSlug}`}
                 data-cy={`probation-inline-panel-task-list-${panelSlug}`}
               >
-                {fields.map((field, index) => {
+                {fields.map((field) => {
                   const taskSlug = `${panelSlug}-${field.key}`;
                   return (
                     <Card
                       key={field.key}
                       size="small"
-                      className="bg-white border-gray-200"
                       id={`probation-inline-panel-task-card-${taskSlug}`}
                       data-cy={`probation-inline-panel-task-card-${taskSlug}`}
+                      bodyStyle={{ padding: '10px' }}
                     >
-                      <div
-                        className="flex justify-between items-center mb-2 sm:mb-3"
-                        id={`probation-inline-panel-task-header-${taskSlug}`}
-                        data-cy={`probation-inline-panel-task-header-${taskSlug}`}
-                      >
-                        <h4
-                          className="text-sm font-medium text-gray-700"
-                          id={`probation-inline-panel-task-title-${taskSlug}`}
-                          data-cy={`probation-inline-panel-task-title-${taskSlug}`}
-                        >
-                          Task {index + 1}
-                        </h4>
-                        {!editMode && fields.length > 1 && (
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={() => remove(field.name)}
-                            className="w-8 h-8 p-0 flex items-center justify-center"
-                            id={`probation-inline-panel-task-delete-btn-${taskSlug}`}
-                            data-cy={`probation-inline-panel-task-delete-btn-${taskSlug}`}
-                          />
-                        )}
-                      </div>
-
                       <div
                         className="space-y-2 sm:space-y-3"
                         id={`probation-inline-panel-task-body-${taskSlug}`}
                         data-cy={`probation-inline-panel-task-body-${taskSlug}`}
                       >
-                        {/* Task Name Row */}
                         <div
                           className="grid grid-cols-12 gap-2 sm:gap-3"
                           id={`probation-inline-panel-task-row-${taskSlug}`}
                           data-cy={`probation-inline-panel-task-row-${taskSlug}`}
                         >
                           <div
-                            className="col-span-12 sm:col-span-6"
+                            className="col-span-12 sm:col-span-4"
                             id={`probation-inline-panel-task-name-col-${taskSlug}`}
                             data-cy={`probation-inline-panel-task-name-col-${taskSlug}`}
                           >
                             <Form.Item
                               {...field}
                               name={[field.name, 'taskName']}
+                              label="Task Name"
                               rules={[
                                 {
                                   required: true,
@@ -319,7 +282,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                               data-cy={`probation-inline-panel-task-name-item-${taskSlug}`}
                             >
                               <Input
-                                placeholder="Task Name"
+                                placeholder="Input"
                                 className="h-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                 id={`probation-inline-panel-task-name-input-${taskSlug}`}
                                 data-cy={`probation-inline-panel-task-name-input-${taskSlug}`}
@@ -335,6 +298,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                             <Form.Item
                               {...field}
                               name={[field.name, 'approverId']}
+                              label="Approver"
                               rules={[
                                 {
                                   required: true,
@@ -346,7 +310,7 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                               data-cy={`probation-inline-panel-task-approver-item-${taskSlug}`}
                             >
                               <Select
-                                placeholder="Select Approver"
+                                placeholder="Select"
                                 options={peopleOptions}
                                 showSearch
                                 filterOption={(input: any, option: any) =>
@@ -362,13 +326,14 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                           </div>
 
                           <div
-                            className="col-span-12 sm:col-span-2"
+                            className="col-span-12 sm:col-span-4"
                             id={`probation-inline-panel-task-weight-col-${taskSlug}`}
                             data-cy={`probation-inline-panel-task-weight-col-${taskSlug}`}
                           >
                             <Form.Item
                               {...field}
                               name={[field.name, 'weight']}
+                              label="Weight"
                               rules={[
                                 {
                                   required: true,
@@ -405,11 +370,11 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                               data-cy={`probation-inline-panel-task-weight-item-${taskSlug}`}
                             >
                               <Input
-                                placeholder="Weight"
+                                placeholder="Input"
                                 type="number"
                                 min={1}
                                 max={100}
-                                className="h-10 text-center rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                className="h-10 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                 id={`probation-inline-panel-task-weight-input-${taskSlug}`}
                                 data-cy={`probation-inline-panel-task-weight-input-${taskSlug}`}
                               />
@@ -417,16 +382,26 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                           </div>
                         </div>
 
-                        {/* Description Row */}
                         <Form.Item
                           {...field}
                           name={[field.name, 'description']}
+                          label={
+                            <span data-cy="probation-inline-panel-task-description-label">
+                              Description{' '}
+                              <span
+                                data-cy="probation-inline-panel-task-description-label-optional"
+                                className="text-gray-400 font-normal"
+                              >
+                                (optional)
+                              </span>
+                            </span>
+                          }
                           className="mb-0"
                           id={`probation-inline-panel-task-description-item-${taskSlug}`}
                           data-cy={`probation-inline-panel-task-description-item-${taskSlug}`}
                         >
                           <Input.TextArea
-                            placeholder="Description (optional)"
+                            placeholder="Textarea"
                             rows={isMobile ? 3 : 2}
                             className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                             id={`probation-inline-panel-task-description-input-${taskSlug}`}
@@ -442,18 +417,18 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
               {/* Add Another Task Button */}
               {!editMode && (
                 <div
-                  className="mt-3 sm:mt-4"
+                  className="mt-3 sm:mt-4 flex justify-center"
                   data-cy="probation-inline-task-add-button-container"
                 >
                   <Button
-                    type="dashed"
+                    type="primary"
                     icon={<PlusOutlined />}
                     onClick={() => add()}
-                    className="border-blue-300 text-blue-600 hover:border-blue-500 hover:text-blue-700 w-full"
+                    className=""
                     id={`probation-inline-panel-add-task-btn-${panelSlug}`}
                     data-cy={`probation-inline-panel-add-task-btn-${panelSlug}`}
                   >
-                    Add Another Task
+                    Add Task
                   </Button>
                 </div>
               )}
@@ -511,14 +486,14 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
         data-cy={`probation-inline-panel-actions-${panelSlug}`}
       >
         <Space
-          direction={isMobile ? 'vertical' : 'horizontal'}
+          direction={'horizontal'}
           size={isMobile ? 8 : 12}
           id={`probation-inline-panel-actions-space-${panelSlug}`}
           data-cy={`probation-inline-panel-actions-space-${panelSlug}`}
         >
           <Button
             onClick={handleClose}
-            className="border-gray-300 w-full sm:w-auto"
+            className="border border-[#D9D9D9] font-normal"
             id={`probation-inline-panel-cancel-btn-${panelSlug}`}
             data-cy={`probation-inline-panel-cancel-btn-${panelSlug}`}
           >
@@ -533,17 +508,16 @@ const InlineTaskPanel: React.FC<InlineTaskPanelProps> = ({
                 : createTaskBulkMutation.isLoading
             }
             disabled={!editMode && calculateTotalWeight() > 100}
-            className="disabled:bg-gray-400 disabled:cursor-not-allowed w-full sm:w-auto"
+            className="disabled:bg-gray-400 disabled:cursor-not-allowed font-normal"
             id={`probation-inline-panel-submit-btn-${panelSlug}`}
             data-cy={`probation-inline-panel-submit-btn-${panelSlug}`}
           >
-            {editMode
-              ? 'Update Task'
-              : `Submit All Tasks (${getCurrentTaskCount()})`}
+            {editMode ? 'Update Task' : `Create`}
           </Button>
         </Space>
       </div>
-    </div>
+      {/* </div> */}
+    </Modal>
   );
 };
 

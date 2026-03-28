@@ -576,7 +576,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         height="auto"
         className="rounded-t-2xl"
         maskClosable={true}
-        destroyOnClose={true}
+        destroyOnHidden
       >
         <div className="p-4">
           <AttendanceTableFilter onChange={onFilterChange} />
