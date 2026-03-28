@@ -11,6 +11,7 @@ import {
   Steps,
   Row,
   Col,
+  Tag,
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -860,7 +861,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     const items: { title: string }[] = [{ title: 'Recognition information' }];
     if (createCategory) return items;
     items.push({ title: 'Recognition Criteria' });
-    if (isMonetizedWatch) {
+    if (isMonetizedWatch && editType != 'recognition') {
       items.push({ title: 'Formula' });
     }
     return items;
@@ -1933,23 +1934,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     form.getFieldValue('incentiveAmountType') || 'Fixed';
                   if (t !== 'Formula') return null;
                   return (
-                    <Form.Item
-                      label={
-                        <span className="text-black text-sm font-semibold">
-                          Formula <span className="text-red-500">*</span>
-                        </span>
-                      }
-                      data-cy="create-recognition-formula-expression"
-                    >
-                      <TextArea
-                        ref={formulaTextAreaRef}
-                        value={getFormulaDisplayValue()}
-                        onChange={handleFormulaTextAreaChange}
-                        placeholder="Type numbers or click criteria and operands to build a formula"
-                        className="mt-1"
-                        rows={4}
-                        data-cy="create-recognition-formula-textarea"
-                      />
+                    <Form.Item data-cy="create-recognition-formula-expression">
                       <div className="my-4">
                         <Row gutter={[16, 10]}>
                           <Col xs={12} sm={12} md={13} lg={13} xl={13}>
@@ -1966,21 +1951,45 @@ const RecognitionForm: React.FC<PropsData> = ({
                                         option?.criteriaId || option?.id;
                                       const cname = option?.criterionKey;
                                       if (!cname) return null;
+                                      const isSelectedInFormula =
+                                        formulaTokens?.some(
+                                          (token) =>
+                                            token?.type === 'criteria' &&
+                                            String(token?.id) === String(cid),
+                                        ) ?? false;
                                       return (
-                                        <Button
-                                          key={`${cid}-${idx}`}
-                                          onClick={() =>
-                                            handleFormulaOptionClick(
-                                              cid,
-                                              cname,
-                                              'criteria',
-                                            )
-                                          }
-                                          className="bg-[#F8F8F8] text-[#111827] border-none text-sm font-normal m-1 rounded-2xl"
-                                          data-cy={`create-recognition-formula-criteria-${cid}`}
-                                        >
-                                          {cname}
-                                        </Button>
+                                        <>
+                                          <Button
+                                            key={`${cid}-${idx}`}
+                                            onClick={() =>
+                                              handleFormulaOptionClick(
+                                                cid,
+                                                cname,
+                                                'criteria',
+                                              )
+                                            }
+                                            className={` border-none shadow-none px-0 mx-0 `}
+                                            data-cy={`create-recognition-formula-criteria-${cid}`}
+                                          >
+                                            {isSelectedInFormula ? (
+                                              <Tag
+                                                key={'blue'}
+                                                color={'blue'}
+                                                className="h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none"
+                                              >
+                                                {cname}
+                                              </Tag>
+                                            ) : (
+                                              <Tag
+                                                key={'default'}
+                                                color={'default'}
+                                                className="h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none"
+                                              >
+                                                {cname}
+                                              </Tag>
+                                            )}
+                                          </Button>
+                                        </>
                                       );
                                     },
                                   )
@@ -2009,7 +2018,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                                         'operand',
                                       )
                                     }
-                                    className="bg-primary text-white border-none text-sm font-normal m-1 rounded-2xl"
+                                    className="  border-[1px] border-gray-300 hover:border-primary text-sm font-normal m-1 rounded-lg"
                                     data-cy={`create-recognition-formula-op-${option.name}`}
                                   >
                                     {option.name}
@@ -2020,6 +2029,18 @@ const RecognitionForm: React.FC<PropsData> = ({
                           </Col>
                         </Row>
                       </div>
+                      <span className="text-black text-sm font-semibold">
+                        Formula <span className="text-red-500">*</span>
+                      </span>
+                      <TextArea
+                        ref={formulaTextAreaRef}
+                        value={getFormulaDisplayValue()}
+                        onChange={handleFormulaTextAreaChange}
+                        placeholder="Type numbers or click criteria and operands to build a formula"
+                        className="mt-1"
+                        rows={4}
+                        data-cy="create-recognition-formula-textarea"
+                      />
                     </Form.Item>
                   );
                 }}
