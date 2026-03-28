@@ -7,13 +7,8 @@ import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
 import {
-  MdGridView,
-  MdDomain,
   MdPeople,
   MdPersonSearch,
-  MdOutlineAccessTime,
-  MdAdjust,
-  MdChat,
   MdSchool,
   MdAccountBalanceWallet,
   MdCardGiftcard,
@@ -21,6 +16,11 @@ import {
   MdHowToReg,
   MdAdminPanelSettings,
 } from 'react-icons/md';
+import AlbumIcon from '@mui/icons-material/Album';
+import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
@@ -56,11 +56,13 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-import dayjs from 'dayjs';
-import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+// import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+// import dayjs from 'dayjs';
+// import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -84,6 +86,8 @@ interface MyComponentProps {
 const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
+  colorPrimary: string;
+  fontSize: number;
   selectedKeys: (string | number | bigint)[];
   setSelectedKeys: React.Dispatch<
     React.SetStateAction<(string | number | bigint)[]>
@@ -98,6 +102,8 @@ const NavMenuItem: React.FC<{
 }> = ({
   item,
   collapsed,
+  colorPrimary,
+  fontSize,
   selectedKeys,
   setSelectedKeys,
   router,
@@ -109,16 +115,19 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
 
+  const bestMatchingChildKey = React.useMemo(() => {
+    if (!hasChildren) return undefined;
+    const matches = item.children
+      .map((child: any) => String(child.key))
+      .filter((key: string) => isRouteMatch(key, pathname));
+    if (matches.length === 0) return undefined;
+    return matches.sort((a: string, b: string) => b.length - a.length)[0];
+  }, [hasChildren, item.children, pathname]);
+
   // Check if this item or any of its children matches the current path
   const isDirectlyActive =
     selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
-  const isChildActive =
-    hasChildren &&
-    item.children.some(
-      (child: any) =>
-        selectedKeys.includes(child.key) ||
-        isRouteMatch(String(child.key), pathname),
-    );
+  const isChildActive = Boolean(bestMatchingChildKey);
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
@@ -145,18 +154,20 @@ const NavMenuItem: React.FC<{
         data-cy="nav-menu-item"
         onClick={handleToggle}
         className={`
-          group flex items-center gap-3 px-3 py-2 cursor-pointer transition-all duration-200 rounded-xl
-          ${isActive ? 'text-[#1e40af] font-bold' : 'text-black font-medium'}
-          ${isDirectlyActive ? 'bg-[#E1EFFF]' : ''}
-          hover:bg-[#E1EFFF]
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
+          group flex items-center gap-3 py-2 cursor-pointer transition-all duration-200 rounded-[6px]
+          ${
+            isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
+          }
+          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
+        style={isActive ? { color: colorPrimary } : undefined}
       >
         <div
           data-cy="nav-menu-item-icon"
           className={`text-[21px] transition-colors ${
-            isActive ? 'text-[#1e40af]' : 'text-black'
+            isActive ? '' : 'text-black'
           }`}
+          style={isActive ? { color: colorPrimary } : undefined}
         >
           {item.icon}
         </div>
@@ -164,7 +175,8 @@ const NavMenuItem: React.FC<{
         {!collapsed && (
           <span
             data-cy="nav-menu-item-label"
-            className="flex-1 text-[14.5px] transition-colors"
+            className="flex-1 transition-colors"
+            style={{ fontSize }}
           >
             {item.label}
           </span>
@@ -179,7 +191,7 @@ const NavMenuItem: React.FC<{
           {item.children.map((child: any) => {
             const isChildSelected =
               selectedKeys.includes(child.key) ||
-              isRouteMatch(String(child.key), pathname);
+              String(child.key) === bestMatchingChildKey;
             return (
               <div
                 key={child.key}
@@ -193,13 +205,17 @@ const NavMenuItem: React.FC<{
                   }
                 }}
                 className={`
-                  py-2 px-3 cursor-pointer rounded-lg transition-all duration-200
+                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
                   ${
                     isChildSelected
-                      ? 'text-[#1e40af] font-normal text-[16px]'
-                      : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
+                      ? 'font-normal'
+                      : 'text-black font-medium hover:bg-[#E6F4FF]'
                   }
                 `}
+                style={{
+                  fontSize,
+                  ...(isChildSelected ? { color: colorPrimary } : {}),
+                }}
               >
                 {child.label}
               </div>
@@ -213,18 +229,17 @@ const NavMenuItem: React.FC<{
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { borderRadiusLG },
+    token: { borderRadiusLG, colorPrimary, fontSize, fontSizeSM },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const fullBleedContent = pathname.startsWith('/organization/chart');
-  const { userId } = useAuthenticationStore();
-  const { isLoading } = useGetEmployee(userId);
+  const { userId, tenantId } = useAuthenticationStore();
+  useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -337,45 +352,48 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
+  const getRoutesAndPermissions = React.useCallback(
+    (
+      menuItems: CustomMenuItem[],
+    ): { route: string; permissions: string[] }[] => {
+      const routes: { route: string; permissions: string[] }[] = [];
 
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        if (item.key && item.permissions) {
+      const traverse = (items: CustomMenuItem[]) => {
+        items.forEach((item) => {
+          if (item.key && item.permissions) {
+            routes.push({
+              route: item.key,
+              permissions: item.permissions,
+            });
+          }
+
+          if (item.children) {
+            traverse(item.children);
+          }
+        });
+      };
+
+      // First add hidden routes
+      hiddenRoutes.forEach((route) => {
+        if (route.key && route.permissions) {
           routes.push({
-            route: item.key,
-            permissions: item.permissions,
+            route: route.key,
+            permissions: route.permissions,
           });
         }
-
-        if (item.children) {
-          traverse(item.children);
-        }
       });
-    };
 
-    // First add hidden routes
-    hiddenRoutes.forEach((route) => {
-      if (route.key && route.permissions) {
-        routes.push({
-          route: route.key,
-          permissions: route.permissions,
-        });
-      }
-    });
-
-    // Then add visible menu routes
-    traverse(menuItems);
-    return routes;
-  };
+      // Then add visible menu routes
+      traverse(menuItems);
+      return routes;
+    },
+    [hiddenRoutes],
+  );
 
   const treeData: CustomMenuItem[] = React.useMemo(
     () => [
       {
-        icon: <MdGridView style={{ fontSize: 20 }} />,
+        icon: <DashboardIcon style={{ fontSize: 20 }} />,
         title: 'Dashboard',
         key: '/dashboard',
         className: 'font-bold',
@@ -383,7 +401,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'DASHBOARD',
       },
       {
-        icon: <MdDomain style={{ fontSize: 20 }} />,
+        icon: <AccountTreeIcon style={{ fontSize: 20 }} />,
         title: 'Organization',
         key: '/organization',
         className: 'font-bold',
@@ -415,6 +433,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: hasEndedFiscalYear,
         moduleCode: 'EMPLOYEES',
         children: [
+          {
+            title: (
+              <span data-cy="nav-tree-manage-employees-dashboard">
+                Dashboard
+              </span>
+            ),
+            key: '/employees/dashboard',
+            className: 'font-bold',
+            permissions: ['view_employees_dashboard'],
+          },
           {
             title: (
               <span data-cy="nav-tree-manage-employees">Manage Employees</span>
@@ -493,7 +521,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdAdjust style={{ fontSize: 20 }} />,
+        icon: <AlbumIcon style={{ fontSize: 20 }} />,
         title: 'OKR',
         key: '/okr-menu',
         className: 'font-bold',
@@ -540,7 +568,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdChat style={{ fontSize: 20 }} />,
+        icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
         title: 'CFR',
         key: 'feedback-menu',
         className: 'font-bold',
@@ -641,7 +669,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdOutlineAccessTime style={{ fontSize: 20 }} />,
+        icon: <AccessTimeFilledIcon style={{ fontSize: 20 }} />,
         title: 'Time & Attendance',
         key: 'timesheet-menu',
         className: 'font-bold',
@@ -890,6 +918,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
   });
+  const { data: subscriptionData } = useGetSubscriptionByTenant(
+    tenantId,
+    !!tenantId,
+  );
+  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
+    useGetSubscriptions({
+      filter: {
+        isActive: true,
+        ...(tenantId ? { tenantId: [tenantId] } : {}),
+      },
+    });
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
@@ -900,6 +939,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     departmentsLoading ||
     employeeDataLoading ||
     modulesLoading ||
+    subscriptionsLoading ||
     !departments ||
     !employeeData;
 
@@ -1074,7 +1114,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const groupedMenuItems = React.useMemo(() => {
-    // 1. Filter treeData items by user permissions
+    const normalizeRoute = (value?: string | null) => {
+      if (!value) return '';
+      const v = String(value).toLowerCase().trim();
+      if (!v) return '';
+      return v.replace(/\/+$/, '') || '/';
+    };
+
     const accessibleTreeItems = treeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
@@ -1094,13 +1140,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 2. Map treeData items by title for easy lookup
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<
+      string,
+      (typeof accessibleTreeItems)[0]
+    >();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
+
+      const itemKey = normalizeRoute(String(item.key));
+      if (itemKey.startsWith('/')) {
+        treeItemByRouteMap.set(itemKey, item);
+      }
+
+      item.children?.forEach((child) => {
+        const childKey = normalizeRoute(String(child.key));
+        if (!childKey.startsWith('/')) return;
+        const firstSegment = childKey.split('/').filter(Boolean)[0];
+        if (!firstSegment) return;
+        const parentRoute = `/${firstSegment}`;
+        if (!treeItemByRouteMap.has(parentRoute)) {
+          treeItemByRouteMap.set(parentRoute, item);
+        }
+      });
     });
 
-    // Handles mismatches between backend names and sidebar titles
     const nameMapping: Record<string, string> = {
       overview: 'dashboard',
       people: 'employees',
@@ -1108,126 +1172,182 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       finance: 'payroll',
       administration: 'admin',
       organization: 'organization',
+      'org structure': 'organization',
       employee: 'employees',
       'learning and growth': 'learning & growth',
+      tna: 'learning & growth',
+      'talent acquisition': 'talent acquisition',
+      'talent aquisation': 'talent acquisition',
+      'talent aquisatiom': 'talent acquisition',
       'time and attendance': 'time & attendance',
       incentive: 'incentives',
+      compensation: 'compensation & benefit',
       'compensation & benefit': 'compensation & benefit',
       timesheet: 'time & attendance',
       'employee info': 'employees',
+      'okr and planning': 'okr',
+      feedback: 'cfr',
+      cfr: 'cfr',
+      recruitment: 'talent acquisition',
     };
 
     const modules: Module[] = modulesData?.items || [];
+    const activeSubscriptionFromTenant =
+      subscriptionData?.items?.find((subscription) => subscription?.isActive) ||
+      subscriptionData?.item;
+    const activeSubscriptionFromList = subscriptionsData?.items?.find(
+      (subscription) => subscription?.isActive,
+    );
+    const activeSubscription =
+      activeSubscriptionFromTenant || activeSubscriptionFromList;
+    const subscriptionPlanModules = activeSubscription?.plan?.modules || [];
+    const subscribedModuleIds = new Set(
+      subscriptionPlanModules
+        .map((planModule: any) => planModule.moduleId || planModule?.module?.id)
+        .filter(Boolean),
+    );
 
-    // In the new API, items like "Overview", "People", "Performance", "Finance"
-    // are the parents, and their `moduleGroup` is a comma‑separated list of
-    // child module names. Leaf modules (Dashboard, Organization, Employee, ...)
-    // have `moduleGroup: null`.
-    const parentModules = modules
+    const groupedByParent = new Map<
+      string,
+      { type: 'group'; key: string; label: string; children: any[] }
+    >();
+
+    const sortedModules = modules
       .filter(
         (m) =>
-          m.isActive &&
-          m.moduleGroup &&
-          typeof m.moduleGroup === 'string' &&
-          (m.moduleGroup as unknown as string).trim().length > 0,
+          m.isActive && m.moduleGroup && subscribedModuleIds.has((m as any).id),
       )
       .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
-    const leafModules = modules.filter(
-      (m) => m.isActive && (!m.moduleGroup || (m.moduleGroup as any) === null),
-    );
+    sortedModules.forEach((module) => {
+      const normalizedModuleName = module.name.toLowerCase().trim();
+      const mappedName =
+        nameMapping[normalizedModuleName] || normalizedModuleName;
+      const normalizedDescription = normalizeRoute((module as any).description);
+      const treeItemFromDescription = normalizedDescription
+        ? treeItemByRouteMap.get(normalizedDescription)
+        : undefined;
+      const treeItem = treeItemFromDescription || treeItemMap.get(mappedName);
+      if (!treeItem) return;
 
-    const menuItems: any[] = [];
+      const groupLabelRaw = String(module.moduleGroup).trim();
+      if (!groupLabelRaw) return;
+      const groupKey = groupLabelRaw.toLowerCase();
 
-    parentModules.forEach((parent) => {
-      const rawGroup = (parent.moduleGroup as unknown as string) || '';
-      const childNames = rawGroup
-        .split(',')
-        .map((n) => n.trim())
-        .filter(Boolean);
-
-      if (childNames.length === 0) {
-        // moduleGroup effectively empty → do not show the parent
-        return;
-      }
-
-      const groupChildren: any[] = [];
-
-      childNames.forEach((childName) => {
-        // Find the leaf module that corresponds to this child name
-        const leaf = leafModules.find(
-          (m) => m.name.toLowerCase().trim() === childName.toLowerCase().trim(),
-        );
-
-        // Even if we don't need `leaf` data directly, this guarantees the
-        // child exists in the subscription; otherwise we skip it.
-        if (!leaf) return;
-
-        const normalized = childName.toLowerCase().trim();
-        const mappedName = nameMapping[normalized] || normalized;
-        const treeItem = treeItemMap.get(mappedName);
-
-        if (!treeItem) return;
-
-        groupChildren.push({
-          key: treeItem.key,
-          icon: treeItem.icon,
-          label: treeItem.title,
-          children:
-            treeItem.children && treeItem.children.length > 0
-              ? treeItem.children.map((child) => ({
-                  key: child.key,
-                  label: child.title,
-                }))
-              : undefined,
+      if (!groupedByParent.has(groupKey)) {
+        groupedByParent.set(groupKey, {
+          type: 'group',
+          key: `group-${groupKey}`,
+          label: groupLabelRaw,
+          children: [],
         });
-      });
-
-      // If this parent has no resolved children, skip it as requested
-      if (groupChildren.length === 0) {
-        return;
       }
 
-      menuItems.push({
-        type: 'group',
-        key: parent.id,
-        label: parent.name,
-        children: groupChildren,
+      const currentGroup = groupedByParent.get(groupKey)!;
+      const alreadyAdded = currentGroup.children.some(
+        (child) => String(child.key) === String(treeItem.key),
+      );
+      if (alreadyAdded) return;
+
+      currentGroup.children.push({
+        key: treeItem.key,
+        icon: treeItem.icon,
+        label: treeItem.title,
+        children:
+          treeItem.children && treeItem.children.length > 0
+            ? treeItem.children.map((child) => ({
+                key: child.key,
+                label: child.title,
+              }))
+            : undefined,
       });
     });
 
-    return menuItems;
-  }, [treeData, modulesData]);
-  const { mutate: employeeInfo } = useCreateEmployee();
-  const handleUserInfoUpdate = () => {
-    const fullName = employeeData?.firstName?.split(' ') || [];
-    const payloadUser = {
-      firstName: fullName[0] || '-',
-      middleName: fullName[1] || '-',
-      lastName: fullName[2] || '-',
-    };
-    const payloadEmp = {
-      joinedDate: employeeData?.createdAt
-        ? new Date(employeeData?.createdAt).toISOString()
-        : new Date().toISOString(),
-      dateOfBirth: dayjs().subtract(30, 'year'),
-      employeeAttendanceId: 1,
-      gender: 'male',
-      maritalStatus: 'SINGLE',
-      addresses: {},
-      additionalInformation: {},
-      bankInformation: {},
-      userId: userId,
-    };
+    return Array.from(groupedByParent.values()).filter(
+      (group) => group.children.length > 0,
+    );
+  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
 
-    updateEmployeeInformation({
-      id: userId,
-      values: payloadUser,
-    });
-    employeeInfo({
-      values: payloadEmp,
-    });
-  };
+  // Fallback skeleton structure used while modules data is not yet available
+  const skeletonMenuItems = React.useMemo(
+    () =>
+      groupedMenuItems.length > 0
+        ? groupedMenuItems
+        : [
+            {
+              type: 'group',
+              key: 'skeleton-overview',
+              label: 'Overview',
+              // Dashboard, Organization
+              children: [
+                { key: 'skeleton-overview-item-1' },
+                { key: 'skeleton-overview-item-2' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-people',
+              label: 'People',
+              children: [
+                { key: 'skeleton-people-item-1' },
+                { key: 'skeleton-people-item-2' },
+                { key: 'skeleton-people-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-performance',
+              label: 'Performance',
+              children: [
+                { key: 'skeleton-performance-item-1' },
+                { key: 'skeleton-performance-item-2' },
+                { key: 'skeleton-performance-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-finance',
+              label: 'Finance',
+              children: [
+                { key: 'skeleton-finance-item-1' },
+                { key: 'skeleton-finance-item-2' },
+                { key: 'skeleton-finance-item-3' },
+              ],
+            },
+          ],
+    [groupedMenuItems],
+  );
+  // const { mutate: employeeInfo } = useCreateEmployee();
+
+  // const handleUserInfoUpdate = () => {
+  //   const fullName = employeeData?.firstName?.split(' ') || [];
+  //   const payloadUser = {
+  //     firstName: fullName[0] || '-',
+  //     middleName: fullName[1] || '-',
+  //     lastName: fullName[2] || '-',
+  //   };
+  //   const payloadEmp = {
+  //     joinedDate: employeeData?.createdAt
+  //       ? new Date(employeeData?.createdAt).toISOString()
+  //       : new Date().toISOString(),
+  //     dateOfBirth: dayjs().subtract(30, 'year'),
+  //     employeeAttendanceId: 1,
+  //     gender: 'male',
+  //     maritalStatus: 'SINGLE',
+  //     addresses: {},
+  //     additionalInformation: {},
+  //     bankInformation: {},
+  //     userId: userId,
+  //   };
+
+  //   updateEmployeeInformation({
+  //     id: userId,
+  //     values: payloadUser,
+  //   });
+  //   employeeInfo({
+  //     values: payloadEmp,
+  //   });
+  // };
 
   // Render the component with the layout and navigation on the left
 
@@ -1236,7 +1356,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
-        className="scrollbar-hide"
+        className="scrollbar-hide flex flex-col"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1244,9 +1364,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 1010,
+          zIndex: 100,
           backgroundColor: '#F5fbff',
-          borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
@@ -1263,72 +1382,117 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         collapsedWidth={80}
       >
         <div
-          data-cy="nav-sider-logo-wrap"
-          className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
+          data-cy="nav-sider-children-wrap"
+          className="relative flex flex-col flex-1 min-h-0"
         >
           <div
-            data-cy="nav-sider-logo"
-            className="relative h-10 w-full flex items-center"
+            data-cy="nav-sider-logo-wrap"
+            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
           >
-            {collapsed ? (
-              <div
-                data-cy="nav-sider-logo-collapsed-container"
-                className="w-full flex justify-center"
-              >
+            <div
+              data-cy="nav-sider-logo"
+              className="relative h-10 w-full flex items-center"
+            >
+              {collapsed ? (
+                <div
+                  data-cy="nav-sider-logo-collapsed-container"
+                  className="w-full flex justify-center"
+                >
+                  <Image
+                    src="/image/selamnew-workspace-logo.svg"
+                    alt="SelamNew Workspace Logo"
+                    width={32}
+                    height={32}
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
+              ) : (
                 <Image
-                  src="/image/Logo.png"
-                  alt="Logo"
-                  width={32}
-                  height={32}
+                  src="/image/selamnew-workspace-logo.svg"
+                  alt="SelamNew Workspace Logo"
+                  width={150}
+                  height={40}
                   style={{ objectFit: 'contain' }}
                 />
-              </div>
-            ) : (
-              <Image
-                src="/image/Logo.png"
-                alt="Logo"
-                width={150}
-                height={40}
-                style={{ objectFit: 'contain' }}
-              />
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <button
-          data-cy="nav-sider-toggle"
-          onClick={toggleCollapsed}
-          className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1D4ED8] text-white shadow-md hover:bg-[#1e40af] transition-all"
-          style={{ zIndex: 10001 }}
-        >
-          {collapsed ? (
-            <AiOutlineRight size={12} />
-          ) : (
-            <AiOutlineRight size={12} className="rotate-180" />
-          )}
-        </button>
-        <div
-          data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
-          style={{ minHeight: 0 }}
-        >
-          <div
-            data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
+          <button
+            data-cy="nav-sider-toggle"
+            onClick={toggleCollapsed}
+            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
+            style={{ zIndex: 101, backgroundColor: colorPrimary }}
           >
-            {!isMounted || isLoading ? (
-              <div
-                data-cy="nav-sider-loading"
-                className="px-5 w-full h-full flex justify-center items-center my-5"
-              >
-                <Skeleton active />
-              </div>
+            {collapsed ? (
+              <AiOutlineRight size={12} />
             ) : (
-              <div data-cy="nav-sider-groups" className="space-y-6">
-                {groupedMenuItems.map((group: any) => {
-                  const isExpanded = true;
+              <AiOutlineRight size={12} className="rotate-180" />
+            )}
+          </button>
 
-                  return (
+          <div
+            data-cy="nav-sider-menu-scroll"
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            style={{ minHeight: 0 }}
+          >
+            <div
+              data-cy="nav-sider-menu-inner"
+              className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
+            >
+              {!isMounted || isLoadingData ? (
+                <div
+                  data-cy="nav-sider-loading"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {skeletonMenuItems.map((group: any) => (
+                    <div
+                      data-cy="nav-sider-group-skeleton"
+                      key={group.key}
+                      className="space-y-1"
+                    >
+                      <div
+                        data-cy="nav-sider-group-header-skeleton"
+                        className="mb-2 mt-4 first:mt-2"
+                      >
+                        <div
+                          data-cy="nav-sider-group-label-skeleton"
+                          className="w-full font-light text-[#64748B] tracking-wide"
+                          style={{ fontSize: fontSizeSM }}
+                        >
+                          {group.label}
+                        </div>
+                      </div>
+
+                      <div
+                        data-cy="nav-sider-group-children-skeleton"
+                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
+                      >
+                        {group.children?.map((item: any) => (
+                          <div
+                            key={item.key}
+                            data-cy="nav-sider-menu-item-skeleton"
+                            className={`
+                              group flex items-center py-2 rounded-xl
+                              ${collapsed ? 'justify-center mx-[10px]' : ''}
+                            `}
+                          >
+                            <div
+                              data-cy="nav-sider-menu-item-skeleton-bar"
+                              className="h-[16px] w-full rounded-md bg-gray-200"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  data-cy="nav-sider-groups"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {groupedMenuItems.map((group: any) => (
                     <div
                       data-cy="nav-sider-group"
                       key={group.key}
@@ -1336,13 +1500,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="px-4 mb-2 mt-4 first:mt-2"
+                        className="mb-2 mt-4 first:mt-2"
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
-                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'hidden' : ''
                           }`}
+                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </div>
@@ -1350,15 +1515,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
                       <div
                         data-cy="nav-sider-group-children"
-                        className={`space-y-1 transition-all duration-300 ${
-                          isExpanded ? 'opacity-100' : 'hidden opacity-0'
-                        } ${collapsed ? '' : 'pl-2'}`}
+                        className={`space-y-1 transition-all duration-300 opacity-100 ${
+                          collapsed ? '' : 'pl-2'
+                        }`}
                       >
                         {group.children?.map((item: any) => (
                           <NavMenuItem
                             key={item.key}
                             item={item}
                             collapsed={collapsed}
+                            colorPrimary={colorPrimary}
+                            fontSize={fontSize}
                             selectedKeys={selectedKeys}
                             setSelectedKeys={setSelectedKeys}
                             router={router}
@@ -1370,15 +1537,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         ))}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div
             data-cy="nav-sider-admin-wrap"
-            className="w-full flex justify-center py-6 mt-10"
+            className="w-full flex justify-center py-3 mt-4 bg-[#F5fbff]"
           >
             <Button
               data-cy="nav-sider-admin-btn"
@@ -1386,13 +1553,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               size="large"
               icon={<MdHowToReg size={22} />}
               className={`
-                flex items-center justify-center bg-[#1e40af] hover:bg-[#173691] border-none shadow-lg transition-all duration-300
+                flex items-center justify-center border-none shadow-lg transition-all duration-300 font-normal hover:opacity-90
                 ${
                   collapsed
-                    ? 'w-[52px] h-[52px] rounded-xl'
-                    : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
+                    ? 'w-[52px] h-[52px] rounded-[10px]'
+                    : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
                 }
               `}
+              style={{ backgroundColor: colorPrimary }}
               onClick={() => router.push('/admin/dashboard')}
             >
               {!collapsed && 'Admin Console'}
@@ -1461,7 +1629,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? 0 : fullBleedContent ? 0 : 24,
+            paddingRight: isMobile ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
@@ -1481,20 +1649,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: fullBleedContent ? 0 : 24,
-                marginLeft: fullBleedContent ? 0 : 24,
+                paddingRight: isMobile ? 8 : 24,
+                paddingLeft: isMobile ? 8 : 24,
                 background: '#ffffff',
               }}
             >
               {children}
             </div>
           )}
-          <CreateEmployeeJobInformation
+          {/* <CreateEmployeeJobInformation
             onInfoSubmition={() => {
               handleUserInfoUpdate();
             }}
             id={userId}
-          />
+          /> */}
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}

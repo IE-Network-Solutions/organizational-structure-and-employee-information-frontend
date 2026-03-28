@@ -1,17 +1,7 @@
 'use client';
-import {
-  Button,
-  Spin,
-  Card,
-  Row,
-  Col,
-  Dropdown,
-  MenuProps,
-  Typography,
-} from 'antd';
+import { Button, Card, Row, Col, Dropdown, MenuProps, Typography } from 'antd';
 import React from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { MoreOutlined } from '@ant-design/icons';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
@@ -19,10 +9,8 @@ import { useDeleteEmployeeType } from '@/store/server/features/employees/employe
 import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomPagination from '@/components/customPagination';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -34,20 +22,14 @@ const EmploymentType = () => {
   const {
     setOpen,
     pageSize,
-    setPageSize,
-    setPage,
     page,
     isEditMode,
     setIsEditMode,
     editingEmploymentType,
     setEditingEmploymentType,
   } = EmployeTypeManagementStore();
-  const { data: employeTypeData, isLoading } = useGetEmployementTypes(
-    page,
-    pageSize,
-  );
+  const { data: employeTypeData } = useGetEmployementTypes(page, pageSize);
   const deleteEmployeeType = useDeleteEmployeeType() as any;
-  const { isMobile, isTablet } = useIsMobile();
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [employmentTypeToDelete, setEmploymentTypeToDelete] =
     React.useState<EmploymentTypeInfo | null>(null);
@@ -85,12 +67,6 @@ const EmploymentType = () => {
     setIsEditMode(false);
     setEditingEmploymentType(null);
   };
-  const onPageChange = (page: number, pageSize?: number) => {
-    setPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
 
   const reformattedData = employeTypeData?.items?.map(
     (item: EmploymentTypeInfo) => {
@@ -106,7 +82,7 @@ const EmploymentType = () => {
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
+      className="bg-white h-full"
       id={`settings-${pageSlug}-container`}
       data-cy={`settings-${pageSlug}-container`}
     >
@@ -130,129 +106,122 @@ const EmploymentType = () => {
         id={`settings-${pageSlug}-cards-wrapper`}
         data-cy={`settings-${pageSlug}-cards-wrapper`}
       >
-        {isLoading ? (
-          <div
-            className="flex justify-center items-center h-20"
-            id={`settings-${pageSlug}-loader`}
-            data-cy={`settings-${pageSlug}-loader`}
-          >
-            <Spin size="large" data-cy={`settings-${pageSlug}-loader-spin`} />
-          </div>
-        ) : (
-          <div
-            id={`settings-${pageSlug}-cards-section`}
-            data-cy={`settings-${pageSlug}-cards-section`}
-          >
-            <Row gutter={[16, 16]}>
-              {reformattedData?.map((record: any) => {
-                const menuItems: MenuProps['items'] = [
-                  {
-                    key: 'edit',
-                    label: (
-                      <AccessGuard
-                        permissions={[Permissions.UpdateEmploymentType]}
-                        id={`settings-employment-type-edit-menu-guard-${record.__slug}`}
-                        data-cy={`settings-employment-type-edit-menu-guard-${record.__slug}`}
-                      >
-                        <div
-                          className="flex items-center gap-2"
-                          onClick={() => handleEdit(record)}
-                          id={`employment-type-edit-menu-item-${record.__slug}`}
-                          data-cy={`employment-type-edit-menu-item-${record.__slug}`}
-                        >
-                          <Pencil size={14} className="text-gray-600" />
-                          <span data-cy="settings-employment-type-edit-menu-item-label">
-                            Edit
-                          </span>
-                        </div>
-                      </AccessGuard>
-                    ),
-                  },
-                  {
-                    key: 'delete',
-                    label: (
-                      <AccessGuard
-                        permissions={[Permissions.DeleteEmploymentType]}
-                        id={`settings-employment-type-delete-menu-guard-${record.__slug}`}
-                        data-cy={`settings-employment-type-delete-menu-guard-${record.__slug}`}
-                      >
-                        <div
-                          className="flex items-center gap-2 text-red-600"
-                          onClick={() => handleDelete(record)}
-                          id={`employment-type-delete-menu-item-${record.__slug}`}
-                          data-cy={`employment-type-delete-menu-item-${record.__slug}`}
-                        >
-                          <Trash2 size={14} />
-                          <span data-cy="settings-employment-type-delete-menu-item-label">
-                            Delete
-                          </span>
-                        </div>
-                      </AccessGuard>
-                    ),
-                    danger: true,
-                  },
-                ];
-
-                return (
-                  <Col
-                    xs={24}
-                    sm={24}
-                    md={12}
-                    lg={12}
-                    xl={12}
-                    key={record.id}
-                    id={`employment-type-card-col-${record.__slug}`}
-                    data-cy={`employment-type-card-col-${record.__slug}`}
-                  >
-                    <Card
-                      className="border border-gray-300 h-full"
-                      id={`employment-type-card-${record.__slug}`}
-                      data-cy={`employment-type-card-${record.__slug}`}
-                      bodyStyle={{ padding: '0px 10px 20px 10px', margin: 0 }}
-                      title={
-                        <Typography.Title
-                          level={5}
-                          className="!mb-2 !font-bold !text-gray-900 !text-base"
-                          id={`employment-type-card-title-${record.__slug}`}
-                          data-cy={`employment-type-card-title-${record.__slug}`}
-                        >
-                          {record.name}
-                        </Typography.Title>
-                      }
-                      extra={
-                        <div
-                          id={`employment-type-dropdown-${record.__slug}`}
-                          data-cy={`employment-type-dropdown-${record.__slug}`}
-                        >
-                          <Dropdown
-                            menu={{ items: menuItems }}
-                            trigger={['click']}
-                            placement="bottomRight"
-                          >
-                            <Button
-                              type="text"
-                              icon={<MoreOutlined />}
-                              className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
-                              id={`employment-type-menu-btn-${record.__slug}`}
-                              data-cy={`employment-type-menu-btn-${record.__slug}`}
-                            />
-                          </Dropdown>
-                        </div>
-                      }
-                      headStyle={{ borderBottom: 'none' }}
+        <div
+          id={`settings-${pageSlug}-cards-section`}
+          data-cy={`settings-${pageSlug}-cards-section`}
+        >
+          <Row gutter={[16, 16]}>
+            {reformattedData?.map((record: any) => {
+              const menuItems: MenuProps['items'] = [
+                {
+                  key: 'edit',
+                  label: (
+                    <AccessGuard
+                      permissions={[Permissions.UpdateEmploymentType]}
+                      id={`settings-employment-type-edit-menu-guard-${record.__slug}`}
+                      data-cy={`settings-employment-type-edit-menu-guard-${record.__slug}`}
                     >
-                      <p
-                        data-cy="settings-employment-type-description"
-                        className="text-sm text-gray-500 px-4 text-wrap"
+                      <div
+                        className="flex items-center gap-2"
+                        onClick={() => handleEdit(record)}
+                        id={`employment-type-edit-menu-item-${record.__slug}`}
+                        data-cy={`employment-type-edit-menu-item-${record.__slug}`}
                       >
-                        {record.description || 'No description provided'}
-                      </p>
-                    </Card>
-                  </Col>
-                );
-              })}
-            </Row>
-            {isMobile || isTablet ? (
+                        <Pencil size={14} className="text-gray-600" />
+                        <span data-cy="settings-employment-type-edit-menu-item-label">
+                          Edit
+                        </span>
+                      </div>
+                    </AccessGuard>
+                  ),
+                },
+                {
+                  key: 'delete',
+                  label: (
+                    <AccessGuard
+                      permissions={[Permissions.DeleteEmploymentType]}
+                      id={`settings-employment-type-delete-menu-guard-${record.__slug}`}
+                      data-cy={`settings-employment-type-delete-menu-guard-${record.__slug}`}
+                    >
+                      <div
+                        className="flex items-center gap-2 text-red-600"
+                        onClick={() => handleDelete(record)}
+                        id={`employment-type-delete-menu-item-${record.__slug}`}
+                        data-cy={`employment-type-delete-menu-item-${record.__slug}`}
+                      >
+                        <Trash2 size={14} />
+                        <span data-cy="settings-employment-type-delete-menu-item-label">
+                          Delete
+                        </span>
+                      </div>
+                    </AccessGuard>
+                  ),
+                  danger: true,
+                },
+              ];
+
+              return (
+                <Col
+                  xs={24}
+                  sm={24}
+                  md={12}
+                  lg={12}
+                  xl={12}
+                  key={record.id}
+                  id={`employment-type-card-col-${record.__slug}`}
+                  data-cy={`employment-type-card-col-${record.__slug}`}
+                >
+                  <Card
+                    className="border-[1px] border-[#D9D9D9] rounded-lg"
+                    id={`employment-type-card-${record.__slug}`}
+                    data-cy={`employment-type-card-${record.__slug}`}
+                    title={
+                      <Typography.Title
+                        className="!mb-2 !font-normal !text-gray-900 !text-sm"
+                        id={`employment-type-card-title-${record.__slug}`}
+                        data-cy={`employment-type-card-title-${record.__slug}`}
+                      >
+                        {record.name}
+                      </Typography.Title>
+                    }
+                    extra={
+                      <div
+                        id={`employment-type-dropdown-${record.__slug}`}
+                        data-cy={`employment-type-dropdown-${record.__slug}`}
+                      >
+                        <Dropdown
+                          menu={{ items: menuItems }}
+                          trigger={['click']}
+                          placement="bottomRight"
+                        >
+                          <Button
+                            type="text"
+                            icon={<MoreHorizIcon />}
+                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
+                            id={`employment-type-menu-btn-${record.__slug}`}
+                            data-cy={`employment-type-menu-btn-${record.__slug}`}
+                          />
+                        </Dropdown>
+                      </div>
+                    }
+                    headStyle={{
+                      borderBottom: 'none',
+                      padding: '12px 16px 12px 16px',
+                    }}
+                    bodyStyle={{ padding: '0px 16px 12px 16px' }}
+                  >
+                    <p
+                      data-cy="settings-employment-type-description"
+                      className="text-sm text-[#8c8c8c] text-wrap font-normal"
+                    >
+                      {record.description || 'No description provided'}
+                    </p>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+          {/* {isMobile || isTablet ? (
               <div
                 data-cy="settings-employment-type-mobile-pagination-container"
                 className="mt-4"
@@ -281,9 +250,8 @@ const EmploymentType = () => {
                   }}
                 />
               </div>
-            )}
-          </div>
-        )}
+            )} */}
+        </div>
       </div>
     </div>
   );

@@ -23,7 +23,6 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import { IoInformationCircleOutline } from 'react-icons/io5';
 import { PlusOutlined } from '@ant-design/icons';
 import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
 import { useFetchAllowanceTypesByTypeAllowance } from '@/store/server/features/compensation/settings/queries';
@@ -62,13 +61,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
   const { data: positions, refetch: positionRefetch } = useGetAllPositions();
 
   const { data: department } = useGetDepartmentLead(selectedDepartmentId);
-
-  // const workSchedules = workSchedulesData?.items ?? [];
-  // const basicGroupPermissionId =
-  //   groupPermissionData?.items?.filter((item: any) => item.isBasic) ?? [];
-  // const basicGroupPermissions = basicGroupPermissionId.flatMap(
-  //   (item: any) => item.permissions ?? [],
-  // );
 
   const {
     mutate: handleCreatePosition,
@@ -127,23 +119,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     }
   }, [isAddEmployeeJobInfoModalVisible, employeeAllowances, actualForm]);
 
-  // const handleContractTypeChange = (e: any) => {
-  //   setContractType(e.target.value);
-  // };
-
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartmentId(value);
     setSwitchValue(false);
     actualForm.setFieldValue('departmentLeadOrNot', false);
   };
-
-  // const handleTeamLeadChange = (checked: boolean) => {
-  //   if (checked && department?.length > 0) {
-  //     return;
-  //   }
-  //   setSwitchValue(checked);
-  //   actualForm.setFieldValue('departmentLeadOrNot', checked);
-  // };
 
   const handleTeamLeadConfirm = () => {
     setSwitchValue(true);
@@ -154,23 +134,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
     setSwitchValue(false);
     actualForm.setFieldValue('departmentLeadOrNot', false);
   };
-
-  // const onRoleChangeHandler = (value: string) => {
-  //   const selectedRole = rolesWithPermission?.find(
-  //     (role: any) => role.id === value,
-  //   );
-  //   setSelectedRoleOnList(selectedRole);
-  //   setSelectedRoleOnOption(value);
-  //   const rolePermissions =
-  //     selectedRole?.permissions?.map((item: any) => item.id) || [];
-  //   const newPermissions = Array.from(
-  //     new Set([
-  //       ...rolePermissions,
-  //       ...(basicGroupPermissions?.map((perm: any) => perm.id) ?? []),
-  //     ]),
-  //   );
-  //   setSelectedPermissions(newPermissions);
-  // };
 
   useEffect(() => {
     if (department?.length > 0) {
@@ -258,15 +221,21 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-effective-start-date-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name={'effectiveStartDate'}
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 text-sm font-normal"
                 id="job-timeline-effective-start-date-label"
                 data-cy="job-timeline-effective-start-date-label"
               >
-                Effective Date
+                Effective Date{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-effective-start-date-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="joinedDate"
@@ -304,12 +273,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             id="job-timeline-effective-start-date-info"
             data-cy="job-timeline-effective-start-date-info"
           >
-            <IoInformationCircleOutline
-              size={14}
-              className="text-gray-500"
-              id="job-timeline-effective-start-date-info-icon"
-              data-cy="job-timeline-effective-start-date-info-icon"
-            />
             <div
               className="text-xs text-gray-500 mt-2"
               id="job-timeline-effective-start-date-info-text"
@@ -327,17 +290,23 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-salary-col"
         >
           <Form.Item
-            className="w-full font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name="basicSalary"
             id="basicSalary"
             data-cy="basicSalary"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 text-sm font-normal"
                 id="job-timeline-salary-label"
                 data-cy="job-timeline-salary-label"
               >
-                Basic Salary
+                Basic Salary{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-salary-required`}
+                >
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -346,7 +315,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
               {
                 validator: (rule, value) => {
                   if (value === null || value === undefined || value === '') {
-                    return Promise.reject('Salary is required');
+                    return Promise.reject('');
                   }
                   if (isNaN(Number(value))) {
                     return Promise.reject('Salary must be a valid number');
@@ -403,35 +372,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           id="job-timeline-work-schedule-col"
           data-cy="job-timeline-work-schedule-col"
         >
-          {/* <Form.Item
-            className="font-semibold text-xs"
-            name="workScheduleId"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                id="job-timeline-work-schedule-label"
-                data-cy="job-timeline-work-schedule-label"
-              >
-                Work Schedule
-              </span>
-            }
-            rules={[
-              { required: true, message: 'Please select work schedule' },
-            ]}
-          >
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              placeholder="Select Work Schedule"
-              options={workSchedules?.map((schedule: any) => ({
-                value: schedule?.id,
-                label: schedule?.name ?? '',
-              }))}
-              id="job-timeline-work-schedule-select"
-              data-cy="job-timeline-work-schedule-select"
-            />
-          </Form.Item> */}
           <WorkScheduleForm form={actualForm} />
         </Col>
         <Col
@@ -440,34 +380,6 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           id="job-timeline-role-col"
           data-cy="job-timeline-role-col"
         >
-          {/* <Form.Item
-            className="font-semibold text-xs"
-            name="roleId"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                id="job-timeline-role-label"
-                data-cy="job-timeline-role-label"
-              >
-                Role
-              </span>
-            }
-            rules={[{ required: true, message: 'Please select role' }]}
-          >
-            <Select
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              placeholder="Select Role"
-              options={rolesWithPermission?.map((role: any) => ({
-                value: role?.id,
-                label: role?.name ?? '',
-              }))}
-              onChange={onRoleChangeHandler}
-              id="job-timeline-role-select"
-              data-cy="job-timeline-role-select"
-            />
-          </Form.Item> */}
           <RolePermissionForm
             form={actualForm}
             data-cy="user-sidebar-role-permission-form"
@@ -487,7 +399,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-position-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name={'positionId'}
             id="jobTitle"
             data-cy="jobTitle"
@@ -498,11 +410,17 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-position-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 text-sm font-normal"
                   id="job-timeline-position-label-text"
                   data-cy="job-timeline-position-label-text"
                 >
-                  Position
+                  Position{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-position-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -589,7 +507,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-employement-type-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name={'employementTypeId'}
             id="employementTypeId"
             data-cy="employementTypeId"
@@ -600,11 +518,17 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-employement-type-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 text-sm font-normal"
                   id="job-timeline-employement-type-label-text"
                   data-cy="job-timeline-employement-type-label-text"
                 >
-                  Employment Type
+                  Employment Type{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-employement-type-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -642,15 +566,21 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-employement-type-col"
         >
           <Form.Item
-            className="w-full font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name="jobAction"
             id="jobAction"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 text-sm font-normal"
                 data-cy="job-timeline-status-label"
               >
-                Status
+                Status{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-status-required`}
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Please select Status' }]}
@@ -683,7 +613,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-department-col"
         >
           <Form.Item
-            className="w-full font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name={'departmentId'}
             id="departmentId"
             data-cy="departmentId"
@@ -694,11 +624,17 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-department-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 text-sm font-normal"
                   id="job-timeline-department-label-text"
                   data-cy="job-timeline-department-label-text"
                 >
-                  Team
+                  Team{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-department-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -733,18 +669,24 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
           data-cy="job-timeline-member-col"
         >
           <Form.Item
-            className="w-full font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d] !mb-0"
             name="departmentLeadOrNot"
             id="memberType"
             data-cy="memberType"
             initialValue={false}
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 text-sm font-normal"
                 id="job-timeline-member-label"
                 data-cy="job-timeline-member-label"
               >
-                Member
+                Member{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-member-required`}
+                >
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -815,23 +757,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             />
           </Form.Item>
           <div
-            className="flex items-center justify-start space-x-1  mt-2"
-            id="job-timeline-member-info"
-            data-cy="job-timeline-member-info"
+            className="text-xs text-[#8c8c8c] mt-0 leading-tight"
+            id="job-timeline-member-info-text"
+            data-cy="job-timeline-member-info-text"
           >
-            <IoInformationCircleOutline
-              size={14}
-              className="text-gray-500"
-              id="job-timeline-member-info-icon"
-              data-cy="job-timeline-member-info-icon"
-            />
-            <div
-              className="text-xs text-gray-500"
-              id="job-timeline-member-info-text"
-              data-cy="job-timeline-member-info-text"
-            >
-              Select If the user is a team Lead or manager
-            </div>
+            Select If the user is a team Lead or manager
           </div>
         </Col>
       </Row>
@@ -843,12 +773,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
       >
         <Col
           xs={24}
-          sm={12}
+          sm={24}
           id="job-timeline-office-col"
           data-cy="job-timeline-office-col"
         >
           <Form.Item
-            className="w-full font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             name={'branchId'}
             id="branchId"
             data-cy="branchId"
@@ -859,11 +789,17 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-branch-label"
               >
                 <span
-                  className="mb-1 font-semibold text-xs"
+                  className="mb-1 text-sm font-normal"
                   id="job-timeline-branch-label-text"
                   data-cy="job-timeline-branch-label-text"
                 >
-                  Office
+                  Office{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-branch-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -890,21 +826,29 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             />
           </Form.Item>
         </Col>
+      </Row>
+      <Row>
         <Col
           xs={24}
-          sm={12}
+          sm={24}
           id="job-timeline-allowance-col"
           data-cy="job-timeline-allowance-col"
         >
           <Form.Item
-            className="w-full font-semibold text-xs"
+            className="text-base font-normal text-[#4d4d4d]"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 text-sm font-normal"
                 id="job-timeline-allowance-label"
                 data-cy="job-timeline-allowance-label"
               >
-                Allowance
+                Allowance{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-allowance-required`}
+                >
+                  *
+                </span>
               </span>
             }
           >
@@ -952,88 +896,103 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                         ),
                     );
                     return (
-                      <Select
-                        mode="multiple"
-                        showSearch
-                        allowClear
+                      <div
+                        data-cy="job-timeline-allowance-select-inline-wrapper"
                         className="w-full"
-                        placeholder="Select"
-                        options={dropdownOptions}
-                        value={selectedIds}
-                        filterOption={(input, opt) =>
-                          String(opt?.label ?? '')
-                            .toLowerCase()
-                            .includes(input.toLowerCase())
-                        }
-                        maxTagCount={undefined}
-                        tagRender={(props) => {
-                          const { label, value, closable, onClose } = props;
-                          const fullOption = allOptions.find(
-                            (opt: any) => String(opt.value) === String(value),
-                          );
-                          return (
-                            <span
-                              style={{
-                                marginRight: 3,
-                                padding: '2px 8px',
-                                background: '#f0f0f0',
-                                borderRadius: 4,
-                                display: 'inline-block',
-                              }}
-                              id="job-timeline-allowance-select-tag-inline"
-                              data-cy="job-timeline-allowance-select-tag-inline"
-                            >
-                              {fullOption?.label || label}
-                              {closable && (
+                      >
+                        <Select
+                          mode="multiple"
+                          showSearch
+                          allowClear
+                          className="w-full"
+                          placeholder="Select"
+                          options={dropdownOptions}
+                          value={selectedIds}
+                          filterOption={(input, opt) =>
+                            String(opt?.label ?? '')
+                              .toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                          maxTagCount={0}
+                          onChange={(newSelectedIds) => {
+                            setFieldValue('allowanceIds', newSelectedIds);
+                            const currentFormAllowances =
+                              getFieldValue('allowances') || [];
+                            const allAllowanceTypes = [
+                              ...(allowanceTypes || []),
+                              ...currentFormAllowances,
+                              ...tempAllowances,
+                            ];
+                            const uniqueAllowanceTypes =
+                              allAllowanceTypes.filter(
+                                (type: any, index: number, self: any[]) =>
+                                  index ===
+                                  self.findIndex(
+                                    (t: any) =>
+                                      String(t.id) === String(type.id),
+                                  ),
+                              );
+                            const allowances =
+                              uniqueAllowanceTypes
+                                ?.filter((type: any) =>
+                                  newSelectedIds.some(
+                                    (id: any) => String(id) === String(type.id),
+                                  ),
+                                )
+                                .map((type: any) => ({
+                                  id: type.id,
+                                  name: type.name,
+                                  description: type.description,
+                                  isRate: type.isRate,
+                                  defaultAmount: type.defaultAmount,
+                                  notTaxableAmount: type.notTaxableAmount,
+                                  type: type.type,
+                                })) || [];
+                            setFieldValue('allowances', allowances);
+                          }}
+                          id="job-timeline-allowance-select-inline"
+                          data-cy="job-timeline-allowance-select-inline"
+                        />
+
+                        {selectedIds.length > 0 && (
+                          <div
+                            className="mt-2 flex flex-wrap gap-2"
+                            id="job-timeline-allowance-selected-list-inline"
+                            data-cy="job-timeline-allowance-selected-list-inline"
+                          >
+                            {selectedIds.map((value: any) => {
+                              const fullOption = allOptions.find(
+                                (opt: any) =>
+                                  String(opt.value) === String(value),
+                              );
+                              return (
                                 <span
-                                  onClick={onClose}
-                                  style={{ marginLeft: 4, cursor: 'pointer' }}
-                                  id="job-timeline-allowance-select-tag-close-inline"
-                                  data-cy="job-timeline-allowance-select-tag-close-inline"
+                                  key={String(value)}
+                                  className="inline-flex items-center rounded-md border border-[#d9d9d9] bg-[#f5f5f5] px-3 py-1 text-sm text-[#4d4d4d]"
+                                  data-cy="job-timeline-allowance-selected-pill-inline"
                                 >
-                                  ×
+                                  {fullOption?.label || value}
+                                  <span
+                                    className="ml-2 text-[#8c8c8c] cursor-pointer"
+                                    aria-hidden="true"
+                                    data-cy="job-timeline-allowance-selected-pill-x-inline"
+                                    onClick={() => {
+                                      setFieldValue(
+                                        'allowanceIds',
+                                        selectedIds.filter(
+                                          (id: any) => id !== value,
+                                        ),
+                                      );
+                                    }}
+                                  >
+                                    ×
+                                  </span>
                                 </span>
-                              )}
-                            </span>
-                          );
-                        }}
-                        onChange={(newSelectedIds) => {
-                          setFieldValue('allowanceIds', newSelectedIds);
-                          const currentFormAllowances =
-                            getFieldValue('allowances') || [];
-                          const allAllowanceTypes = [
-                            ...(allowanceTypes || []),
-                            ...currentFormAllowances,
-                            ...tempAllowances,
-                          ];
-                          const uniqueAllowanceTypes = allAllowanceTypes.filter(
-                            (type: any, index: number, self: any[]) =>
-                              index ===
-                              self.findIndex(
-                                (t: any) => String(t.id) === String(type.id),
-                              ),
-                          );
-                          const allowances =
-                            uniqueAllowanceTypes
-                              ?.filter((type: any) =>
-                                newSelectedIds.some(
-                                  (id: any) => String(id) === String(type.id),
-                                ),
-                              )
-                              .map((type: any) => ({
-                                id: type.id,
-                                name: type.name,
-                                description: type.description,
-                                isRate: type.isRate,
-                                defaultAmount: type.defaultAmount,
-                                notTaxableAmount: type.notTaxableAmount,
-                                type: type.type,
-                              })) || [];
-                          setFieldValue('allowances', allowances);
-                        }}
-                        id="job-timeline-allowance-select-inline"
-                        data-cy="job-timeline-allowance-select-inline"
-                      />
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     );
                   }}
                 </Form.Item>
@@ -1050,16 +1009,11 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                   />
                 }
                 onClick={() => setIsAllowanceOpen(true)}
-                // style={{
-                //   height: '32px',
-                //   alignSelf: 'flex-start',
-                //   marginTop: 0,
-                // }}
                 id="job-timeline-allowance-add-btn"
                 data-cy="job-timeline-allowance-add-btn"
                 className="hover:bg-[#1D4ED8] bg-[#1e40af] text-white h-8"
               >
-                Allowance
+                Add New Allowance
               </Button>
             </div>
           </Form.Item>
@@ -1078,7 +1032,7 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
             data-cy="job-timeline-effective-end-date-col"
           >
             <Form.Item
-              className="font-semibold text-xs"
+              className="text-base font-normal text-[#4d4d4d]"
               name={'effectiveEndDate'}
               id="effectiveEndDate"
               data-cy="effectiveEndDate"

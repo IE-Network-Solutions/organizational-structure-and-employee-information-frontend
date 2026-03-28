@@ -16,9 +16,9 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const Page = () => {
   const { setIsShowClosedDateSidebar, setSelectedClosedDate } =
@@ -60,12 +60,12 @@ const Page = () => {
     {
       key: 'edit',
       label: 'Edit',
-      icon: <EditIcon fontSize="small" />,
+      icon: <EditOutlinedIcon fontSize="small" />,
     },
     {
       key: 'delete',
       label: 'Delete',
-      icon: <DeleteIcon fontSize="small" />,
+      icon: <DeleteOutlinedIcon fontSize="small" />,
     },
   ];
 
@@ -238,12 +238,13 @@ const Page = () => {
                   }}
                 >
                   <Button
-                    icon={<MoreHorizIcon />}
                     type="default"
-                    className="border border-[#D9D9D9] rounded-md "
+                    className="border border-[#D9D9D9] h-8 w-8"
                     id="time-attendance-settings-closed-date-table-cell-render-more-horiz-icon"
                     data-cy="time-attendance-settings-closed-date-table-cell-render-more-horiz-icon"
-                  />
+                  >
+                    <MoreHorizIcon />
+                  </Button>
                 </Dropdown>
               }
               headStyle={{ borderBottom: 'none', padding: '0 10px 0 10px' }}
@@ -292,7 +293,6 @@ const Page = () => {
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white "
       id="time-attendance-settings-closed-date-container"
       data-cy="time-attendance-settings-closed-date-container"
     >

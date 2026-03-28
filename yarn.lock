@@ -3265,6 +3265,8 @@ ajv-keywords@^3.5.2:
 
 ajv-keywords@^5.1.0:
   version "5.1.0"
+  resolved "https://registry.npmjs.org/ajv-keywords/-/ajv-keywords-5.1.0.tgz"
+  integrity sha512-YCS/JNFAUyr5vAuhk1DWm1CBxRHW9LbJ2ozWeemrIqpbsqKjHVxYPyi5GC0rjZIT5JxJ3virVTS8wk4i/Z+krw==
   dependencies:
     fast-deep-equal "^3.1.3"
 
@@ -3676,6 +3678,11 @@ base64-js@^1.1.2, base64-js@^1.3.0, base64-js@^1.3.1:
 base64-js@0.0.8:
   version "0.0.8"
 
+baseline-browser-mapping@^2.9.0:
+  version "2.10.10"
+  resolved "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.10.10.tgz"
+  integrity sha512-sUoJ3IMxx4AyRqO4MLeHlnGDkyXRoUG0/AI9fjK+vS72ekpV0yWVY7O0BVjmBcRtkNcsAO2QDZ4tdKKGoI6YaQ==
+
 bidi-js@^1.0.2:
   version "1.0.3"
   dependencies:
@@ -3756,10 +3763,11 @@ browserify-zlib@^0.2.0:
 browserslist@^4.24.0, browserslist@^4.25.1:
   version "4.25.1"
   dependencies:
-    caniuse-lite "^1.0.30001726"
-    electron-to-chromium "^1.5.173"
-    node-releases "^2.0.19"
-    update-browserslist-db "^1.1.3"
+    baseline-browser-mapping "^2.9.0"
+    caniuse-lite "^1.0.30001759"
+    electron-to-chromium "^1.5.263"
+    node-releases "^2.0.27"
+    update-browserslist-db "^1.2.0"
 
 bs-logger@^0.2.6:
   version "0.2.6"
@@ -3835,8 +3843,10 @@ camelcase@^5.3.1:
 camelcase@^6.2.0:
   version "6.3.0"
 
-caniuse-lite@^1.0.30001579, caniuse-lite@^1.0.30001726:
-  version "1.0.30001727"
+caniuse-lite@^1.0.30001579, caniuse-lite@^1.0.30001759:
+  version "1.0.30001781"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001781.tgz"
+  integrity sha512-RdwNCyMsNBftLjW6w01z8bKEvT6e/5tpPVEgtn22TiLGlstHOVecsX2KHFkD5e/vRnIE4EGzpuIODb3mtswtkw==
 
 canvg@^3.0.6:
   version "3.0.11"
@@ -4027,6 +4037,7 @@ commondir@^1.0.1:
     "@tiptap/extension-underline" "^2.12.0"
     "@tiptap/react" "^2.12.0"
     "@tiptap/starter-kit" "^2.12.0"
+    "@tiptap/suggestion" "^2.12.0"
     "@types/leaflet" "^1.9.20"
     "@types/react-pdf" "^7.0.0"
     "@xyflow/react" "^12.10.0"
@@ -4499,8 +4510,10 @@ ejs@^3.1.10, ejs@^3.1.6:
   dependencies:
     jake "^10.8.5"
 
-electron-to-chromium@^1.5.173:
-  version "1.5.191"
+electron-to-chromium@^1.5.263:
+  version "1.5.323"
+  resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.323.tgz"
+  integrity sha512-oQm+FxbazvN2WICCbvJgj3IYPKV8awip57+W5VP+Aatk4kFU4pDYCPHZOX22Z27zpw8uttBehEqgK+VTJAYrVw==
 
 emittery@^0.13.1:
   version "0.13.1"
@@ -4756,9 +4769,10 @@ eslint-plugin-jsx-a11y@^6.7.1:
     safe-regex-test "^1.0.3"
     string.prototype.includes "^2.0.1"
 
-"eslint-plugin-local-rules@file:./eslint-plugin-local-rules":
-  version "1.0.0"
-  resolved "file:eslint-plugin-local-rules"
+eslint-plugin-local-rules@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.npmjs.org/eslint-plugin-local-rules/-/eslint-plugin-local-rules-3.0.2.tgz"
+  integrity sha512-IWME7GIYHXogTkFsToLdBCQVJ0U4kbSuVyDT+nKoR4UgtnVrrVeNWuAZkdEu1nxkvi9nsPccGehEEF6dgA28IQ==
 
 eslint-plugin-prettier@^5.1.3:
   version "5.5.3"
@@ -6205,6 +6219,8 @@ json-schema-traverse@^0.4.1:
 
 json-schema-traverse@^1.0.0:
   version "1.0.0"
+  resolved "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz"
+  integrity sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==
 
 json-schema@^0.4.0:
   version "0.4.0"
@@ -6673,8 +6689,10 @@ node-html-parser@^6.1.13:
 node-int64@^0.4.0:
   version "0.4.0"
 
-node-releases@^2.0.19:
-  version "2.0.19"
+node-releases@^2.0.27:
+  version "2.0.36"
+  resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.36.tgz"
+  integrity sha512-TdC8FSgHz8Mwtw9g5L4gR/Sh9XhSP/0DEkQxfEFXOpiul5IiHgHan2VhYYb6agDSfp4KuvltmGApc8HMgUrIkA==
 
 normalize-path@^3.0.0, normalize-path@~3.0.0:
   version "3.0.0"
@@ -7983,11 +8001,6 @@ serialize-javascript@^4.0.0:
   dependencies:
     randombytes "^2.1.0"
 
-serialize-javascript@^6.0.2:
-  version "6.0.2"
-  dependencies:
-    randombytes "^2.1.0"
-
 set-function-length@^1.2.2:
   version "1.2.2"
   dependencies:
@@ -8472,7 +8485,6 @@ terser-webpack-plugin@^5.3.3:
     "@jridgewell/trace-mapping" "^0.3.25"
     jest-worker "^27.4.5"
     schema-utils "^4.3.0"
-    serialize-javascript "^6.0.2"
     terser "^5.31.1"
 
 terser@^5.0.0, terser@^5.31.1:
@@ -8785,8 +8797,10 @@ unzipper@^0.10.11:
 upath@^1.2.0:
   version "1.2.0"
 
-update-browserslist-db@^1.1.3:
-  version "1.1.3"
+update-browserslist-db@^1.2.0:
+  version "1.2.3"
+  resolved "https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.2.3.tgz"
+  integrity sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==
   dependencies:
     escalade "^3.2.0"
     picocolors "^1.1.1"

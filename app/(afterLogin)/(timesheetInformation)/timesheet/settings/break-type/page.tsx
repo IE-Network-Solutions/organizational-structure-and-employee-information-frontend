@@ -6,7 +6,6 @@ import BreakTypeTable from './_component/breakTypeTable/inex';
 const Page = () => {
   return (
     <div
-      className="px-2 sm:px-5 py-2"
       id="time-attendance-settings-break-type-container"
       data-cy="time-attendance-settings-break-type-container"
     >

@@ -6,12 +6,14 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const { Option } = Select;
 
@@ -62,6 +64,51 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
         id="additional-information-form"
         data-cy="additional-information-form"
       >
+        <Row
+          justify="space-between"
+          align="middle"
+          className="mb-4 w-full"
+          style={{ width: '100%' }}
+          id="additional-information-header-row"
+          data-cy="additional-information-header-row"
+        >
+          <Col>
+            <span
+              data-cy="additional-information-form-title"
+              className="text-sm font-normal text-[#4d4d4d]"
+            >
+              Additional Information
+            </span>
+          </Col>
+          <Col>
+            <div
+              data-cy="additional-information-form-buttons"
+              className="flex items-center gap-2"
+            >
+              <Button
+                type="default"
+                size="small"
+                onClick={() => setEdit('additionalInformation')}
+                id="additional-information-cancel-btn"
+                data-cy="additional-information-cancel-btn"
+                className="border border-red-500 h-6 w-6"
+              >
+                <CloseIcon className="text-red-500 text-[10px]" />
+              </Button>
+              <Button
+                type="primary"
+                size="small"
+                loading={isLoading}
+                htmlType="submit"
+                id="additional-information-submit-btn"
+                data-cy="additional-information-submit-btn"
+                className="h-6 w-6"
+              >
+                <CheckIcon className="text-white text-[10px]" />
+              </Button>
+            </div>
+          </Col>
+        </Row>
         {Object.entries(allFields).map(([key, val]) => (
           <Form.Item
             key={key}
@@ -182,23 +229,6 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
             })()}
           </Form.Item>
         ))}
-
-        <Form.Item
-          className="mt-6"
-          id="additional-information-submit-form-item"
-          data-cy="additional-information-submit-form-item"
-        >
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={isLoading}
-            block
-            id="additional-information-submit-btn"
-            data-cy="additional-information-submit-btn"
-          >
-            Save Changes
-          </Button>
-        </Form.Item>
       </Form>
     );
   };
@@ -276,13 +306,13 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-semibold text-gray-500 m-0"
+        className="text-base font-normal text-[#4d4d4d] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -294,35 +324,43 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
     <Card
       loading={isLoading}
       title={
-        <span
-          className="text-base font-bold text-gray-900"
-          data-cy="additional-information-card-title"
-        >
-          Additional Information
-        </span>
+        !edit.additionalInformation ? (
+          <span
+            className="text-base font-bold text-[#4d4d4d]"
+            data-cy="additional-information-card-title"
+          >
+            Additional Information
+          </span>
+        ) : null
       }
       extra={
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          selfShouldAccess
-          id={id}
-          data-cy="additional-information-edit-guard"
-        >
-          <button
-            type="button"
-            onClick={() => handleEditChange('additionalInformation')}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="additional-information-edit-icon"
-            data-cy="additional-information-edit-icon"
+        !edit.additionalInformation ? (
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id={id}
+            data-cy="additional-information-edit-guard"
           >
-            <LuPencil size={16} className="text-black" />
-          </button>
-        </AccessGuard>
+            <button
+              onClick={() => handleEditChange('additionalInformation')}
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
+              id="additional-information-edit-icon"
+              data-cy="additional-information-edit-icon"
+            >
+              <EditOutlinedIcon className="text-sm" />
+            </button>
+          </AccessGuard>
+        ) : null
       }
       className="additional-information-card rounded-lg border border-gray-200 my-6"
       id="additional-information-card"
       data-cy="additional-information-card"
-      headStyle={{ borderBottom: 'none' }}
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {edit.additionalInformation ? (
         <AdditionalInformationForm data-cy="additional-information-form" />

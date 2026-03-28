@@ -4,6 +4,7 @@ import React from 'react';
 import PositionCards from './positionCards';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
 import CreatePosition from './createPosition';
+import { SearchOutlined } from '@ant-design/icons';
 
 const Positions: React.FC = () => {
   const { searchTerm, setSearchTerm } = usePositionState();
@@ -35,16 +36,21 @@ const Positions: React.FC = () => {
               id="settings-positions-search-container"
               data-cy="settings-positions-search-container"
             >
-              <Input.Search
+              <Input
                 placeholder="Search Position"
-                className="w-full"
                 allowClear
-                size="large"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onSearch={(value) => setSearchTerm(value)}
-                id="settings-positions-search-input"
+                className="w-full pr-0 py-0"
                 data-cy="settings-positions-search-input"
+                suffix={
+                  <div
+                    className="text-gray-400 border-l border-gray-300 px-3 py-2"
+                    data-cy="settings-positions-search-icon-container"
+                  >
+                    <SearchOutlined data-cy="settings-positions-search-icon" />
+                  </div>
+                }
               />
             </div>
             <div
