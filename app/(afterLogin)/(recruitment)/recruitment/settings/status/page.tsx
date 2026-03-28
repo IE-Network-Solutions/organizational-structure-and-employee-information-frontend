@@ -167,7 +167,10 @@ function SortableStatusCard({
     >
       {/* Placeholder visible when this card is being dragged */}
       {isDragging && (
-        <div className="absolute inset-0 rounded recruitment-settings-status-drag-placeholder" />
+        <div
+          className="absolute inset-0 rounded recruitment-settings-status-drag-placeholder"
+          data-cy="talent-acquisition-status-drag-placeholder"
+        />
       )}
       <div
         {...attributes}
@@ -175,7 +178,11 @@ function SortableStatusCard({
         className="flex items-center justify-center shrink-0 w-10 h-10 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none"
         data-cy="talent-acquisition-status-drag-handle"
       >
-        <GripVertical size={24} strokeWidth={2} className="pointer-events-none" />
+        <GripVertical
+          size={24}
+          strokeWidth={2}
+          className="pointer-events-none"
+        />
       </div>
       <StatusCardContent
         status={status}
@@ -224,8 +231,12 @@ function DragGhostCard({
     <div
       className="recruitment-settings-card recruitment-settings-drag-ghost p-4 min-h-[80px] flex items-center gap-3 w-full"
       style={{ cursor: 'grabbing' }}
+      data-cy="talent-acquisition-status-drag-ghost"
     >
-      <div className="flex items-center justify-center shrink-0 w-10 h-10 text-gray-400">
+      <div
+        className="flex items-center justify-center shrink-0 w-10 h-10 text-gray-400"
+        data-cy="talent-acquisition-status-drag-ghost-handle"
+      >
         <GripVertical size={24} strokeWidth={2} />
       </div>
       <StatusCardContent
@@ -337,18 +348,29 @@ const Status: React.FC = () => {
   };
 
   const initialStatuses = useMemo(
-    () => items.filter((s: any) => !!s?.isInitial).slice().sort(sortByLevel),
+    () =>
+      items
+        .filter((s: any) => !!s?.isInitial)
+        .slice()
+        .sort(sortByLevel),
     [items],
   );
 
   const finalStatuses = useMemo(
-    () => items.filter((s: any) => !!s?.isFinal).slice().sort(sortByLevel),
+    () =>
+      items
+        .filter((s: any) => !!s?.isFinal)
+        .slice()
+        .sort(sortByLevel),
     [items],
   );
 
   const middleStatuses = useMemo(
     () =>
-      items.filter((s: any) => !s?.isInitial && !s?.isFinal).slice().sort(sortByLevel),
+      items
+        .filter((s: any) => !s?.isInitial && !s?.isFinal)
+        .slice()
+        .sort(sortByLevel),
     [items],
   );
 
@@ -369,7 +391,8 @@ const Status: React.FC = () => {
   const activeDragStatus = useMemo(
     () =>
       activeDragId
-        ? orderedMiddleItems.find((s: any) => String(s.id) === activeDragId) ?? null
+        ? (orderedMiddleItems.find((s: any) => String(s.id) === activeDragId) ??
+          null)
         : null,
     [activeDragId, orderedMiddleItems],
   );
