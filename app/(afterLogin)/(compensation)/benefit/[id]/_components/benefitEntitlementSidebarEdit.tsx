@@ -132,13 +132,24 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
   return (
     <Modal
       title={
-        <div className="flex w-full items-center justify-between gap-4">
+        <div
+          className="flex w-full items-center justify-between gap-4"
+          data-cy="compensation-benefit-sidebar-edit-modal-title-row"
+        >
           <span
             className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-gray-900"
             id="compensation-benefit-sidebar-edit-title"
             data-cy="compensation-benefit-sidebar-edit-title"
           >
             Edit Benefit Entitlement
+            {title ? (
+              <span
+                className="ml-1 font-normal text-gray-600"
+                data-cy="compensation-benefit-sidebar-edit-title-benefit-name"
+              >
+                ({title})
+              </span>
+            ) : null}
           </span>
           <button
             type="button"
@@ -207,7 +218,10 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       }}
       data-cy="compensation-benefit-edit-entitlement-modal"
     >
-      <div className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5">
+      <div
+        className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5"
+        data-cy="compensation-benefit-sidebar-edit-modal-inner"
+      >
         <Spin
           spinning={allUserLoading || payLoading || isLoading || depLoading}
           data-cy="compensation-benefit-sidebar-edit-spin"
@@ -395,13 +409,15 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
               data-cy="compensation-benefit-sidebar-edit-employee-item"
               className="mb-0"
             >
-              <div>
+              <div data-cy="compensation-benefit-sidebar-edit-employee-field-wrap">
                 <div
                   className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 flex items-center justify-between text-sm text-gray-400"
                   id="compensation-benefit-sidebar-edit-employee-select"
                   data-cy="compensation-benefit-sidebar-edit-employee-select"
                 >
-                  <span>Select employee</span>
+                  <span data-cy="compensation-benefit-sidebar-edit-employee-placeholder">
+                    Select employee
+                  </span>
                   <DownOutlined style={{ fontSize: 12, color: '#BFBFBF' }} />
                 </div>
 

@@ -64,7 +64,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   // Show first 5 pages, ellipsis, and last page (e.g. 1 2 3 4 5 ... 50)
   const getVisiblePageItems = (): (number | 'ellipsis')[] => {
     if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
+      return Array.from({ length: totalPages }, (unused, i) => {
+        void unused;
+        return i + 1;
+      });
     }
     return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
   };
@@ -95,13 +98,14 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
           data-cy="components-custompagination-mobilepagination-index-tsx-index-div-71"
           className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center"
         >
-          {visiblePageItems.map((item, index) => {
+          {visiblePageItems.map((item) => {
             if (item === 'ellipsis') {
               return (
                 <span
                   key="ellipsis"
                   className="w-8 h-8 flex items-center justify-center text-gray-400"
                   aria-hidden
+                  data-cy="components-custompagination-mobilepagination-ellipsis"
                 >
                   …
                 </span>

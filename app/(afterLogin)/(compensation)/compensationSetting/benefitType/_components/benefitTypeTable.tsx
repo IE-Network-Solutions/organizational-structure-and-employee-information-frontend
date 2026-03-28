@@ -62,22 +62,6 @@ const BenefitTypeTable = () => {
     );
   };
 
-  const formatModeLabel = (mode?: string, isPeriodic?: boolean) => {
-    if (mode === 'CREDIT') {
-      const periodicLabel =
-        isPeriodic === true
-          ? 'Periodic'
-          : isPeriodic === false
-            ? 'Non-Periodic'
-            : null;
-      return periodicLabel
-        ? `Non-repayable (${periodicLabel})`
-        : 'Non-repayable';
-    }
-    if (mode === 'DEBIT') return 'Repayable';
-    return '—';
-  };
-
   const columns: TableColumnsType<any> = [
     {
       title: 'Name',
@@ -137,12 +121,21 @@ const BenefitTypeTable = () => {
           id="compensation-settings-benefit-type-mode"
           data-cy="compensation-settings-benefit-type-mode"
         >
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal leading-[18px] text-[#595959] whitespace-nowrap">
+          <div
+            className="flex flex-wrap items-center gap-2"
+            data-cy="compensation-settings-benefit-type-mode-pills"
+          >
+            <span
+              className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal leading-[18px] text-[#595959] whitespace-nowrap"
+              data-cy="compensation-settings-benefit-type-mode-primary-pill"
+            >
               {mode === 'CREDIT' ? 'Non-repayable' : 'Repayable'}
             </span>
             {mode === 'CREDIT' && record?.isPeriodic !== undefined && (
-              <span className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal leading-[18px] text-[#595959] whitespace-nowrap">
+              <span
+                className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal leading-[18px] text-[#595959] whitespace-nowrap"
+                data-cy="compensation-settings-benefit-type-mode-periodic-pill"
+              >
                 {record?.isPeriodic ? 'Periodic' : 'Non-periodic'}
               </span>
             )}
@@ -295,7 +288,7 @@ const BenefitTypeTable = () => {
               setBenefitCurrentPage(page);
               setBenefitPageSize(size);
             }}
-            onShowSizeChange={(size) => {
+            onShowSizeChange={() => {
               setBenefitPageSize(9);
               setBenefitCurrentPage(1);
             }}

@@ -384,13 +384,24 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
     <>
       <Modal
         title={
-          <div className="flex w-full items-center justify-between gap-4">
+          <div
+            className="flex w-full items-center justify-between gap-4"
+            data-cy="compensation-benefit-sidebar-modal-title-row"
+          >
             <span
               className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-gray-900"
               id="compensation-benefit-sidebar-title"
               data-cy="compensation-benefit-sidebar-title"
             >
               Add Benefit Entitlement
+              {title ? (
+                <span
+                  className="ml-1 font-normal text-gray-600"
+                  data-cy="compensation-benefit-sidebar-title-benefit-name"
+                >
+                  ({title})
+                </span>
+              ) : null}
             </span>
             <button
               type="button"
@@ -460,7 +471,10 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         }}
         data-cy="compensation-benefit-sidebar-modal"
       >
-        <div className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5">
+        <div
+          className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5"
+          data-cy="compensation-benefit-sidebar-modal-inner"
+        >
           <Spin
             data-cy="compensation-benefit-sidebar-loading"
             spinning={allUserLoading || payLoading || depLoading}

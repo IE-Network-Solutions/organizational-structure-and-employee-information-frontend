@@ -150,7 +150,10 @@ const BenefitypeSideBar = () => {
     isBenefitOpen && (
       <Modal
         title={
-          <div className="flex w-full items-center justify-between gap-4">
+          <div
+            className="flex w-full items-center justify-between gap-4"
+            data-cy="compensation-settings-benefit-sidebar-modal-title-row"
+          >
             <span
               className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-[#000000]"
               data-cy="compensation-settings-benefit-sidebar-header-title"
@@ -256,7 +259,9 @@ const BenefitypeSideBar = () => {
               <Form.Item
                 name="description"
                 label="Description"
-                rules={[{ required: true, message: 'Description is Required!' }]}
+                rules={[
+                  { required: true, message: 'Description is Required!' },
+                ]}
                 className="form-item !mb-0"
                 id="compensation-settings-benefit-sidebar-description-item"
                 data-cy="compensation-settings-benefit-sidebar-description-item"
@@ -270,240 +275,240 @@ const BenefitypeSideBar = () => {
                   data-cy="compensation-settings-benefit-sidebar-description-input"
                 />
               </Form.Item>
-            <Form.Item
-              name="mode"
-              label="Mode"
-              rules={[{ required: true, message: 'Mode is Required!' }]}
-              className="form-item !mb-0"
-              id="compensation-settings-benefit-sidebar-mode-item"
-              data-cy="compensation-settings-benefit-sidebar-mode-item"
-            >
-              <Radio.Group
-                className={MODE_RADIO_GROUP_CLASS}
-                onChange={handleModeChange}
-                disabled={Boolean(selectedBenefitRecord)}
-                id="compensation-settings-benefit-sidebar-mode-group"
-                data-cy="compensation-settings-benefit-sidebar-mode-group"
-              >
-                <Radio
-                  value="DEBIT"
-                  className="!text-sm !font-normal !leading-snug"
-                  data-cy="compensation-settings-benefit-sidebar-mode-debit"
-                >
-                  Repayable
-                </Radio>
-                <Radio
-                  value="CREDIT"
-                  className="!text-sm !font-normal !leading-snug"
-                  data-cy="compensation-settings-benefit-sidebar-mode-credit"
-                >
-                  Non-repayable
-                </Radio>
-              </Radio.Group>
-            </Form.Item>
-            {benefitMode == 'CREDIT' && (
               <Form.Item
-                name="type"
-                label="Type"
-                rules={[{ required: true, message: 'Type is Required!' }]}
+                name="mode"
+                label="Mode"
+                rules={[{ required: true, message: 'Mode is Required!' }]}
                 className="form-item !mb-0"
-                id="compensation-settings-benefit-sidebar-type-item"
-                data-cy="compensation-settings-benefit-sidebar-type-item"
+                id="compensation-settings-benefit-sidebar-mode-item"
+                data-cy="compensation-settings-benefit-sidebar-mode-item"
               >
                 <Radio.Group
-                  className={TYPE_RADIO_GROUP_CLASS}
-                  id="compensation-settings-benefit-sidebar-type-group"
-                  data-cy="compensation-settings-benefit-sidebar-type-group"
+                  className={MODE_RADIO_GROUP_CLASS}
+                  onChange={handleModeChange}
+                  disabled={Boolean(selectedBenefitRecord)}
+                  id="compensation-settings-benefit-sidebar-mode-group"
+                  data-cy="compensation-settings-benefit-sidebar-mode-group"
                 >
                   <Radio
-                    value="PERIODIC"
+                    value="DEBIT"
                     className="!text-sm !font-normal !leading-snug"
-                    id="compensation-settings-benefit-sidebar-type-periodic"
-                    data-cy="compensation-settings-benefit-sidebar-type-periodic"
+                    data-cy="compensation-settings-benefit-sidebar-mode-debit"
                   >
-                    Periodic
+                    Repayable
                   </Radio>
                   <Radio
-                    value="NON_PERIODIC"
+                    value="CREDIT"
                     className="!text-sm !font-normal !leading-snug"
-                    id="compensation-settings-benefit-sidebar-type-non-periodic"
-                    data-cy="compensation-settings-benefit-sidebar-type-non-periodic"
+                    data-cy="compensation-settings-benefit-sidebar-mode-credit"
                   >
-                    Non-Periodic
+                    Non-repayable
                   </Radio>
                 </Radio.Group>
               </Form.Item>
-            )}
-            {benefitMode == 'DEBIT' && (
-              <>
+              {benefitMode == 'CREDIT' && (
                 <Form.Item
-                  id="compensation-settings-benefit-sidebar-fixed-rate-item"
-                  data-cy="compensation-settings-benefit-sidebar-fixed-rate-item"
-                  name="isRate"
+                  name="type"
+                  label="Type"
+                  rules={[{ required: true, message: 'Type is Required!' }]}
                   className="form-item !mb-0"
-                  initialValue={!selectedBenefitRecord ? false : undefined}
+                  id="compensation-settings-benefit-sidebar-type-item"
+                  data-cy="compensation-settings-benefit-sidebar-type-item"
                 >
                   <Radio.Group
-                    className={FIXED_RATE_RADIO_GROUP_CLASS}
-                    value={isRateBenefit}
-                    onChange={onFixedRateChange}
-                    id="compensation-settings-benefit-sidebar-fixed-rate-group"
-                    data-cy="compensation-settings-benefit-sidebar-fixed-rate-group"
+                    className={TYPE_RADIO_GROUP_CLASS}
+                    id="compensation-settings-benefit-sidebar-type-group"
+                    data-cy="compensation-settings-benefit-sidebar-type-group"
                   >
                     <Radio
-                      value={false}
+                      value="PERIODIC"
                       className="!text-sm !font-normal !leading-snug"
-                      data-cy="compensation-settings-benefit-sidebar-fixed-rate-fixed"
+                      id="compensation-settings-benefit-sidebar-type-periodic"
+                      data-cy="compensation-settings-benefit-sidebar-type-periodic"
                     >
-                      Fixed
+                      Periodic
                     </Radio>
                     <Radio
-                      value={true}
+                      value="NON_PERIODIC"
                       className="!text-sm !font-normal !leading-snug"
-                      data-cy="compensation-settings-benefit-sidebar-fixed-rate-rate"
+                      id="compensation-settings-benefit-sidebar-type-non-periodic"
+                      data-cy="compensation-settings-benefit-sidebar-type-non-periodic"
                     >
-                      Rate
+                      Non-Periodic
                     </Radio>
                   </Radio.Group>
                 </Form.Item>
-                <div
-                  id="compensation-settings-benefit-sidebar-amount-container"
-                  data-cy="compensation-settings-benefit-sidebar-amount-container"
-                  className="w-full"
-                >
+              )}
+              {benefitMode == 'DEBIT' && (
+                <>
                   <Form.Item
-                    id="compensation-settings-benefit-sidebar-amount-item"
-                    data-cy="compensation-settings-benefit-sidebar-amount-item"
-                    name="defaultAmount"
-                    label={isRateBenefit ? 'Rate' : 'Fixed Amount'}
-                    className="form-item !mb-0 w-full"
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Amount is required!',
-                      },
-                      {
-                        validator: (notused, value) => {
-                          if (value && value < 0) {
-                            return Promise.reject(
-                              new Error('Amount cannot be negative'),
-                            );
-                          }
-                          return Promise.resolve();
-                        },
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="control font-normal placeholder:font-normal"
-                      type="number"
-                      placeholder="Benefit Amount"
-                      style={{ height: 40, padding: '8px 12px' }}
-                      min={0}
-                      id="compensation-settings-benefit-sidebar-amount-input"
-                      data-cy="compensation-settings-benefit-sidebar-amount-input"
-                    />
-                  </Form.Item>
-                </div>
-                {!isAllEmployee && !selectedBenefitRecord && (
-                  <Form.Item
-                    id="compensation-settings-benefit-sidebar-payperiod-item"
-                    data-cy="compensation-settings-benefit-sidebar-payperiod-item"
-                    name="NoOfPayPeriod"
-                    label={'Number of Pay Period'}
+                    id="compensation-settings-benefit-sidebar-fixed-rate-item"
+                    data-cy="compensation-settings-benefit-sidebar-fixed-rate-item"
+                    name="isRate"
                     className="form-item !mb-0"
+                    initialValue={!selectedBenefitRecord ? false : undefined}
                   >
-                    <Input
-                      className="control font-normal placeholder:font-normal"
-                      type="number"
-                      placeholder="Number of Pay Period"
-                      style={{ height: 40, padding: '8px 12px' }}
-                      id="compensation-settings-benefit-sidebar-payperiod-input"
-                      data-cy="compensation-settings-benefit-sidebar-payperiod-input"
+                    <Radio.Group
+                      className={FIXED_RATE_RADIO_GROUP_CLASS}
+                      value={isRateBenefit}
+                      onChange={onFixedRateChange}
+                      id="compensation-settings-benefit-sidebar-fixed-rate-group"
+                      data-cy="compensation-settings-benefit-sidebar-fixed-rate-group"
+                    >
+                      <Radio
+                        value={false}
+                        className="!text-sm !font-normal !leading-snug"
+                        data-cy="compensation-settings-benefit-sidebar-fixed-rate-fixed"
+                      >
+                        Fixed
+                      </Radio>
+                      <Radio
+                        value={true}
+                        className="!text-sm !font-normal !leading-snug"
+                        data-cy="compensation-settings-benefit-sidebar-fixed-rate-rate"
+                      >
+                        Rate
+                      </Radio>
+                    </Radio.Group>
+                  </Form.Item>
+                  <div
+                    id="compensation-settings-benefit-sidebar-amount-container"
+                    data-cy="compensation-settings-benefit-sidebar-amount-container"
+                    className="w-full"
+                  >
+                    <Form.Item
+                      id="compensation-settings-benefit-sidebar-amount-item"
+                      data-cy="compensation-settings-benefit-sidebar-amount-item"
+                      name="defaultAmount"
+                      label={isRateBenefit ? 'Rate' : 'Fixed Amount'}
+                      className="form-item !mb-0 w-full"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Amount is required!',
+                        },
+                        {
+                          validator: (notused, value) => {
+                            if (value && value < 0) {
+                              return Promise.reject(
+                                new Error('Amount cannot be negative'),
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="control font-normal placeholder:font-normal"
+                        type="number"
+                        placeholder="Benefit Amount"
+                        style={{ height: 40, padding: '8px 12px' }}
+                        min={0}
+                        id="compensation-settings-benefit-sidebar-amount-input"
+                        data-cy="compensation-settings-benefit-sidebar-amount-input"
+                      />
+                    </Form.Item>
+                  </div>
+                  {!isAllEmployee && !selectedBenefitRecord && (
+                    <Form.Item
+                      id="compensation-settings-benefit-sidebar-payperiod-item"
+                      data-cy="compensation-settings-benefit-sidebar-payperiod-item"
+                      name="NoOfPayPeriod"
+                      label={'Number of Pay Period'}
+                      className="form-item !mb-0"
+                    >
+                      <Input
+                        className="control font-normal placeholder:font-normal"
+                        type="number"
+                        placeholder="Number of Pay Period"
+                        style={{ height: 40, padding: '8px 12px' }}
+                        id="compensation-settings-benefit-sidebar-payperiod-input"
+                        data-cy="compensation-settings-benefit-sidebar-payperiod-input"
+                      />
+                    </Form.Item>
+                  )}
+                  <Form.Item
+                    name="isAllEmployee"
+                    id="compensation-settings-benefit-sidebar-all-employee-item"
+                    data-cy="compensation-settings-benefit-sidebar-all-employee-item"
+                    label="All Employees are entitled"
+                    className="form-item !mb-0"
+                    initialValue={
+                      !selectedBenefitRecord
+                        ? true
+                        : selectedBenefitRecord.applicableTo == 'GLOBAL'
+                          ? true
+                          : false
+                    }
+                  >
+                    <Switch
+                      checked={form.getFieldValue('isAllEmployee')}
+                      onChange={handleAllEmployeeChange}
+                      disabled={selectedBenefitRecord}
+                      id="compensation-settings-benefit-sidebar-all-switch"
+                      data-cy="compensation-settings-benefit-sidebar-all-switch"
                     />
                   </Form.Item>
-                )}
-                <Form.Item
-                  name="isAllEmployee"
-                  id="compensation-settings-benefit-sidebar-all-employee-item"
-                  data-cy="compensation-settings-benefit-sidebar-all-employee-item"
-                  label="All Employees are entitled"
-                  className="form-item !mb-0"
-                  initialValue={
-                    !selectedBenefitRecord
-                      ? true
-                      : selectedBenefitRecord.applicableTo == 'GLOBAL'
-                        ? true
-                        : false
-                  }
-                >
-                  <Switch
-                    checked={form.getFieldValue('isAllEmployee')}
-                    onChange={handleAllEmployeeChange}
-                    disabled={selectedBenefitRecord}
-                    id="compensation-settings-benefit-sidebar-all-switch"
-                    data-cy="compensation-settings-benefit-sidebar-all-switch"
-                  />
-                </Form.Item>
-                {!isAllEmployee && !selectedBenefitRecord && (
-                  <>
-                    <Form.Item
-                      className="form-item"
-                      name="department"
-                      label="Select Department"
-                      id="compensation-settings-benefit-sidebar-department-item"
-                      data-cy="compensation-settings-benefit-sidebar-department-item"
-                    >
-                      <Select
-                        className="font-normal"
-                        placeholder="Select a department"
-                        onChange={handleDepartmentChange}
-                        id="compensation-settings-benefit-sidebar-department-select"
-                        data-cy="compensation-settings-benefit-sidebar-department-select"
+                  {!isAllEmployee && !selectedBenefitRecord && (
+                    <>
+                      <Form.Item
+                        className="form-item"
+                        name="department"
+                        label="Select Department"
+                        id="compensation-settings-benefit-sidebar-department-item"
+                        data-cy="compensation-settings-benefit-sidebar-department-item"
                       >
-                        {departments?.map((department: any) => (
-                          <Select.Option
-                            key={department.id}
-                            value={department.name}
-                            data-cy="compensation-settings-benefit-sidebar-department-option"
-                          >
-                            {department.name}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
+                        <Select
+                          className="font-normal"
+                          placeholder="Select a department"
+                          onChange={handleDepartmentChange}
+                          id="compensation-settings-benefit-sidebar-department-select"
+                          data-cy="compensation-settings-benefit-sidebar-department-select"
+                        >
+                          {departments?.map((department: any) => (
+                            <Select.Option
+                              key={department.id}
+                              value={department.name}
+                              data-cy="compensation-settings-benefit-sidebar-department-option"
+                            >
+                              {department.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
 
-                    <Form.Item
-                      className="form-item"
-                      name="employees"
-                      label="Select Employees"
-                      id="compensation-settings-benefit-sidebar-employees-item"
-                      data-cy="compensation-settings-benefit-sidebar-employees-item"
-                    >
-                      <Select
-                        className="font-normal"
-                        mode="multiple"
-                        placeholder="Select employees"
-                        disabled={!selectedDepartment}
-                        id="compensation-settings-benefit-sidebar-employees-select"
-                        data-cy="compensation-settings-benefit-sidebar-employees-select"
+                      <Form.Item
+                        className="form-item"
+                        name="employees"
+                        label="Select Employees"
+                        id="compensation-settings-benefit-sidebar-employees-item"
+                        data-cy="compensation-settings-benefit-sidebar-employees-item"
                       >
-                        {departmentUsers?.map((user) => (
-                          <Select.Option
-                            key={user.id}
-                            value={user.id}
-                            data-cy="compensation-settings-benefit-sidebar-employee-option"
-                          >
-                            {user?.firstName} {user?.middleName}{' '}
-                            {user?.lastName}
-                          </Select.Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </>
-                )}
-              </>
-            )}
+                        <Select
+                          className="font-normal"
+                          mode="multiple"
+                          placeholder="Select employees"
+                          disabled={!selectedDepartment}
+                          id="compensation-settings-benefit-sidebar-employees-select"
+                          data-cy="compensation-settings-benefit-sidebar-employees-select"
+                        >
+                          {departmentUsers?.map((user) => (
+                            <Select.Option
+                              key={user.id}
+                              value={user.id}
+                              data-cy="compensation-settings-benefit-sidebar-employee-option"
+                            >
+                              {user?.firstName} {user?.middleName}{' '}
+                              {user?.lastName}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </>
+                  )}
+                </>
+              )}
             </Form>
           </div>
         </Spin>

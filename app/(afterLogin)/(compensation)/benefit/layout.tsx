@@ -8,7 +8,6 @@ import { FaUserPlus } from 'react-icons/fa';
 import { LeftOutlined } from '@ant-design/icons';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
@@ -25,6 +24,7 @@ const BreadcrumbRule = () => (
   <div
     className="w-full min-w-0 shrink-0 border-0 border-t border-solid border-gray-200"
     aria-hidden
+    data-cy="compensation-benefit-breadcrumb-rule"
   />
 );
 
@@ -46,7 +46,10 @@ const BenefitDetailHeader = () => {
         id="compensation-benefit-detail-header"
         data-cy="compensation-benefit-detail-header"
       >
-        <div className="min-w-0 flex-1 flex items-center gap-2 sm:gap-3">
+        <div
+          className="min-w-0 flex-1 flex items-center gap-2 sm:gap-3"
+          data-cy="compensation-benefit-detail-header-main"
+        >
           <Link
             href="/benefit"
             className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 shrink-0"
@@ -54,10 +57,16 @@ const BenefitDetailHeader = () => {
           >
             <LeftOutlined style={{ fontSize: 14 }} />
           </Link>
-          <div className="min-w-0 flex-1">
+          <div
+            className="min-w-0 flex-1"
+            data-cy="compensation-benefit-detail-header-breadcrumb-wrap"
+          >
             <CustomBreadcrumb
               title={
-                <span className="text-lg sm:text-2xl font-bold text-gray-900 truncate block">
+                <span
+                  className="text-lg sm:text-2xl font-bold text-gray-900 truncate block"
+                  data-cy="compensation-benefit-detail-title"
+                >
                   {benefitName}
                 </span>
               }
@@ -68,14 +77,20 @@ const BenefitDetailHeader = () => {
                   items={[
                     {
                       title: (
-                        <span className="text-sm font-medium text-slate-500">
+                        <span
+                          className="text-sm font-medium text-slate-500"
+                          data-cy="compensation-benefit-detail-crumb-compensation"
+                        >
                           Compensation and Benefit
                         </span>
                       ),
                     },
                     {
                       title: (
-                        <span className="text-sm font-bold text-black/70">
+                        <span
+                          className="text-sm font-bold text-black/70"
+                          data-cy="compensation-benefit-detail-crumb-benefit"
+                        >
                           Benefit
                         </span>
                       ),
@@ -86,7 +101,10 @@ const BenefitDetailHeader = () => {
             />
           </div>
         </div>
-        <div className="flex flex-shrink-0 flex-wrap justify-end items-center gap-2 sm:gap-4 mr-3">
+        <div
+          className="flex flex-shrink-0 flex-wrap justify-end items-center gap-2 sm:gap-4 mr-3"
+          data-cy="compensation-benefit-detail-header-actions"
+        >
           <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
             <Button
               type="primary"
@@ -96,7 +114,12 @@ const BenefitDetailHeader = () => {
               disabled={isGlobal}
               data-cy="compensation-benefit-detail-all-employee-button"
             >
-              <span className="hidden sm:inline">Add Employee</span>
+              <span
+                className="hidden sm:inline"
+                data-cy="compensation-benefit-detail-add-employee-label"
+              >
+                Add Employee
+              </span>
             </Button>
           </AccessGuard>
         </div>
@@ -143,8 +166,14 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               id="compensation-benefit-layout-page-header"
               data-cy="compensation-benefit-layout-page-header"
             >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
+              <div
+                className="flex items-center justify-between gap-3"
+                data-cy="compensation-benefit-layout-mobile-header-row"
+              >
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy="compensation-benefit-layout-mobile-breadcrumb-wrap"
+                >
                   <CustomBreadcrumb
                     title="Benefit"
                     titleClassName="!text-[#000000]"
@@ -199,7 +228,10 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                 id="compensation-benefit-layout-page-header-desktop"
                 data-cy="compensation-benefit-layout-page-header-desktop"
               >
-                <div className="min-w-0 flex-1">
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy="compensation-benefit-layout-desktop-breadcrumb-wrap"
+                >
                   <CustomBreadcrumb
                     title="Benefit"
                     titleClassName="!text-[#000000]"

@@ -24,7 +24,10 @@ const BenefitTypePage = () => {
         id="compensation-settings-benefit-type-mobile-header-wrapper"
         data-cy="compensation-settings-benefit-type-mobile-header-wrapper"
       >
-        <div className="flex items-center justify-between gap-3">
+        <div
+          className="flex items-center justify-between gap-3"
+          data-cy="compensation-settings-benefit-type-mobile-header-row"
+        >
           <PageHeader
             title="Benefit Types"
             horizontalPadding="0px"

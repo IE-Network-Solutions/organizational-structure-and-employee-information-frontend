@@ -185,6 +185,7 @@ const BenefitTypeCardGrid = () => {
                 <div
                   className="flex items-start justify-between"
                   style={{ gap: 8 }}
+                  data-cy={`compensation-settings-benefit-type-card-header-row-${record.id}`}
                 >
                   <h3
                     className="text-base leading-tight flex-1 min-w-0 truncate font-normal"
@@ -218,17 +219,32 @@ const BenefitTypeCardGrid = () => {
                         overlayStyle={{ maxWidth: 'calc(100vw - 32px)' }}
                         overlayInnerStyle={{ width: 320, maxWidth: '100%' }}
                         title={
-                          <span className="text-base font-semibold text-gray-900">
+                          <span
+                            className="text-base font-semibold text-gray-900"
+                            data-cy="compensation-settings-benefit-type-delete-popover-title"
+                          >
                             Delete Benefit Type
                           </span>
                         }
                         content={
-                          <div className="pt-2">
-                            <p className="text-gray-800 text-sm font-normal m-0 leading-normal">
+                          <div
+                            className="pt-2"
+                            data-cy="compensation-settings-benefit-type-delete-popover-body"
+                          >
+                            <p
+                              className="text-gray-800 text-sm font-normal m-0 leading-normal"
+                              data-cy="compensation-settings-benefit-type-delete-popover-message"
+                            >
                               Are you sure you want to delete{' '}
-                              <strong>{deleteModalRecord?.name}</strong> type ?
+                              <strong data-cy="compensation-settings-benefit-type-delete-popover-name">
+                                {deleteModalRecord?.name}
+                              </strong>{' '}
+                              type ?
                             </p>
-                            <div className="flex justify-end gap-2 mt-4">
+                            <div
+                              className="flex justify-end gap-2 mt-4"
+                              data-cy="compensation-settings-benefit-type-delete-popover-actions"
+                            >
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -273,6 +289,7 @@ const BenefitTypeCardGrid = () => {
                 <div
                   className="flex flex-wrap items-center min-h-0 shrink"
                   style={{ gap: 6 }}
+                  data-cy={`compensation-settings-benefit-type-card-meta-row-${record.id}`}
                 >
                   <span
                     style={pillStyle}
@@ -320,7 +337,11 @@ const BenefitTypeCardGrid = () => {
                         data-cy={`compensation-settings-benefit-type-card-status-${record.id}`}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span>{record.isActive ? 'Active' : 'Inactive'}</span>
+                        <span
+                          data-cy={`compensation-settings-benefit-type-card-status-label-${record.id}`}
+                        >
+                          {record.isActive ? 'Active' : 'Inactive'}
+                        </span>
                         {loadingId === record.id ? (
                           <LoadingOutlined style={{ fontSize: 12 }} />
                         ) : (

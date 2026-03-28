@@ -46,7 +46,10 @@ const BenefitTracking = () => {
   const { data: employeeEntitlementData, isLoading } =
     useEmployeeSettlementTracking(compensationItemEntitlementId, userId);
 
-  const settlementTracking = employeeEntitlementData?.settlementTracking || [];
+  const settlementTracking = useMemo(
+    () => employeeEntitlementData?.settlementTracking ?? [],
+    [employeeEntitlementData?.settlementTracking],
+  );
 
   const startIndex = (detailCurrentPage - 1) * detailPageSize;
   const endIndex = startIndex + detailPageSize;
@@ -83,22 +86,29 @@ const BenefitTracking = () => {
       title: 'Date',
       key: 'date',
       width: 120,
-      render: (_: unknown, record: any) =>
-        record?.createdAt ? dayjs(record.createdAt).format('MMM DD,YYYY') : '—',
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        return record?.createdAt
+          ? dayjs(record.createdAt).format('MMM DD,YYYY')
+          : '—';
+      },
     },
     {
       title: 'Pay Amount',
       key: 'amount',
       width: 120,
       // align: 'right',
-      render: (_: unknown, record: any) =>
-        formatMoney(Number(record?.amount) || 0),
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        return formatMoney(Number(record?.amount) || 0);
+      },
     },
     {
       title: 'Pay Period',
       key: 'payPeriod',
       width: 280,
-      render: (_: unknown, record: any) => {
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
         const id = record?.payPeriodId;
         const text = id ? periodLabelById.get(id) : undefined;
         return text ? (
@@ -118,13 +128,17 @@ const BenefitTracking = () => {
       title: 'Reason',
       key: 'reason',
       ellipsis: true,
-      render: (_: unknown, record: any) => record?.reason?.trim() || '',
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        return record?.reason?.trim() || '';
+      },
     },
   ];
 
   const benefitTitle =
     employeeEntitlementData?.compensationItem?.name ?? 'Benefit';
-  const isRepayable = employeeEntitlementData?.compensationItem?.mode === 'DEBIT';
+  const isRepayable =
+    employeeEntitlementData?.compensationItem?.mode === 'DEBIT';
 
   const trackingOpen = employeeBenefitData != null;
 
@@ -180,8 +194,16 @@ const BenefitTracking = () => {
                 className="rounded-lg border-2 border-[#D9D9D9] px-4 py-3 bg-white"
                 data-cy={`compensation-benefit-tracker-stat-${stat.label.replace(/\s+/g, '-').toLowerCase()}`}
               >
-                <div className="text-xs text-[#8C8C8C] mb-1">{stat.label}</div>
-                <div className="text-xl font-semibold text-[#262626] tabular-nums">
+                <div
+                  className="text-xs text-[#8C8C8C] mb-1"
+                  data-cy={`compensation-benefit-tracker-stat-label-${stat.label.replace(/\s+/g, '-').toLowerCase()}`}
+                >
+                  {stat.label}
+                </div>
+                <div
+                  className="text-xl font-semibold text-[#262626] tabular-nums"
+                  data-cy={`compensation-benefit-tracker-stat-value-${stat.label.replace(/\s+/g, '-').toLowerCase()}`}
+                >
                   {formatMoney(stat.value)}
                 </div>
               </div>
@@ -193,8 +215,14 @@ const BenefitTracking = () => {
             id="compensation-benefit-tracker-progress"
             data-cy="compensation-benefit-tracker-progress"
           >
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-[#262626]">
+            <div
+              className="flex justify-between items-center mb-2"
+              data-cy="compensation-benefit-tracker-progress-header-row"
+            >
+              <span
+                className="text-sm text-[#262626]"
+                data-cy="compensation-benefit-tracker-progress-label"
+              >
                 {isRepayable ? 'Repayment Progress' : 'Payment Status'}
               </span>
               <span
@@ -237,9 +265,10 @@ const BenefitTracking = () => {
                 `${record?.createdAt ?? ''}-${record?.payPeriodId ?? index}`
               }
               rowHoverable={false}
-              rowClassName={(_, index) =>
-                index % 2 === 0 ? 'bg-[#FFFFFF]' : 'bg-[#FAFAFA]'
-              }
+              rowClassName={(unusedRow, rowIndex) => {
+                void unusedRow;
+                return rowIndex % 2 === 0 ? 'bg-[#FFFFFF]' : 'bg-[#FAFAFA]';
+              }}
               pagination={false}
               size="small"
               scroll={{ x: 'max-content' }}
