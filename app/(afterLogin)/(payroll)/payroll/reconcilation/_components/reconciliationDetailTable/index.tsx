@@ -31,10 +31,7 @@ interface ReconciliationDetailTableProps {
 /** Parse API / locale strings (e.g. "1,234.56") so Number() is not NaN. */
 function parseNumericLike(value: unknown): number | null {
   if (value == null || value === '') return null;
-  const s = String(value)
-    .replace(/,/g, '')
-    .replace(/\s/g, '')
-    .trim();
+  const s = String(value).replace(/,/g, '').replace(/\s/g, '').trim();
   if (s === '' || s === 'NaN') return null;
   const n = Number(s);
   return Number.isFinite(n) ? n : null;
