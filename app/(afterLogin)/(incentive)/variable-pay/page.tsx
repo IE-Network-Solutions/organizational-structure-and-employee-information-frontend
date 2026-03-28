@@ -6,7 +6,7 @@ import { MdOutlineSend } from 'react-icons/md';
 import VariablePayTable from '../../(compensation)/benefit/variablePay/_components/variablePayTable';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import VPScoreCard from './_components/vpScoreCard';
-import { useGetVpScoreCalculate } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 
@@ -17,7 +17,7 @@ const VariablePayPage = () => {
     isLoading: isRefreshLoading,
     refetch,
     isRefetching,
-  } = useGetVpScoreCalculate(userId, false);
+  } = useGetAllCalculatedVpScore([userId], false);
 
   return (
     <div
