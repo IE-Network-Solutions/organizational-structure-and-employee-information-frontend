@@ -246,7 +246,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  const okrMode = useOKRStore((state) => state.okrMode);
+  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
+    useCopilotStore();
   const {
     setLocalId,
     setTenantId,
@@ -263,9 +265,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIsCheckingPermissions,
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const okrMode = useOKRStore((state) => state.okrMode);
-  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
-    useCopilotStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
 
@@ -1017,6 +1016,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIsModalOpen(false);
   };
 
+  const { mutate: employeeInfo } = useCreateEmployee();
+  const handleUserInfoUpdate = () => {
+    const fullName = employeeData?.firstName?.split(' ') || [];
+    const payloadUser = {
+      firstName: fullName[0] || '-',
+      middleName: fullName[1] || '-',
+      lastName: fullName[2] || '-',
+    };
+    const payloadEmp = {
+      joinedDate: employeeData?.createdAt
+        ? new Date(employeeData?.createdAt).toISOString()
+        : new Date().toISOString(),
+      dateOfBirth: dayjs().subtract(30, 'year'),
+      employeeAttendanceId: 1,
+      gender: 'male',
+      maritalStatus: 'SINGLE',
+      addresses: {},
+      additionalInformation: {},
+      bankInformation: {},
+      userId: userId,
+    };
+
+    updateEmployeeInformation({
+      id: userId,
+      values: payloadUser,
+    });
+    employeeInfo({
+      values: payloadEmp,
+    });
+  };
+
   // ✅ Check permission on pathname change
   useEffect(() => {
     const checkPermissions = async () => {
@@ -1356,39 +1386,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ],
     [groupedMenuItems],
   );
-  // const { mutate: employeeInfo } = useCreateEmployee();
-
-  // const handleUserInfoUpdate = () => {
-  //   const fullName = employeeData?.firstName?.split(' ') || [];
-  //   const payloadUser = {
-  //     firstName: fullName[0] || '-',
-  //     middleName: fullName[1] || '-',
-  //     lastName: fullName[2] || '-',
-  //   };
-  //   const payloadEmp = {
-  //     joinedDate: employeeData?.createdAt
-  //       ? new Date(employeeData?.createdAt).toISOString()
-  //       : new Date().toISOString(),
-  //     dateOfBirth: dayjs().subtract(30, 'year'),
-  //     employeeAttendanceId: 1,
-  //     gender: 'male',
-  //     maritalStatus: 'SINGLE',
-  //     addresses: {},
-  //     additionalInformation: {},
-  //     bankInformation: {},
-  //     userId: userId,
-  //   };
-
-  //   updateEmployeeInformation({
-  //     id: userId,
-  //     values: payloadUser,
-  //   });
-  //   employeeInfo({
-  //     values: payloadEmp,
-  //   });
-  // };
-
-  // Render the component with the layout and navigation on the left
 
   return (
     <Layout style={{ background: '#fff' }}>
@@ -1705,12 +1702,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               )}
             </div>
           )}
-          {/* <CreateEmployeeJobInformation
+          <CreateEmployeeJobInformation
             onInfoSubmition={() => {
               handleUserInfoUpdate();
             }}
             id={userId}
-          /> */}
+          />
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}

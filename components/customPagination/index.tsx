@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Input, Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { BsChevronDown } from 'react-icons/bs';
 
 const { Option } = Select;
 
@@ -59,6 +58,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
+    // Reduce visible pages on mobile for better UX
     const maxVisiblePages = isMobile ? 3 : 5;
 
     if (totalPages <= maxVisiblePages) {
@@ -81,8 +81,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
     } else {
+      // For mobile, show fewer pages around current
       const rangeToCurrent = isMobile ? 0 : 1;
 
+      // Always show first page
       pageNumbers.push(
         <button
           key={1}
@@ -100,21 +102,25 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         </button>,
       );
 
+      // Calculate the range of pages to show around current page
       let startPage = Math.max(2, current - rangeToCurrent);
       let endPage = Math.min(totalPages - 1, current + rangeToCurrent);
 
+      // Adjust if we're near the start
       if (current <= 3) {
         endPage = Math.min(isMobile ? 3 : 4, totalPages - 1);
       }
+      // Adjust if we're near the end
       if (current >= totalPages - 2) {
         startPage = Math.max(2, totalPages - (isMobile ? 2 : 3));
       }
 
+      // Add ellipsis after first page if needed
       if (startPage > 2) {
         pageNumbers.push(
           <span
             key="leftEllipsis"
-            className="px-2 text-gray-400"
+            className="px-2"
             data-cy="pagination-ellipsis"
           >
             ...
@@ -122,6 +128,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
 
+      // Add middle pages
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(
           <button
@@ -141,11 +148,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
 
+      // Add ellipsis before last page if needed
       if (endPage < totalPages - 1) {
         pageNumbers.push(
           <span
             key="rightEllipsis"
-            className="px-2 text-gray-400"
+            className="px-2"
             data-cy="pagination-ellipsis"
           >
             ...
@@ -153,6 +161,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         );
       }
 
+      // Always show last page
       pageNumbers.push(
         <button
           key={totalPages}
@@ -176,7 +185,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex justify-between items-center py-6 w-full ${grayBackground ? 'bg-gray-100' : ''}`}
+      className={`flex justify-between items-center py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
     >
       <div
         data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
@@ -194,12 +203,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         >
           <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
-        <div
-          className="flex items-center"
-          data-cy="pagination-numbers-container"
-        >
-          {renderPageNumbers()}
-        </div>
+        {renderPageNumbers()}
         <button
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
@@ -262,6 +266,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           </span>
         )} */}
 
+        {/* Mobile info - more compact */}
         {isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-215"
@@ -274,8 +279,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
         <Select
           value={pageSize}
-          className={isMobile ? 'w-20' : 'w-28'}
-          variant="outlined"
+          className={isMobile ? 'w-20' : 'w-24'}
           size={isMobile ? 'small' : 'middle'}
           onChange={(value) => handleSizeChange(value)}
           data-cy="pagination-page-size-select"
