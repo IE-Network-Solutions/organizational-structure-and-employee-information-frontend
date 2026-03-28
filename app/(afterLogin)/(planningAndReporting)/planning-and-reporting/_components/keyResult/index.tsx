@@ -1,6 +1,6 @@
 import { Progress } from 'antd';
 import { FC } from 'react';
-import { MdKey } from 'react-icons/md';
+import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
 interface KPIMetricsProps {
   keyResult?: any;
 }
@@ -19,7 +19,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
           className="flex items-start gap-4 col-span-12 sm:col-span-8"
           data-cy="planning-key-result-metrics-title-section"
         >
-          <MdKey size={14} className="text-blue text-xs w-10" />
+          <PlanningVpnKeyIcon size={14} color="#2563EB" />
           <h2
             data-cy="planning-and-reporting-components-keyresult-index-tsx-index-h2-23"
             className="text-xs font-semibold"

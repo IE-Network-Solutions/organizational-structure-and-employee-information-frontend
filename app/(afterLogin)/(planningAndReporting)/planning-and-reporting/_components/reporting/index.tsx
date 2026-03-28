@@ -165,9 +165,9 @@ function Reporting() {
             >
               <CustomButton
                 disabled={!allUserPlanning || allUserPlanning.length === 0}
-                title="+ Report Tasks"
+                title="Report Tasks"
                 id="createActiveTabName"
-                icon={<FaPlus className="text-sm" />}
+                icon={<FaPlus className="text-sm" aria-hidden />}
                 onClick={() => setOpenReportModal(true)}
                 className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-11 !min-h-[44px] w-full border-0 !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4] md:w-auto md:min-w-[180px]`}
                 loading={getUserPlanningLoading}
@@ -264,7 +264,6 @@ function Reporting() {
             setPageReporting(page);
             setPageSizeReporting(pageSize);
           }}
-          grayBackground={true}
         />
       )}
       {!getReportLoading && (allReporting?.items?.length ?? 0) <= 0 && (

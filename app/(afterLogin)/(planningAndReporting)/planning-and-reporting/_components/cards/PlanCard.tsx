@@ -3,7 +3,7 @@ import { Button, Dropdown, MenuProps, Tooltip } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
-import { IoCheckmarkSharp, IoKeyOutline, IoOpen } from 'react-icons/io5';
+import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import { PlanSummary, ViewMode, Cadence, KeyResult } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
@@ -17,6 +17,7 @@ import {
   PR_TEXT,
   PR_TREE_LINE,
 } from '../planningUiTokens';
+import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
 
 /** Two concentric blue rings + center dot (objective / bullseye). */
 function ObjectiveBullseyeIcon({
@@ -445,11 +446,11 @@ export default function PlanCard({
                           className="relative mt-0.5 flex w-8 shrink-0 flex-col items-center justify-center"
                           data-cy="planning-reporting-plancard-kr-icon-wrap"
                         >
-                          <IoKeyOutline
+                          <PlanningVpnKeyIcon
                             data-cy="planning-reporting-plancard-kr-icon"
-                            className="relative z-10 h-6 w-6 shrink-0 -rotate-[12deg] md:h-[26px] md:w-[26px]"
-                            style={{ color: PR_PRIMARY }}
-                            aria-hidden
+                            className="relative z-10 shrink-0"
+                            size={18}
+                            color={PR_PRIMARY}
                           />
                         </div>
                         <div

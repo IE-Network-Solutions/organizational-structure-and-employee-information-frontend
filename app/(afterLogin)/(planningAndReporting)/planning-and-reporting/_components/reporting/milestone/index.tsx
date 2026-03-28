@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Tag, Typography, Tooltip } from 'antd';
 import { FaStar } from 'react-icons/fa';
-import { MdKey } from 'react-icons/md';
+import { PlanningVpnKeyIcon } from '../../PlanningVpnKeyIcon';
 import { NAME } from '@/types/enumTypes';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
@@ -82,7 +82,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                   task?.milestone ? (
                     <FaStar size={11} />
                   ) : (
-                    <MdKey size={12} className="" />
+                    <PlanningVpnKeyIcon size={12} />
                   )
                 ) : (
                   ''

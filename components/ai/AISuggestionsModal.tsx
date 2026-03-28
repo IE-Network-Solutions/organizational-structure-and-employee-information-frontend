@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Modal, Select, Typography, Empty, message } from 'antd';
+import axios from 'axios';
+import { Button, Modal, Select, Typography, Empty, message, Spin } from 'antd';
 import { CloseOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import {
   fetchWeeklyPlanSuggestions,
@@ -19,11 +20,18 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 type KeyResultOption = {
   id: string;
   title: string;
-  progress?: number;
+  progress?: number | string;
   metricType?: { name: string };
   milestones?: Array<{ id: string | number; title: string; status?: string }>;
 };
 type WeeklyPlanTask = { id: string; task: string };
+
+type SuggestionItem = {
+  title: string;
+  weight: number;
+  priority: string;
+  target?: number;
+};
 
 interface AISuggestionsModalProps {
   getKeyResults: () => KeyResultOption[];
@@ -572,9 +580,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
           },
         ];
 
-        const res = await fetchWeeklyPlanSuggestions({
+        const resRaw = await fetchWeeklyPlanSuggestions({
           keyResultReport: keyResultReportNestedWeekly,
         });
+        const res = Array.isArray(resRaw) ? resRaw : [];
         const mappedWeekly: SuggestionItem[] = res.map((r) => {
           const rawTarget: any =
             r?.target !== undefined
@@ -658,13 +667,14 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         }
 
         // Send to AI engine
-        const res = await fetchDailyPlanSuggestions({
+        const resRaw = await fetchDailyPlanSuggestions({
           daily_plan_request: {
             selected_key_result: selectedKeyResult.title,
             selected_weekly_task: selectedWeeklyTask.task,
             previous_daily_tasks: previousDaily,
           },
         });
+        const res = Array.isArray(resRaw) ? resRaw : [];
         const mappedDaily: SuggestionItem[] = res.map((r) => ({
           title: r.title,
           weight: r.weight,
@@ -720,8 +730,28 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       } else {
         message.info('No suggestions were returned. Try again later.');
       }
-    } catch {
-      message.error('Could not generate suggestions.');
+    } catch (e: unknown) {
+      const fallback = 'Could not generate suggestions.';
+      let detail = fallback;
+      if (axios.isAxiosError(e)) {
+        const data = e.response?.data as
+          | { message?: string; error?: string }
+          | string
+          | undefined;
+        if (typeof data === 'string' && data.trim()) {
+          detail = data.trim();
+        } else if (data && typeof data === 'object') {
+          const m = data.message || data.error;
+          if (typeof m === 'string' && m.trim()) detail = m.trim();
+          else if (e.message) detail = e.message;
+        } else if (e.message) {
+          detail = e.message;
+        }
+      } else if (e instanceof Error && e.message) {
+        detail = e.message;
+      }
+      console.error('[AISuggestionsModal] inline generate failed', e);
+      message.error(detail);
     }
   };
 
@@ -835,37 +865,52 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   return (
     <>
       {triggerVariant === 'compact' ? (
-        <button
-          type="button"
-          onClick={() => {
-            if (planningInlineGenerate) {
-              void handleCompactPlanningClick();
-              return;
-            }
-            setOpen(true);
-          }}
-          disabled={loading}
-          data-cy={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
-          id={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
-          className="flex h-9 min-w-[52px] flex-col items-center justify-center rounded-lg border px-2 py-0.5 font-bold leading-none text-[#2D5BFF] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          style={{
-            borderColor: '#2D5BFF',
-            backgroundColor: '#E8EDFF',
-          }}
-        >
-          <span
-            data-cy={`ai-suggestion-trigger-compact-plus${compactTriggerSuffix}`}
-            className="text-[10px] leading-none"
+        <span className="relative inline-flex shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              if (planningInlineGenerate) {
+                void handleCompactPlanningClick();
+                return;
+              }
+              setOpen(true);
+            }}
+            disabled={loading}
+            aria-busy={loading}
+            data-cy={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
+            id={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
+            className={`flex h-9 min-w-[52px] flex-col items-center justify-center rounded-lg border px-2 py-0.5 font-bold leading-none text-[#2D5BFF] transition hover:opacity-90 disabled:cursor-not-allowed ${
+              loading
+                ? 'pointer-events-none ring-2 ring-[#2D5BFF] ring-offset-1 ring-offset-white shadow-[0_0_14px_rgba(45,91,255,0.55),0_0_28px_rgba(45,91,255,0.25)] animate-pulse opacity-100'
+                : 'disabled:opacity-50'
+            }`}
+            style={{
+              borderColor: '#2D5BFF',
+              backgroundColor: '#E8EDFF',
+            }}
           >
-            +
-          </span>
-          <span
-            data-cy={`ai-suggestion-trigger-compact-label${compactTriggerSuffix}`}
-            className="text-[11px] leading-tight"
-          >
-            AI
-          </span>
-        </button>
+            <span
+              data-cy={`ai-suggestion-trigger-compact-plus${compactTriggerSuffix}`}
+              className={`text-[10px] leading-none ${loading ? 'invisible' : ''}`}
+            >
+              +
+            </span>
+            <span
+              data-cy={`ai-suggestion-trigger-compact-label${compactTriggerSuffix}`}
+              className={`text-[11px] leading-tight ${loading ? 'invisible' : ''}`}
+            >
+              AI
+            </span>
+          </button>
+          {loading ? (
+            <span
+              className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-lg bg-[#E8EDFF]/85"
+              aria-hidden
+            >
+              <Spin size="small" />
+            </span>
+          ) : null}
+        </span>
       ) : (
         <Button
           type="primary"

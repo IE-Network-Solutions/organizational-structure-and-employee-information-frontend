@@ -2,7 +2,7 @@ import { Tag } from 'antd';
 import { FC } from 'react';
 import MilestoneTasks from './milestoneTasks';
 import TasksDisplayer from '../reporting/milestone';
-import { BsKey } from 'react-icons/bs';
+import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
 interface KeyResultTasksProps {
   keyResult?: any;
   keyResultIndex: number;
@@ -138,7 +138,12 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
           className="flex items-center gap-2 mb-1"
           data-cy={`key-result-tasks-title-container-${keyResultIndex}`}
         >
-          <BsKey size={32} className="text-[#3636f0] flex-shrink-0" />
+          <PlanningVpnKeyIcon
+            size={32}
+            color="#3636f0"
+            className="flex-shrink-0"
+            data-cy={`key-result-tasks-vpn-key-${keyResultIndex}`}
+          />
           <h2
             className="text-sm font-semibold truncate min-w-0 flex-1"
             data-cy={`key-result-tasks-title-${keyResultIndex}`}

@@ -1,5 +1,4 @@
 'use client';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import {
   Button,
@@ -8,8 +7,8 @@ import {
   Form,
   Input,
   InputNumber,
+  Modal,
   Row,
-  Segmented,
   Spin,
 } from 'antd';
 
@@ -17,7 +16,6 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import {
   AllPlanningPeriods,
-  useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { NAME } from '@/types/enumTypes';
@@ -25,14 +23,29 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useQueryClient } from 'react-query';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import {
+  PR_BORDER,
+  PR_PRIMARY,
+  PR_TEXT,
+  PR_TEXT_MUTED,
+} from '../planningUiTokens';
 
 function isMonthlyCadenceName(name: string | undefined): boolean {
   return (name || '').toLowerCase().includes('month');
 }
 
+function formatPlanPeriodToggleLabel(label: string): string {
+  const l = (label || '').trim();
+  if (!l) return 'Plan';
+  if (/\bplan\b/i.test(l)) return l;
+  return `${l} Plan`;
+}
+
 const { TextArea } = Input;
 function CreateReport() {
   const queryClient = useQueryClient();
+  const { isMobile } = useIsMobile();
   const {
     openReportModal,
     setOpenReportModal,
@@ -53,7 +66,6 @@ function CreateReport() {
     resetStatuses();
     resetWeights();
   };
-  const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: assignedPeriods } = AllPlanningPeriods();
 
   const cadencePeriodOptions = useMemo(() => {
@@ -67,47 +79,69 @@ function CreateReport() {
       .filter((o) => o.value);
   }, [assignedPeriods]);
 
+  const orderedCadencePeriodOptions = useMemo(() => {
+    const opts = [...cadencePeriodOptions];
+    opts.sort((a, b) => {
+      const rank = (label: string) => {
+        const l = label.toLowerCase();
+        if (l.includes('daily')) return 0;
+        if (l.includes('week')) return 1;
+        return 2;
+      };
+      return rank(a.label) - rank(b.label);
+    });
+    return opts;
+  }, [cadencePeriodOptions]);
+
   const [modalPlanningPeriodId, setModalPlanningPeriodId] = useState('');
   const prevOpenForInitRef = useRef(false);
 
   useEffect(() => {
     if (openReportModal && !prevOpenForInitRef.current) {
-      const weekly = cadencePeriodOptions.find((o) =>
+      const daily = orderedCadencePeriodOptions.find((o) =>
+        o.label.toLowerCase().includes('daily'),
+      );
+      const weekly = orderedCadencePeriodOptions.find((o) =>
         o.label.toLowerCase().includes('week'),
       );
       const next =
+        daily?.value ||
         weekly?.value ||
-        cadencePeriodOptions[0]?.value ||
+        orderedCadencePeriodOptions[0]?.value ||
         activePlanPeriodId ||
         '';
       setModalPlanningPeriodId((cur) =>
-        cur && cadencePeriodOptions.some((o) => o.value === cur) ? cur : next,
+        cur && orderedCadencePeriodOptions.some((o) => o.value === cur)
+          ? cur
+          : next,
       );
     }
     prevOpenForInitRef.current = openReportModal;
     if (!openReportModal) prevOpenForInitRef.current = false;
-  }, [openReportModal, cadencePeriodOptions, activePlanPeriodId]);
+  }, [openReportModal, orderedCadencePeriodOptions, activePlanPeriodId]);
 
   useEffect(() => {
-    if (!openReportModal || cadencePeriodOptions.length === 0) return;
+    if (!openReportModal || orderedCadencePeriodOptions.length === 0) return;
     setModalPlanningPeriodId((cur) => {
-      if (cur && cadencePeriodOptions.some((o) => o.value === cur)) return cur;
-      const weekly = cadencePeriodOptions.find((o) =>
+      if (cur && orderedCadencePeriodOptions.some((o) => o.value === cur))
+        return cur;
+      const daily = orderedCadencePeriodOptions.find((o) =>
+        o.label.toLowerCase().includes('daily'),
+      );
+      const weekly = orderedCadencePeriodOptions.find((o) =>
         o.label.toLowerCase().includes('week'),
       );
-      return weekly?.value || cadencePeriodOptions[0]?.value || cur;
+      return (
+        daily?.value ||
+        weekly?.value ||
+        orderedCadencePeriodOptions[0]?.value ||
+        cur
+      );
     });
-  }, [openReportModal, cadencePeriodOptions]);
+  }, [openReportModal, orderedCadencePeriodOptions]);
 
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
-
-  const getPlanningPeriodDetail = (id: string) => {
-    const planningPeriodDetail = planningPeriods?.items?.find(
-      (period: any) => period?.id === id,
-    );
-    return planningPeriodDetail || {};
-  };
 
   const planningPeriodId = modalPlanningPeriodId || activePlanPeriodId || '';
 
@@ -117,40 +151,19 @@ function CreateReport() {
     refetch: refetchPlannedTasks,
   } = useGetPlannedTaskForReport(planningPeriodId);
 
-  const planningPeriodName = getPlanningPeriodDetail(planningPeriodId)?.name;
-
-  // const { data: allUnReportedPlanningTask } =
-  //   useGetUnReportedPlanning(planningPeriodId,activeTab);
-
-  const modalHeader = (
-    <div
-      data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-78"
-      className="flex flex-col items-center gap-3 px-2 text-center"
-    >
-      <div
-        className="text-xl font-bold text-[#161A2C]"
-        data-cy="create-report-modal-title"
-      >
-        Create {planningPeriodName || '…'} Report
-      </div>
-      {cadencePeriodOptions.length > 1 ? (
-        <div
-          className="w-full max-w-md"
-          data-cy="create-report-cadence-segmented"
-        >
-          <Segmented
-            block
-            options={cadencePeriodOptions.map((o) => ({
-              label: o.label,
-              value: o.value,
-            }))}
-            value={modalPlanningPeriodId || undefined}
-            onChange={(v) => setModalPlanningPeriodId(String(v))}
-          />
-        </div>
-      ) : null}
-    </div>
+  const selectedPeriodMeta = useMemo(
+    () =>
+      orderedCadencePeriodOptions.find((o) => o.value === modalPlanningPeriodId),
+    [orderedCadencePeriodOptions, modalPlanningPeriodId],
   );
+
+  const periodHint = useMemo(() => {
+    const name = (selectedPeriodMeta?.label || '').toLowerCase();
+    if (name.includes('daily')) {
+      return 'Report your daily tasks that you have planned for today.';
+    }
+    return 'Report progress on your weekly planned tasks.';
+  }, [selectedPeriodMeta]);
 
   const handleOnFinish = (values: Record<string, any>) => {
     Object.entries(values).length > 0 &&
@@ -338,93 +351,6 @@ function CreateReport() {
       }, 0)
     );
   }, 0);
-
-  const footer = (
-    <div
-      data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-254"
-      className="flex items-center justify-between w-full"
-    >
-      <div
-        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-255"
-        className="flex-1"
-      ></div>
-      <div
-        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-256"
-        className="flex justify-center gap-4 flex-1"
-      >
-        <Button
-          id="submit-report-button-for-planning-and-reporting"
-          data-cy="submit-report-button-for-planning-and-reporting"
-          type="primary"
-          className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
-          loading={createReportLoading}
-          onClick={() => form.submit()}
-        >
-          <span
-            data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-265"
-            className="md:hidden"
-          >
-            Report
-          </span>
-          <span
-            data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-266"
-            className="hidden md:inline"
-          >
-            Create Report
-          </span>
-        </Button>
-        <Button
-          id="cancel-report-button-for-planning-and-reporting"
-          data-cy="cancel-report-button-for-planning-and-reporting"
-          className="py-3 px-6 sm:py-6 sm:px-10 rounded-xl"
-          onClick={onClose}
-          disabled={createReportLoading}
-        >
-          Cancel
-        </Button>
-      </div>
-
-      <div
-        data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-279"
-        className="flex-1 flex justify-end pr-5"
-      >
-        <div
-          data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-280"
-          className="my-2 font-bold"
-        >
-          <span
-            data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-281"
-            className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
-          >
-            <span
-              data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-282"
-              className="md:hidden"
-            >
-              WP:
-            </span>{' '}
-            <span
-              data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-283"
-              className="hidden md:inline"
-            >
-              Weight Point:
-            </span>{' '}
-            <span
-              className={
-                totalWeight > 84
-                  ? 'text-[#52C41A]'
-                  : totalWeight >= 64
-                    ? 'text-orange-500'
-                    : 'text-red-500'
-              }
-              data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-span-325"
-            >
-              {totalWeight}%
-            </span>
-          </span>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderTaskRow = (task: any, keyresult: any) => {
     const isDone = selectedStatuses[task.taskId] === 'Done';
@@ -638,101 +564,267 @@ function CreateReport() {
     );
   };
 
-  return (
-    openReportModal && (
-      <CustomDrawerLayout
-        open={openReportModal === true && isEditing === false ? true : false}
-        onClose={onClose}
-        modalHeader={modalHeader}
-        width="65%"
-        footer={footer}
-      >
-        {formattedData?.length > 0 ? (
-          <Spin spinning={plannedTaskForReportLoading} tip="Loading...">
-            <Form
-              layout="vertical"
-              form={form}
-              name="dynamic_form_item"
-              onFinish={handleOnFinish}
-              className="px-2"
-            >
-              <div id="create-report-collapse" data-cy="create-report-collapse">
-                <Collapse
-                  defaultActiveKey={formattedData?.flatMap((obj: any) =>
-                    obj.keyResults?.map(
-                      (nonused: any, i: number) => `kr-${obj.id || ''}-${i}`,
-                    ),
-                  )}
-                  expandIconPosition="end"
-                  bordered={false}
-                  className="bg-transparent"
-                >
-                  {formattedData?.map((objective: any) =>
-                    objective?.keyResults?.map(
-                      (keyresult: any, index: number) => (
-                        <Collapse.Panel
-                          id={`create-report-panel-${objective.id || ''}-${index}`}
-                          data-cy={`create-report-panel-${objective.id || ''}-${index}`}
-                          header={
-                            <div
-                              data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-518"
-                              className="flex items-center gap-2 min-w-0 w-full"
-                            >
-                              <span
-                                data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-519"
-                                className="font-bold text-gray-900 whitespace-nowrap flex-shrink-0"
-                              >
-                                {planningPeriodName}-task :
-                              </span>
-                              <span
-                                className="text-gray-700 font-normal truncate flex-1 min-w-0"
-                                title={keyresult?.title}
-                                data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-span-597"
-                              >
-                                {keyresult?.title}
-                              </span>
-                            </div>
-                          }
-                          key={`kr-${objective.id || ''}-${index}`}
-                          className="mb-4 rounded-xl overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
-                          style={{
-                            border: '1px solid #e5e7eb',
-                          }}
-                        >
-                          <div
-                            data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-536"
-                            className="py-2"
-                          >
-                            {/* Milestone Tasks */}
-                            {keyresult?.milestones?.map((milestone: any) =>
-                              milestone?.tasks?.map((task: any) =>
-                                renderTaskRow(task, keyresult),
-                              ),
-                            )}
+  const modalVisible =
+    openReportModal === true && isEditing === false ? true : false;
 
-                            {/* Direct Tasks */}
-                            {keyresult?.tasks?.map((task: any) =>
-                              renderTaskRow(task, keyresult),
-                            )}
-                          </div>
-                        </Collapse.Panel>
-                      ),
-                    ),
-                  )}
-                </Collapse>
-              </div>
-            </Form>
-          </Spin>
-        ) : (
-          <div
-            data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-558"
-            className="flex justify-center items-center h-64"
+  return (
+    <Modal
+      open={modalVisible}
+      onCancel={onClose}
+      footer={null}
+      closable={false}
+      centered
+      width={isMobile ? 'calc(100vw - 16px)' : 920}
+      maskClosable={!createReportLoading}
+      destroyOnClose={false}
+      classNames={{ wrapper: 'planning-create-report-modal-wrapper' }}
+      maskStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.45)' }}
+      styles={{
+        content: {
+          padding: 0,
+          borderRadius: 12,
+          overflow: 'hidden',
+          border: `1px solid ${PR_BORDER}`,
+        },
+        body: { padding: 0 },
+      }}
+      data-cy="create-report-modal"
+    >
+      <div
+        data-cy="create-report-modal-shell"
+        className="flex max-h-[min(88vh,calc(100dvh-32px))] flex-col bg-white"
+      >
+        <header
+          data-cy="create-report-modal-header"
+          className="flex shrink-0 items-start justify-between gap-3 border-b px-5 py-4 md:px-6"
+          style={{ borderColor: PR_BORDER }}
+        >
+          <h2
+            className="text-lg font-bold md:text-xl"
+            style={{ color: PR_TEXT }}
+            data-cy="create-report-modal-title"
           >
-            <CustomizeRenderEmpty />
-          </div>
+            Reporting
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={createReportLoading}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B7280] transition hover:bg-[#F5F6FA] hover:text-[#161A2C] disabled:opacity-50"
+            aria-label="Close reporting"
+            data-cy="create-report-modal-close"
+          >
+            <CloseOutlined className="text-lg" />
+          </button>
+        </header>
+
+        {orderedCadencePeriodOptions.length > 1 ? (
+          <section
+            data-cy="create-report-cadence-section"
+            className="shrink-0 border-b px-5 py-4 text-center md:px-6"
+            style={{ borderColor: PR_BORDER }}
+          >
+            <p
+              className="mb-3 text-sm font-medium"
+              style={{ color: PR_TEXT }}
+              data-cy="create-report-select-period-label"
+            >
+              Select Planning Period
+            </p>
+            <div
+              className="mx-auto flex max-w-md rounded-lg border p-0.5"
+              style={{ borderColor: PR_BORDER }}
+              data-cy="create-report-cadence-toggle"
+              role="group"
+              aria-label="Reporting period"
+            >
+              {orderedCadencePeriodOptions.map((o) => {
+                const active = modalPlanningPeriodId === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    data-cy={`create-report-period-${o.value}`}
+                    className="flex-1 rounded-md py-2.5 text-sm font-semibold transition"
+                    style={{
+                      backgroundColor: active ? PR_PRIMARY : 'transparent',
+                      color: active ? '#FFFFFF' : PR_TEXT,
+                    }}
+                    onClick={() => setModalPlanningPeriodId(o.value)}
+                  >
+                    {formatPlanPeriodToggleLabel(o.label)}
+                  </button>
+                );
+              })}
+            </div>
+            <p
+              className="mt-3 px-2 text-xs leading-relaxed"
+              style={{ color: PR_TEXT_MUTED }}
+              data-cy="create-report-period-hint"
+            >
+              {periodHint}
+            </p>
+          </section>
+        ) : (
+          <section
+            className="shrink-0 border-b px-5 py-3 text-center md:px-6"
+            style={{ borderColor: PR_BORDER }}
+            data-cy="create-report-period-hint-only"
+          >
+            <p
+              className="text-xs leading-relaxed"
+              style={{ color: PR_TEXT_MUTED }}
+              data-cy="create-report-period-hint-single"
+            >
+              {periodHint}
+            </p>
+          </section>
         )}
-      </CustomDrawerLayout>
-    )
+
+        <div
+          data-cy="create-report-modal-body"
+          className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6"
+        >
+          {formattedData?.length > 0 ? (
+            <Spin spinning={plannedTaskForReportLoading} tip="Loading...">
+              <Form
+                layout="vertical"
+                form={form}
+                name="dynamic_form_item"
+                onFinish={handleOnFinish}
+                className="px-0"
+              >
+                <div id="create-report-collapse" data-cy="create-report-collapse">
+                  <Collapse
+                    defaultActiveKey={formattedData?.flatMap((obj: any) =>
+                      obj.keyResults?.map(
+                        (nonused: any, i: number) => `kr-${obj.id || ''}-${i}`,
+                      ),
+                    )}
+                    expandIconPosition="end"
+                    bordered={false}
+                    className="bg-transparent"
+                  >
+                    {formattedData?.map((objective: any) =>
+                      objective?.keyResults?.map(
+                        (keyresult: any, index: number) => {
+                          const direct = keyresult?.tasks?.length || 0;
+                          const milestoneTasks =
+                            keyresult?.milestones?.reduce(
+                              (n: number, m: any) =>
+                                n + (m?.tasks?.length || 0),
+                              0,
+                            ) || 0;
+                          const plannedCount = direct + milestoneTasks;
+
+                          return (
+                            <Collapse.Panel
+                              id={`create-report-panel-${objective.id || ''}-${index}`}
+                              data-cy={`create-report-panel-${objective.id || ''}-${index}`}
+                              header={
+                                <div
+                                  data-cy="create-report-panel-header"
+                                  className="flex min-w-0 w-full flex-col items-start gap-0.5 text-left"
+                                >
+                                  <span
+                                    className="w-full truncate text-base font-bold text-[#161A2C]"
+                                    title={keyresult?.title}
+                                    data-cy="create-report-panel-kr-title"
+                                  >
+                                    {keyresult?.title}
+                                  </span>
+                                  <span
+                                    className="text-xs font-medium text-[#8F94A3]"
+                                    data-cy="create-report-panel-task-count"
+                                  >
+                                    {plannedCount}{' '}
+                                    {plannedCount === 1
+                                      ? 'Task Planned'
+                                      : 'Tasks Planned'}
+                                  </span>
+                                </div>
+                              }
+                              key={`kr-${objective.id || ''}-${index}`}
+                              className="mb-4 rounded-xl overflow-hidden [&_.ant-collapse-header]:!bg-[#F9FAFB] [&_.ant-collapse-header]:px-6 [&_.ant-collapse-header]:py-4 [&_.ant-collapse-content]:bg-white"
+                              style={{
+                                border: '1px solid #e5e7eb',
+                              }}
+                            >
+                              <div
+                                data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-536"
+                                className="py-2"
+                              >
+                                {keyresult?.milestones?.map((milestone: any) =>
+                                  milestone?.tasks?.map((task: any) =>
+                                    renderTaskRow(task, keyresult),
+                                  ),
+                                )}
+                                {keyresult?.tasks?.map((task: any) =>
+                                  renderTaskRow(task, keyresult),
+                                )}
+                              </div>
+                            </Collapse.Panel>
+                          );
+                        },
+                      ),
+                    )}
+                  </Collapse>
+                </div>
+              </Form>
+            </Spin>
+          ) : (
+            <div
+              data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-558"
+              className="flex h-64 items-center justify-center"
+            >
+              <CustomizeRenderEmpty />
+            </div>
+          )}
+        </div>
+
+        <footer
+          data-cy="create-report-modal-footer"
+          className="flex shrink-0 flex-col gap-4 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6"
+          style={{ borderColor: PR_BORDER }}
+        >
+          <span
+            data-cy="create-report-total-weight"
+            className="inline-flex w-fit rounded-lg px-3 py-1.5 text-sm font-semibold"
+            style={{
+              backgroundColor: '#FEF2F2',
+              color: '#B91C1C',
+            }}
+          >
+            Total Weight: {Math.round(Number(totalWeight) || 0)}%
+          </span>
+          <div
+            className="flex justify-end gap-3"
+            data-cy="create-report-footer-actions"
+          >
+            <Button
+              id="cancel-report-button-for-planning-and-reporting"
+              data-cy="cancel-report-button-for-planning-and-reporting"
+              className="h-10 min-w-[100px] rounded-lg border bg-white font-semibold"
+              style={{ borderColor: PR_BORDER, color: PR_TEXT }}
+              onClick={onClose}
+              disabled={createReportLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              id="submit-report-button-for-planning-and-reporting"
+              data-cy="submit-report-button-for-planning-and-reporting"
+              type="primary"
+              className="h-10 min-w-[100px] rounded-lg border-0 font-semibold !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4]"
+              loading={createReportLoading}
+              onClick={() => form.submit()}
+            >
+              Create
+            </Button>
+          </div>
+        </footer>
+      </div>
+    </Modal>
   );
 }
 

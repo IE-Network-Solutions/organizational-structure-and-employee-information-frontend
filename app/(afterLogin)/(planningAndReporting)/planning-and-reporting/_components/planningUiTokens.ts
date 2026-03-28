@@ -6,7 +6,8 @@ export const PR_PRIMARY = '#2D5BFF';
 export const PR_PRIMARY_HOVER = '#2447D4';
 export const PR_PRIMARY_MUTED = '#E8EDFF';
 export const PR_BORDER = '#E0E0E0';
-export const PR_PAGE_BG = '#F5F6FA';
+/** Main Planning & Reporting screen canvas (flush white; cards provide elevation). */
+export const PR_PAGE_BG = '#FFFFFF';
 export const PR_TEXT = '#161A2C';
 export const PR_TEXT_MUTED = '#8F94A3';
 export const PR_SURFACE = '#FFFFFF';

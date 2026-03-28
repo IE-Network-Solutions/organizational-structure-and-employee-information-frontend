@@ -1,6 +1,7 @@
 import React from 'react';
 import { Collapse, Button, Dropdown } from 'antd';
-import { BsKey } from 'react-icons/bs';
+import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
+import { PR_PRIMARY } from '../planningUiTokens';
 import DefaultCardForm from '../planForms/defaultForm';
 import { NAME } from '@/types/enumTypes';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
@@ -144,9 +145,11 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-112"
                         className="flex items-center gap-3 ml-4 min-w-0 flex-1"
                       >
-                        <BsKey
-                          size={24}
-                          className="text-[#574CFF] flex-shrink-0"
+                        <PlanningVpnKeyIcon
+                          size={18}
+                          className="flex-shrink-0"
+                          color={PR_PRIMARY}
+                          data-cy="planning-create-plan-kr-vpn-key-icon"
                         />
                         <div
                           data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-117"

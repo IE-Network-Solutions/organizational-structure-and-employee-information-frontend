@@ -9,27 +9,36 @@ import {
   WeeklyTaskSuggestion,
 } from './interface';
 
-// Call AI backend directly now that CORS is fixed
 const BASE_URL =
   process.env.NEXT_PUBLIC_AI_BASE_URL || 'https://selamnew-ai.ienetworks.co';
 
+/** Browser calls same-origin API routes to avoid CORS / mixed-content issues. */
+const weeklyPlanUrl = () =>
+  typeof window !== 'undefined' ? '/api/ai/weekly-plan' : `${BASE_URL}/weekly-plan`;
+const dailyPlanUrl = () =>
+  typeof window !== 'undefined' ? '/api/ai/daily-plan' : `${BASE_URL}/daily-plan`;
+
 const postWeeklyPlan = async (payload: { keyResultReport: any[] }) => {
   const { data } = await axios.post<WeeklyPlanResponse>(
-    `${BASE_URL}/weekly-plan`,
+    weeklyPlanUrl(),
     payload,
     { headers: { 'Content-Type': 'application/json' } },
   );
-  return data?.weekly_plan?.WeeklyTasks ?? [];
+  const raw = data?.weekly_plan?.WeeklyTasks ?? [];
+  return Array.isArray(raw) ? raw : [];
 };
 
 const postDailyPlan = async (payload: { daily_plan_request: any }) => {
   const { data } = await axios.post<DailyPlanResponse>(
-    `${BASE_URL}/daily-plan`,
+    dailyPlanUrl(),
     payload,
     { headers: { 'Content-Type': 'application/json' } },
   );
 
-  const tasks = (data?.daily_plan?.DailyTasks ?? []) as DailyTaskSuggestion[];
+  const rawTasks = data?.daily_plan?.DailyTasks ?? [];
+  const tasks = (
+    Array.isArray(rawTasks) ? rawTasks : []
+  ) as DailyTaskSuggestion[];
 
   if (tasks.length > 0) {
     const totalWeight = tasks.reduce(

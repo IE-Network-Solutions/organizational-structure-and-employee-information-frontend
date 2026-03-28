@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tree, Tag, Typography, Popover } from 'antd';
-import { MdKey } from 'react-icons/md';
+import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
 import { FaStar } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 const { Text } = Typography;
@@ -84,9 +84,9 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                       data-cy={`parent-task-tree-item-icon-milestone-${index}`}
                     />
                   ) : (
-                    <MdKey
+                    <PlanningVpnKeyIcon
                       size={10}
-                      className="text-gray-500"
+                      color="#6B7280"
                       data-cy={`parent-task-tree-item-icon-key-${index}`}
                     />
                   )}
@@ -200,9 +200,10 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                     data-cy={`parent-task-tree-item-desktop-icon-milestone-${index}`}
                   />
                 ) : (
-                  <MdKey
+                  <PlanningVpnKeyIcon
                     size={14}
-                    className="text-gray-500 flex-shrink-0"
+                    color="#6B7280"
+                    className="flex-shrink-0"
                     data-cy={`parent-task-tree-item-desktop-icon-key-${index}`}
                   />
                 )
@@ -310,9 +311,9 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
             data-cy={`parent-task-tree-icon-milestone-${index}`}
           />
         ) : (
-          <MdKey
+          <PlanningVpnKeyIcon
             size={14}
-            className="text-gray-500"
+            color="#6B7280"
             data-cy={`parent-task-tree-icon-key-${index}`}
           />
         )

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Row, Col, Typography, Tag, Tooltip } from 'antd';
-import { MdKey } from 'react-icons/md';
+import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
 import { FaStar } from 'react-icons/fa';
 import ParentTask from './parentTask';
 
@@ -84,7 +84,7 @@ const TaskRow = ({ task, keyResult }: any) => (
           keyResult?.metricType?.name === 'Milestone' ? (
             <FaStar size={11} />
           ) : (
-            <MdKey size={12} />
+            <PlanningVpnKeyIcon size={12} />
           )
         ) : (
           ''
