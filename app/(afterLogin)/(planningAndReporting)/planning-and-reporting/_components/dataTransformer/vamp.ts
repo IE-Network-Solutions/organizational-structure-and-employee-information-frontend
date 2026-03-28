@@ -57,6 +57,8 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
     // For reporting, use weightPlan if available
     baseTask.weight =
       task.weightPlan || task.planTask?.weight || task.weight || 0;
+    baseTask.target =
+      task.planTask?.targetValue ?? task.targetValue ?? task.target ?? 0;
   }
 
   return baseTask;

@@ -6,9 +6,18 @@ import { PlanOwner } from './types';
 interface UserInfoProps {
   owner: PlanOwner;
   notificationCount?: number;
+  /** Cadence chip, e.g. "Weekly" */
+  cadenceLabel?: string;
+  /** Second line under name (e.g. department / team) */
+  teamLine?: string;
 }
 
-export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
+export default function UserInfo({
+  owner,
+  notificationCount,
+  cadenceLabel,
+  teamLine,
+}: UserInfoProps) {
   // Check if owner data is still loading (showing placeholder values)
   const isLoading =
     owner.name === 'Unknown User' ||
@@ -106,19 +115,32 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
         data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-78"
         className="min-w-0 flex-1"
       >
-        <p
-          className="text-xs md:text-base font-semibold leading-tight text-[#161A2C] truncate"
-          title={owner.name}
-          data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
+        <div
+          data-cy="planning-reporting-userinfo-name-row"
+          className="flex flex-wrap items-center gap-2"
         >
-          {owner.name}
-        </p>
+          <p
+            className="text-sm font-semibold leading-tight text-[#161A2C] md:text-base truncate max-w-[200px] md:max-w-none"
+            title={owner.name}
+            data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
+          >
+            {owner.name}
+          </p>
+          {cadenceLabel ? (
+            <span
+              data-cy="planning-reporting-userinfo-cadence"
+              className="shrink-0 rounded-md border border-[#E5E7EB] bg-[#F3F4F6] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280] md:text-xs md:normal-case"
+            >
+              {cadenceLabel}
+            </span>
+          ) : null}
+        </div>
         <p
-          className="text-xs md:text-sm leading-tight text-[#8F94A3] truncate"
-          title={owner.role}
+          className="mt-0.5 text-xs leading-tight text-[#8F94A3] md:text-sm truncate"
+          title={teamLine || owner.role}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-115"
         >
-          {owner.role}
+          {teamLine || owner.role}
         </p>
       </div>
       {notificationCount !== undefined && notificationCount > 0 && (

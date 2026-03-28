@@ -1,5 +1,4 @@
 import React from 'react';
-import { Tag } from 'antd';
 import { Priority } from './types';
 
 interface PriorityTagProps {
@@ -8,25 +7,25 @@ interface PriorityTagProps {
 
 const priorityPalette: Record<Priority, { bg: string; text: string }> = {
   Low: { bg: '#DCFCE7', text: '#166534' },
-  Medium: { bg: '#FEF9C3', text: '#854D0E' },
+  Medium: { bg: '#FFEDD5', text: '#C2410C' },
   High: { bg: '#FEE2E2', text: '#991B1B' },
-  Priority: { bg: '#E0E7FF', text: '#3730A3' },
+  Priority: { bg: '#EEF2FF', text: '#4338CA' },
 };
 
 export default function PriorityTag({ priority }: PriorityTagProps) {
-  // Fallback to 'Low' if priority is undefined or not in the palette
   const safePriority = priority && priorityPalette[priority] ? priority : 'Low';
   const colors = priorityPalette[safePriority];
 
   return (
-    <Tag
-      className="rounded-[4px] border-none px-3 py-1 text-xs font-bold"
+    <span
+      data-cy="planning-reporting-priority-tag"
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold md:px-3 md:py-1 md:text-xs"
       style={{
         backgroundColor: colors.bg,
         color: colors.text,
       }}
     >
-      {priority || 'Low'}
-    </Tag>
+      Priority: {priority || 'Low'}
+    </span>
   );
 }

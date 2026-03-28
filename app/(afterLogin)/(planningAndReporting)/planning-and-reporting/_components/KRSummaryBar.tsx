@@ -117,7 +117,6 @@ export default function KRSummaryBar({
 
   const values = calculateKeyResultValues();
   const metricType = keyResult?.metricType?.name || plan.milestoneLabel;
-  const isMilestone = metricType === 'Milestone';
 
   // Format numbers to remove trailing zeros (e.g., 100.000 -> 100, 15.00025 -> 15.00025)
   const formatNumber = (value: number | undefined | null): string => {
@@ -141,22 +140,20 @@ export default function KRSummaryBar({
   return (
     <div
       data-cy="-planningandreporting-planning-and-reporting-components-krsummarybar-tsx-krsummarybar-div-142"
-      className="flex flex-wrap items-center gap-8"
+      className="flex flex-wrap items-center gap-3 md:gap-4"
     >
       <StatPill
-        label="metric"
+        label="Metric"
         value={toSentenceCase(metricType)}
         variant="milestone"
       />
-      {!isMilestone && (
-        <StatPill
-          label="target"
-          value={formatNumber(values.target)}
-          variant="target"
-        />
-      )}
       <StatPill
-        label="achieved"
+        label="Target"
+        value={formatNumber(values.target)}
+        variant="target"
+      />
+      <StatPill
+        label="Achieved"
         value={formatNumber(values.achieved)}
         variant="achieved"
       />

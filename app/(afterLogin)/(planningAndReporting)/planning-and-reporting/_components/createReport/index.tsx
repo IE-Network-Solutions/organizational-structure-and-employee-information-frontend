@@ -9,29 +9,33 @@ import {
   Input,
   InputNumber,
   Row,
+  Segmented,
   Spin,
 } from 'antd';
 
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import {
+  AllPlanningPeriods,
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { NAME } from '@/types/enumTypes';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { useQueryClient } from 'react-query';
+
+function isMonthlyCadenceName(name: string | undefined): boolean {
+  return (name || '').toLowerCase().includes('month');
+}
 
 const { TextArea } = Input;
 function CreateReport() {
   const queryClient = useQueryClient();
   const {
     openReportModal,
-
     setOpenReportModal,
-    activePlanPeriod,
     isEditing,
     resetWeights,
     setStatus,
@@ -49,8 +53,51 @@ function CreateReport() {
     resetStatuses();
     resetWeights();
   };
-  // const { data: planningPeriods } = AllPlanningPeriods();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: assignedPeriods } = AllPlanningPeriods();
+
+  const cadencePeriodOptions = useMemo(() => {
+    const safe = Array.isArray(assignedPeriods) ? assignedPeriods : [];
+    return safe
+      .filter((item: any) => !isMonthlyCadenceName(item?.planningPeriod?.name))
+      .map((item: any) => ({
+        label: item.planningPeriod?.name || 'Plan',
+        value: String(item.planningPeriod?.id || ''),
+      }))
+      .filter((o) => o.value);
+  }, [assignedPeriods]);
+
+  const [modalPlanningPeriodId, setModalPlanningPeriodId] = useState('');
+  const prevOpenForInitRef = useRef(false);
+
+  useEffect(() => {
+    if (openReportModal && !prevOpenForInitRef.current) {
+      const weekly = cadencePeriodOptions.find((o) =>
+        o.label.toLowerCase().includes('week'),
+      );
+      const next =
+        weekly?.value ||
+        cadencePeriodOptions[0]?.value ||
+        activePlanPeriodId ||
+        '';
+      setModalPlanningPeriodId((cur) =>
+        cur && cadencePeriodOptions.some((o) => o.value === cur) ? cur : next,
+      );
+    }
+    prevOpenForInitRef.current = openReportModal;
+    if (!openReportModal) prevOpenForInitRef.current = false;
+  }, [openReportModal, cadencePeriodOptions, activePlanPeriodId]);
+
+  useEffect(() => {
+    if (!openReportModal || cadencePeriodOptions.length === 0) return;
+    setModalPlanningPeriodId((cur) => {
+      if (cur && cadencePeriodOptions.some((o) => o.value === cur)) return cur;
+      const weekly = cadencePeriodOptions.find((o) =>
+        o.label.toLowerCase().includes('week'),
+      );
+      return weekly?.value || cadencePeriodOptions[0]?.value || cur;
+    });
+  }, [openReportModal, cadencePeriodOptions]);
 
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
@@ -59,17 +106,18 @@ function CreateReport() {
     const planningPeriodDetail = planningPeriods?.items?.find(
       (period: any) => period?.id === id,
     );
-    return planningPeriodDetail || {}; // Return an empty object if planningPeriodDetail is undefined
+    return planningPeriodDetail || {};
   };
-  const planningPeriodId =
-    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+
+  const planningPeriodId = modalPlanningPeriodId || activePlanPeriodId || '';
+
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,
     refetch: refetchPlannedTasks,
   } = useGetPlannedTaskForReport(planningPeriodId);
 
-  const planningPeriodName = getPlanningPeriodDetail(activePlanPeriodId)?.name;
+  const planningPeriodName = getPlanningPeriodDetail(planningPeriodId)?.name;
 
   // const { data: allUnReportedPlanningTask } =
   //   useGetUnReportedPlanning(planningPeriodId,activeTab);
@@ -77,9 +125,30 @@ function CreateReport() {
   const modalHeader = (
     <div
       data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-78"
-      className="text-center text-xl font-bold text-[#161A2C]"
+      className="flex flex-col items-center gap-3 px-2 text-center"
     >
-      Create {planningPeriodName} Report
+      <div
+        className="text-xl font-bold text-[#161A2C]"
+        data-cy="create-report-modal-title"
+      >
+        Create {planningPeriodName || '…'} Report
+      </div>
+      {cadencePeriodOptions.length > 1 ? (
+        <div
+          className="w-full max-w-md"
+          data-cy="create-report-cadence-segmented"
+        >
+          <Segmented
+            block
+            options={cadencePeriodOptions.map((o) => ({
+              label: o.label,
+              value: o.value,
+            }))}
+            value={modalPlanningPeriodId || undefined}
+            onChange={(v) => setModalPlanningPeriodId(String(v))}
+          />
+        </div>
+      ) : null}
     </div>
   );
 
@@ -109,12 +178,29 @@ function CreateReport() {
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
 
-  // Refetch data when modal opens to ensure we have latest status
   useEffect(() => {
-    if (openReportModal) {
+    if (openReportModal && planningPeriodId) {
       refetchPlannedTasks();
     }
-  }, [openReportModal, refetchPlannedTasks]);
+  }, [openReportModal, planningPeriodId, refetchPlannedTasks]);
+
+  const prevReportPeriodRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!openReportModal) {
+      prevReportPeriodRef.current = null;
+      return;
+    }
+    if (
+      prevReportPeriodRef.current &&
+      planningPeriodId &&
+      prevReportPeriodRef.current !== planningPeriodId
+    ) {
+      form.resetFields();
+      resetStatuses();
+      resetWeights();
+    }
+    if (planningPeriodId) prevReportPeriodRef.current = planningPeriodId;
+  }, [openReportModal, planningPeriodId, form, resetStatuses, resetWeights]);
 
   // Auto-set status for pre-achieved tasks - only run once when data is loaded
   useEffect(() => {

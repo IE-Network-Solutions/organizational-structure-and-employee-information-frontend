@@ -36,6 +36,14 @@ export interface PlanningAndReporting {
 
   selectedUser: string[];
   setSelectedUser: (selectedUser: string[]) => void;
+
+  /** Department filter ('all' or department id); narrows employee list in filter modal. */
+  filterDepartment: string;
+  setFilterDepartment: (departmentId: string) => void;
+
+  /** Reporting tab: all | my plan | subordinate plan scope (combined with employee/dept in filter modal). */
+  reportingFilterPlanType: 'all' | 'myPlan' | 'subordinatePlan';
+  setReportingFilterPlanType: (t: 'all' | 'myPlan' | 'subordinatePlan') => void;
   weights: Record<string, number>;
   totalWeight: number;
 
@@ -69,6 +77,10 @@ export interface PlanningAndReporting {
 
   allSessionsOfYear: string[];
   setAllSessionsOfYear: (sessions: string[]) => void;
+
+  /** Open filter modal from page-level Filter (mobile). */
+  filterModalOpenFromPage: boolean;
+  setFilterModalOpenFromPage: (open: boolean) => void;
 }
 const userId = useAuthenticationStore.getState().userId;
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -118,6 +130,14 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     selectedUser: [userId],
     setSelectedUser: (selectedUser: string[]) => set({ selectedUser }),
+
+    filterDepartment: 'all',
+    setFilterDepartment: (filterDepartment: string) =>
+      set({ filterDepartment }),
+
+    reportingFilterPlanType: 'all',
+    setReportingFilterPlanType: (reportingFilterPlanType) =>
+      set({ reportingFilterPlanType }),
     weights: {},
     totalWeight: 0,
 
@@ -170,5 +190,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     allSessionsOfYear: [],
     setAllSessionsOfYear: (allSessionsOfYear: string[]) =>
       set({ allSessionsOfYear }),
+
+    filterModalOpenFromPage: false,
+    setFilterModalOpenFromPage: (filterModalOpenFromPage: boolean) =>
+      set({ filterModalOpenFromPage }),
   })),
 );

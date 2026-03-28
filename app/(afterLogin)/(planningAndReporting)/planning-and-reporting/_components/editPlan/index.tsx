@@ -50,7 +50,11 @@ function EditPlan() {
     useGetPlanningById(selectedPlanId);
 
   const planningPeriodId =
-    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+    planGroupData?.planningUser?.planningPeriod?.id ??
+    activePlanPeriodId ??
+    (Array.isArray(planningPeriods)
+      ? planningPeriods[activePlanPeriod - 1]?.planningPeriod?.id
+      : undefined);
 
   const safePlanningPeriods = Array.isArray(planningPeriods)
     ? planningPeriods

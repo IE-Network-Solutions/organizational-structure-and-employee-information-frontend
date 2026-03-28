@@ -1,9 +1,10 @@
 'use client';
 import React, { useEffect, useMemo } from 'react';
-import { Tabs, Segmented } from 'antd';
-import CustomBreadcrumb from '@/components/common/breadCramp';
+import { Button } from 'antd';
+import { FilterOutlined } from '@ant-design/icons';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import Planning from './_components/planning';
+import PlanningReportingFilterModal from './_components/filters/PlanningReportingFilterModal';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -27,20 +28,21 @@ interface PlanningPeriod {
   };
 }
 
-interface TabItem {
-  label: React.ReactNode;
-  id: string;
-  key: string;
-  children: React.ReactNode;
+/** Product scope: Planning & Reporting uses Daily + Weekly only (no Monthly tab). */
+function isMonthlyPlanningPeriodItem(item: PlanningPeriod): boolean {
+  const name = (item.planningPeriod?.name || '').toLowerCase().trim();
+  return name.includes('month');
 }
 
-function Page() {
+function PlanningReportingPageInner() {
   const {
     setActiveTab,
     activeTab,
-    activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    setFilterModalOpenFromPage,
+    filterModalOpenFromPage,
+    activePlanPeriodId,
   } = PlanningAndReportingStore();
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
@@ -100,94 +102,162 @@ function Page() {
         a.planningPeriod.intervalLength - b.planningPeriod.intervalLength,
     );
 
-    return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
+    const merged = hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
+    return merged.filter((p) => !isMonthlyPlanningPeriodItem(p));
   }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
 
-  const tabItems: TabItem[] = useMemo(() => {
-    return processedPlanningPeriods.map(
-      (item: PlanningPeriod, index: number) => ({
-        label: (
-          <span
-            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-110"
-            className="font-semibold text-sm"
-          >
-            {item.planningPeriod.name || 'No name available'}
-          </span>
-        ),
-        id: item.planningPeriod.id,
-        key: String(index + 1),
-        children: activeTab === 1 ? <Planning /> : <Reporting />,
-      }),
-    );
-  }, [processedPlanningPeriods, activeTab]);
-
-  const selectedTab = tabItems.find(
-    (item) => item.key === String(activePlanPeriod),
+  const cadenceFilterOptions = useMemo(
+    () =>
+      processedPlanningPeriods.map((p, i) => ({
+        periodId: p.planningPeriod.id,
+        label: p.planningPeriod.name || 'Plan period',
+        tabIndex: i + 1,
+      })),
+    [processedPlanningPeriods],
   );
 
+  /** Default to Weekly only until the user picks a plan period in the Filter modal (or one is already set). */
   useEffect(() => {
-    setActivePlanPeriodId(selectedTab?.id || '');
-  }, [selectedTab?.id, setActivePlanPeriodId]);
+    if (processedPlanningPeriods.length === 0 || activePlanPeriodId) {
+      return;
+    }
+    const weeklyIdx = processedPlanningPeriods.findIndex((p) =>
+      (p.planningPeriod?.name || '').toLowerCase().includes('week'),
+    );
+    const idx = weeklyIdx >= 0 ? weeklyIdx : 0;
+    const period = processedPlanningPeriods[idx];
+    setActivePlanPeriodId(period.planningPeriod.id);
+    setActivePlanPeriod(idx + 1);
+  }, [
+    processedPlanningPeriods,
+    activePlanPeriodId,
+    setActivePlanPeriodId,
+    setActivePlanPeriod,
+  ]);
+
+  useEffect(() => {
+    setFilterModalOpenFromPage(false);
+  }, [activeTab, setFilterModalOpenFromPage]);
+
+  const handleFilterClick = () => {
+    setFilterModalOpenFromPage(true);
+  };
 
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
-      className="min-h-screen w-full bg-gray-100 px-4 md:px-6"
+      className="min-h-screen w-full bg-[#F4F5F7] px-4 pb-10 md:px-8"
     >
       <div
         data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-131"
-        className="h-full w-auto"
+        className="mx-auto h-full w-full max-w-[1200px]"
       >
         <div
           data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-6 pt-2"
         >
           <div
-            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-133"
-            className="flex flex-col md:flex-row items-center justify-between gap-4"
+            data-cy="planning-reporting-title-row"
+            className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
           >
-            <div
-              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-134"
-              className="w-full md:w-auto flex justify-start"
+            <header
+              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-header"
+              className="flex min-w-0 flex-1 flex-col gap-1"
             >
-              <CustomBreadcrumb
-                className="text-xs md:text-sm scale-90 md:scale-100 origin-left"
-                title="Planning & Reporting"
-                subtitle="OKR Settings"
-              />
-            </div>
-            <Segmented
-              size="large"
-              value={activeTab}
-              onChange={(value) => setActiveTab(Number(value))}
-              options={[
-                { label: 'Planning', value: 1 },
-                { label: 'Reporting', value: 2 },
-              ]}
-              className="bg-[#F5F5F7] p-1 md:p-1.5 rounded-lg shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] border border-[#E5E7EB] [&_.ant-segmented-item]:transition-all [&_.ant-segmented-item]:rounded-md [&_.ant-segmented-item]:px-3 md:[&_.ant-segmented-item]:px-4 [&_.ant-segmented-item]:py-0.5 md:[&_.ant-segmented-item]:py-1.5 [&_.ant-segmented-item]:text-xs md:[&_.ant-segmented-item]:text-sm [&_.ant-segmented-item]:font-medium [&_.ant-segmented-item]:h-auto [&_.ant-segmented-item]:leading-normal [&_.ant-segmented-item-selected]:!bg-white [&_.ant-segmented-item-selected]:shadow-sm [&_.ant-segmented-item-selected]:text-[#161A2C] [&_.ant-segmented-item-label]:!text-[#161A2C] [&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-[#161A2C]"
+              <p
+                className="text-xs font-medium text-[#8F94A3] md:text-sm"
+                data-cy="planning-reporting-breadcrumb"
+              >
+                OKR / Planning and Reporting
+              </p>
+              <h1
+                className="text-2xl font-bold leading-tight tracking-tight text-[#161A2C] md:text-[28px]"
+                data-cy="breadcrumb-title"
+              >
+                Planning and Reporting
+              </h1>
+            </header>
+            <div
+              id="pr-primary-action-slot"
+              data-cy="planning-reporting-primary-action-slot"
+              className="flex w-full shrink-0 justify-stretch md:w-auto md:justify-end"
             />
           </div>
+
+          <div
+            data-cy="planning-reporting-tabs-filter-row"
+            className="flex flex-col gap-3 border-b border-[#E5E7EB] sm:flex-row sm:items-end sm:justify-between"
+          >
+            <nav
+              className="flex min-w-0 gap-0"
+              aria-label="Planning and reporting views"
+              data-cy="planning-reporting-mode-tabs"
+            >
+              <button
+                type="button"
+                onClick={() => setActiveTab(1)}
+                className={`relative -mb-px px-0.5 pb-3 text-sm font-semibold transition-colors md:text-base ${
+                  activeTab === 1
+                    ? 'text-[#1D4ED8] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#1D4ED8]'
+                    : 'text-[#8F94A3] hover:text-[#161A2C]'
+                }`}
+                data-cy="planning-reporting-tab-planning"
+              >
+                Planning
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab(2)}
+                className={`relative -mb-px ml-8 px-0.5 pb-3 text-sm font-semibold transition-colors md:ml-10 md:text-base ${
+                  activeTab === 2
+                    ? 'text-[#1D4ED8] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#1D4ED8]'
+                    : 'text-[#8F94A3] hover:text-[#161A2C]'
+                }`}
+                data-cy="planning-reporting-tab-reporting"
+              >
+                Reporting
+              </button>
+            </nav>
+            <div
+              data-cy="planning-reporting-filter-wrap"
+              className="flex pb-2 sm:ml-auto sm:pb-3"
+            >
+              <Button
+                type="default"
+                icon={<FilterOutlined className="text-[#5A5C80]" />}
+                onClick={handleFilterClick}
+                className="flex h-10 items-center gap-2 rounded-lg border-[#D1D5DB] bg-white px-4 font-semibold text-[#374151] shadow-sm hover:border-[#9CA3AF] hover:text-[#161A2C]"
+                data-cy="planning-reporting-filter-button"
+              >
+                Filter
+              </Button>
+            </div>
+          </div>
         </div>
+
         <div
           data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-153"
-          className="w-full h-auto mt-4"
+          className="w-full pt-4"
         >
-          <Tabs
-            tabBarGutter={50}
-            defaultActiveKey={selectedTab?.id}
-            onChange={(key: any) => setActivePlanPeriod(key)}
-            centered
-            items={tabItems}
-          />
+          {activeTab === 1 ? <Planning /> : null}
+          {activeTab === 2 ? <Reporting /> : null}
           <CreatePlan />
           <EditPlan />
           <CreateReport />
           <EditReport />
 
+          <PlanningReportingFilterModal
+            open={filterModalOpenFromPage}
+            onClose={() => setFilterModalOpenFromPage(false)}
+            cadenceOptions={cadenceFilterOptions}
+            showEmployeeAndDepartment={hasPermission}
+            showReportingPlanType={activeTab === 2 && hasPermission}
+          />
+
           {planningPeriodForUserId?.length === 0 && (
             <div
               data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-167"
-              className="w-full h-auto space-y-4 flex justify-center font-semibold"
+              className="flex h-auto w-full justify-center space-y-4 font-semibold"
             >
               There is no Assigned Plan, please assign a Plan for a User first
             </div>
@@ -198,4 +268,6 @@ function Page() {
   );
 }
 
-export default Page;
+export default function Page() {
+  return <PlanningReportingPageInner />;
+}

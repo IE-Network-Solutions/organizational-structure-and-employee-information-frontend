@@ -1,5 +1,4 @@
 import React from 'react';
-import { Tag } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { PlanTask, ViewMode } from './types';
 import PriorityTag from './PriorityTag';
@@ -10,19 +9,19 @@ interface TaskRowProps {
   metricType?: string;
 }
 
+const weightTargetPillClass =
+  'inline-flex items-center rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-[10px] font-semibold text-[#4B5563] md:px-3 md:text-xs border-0 shadow-none';
+
 export default function TaskRow({
   task,
   viewMode,
   isLast,
   metricType,
 }: TaskRowProps & { isLast?: boolean }) {
-  // Format number to remove trailing zeros (e.g., 100.000 -> 100)
   const formatNumber = (value: number | string | undefined | null): string => {
     if (value === undefined || value === null) return '0';
     const num = typeof value === 'string' ? parseFloat(value) : Number(value);
     if (isNaN(num)) return '0';
-    // Remove trailing zeros and decimal point if not needed
-    // Convert to string and remove trailing zeros
     const str = num.toString();
     if (str.includes('.')) {
       return str.replace(/\.?0+$/, '');
@@ -30,7 +29,6 @@ export default function TaskRow({
     return str;
   };
 
-  // Get task name from various possible property names
   const getTaskName = () => {
     const taskAny = task as any;
     return (
@@ -46,55 +44,53 @@ export default function TaskRow({
   const getStatusIcon = () => {
     if (viewMode === 'reporting') {
       if (task.status === 'completed' || (task as any).isAchieved) {
-        return <CheckCircleOutlined className="text-[#0F9D58] text-base" />;
+        return <CheckCircleOutlined className="text-base text-[#0F9D58]" />;
       }
       if (task.status === 'failed' || (task as any).isAchieved === false) {
-        return <CloseCircleOutlined className="text-[#E11D48] text-base" />;
+        return <CloseCircleOutlined className="text-base text-[#E11D48]" />;
       }
-      // Default or pending state for reporting?
       return (
         <div
           data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-55"
-          className="w-1.5 h-1.5 rounded-full bg-[#E5E7EB]"
+          className="h-1.5 w-1.5 rounded-full bg-[#E5E7EB]"
         />
       );
     }
-    // Planning mode: No icon, just the tree connector line
     return null;
   };
 
   return (
     <div
       data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-62"
-      className="relative flex items-start gap-2 md:gap-3 py-2 pl-5 md:pl-8 group"
+      className="group relative flex items-start gap-2 py-2 pl-1 md:gap-3 md:pl-2"
     >
-      {/* Horizontal connector line */}
+      {/* Horizontal branch to the blue KR trunk (parent uses pl-7 / pl-8) */}
       <div
         data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-64"
-        className="absolute left-[7px] top-[1.1rem] w-[13px] md:w-[25px] h-[1px] bg-[#E5E7EB]"
+        className="absolute left-[-15px] top-[1.15rem] h-px w-[15px] bg-[#CBD5E1] md:left-[-17px] md:top-[1.2rem] md:w-[17px]"
       />
 
-      {/* Vertical line cover for the last item */}
-      {isLast && (
+      {isLast ? (
         <div
           data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-68"
-          className="absolute left-[7px] top-[1.1rem] bottom-0 w-[1px] bg-white z-20"
+          className="absolute bottom-0 left-[-16px] top-[calc(1.15rem+1px)] z-[1] w-[3px] bg-white md:left-[-17px] md:top-[calc(1.2rem+1px)]"
+          aria-hidden
         />
-      )}
+      ) : null}
 
       <div
         data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-71"
-        className="mt-0.5 flex-shrink-0"
+        className="mt-0.5 flex shrink-0"
       >
         {getStatusIcon()}
       </div>
 
       <div
         data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-73"
-        className="flex flex-1 flex-col md:flex-row items-start md:justify-between gap-x-4 gap-y-1 min-w-0"
+        className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
       >
         <p
-          className="text-[10px] md:text-sm font-medium leading-relaxed text-[#5A5C80] w-full md:max-w-[60%] truncate"
+          className="w-full min-w-0 flex-1 truncate text-[10px] font-medium leading-relaxed text-[#5A5C80] sm:max-w-[min(100%,52%)] md:text-sm"
           title={getTaskName()}
           data-cy="planningandreporting-planning-and-reporting-components-taskrow-tsx-p-96"
         >
@@ -103,101 +99,73 @@ export default function TaskRow({
 
         <div
           data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-81"
-          className="w-full md:w-auto flex md:flex-wrap items-center justify-between md:justify-end gap-x-3 gap-y-1 mt-1 md:mt-0"
+          className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:justify-end"
         >
-          <div
-            data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-82"
-            className="scale-90 md:scale-100 origin-left"
-          >
-            <PriorityTag priority={task.priority} />
-          </div>
+          <PriorityTag priority={task.priority} />
 
-          <div
+          <span
             data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-86"
-            className="flex items-center gap-1 md:gap-2 whitespace-nowrap"
+            className={weightTargetPillClass}
           >
             <span
-              data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-87"
-              className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+              data-cy="planning-reporting-taskrow-weight-label"
+              className="font-medium text-[#6B7280]"
             >
-              <span
-                data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-88"
-                className="hidden md:inline"
-                style={{ color: '#574CFF' }}
-              >
-                •{' '}
-              </span>
-              weight
+              Weight:{' '}
             </span>
-            <Tag
-              className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold"
-              style={{ color: '#574CFF' }}
+            <span
+              data-cy="planning-reporting-taskrow-weight-value"
+              className="ml-0.5 font-bold text-[#374151]"
             >
               {formatNumber(task.weight)}
-            </Tag>
-          </div>
+            </span>
+          </span>
 
           {viewMode === 'planning' &&
             task.target !== undefined &&
             task.target !== 0 &&
             metricType !== 'Milestone' && (
-              <div
+              <span
                 data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-105"
-                className="flex items-center gap-1 md:gap-2 whitespace-nowrap"
+                className={weightTargetPillClass}
               >
                 <span
-                  data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-106"
-                  className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+                  data-cy="planning-reporting-taskrow-target-label-planning"
+                  className="font-medium text-[#6B7280]"
                 >
-                  <span
-                    className="hidden md:inline"
-                    style={{ color: '#574CFF' }}
-                    data-cy="planningandreporting-planning-and-reporting-components-taskrow-tsx-span-151"
-                  >
-                    •{' '}
-                  </span>
-                  target
+                  Target:{' '}
                 </span>
-                <Tag
-                  className="m-0 rounded border-none bg-[#E0E7FF] px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold"
-                  style={{ color: '#574CFF' }}
+                <span
+                  data-cy="planning-reporting-taskrow-target-value-planning"
+                  className="ml-0.5 font-bold text-[#374151]"
                 >
                   {formatNumber(task.target)}
-                </Tag>
-              </div>
+                </span>
+              </span>
             )}
 
-          {viewMode === 'reporting' && task.achieved !== undefined && (
-            <div
-              data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-125"
-              className="flex items-center gap-1 md:gap-2 whitespace-nowrap"
-            >
+          {viewMode === 'reporting' &&
+            task.target !== undefined &&
+            task.target !== null &&
+            Number(task.target) !== 0 && (
               <span
-                data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-126"
-                className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
+                data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-target-reporting"
+                className={weightTargetPillClass}
               >
                 <span
-                  data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-span-127"
-                  className="hidden md:inline"
-                  style={{ color: '#574CFF' }}
+                  data-cy="planning-reporting-taskrow-target-label-reporting"
+                  className="font-medium text-[#6B7280]"
                 >
-                  •{' '}
+                  Target:{' '}
                 </span>
-                achieved
+                <span
+                  data-cy="planning-reporting-taskrow-target-value-reporting"
+                  className="ml-0.5 font-bold text-[#374151]"
+                >
+                  {formatNumber(task.target)}
+                </span>
               </span>
-              <Tag
-                className={`m-0 rounded border-none px-1 md:px-2 py-0 md:py-0.5 text-[10px] md:text-xs font-bold ${
-                  task.status === 'completed'
-                    ? 'bg-[#DCFCE7] text-[#166534]'
-                    : task.status === 'failed'
-                      ? 'bg-[#FEE2E2] text-[#991B1B]'
-                      : 'bg-[#FFEDD5] text-[#9A3412]'
-                }`}
-              >
-                {formatNumber(task.achieved)}
-              </Tag>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </div>

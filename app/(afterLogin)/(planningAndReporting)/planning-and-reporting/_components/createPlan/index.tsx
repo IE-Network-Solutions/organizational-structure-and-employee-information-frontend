@@ -1,6 +1,6 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Button, Form, Spin, Tooltip } from 'antd';
+import { Button, Form, Segmented, Spin, Tooltip } from 'antd';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -13,7 +13,11 @@ import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
 import PlanningObjectiveComponent from '../planning/createPlanObjective';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
-import { useMemo, useEffect, useRef } from 'react';
+import { useMemo, useEffect, useRef, useState } from 'react';
+
+function isMonthlyCadenceName(name: string | undefined): boolean {
+  return (name || '').toLowerCase().includes('month');
+}
 
 type FailedTasksByKeyResult = Record<
   string,
@@ -48,7 +52,74 @@ function CreatePlan() {
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
   const { data: planningPeriods } = AllPlanningPeriods();
-  const planningPeriodId = activePlanPeriodId;
+  const safePlanningPeriods = useMemo(
+    () => (Array.isArray(planningPeriods) ? planningPeriods : []),
+    [planningPeriods],
+  );
+
+  const cadencePeriodOptions = useMemo(() => {
+    return safePlanningPeriods
+      .filter((item: any) => !isMonthlyCadenceName(item?.planningPeriod?.name))
+      .map((item: any) => ({
+        label: item.planningPeriod?.name || 'Plan',
+        value: String(item.planningPeriod?.id || ''),
+      }))
+      .filter((o) => o.value);
+  }, [safePlanningPeriods]);
+
+  const [modalPlanningPeriodId, setModalPlanningPeriodId] = useState('');
+  const prevOpenForInitRef = useRef(false);
+
+  useEffect(() => {
+    if (open && !prevOpenForInitRef.current) {
+      const weekly = cadencePeriodOptions.find((o) =>
+        o.label.toLowerCase().includes('week'),
+      );
+      const next =
+        weekly?.value ||
+        cadencePeriodOptions[0]?.value ||
+        activePlanPeriodId ||
+        '';
+      setModalPlanningPeriodId((cur) =>
+        cur && cadencePeriodOptions.some((o) => o.value === cur) ? cur : next,
+      );
+    }
+    prevOpenForInitRef.current = open;
+    if (!open) prevOpenForInitRef.current = false;
+  }, [open, cadencePeriodOptions, activePlanPeriodId]);
+
+  useEffect(() => {
+    if (!open || cadencePeriodOptions.length === 0) return;
+    setModalPlanningPeriodId((cur) => {
+      if (cur && cadencePeriodOptions.some((o) => o.value === cur)) return cur;
+      const weekly = cadencePeriodOptions.find((o) =>
+        o.label.toLowerCase().includes('week'),
+      );
+      return weekly?.value || cadencePeriodOptions[0]?.value || cur;
+    });
+  }, [open, cadencePeriodOptions]);
+
+  const prevPeriodSwitchRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!open) {
+      prevPeriodSwitchRef.current = null;
+      return;
+    }
+    if (
+      prevPeriodSwitchRef.current &&
+      modalPlanningPeriodId &&
+      prevPeriodSwitchRef.current !== modalPlanningPeriodId
+    ) {
+      form.resetFields();
+      resetWeights();
+      hasAutoPopulated.current = false;
+    }
+    if (modalPlanningPeriodId) {
+      prevPeriodSwitchRef.current = modalPlanningPeriodId;
+    }
+  }, [open, modalPlanningPeriodId, form, resetWeights]);
+
+  const planningPeriodId = modalPlanningPeriodId || activePlanPeriodId || '';
 
   const {
     data: planningPeriodHierarchy,
@@ -119,12 +190,6 @@ function CreatePlan() {
     return grouped;
   }, [lastReportData]);
 
-  // Ensure planningPeriods is always an array before using find
-  const safePlanningPeriods = Array.isArray(planningPeriods)
-    ? planningPeriods
-    : [];
-
-  // Use find safely
   const planningUserId = safePlanningPeriods.find(
     (item: any) => item.planningPeriod?.id == planningPeriodId,
   )?.id;
@@ -404,12 +469,31 @@ function CreatePlan() {
 
   const modalHeader = (
     <div
-      className="flex items-center justify-center text-2xl font-bold text-[#161A2C] p-4 relative"
+      className="flex flex-col items-center p-4 relative"
       data-cy="create-plan-modal-header"
     >
-      <div data-cy="create-plan-modal-header-title">
+      <div
+        className="text-2xl font-bold text-[#161A2C] text-center w-full pr-14"
+        data-cy="create-plan-modal-header-title"
+      >
         {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'Daily'} Plan
       </div>
+      {cadencePeriodOptions.length > 1 ? (
+        <div
+          className="mt-3 w-full max-w-md"
+          data-cy="create-plan-cadence-segmented"
+        >
+          <Segmented
+            block
+            options={cadencePeriodOptions.map((o) => ({
+              label: o.label,
+              value: o.value,
+            }))}
+            value={modalPlanningPeriodId || undefined}
+            onChange={(v) => setModalPlanningPeriodId(String(v))}
+          />
+        </div>
+      ) : null}
       <div
         className="absolute right-4 top-1/2 -translate-y-1/2"
         id="planning-ai-suggestions-wrapper-view-space"

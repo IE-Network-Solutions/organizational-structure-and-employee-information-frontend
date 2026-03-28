@@ -91,7 +91,7 @@ export default function CommentsSection({
   return (
     <div
       data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-92"
-      className="mt-5"
+      className="mt-5 border-t border-[#F1F2F6] pt-4"
     >
       {/* Header: Avatars | Comments Count | Add Comment Button */}
       <div
@@ -104,20 +104,20 @@ export default function CommentsSection({
           data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-101"
         >
           {commentCount > 0 && uniqueCommenters.length > 0 && (
-            <Avatar.Group size={48} maxCount={5}>
+            <Avatar.Group size={32} maxCount={3}>
               {uniqueCommenters.map((commentData, index) => {
                 const userDetail = getUserDetail(commentData.commentedBy);
                 return (
                   <Avatar
                     key={`avatar-${commentData.commentedBy}-${index}`}
                     src={userDetail.profileImage || undefined}
-                    size={48}
+                    size={32}
                     style={{
                       backgroundColor: userDetail.profileImage
                         ? undefined
                         : '#E0E7FF',
                       color: userDetail.profileImage ? undefined : '#4C1D95',
-                      fontSize: '16px',
+                      fontSize: '12px',
                       fontWeight: 600,
                     }}
                   >
@@ -161,15 +161,8 @@ export default function CommentsSection({
           )}
           <span
             onClick={handleAddCommentClick}
-            className="cursor-pointer text-xs md:text-sm font-bold transition-colors"
-            style={{ color: '#2563EB' }}
+            className="cursor-pointer text-xs font-semibold text-[#1D4ED8] transition-colors hover:text-[#1E3A8A] md:text-sm"
             data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-160"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#1D4ED8';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#2563EB';
-            }}
           >
             Add Comment
           </span>
