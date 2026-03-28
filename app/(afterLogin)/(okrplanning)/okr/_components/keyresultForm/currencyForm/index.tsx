@@ -56,6 +56,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   const initialValueRules = [
     { required: true, message: 'Please enter the initial value' },
     ({ getFieldValue }: { getFieldValue: (name: string) => number | undefined }) => ({
+      //eslint-disable-next-line 
       validator(_: unknown, value: number | undefined) {
         const targetValue = getFieldValue('targetValue');
         if (
@@ -74,6 +75,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   const targetValueRules = [
     { required: true, message: 'Please enter the target value' },
     ({ getFieldValue }: { getFieldValue: (name: string) => number | undefined }) => ({
+      //eslint-disable-next-line 
       validator(_: unknown, value: number | undefined) {
         const initialValue = getFieldValue('initialValue');
         if (

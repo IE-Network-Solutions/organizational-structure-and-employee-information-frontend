@@ -241,7 +241,7 @@ const EmployeeOKRTable: React.FC = () => {
       data-cy="employee-okr-filter-content"
       className="flex flex-col gap-4"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" data-cy="employee-okr-filter-content-div">
         {/* Employee Filter */}
         <div
           id="employee-okr-employee-field"
