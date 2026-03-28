@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   Col,
+  Divider,
   Modal,
   notification,
   Row,
@@ -13,11 +14,11 @@ import {
   Tag,
 } from 'antd';
 import { CalendarOutlined, CheckOutlined } from '@ant-design/icons';
-import { PiExportLight } from 'react-icons/pi';
 import ReconciliationDetailTable from './_components/reconciliationDetailTable';
 import { useState, useEffect } from 'react';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 import {
   useGetPayPeriod,
@@ -334,7 +335,7 @@ const PayrollReconcilation = () => {
       return (
         <div
           data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-405"
-          className="w-full overflow-x-auto"
+          className="w-full overflow-x-auto scrollbar-hide"
         >
           <Table
             loading={isLoading}
@@ -472,25 +473,35 @@ const PayrollReconcilation = () => {
       id="payroll-reconciliation-page"
       data-cy="payroll-reconciliation-page"
     >
+      <style data-cy="payroll-reconciliation-page-styles">{`
+        .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+      `}</style>
       <div
-        className="mb-6"
+        className="mt-6"
         id="payroll-reconciliation-header"
         data-cy="payroll-reconciliation-header"
       >
         <div id="payroll-reconciliation-header-container" className="flex flex-wrap items-start justify-between gap-4">
-          <div id="payroll-reconciliation-header-content" className="flex items-start">
+          <div data-cy="payroll-reconciliation-header-content" id="payroll-reconciliation-header-content" className="flex items-start gap-2">
+            <div className="py-3">
             <Button
+            type="default"
               value={'back'}
               name="back"
               onClick={handleGoBack}
-              className="border-none bg-transparent p-0 mr-2 mt-1"
+              className="border-[1px] border-[#D9D9D9] h-8 w-8 p-0 m-0"
               id="payroll-reconciliation-back-btn"
               data-cy="payroll-reconciliation-back-btn"
             >
-              <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
+              <ArrowBackIosIcon className="text-[8px]" />
             </Button>
+            </div>
             <div
-              className="pt-1"
               data-cy="org-settings-header-container"
             >
               <h3
@@ -532,7 +543,7 @@ const PayrollReconcilation = () => {
           >
             <Button
               size="large"
-              className="h-10 w-10 sm:px-4 text-[#3A3A3A] border-[#D9D9D9]"
+              className="h-10 sm:px-4 text-[#3A3A3A] border-[#D9D9D9]"
               icon={<SaveAltIcon />}
             >
               <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285">
@@ -554,6 +565,10 @@ const PayrollReconcilation = () => {
             )}
           </div>
         </div>
+        <Divider
+          className="full-bleed-header-divider"
+          style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+        />
 
         <Row gutter={[16, 16]} align="middle" className="mt-6">
           <Col xs={24} sm={12} md={8} lg={6} xl={5} className="md:ml-auto">

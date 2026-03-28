@@ -1631,7 +1631,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ) : (
             <div
               data-cy="nav-content-inner"
-              className="overflow-auto"
+              className="overflow-auto scrollbar-hide"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
