@@ -41,10 +41,12 @@ export const useCreatePlanTasks = () => {
         description: ' ',
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const descriptiveMessage =
+        error?.response?.data?.message || 'Creating Failed';
       NotificationMessage.error({
         message: 'Creating Failed',
-        description: '',
+        description: descriptiveMessage,
       });
     },
   });
@@ -76,10 +78,12 @@ export const useUpdatePlanTasks = () => {
         description: ' ',
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const descriptiveMessage =
+        error?.response?.data?.message || 'Updating Failed';
       NotificationMessage.error({
         message: 'Updating Failed',
-        description: '',
+        description: descriptiveMessage,
       });
     },
   });

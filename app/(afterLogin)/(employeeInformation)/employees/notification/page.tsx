@@ -3,14 +3,20 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
 import { Avatar, Divider, List, Skeleton, Spin, Tooltip } from 'antd';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
-import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { EmptyImage } from '@/components/emptyIndicator';
 import { NotificationType } from '@/store/server/features/notification/interface';
 import { AiFillNotification } from 'react-icons/ai';
-import { NotificationDetailVisible } from './_component/notificationDetail';
 import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { CgCloseO } from 'react-icons/cg';
+import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
+import { useCanAccessRoute } from '@/utils/routePermissions';
+
+function getNotificationRoute(n: NotificationType): string | null {
+  const r = n?.route?.trim();
+  return r || null;
+}
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -18,30 +24,38 @@ const toSlug = (value: string | number | null | undefined) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
+function getNotificationPath(item: NotificationType): string | null {
+  const route = getNotificationRoute(item);
+  return route ? (route.startsWith('/') ? route : `/${route}`) : null;
+}
+
 const Notifications = () => {
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const userId = useAuthenticationStore.getState().userId;
+  const router = useRouter();
+  const canAccessRoute = useCanAccessRoute();
 
-  const {
-    selectedNotificationId,
-    setIsNotificationDetailVisible,
-    setSelectedNotificationId,
-  } = useNotificationDetailStore();
-
-  const handleShowNotificationDetails = (id: string) => {
-    setSelectedNotificationId(id);
-    setIsNotificationDetailVisible(true);
-  };
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);
   };
-  const { data, isLoading } = useGetNotifications(userId);
+
+  const handleNotificationClick = (item: NotificationType) => {
+    const path = getNotificationPath(item);
+    if (path && !canAccessRoute(path)) return;
+    if (!item.isRead) updateNotification(item.id);
+    if (path) router.push(path);
+  };
+
+  const { data, isLoading } = useGetNotifications(userId, {
+    page: 1,
+    limit: 100,
+  });
   const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
   const unReadNotification = list.filter(
-    (item: NotificationType) => item.isRead === false,
+    (item: NotificationType) => item.isRead !== true,
   );
   const readNotification = list.filter(
-    (item: NotificationType) => item.isRead !== false,
+    (item: NotificationType) => item.isRead === true,
   );
 
   const formatDateDifference = (updatedAt: string) => {
@@ -84,17 +98,18 @@ const Notifications = () => {
           data-cy={`notification-breadcrumb-${pageSlug}`}
         />
       </div>
-      <Divider
-        orientation="left"
-        orientationMargin="20"
+      <div
+        id={`notification-latest-divider-${pageSlug}`}
         data-cy={`notification-latest-divider-${pageSlug}`}
       >
-        <CustomBreadcrumb
-          subtitle=""
-          title="Latest Notifications"
-          data-cy={`notification-latest-breadcrumb-${pageSlug}`}
-        />
-      </Divider>
+        <Divider orientation="left" orientationMargin="20">
+          <CustomBreadcrumb
+            subtitle=""
+            title="Latest Notifications"
+            data-cy={`notification-latest-breadcrumb-${pageSlug}`}
+          />
+        </Divider>
+      </div>
       {isLoading ? (
         <Spin
           tip="Loading"
@@ -116,9 +131,18 @@ const Notifications = () => {
             data-cy={`notification-unread-list-${pageSlug}`}
             renderItem={(item: NotificationType) => {
               const itemSlug = getNotificationSlug(item?.id);
+              const theme = getNotificationThemeClasses(item);
+              const path = getNotificationPath(item);
+              const hasAccess = !path || canAccessRoute(path);
               return (
                 <List.Item
                   key={item?.id}
+                  className={`border-l-4 ${theme.border} ${hasAccess ? `cursor-pointer ${theme.hover}` : 'cursor-not-allowed opacity-80'}`}
+                  title={
+                    hasAccess
+                      ? undefined
+                      : "You don't have permission to view this page"
+                  }
                   actions={[
                     <Tooltip
                       key={item?.id}
@@ -137,11 +161,7 @@ const Notifications = () => {
                       />
                     </Tooltip>,
                   ]}
-                  onClick={() => {
-                    handleShowNotificationDetails(item?.id);
-                    updateNotification(item?.id);
-                  }}
-                  className="cursor-pointer"
+                  onClick={() => handleNotificationClick(item)}
                   id={`notification-unread-item-${itemSlug}`}
                   data-cy={`notification-unread-item-${itemSlug}`}
                 >
@@ -155,7 +175,8 @@ const Notifications = () => {
                     <List.Item.Meta
                       avatar={
                         <Avatar
-                          icon={<AiFillNotification />}
+                          className={theme.bg}
+                          icon={<AiFillNotification className={theme.icon} />}
                           data-cy={`notification-unread-avatar-${itemSlug}`}
                         />
                       }
@@ -199,17 +220,18 @@ const Notifications = () => {
       ) : (
         <EmptyImage data-cy={`notification-unread-empty-${pageSlug}`} />
       )}
-      <Divider
-        orientation="left"
-        orientationMargin="20"
+      <div
+        id={`notification-previous-divider-${pageSlug}`}
         data-cy={`notification-previous-divider-${pageSlug}`}
       >
-        <CustomBreadcrumb
-          subtitle=""
-          title="Previous Notifications"
-          data-cy={`notification-previous-breadcrumb-${pageSlug}`}
-        />
-      </Divider>
+        <Divider orientation="left" orientationMargin="20">
+          <CustomBreadcrumb
+            subtitle=""
+            title="Previous Notifications"
+            data-cy={`notification-previous-breadcrumb-${pageSlug}`}
+          />
+        </Divider>
+      </div>
       {isLoading ? (
         <Spin
           tip="Loading"
@@ -231,12 +253,18 @@ const Notifications = () => {
             data-cy={`notification-read-list-${pageSlug}`}
             renderItem={(item: NotificationType) => {
               const itemSlug = getNotificationSlug(item?.id);
+              const theme = getNotificationThemeClasses(item);
+              const path = getNotificationPath(item);
+              const hasAccess = !path || canAccessRoute(path);
               return (
                 <List.Item
-                  onClick={() => {
-                    handleShowNotificationDetails(item?.id);
-                  }}
-                  className="cursor-pointer"
+                  onClick={() => handleNotificationClick(item)}
+                  className={`border-l-4 ${theme.border} ${hasAccess ? `cursor-pointer ${theme.hover}` : 'cursor-not-allowed opacity-80'}`}
+                  title={
+                    hasAccess
+                      ? undefined
+                      : "You don't have permission to view this page"
+                  }
                   id={`notification-read-item-${itemSlug}`}
                   data-cy={`notification-read-item-${itemSlug}`}
                 >
@@ -251,7 +279,8 @@ const Notifications = () => {
                       data-cy={`notification-read-list-item-${itemSlug}`}
                       avatar={
                         <Avatar
-                          icon={<AiFillNotification />}
+                          className={theme.bg}
+                          icon={<AiFillNotification className={theme.icon} />}
                           data-cy={`notification-read-avatar-${itemSlug}`}
                         />
                       }
@@ -294,12 +323,6 @@ const Notifications = () => {
         </div>
       ) : (
         <EmptyImage data-cy={`notification-read-empty-${pageSlug}`} />
-      )}
-      {selectedNotificationId && (
-        <NotificationDetailVisible
-          id={selectedNotificationId}
-          data-cy={`notification-detail-modal-${pageSlug}`}
-        />
       )}
     </div>
   );

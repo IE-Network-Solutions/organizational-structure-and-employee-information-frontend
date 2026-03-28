@@ -20,8 +20,13 @@ let currentFile = null;
 
 for (let i = 0; i < lines.length; i++) {
   const line = lines[i];
-  // Match full path (Windows: C:\... or path with backslashes)
-  const fileMatch = line.match(/^([A-Z]:\\.+\.(tsx|jsx))$/);
+  // Match file path on any OS (absolute or relative)
+  // Examples:
+  // - C:\repo\file.tsx
+  // - /home/user/repo/file.tsx
+  // - components/Foo.tsx
+  // - ./components/Foo.tsx
+  const fileMatch = line.match(/^(.*\.(?:tsx|jsx))$/);
   if (fileMatch) {
     currentFile = fileMatch[1];
     continue;
