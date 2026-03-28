@@ -63,6 +63,13 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useCopilotStore } from '@/store/uistate/features/copilot';
+import CopilotModule from '@/components/copilot/CopilotModule';
+import {
+  COPILOT_SHARE_QUERY,
+  COPILOT_SHARE_REF_QUERY,
+} from '@/utils/copilotShare';
 
 interface CustomMenuItem {
   key: string;
@@ -256,12 +263,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIsCheckingPermissions,
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const okrMode = useOKRStore((state) => state.okrMode);
+  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
+    useCopilotStore();
   const [isMounted, setIsMounted] = useState(false);
   const pathName = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMounted || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get(COPILOT_SHARE_QUERY) ||
+      params.get(COPILOT_SHARE_REF_QUERY)
+    ) {
+      setCopilotOpen(true);
+    }
+  }, [isMounted, pathname, setCopilotOpen]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -827,12 +848,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     [hasEndedFiscalYear],
   );
 
+  const menuTreeData = React.useMemo(() => {
+    const planningKey =
+      okrMode === 'Basic'
+        ? '/basic-okr/planning-and-reporting'
+        : '/planning-and-reporting';
+    return treeData.map((item) => {
+      if (item.key !== '/okr-menu' || !item.children) return item;
+      return {
+        ...item,
+        children: item.children.map((child) =>
+          child.key === '/planning-and-reporting'
+            ? { ...child, key: planningKey }
+            : child,
+        ),
+      };
+    });
+  }, [treeData, okrMode]);
+
   // Helper function moved to global scope
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
       // Get all routes and their permissions
-      const routesWithPermissions = getRoutesAndPermissions(treeData);
+      const routesWithPermissions = getRoutesAndPermissions(menuTreeData);
 
       // Check if user is owner - owners have access to all routes
       const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
@@ -913,7 +952,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       );
       return hasAllPermissions;
     },
-    [treeData, userData],
+    [menuTreeData, userData],
   );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
@@ -1033,7 +1072,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setExpandedKeys([]);
       return;
     }
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, menuTreeData);
     if (parentKey) {
       setExpandedKeys((prev) => {
         if (prev.length !== 1 || prev[0] !== parentKey) {
@@ -1042,7 +1081,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname, findParentMenuKey, treeData]);
+  }, [pathname, findParentMenuKey, menuTreeData]);
 
   useEffect(() => {
     setSelectedKeys([pathname]);
@@ -1060,11 +1099,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return;
     }
 
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, menuTreeData);
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
-  }, [expandedKeys.length, findParentMenuKey, pathname, treeData]);
+  }, [expandedKeys.length, findParentMenuKey, pathname, menuTreeData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1121,7 +1160,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return v.replace(/\/+$/, '') || '/';
     };
 
-    const accessibleTreeItems = treeData
+    const accessibleTreeItems = menuTreeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
@@ -1266,7 +1305,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return Array.from(groupedByParent.values()).filter(
       (group) => group.children.length > 0,
     );
-  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
+  }, [menuTreeData, modulesData, subscriptionData, subscriptionsData]);
 
   // Fallback skeleton structure used while modules data is not yet available
   const skeletonMenuItems = React.useMemo(
@@ -1654,7 +1693,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 background: '#ffffff',
               }}
             >
-              {children}
+              {isCopilotOpen ? (
+                <div
+                  id="copilot-workspace-root"
+                  data-cy="copilot-workspace-root"
+                >
+                  <CopilotModule onClose={() => setCopilotOpen(false)} />
+                </div>
+              ) : (
+                children
+              )}
             </div>
           )}
           {/* <CreateEmployeeJobInformation

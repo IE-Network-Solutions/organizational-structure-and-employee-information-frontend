@@ -46,3 +46,5 @@ export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 export const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
 export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
+
+export const AZURE_APP_SERVICE = process.env.NEXT_PUBLIC_AZURE_APP_SERVICE;
