@@ -200,7 +200,7 @@ const DeductionEntitlementTable: React.FC<DeductionEntitlementTableProps> = ({
             className="text-[13px] text-[#434343]"
             data-cy="compensation-deduction-entitlement-compact-amount"
           >
-            {record?.isRate ? `${amount}%` : amount}
+            {amount}
           </span>
         ) : (
           <span data-cy="compensation-deduction-entitlement-compact-amount-dash">

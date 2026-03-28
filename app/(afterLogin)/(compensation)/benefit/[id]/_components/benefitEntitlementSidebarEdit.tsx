@@ -149,12 +149,6 @@ const BenefitEntitlementSideBarEdit = ({
             {forDeductionDetail
               ? 'Edit Deduction Entitlement'
               : 'Edit Benefit Entitlement'}
-            {forDeductionDetail && title ? (
-              <span
-                className="ml-1 font-normal text-gray-600"
-                data-cy="compensation-benefit-sidebar-edit-title-type-name"
-              ></span>
-            ) : null}
           </span>
           <button
             type="button"

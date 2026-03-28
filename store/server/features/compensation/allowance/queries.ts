@@ -105,8 +105,10 @@ const fetchAllowance = async (allowanceId: string | string[]) => {
 export const useFetchAllowanceEntitlements = (
   allowanceId: string | string[],
 ) => {
-  return useQuery(['allowanceEntitlement'], () =>
-    fetchAllowanceEntitlements(allowanceId),
+  return useQuery(
+    ['allowanceEntitlement', allowanceId],
+    () => fetchAllowanceEntitlements(allowanceId),
+    { enabled: Boolean(allowanceId) },
   );
 };
 
