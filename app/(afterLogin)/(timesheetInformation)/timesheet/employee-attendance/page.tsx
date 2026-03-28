@@ -23,7 +23,6 @@ import { useAttendanceImport } from '@/store/server/features/timesheet/attendanc
 import { fileUpload } from '@/utils/fileUpload';
 import PermissionWrapper from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import EmployeeAttendanceSideBar from './_components/sideBar';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import BreakImportSidebar from './_components/breakImportSidebar';
 import { HiOutlineTemplate } from 'react-icons/hi';
@@ -31,8 +30,6 @@ import { useMediaQuery } from 'react-responsive';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
 import { LuBookmark } from 'react-icons/lu';
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import Link from 'next/link';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import IosShareIcon from '@mui/icons-material/IosShare';
 
@@ -219,60 +216,71 @@ const EmployeeAttendance = () => {
 
   return (
     <>
+      <style data-cy="time-attendance-employee-attendance-page-styles">{`
+     .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
+      `}</style>
       <div
-        className="min-h-screen px-3 sm:px-6"
         id="time-attendance-employee-attendance-page-container-view"
         data-cy="time-attendance-employee-attendance-page-container-view"
       >
         {/* Header Section */}
         <div
-          className="flex justify-between"
+          className="flex justify-between pt-6"
           id="time-attendance-employee-attendance-header-section"
           data-cy="time-attendance-employee-attendance-header-section"
         >
-          <CustomBreadcrumb
-            title={
-              <span
-                className="text-xl"
-                data-cy="time-attendance-employee-attendance-breadcrumb-title"
-              >
-                Time and Attendance
-              </span>
-            }
-            subtitle={
-              <Breadcrumb
-                data-cy="time-attendance-employee-attendance-breadcrumb"
-                items={[
-                  {
-                    title: (
-                      <span
-                        className="text-xs"
-                        data-cy="time-attendance-employee-attendance-breadcrumb-item-title"
-                      >
-                        Time and Attendance
-                      </span>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Link
-                        className="text-xs"
-                        data-cy="time-attendance-employee-attendance-breadcrumb-item-link"
-                        href="/timesheet/employee-attendance"
-                      >
-                        Attendance
-                      </Link>
-                    ),
-                  },
-                ]}
-              />
-            }
-            data-cy="manage-employees-breadcrumb"
-          />
+          <div
+            className="flex flex-col gap-2"
+            data-cy="time-attendance-employee-attendance-header-title"
+          >
+            <h3
+              className="text-gray-900 text-xl font-bold mb-0"
+              data-cy="time-attendance-employee-attendance-header-title"
+              id="time-attendance-employee-attendance-header-title"
+            >
+              Employee Attendance
+            </h3>
+            <Breadcrumb
+              items={[
+                {
+                  title: (
+                    <span
+                      className="text-xs sm:text-sm font-normal"
+                      data-cy="time-attendance-employee-attendance-breadcrumb-title-1"
+                    >
+                      Time and Attendance
+                    </span>
+                  ),
+                },
+                {
+                  title: (
+                    <span
+                      className="text-xs sm:text-sm text-[#4d4d4d] font-normal"
+                      data-cy="time-attendance-employee-attendance-breadcrumb-title-2"
+                    >
+                      Employee Attendance
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          </div>
 
           {/* Action Buttons */}
           <div
-            className="flex gap-2 py-4"
+            className="flex gap-2"
             id="time-attendance-employee-attendance-actions-row"
             data-cy="time-attendance-employee-attendance-actions-row"
           >
@@ -291,10 +299,11 @@ const EmployeeAttendance = () => {
                     <IosShareIcon
                       fontSize="small"
                       data-cy="time-attendance-employee-attendance-import-button-icon"
+                      className="text-[#374151] h-10"
                     />
                   }
                   loading={isLoading || isLoadingImport}
-                  className={`border border-[#d4d4d4] ${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
+                  className={`border  border-[#d9d9d9] text-base font-normal text-[#4d4d4d] ${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
                   id="time-attendance-employee-attendance-import-button"
                   data-cy="time-attendance-employee-attendance-import-button"
                 >
@@ -378,12 +387,15 @@ const EmployeeAttendance = () => {
               >
                 <Button
                   icon={
-                    <SaveAltIcon data-cy="time-attendance-employee-attendance-export-button-icon" />
+                    <SaveAltIcon
+                      data-cy="time-attendance-employee-attendance-export-button-icon"
+                      className="text-white"
+                    />
                   }
                   size="large"
                   type="primary"
                   loading={isExportLoading}
-                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
                   id="time-attendance-employee-attendance-export-button"
                   data-cy="time-attendance-employee-attendance-export-button"
                 >
@@ -393,7 +405,10 @@ const EmployeeAttendance = () => {
             </PermissionWrapper>
           </div>
         </div>
-        <Divider />
+        <Divider
+          className="full-bleed-header-divider"
+          style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+        />
 
         {/* Hidden File Input */}
         <input
@@ -424,7 +439,6 @@ const EmployeeAttendance = () => {
           />
         </div>
       </div>
-      <EmployeeAttendanceSideBar data-cy="time-attendance-employee-attendance-side-bar" />
       <BreakImportSidebar data-cy="time-attendance-employee-attendance-break-import-side-bar" />
       <AttendanceImportErrorModal data-cy="time-attendance-employee-attendance-import-error-modal" />
     </>

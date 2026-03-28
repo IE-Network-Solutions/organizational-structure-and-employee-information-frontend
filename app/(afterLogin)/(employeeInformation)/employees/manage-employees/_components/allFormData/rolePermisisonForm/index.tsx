@@ -94,11 +94,25 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           data-cy="role-permission-role-col"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="roleId"
             id="roleId"
             data-cy="roleId"
-            label="Role"
+            label={
+              <span
+                className="mb-1 font-normal text-sm text-[#030712]"
+                id="role-permission-role-label"
+                data-cy="role-permission-role-label"
+              >
+                Role{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`role-permission-role-required`}
+                >
+                  *
+                </span>
+              </span>
+            }
             rules={[{ required: true, message: 'Please select a role!' }]}
           >
             <Select
@@ -135,7 +149,7 @@ const RolePermissionForm: React.FC<RolePermissionFormProps> = ({ form }) => {
           data-cy="role-permission-permissions-col"
         >
           <Form.Item
-            className="font-semibold text-xs hidden"
+            className="font-normal text-base hidden"
             name="setOfPermission"
             id="setOfPermission"
             data-cy="setOfPermission"

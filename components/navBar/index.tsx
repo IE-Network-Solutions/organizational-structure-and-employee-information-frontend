@@ -56,10 +56,10 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-import dayjs from 'dayjs';
-import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+// import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+// import dayjs from 'dayjs';
+// import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
@@ -239,7 +239,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -433,6 +433,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: hasEndedFiscalYear,
         moduleCode: 'EMPLOYEES',
         children: [
+          {
+            title: (
+              <span data-cy="nav-tree-manage-employees-dashboard">
+                Dashboard
+              </span>
+            ),
+            key: '/employees/dashboard',
+            className: 'font-bold',
+            permissions: ['view_employees_dashboard'],
+          },
           {
             title: (
               <span data-cy="nav-tree-manage-employees">Manage Employees</span>
@@ -1131,7 +1141,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
-    const treeItemByRouteMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<
+      string,
+      (typeof accessibleTreeItems)[0]
+    >();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
 
@@ -1304,36 +1317,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ],
     [groupedMenuItems],
   );
-  const { mutate: employeeInfo } = useCreateEmployee();
-  const handleUserInfoUpdate = () => {
-    const fullName = employeeData?.firstName?.split(' ') || [];
-    const payloadUser = {
-      firstName: fullName[0] || '-',
-      middleName: fullName[1] || '-',
-      lastName: fullName[2] || '-',
-    };
-    const payloadEmp = {
-      joinedDate: employeeData?.createdAt
-        ? new Date(employeeData?.createdAt).toISOString()
-        : new Date().toISOString(),
-      dateOfBirth: dayjs().subtract(30, 'year'),
-      employeeAttendanceId: 1,
-      gender: 'male',
-      maritalStatus: 'SINGLE',
-      addresses: {},
-      additionalInformation: {},
-      bankInformation: {},
-      userId: userId,
-    };
+  // const { mutate: employeeInfo } = useCreateEmployee();
 
-    updateEmployeeInformation({
-      id: userId,
-      values: payloadUser,
-    });
-    employeeInfo({
-      values: payloadEmp,
-    });
-  };
+  // const handleUserInfoUpdate = () => {
+  //   const fullName = employeeData?.firstName?.split(' ') || [];
+  //   const payloadUser = {
+  //     firstName: fullName[0] || '-',
+  //     middleName: fullName[1] || '-',
+  //     lastName: fullName[2] || '-',
+  //   };
+  //   const payloadEmp = {
+  //     joinedDate: employeeData?.createdAt
+  //       ? new Date(employeeData?.createdAt).toISOString()
+  //       : new Date().toISOString(),
+  //     dateOfBirth: dayjs().subtract(30, 'year'),
+  //     employeeAttendanceId: 1,
+  //     gender: 'male',
+  //     maritalStatus: 'SINGLE',
+  //     addresses: {},
+  //     additionalInformation: {},
+  //     bankInformation: {},
+  //     userId: userId,
+  //   };
+
+  //   updateEmployeeInformation({
+  //     id: userId,
+  //     values: payloadUser,
+  //   });
+  //   employeeInfo({
+  //     values: payloadEmp,
+  //   });
+  // };
 
   // Render the component with the layout and navigation on the left
 
@@ -1635,20 +1649,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: 24,
-                marginLeft: 24,
+                paddingRight: isMobile ? 8 : 24,
+                paddingLeft: isMobile ? 8 : 24,
                 background: '#ffffff',
               }}
             >
               {children}
             </div>
           )}
-          <CreateEmployeeJobInformation
+          {/* <CreateEmployeeJobInformation
             onInfoSubmition={() => {
               handleUserInfoUpdate();
             }}
             id={userId}
-          />
+          /> */}
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}

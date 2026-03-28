@@ -1,52 +1,52 @@
 import { Button, Tag } from 'antd';
 
-const userTypeButton = (val: string) => {
-  if (val === 'On Boarding') {
+const statusType = (val: string) => {
+  if (val === 'present') {
     return (
       <Tag
         id="roleTypeOwner"
         data-cy="roleTypeOwner"
-        className="text-sky-600 text-xs font-normal px-2 bg-white border border-sky-600 hover:bg-sky-50 h-[22px]"
+        className="bg-[#e6f4ff] text-[#1677ff] text-xs font-medium py-0.5 px-2  border border-[#91caff] hover:bg-sky-50 h-[22px]"
       >
-        ON BOARDING
+        PRESENT
       </Tag>
     );
-  } else if (val === 'Permanent') {
+  } else if (val === 'absent') {
     return (
       <Tag
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
+        className="text-[#f5222d] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffa39e] h-[22px]"
       >
-        Permanent
+        ABSENT
       </Tag>
     );
-  } else if (val === 'Probation') {
+  } else if (val === 'late') {
     return (
       <Tag
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
+        className="text-[#fa8c16] text-sm font-normal px-2 bg-[#fff7e6] border border-[#ffd591] h-[22px]"
       >
-        Probation
+        LATE
       </Tag>
     );
-  } else if (val === 'On Leave') {
+  } else if (val === 'early') {
     return (
-      <Button
+      <Tag
         id="roleTypeOnLeave" // Note: I changed this id because it's same with the above Button
         data-cy="roleTypeOnLeave"
-        className="text-red-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-red-600 hover:bg-red-50"
+        className="text-green-600 text-xs font-medium py-0.5 px-2 bg-white border border-green-600 hover:bg-green-50 h-[22px]"
       >
-        ON LEAVE
-      </Button>
+        EARLY
+      </Tag>
     );
   } else if (val === null || val === '') {
     return (
       <Button
         id="roleTypeNull"
         data-cy="roleTypeNull"
-        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
+        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50 h-[22px]"
       >
         Unknown
       </Button>
@@ -56,7 +56,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeActive"
         data-cy="roleTypeActive"
-        className="text-[#1677ff] text-sm font-normal px-2 bg-[#e6f4ff] border border-[#91caff] h-[22px]"
+        className="text-[#1677ff] text-xs font-medium py-1 px-2 bg-[#e6f4ff] border border-[#91caff]"
       >
         Active
       </Tag>
@@ -66,7 +66,7 @@ const userTypeButton = (val: string) => {
       <Tag
         id="roleTypeInActive"
         data-cy="roleTypeInActive"
-        className="text-[#ff4d4f] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffccc7] h-[22px]"
+        className="text-[#ff4d4f] text-xs font-medium py-1 px-2 bg-[#fff1f0] border border-[#ffccc7]"
       >
         InActive
       </Tag>
@@ -85,4 +85,4 @@ const userTypeButton = (val: string) => {
   }
 };
 
-export default userTypeButton;
+export default statusType;
