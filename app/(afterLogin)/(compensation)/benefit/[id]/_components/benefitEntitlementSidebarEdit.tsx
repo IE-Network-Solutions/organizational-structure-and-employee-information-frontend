@@ -153,8 +153,7 @@ const BenefitEntitlementSideBarEdit = ({
               <span
                 className="ml-1 font-normal text-gray-600"
                 data-cy="compensation-benefit-sidebar-edit-title-type-name"
-              >
-              </span>
+              ></span>
             ) : null}
           </span>
           <button

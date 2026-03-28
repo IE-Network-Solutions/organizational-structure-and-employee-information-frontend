@@ -359,9 +359,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       render: (rule: any, record: any) => (
         <div
           onClick={
-            deductionDetailLayout
-              ? undefined
-              : () => handleEmployeeData(record)
+            deductionDetailLayout ? undefined : () => handleEmployeeData(record)
           }
           className={deductionDetailLayout ? undefined : 'cursor-pointer'}
           id={`compensation-benefit-entitlement-employee-${record?.userId}`}

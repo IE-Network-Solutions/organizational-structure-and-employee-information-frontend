@@ -129,7 +129,12 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
         fixed: 'left',
         width: 200,
         render: (text: string) => (
-          <span className="text-[13px] text-[#434343]">{text}</span>
+          <span
+            className="text-[13px] text-[#434343]"
+            data-cy="compensation-deduction-all-table-name-cell"
+          >
+            {text}
+          </span>
         ),
       },
     ];
@@ -138,7 +143,10 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
       const label = item.name ?? '';
       baseColumns.push({
         title: (
-          <span className="inline-block whitespace-nowrap text-left font-semibold">
+          <span
+            className="inline-block whitespace-nowrap text-left font-semibold"
+            data-cy={`compensation-deduction-all-table-header-${item.id}`}
+          >
             {label}
           </span>
         ),
@@ -147,7 +155,10 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
         align: 'left',
         width: Math.max(152, Math.ceil(label.length * 7.5) + 32),
         render: (value: number | undefined) => (
-          <span className="block whitespace-nowrap text-[13px] text-[#434343]">
+          <span
+            className="block whitespace-nowrap text-[13px] text-[#434343]"
+            data-cy={`compensation-deduction-all-table-cell-${item.id}`}
+          >
             {value != null ? value : '-'}
           </span>
         ),
@@ -187,9 +198,12 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
             pagination={false}
             scroll={{ x: 'max-content' }}
             rowHoverable={false}
-            rowClassName={(_, rowIndex) =>
-              rowIndex % 2 === 0 ? 'benefit-row-even' : 'benefit-row-odd'
-            }
+            rowClassName={(unusedRow, rowIndex) => {
+              void unusedRow;
+              return rowIndex % 2 === 0
+                ? 'benefit-row-even'
+                : 'benefit-row-odd';
+            }}
             className="[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-tbody>tr.benefit-row-even>td]:!bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr>td]:border-0 [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr:hover>td]:!bg-[#f5f5f5]"
             data-cy="compensation-deduction-all-table"
           />

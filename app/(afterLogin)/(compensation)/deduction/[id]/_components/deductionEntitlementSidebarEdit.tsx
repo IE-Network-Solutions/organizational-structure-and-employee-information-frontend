@@ -162,7 +162,9 @@ const DeductionEntitlementSideBarEdit = ({
             id="compensation-deduction-sidebar-edit-title"
             data-cy="compensation-deduction-sidebar-edit-title"
           >
-            Edit Deduction Entitlement
+            {title
+              ? `Edit Deduction Entitlement — ${title}`
+              : 'Edit Deduction Entitlement'}
           </span>
           <button
             type="button"

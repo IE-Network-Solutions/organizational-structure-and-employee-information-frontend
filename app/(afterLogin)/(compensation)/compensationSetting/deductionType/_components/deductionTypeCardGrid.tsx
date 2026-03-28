@@ -170,6 +170,7 @@ const DeductionTypeCardGrid = () => {
                 className="shrink-0"
                 style={{ width: 24, height: 24 }}
                 aria-hidden
+                data-cy="compensation-settings-deduction-type-card-all-summary-spacer"
               />
             </div>
             <p
