@@ -14,8 +14,8 @@ import React, { FC, useLayoutEffect, useRef, useState } from 'react';
 import { DATE_FORMAT } from '@/utils/constants';
 import { formatToOptions } from '@/helpers/formatTo';
 import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
-import { MdKeyboardArrowDown } from 'react-icons/md';
-import { FilterOutlined, SearchOutlined } from '@ant-design/icons';
+import { MdKeyboardArrowDown, MdOutlineFilterAlt } from 'react-icons/md';
+import { SearchOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useGetDepartments,
@@ -362,7 +362,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
         data-cy="time-attendance-leave-management-filter-row"
       >
         <div
-          className="flex-1 min-w-[200px] max-w-md"
+          className="w-[300px] max-w-md"
           data-cy="time-attendance-leave-management-filter-search-wrapper"
         >
           <Form.Item name="searchEmployee" className="mb-0">
@@ -378,10 +378,15 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               }))}
               className="h-10 border-gray-100"
               suffixIcon={
-                <SearchOutlined
-                  data-cy="time-attendance-leave-management-search-employee-suffix-icon"
-                  className="text-gray-600"
-                />
+                <div
+                  data-cy="time-attendance-leave-management-search-employee-suffix-icon-container"
+                  className="flex items-center justify-center h-10 border-l border-gray-200 p-2 "
+                >
+                  <SearchOutlined
+                    data-cy="time-attendance-leave-management-search-employee-suffix-icon"
+                    className="text-gray-600 ml-2"
+                  />
+                </div>
               }
               id="time-attendance-leave-management-search-employee"
               data-cy="time-attendance-leave-management-search-employee"
@@ -396,7 +401,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               id="time-attendance-leave-management-filter-button"
               data-cy="time-attendance-leave-management-filter-button"
               icon={
-                <FilterOutlined
+                <MdOutlineFilterAlt
                   data-cy="time-attendance-leave-management-filter-button-icon"
                   className="text-gray-600"
                 />
@@ -468,7 +473,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               id="time-attendance-leave-management-filter-button"
               data-cy="time-attendance-leave-management-filter-button"
               icon={
-                <FilterOutlined
+                <MdOutlineFilterAlt
                   data-cy="time-attendance-leave-management-filter-button-icon"
                   className="text-gray-600"
                 />
