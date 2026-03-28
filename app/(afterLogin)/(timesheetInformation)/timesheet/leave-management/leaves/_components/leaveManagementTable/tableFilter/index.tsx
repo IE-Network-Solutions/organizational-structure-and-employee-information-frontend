@@ -380,7 +380,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               suffixIcon={
                 <div
                   data-cy="time-attendance-leave-management-search-employee-suffix-icon-container"
-                  className="flex items-center justify-center h-10 border-l border-gray-200 p-2 "
+                  className="flex items-center justify-center h-10 border-l border-gray-200  "
                 >
                   <SearchOutlined
                     data-cy="time-attendance-leave-management-search-employee-suffix-icon"
