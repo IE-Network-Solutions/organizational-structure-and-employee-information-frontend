@@ -216,7 +216,7 @@ const EmployeeAttendance = () => {
 
   return (
     <>
-    <style data-cy="time-attendance-employee-attendance-page-styles">{`
+      <style data-cy="time-attendance-employee-attendance-page-styles">{`
      .full-bleed-header-divider {
           width: calc(100% + 48px) !important;
           margin-left: -24px !important;
@@ -406,9 +406,9 @@ const EmployeeAttendance = () => {
           </div>
         </div>
         <Divider
-        className="full-bleed-header-divider"
-                style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
-                />
+          className="full-bleed-header-divider"
+          style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+        />
 
         {/* Hidden File Input */}
         <input

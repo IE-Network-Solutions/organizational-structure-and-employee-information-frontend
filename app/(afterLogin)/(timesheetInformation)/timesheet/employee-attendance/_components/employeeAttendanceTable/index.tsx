@@ -571,12 +571,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             onChange={handleTableChange}
             id="time-attendance-employee-attendance-table"
             data-cy="time-attendance-employee-attendance-table"
-            // rowClassName={(notUsed, index) =>
-            //   index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-            // }
             rowClassName={(record, index) => {
               const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-              const selected = getCurrentPageSelectedKeys().includes(record.key);
+              const selected = getCurrentPageSelectedKeys().includes(
+                record.key,
+              );
               return selected ? `${base} [&>td]:!bg-white` : base;
             }}
           />
