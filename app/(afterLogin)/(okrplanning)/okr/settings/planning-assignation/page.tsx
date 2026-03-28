@@ -20,7 +20,7 @@ import {
 import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 import { useDeletePlanningUser } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import AccessGuard from '@/utils/permissionGuard';
@@ -168,7 +168,7 @@ const PlanAssignment: React.FC = () => {
               id={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
               data-cy={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
             >
-              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <MdOutlineEdit className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-planning-assignation-card-edit-text-${item?.userId}`}
@@ -202,7 +202,7 @@ const PlanAssignment: React.FC = () => {
                 id={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
                 data-cy={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
               >
-                <MdDeleteForever className="text-xl" />
+                <MdDeleteOutline className="text-xl" />
                 <span
                   className="text-[15px]"
                   data-cy={`okr-planning-assignation-card-delete-text-${item?.userId}`}
@@ -360,7 +360,11 @@ const PlanAssignment: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
-                            <EllipsisOutlined className="text-lg" />
+                            <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
+                              <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
+                              <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                            </svg>
                           </button>
                         </Dropdown>
                       </div>

@@ -11,7 +11,7 @@ import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-ev
 import OkrRuleModal from './okr-rule';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 
 const DefineOkrRule = () => {
   const {
@@ -70,7 +70,7 @@ const DefineOkrRule = () => {
               id={`okr-rule-card-edit-menu-item-${item.id}`}
               data-cy={`okr-rule-card-edit-menu-item-${item.id}`}
             >
-              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <MdOutlineEdit className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-rule-card-edit-text-${item.id}`}
@@ -97,7 +97,7 @@ const DefineOkrRule = () => {
               id={`okr-rule-card-delete-menu-item-${item.id}`}
               data-cy={`okr-rule-card-delete-menu-item-${item.id}`}
             >
-              <MdDeleteForever className="text-xl" />
+              <MdDeleteOutline className="text-xl" />
               <span
                 className="text-[15px]"
                 data-cy={`okr-rule-card-delete-text-${item.id}`}
@@ -169,7 +169,11 @@ const DefineOkrRule = () => {
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-rule-card-menu-button-${item.id}`}
                       >
-                        <EllipsisOutlined className="text-lg" />
+                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
+                          <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
+                          <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                        </svg>
                       </button>
                     </Dropdown>
                   </div>

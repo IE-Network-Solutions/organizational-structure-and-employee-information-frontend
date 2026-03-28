@@ -58,15 +58,15 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
           <Select
             placeholder={
               <div
-                className="flex items-center gap-2 text-[#595959]"
+                className="flex items-center gap-2 text-[rgba(0,0,0,0.7)]"
                 data-cy="okr-criteria-filters-select-placeholder"
               >
                 <LuFilter
-                  className="text-[16px]"
+                  className="text-[14px]"
                   data-cy="okr-criteria-filters-select-placeholder-icon"
                 />
                 <span
-                  className="text-[14px] hidden sm:inline"
+                  className="text-[14px] font-normal hidden sm:inline"
                   data-cy="okr-criteria-filters-select-placeholder-text"
                 >
                   Filter
@@ -97,20 +97,15 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
       <style jsx global data-cy="okr-criteria-filters-styles">{`
         /* Filter v3 - Wrap Around Design */
         .custom-filter-select-v3.ant-select {
-          width: auto !important;
-          min-width: 44px !important;
-        }
-        @media (min-width: 640px) {
-          .custom-filter-select-v3.ant-select {
-            min-width: 90px !important;
-          }
+          width: 84px !important;
+          min-width: 84px !important;
         }
         .custom-filter-select-v3 .ant-select-selector {
-          height: 44px !important;
+          height: 32px !important;
           border-radius: 6px !important;
-          border-color: #d9d9d9 !important;
-          padding-left: 12px !important;
-          padding-right: 12px !important;
+          border: 1px solid #d9d9d9 !important;
+          padding-left: 15px !important;
+          padding-right: 15px !important;
           background-color: white !important;
           display: flex !important;
           align-items: center !important;

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Spin, Dropdown, MenuProps, Tag } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
-import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetModal from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
@@ -93,7 +93,7 @@ function Page() {
               id={`okr-target-card-edit-menu-item-${group.key}`}
               data-cy={`okr-target-card-edit-menu-item-${group.key}`}
             >
-              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <MdOutlineEdit className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-target-card-edit-text-${group.key}`}
@@ -120,7 +120,7 @@ function Page() {
               id={`okr-target-card-delete-menu-item-${group.key}`}
               data-cy={`okr-target-card-delete-menu-item-${group.key}`}
             >
-              <MdDeleteForever className="text-xl" />
+              <MdDeleteOutline className="text-xl" />
               <span
                 className="text-[15px]"
                 data-cy={`okr-target-card-delete-text-${group.key}`}
@@ -202,7 +202,11 @@ function Page() {
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-target-card-menu-button-${group.key}`}
                       >
-                        <EllipsisOutlined className="text-lg" />
+                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
+                          <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
+                          <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                        </svg>
                       </button>
                     </Dropdown>
                   </div>
