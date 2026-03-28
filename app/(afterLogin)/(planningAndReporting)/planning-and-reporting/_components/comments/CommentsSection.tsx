@@ -1,6 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Avatar, Skeleton } from 'antd';
 import CommentList from './commentList';
+import {
+  PR_BORDER,
+  PR_PRIMARY,
+  PR_PRIMARY_MUTED,
+  PR_TEXT,
+} from '../planningUiTokens';
 import { CommentsData } from '@/types/okr';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
@@ -22,6 +28,7 @@ export default function CommentsSection({
   isLoading = false,
   achieved = 0,
 }: CommentsSectionProps) {
+  void achieved;
   const [showComments, setShowComments] = useState(false);
   const [showAddComment, setShowAddComment] = useState(false);
   const [resetToggle, setResetToggle] = useState(0);
@@ -82,16 +89,11 @@ export default function CommentsSection({
     }
   };
 
-  // Format achieved value as a proper number
-  const formattedAchieved = useMemo(() => {
-    const numValue = Number(achieved) || 0;
-    return Math.round(numValue);
-  }, [achieved]);
-
   return (
     <div
       data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-92"
-      className="mt-5 border-t border-[#F1F2F6] pt-4"
+      className="mt-5 border-t pt-4"
+      style={{ borderColor: PR_BORDER }}
     >
       {/* Header: Avatars | Comments Count | Add Comment Button */}
       <div
@@ -115,8 +117,8 @@ export default function CommentsSection({
                     style={{
                       backgroundColor: userDetail.profileImage
                         ? undefined
-                        : '#E0E7FF',
-                      color: userDetail.profileImage ? undefined : '#4C1D95',
+                        : PR_PRIMARY_MUTED,
+                      color: userDetail.profileImage ? undefined : PR_PRIMARY,
                       fontSize: '12px',
                       fontWeight: 600,
                     }}
@@ -129,7 +131,8 @@ export default function CommentsSection({
           )}
           <span
             data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-123"
-            className="text-xs md:text-sm font-semibold text-[#1F213A]"
+            className="text-xs md:text-sm font-semibold"
+            style={{ color: PR_TEXT }}
           >
             {commentCount} Comments
           </span>
@@ -138,33 +141,13 @@ export default function CommentsSection({
           data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-127"
           className="flex flex-col items-end gap-0.5"
         >
-          {/* Total Points Display (only for reporting mode, above Add Comment) */}
-          {!isPlanCard && (
-            <span
-              data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-130"
-              className="text-[10px] md:text-xs font-normal text-[#8F94A3]"
-            >
-              total point:{' '}
-              <span
-                className={`font-medium ${
-                  formattedAchieved > 84
-                    ? 'text-[#52C41A]'
-                    : formattedAchieved >= 64
-                      ? 'text-orange-500'
-                      : 'text-red-500'
-                }`}
-                data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-147"
-              >
-                {formattedAchieved}%
-              </span>
-            </span>
-          )}
           <span
             onClick={handleAddCommentClick}
-            className="cursor-pointer text-xs font-semibold text-[#1D4ED8] transition-colors hover:text-[#1E3A8A] md:text-sm"
+            className="cursor-pointer text-xs font-semibold transition-colors md:text-sm hover:opacity-90"
+            style={{ color: PR_PRIMARY }}
             data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-160"
           >
-            Add Comment
+            Add comment
           </span>
         </div>
       </div>

@@ -4,7 +4,7 @@ export default function PlanCardSkeleton() {
   return (
     <div
       data-cy="planning-and-reporting-components-cards-plancardskeleton-tsx-plancardskeleton-div-5"
-      className="rounded-3xl border border-gray-300 p-4 bg-white animate-pulse"
+      className="animate-pulse rounded-lg border border-[#E0E0E0] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.06)]"
     >
       {/* Header Skeleton */}
       <div

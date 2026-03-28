@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Button, Modal, Select, Typography, Empty } from 'antd';
+import { Button, Modal, Select, Typography, Empty, message } from 'antd';
 import { CloseOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import {
   fetchWeeklyPlanSuggestions,
@@ -38,6 +38,16 @@ interface AISuggestionsModalProps {
   userId?: string;
   planningPeriodId?: string;
   planningUserId?: string;
+  /** One key result per row (planning modal); pre-selects KR and hides KR dropdown. */
+  singleKeyResultScope?: boolean;
+  /** Compact +AI trigger for KR rows; default is full "AI Suggestion" button. */
+  triggerVariant?: 'default' | 'compact';
+  /** Suffix for data-cy on compact trigger (e.g. key result id). */
+  triggerDataCySuffix?: string;
+  /** Planning modal: generate on +AI click and append tasks (no selection modal). */
+  planningInlineGenerate?: boolean;
+  /** Daily planning row: weekly parent task id for inline generate. */
+  inlineWeeklyPlanTaskId?: string;
 }
 
 const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
@@ -52,6 +62,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   userId,
   planningPeriodId,
   planningUserId,
+  singleKeyResultScope = false,
+  triggerVariant = 'default',
+  triggerDataCySuffix = '',
+  planningInlineGenerate = false,
+  inlineWeeklyPlanTaskId,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,9 +74,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   const [weeklyPlanTaskId, setWeeklyPlanTaskId] = useState<
     string | undefined
   >();
-  const [items, setItems] = useState<
-    { title: string; weight: number; priority: string; target?: number }[]
-  >([]);
+  const [items, setItems] = useState<SuggestionItem[]>([]);
   const [milestoneId, setMilestoneId] = useState<string | undefined>();
   const { isMobile } = useIsMobile();
   const askAnother = () => {
@@ -140,6 +153,17 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       setKeyResultId(undefined);
     }
   }, [keyResultId, ongoingKeyResults]);
+
+  const scopedSingleKrId = useMemo(() => {
+    if (!singleKeyResultScope || ongoingKeyResults.length !== 1)
+      return undefined;
+    return String(ongoingKeyResults[0].id);
+  }, [singleKeyResultScope, ongoingKeyResults]);
+
+  React.useEffect(() => {
+    if (!open || !scopedSingleKrId) return;
+    setKeyResultId(scopedSingleKrId);
+  }, [open, scopedSingleKrId]);
   React.useEffect(() => {
     // Reset milestone when KR changes
     setMilestoneId(undefined);
@@ -184,6 +208,9 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     hasParentPlan !== undefined
       ? !hasParentPlan
       : (planTypeName || '').toLowerCase().includes('week');
+
+  const hideKeyResultPicker =
+    Boolean(scopedSingleKrId) && (isWeekly || isDaily);
 
   const selectedOngoingKeyResult = useMemo(
     () => ongoingKeyResults.find((k) => k.id === keyResultId),
@@ -283,14 +310,112 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     return s === 'done' || s === 'completed' || s === 'achieved';
   };
 
-  const handleGenerate = async () => {
+  type GenerateCtx = {
+    keyResultId?: string;
+    weeklyPlanTaskId?: string;
+    milestoneId?: string | null;
+  };
+
+  const appendItemToPlanningForm = (
+    item: SuggestionItem,
+    eff: {
+      keyResultId: string;
+      weeklyPlanTaskId?: string;
+      milestoneId?: string | null;
+    },
+  ) => {
+    const targetKeyResultId = eff.keyResultId;
+    const selectedKR = keyResults.find(
+      (k) => String(k.id) === String(targetKeyResultId),
+    );
+    if (!selectedKR) return;
+
+    const effW = eff.weeklyPlanTaskId;
+    const effMi = eff.milestoneId ?? undefined;
+
+    let boardKey: string;
+    let listName: string;
+
+    if (isDaily && effW) {
+      const selectedWeeklyTask = weeklyPlanTasks.find((t) => t.id === effW);
+      const mId =
+        (selectedWeeklyTask as { milestoneId?: string })?.milestoneId || '';
+      const compositeKey = `${targetKeyResultId}${mId}${effW}`;
+      boardKey = resolveBoardKeyForKR
+        ? resolveBoardKeyForKR(compositeKey)
+        : compositeKey;
+      listName = resolveListNameForKR
+        ? resolveListNameForKR(compositeKey)
+        : `names-${compositeKey}`;
+    } else if (selectedKR?.metricType?.name === NAME.MILESTONE && effMi) {
+      const compositeKey = `${targetKeyResultId}${effMi}`;
+      boardKey = resolveBoardKeyForKR
+        ? resolveBoardKeyForKR(compositeKey)
+        : compositeKey;
+      listName = resolveListNameForKR
+        ? resolveListNameForKR(compositeKey)
+        : `names-${compositeKey}`;
+    } else {
+      boardKey = resolveBoardKeyForKR
+        ? resolveBoardKeyForKR(targetKeyResultId)
+        : targetKeyResultId;
+      listName = resolveListNameForKR
+        ? resolveListNameForKR(targetKeyResultId)
+        : `names-${targetKeyResultId}`;
+    }
+
+    const taskData = {
+      task: item.title,
+      weight: item.weight,
+      priority: (item.priority || 'medium').toLowerCase(),
+      targetValue: typeof item.target === 'number' ? item.target : 0,
+      userId: userId,
+      planningPeriodId: planningPeriodId,
+      planningUserId: planningUserId,
+      keyResultId: targetKeyResultId,
+      achieveMK: false,
+      ...(isWeekly &&
+        selectedKR?.metricType?.name === NAME.MILESTONE &&
+        effMi && { milestoneId: effMi }),
+      ...(isDaily && effW && { parentTaskId: effW }),
+    };
+
+    const existingList = form.getFieldValue(listName) || [];
+    const taskExists = existingList.some(
+      (existingTask: any) =>
+        existingTask.task === taskData.task &&
+        existingTask.weight === taskData.weight,
+    );
+    if (taskExists) return;
+
+    if (handleAddName) {
+      handleAddName(taskData, boardKey);
+    } else {
+      const updatedList = [taskData, ...existingList];
+      form.setFieldsValue({ [listName]: updatedList });
+      const totalWeight = updatedList.reduce(
+        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
+        0,
+      );
+      PlanningAndReportingStore.getState().setWeight(listName, totalWeight);
+    }
+  };
+
+  const handleGenerate = async (
+    ctxOverride?: GenerateCtx,
+  ): Promise<SuggestionItem[] | null> => {
     setLoading(true);
     try {
+      const effK = ctxOverride?.keyResultId ?? keyResultId;
+      const effW = ctxOverride?.weeklyPlanTaskId ?? weeklyPlanTaskId;
+      const effM =
+        ctxOverride !== undefined ? ctxOverride.milestoneId : milestoneId;
+
       if (isWeekly) {
-        const selected = keyResults.find((k) => k.id === keyResultId);
-        if (!selected) return;
+        const selected = keyResults.find((k) => String(k.id) === String(effK));
+        if (!selected) return null;
         // Guard against generating for completed key results
-        if (Number(selected.progress ?? 0) >= 100) return;
+        if (Number(selected.progress ?? 0) >= 100) return null;
 
         const progress = selected.progress || 0;
         const userId = useAuthenticationStore.getState().userId;
@@ -349,7 +474,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         allWeeklyReports.forEach((report: any) => {
           const reportTasks = extractReportTasks(report);
           reportTasks.forEach((task: any) => {
-            if (task.planTask?.keyResultId === keyResultId) {
+            if (String(task.planTask?.keyResultId ?? '') === String(effK)) {
               const weeklyTask = {
                 title: task.planTask?.task ?? task?.task,
                 status: task.status,
@@ -430,10 +555,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
           (selected?.metricType?.name === NAME.MILESTONE ||
             String(selected?.metricType?.name || '').toLowerCase() ===
               String(NAME.MILESTONE).toLowerCase()) &&
-          milestoneId
+          effM
             ? String(
                 (selected?.milestones || []).find(
-                  (m: any) => String(m?.id) === String(milestoneId),
+                  (m: any) => String(m?.id) === String(effM),
                 )?.title || selected.title,
               )
             : selected.title;
@@ -450,46 +575,47 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         const res = await fetchWeeklyPlanSuggestions({
           keyResultReport: keyResultReportNestedWeekly,
         });
-        setItems(
-          res.map((r) => {
-            // Normalize target from backend (number or numeric string)
-            const rawTarget: any =
-              r?.target !== undefined
-                ? r.target
-                : (r as any)?.targetValue !== undefined
-                  ? (r as any).targetValue
-                  : undefined;
-            const parsedTarget =
-              typeof rawTarget === 'number'
-                ? rawTarget
-                : typeof rawTarget === 'string' &&
-                    rawTarget.trim() !== '' &&
-                    !isNaN(Number(rawTarget))
-                  ? Number(rawTarget)
-                  : undefined;
-            return {
-              title: r.title,
-              weight: r.weight,
-              priority: r.priority,
-              ...(parsedTarget !== undefined ? { target: parsedTarget } : {}),
-            };
-          }),
-        );
-      } else if (isDaily) {
-        const selectedKeyResult = keyResults.find((k) => k.id === keyResultId);
-        if (!selectedKeyResult) return;
+        const mappedWeekly: SuggestionItem[] = res.map((r) => {
+          const rawTarget: any =
+            r?.target !== undefined
+              ? r.target
+              : (r as any)?.targetValue !== undefined
+                ? (r as any).targetValue
+                : undefined;
+          const parsedTarget =
+            typeof rawTarget === 'number'
+              ? rawTarget
+              : typeof rawTarget === 'string' &&
+                  rawTarget.trim() !== '' &&
+                  !isNaN(Number(rawTarget))
+                ? Number(rawTarget)
+                : undefined;
+          return {
+            title: r.title,
+            weight: r.weight,
+            priority: r.priority,
+            ...(parsedTarget !== undefined ? { target: parsedTarget } : {}),
+          };
+        });
+        setItems(mappedWeekly);
+        return mappedWeekly;
+      }
 
-        const selectedWeeklyTask = weeklyPlanTasks.find(
-          (t) => t.id === weeklyPlanTaskId,
+      if (isDaily) {
+        const selectedKeyResult = keyResults.find(
+          (k) => String(k.id) === String(effK),
         );
-        if (!selectedWeeklyTask) return;
+        if (!selectedKeyResult) return null;
+
+        const selectedWeeklyTask = weeklyPlanTasks.find((t) => t.id === effW);
+        if (!selectedWeeklyTask || !effW) return null;
 
         // Fetch previously reported daily tasks for this weekly task
         let previousDaily: { title: string; status: string }[] = [];
 
         try {
           const dailyTasksResponse = await fetchDailyTasksByWeeklyTask(
-            String(weeklyPlanTaskId),
+            String(effW),
           );
 
           // Backend returns array directly: [{ title, status, reason }, ...]
@@ -539,16 +665,63 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             previous_daily_tasks: previousDaily,
           },
         });
-        setItems(
-          res.map((r) => ({
-            title: r.title,
-            weight: r.weight,
-            priority: r.priority,
-          })),
-        );
+        const mappedDaily: SuggestionItem[] = res.map((r) => ({
+          title: r.title,
+          weight: r.weight,
+          priority: r.priority,
+        }));
+        setItems(mappedDaily);
+        return mappedDaily;
       }
+
+      return null;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCompactPlanningClick = async () => {
+    const kr = ongoingKeyResults[0];
+    if (!kr) {
+      message.warning('No in-progress key result to suggest tasks for.');
+      return;
+    }
+    const krId = String(kr.id);
+    let effMilestone: string | undefined;
+    const mName = String(kr.metricType?.name || '').toLowerCase();
+    if (isWeekly && mName === String(NAME.MILESTONE).toLowerCase()) {
+      const openM = (kr.milestones || []).find(
+        (x: { status?: string }) =>
+          String(x?.status || '').toLowerCase() !== 'completed',
+      );
+      effMilestone = openM ? String(openM.id) : undefined;
+    }
+    const effWeeklyId = isDaily ? inlineWeeklyPlanTaskId : undefined;
+    if (isDaily && !effWeeklyId) {
+      message.warning('Missing weekly task for daily AI suggestions.');
+      return;
+    }
+
+    try {
+      const batch = await handleGenerate({
+        keyResultId: krId,
+        weeklyPlanTaskId: effWeeklyId,
+        milestoneId: effMilestone,
+      });
+      if (batch?.length) {
+        batch.forEach((item) =>
+          appendItemToPlanningForm(item, {
+            keyResultId: krId,
+            weeklyPlanTaskId: effWeeklyId,
+            milestoneId: effMilestone,
+          }),
+        );
+        message.success(`Added ${batch.length} AI suggestion(s) to your plan.`);
+      } else {
+        message.info('No suggestions were returned. Try again later.');
+      }
+    } catch {
+      message.error('Could not generate suggestions.');
     }
   };
 
@@ -655,28 +828,66 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     setItems((prev) => prev.filter((item, i) => i !== index));
   };
 
+  const compactTriggerSuffix = triggerDataCySuffix
+    ? `-${triggerDataCySuffix}`
+    : '';
+
   return (
     <>
-      <Button
-        type="primary"
-        ghost
-        onClick={() => setOpen(true)}
-        data-cy="ai-suggestion-trigger-button"
-        id="ai-suggestion-trigger-button"
-      >
-        <span
-          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-667"
-          className="hidden sm:inline"
+      {triggerVariant === 'compact' ? (
+        <button
+          type="button"
+          onClick={() => {
+            if (planningInlineGenerate) {
+              void handleCompactPlanningClick();
+              return;
+            }
+            setOpen(true);
+          }}
+          disabled={loading}
+          data-cy={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
+          id={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
+          className="flex h-9 min-w-[52px] flex-col items-center justify-center rounded-lg border px-2 py-0.5 font-bold leading-none text-[#2D5BFF] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          style={{
+            borderColor: '#2D5BFF',
+            backgroundColor: '#E8EDFF',
+          }}
         >
-          AI Suggestion
-        </span>
-        <span
-          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-668"
-          className="sm:hidden"
+          <span
+            data-cy={`ai-suggestion-trigger-compact-plus${compactTriggerSuffix}`}
+            className="text-[10px] leading-none"
+          >
+            +
+          </span>
+          <span
+            data-cy={`ai-suggestion-trigger-compact-label${compactTriggerSuffix}`}
+            className="text-[11px] leading-tight"
+          >
+            AI
+          </span>
+        </button>
+      ) : (
+        <Button
+          type="primary"
+          ghost
+          onClick={() => setOpen(true)}
+          data-cy="ai-suggestion-trigger-button"
+          id="ai-suggestion-trigger-button"
         >
-          AI
-        </span>
-      </Button>
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-667"
+            className="hidden sm:inline"
+          >
+            AI Suggestion
+          </span>
+          <span
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-668"
+            className="sm:hidden"
+          >
+            AI
+          </span>
+        </Button>
+      )}
       <Modal
         title={
           <div
@@ -731,56 +942,58 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             >
               {isWeekly && (
                 <>
-                  <div
-                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-711"
-                    className="flex flex-col gap-2"
-                  >
-                    <label
-                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-712"
-                      className="text-sm font-medium text-[#4B4D63]"
+                  {!hideKeyResultPicker ? (
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-711"
+                      className="flex flex-col gap-2"
                     >
-                      Key Result{' '}
-                      <span
-                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-713"
-                        className="text-[#FF6B6B]"
+                      <label
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-712"
+                        className="text-sm font-medium text-[#4B4D63]"
                       >
-                        *
-                      </span>
-                    </label>
-                    <Select
-                      className="w-full"
-                      placeholder="Choose a key result"
-                      optionLabelProp="shortLabel"
-                      dropdownStyle={{
-                        maxWidth: '100%',
-                        whiteSpace: 'normal',
-                        wordBreak: 'break-word',
-                      }}
-                      dropdownMatchSelectWidth
-                      getPopupContainer={(trigger) =>
-                        trigger?.parentElement || document.body
-                      }
-                      style={{ width: '100%', maxWidth: '100%' }}
-                      options={ongoingKeyResults.map((k) => ({
-                        // Full text in dropdown
-                        label: (
-                          <div
-                            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-732"
-                            className="whitespace-normal break-words"
-                          >
-                            {k.title}
-                          </div>
-                        ),
-                        // Truncated in selector
-                        shortLabel: truncatedLabel(k.title),
-                        value: k.id,
-                      }))}
-                      value={keyResultId}
-                      onChange={setKeyResultId}
-                      data-cy="weekly-key-result-select"
-                      id="weekly-key-result-select"
-                    />
-                  </div>
+                        Key Result{' '}
+                        <span
+                          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-713"
+                          className="text-[#FF6B6B]"
+                        >
+                          *
+                        </span>
+                      </label>
+                      <Select
+                        className="w-full"
+                        placeholder="Choose a key result"
+                        optionLabelProp="shortLabel"
+                        dropdownStyle={{
+                          maxWidth: '100%',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                        }}
+                        dropdownMatchSelectWidth
+                        getPopupContainer={(trigger) =>
+                          trigger?.parentElement || document.body
+                        }
+                        style={{ width: '100%', maxWidth: '100%' }}
+                        options={ongoingKeyResults.map((k) => ({
+                          // Full text in dropdown
+                          label: (
+                            <div
+                              data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-732"
+                              className="whitespace-normal break-words"
+                            >
+                              {k.title}
+                            </div>
+                          ),
+                          // Truncated in selector
+                          shortLabel: truncatedLabel(k.title),
+                          value: k.id,
+                        }))}
+                        value={keyResultId}
+                        onChange={setKeyResultId}
+                        data-cy="weekly-key-result-select"
+                        id="weekly-key-result-select"
+                      />
+                    </div>
+                  ) : null}
                   {requiresMilestoneSelection && (
                     <div
                       data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-747"
@@ -850,56 +1063,58 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                   data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-799"
                   className="flex flex-col gap-4"
                 >
-                  <div
-                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-800"
-                    className="flex flex-col gap-2"
-                  >
-                    <label
-                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-801"
-                      className="text-sm font-medium text-[#4B4D63]"
+                  {!hideKeyResultPicker ? (
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-800"
+                      className="flex flex-col gap-2"
                     >
-                      Key Result{' '}
-                      <span
-                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-802"
-                        className="text-[#FF6B6B]"
+                      <label
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-801"
+                        className="text-sm font-medium text-[#4B4D63]"
                       >
-                        *
-                      </span>
-                    </label>
-                    <Select
-                      className="w-full"
-                      placeholder="Choose a key result to attach tasks"
-                      optionLabelProp="shortLabel"
-                      dropdownStyle={{
-                        maxWidth: '100%',
-                        whiteSpace: 'normal',
-                        wordBreak: 'break-word',
-                      }}
-                      dropdownMatchSelectWidth
-                      getPopupContainer={(trigger) =>
-                        trigger?.parentElement || document.body
-                      }
-                      style={{ width: '100%', maxWidth: '100%' }}
-                      options={ongoingKeyResults.map((k) => ({
-                        // Full text in dropdown
-                        label: (
-                          <div
-                            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-821"
-                            className="whitespace-normal break-words"
-                          >
-                            {k.title}
-                          </div>
-                        ),
-                        // Truncated in selector
-                        shortLabel: truncatedLabel(k.title),
-                        value: k.id,
-                      }))}
-                      value={keyResultId}
-                      onChange={setKeyResultId}
-                      data-cy="daily-key-result-select"
-                      id="daily-key-result-select"
-                    />
-                  </div>
+                        Key Result{' '}
+                        <span
+                          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-802"
+                          className="text-[#FF6B6B]"
+                        >
+                          *
+                        </span>
+                      </label>
+                      <Select
+                        className="w-full"
+                        placeholder="Choose a key result to attach tasks"
+                        optionLabelProp="shortLabel"
+                        dropdownStyle={{
+                          maxWidth: '100%',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                        }}
+                        dropdownMatchSelectWidth
+                        getPopupContainer={(trigger) =>
+                          trigger?.parentElement || document.body
+                        }
+                        style={{ width: '100%', maxWidth: '100%' }}
+                        options={ongoingKeyResults.map((k) => ({
+                          // Full text in dropdown
+                          label: (
+                            <div
+                              data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-821"
+                              className="whitespace-normal break-words"
+                            >
+                              {k.title}
+                            </div>
+                          ),
+                          // Truncated in selector
+                          shortLabel: truncatedLabel(k.title),
+                          value: k.id,
+                        }))}
+                        value={keyResultId}
+                        onChange={setKeyResultId}
+                        data-cy="daily-key-result-select"
+                        id="daily-key-result-select"
+                      />
+                    </div>
+                  ) : null}
                   <div
                     data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-835"
                     className="flex flex-col gap-2"

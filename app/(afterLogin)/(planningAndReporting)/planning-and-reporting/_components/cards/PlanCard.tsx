@@ -1,10 +1,9 @@
 import React from 'react';
-import { Button, Dropdown, Menu, Tooltip } from 'antd';
+import { Button, Dropdown, MenuProps, Tooltip } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
-import { AimOutlined, LinkOutlined } from '@ant-design/icons';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
-import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
+import { IoCheckmarkSharp, IoKeyOutline, IoOpen } from 'react-icons/io5';
 import { PlanSummary, ViewMode, Cadence, KeyResult } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
@@ -12,6 +11,45 @@ import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
 import TaskRow from '../TaskRow';
 import CommentsSection from '../comments/CommentsSection';
+import {
+  PR_BORDER,
+  PR_PRIMARY,
+  PR_TEXT,
+  PR_TREE_LINE,
+} from '../planningUiTokens';
+
+/** Two concentric blue rings + center dot (objective / bullseye). */
+function ObjectiveBullseyeIcon({
+  dataCy = 'planning-reporting-plancard-objective-icon',
+}: {
+  dataCy?: string;
+}) {
+  return (
+    <span
+      className="relative mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center"
+      data-cy={dataCy}
+    >
+      <span
+        className="absolute h-[26px] w-[26px] rounded-full border-2 bg-white"
+        style={{ borderColor: PR_PRIMARY }}
+        data-cy="planning-reporting-plancard-objective-ring-outer"
+        aria-hidden
+      />
+      <span
+        className="absolute h-[14px] w-[14px] rounded-full border bg-white"
+        style={{ borderColor: PR_PRIMARY }}
+        data-cy="planning-reporting-plancard-objective-ring-inner"
+        aria-hidden
+      />
+      <span
+        className="relative z-10 h-1.5 w-1.5 rounded-full md:h-2 md:w-2"
+        style={{ backgroundColor: PR_PRIMARY }}
+        data-cy="planning-reporting-plancard-objective-dot"
+        aria-hidden
+      />
+    </span>
+  );
+}
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -39,61 +77,73 @@ export default function PlanCard({
   isApprovalLoading = false,
   dateLabel,
 }: PlanCardProps) {
-  // Approval menu (for managers)
-  const approvalMenu = (
-    <Menu>
-      {plan.status?.label === 'Open' ? (
-        <Menu.Item
-          key="approve"
-          id={`plan-card-approve-menu-item-${plan.id}`}
-          data-cy={`plan-card-approve-menu-item-${plan.id}`}
-          icon={<IoCheckmarkSharp />}
-          onClick={onApprove}
-          className="text-green-500"
-        >
-          <Tooltip
-            title={
-              isApprovalLoading
-                ? 'Processing approval...'
-                : "Approve Plan! Once you approve, you can't edit"
-            }
-          >
-            Approve
-          </Tooltip>
-        </Menu.Item>
-      ) : (
-        <Menu.Item
-          key="open"
-          id={`plan-card-open-menu-item-${plan.id}`}
-          data-cy={`plan-card-open-menu-item-${plan.id}`}
-          icon={<IoOpen size={16} />}
-          onClick={onOpen}
-          className="text-red-400"
-        >
-          <Tooltip title="Open approved Plan">Open</Tooltip>
-        </Menu.Item>
-      )}
-    </Menu>
-  );
+  const approvalMenuItems: MenuProps['items'] =
+    plan.status?.label === 'Open'
+      ? [
+          {
+            key: 'approve',
+            id: `plan-card-approve-menu-item-${plan.id}`,
+            'data-cy': `plan-card-approve-menu-item-${plan.id}`,
+            icon: <IoCheckmarkSharp className="text-base text-[#15803D]" />,
+            label: (
+              <Tooltip
+                title={
+                  isApprovalLoading
+                    ? 'Processing approval...'
+                    : "Approve Plan! Once you approve, you can't edit"
+                }
+              >
+                <span
+                  className="text-[#161A2C]"
+                  data-cy={`plan-card-approve-menu-label-${plan.id}`}
+                >
+                  Approve
+                </span>
+              </Tooltip>
+            ),
+            disabled: isApprovalLoading,
+            onClick: () => onApprove?.(),
+          },
+        ]
+      : [
+          {
+            key: 'open',
+            id: `plan-card-open-menu-item-${plan.id}`,
+            'data-cy': `plan-card-open-menu-item-${plan.id}`,
+            icon: <IoOpen size={16} className="text-[#EF4444]" />,
+            label: (
+              <Tooltip title="Open approved Plan">
+                <span
+                  className="text-[#161A2C]"
+                  data-cy={`plan-card-open-menu-label-${plan.id}`}
+                >
+                  Open
+                </span>
+              </Tooltip>
+            ),
+            onClick: () => onOpen?.(),
+          },
+        ];
 
-  // Edit menu (for plan owner)
-  const editMenu = (
-    <Menu>
-      <Menu.Item
-        key="edit"
-        id={`plan-card-edit-menu-item-${plan.id}`}
-        data-cy={`plan-card-edit-menu-item-${plan.id}`}
-        icon={<AiOutlineEdit size={16} />}
-        onClick={onEdit}
-      >
+  const editMenuItems: MenuProps['items'] = [
+    {
+      key: 'edit',
+      id: `plan-card-edit-menu-item-${plan.id}`,
+      'data-cy': `plan-card-edit-menu-item-${plan.id}`,
+      icon: <AiOutlineEdit size={16} style={{ color: PR_TEXT }} />,
+      label: (
         <Tooltip title="Edit Plan">
-          <span data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-90">
+          <span
+            className="text-[#161A2C]"
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-90"
+          >
             Edit
           </span>
         </Tooltip>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+      onClick: () => onEdit?.(),
+    },
+  ];
 
   const getDateLabel = (): string => {
     if (dateLabel) return dateLabel;
@@ -182,12 +232,14 @@ export default function PlanCard({
   return (
     <article
       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
-      className="mb-4 rounded-xl border border-[#E8EAEF] bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)] md:p-6"
+      className="mb-4 rounded-lg border bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.06)] md:p-6"
+      style={{ borderColor: PR_BORDER }}
       data-active-cadence={activeCadence}
     >
       <div
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-184"
-        className="mb-5 flex min-w-0 flex-col gap-4 border-b border-[#F1F2F6] pb-5 sm:flex-row sm:items-start sm:justify-between"
+        className="mb-5 flex min-w-0 flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between"
+        style={{ borderColor: PR_BORDER }}
       >
         <div
           data-cy="planning-reporting-plancard-user-col"
@@ -255,26 +307,52 @@ export default function PlanCard({
               className="flex items-center gap-1"
             >
               {canApprove && (
-                <Dropdown popupRender={() => approvalMenu} trigger={['click']}>
+                <Dropdown
+                  menu={{ items: approvalMenuItems }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                  popupClassName="planning-reporting-context-dropdown"
+                >
                   <Button
                     id={`plan-card-approve-dropdown-button-${plan.id}`}
                     data-cy={`plan-card-approve-dropdown-button-${plan.id}`}
                     loading={isApprovalLoading}
                     type="text"
-                    icon={<MoreOutlined />}
-                    className="!h-auto !w-auto !p-0 text-xl text-[#6B7280] hover:bg-transparent"
+                    icon={
+                      <MoreOutlined
+                        className={
+                          viewMode === 'planning'
+                            ? 'text-lg !rotate-90'
+                            : 'text-lg'
+                        }
+                      />
+                    }
+                    className="!flex !h-9 !w-9 !items-center !justify-center !rounded-lg !p-0 text-lg text-[#6B7280] hover:!bg-[#F5F6FA]"
                     style={{ minWidth: 'auto' }}
                   />
                 </Dropdown>
               )}
               {canEdit && plan.status?.label === 'Open' && (
-                <Dropdown popupRender={() => editMenu} trigger={['click']}>
+                <Dropdown
+                  menu={{ items: editMenuItems }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                  popupClassName="planning-reporting-context-dropdown"
+                >
                   <Button
                     id={`plan-card-edit-dropdown-button-${plan.id}`}
                     data-cy={`plan-card-edit-dropdown-button-${plan.id}`}
                     type="text"
-                    icon={<MoreOutlined />}
-                    className="!h-auto !w-auto !p-0 text-xl text-[#6B7280] hover:bg-transparent"
+                    icon={
+                      <MoreOutlined
+                        className={
+                          viewMode === 'planning'
+                            ? 'text-lg !rotate-90'
+                            : 'text-lg'
+                        }
+                      />
+                    }
+                    className="!flex !h-9 !w-9 !items-center !justify-center !rounded-lg !p-0 text-lg text-[#6B7280] hover:!bg-[#F5F6FA]"
                     style={{ minWidth: 'auto' }}
                   />
                 </Dropdown>
@@ -294,7 +372,8 @@ export default function PlanCard({
           >
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-223"
-              className="rounded-xl border border-[#F1F2F6] bg-white px-4 pb-6 pt-6 md:px-6"
+              className="rounded-lg border bg-white px-4 pb-6 pt-6 md:px-6"
+              style={{ borderColor: PR_BORDER }}
             >
               <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-224"
@@ -302,7 +381,7 @@ export default function PlanCard({
               >
                 <div
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-226"
-                  className="mb-4 rounded-xl bg-[#F0F2F5] px-3 py-3 md:px-4 md:py-3.5"
+                  className="mb-5 px-0 py-1 md:py-2"
                 >
                   <KRSummaryBar
                     plan={plan}
@@ -314,14 +393,20 @@ export default function PlanCard({
                 {objectiveTitle(krGroup[0].objective) ? (
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-objective-row"
-                    className="mb-3 flex items-start gap-3"
+                    className="mb-1 flex items-start gap-3"
                   >
-                    <span
-                      data-cy="planning-reporting-plancard-objective-icon"
-                      className="mt-0.5 flex-shrink-0 text-lg text-[#1D4ED8]"
+                    <div
+                      className="flex w-8 shrink-0 flex-col items-center"
+                      data-cy="planning-reporting-plancard-objective-icon-col"
                     >
-                      <AimOutlined />
-                    </span>
+                      <ObjectiveBullseyeIcon />
+                      <div
+                        className="mt-2 h-5 w-px shrink-0 rounded-full md:h-6"
+                        style={{ backgroundColor: PR_TREE_LINE }}
+                        aria-hidden
+                        data-cy="planning-reporting-plancard-objective-connector"
+                      />
+                    </div>
                     <p
                       data-cy="planning-reporting-plancard-objective-text"
                       className="text-sm font-bold leading-snug text-[#161A2C] md:text-base"
@@ -344,53 +429,60 @@ export default function PlanCard({
                     {kri > 0 ? (
                       <div
                         data-cy="planning-reporting-plancard-kr-separator"
-                        className="mt-5 border-t border-[#F1F2F6] pt-5"
+                        className="mt-5 border-t pt-5"
+                        style={{ borderColor: PR_BORDER }}
                       />
                     ) : null}
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-235"
-                      className="mb-3 flex items-start gap-3 md:pl-2"
-                    >
-                      <span
-                        data-cy="planning-reporting-plancard-kr-icon"
-                        className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EFF6FF] text-lg text-[#1D4ED8] ring-2 ring-white"
-                      >
-                        <LinkOutlined />
-                      </span>
-                      <div
-                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-240"
-                        className="min-w-0 flex-1"
-                      >
-                        <p
-                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-241"
-                          className="line-clamp-3 text-sm font-bold leading-snug text-[#161A2C] md:text-base"
-                        >
-                          {keyResult.title || keyResult.name || plan.summary}
-                          {keyResult.deletedAt !== null &&
-                            keyResult.deletedAt !== undefined && (
-                              <span
-                                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-246"
-                                className="ml-2 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
-                              >
-                                Deleted KR
-                              </span>
-                            )}
-                        </p>
-                      </div>
-                    </div>
-
                     <div
                       data-cy="planning-reporting-plancard-kr-tree"
                       className="relative mb-2"
                     >
                       <div
+                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-235"
+                        className="relative z-[2] mb-2 flex items-start gap-3"
+                      >
+                        <div
+                          className="relative mt-0.5 flex w-8 shrink-0 flex-col items-center justify-center"
+                          data-cy="planning-reporting-plancard-kr-icon-wrap"
+                        >
+                          <IoKeyOutline
+                            data-cy="planning-reporting-plancard-kr-icon"
+                            className="relative z-10 h-6 w-6 shrink-0 -rotate-[12deg] md:h-[26px] md:w-[26px]"
+                            style={{ color: PR_PRIMARY }}
+                            aria-hidden
+                          />
+                        </div>
+                        <div
+                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-240"
+                          className="min-w-0 flex-1"
+                        >
+                          <p
+                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-241"
+                            className="line-clamp-3 text-sm font-bold leading-snug text-[#161A2C] md:text-base"
+                          >
+                            {keyResult.title || keyResult.name || plan.summary}
+                            {keyResult.deletedAt !== null &&
+                              keyResult.deletedAt !== undefined && (
+                                <span
+                                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-246"
+                                  className="ml-2 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
+                                >
+                                  Deleted KR
+                                </span>
+                              )}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div
                         data-cy="planning-reporting-plancard-kr-tree-trunk"
-                        className="pointer-events-none absolute bottom-4 left-[12px] top-0 z-0 w-[3px] rounded-full bg-[#7DD3FC] md:left-[13px]"
+                        className="pointer-events-none absolute bottom-4 left-4 top-[34px] z-0 w-px md:top-[38px]"
+                        style={{ backgroundColor: PR_TREE_LINE }}
                         aria-hidden
                       />
                       <div
                         data-cy="planning-reporting-plancard-kr-tree-content"
-                        className="relative z-[1] pl-7 md:pl-8"
+                        className="relative z-[1] pl-8"
                       >
                         {/* Key Result Tasks (directly under key result) - Show with grouping if metric is not Milestone */}
                         {keyResult.tasks && keyResult.tasks.length > 0 && (
@@ -406,11 +498,11 @@ export default function PlanCard({
                                 >
                                   <div
                                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-267"
-                                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E0E7FF]"
+                                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E8EDFF]"
                                   >
                                     <div
                                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-268"
-                                      className="h-1.5 w-1.5 rounded-full bg-[#574CFF]"
+                                      className="h-1.5 w-1.5 rounded-full bg-[#2D5BFF]"
                                     />
                                   </div>
                                   <p
@@ -463,11 +555,11 @@ export default function PlanCard({
                                   >
                                     <div
                                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-308"
-                                      className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                                      className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E8EDFF] flex-shrink-0"
                                     >
                                       <div
                                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-309"
-                                        className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                                        className="w-1.5 h-1.5 rounded-full bg-[#2D5BFF]"
                                       />
                                     </div>
                                     <p
@@ -483,7 +575,7 @@ export default function PlanCard({
                                 {parentTask.tasks &&
                                   parentTask.tasks.length > 0 && (
                                     <div
-                                      className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`}
+                                      className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E0E0E0]`}
                                       data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-415"
                                     />
                                   )}
@@ -530,11 +622,11 @@ export default function PlanCard({
                               >
                                 <div
                                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-349"
-                                  className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                                  className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E8EDFF] flex-shrink-0"
                                 >
                                   <div
                                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-350"
-                                    className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                                    className="w-1.5 h-1.5 rounded-full bg-[#2D5BFF]"
                                   />
                                 </div>
                                 <p
@@ -552,7 +644,7 @@ export default function PlanCard({
                                   milestone.parentTask.length > 0)) && (
                                 <div
                                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-361"
-                                  className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E5E7EB]"
+                                  className="absolute left-[7px] top-5 bottom-4 w-[1px] bg-[#E0E0E0]"
                                 />
                               )}
 
@@ -603,11 +695,11 @@ export default function PlanCard({
                                         >
                                           <div
                                             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-397"
-                                            className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E0E7FF] flex-shrink-0"
+                                            className="flex items-center justify-center w-4 h-4 rounded-full bg-[#E8EDFF] flex-shrink-0"
                                           >
                                             <div
                                               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-398"
-                                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF]"
+                                              className="w-1.5 h-1.5 rounded-full bg-[#2D5BFF]"
                                             />
                                           </div>
                                           <p
@@ -623,7 +715,7 @@ export default function PlanCard({
                                       {parentTask.tasks &&
                                         parentTask.tasks.length > 0 && (
                                           <div
-                                            className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E5E7EB]`}
+                                            className={`absolute left-[7px] ${isRedundant ? 'top-0' : 'top-5'} bottom-4 w-[1px] bg-[#E0E0E0]`}
                                             data-cy="planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-539"
                                           />
                                         )}
@@ -668,7 +760,8 @@ export default function PlanCard({
         /* Fallback to flat tasks if no key results */
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-444"
-          className="rounded-xl border border-[#F1F2F6] bg-white pt-6 pb-6 px-4 md:px-6"
+          className="rounded-lg border bg-white px-4 pb-6 pt-6 md:px-6"
+          style={{ borderColor: PR_BORDER }}
         >
           <div
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-445"
@@ -676,7 +769,7 @@ export default function PlanCard({
           >
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-446"
-              className="mb-4 rounded-xl bg-[#F0F2F5] px-3 py-3 md:px-4 md:py-3.5"
+              className="mb-5 px-0 py-1 md:py-2"
             >
               <KRSummaryBar plan={plan} viewMode={viewMode} />
             </div>
@@ -689,12 +782,12 @@ export default function PlanCard({
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-451"
                 className="mb-6 flex items-start gap-3"
               >
-                <span
-                  data-cy="planning-reporting-plancard-fallback-objective-icon"
-                  className="mt-0.5 flex-shrink-0 text-lg text-[#1D4ED8]"
+                <div
+                  className="flex w-8 shrink-0 justify-center"
+                  data-cy="planning-reporting-plancard-fallback-objective-wrap"
                 >
-                  <AimOutlined />
-                </span>
+                  <ObjectiveBullseyeIcon dataCy="planning-reporting-plancard-fallback-objective-icon" />
+                </div>
                 <p
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-456"
                   className="text-sm font-bold leading-snug text-[#161A2C] line-clamp-3 md:text-base"

@@ -33,10 +33,45 @@ export default function StatusBadge({ status, timeLabel }: StatusBadgeProps) {
 
   const isSuccess = status.tone === 'success' || isClosed;
 
-  const pillBg = isSuccess ? '#DCFCE7' : '#FEF3C7';
-  const pillText = isSuccess ? '#166534' : '#B45309';
-  const iconCircleBg = isSuccess ? '#BBF7D0' : '#FDE68A';
-  const iconColor = isSuccess ? '#15803D' : '#D97706';
+  if (isSuccess) {
+    return (
+      <div
+        data-cy="-planningandreporting-planning-and-reporting-components-statusbadge-tsx-statusbadge-div-31"
+        className="flex flex-col items-end gap-1"
+      >
+        <div
+          className="flex items-center gap-2"
+          data-cy="planning-reporting-status-pill"
+        >
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#16A34A] text-white shadow-none md:h-9 md:w-9"
+            data-cy="planning-reporting-status-pill-icon"
+          >
+            <CheckOutlined className="text-xs md:text-sm" />
+          </span>
+          <span
+            data-cy="-planningandreporting-planning-and-reporting-components-statusbadge-tsx-statusbadge-p-43"
+            className="text-xs font-bold leading-none text-[#166534] md:text-sm"
+          >
+            {displayedLabel}
+          </span>
+        </div>
+        {secondaryLine ? (
+          <p
+            data-cy="-planningandreporting-planning-and-reporting-components-statusbadge-tsx-statusbadge-p-47"
+            className="max-w-[220px] text-right text-[10px] leading-snug text-[#8F94A3] md:max-w-none md:text-xs"
+          >
+            {secondaryLine}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
+  const pillBg = '#FEF3C7';
+  const pillText = '#B45309';
+  const iconCircleBg = '#FDE68A';
+  const iconColor = '#D97706';
 
   return (
     <div
@@ -59,11 +94,7 @@ export default function StatusBadge({ status, timeLabel }: StatusBadgeProps) {
           }}
           data-cy="planning-reporting-status-pill-icon"
         >
-          {isSuccess ? (
-            <CheckOutlined className="text-xs md:text-sm" />
-          ) : (
-            <MoreOutlined className="text-base md:text-lg" />
-          )}
+          <MoreOutlined className="text-base md:text-lg" />
         </span>
         <span
           data-cy="-planningandreporting-planning-and-reporting-components-statusbadge-tsx-statusbadge-p-43"

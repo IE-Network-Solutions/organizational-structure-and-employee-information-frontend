@@ -100,10 +100,7 @@ function Planning() {
           ? allSessionsOfYear
           : [],
   });
-  const { data: allUserPlanning } = useGetUserPlanning(
-    planningPeriodId ?? '',
-    planningForPlan,
-  );
+  useGetUserPlanning(planningPeriodId ?? '', planningForPlan);
 
   useEffect(() => {
     setPage(1);
@@ -189,16 +186,14 @@ function Planning() {
       ? createPortal(
           <Tooltip
             title={
-              allUserPlanning?.length != 0
-                ? `Report planned tasks before you create ${activeTabName} plan`
-                : objective?.items?.length === 0
-                  ? 'Create Objective before you Plan'
-                  : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
-                      planningPeriodHierarchy?.parentPlan?.plans?.filter(
-                        (i: any) => i.isReported === false,
-                      )?.length == 0
-                    ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
-                    : ''
+              objective?.items?.length === 0
+                ? 'Create Objective before you Plan'
+                : planningPeriodHierarchy?.parentPlan?.plans?.length == 0 ||
+                    planningPeriodHierarchy?.parentPlan?.plans?.filter(
+                      (i: any) => i.isReported === false,
+                    )?.length == 0
+                  ? `Please create ${planningPeriodHierarchy?.parentPlan?.name} Plan before creating ${activeTabName} Plan`
+                  : ''
             }
           >
             <div
@@ -207,17 +202,13 @@ function Planning() {
             >
               {userPlanningPeriodId && (
                 <CustomButton
-                  disabled={
-                    (allUserPlanning && allUserPlanning.length > 0) ||
-                    isActive ||
-                    (objective?.items?.length ?? 0) === 0
-                  }
+                  disabled={isActive || (objective?.items?.length ?? 0) === 0}
                   loading={isLoading}
-                  title="+ Create Plan"
+                  title="Create Plan"
                   id="createActiveTabName"
-                  icon={<FaPlus className="text-sm" />}
+                  icon={<FaPlus className="text-sm" aria-hidden />}
                   onClick={() => setOpen(true)}
-                  className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-11 !min-h-[44px] w-full border-0 !bg-[#1D4ED8] !text-white hover:!bg-[#1E3A8A] md:w-auto md:min-w-[160px]`}
+                  className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-11 !min-h-[44px] w-full border-0 !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4] md:w-auto md:min-w-[160px]`}
                 />
               )}
             </div>

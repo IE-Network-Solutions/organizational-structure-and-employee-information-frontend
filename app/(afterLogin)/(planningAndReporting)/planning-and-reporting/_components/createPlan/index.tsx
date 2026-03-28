@@ -1,6 +1,7 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Button, Form, Segmented, Spin, Tooltip } from 'antd';
+import { Button, Form, Modal, Spin, Tooltip } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -12,11 +13,25 @@ import {
 import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
 import PlanningObjectiveComponent from '../planning/createPlanObjective';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
-import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
-import { useMemo, useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect, useRef, useState, useCallback } from 'react';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import {
+  PR_BORDER,
+  PR_PRIMARY,
+  PR_PRIMARY_MUTED,
+  PR_TEXT,
+  PR_TEXT_MUTED,
+} from '../planningUiTokens';
 
 function isMonthlyCadenceName(name: string | undefined): boolean {
   return (name || '').toLowerCase().includes('month');
+}
+
+function formatPlanPeriodToggleLabel(label: string): string {
+  const l = (label || '').trim();
+  if (!l) return 'Plan';
+  if (/\bplan\b/i.test(l)) return l;
+  return `${l} Plan`;
 }
 
 type FailedTasksByKeyResult = Record<
@@ -38,9 +53,11 @@ function CreatePlan() {
     resetWeights,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
+  const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
   const { resetToInitial } = useClickStatus();
   const hasAutoPopulated = useRef(false);
+  const [lastSaved, setLastSaved] = useState('');
 
   const onClose = () => {
     setOpen(false);
@@ -48,6 +65,7 @@ function CreatePlan() {
     form.resetFields();
     resetWeights();
     hasAutoPopulated.current = false;
+    setLastSaved('');
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
@@ -87,6 +105,12 @@ function CreatePlan() {
     prevOpenForInitRef.current = open;
     if (!open) prevOpenForInitRef.current = false;
   }, [open, cadencePeriodOptions, activePlanPeriodId]);
+
+  useEffect(() => {
+    if (open && !isEditing) {
+      setLastSaved(dayjs().format('h:mm A'));
+    }
+  }, [open, isEditing]);
 
   useEffect(() => {
     if (!open || cadencePeriodOptions.length === 0) return;
@@ -467,191 +491,35 @@ function CreatePlan() {
     }, 0);
   };
 
-  const modalHeader = (
-    <div
-      className="flex flex-col items-center p-4 relative"
-      data-cy="create-plan-modal-header"
-    >
-      <div
-        className="text-2xl font-bold text-[#161A2C] text-center w-full pr-14"
-        data-cy="create-plan-modal-header-title"
-      >
-        {planningPeriodHierarchy ? planningPeriodHierarchy.name : 'Daily'} Plan
-      </div>
-      {cadencePeriodOptions.length > 1 ? (
-        <div
-          className="mt-3 w-full max-w-md"
-          data-cy="create-plan-cadence-segmented"
-        >
-          <Segmented
-            block
-            options={cadencePeriodOptions.map((o) => ({
-              label: o.label,
-              value: o.value,
-            }))}
-            value={modalPlanningPeriodId || undefined}
-            onChange={(v) => setModalPlanningPeriodId(String(v))}
-          />
-        </div>
-      ) : null}
-      <div
-        className="absolute right-4 top-1/2 -translate-y-1/2"
-        id="planning-ai-suggestions-wrapper-view-space"
-        data-cy="planning-ai-suggestions-wrapper-view-space"
-      >
-        {/* AI Suggestions button + modal */}
-        <AISuggestionsModal
-          getKeyResults={() => {
-            const out: any[] = [];
-
-            if (!planningPeriodHierarchy?.parentPlan) {
-              // Weekly Plan: Get Key Results from Objectives
-              objective?.items?.forEach((obj: any) => {
-                obj?.keyResults?.forEach((kr: any) => {
-                  if (kr?.id && kr?.title) {
-                    out.push({
-                      id: String(kr.id),
-                      title: kr.title,
-                      metricType: kr.metricType,
-                      milestones: kr.milestones,
-                      progress: kr.progress,
-                    });
-                  }
-                });
-              });
-            } else {
-              // Daily Plan: Use same logic as hierarchy component
-              const tasks =
-                planningPeriodHierarchy?.parentPlan?.plans?.find(
-                  (i: any) => i?.isReported === false,
-                )?.tasks || [];
-
-              // Group by keyResult to match the planning structure
-              const seen = new Set<string>();
-              tasks.forEach((t: any) => {
-                const krId = String(t?.keyResult?.id || '');
-                const krTitle = t?.keyResult?.title;
-                if (krId && krTitle && !seen.has(krId)) {
-                  seen.add(krId);
-                  out.push({
-                    id: krId,
-                    title: krTitle,
-                    metricType: t?.keyResult?.metricType,
-                    milestones: t?.keyResult?.milestones,
-                    progress: t?.keyResult?.progress,
-                  });
-                }
-              });
-            }
-
-            return out;
-          }}
-          getWeeklyPlanTasks={() => {
-            // Only for daily plans - get all weekly plan tasks
-            if (!planningPeriodHierarchy?.parentPlan) return [];
-
-            const tasks =
-              planningPeriodHierarchy?.parentPlan?.plans?.find(
-                (i: any) => i?.isReported === false,
-              )?.tasks || [];
-
-            return tasks.map((t: any) => ({
-              id: String(t?.id || ''),
-              task: t?.task || '',
-              krId: String(t?.keyResult?.id || ''),
-              milestoneId: t?.milestone?.id ? String(t.milestone.id) : null,
-            }));
-          }}
-          form={form}
-          handleAddBoard={handleAddBoard}
-          handleAddName={handleAddName}
-          planTypeName={planningPeriodHierarchy?.name || 'Weekly'}
-          hasParentPlan={!!planningPeriodHierarchy?.parentPlan}
-          resolveListNameForKR={(krId: string) => `names-${krId}`}
-          resolveBoardKeyForKR={(krId: string) => krId}
-        />
-      </div>
-    </div>
+  const selectedPeriodMeta = useMemo(
+    () => cadencePeriodOptions.find((o) => o.value === modalPlanningPeriodId),
+    [cadencePeriodOptions, modalPlanningPeriodId],
   );
-  const footer = (
-    <div
-      data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-493"
-      className="flex items-center justify-between w-full"
-    >
-      <div
-        data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-494"
-        className="flex-1"
-      ></div>
-      <div
-        data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-495"
-        className="flex justify-center gap-4 flex-1"
-      >
-        <Tooltip
-          title={
-            totalWeight !== 100
-              ? "Summation of all task's weights must be equal to 100!"
-              : 'Create Plan'
-          }
-        >
-          <Button
-            id="submit-plan-button-for-planning-and-reporting"
-            data-cy="submit-plan-button-for-planning-and-reporting"
-            className="py-3 px-6 sm:py-6 sm:px-10"
-            type="primary"
-            onClick={() => form.submit()}
-            loading={isLoading}
-            disabled={totalWeight !== 100}
-          >
-            <span
-              data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-512"
-              className="md:hidden"
-            >
-              Plan
-            </span>
-            <span
-              data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-513"
-              className="hidden md:inline"
-            >
-              Create Plan
-            </span>
-          </Button>
-        </Tooltip>
 
-        <Button
-          id="cancel-plan-button-for-planning-and-reporting"
-          data-cy="cancel-plan-button-for-planning-and-reporting"
-          className="py-3 px-6 sm:py-6 sm:px-10"
-          onClick={onClose}
-          disabled={isLoading}
-        >
-          Cancel
-        </Button>
-      </div>
-      <div
-        data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-527"
-        className="flex-1 flex justify-end pr-5"
-      >
-        <span
-          data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-528"
-          className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
-        >
-          <span
-            data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-529"
-            className="md:hidden"
-          >
-            WP:
-          </span>{' '}
-          <span
-            data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-530"
-            className="hidden md:inline"
-          >
-            Weight Point:
-          </span>{' '}
-          {Math.round(Number(totalWeight) || 0)}%
-        </span>
-      </div>
-    </div>
-  );
+  const periodHint = useMemo(() => {
+    const name = (selectedPeriodMeta?.label || '').toLowerCase();
+    if (name.includes('daily')) {
+      return 'Plan your daily tasks according to your weekly tasks.';
+    }
+    return 'Plan your weekly tasks according to the key results you wish to work on this week.';
+  }, [selectedPeriodMeta]);
+
+  const planTypeNameForAi = planningPeriodHierarchy?.name || 'Weekly';
+  const hasParentPlanForAi = !!planningPeriodHierarchy?.parentPlan;
+
+  const getWeeklyPlanTasksForAi = useCallback(() => {
+    if (!planningPeriodHierarchy?.parentPlan) return [];
+    const tasks =
+      planningPeriodHierarchy?.parentPlan?.plans?.find(
+        (i: any) => i?.isReported === false,
+      )?.tasks || [];
+    return tasks.map((t: any) => ({
+      id: String(t?.id || ''),
+      task: t?.task || '',
+      krId: String(t?.keyResult?.id || ''),
+      milestoneId: t?.milestone?.id ? String(t.milestone.id) : null,
+    }));
+  }, [planningPeriodHierarchy]);
 
   const handleOnFinish = (values: Record<string, any>) => {
     const mergeValues = (obj: any) => {
@@ -694,63 +562,250 @@ function CreatePlan() {
       },
     );
   };
+  const modalVisible = open === true && isEditing === false;
+
   return (
-    open && (
-      <CustomDrawerLayout
-        open={open === true && isEditing === false ? true : false}
-        onClose={onClose}
-        modalHeader={modalHeader}
-        width={'60%'}
-        paddingBottom={10}
-        footer={footer}
+    <Modal
+      open={modalVisible}
+      onCancel={onClose}
+      footer={null}
+      closable={false}
+      centered
+      width={isMobile ? 'calc(100vw - 16px)' : 920}
+      maskClosable={!isLoading}
+      destroyOnClose={false}
+      classNames={{ wrapper: 'planning-create-plan-modal-wrapper' }}
+      maskStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.45)' }}
+      styles={{
+        content: {
+          padding: 0,
+          borderRadius: 12,
+          overflow: 'hidden',
+          border: `1px solid ${PR_BORDER}`,
+        },
+        body: { padding: 0 },
+      }}
+      data-cy="planning-create-plan-modal"
+    >
+      <div
+        data-cy="create-plan-modal-shell"
+        className="flex max-h-[min(88vh,calc(100dvh-32px))] flex-col bg-white"
       >
-        {loadingPlanningPeriodHierarchy ? (
+        <header
+          data-cy="create-plan-modal-header"
+          className="flex shrink-0 items-start justify-between gap-3 border-b px-5 py-4 md:px-6"
+          style={{ borderColor: PR_BORDER }}
+        >
+          <h2
+            className="text-lg font-bold md:text-xl"
+            style={{ color: PR_TEXT }}
+            data-cy="create-plan-modal-header-title"
+          >
+            Planning
+          </h2>
           <div
-            data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-589"
-            className="flex items-center justify-center min-h-screen"
+            className="flex items-center gap-2"
+            id="planning-ai-suggestions-wrapper-view-space"
+            data-cy="planning-ai-suggestions-wrapper-view-space"
           >
-            <Spin size="large" tip="Loading...." />
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isLoading}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B7280] transition hover:bg-[#F5F6FA] hover:text-[#161A2C] disabled:opacity-50"
+              aria-label="Close planning"
+              data-cy="create-plan-modal-close"
+            >
+              <CloseOutlined className="text-lg" />
+            </button>
           </div>
-        ) : (
-          <Form
-            layout="vertical"
-            form={form}
-            name="dynamic_form_item"
-            onFinish={handleOnFinish}
+        </header>
+
+        {cadencePeriodOptions.length > 1 ? (
+          <section
+            data-cy="create-plan-cadence-section"
+            className="shrink-0 border-b px-5 py-4 text-center md:px-6"
+            style={{ borderColor: PR_BORDER }}
           >
-            {planningPeriodHierarchy?.parentPlan == null ? (
-              <PlanningObjectiveComponent
-                objective={objective}
-                form={form}
-                planningPeriodId={planningPeriodId || ''}
-                userId={userId}
-                planningUserId={planningUserId || ''}
-                mkAsATask={!!mkAsATask}
-                setMKAsATask={setMKAsATask}
-                handleAddBoard={handleAddBoard}
-                handleAddName={handleAddName}
-                weights={weights}
-                failedTasksByKeyResult={failedTasksByKeyResult}
-              />
-            ) : (
-              <PlanningHierarchyComponent
-                planningPeriodHierarchy={planningPeriodHierarchy}
-                form={form}
-                planningPeriodId={planningPeriodId || ''}
-                userId={userId}
-                planningUserId={planningUserId || ''}
-                mkAsATask={!!mkAsATask}
-                setMKAsATask={setMKAsATask}
-                handleAddBoard={handleAddBoard}
-                handleAddName={handleAddName}
-                weights={weights}
-                failedTasksByKeyResult={failedTasksByKeyResult}
-              />
-            )}
-          </Form>
+            <p
+              className="mb-3 text-sm font-medium"
+              style={{ color: PR_TEXT }}
+              data-cy="create-plan-select-period-label"
+            >
+              Select Planning Period
+            </p>
+            <div
+              className="mx-auto flex max-w-md rounded-lg border p-0.5"
+              style={{ borderColor: PR_BORDER }}
+              data-cy="create-plan-cadence-toggle"
+              role="group"
+              aria-label="Planning period"
+            >
+              {cadencePeriodOptions.map((o) => {
+                const active = modalPlanningPeriodId === o.value;
+                return (
+                  <button
+                    key={o.value}
+                    type="button"
+                    data-cy={`create-plan-period-${o.value}`}
+                    className="flex-1 rounded-md py-2.5 text-sm font-semibold transition"
+                    style={{
+                      backgroundColor: active ? PR_PRIMARY : 'transparent',
+                      color: active ? '#FFFFFF' : PR_TEXT,
+                    }}
+                    onClick={() => setModalPlanningPeriodId(o.value)}
+                  >
+                    {formatPlanPeriodToggleLabel(o.label)}
+                  </button>
+                );
+              })}
+            </div>
+            <p
+              className="mt-3 px-2 text-xs leading-relaxed"
+              style={{ color: PR_TEXT_MUTED }}
+              data-cy="create-plan-period-hint"
+            >
+              {periodHint}
+            </p>
+          </section>
+        ) : (
+          <section
+            className="shrink-0 border-b px-5 py-3 text-center md:px-6"
+            style={{ borderColor: PR_BORDER }}
+            data-cy="create-plan-period-hint-only"
+          >
+            <p
+              className="text-xs leading-relaxed"
+              style={{ color: PR_TEXT_MUTED }}
+              data-cy="create-plan-period-hint-single"
+            >
+              {periodHint}
+            </p>
+          </section>
         )}
-      </CustomDrawerLayout>
-    )
+
+        <div
+          data-cy="create-plan-modal-body"
+          className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6"
+        >
+          {loadingPlanningPeriodHierarchy ? (
+            <div
+              data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-589"
+              className="flex min-h-[240px] items-center justify-center py-16"
+            >
+              <Spin size="large" tip="Loading…" />
+            </div>
+          ) : (
+            <Form
+              layout="vertical"
+              form={form}
+              name="dynamic_form_item"
+              onFinish={handleOnFinish}
+              onValuesChange={() => setLastSaved(dayjs().format('h:mm A'))}
+            >
+              {planningPeriodHierarchy?.parentPlan == null ? (
+                <PlanningObjectiveComponent
+                  objective={objective}
+                  form={form}
+                  planningPeriodId={planningPeriodId || ''}
+                  userId={userId}
+                  planningUserId={planningUserId || ''}
+                  mkAsATask={!!mkAsATask}
+                  setMKAsATask={setMKAsATask}
+                  handleAddBoard={handleAddBoard}
+                  handleAddName={handleAddName}
+                  weights={weights}
+                  failedTasksByKeyResult={failedTasksByKeyResult}
+                  planTypeNameForAi={planTypeNameForAi}
+                  hasParentPlanForAi={hasParentPlanForAi}
+                  getWeeklyPlanTasksForAi={getWeeklyPlanTasksForAi}
+                />
+              ) : (
+                <PlanningHierarchyComponent
+                  planningPeriodHierarchy={planningPeriodHierarchy}
+                  form={form}
+                  planningPeriodId={planningPeriodId || ''}
+                  userId={userId}
+                  planningUserId={planningUserId || ''}
+                  mkAsATask={!!mkAsATask}
+                  setMKAsATask={setMKAsATask}
+                  handleAddBoard={handleAddBoard}
+                  handleAddName={handleAddName}
+                  weights={weights}
+                  failedTasksByKeyResult={failedTasksByKeyResult}
+                  planTypeNameForAi={planTypeNameForAi}
+                  hasParentPlanForAi={hasParentPlanForAi}
+                  getWeeklyPlanTasksForAi={getWeeklyPlanTasksForAi}
+                />
+              )}
+            </Form>
+          )}
+        </div>
+
+        <footer
+          data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-493"
+          className="flex shrink-0 flex-col gap-4 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6"
+          style={{ borderColor: PR_BORDER }}
+        >
+          <div
+            className="flex flex-col gap-1"
+            data-cy="create-plan-footer-meta"
+          >
+            <span
+              data-cy="create-plan-total-weight"
+              className="inline-flex w-fit rounded-lg px-3 py-1.5 text-sm font-semibold"
+              style={{
+                backgroundColor: PR_PRIMARY_MUTED,
+                color: PR_PRIMARY,
+              }}
+            >
+              Total Weight: {Math.round(Number(totalWeight) || 0)}%
+            </span>
+            <span
+              data-cy="create-plan-last-saved"
+              className="text-xs"
+              style={{ color: PR_TEXT_MUTED }}
+            >
+              Last saved {lastSaved || '—'}
+            </span>
+          </div>
+          <div
+            className="flex justify-end gap-3"
+            data-cy="create-plan-footer-actions"
+          >
+            <Button
+              id="cancel-plan-button-for-planning-and-reporting"
+              data-cy="cancel-plan-button-for-planning-and-reporting"
+              className="h-10 min-w-[100px] rounded-lg border bg-white font-semibold"
+              style={{ borderColor: PR_BORDER, color: PR_TEXT }}
+              onClick={onClose}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Tooltip
+              title={
+                totalWeight !== 100
+                  ? "Summation of all task's weights must be equal to 100!"
+                  : 'Submit your plan'
+              }
+            >
+              <Button
+                id="submit-plan-button-for-planning-and-reporting"
+                data-cy="submit-plan-button-for-planning-and-reporting"
+                type="primary"
+                className="h-10 min-w-[100px] rounded-lg border-0 font-semibold !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4]"
+                onClick={() => form.submit()}
+                loading={isLoading}
+                disabled={totalWeight !== 100}
+              >
+                Create
+              </Button>
+            </Tooltip>
+          </div>
+        </footer>
+      </div>
+    </Modal>
   );
 }
 

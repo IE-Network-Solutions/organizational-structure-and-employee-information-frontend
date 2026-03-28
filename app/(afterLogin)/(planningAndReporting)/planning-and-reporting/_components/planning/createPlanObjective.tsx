@@ -5,6 +5,7 @@ import DefaultCardForm from '../planForms/defaultForm';
 import { NAME } from '@/types/enumTypes';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import PlanningKrAISuggestions from './PlanningKrAISuggestions';
 
 interface Milestone {
   id: number;
@@ -49,6 +50,14 @@ interface CollapseComponentProps {
     string,
     Record<string | 'noMilestone', any[]>
   >;
+  planTypeNameForAi?: string;
+  hasParentPlanForAi?: boolean;
+  getWeeklyPlanTasksForAi?: () => Array<{
+    id: string;
+    task: string;
+    krId?: string;
+    milestoneId?: string | null;
+  }>;
 }
 
 const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
@@ -60,6 +69,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   mkAsATask,
   setMKAsATask,
   handleAddBoard,
+  handleAddName,
+  planTypeNameForAi,
+  hasParentPlanForAi,
+  getWeeklyPlanTasksForAi,
 }) => {
   const { statuses, setClickStatus } = useClickStatus();
 
@@ -167,30 +180,50 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         </div>
                       </div>
 
-                      {kr?.metricType?.name === NAME.MILESTONE &&
-                        kr?.weight !== undefined && (
-                          <div
-                            data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-141"
-                            className="flex items-center gap-2 mr-2"
-                          >
-                            <span
-                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-142"
-                              className="text-xs flex items-center gap-1.5 text-gray-400"
+                      <div
+                        data-cy="planning-create-planobjective-kr-actions-row1"
+                        className="mr-2 flex flex-shrink-0 items-center gap-2"
+                      >
+                        {kr?.metricType?.name === NAME.MILESTONE &&
+                          kr?.weight !== undefined && (
+                            <div
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-141"
+                              className="flex items-center gap-2"
                             >
                               <span
-                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-143"
-                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
-                              ></span>
-                              Weight
-                            </span>
-                            <div
-                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-146"
-                              className="rounded-lg bg-[#E8E7FF] text-[#574CFF] font-bold px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
-                            >
-                              {kr.weight}%
+                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-142"
+                                className="flex items-center gap-1.5 text-xs text-gray-400"
+                              >
+                                <span
+                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-143"
+                                  className="inline-block h-1.5 w-1.5 rounded-full bg-[#574CFF]"
+                                />
+                                Weight
+                              </span>
+                              <div
+                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-146"
+                                className="flex min-w-[45px] items-center justify-center rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs font-bold text-[#574CFF]"
+                              >
+                                {kr.weight}%
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        {planTypeNameForAi !== undefined &&
+                          kr?.metricType?.name === NAME.MILESTONE && (
+                            <PlanningKrAISuggestions
+                              keyResult={kr}
+                              form={form}
+                              handleAddBoard={handleAddBoard}
+                              handleAddName={handleAddName}
+                              planTypeName={planTypeNameForAi}
+                              hasParentPlan={hasParentPlanForAi ?? false}
+                              getWeeklyPlanTasks={getWeeklyPlanTasksForAi}
+                              userId={userId}
+                              planningPeriodId={planningPeriodId}
+                              planningUserId={planningUserId}
+                            />
+                          )}
+                      </div>
                     </div>
 
                     {/* Row 2: Progress (Left) + Weight/Actions (Right) */}
@@ -295,6 +328,22 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 {kr.weight}%
                               </div>
                             </div>
+                          )}
+
+                        {planTypeNameForAi !== undefined &&
+                          kr?.metricType?.name !== NAME.MILESTONE && (
+                            <PlanningKrAISuggestions
+                              keyResult={kr}
+                              form={form}
+                              handleAddBoard={handleAddBoard}
+                              handleAddName={handleAddName}
+                              planTypeName={planTypeNameForAi}
+                              hasParentPlan={hasParentPlanForAi ?? false}
+                              getWeeklyPlanTasks={getWeeklyPlanTasksForAi}
+                              userId={userId}
+                              planningPeriodId={planningPeriodId}
+                              planningUserId={planningUserId}
+                            />
                           )}
 
                         {!hasMilestone && (

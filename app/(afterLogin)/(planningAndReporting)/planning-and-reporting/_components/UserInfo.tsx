@@ -2,6 +2,13 @@ import React from 'react';
 import { Avatar, Badge } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import { PlanOwner } from './types';
+import {
+  PR_BORDER,
+  PR_PRIMARY,
+  PR_PRIMARY_MUTED,
+  PR_TEXT,
+  PR_TEXT_MUTED,
+} from './planningUiTokens';
 
 interface UserInfoProps {
   owner: PlanOwner;
@@ -87,8 +94,8 @@ export default function UserInfo({
           src={owner.avatar}
           className="md:hidden"
           style={{
-            backgroundColor: '#E0E7FF',
-            color: '#4C1D95',
+            backgroundColor: PR_PRIMARY_MUTED,
+            color: PR_PRIMARY,
             fontSize: '14px',
             fontWeight: 600,
             lineHeight: '32px',
@@ -101,8 +108,8 @@ export default function UserInfo({
           src={owner.avatar}
           className="hidden md:block"
           style={{
-            backgroundColor: '#E0E7FF',
-            color: '#4C1D95',
+            backgroundColor: PR_PRIMARY_MUTED,
+            color: PR_PRIMARY,
             fontSize: '16px',
             fontWeight: 600,
             lineHeight: '48px',
@@ -120,7 +127,8 @@ export default function UserInfo({
           className="flex flex-wrap items-center gap-2"
         >
           <p
-            className="text-sm font-semibold leading-tight text-[#161A2C] md:text-base truncate max-w-[200px] md:max-w-none"
+            className="text-sm font-semibold leading-tight md:text-base truncate max-w-[200px] md:max-w-none"
+            style={{ color: PR_TEXT }}
             title={owner.name}
             data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
           >
@@ -129,14 +137,20 @@ export default function UserInfo({
           {cadenceLabel ? (
             <span
               data-cy="planning-reporting-userinfo-cadence"
-              className="shrink-0 rounded-md border border-[#E5E7EB] bg-[#F3F4F6] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#6B7280] md:text-xs md:normal-case"
+              className="shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold md:text-xs"
+              style={{
+                borderColor: PR_BORDER,
+                backgroundColor: '#F8FAFC',
+                color: PR_TEXT_MUTED,
+              }}
             >
               {cadenceLabel}
             </span>
           ) : null}
         </div>
         <p
-          className="mt-0.5 text-xs leading-tight text-[#8F94A3] md:text-sm truncate"
+          className="mt-0.5 text-xs leading-tight md:text-sm truncate"
+          style={{ color: PR_TEXT_MUTED }}
           title={teamLine || owner.role}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-115"
         >

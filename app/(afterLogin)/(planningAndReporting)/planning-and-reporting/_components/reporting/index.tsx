@@ -169,7 +169,7 @@ function Reporting() {
                 id="createActiveTabName"
                 icon={<FaPlus className="text-sm" />}
                 onClick={() => setOpenReportModal(true)}
-                className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-11 !min-h-[44px] w-full border-0 !bg-[#1D4ED8] !text-white hover:!bg-[#1E3A8A] md:w-auto md:min-w-[180px]`}
+                className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-11 !min-h-[44px] w-full border-0 !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4] md:w-auto md:min-w-[180px]`}
                 loading={getUserPlanningLoading}
               />
             </div>

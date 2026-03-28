@@ -17,6 +17,13 @@ import CreateReport from './_components/createReport';
 import EditReport from './_components/editReport';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import {
+  PR_BORDER,
+  PR_PAGE_BG,
+  PR_PRIMARY,
+  PR_TEXT,
+  PR_TEXT_MUTED,
+} from './_components/planningUiTokens';
 
 interface PlanningPeriod {
   id: string;
@@ -146,7 +153,8 @@ function PlanningReportingPageInner() {
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
-      className="min-h-screen w-full bg-[#F4F5F7] px-4 pb-10 md:px-8"
+      className="min-h-screen w-full px-4 pb-10 md:px-8"
+      style={{ backgroundColor: PR_PAGE_BG }}
     >
       <div
         data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-131"
@@ -165,13 +173,15 @@ function PlanningReportingPageInner() {
               className="flex min-w-0 flex-1 flex-col gap-1"
             >
               <p
-                className="text-xs font-medium text-[#8F94A3] md:text-sm"
+                className="text-xs font-medium md:text-sm"
+                style={{ color: PR_TEXT_MUTED }}
                 data-cy="planning-reporting-breadcrumb"
               >
                 OKR / Planning and Reporting
               </p>
               <h1
-                className="text-2xl font-bold leading-tight tracking-tight text-[#161A2C] md:text-[28px]"
+                className="text-2xl font-bold leading-tight tracking-tight md:text-[28px]"
+                style={{ color: PR_TEXT }}
                 data-cy="breadcrumb-title"
               >
                 Planning and Reporting
@@ -186,7 +196,8 @@ function PlanningReportingPageInner() {
 
           <div
             data-cy="planning-reporting-tabs-filter-row"
-            className="flex flex-col gap-3 border-b border-[#E5E7EB] sm:flex-row sm:items-end sm:justify-between"
+            className="flex flex-col gap-3 border-b sm:flex-row sm:items-end sm:justify-between"
+            style={{ borderColor: PR_BORDER }}
           >
             <nav
               className="flex min-w-0 gap-0"
@@ -198,9 +209,14 @@ function PlanningReportingPageInner() {
                 onClick={() => setActiveTab(1)}
                 className={`relative -mb-px px-0.5 pb-3 text-sm font-semibold transition-colors md:text-base ${
                   activeTab === 1
-                    ? 'text-[#1D4ED8] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#1D4ED8]'
-                    : 'text-[#8F94A3] hover:text-[#161A2C]'
+                    ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#2D5BFF]'
+                    : 'hover:text-[#161A2C]'
                 }`}
+                style={
+                  activeTab === 1
+                    ? { color: PR_PRIMARY }
+                    : { color: PR_TEXT_MUTED }
+                }
                 data-cy="planning-reporting-tab-planning"
               >
                 Planning
@@ -210,9 +226,14 @@ function PlanningReportingPageInner() {
                 onClick={() => setActiveTab(2)}
                 className={`relative -mb-px ml-8 px-0.5 pb-3 text-sm font-semibold transition-colors md:ml-10 md:text-base ${
                   activeTab === 2
-                    ? 'text-[#1D4ED8] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#1D4ED8]'
-                    : 'text-[#8F94A3] hover:text-[#161A2C]'
+                    ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#2D5BFF]'
+                    : 'hover:text-[#161A2C]'
                 }`}
+                style={
+                  activeTab === 2
+                    ? { color: PR_PRIMARY }
+                    : { color: PR_TEXT_MUTED }
+                }
                 data-cy="planning-reporting-tab-reporting"
               >
                 Reporting
@@ -224,9 +245,15 @@ function PlanningReportingPageInner() {
             >
               <Button
                 type="default"
-                icon={<FilterOutlined className="text-[#5A5C80]" />}
+                icon={<FilterOutlined style={{ color: PR_TEXT_MUTED }} />}
                 onClick={handleFilterClick}
-                className="flex h-10 items-center gap-2 rounded-lg border-[#D1D5DB] bg-white px-4 font-semibold text-[#374151] shadow-sm hover:border-[#9CA3AF] hover:text-[#161A2C]"
+                className="flex h-10 items-center gap-2 rounded-lg bg-white px-4 font-semibold shadow-sm hover:text-[#161A2C]"
+                style={{
+                  borderColor: PR_BORDER,
+                  color: PR_TEXT,
+                  borderWidth: 1,
+                  borderStyle: 'solid',
+                }}
                 data-cy="planning-reporting-filter-button"
               >
                 Filter

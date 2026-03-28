@@ -11,6 +11,7 @@ import {
 import type { Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { PR_BORDER, PR_TEXT, PR_TEXT_MUTED } from '../planningUiTokens';
 
 const { Option } = Select;
 
@@ -119,7 +120,8 @@ function ReqLabel({
 }) {
   return (
     <span
-      className="mb-1.5 block text-sm font-semibold text-[#161A2C]"
+      className="mb-1.5 block text-sm font-semibold"
+      style={{ color: PR_TEXT }}
       data-cy={dataCy}
     >
       {children}{' '}
@@ -134,7 +136,7 @@ function ReqLabel({
 }
 
 const selectClassName =
-  'w-full [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!bg-[#F5F5F7] [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!py-2.5 [&_.ant-select-focused_.ant-select-selector]:!border-[#1D4ED8] [&_.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(29,78,216,0.12)] [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&.ant-select]:!h-12';
+  'w-full [&_.ant-select-selector]:!min-h-[48px] [&_.ant-select-selector]:!h-12 [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E0E0E0] [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!px-3 [&_.ant-select-selector]:!py-2.5 [&_.ant-select-focused_.ant-select-selector]:!border-[#2D5BFF] [&_.ant-select-focused_.ant-select-selector]:!shadow-[0_0_0_2px_rgba(45,91,255,0.15)] [&_.ant-select-selection-item]:!text-[#161A2C] [&_.ant-select-selection-placeholder]:!text-[#8F94A3] [&.ant-select]:!h-12';
 
 interface PlanningReportingFilterModalProps {
   open: boolean;
@@ -356,13 +358,15 @@ export default function PlanningReportingFilterModal({
       title={
         <div data-cy="planning-reporting-filter-modal-header">
           <div
-            className="text-lg font-bold text-[#161A2C] md:text-xl"
+            className="text-lg font-bold md:text-xl"
+            style={{ color: PR_TEXT }}
             data-cy="planning-reporting-filter-modal-title"
           >
             Filter
           </div>
           <div
-            className="mt-1 text-sm font-normal text-[#8F94A3]"
+            className="mt-1 text-sm font-normal"
+            style={{ color: PR_TEXT_MUTED }}
             data-cy="planning-reporting-filter-modal-subtitle"
           >
             Select All filters that apply
@@ -500,13 +504,16 @@ export default function PlanningReportingFilterModal({
         </Row>
 
         <div
-          className="mt-8 flex justify-end gap-3 border-t border-[#F1F2F6] pt-6"
+          className="mt-8 flex items-center justify-end gap-4 border-t pt-6"
+          style={{ borderColor: PR_BORDER }}
           data-cy="planning-reporting-filter-modal-footer"
         >
           <Button
             data-cy="planning-reporting-filter-reset"
+            type="link"
             size="large"
-            className="min-w-[100px] rounded-lg border-[#D1D5DB] font-semibold text-[#6B7280]"
+            className="!px-1 font-semibold"
+            style={{ color: PR_TEXT_MUTED }}
             onClick={handleReset}
           >
             Reset
@@ -516,7 +523,7 @@ export default function PlanningReportingFilterModal({
             type="primary"
             size="large"
             disabled={!!draftFiscalId && loadingSessions}
-            className="min-w-[120px] rounded-lg border-0 !bg-[#1D4ED8] font-semibold hover:!bg-[#1E3A8A]"
+            className="min-w-[120px] rounded-lg border-0 font-semibold shadow-none !bg-[#2D5BFF] hover:!bg-[#2447D4]"
             onClick={handleSave}
           >
             Save Filter
