@@ -7,13 +7,8 @@ import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
 import { IoCloseOutline } from 'react-icons/io5';
 import {
-  MdGridView,
-  MdDomain,
   MdPeople,
   MdPersonSearch,
-  MdOutlineAccessTime,
-  MdAdjust,
-  MdChat,
   MdSchool,
   MdAccountBalanceWallet,
   MdCardGiftcard,
@@ -21,6 +16,11 @@ import {
   MdHowToReg,
   MdAdminPanelSettings,
 } from 'react-icons/md';
+import AlbumIcon from '@mui/icons-material/Album';
+import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
@@ -61,6 +61,8 @@ import { useCreateEmployee } from '@/store/server/features/employees/employeeDet
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 
 interface CustomMenuItem {
   key: string;
@@ -84,6 +86,8 @@ interface MyComponentProps {
 const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
+  colorPrimary: string;
+  fontSize: number;
   selectedKeys: (string | number | bigint)[];
   setSelectedKeys: React.Dispatch<
     React.SetStateAction<(string | number | bigint)[]>
@@ -98,6 +102,8 @@ const NavMenuItem: React.FC<{
 }> = ({
   item,
   collapsed,
+  colorPrimary,
+  fontSize,
   selectedKeys,
   setSelectedKeys,
   router,
@@ -151,6 +157,7 @@ const NavMenuItem: React.FC<{
           hover:bg-[#E1EFFF]
           ${collapsed ? 'justify-center px-0 mx-[10px]' : ''}
         `}
+        style={isActive ? { color: colorPrimary } : undefined}
       >
         <div
           data-cy="nav-menu-item-icon"
@@ -164,7 +171,8 @@ const NavMenuItem: React.FC<{
         {!collapsed && (
           <span
             data-cy="nav-menu-item-label"
-            className="flex-1 text-[14.5px] transition-colors"
+            className="flex-1 transition-colors"
+            style={{ fontSize }}
           >
             {item.label}
           </span>
@@ -179,7 +187,7 @@ const NavMenuItem: React.FC<{
           {item.children.map((child: any) => {
             const isChildSelected =
               selectedKeys.includes(child.key) ||
-              isRouteMatch(String(child.key), pathname);
+              String(child.key) === bestMatchingChildKey;
             return (
               <div
                 key={child.key}
@@ -200,6 +208,10 @@ const NavMenuItem: React.FC<{
                       : 'text-black font-medium text-[14.5px] hover:bg-[#E1EFFF]'
                   }
                 `}
+                style={{
+                  fontSize,
+                  ...(isChildSelected ? { color: colorPrimary } : {}),
+                }}
               >
                 {child.label}
               </div>
@@ -213,16 +225,15 @@ const NavMenuItem: React.FC<{
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { borderRadiusLG },
+    token: { borderRadiusLG, colorPrimary, fontSize, fontSizeSM },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const fullBleedContent = pathname.startsWith('/organization/chart');
-  const { userId } = useAuthenticationStore();
-  const { isLoading } = useGetEmployee(userId);
+  const { userId, tenantId } = useAuthenticationStore();
+  useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
   const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -337,25 +348,36 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
   ];
 
-  const getRoutesAndPermissions = (
-    menuItems: CustomMenuItem[],
-  ): { route: string; permissions: string[] }[] => {
-    const routes: { route: string; permissions: string[] }[] = [];
+  const getRoutesAndPermissions = React.useCallback(
+    (
+      menuItems: CustomMenuItem[],
+    ): { route: string; permissions: string[] }[] => {
+      const routes: { route: string; permissions: string[] }[] = [];
 
-    const traverse = (items: CustomMenuItem[]) => {
-      items.forEach((item) => {
-        if (item.key && item.permissions) {
+      const traverse = (items: CustomMenuItem[]) => {
+        items.forEach((item) => {
+          if (item.key && item.permissions) {
+            routes.push({
+              route: item.key,
+              permissions: item.permissions,
+            });
+          }
+
+          if (item.children) {
+            traverse(item.children);
+          }
+        });
+      };
+
+      // First add hidden routes
+      hiddenRoutes.forEach((route) => {
+        if (route.key && route.permissions) {
           routes.push({
-            route: item.key,
-            permissions: item.permissions,
+            route: route.key,
+            permissions: route.permissions,
           });
         }
-
-        if (item.children) {
-          traverse(item.children);
-        }
       });
-    };
 
     // First add hidden routes
     hiddenRoutes.forEach((route) => {
@@ -799,7 +821,432 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     [hasEndedFiscalYear],
   );
 
-  // Helper function moved to global scope
+  const treeData: CustomMenuItem[] = React.useMemo(
+    () => [
+      {
+        icon: <DashboardIcon style={{ fontSize: 20 }} />,
+        title: 'Dashboard',
+        key: '/dashboard',
+        className: 'font-bold',
+        permissions: [],
+        moduleCode: 'DASHBOARD',
+      },
+      {
+        icon: <AccountTreeIcon style={{ fontSize: 20 }} />,
+        title: 'Organization',
+        key: '/organization',
+        className: 'font-bold',
+        permissions: ['view_organization'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'ORGANIZATION',
+        children: [
+          {
+            title: <span data-cy="nav-tree-org-structure">Org Structure</span>,
+            key: '/organization/chart',
+            className: 'font-bold',
+            permissions: ['view_organization_chart'],
+            disabled: hasEndedFiscalYear,
+          },
+          {
+            title: <span data-cy="nav-tree-org-settings">Settings</span>,
+            key: '/organization/settings',
+            className: 'font-bold',
+            permissions: ['view_organization_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdPeople style={{ fontSize: 20 }} />,
+        title: 'Employees',
+        key: '/employees',
+        className: 'font-bold',
+        permissions: ['view_employees'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'EMPLOYEES',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-manage-employees">Manage Employees</span>
+            ),
+            key: '/employees/manage-employees',
+            className: 'font-bold',
+            permissions: ['manage_employees'],
+          },
+          {
+            title: <span data-cy="nav-tree-employees-settings">Settings</span>,
+            key: '/employees/settings',
+            className: 'font-bold',
+            permissions: ['manage_employee_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdPersonSearch style={{ fontSize: 20 }} />,
+        title: 'Talent Acquisition',
+        key: '/recruitment',
+        className: 'font-bold',
+        permissions: ['view_recruitment'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'RECRUITMENT',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
+            ),
+            key: '/recruitment/dashboard',
+            className: 'font-bold',
+            permissions: ['view_recruitment_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
+            key: '/recruitment/jobs',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_jobs'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
+            ),
+            key: '/recruitment/ai-job-matching',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_jobs'],
+            disabled: hasEndedFiscalYear,
+          },
+          {
+            title: <span data-cy="nav-tree-candidates">Candidates</span>,
+            key: '/recruitment/candidate',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_candidates'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-talent-resource">Talent Resource</span>
+            ),
+            key: '/recruitment/talent-resource',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_talent_pool'],
+          },
+          {
+            title: (
+              <span
+                data-cy="nav-tree-recruitment-settings"
+                className="font-bold"
+              >
+                Settings
+              </span>
+            ),
+            key: '/recruitment/settings',
+            className: 'font-bold',
+            permissions: ['manage_recruitment_settings'],
+          },
+        ],
+      },
+      {
+        icon: <AlbumIcon style={{ fontSize: 20 }} />,
+        title: 'OKR',
+        key: '/okr-menu',
+        className: 'font-bold',
+        permissions: ['view_okr'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
+        children: [
+          {
+            title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
+            key: '/okr/dashboard',
+            className: 'font-bold',
+            permissions: ['view_okr_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-okr">OKR</span>,
+            key: '/okr',
+            className: 'font-bold',
+            permissions: ['view_okr_overview'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-planning-reporting">
+                Planning and Reporting
+              </span>
+            ),
+            key: '/planning-and-reporting',
+            className: 'font-bold',
+            permissions: ['manage_planning_reporting'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-weekly-priority">Weekly Priority</span>
+            ),
+            key: '/weekly-priority',
+            className: 'font-bold h-8',
+            permissions: ['view_weekly_priority'],
+          },
+          {
+            title: <span data-cy="nav-tree-okr-settings">Settings</span>,
+            key: '/okr/settings',
+            className: 'font-bold',
+            permissions: ['manage_okr_settings'],
+          },
+        ],
+      },
+      {
+        icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
+        title: 'CFR',
+        key: 'feedback-menu',
+        className: 'font-bold',
+        permissions: ['view_feedback'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'CFR',
+        children: [
+          {
+            title: <span data-cy="nav-tree-conversation">Conversation</span>,
+            key: '/feedback/conversation',
+            className: 'font-bold',
+            permissions: ['view_feedback_conversation'],
+          },
+          {
+            title: <span data-cy="nav-tree-feedback">Feedback</span>,
+            key: '/feedback/feedback',
+            className: 'font-bold',
+            permissions: ['view_feedback_list'],
+          },
+          {
+            title: <span data-cy="nav-tree-recognition">Recognition</span>,
+            key: '/feedback/recognition',
+            className: 'font-bold',
+            permissions: ['view_feedback_recognition'],
+          },
+          {
+            title: 'Settings',
+            key: '/feedback/settings',
+            className: 'font-bold',
+            permissions: ['manage_feedback_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdSchool style={{ fontSize: 20 }} />,
+        title: 'Learning & Growth',
+        key: 'tna-menu',
+        className: 'font-bold',
+        permissions: ['view_learning_growth'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'TNA',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-training-management">
+                Training Management
+              </span>
+            ),
+            key: '/tna/management',
+            className: 'font-bold',
+            permissions: ['manage_training'],
+          },
+          {
+            title: <span data-cy="nav-tree-tna-settings">Settings</span>,
+            key: '/tna/settings/course-category',
+            className: 'font-bold',
+            permissions: ['manage_tna_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAccountBalanceWallet style={{ fontSize: 20 }} />,
+        title: 'Payroll',
+        key: '/payroll-menu',
+        className: 'font-bold',
+        permissions: ['view_payroll_menu'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'PAYROLL',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-employee-information">
+                Employee Information
+              </span>
+            ),
+            key: '/employee-information',
+            className: 'font-bold',
+            permissions: ['view_employee_information'],
+          },
+          {
+            title: <span data-cy="nav-tree-payroll">Payroll</span>,
+            key: '/payroll',
+            className: 'font-bold',
+            permissions: ['view_payroll_overview'],
+          },
+          {
+            title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
+            key: '/myPayroll',
+            className: 'font-bold',
+            permissions: ['view_my_payroll'],
+          },
+          {
+            title: <span data-cy="nav-tree-payroll-settings">Settings</span>,
+            key: '/settings',
+            className: 'font-bold',
+            permissions: ['manage_payroll_settings'],
+          },
+        ],
+      },
+      {
+        icon: <AccessTimeFilledIcon style={{ fontSize: 20 }} />,
+        title: 'Time & Attendance',
+        key: 'timesheet-menu',
+        className: 'font-bold',
+        permissions: ['view_timesheet'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'TIMESHEET',
+        children: [
+          {
+            title: (
+              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
+            ),
+            key: '/timesheet/dashboard',
+            className: 'font-bold',
+            permissions: ['view_timesheet_dashboard'],
+          },
+          {
+            title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
+            key: '/timesheet/my-timesheet',
+            className: 'font-bold',
+            permissions: ['view_my_timesheet'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-employee-attendance">
+                Employee Attendance
+              </span>
+            ),
+            key: '/timesheet/employee-attendance',
+            className: 'font-bold',
+            permissions: ['view_employee_attendance'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-leave-management">Leave Management</span>
+            ),
+            key: '/timesheet/leave-management/leaves',
+            className: 'font-bold',
+            permissions: ['manage_leave_management'],
+          },
+          {
+            title: <span data-cy="nav-tree-timesheet-settings">Settings</span>,
+            key: '/timesheet/settings/closed-date',
+            className: 'font-bold',
+            permissions: ['manage_timesheet_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdWidgets style={{ fontSize: 20 }} />,
+        title: 'Compensation & Benefit',
+        key: 'compensation-menu',
+        className: 'font-bold',
+        permissions: ['view_compensation'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'COMPENSATION',
+        children: [
+          {
+            title: <span data-cy="nav-tree-allowance">Allowance</span>,
+            key: '/allowance',
+            className: 'font-bold',
+            permissions: ['view_allowance'],
+          },
+          {
+            title: <span data-cy="nav-tree-benefit">Benefit</span>,
+            key: '/benefit',
+            className: 'font-bold',
+            permissions: ['view_benefit'],
+          },
+          {
+            title: <span data-cy="nav-tree-deduction">Deduction</span>,
+            key: '/deduction',
+            className: 'font-bold',
+            permissions: ['view_deduction'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-compensation-settings">Settings</span>
+            ),
+            key: '/compensationSetting',
+            className: 'font-bold',
+            permissions: ['manage_compensation_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdCardGiftcard style={{ fontSize: 20 }} />,
+        title: 'Incentives',
+        key: 'incentive-menu',
+        className: 'font-bold',
+        permissions: ['view_incentive'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'INCENTIVE',
+        children: [
+          {
+            title: <span data-cy="nav-tree-incentive">Incentive</span>,
+            key: '/incentives',
+            className: 'font-bold',
+            permissions: ['view_incentive_page'],
+          },
+          {
+            title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
+            key: '/variable-pay',
+            className: 'font-bold',
+            permissions: ['view_variable_pay'],
+          },
+          {
+            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+            key: '/incentives/settings',
+            className: 'font-bold',
+            permissions: ['manage_incentive_settings'],
+          },
+        ],
+      },
+      {
+        icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
+        title: 'Audit Log',
+        key: '/audit-log',
+        className: 'font-bold',
+        permissions: ['view_audit_log'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'AUDIT_LOG',
+      },
+      {
+        icon: <MdAdminPanelSettings style={{ fontSize: 20 }} />,
+        title: 'Admin',
+        key: 'admin-menu',
+        className: 'font-bold',
+        permissions: ['view_admin_configuration'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'ADMIN',
+        children: [
+          {
+            title: <span data-cy="nav-tree-admin-dashboard">Dashboard</span>,
+            key: '/admin/dashboard',
+            className: 'font-bold',
+            permissions: ['view_admin_dashboard'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-admin-billing">Billing and Invoice</span>
+            ),
+            key: '/admin/billing',
+            className: 'font-bold',
+            permissions: ['view_admin_billing'],
+          },
+          {
+            title: <span data-cy="nav-tree-admin-profile">Update Profile</span>,
+            key: '/admin/profile',
+            className: 'font-bold',
+            permissions: ['view_admin_profile'],
+          },
+        ],
+      },
+    ],
+    [hasEndedFiscalYear],
+  );
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
@@ -890,6 +1337,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
   });
+  const { data: subscriptionData } = useGetSubscriptionByTenant(
+    tenantId,
+    !!tenantId,
+  );
+  const { data: subscriptionsData, isLoading: subscriptionsLoading } =
+    useGetSubscriptions({
+      filter: {
+        isActive: true,
+        ...(tenantId ? { tenantId: [tenantId] } : {}),
+      },
+    });
   const { data: departments, isLoading: departmentsLoading } =
     useGetDepartments();
   const { data: employeeData, isLoading: employeeDataLoading } =
@@ -900,6 +1358,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     departmentsLoading ||
     employeeDataLoading ||
     modulesLoading ||
+    subscriptionsLoading ||
     !departments ||
     !employeeData;
 
@@ -1074,7 +1533,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const groupedMenuItems = React.useMemo(() => {
-    // 1. Filter treeData items by user permissions
+    const normalizeRoute = (value?: string | null) => {
+      if (!value) return '';
+      const v = String(value).toLowerCase().trim();
+      if (!v) return '';
+      return v.replace(/\/+$/, '') || '/';
+    };
+
     const accessibleTreeItems = treeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
@@ -1094,13 +1559,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
-    // 2. Map treeData items by title for easy lookup
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<string, (typeof accessibleTreeItems)[0]>();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
+
+      const itemKey = normalizeRoute(String(item.key));
+      if (itemKey.startsWith('/')) {
+        treeItemByRouteMap.set(itemKey, item);
+      }
+
+      item.children?.forEach((child) => {
+        const childKey = normalizeRoute(String(child.key));
+        if (!childKey.startsWith('/')) return;
+        const firstSegment = childKey.split('/').filter(Boolean)[0];
+        if (!firstSegment) return;
+        const parentRoute = `/${firstSegment}`;
+        if (!treeItemByRouteMap.has(parentRoute)) {
+          treeItemByRouteMap.set(parentRoute, item);
+        }
+      });
     });
 
-    // Handles mismatches between backend names and sidebar titles
     const nameMapping: Record<string, string> = {
       overview: 'dashboard',
       people: 'employees',
@@ -1108,96 +1588,151 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       finance: 'payroll',
       administration: 'admin',
       organization: 'organization',
+      'org structure': 'organization',
       employee: 'employees',
       'learning and growth': 'learning & growth',
+      tna: 'learning & growth',
+      'talent acquisition': 'talent acquisition',
+      'talent aquisation': 'talent acquisition',
+      'talent aquisatiom': 'talent acquisition',
       'time and attendance': 'time & attendance',
       incentive: 'incentives',
+      compensation: 'compensation & benefit',
       'compensation & benefit': 'compensation & benefit',
       timesheet: 'time & attendance',
       'employee info': 'employees',
+      'okr and planning': 'okr',
+      feedback: 'cfr',
+      cfr: 'cfr',
+      recruitment: 'talent acquisition',
     };
 
     const modules: Module[] = modulesData?.items || [];
+    const activeSubscriptionFromTenant =
+      subscriptionData?.items?.find((subscription) => subscription?.isActive) ||
+      subscriptionData?.item;
+    const activeSubscriptionFromList = subscriptionsData?.items?.find(
+      (subscription) => subscription?.isActive,
+    );
+    const activeSubscription =
+      activeSubscriptionFromTenant || activeSubscriptionFromList;
+    const subscriptionPlanModules = activeSubscription?.plan?.modules || [];
+    const subscribedModuleIds = new Set(
+      subscriptionPlanModules
+        .map((planModule: any) => planModule.moduleId || planModule?.module?.id)
+        .filter(Boolean),
+    );
 
-    // In the new API, items like "Overview", "People", "Performance", "Finance"
-    // are the parents, and their `moduleGroup` is a comma‑separated list of
-    // child module names. Leaf modules (Dashboard, Organization, Employee, ...)
-    // have `moduleGroup: null`.
-    const parentModules = modules
+    const groupedByParent = new Map<
+      string,
+      { type: 'group'; key: string; label: string; children: any[] }
+    >();
+
+    const sortedModules = modules
       .filter(
         (m) =>
-          m.isActive &&
-          m.moduleGroup &&
-          typeof m.moduleGroup === 'string' &&
-          (m.moduleGroup as unknown as string).trim().length > 0,
+          m.isActive && m.moduleGroup && subscribedModuleIds.has((m as any).id),
       )
       .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 
-    const leafModules = modules.filter(
-      (m) => m.isActive && (!m.moduleGroup || (m.moduleGroup as any) === null),
-    );
+    sortedModules.forEach((module) => {
+      const normalizedModuleName = module.name.toLowerCase().trim();
+      const mappedName =
+        nameMapping[normalizedModuleName] || normalizedModuleName;
+      const normalizedDescription = normalizeRoute((module as any).description);
+      const treeItemFromDescription = normalizedDescription
+        ? treeItemByRouteMap.get(normalizedDescription)
+        : undefined;
+      const treeItem = treeItemFromDescription || treeItemMap.get(mappedName);
+      if (!treeItem) return;
 
-    const menuItems: any[] = [];
+      const groupLabelRaw = String(module.moduleGroup).trim();
+      if (!groupLabelRaw) return;
+      const groupKey = groupLabelRaw.toLowerCase();
 
-    parentModules.forEach((parent) => {
-      const rawGroup = (parent.moduleGroup as unknown as string) || '';
-      const childNames = rawGroup
-        .split(',')
-        .map((n) => n.trim())
-        .filter(Boolean);
-
-      if (childNames.length === 0) {
-        // moduleGroup effectively empty → do not show the parent
-        return;
-      }
-
-      const groupChildren: any[] = [];
-
-      childNames.forEach((childName) => {
-        // Find the leaf module that corresponds to this child name
-        const leaf = leafModules.find(
-          (m) => m.name.toLowerCase().trim() === childName.toLowerCase().trim(),
-        );
-
-        // Even if we don't need `leaf` data directly, this guarantees the
-        // child exists in the subscription; otherwise we skip it.
-        if (!leaf) return;
-
-        const normalized = childName.toLowerCase().trim();
-        const mappedName = nameMapping[normalized] || normalized;
-        const treeItem = treeItemMap.get(mappedName);
-
-        if (!treeItem) return;
-
-        groupChildren.push({
-          key: treeItem.key,
-          icon: treeItem.icon,
-          label: treeItem.title,
-          children:
-            treeItem.children && treeItem.children.length > 0
-              ? treeItem.children.map((child) => ({
-                  key: child.key,
-                  label: child.title,
-                }))
-              : undefined,
+      if (!groupedByParent.has(groupKey)) {
+        groupedByParent.set(groupKey, {
+          type: 'group',
+          key: `group-${groupKey}`,
+          label: groupLabelRaw,
+          children: [],
         });
-      });
-
-      // If this parent has no resolved children, skip it as requested
-      if (groupChildren.length === 0) {
-        return;
       }
 
-      menuItems.push({
-        type: 'group',
-        key: parent.id,
-        label: parent.name,
-        children: groupChildren,
+      const currentGroup = groupedByParent.get(groupKey)!;
+      const alreadyAdded = currentGroup.children.some(
+        (child) => String(child.key) === String(treeItem.key),
+      );
+      if (alreadyAdded) return;
+
+      currentGroup.children.push({
+        key: treeItem.key,
+        icon: treeItem.icon,
+        label: treeItem.title,
+        children:
+          treeItem.children && treeItem.children.length > 0
+            ? treeItem.children.map((child) => ({
+                key: child.key,
+                label: child.title,
+              }))
+            : undefined,
       });
     });
 
-    return menuItems;
-  }, [treeData, modulesData]);
+    return Array.from(groupedByParent.values()).filter(
+      (group) => group.children.length > 0,
+    );
+  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
+
+  // Fallback skeleton structure used while modules data is not yet available
+  const skeletonMenuItems = React.useMemo(
+    () =>
+      groupedMenuItems.length > 0
+        ? groupedMenuItems
+        : [
+            {
+              type: 'group',
+              key: 'skeleton-overview',
+              label: 'Overview',
+              // Dashboard, Organization
+              children: [
+                { key: 'skeleton-overview-item-1' },
+                { key: 'skeleton-overview-item-2' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-people',
+              label: 'People',
+              children: [
+                { key: 'skeleton-people-item-1' },
+                { key: 'skeleton-people-item-2' },
+                { key: 'skeleton-people-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-performance',
+              label: 'Performance',
+              children: [
+                { key: 'skeleton-performance-item-1' },
+                { key: 'skeleton-performance-item-2' },
+                { key: 'skeleton-performance-item-3' },
+              ],
+            },
+            {
+              type: 'group',
+              key: 'skeleton-finance',
+              label: 'Finance',
+              children: [
+                { key: 'skeleton-finance-item-1' },
+                { key: 'skeleton-finance-item-2' },
+                { key: 'skeleton-finance-item-3' },
+              ],
+            },
+          ],
+    [groupedMenuItems],
+  );
   const { mutate: employeeInfo } = useCreateEmployee();
   const handleUserInfoUpdate = () => {
     const fullName = employeeData?.firstName?.split(' ') || [];
@@ -1236,7 +1771,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       <Sider
         theme="light"
         width={280}
-        className="scrollbar-hide"
+        className="scrollbar-hide flex flex-col"
         style={{
           overflow: 'visible',
           height: '100vh',
@@ -1244,9 +1779,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 1010,
+          zIndex: 100,
           backgroundColor: '#F5fbff',
-          borderRight: '1px solid #E5E7EB',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
@@ -1263,8 +1797,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         collapsedWidth={80}
       >
         <div
-          data-cy="nav-sider-logo-wrap"
-          className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
+          data-cy="nav-sider-children-wrap"
+          className="relative flex flex-col flex-1 min-h-0"
         >
           <div
             data-cy="nav-sider-logo"
@@ -1276,59 +1810,91 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 className="w-full flex justify-center"
               >
                 <Image
-                  src="/image/Logo.png"
-                  alt="Logo"
-                  width={32}
-                  height={32}
+                  src="/image/selamnew-workspace-logo.svg"
+                  alt="SelamNew Workspace Logo"
+                  width={150}
+                  height={40}
                   style={{ objectFit: 'contain' }}
                 />
-              </div>
-            ) : (
-              <Image
-                src="/image/Logo.png"
-                alt="Logo"
-                width={150}
-                height={40}
-                style={{ objectFit: 'contain' }}
-              />
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <button
-          data-cy="nav-sider-toggle"
-          onClick={toggleCollapsed}
-          className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full bg-[#1D4ED8] text-white shadow-md hover:bg-[#1e40af] transition-all"
-          style={{ zIndex: 10001 }}
-        >
-          {collapsed ? (
-            <AiOutlineRight size={12} />
-          ) : (
-            <AiOutlineRight size={12} className="rotate-180" />
-          )}
-        </button>
-        <div
-          data-cy="nav-sider-menu-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
-          style={{ minHeight: 0 }}
-        >
-          <div
-            data-cy="nav-sider-menu-inner"
-            className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-6 pr-3'}`}
+          <button
+            data-cy="nav-sider-toggle"
+            onClick={toggleCollapsed}
+            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
+            style={{ zIndex: 101, backgroundColor: colorPrimary }}
           >
-            {!isMounted || isLoading ? (
-              <div
-                data-cy="nav-sider-loading"
-                className="px-5 w-full h-full flex justify-center items-center my-5"
-              >
-                <Skeleton active />
-              </div>
+            {collapsed ? (
+              <AiOutlineRight size={12} />
             ) : (
-              <div data-cy="nav-sider-groups" className="space-y-6">
-                {groupedMenuItems.map((group: any) => {
-                  const isExpanded = true;
+              <AiOutlineRight size={12} className="rotate-180" />
+            )}
+          </button>
 
-                  return (
+          <div
+            data-cy="nav-sider-menu-scroll"
+            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            style={{ minHeight: 0 }}
+          >
+            <div
+              data-cy="nav-sider-menu-inner"
+              className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
+            >
+              {!isMounted || isLoadingData ? (
+                <div
+                  data-cy="nav-sider-loading"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {skeletonMenuItems.map((group: any) => (
+                    <div
+                      data-cy="nav-sider-group-skeleton"
+                      key={group.key}
+                      className="space-y-1"
+                    >
+                      <div
+                        data-cy="nav-sider-group-header-skeleton"
+                        className="mb-2 mt-4 first:mt-2"
+                      >
+                        <div
+                          data-cy="nav-sider-group-label-skeleton"
+                          className="w-full font-light text-[#64748B] tracking-wide"
+                          style={{ fontSize: fontSizeSM }}
+                        >
+                          {group.label}
+                        </div>
+                      </div>
+
+                      <div
+                        data-cy="nav-sider-group-children-skeleton"
+                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
+                      >
+                        {group.children?.map((item: any) => (
+                          <div
+                            key={item.key}
+                            data-cy="nav-sider-menu-item-skeleton"
+                            className={`
+                              group flex items-center py-2 rounded-xl
+                              ${collapsed ? 'justify-center mx-[10px]' : ''}
+                            `}
+                          >
+                            <div
+                              data-cy="nav-sider-menu-item-skeleton-bar"
+                              className="h-[16px] w-full rounded-md bg-gray-200"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div
+                  data-cy="nav-sider-groups"
+                  className="space-y-4 max-w-[209px]"
+                >
+                  {groupedMenuItems.map((group: any) => (
                     <div
                       data-cy="nav-sider-group"
                       key={group.key}
@@ -1336,13 +1902,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="px-4 mb-2 mt-4 first:mt-2"
+                        className="mb-2 mt-4 first:mt-2"
                       >
                         <div
                           data-cy="nav-sider-group-label-wrap"
-                          className={`w-full text-[13px] font-light text-[#64748B] tracking-wide transition-colors ${
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'hidden' : ''
                           }`}
+                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </div>
@@ -1359,6 +1926,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             key={item.key}
                             item={item}
                             collapsed={collapsed}
+                            colorPrimary={colorPrimary}
+                            fontSize={fontSize}
                             selectedKeys={selectedKeys}
                             setSelectedKeys={setSelectedKeys}
                             router={router}
@@ -1370,15 +1939,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         ))}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div
             data-cy="nav-sider-admin-wrap"
-            className="w-full flex justify-center py-6 mt-10"
+            className="w-full flex justify-center py-3 mt-4 bg-[#F5fbff]"
           >
             <Button
               data-cy="nav-sider-admin-btn"
@@ -1393,6 +1962,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     : 'w-[85%] h-12 rounded-xl text-[14px] font-semibold gap-2'
                 }
               `}
+              style={{ backgroundColor: colorPrimary }}
               onClick={() => router.push('/admin/dashboard')}
             >
               {!collapsed && 'Admin Console'}
@@ -1461,7 +2031,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? 0 : fullBleedContent ? 0 : 24,
+            paddingRight: isMobile ? 0 : 24,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
@@ -1481,8 +2051,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                marginRight: fullBleedContent ? 0 : 24,
-                marginLeft: fullBleedContent ? 0 : 24,
+                marginRight: 24,
+                marginLeft: 24,
                 background: '#ffffff',
               }}
             >

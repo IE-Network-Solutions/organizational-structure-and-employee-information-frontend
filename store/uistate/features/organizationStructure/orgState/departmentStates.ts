@@ -7,44 +7,8 @@ export interface DepartmentToEdit {
   branchId?: string;
 }
 
-/** Inline: ids reachable from rootId (source → target), then exclude root. Used for collapse. */
-function getDescendantIds(
-  edges: { source: string; target: string }[],
-  rootId: string,
-): Set<string> {
-  const ids = new Set<string>([rootId]);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const e of edges) {
-      if (ids.has(e.source) && !ids.has(e.target)) {
-        ids.add(e.target);
-        changed = true;
-      }
-    }
-  }
-  ids.delete(rootId);
-  return ids;
-}
-
-function computeVisibleNodesAndEdges<
-  T extends { id: string },
-  E extends { source: string; target: string },
->(
-  fullNodes: T[],
-  fullEdges: E[],
-  collapsedIds: string[],
-): { nodes: T[]; edges: E[] } {
-  const hidden = new Set<string>();
-  for (const id of collapsedIds) {
-    getDescendantIds(fullEdges, id).forEach((x) => hidden.add(x));
-  }
-  const nodes = fullNodes.filter((n) => !hidden.has(n.id));
-  const edges = fullEdges.filter(
-    (e) => !hidden.has(e.source) && !hidden.has(e.target),
-  );
-  return { nodes, edges };
-}
+// Visible layout is now recomputed from the backend tree (in the chart component),
+// so we do not filter nodes/edges here. We only track which departments are collapsed.
 
 interface DepartmentState {
   rootDeptId: string | null;
@@ -117,6 +81,8 @@ interface DepartmentState {
   setFocusViewRootId: (id: string | null) => void;
   /** Restore displayed nodes/edges from full graph (used when exiting Focus View) */
   exitFocusView: () => void;
+  /** Explicitly clear all collapsed departments (used by Reset View). */
+  clearCollapsedDepartments: () => void;
   reset: () => void;
 }
 
@@ -169,15 +135,8 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
       const nextCollapsed = s.collapsedDepartmentIds.includes(departmentId)
         ? s.collapsedDepartmentIds.filter((id) => id !== departmentId)
         : [...s.collapsedDepartmentIds, departmentId];
-      const { nodes, edges } = computeVisibleNodesAndEdges(
-        s.fullNodes,
-        s.fullEdges,
-        nextCollapsed,
-      );
       return {
         collapsedDepartmentIds: nextCollapsed,
-        nodes,
-        edges,
       };
     }),
   fullNodes: [],
@@ -187,13 +146,9 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
   setFullGraph: (nodes, edges) =>
     set((s) => {
       if (s.fullNodes === nodes && s.fullEdges === edges) return {};
-      const { nodes: visibleNodes, edges: visibleEdges } =
-        computeVisibleNodesAndEdges(nodes, edges, s.collapsedDepartmentIds);
       return {
         fullNodes: nodes,
         fullEdges: edges,
-        nodes: visibleNodes,
-        edges: visibleEdges,
       };
     }),
   setNodes: (arg) =>
@@ -206,15 +161,11 @@ const useDepartmentStore = create<DepartmentState>((set) => ({
     })),
   focusViewRootId: null,
   setFocusViewRootId: (id) => set({ focusViewRootId: id }),
-  exitFocusView: () =>
-    set((s) => {
-      const { nodes, edges } = computeVisibleNodesAndEdges(
-        s.fullNodes,
-        s.fullEdges,
-        s.collapsedDepartmentIds,
-      );
-      return { nodes, edges };
-    }),
+  exitFocusView: () => set(() => ({ focusViewRootId: null })),
+  clearCollapsedDepartments: () =>
+    set(() => ({
+      collapsedDepartmentIds: [],
+    })),
   reset: () =>
     set({
       rootDeptId: null,
