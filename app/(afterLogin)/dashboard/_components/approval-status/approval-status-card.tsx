@@ -335,7 +335,7 @@ const ApprovalRequestCard: FC<ApprovalRequestCardProps> = ({
               data-cy="approval-status-card-date-row"
             >
               <p
-                className="font-normal text-gray-500 text-[10px]"
+                className="font-normal text-gray-500 text-xs"
                 data-cy="approval-status-card-date-range"
               >
                 {formattedDateRange}
