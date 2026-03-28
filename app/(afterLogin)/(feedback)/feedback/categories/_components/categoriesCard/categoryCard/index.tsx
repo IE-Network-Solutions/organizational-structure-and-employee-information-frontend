@@ -4,7 +4,7 @@ import { FaEllipsisVertical, FaCircle } from 'react-icons/fa6';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGetUsersById } from '@/store/server/features/feedback/category/queries';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -113,7 +113,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           id={`feedback-categories-components-categoriescard-categorycard-div-user-${category?.id}`}
         >
           <Image
-            src={userData?.profileImage ?? Avatar}
+            src={userData?.profileImage ?? GENDER_NEUTRAL_AVATAR_URL}
             alt="Profile pic"
             width={30}
             height={50}

@@ -15,7 +15,7 @@ import { UploadChangeParam } from 'antd/es/upload/interface';
 import { useEffect } from 'react';
 import TextArea from 'antd/es/input/TextArea';
 import { FaInfoCircle } from 'react-icons/fa';
-import cvUpload from '@/public/image/cvUpload.png';
+import { CV_UPLOAD_IMAGE_URL } from '@/constants/publicImageUrls';
 import {
   useCreateTalentRoaster,
   useUpdateTalentRoaster,
@@ -520,7 +520,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   <Image
                     preview={false}
                     className="w-full max-w-xs"
-                    src={cvUpload.src}
+                    src={CV_UPLOAD_IMAGE_URL}
                     alt="Loading"
                   />
                 </p>

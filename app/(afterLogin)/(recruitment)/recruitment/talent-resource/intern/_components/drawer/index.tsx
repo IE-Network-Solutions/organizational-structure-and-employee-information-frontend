@@ -16,7 +16,7 @@ import { UploadChangeParam } from 'antd/es/upload';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
-import cvUpload from '@/public/image/cvUpload.png';
+import { CV_UPLOAD_IMAGE_URL } from '@/constants/publicImageUrls';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useCreateIntern,
@@ -512,7 +512,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   <Image
                     preview={false}
                     className="w-full max-w-xs"
-                    src={cvUpload.src}
+                    src={CV_UPLOAD_IMAGE_URL}
                     alt="Loading"
                   />
                 </p>
