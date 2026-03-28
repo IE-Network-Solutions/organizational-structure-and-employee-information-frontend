@@ -50,6 +50,7 @@ export default function RecognitionDetailPage() {
     setParentRecognitionTypeId,
     setSelectedRecognitionType,
     setEditType,
+    setEditingRecognitionCriteriaId,
   } = ConversationStore();
 
   const { data: recognitionType, isLoading } =
@@ -64,11 +65,18 @@ export default function RecognitionDetailPage() {
     [recognitionName, selectedRecognition?.name],
   );
   const description = selectedRecognition?.description || '';
-  const openEditRecognitionModal = (id?: string, editType?: string) => {
+  const openEditRecognitionModal = (
+    id?: string,
+    editTypeArg?: string,
+    recognitionCriteriaId?: string,
+  ) => {
     if (!id) return;
-    setEditType(editType || '');
+    setEditType(editTypeArg || '');
     setParentRecognitionTypeId('');
     setSelectedRecognitionType(String(id));
+    setEditingRecognitionCriteriaId(
+      recognitionCriteriaId ? String(recognitionCriteriaId) : '',
+    );
     setOpenRecognitionType(true);
   };
 
@@ -119,6 +127,7 @@ export default function RecognitionDetailPage() {
           onClick={() => {
             setEditType('');
             setSelectedRecognitionType('');
+            setEditingRecognitionCriteriaId('');
             setParentRecognitionTypeId(String(recognitionId ?? ''));
             setOpenRecognitionType(true);
           }}
@@ -424,11 +433,13 @@ export default function RecognitionDetailPage() {
                                             icon: (
                                               <Edit2Icon className="w-4 h-4 text-xs" />
                                             ),
-                                            // onClick: () => {
-                                            //   openEditRecognitionModal(
-                                            //     child?.id,
-                                            //   );
-                                            // },
+                                            onClick: () => {
+                                              openEditRecognitionModal(
+                                                child?.id,
+                                                'criteria',
+                                                criterion?.id,
+                                              );
+                                            },
                                           },
                                         ],
                                       }}

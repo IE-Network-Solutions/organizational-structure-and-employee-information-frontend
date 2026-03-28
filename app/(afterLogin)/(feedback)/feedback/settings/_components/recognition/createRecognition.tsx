@@ -28,6 +28,7 @@ import {
   useUpdateCriteria,
   useDeleteCriteria,
 } from '@/store/server/features/CFR/recognition/mutation';
+import { useUpdateRecognitionCriteria } from '@/store/server/features/CFR/recognitionCriteria/mutation';
 import {
   useSetIncentiveFormula,
   useUpdateIncentiveFormula,
@@ -107,6 +108,8 @@ const RecognitionForm: React.FC<PropsData> = ({
     setOpenModal,
     editType,
     setEditType,
+    editingRecognitionCriteriaId,
+    setEditingRecognitionCriteriaId,
   } = ConversationStore();
 
   const { isModalVisible, setIsModalVisible } =
@@ -133,6 +136,10 @@ const RecognitionForm: React.FC<PropsData> = ({
   } = useCreateRecognitionCriteria();
   const { mutate: updateCriteria } = useUpdateCriteria();
   const { mutate: deleteCriteria } = useDeleteCriteria();
+  const {
+    mutate: updateRecognitionCriteriaRow,
+    isLoading: updateRecognitionCriteriaLoading,
+  } = useUpdateRecognitionCriteria();
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
   const { isMobile } = useIsMobile();
   const [pendingNewCriteriaId, setPendingNewCriteriaId] = useState<
@@ -153,9 +160,37 @@ const RecognitionForm: React.FC<PropsData> = ({
   const isRecognitionOnlyEdit =
     isEditingRecognition && editType === 'recognition';
   const isFormulaOnlyEdit = isEditingRecognition && editType === 'formula';
+  const isCriteriaOnlyEdit =
+    isEditingRecognition &&
+    editType === 'criteria' &&
+    editingRecognitionCriteriaId !== '';
   const showFormulaStep =
     !createCategory &&
-    (isFormulaOnlyEdit || (!isRecognitionOnlyEdit && !!isMonetizedWatch));
+    (isFormulaOnlyEdit ||
+      (!isRecognitionOnlyEdit && !isCriteriaOnlyEdit && !!isMonetizedWatch));
+
+  const criteriaOnlyIndex = useMemo(() => {
+    if (!isCriteriaOnlyEdit || !editingRecognitionCriteriaId) return -1;
+    return selectedCriteria.findIndex(
+      (c: any) => String(c.id) === String(editingRecognitionCriteriaId),
+    );
+  }, [isCriteriaOnlyEdit, editingRecognitionCriteriaId, selectedCriteria]);
+
+  const criteriaRowsForStep = useMemo(() => {
+    if (!isCriteriaOnlyEdit) {
+      return selectedCriteria.map((criterion: any, index: number) => ({
+        criterion,
+        index,
+      }));
+    }
+    if (criteriaOnlyIndex < 0) return [];
+    return [
+      {
+        criterion: selectedCriteria[criteriaOnlyIndex],
+        index: criteriaOnlyIndex,
+      },
+    ];
+  }, [isCriteriaOnlyEdit, criteriaOnlyIndex, selectedCriteria]);
 
   const { data: formulaById, refetch: refetchFormulaById } =
     useIncentiveFormulaByRecognitionId(
@@ -190,6 +225,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     setFormulaTokens([]);
     setFormulaError('');
     setEditType('');
+    setEditingRecognitionCriteriaId('');
     form.setFieldsValue({
       incentiveAmountType: 'Fixed',
       incentiveFixedAmount: undefined,
@@ -198,9 +234,9 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   useEffect(() => {
     if (!isWizardOpen) return;
-    setCurrentStep(isFormulaOnlyEdit ? 2 : 0);
+    setCurrentStep(isFormulaOnlyEdit ? 2 : isCriteriaOnlyEdit ? 1 : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWizardOpen, isFormulaOnlyEdit]);
+  }, [isWizardOpen, isFormulaOnlyEdit, isCriteriaOnlyEdit]);
 
   useEffect(() => {
     if (!showFormulaStep && currentStep === 2) {
@@ -223,7 +259,9 @@ const RecognitionForm: React.FC<PropsData> = ({
       <span data-cy="create-recognition-drawer-header-text">
         {selectedRecognitionType === ''
           ? 'Recognition Category'
-          : 'Update Recognition Category'}
+          : isCriteriaOnlyEdit
+            ? 'Edit recognition criterion'
+            : 'Update Recognition Category'}
       </span>
     </div>
   );
@@ -439,6 +477,55 @@ const RecognitionForm: React.FC<PropsData> = ({
   const onFinish = (values: RecognitionFormValues) => {
     if (isFormulaOnlyEdit && selectedRecognitionType) {
       persistIncentiveFormula(selectedRecognitionType, handleWizardClose);
+      return;
+    }
+
+    if (isCriteriaOnlyEdit && editingRecognitionCriteriaId) {
+      const idx = selectedCriteria.findIndex(
+        (c: any) => String(c.id) === String(editingRecognitionCriteriaId),
+      );
+      if (idx < 0) return;
+
+      void form
+        .validateFields([
+          ['recognitionCriteria', idx, 'weight'],
+          ['recognitionCriteria', idx, 'operator'],
+          ['recognitionCriteria', idx, 'condition'],
+          ['recognitionCriteria', idx, 'value'],
+        ])
+        .then(() => {
+          const row = selectedCriteria[idx];
+          const rcVals = form.getFieldValue('recognitionCriteria')?.[idx] ?? {};
+
+          const weightRaw = rcVals.weight ?? row.weight;
+          const valueRaw = rcVals.value ?? row.value;
+
+          updateRecognitionCriteriaRow(
+            {
+              id: String(editingRecognitionCriteriaId),
+              criteriaId: row.criteriaId ?? row.criteria?.id,
+              weight:
+                weightRaw !== undefined && weightRaw !== ''
+                  ? parseFloat(String(weightRaw))
+                  : row.weight,
+              operator:
+                rcVals.operator !== undefined && rcVals.operator !== ''
+                  ? rcVals.operator
+                  : row.operator,
+              condition:
+                rcVals.condition !== undefined && rcVals.condition !== ''
+                  ? rcVals.condition
+                  : row.condition,
+              value:
+                valueRaw !== undefined && valueRaw !== ''
+                  ? parseFloat(String(valueRaw))
+                  : row.value,
+              active: row.active !== undefined ? row.active : true,
+              method: 'PATCH',
+            },
+            { onSuccess: () => handleWizardClose() },
+          );
+        });
       return;
     }
 
@@ -857,7 +944,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   const wizardStepItems = useMemo(() => {
-    if (isFormulaOnlyEdit) return [];
+    if (isFormulaOnlyEdit || isCriteriaOnlyEdit) return [];
     const items: { title: string }[] = [{ title: 'Recognition information' }];
     if (createCategory) return items;
     items.push({ title: 'Recognition Criteria' });
@@ -865,15 +952,16 @@ const RecognitionForm: React.FC<PropsData> = ({
       items.push({ title: 'Formula' });
     }
     return items;
-  }, [createCategory, isMonetizedWatch, isFormulaOnlyEdit]);
+  }, [createCategory, isMonetizedWatch, isFormulaOnlyEdit, isCriteriaOnlyEdit]);
 
-  const isLastWizardStep = isFormulaOnlyEdit
-    ? true
-    : createCategory
+  const isLastWizardStep =
+    isFormulaOnlyEdit || isCriteriaOnlyEdit
       ? true
-      : showFormulaStep
-        ? currentStep === 2
-        : currentStep === 1;
+      : createCategory
+        ? true
+        : showFormulaStep
+          ? currentStep === 2
+          : currentStep === 1;
 
   const onFinishCriteria = (values: CriteriaFormValues) => {
     createRecognitionCriteria(
@@ -1008,7 +1096,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           body: {
             paddingTop: 0,
             maxHeight:
-              currentStep === 0
+              currentStep === 0 && !isCriteriaOnlyEdit
                 ? 583
                 : showFormulaStep && currentStep === 2
                   ? 640
@@ -1021,7 +1109,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         }}
         data-cy="create-recognition-wizard-modal"
       >
-        {!isFormulaOnlyEdit && (
+        {!isFormulaOnlyEdit && !isCriteriaOnlyEdit && (
           <div className="px-6 pb-4" data-cy="create-recognition-wizard-steps">
             <Steps
               size="small"
@@ -1046,7 +1134,9 @@ const RecognitionForm: React.FC<PropsData> = ({
           id="createRecognitionForm"
         >
           <div
-            className={currentStep === 0 ? 'block' : 'hidden'}
+            className={
+              currentStep === 0 && !isCriteriaOnlyEdit ? 'block' : 'hidden'
+            }
             data-cy="create-recognition-step-0"
           >
             <Form.Item
@@ -1105,7 +1195,9 @@ const RecognitionForm: React.FC<PropsData> = ({
 
           {!createCategory && (
             <div
-              className={currentStep === 1 ? 'block' : 'hidden'}
+              className={
+                currentStep === 1 && !isCriteriaOnlyEdit ? 'block' : 'hidden'
+              }
               data-cy="create-recognition-step-1-criteria-select"
             >
               <Form.Item
@@ -1253,7 +1345,9 @@ const RecognitionForm: React.FC<PropsData> = ({
           )}
           <div
             className={
-              !createCategory && currentStep === 1 ? 'block' : 'hidden'
+              !createCategory && (isCriteriaOnlyEdit || currentStep === 1)
+                ? 'block'
+                : 'hidden'
             }
             data-cy="create-recognition-step-1"
           >
@@ -1261,214 +1355,236 @@ const RecognitionForm: React.FC<PropsData> = ({
               className="max-h-[180px] overflow-y-auto scrollbar-none pr-1"
               data-cy="create-recognition-criteria-items-scroll"
             >
-              {selectedCriteria.map((criteria: any, index: number) => (
-                <div
-                  className="flex gap-1"
-                  key={`recognition-criteria-${criteria.criterionKey}-${index}`}
-                  data-cy={`create-recognition-form-criteria-item-${index}`}
-                  id={`createRecognitionFormCriteriaItem${index}`}
-                >
-                  {selectedRecognitionType !== '' && (
+              {isCriteriaOnlyEdit && criteriaRowsForStep.length === 0 && (
+                <div className="text-sm text-gray-500 py-4 text-center">
+                  Loading criterion…
+                </div>
+              )}
+              {criteriaRowsForStep.map(
+                ({
+                  criterion: criteria,
+                  index,
+                }: {
+                  criterion: any;
+                  index: number;
+                }) => (
+                  <div
+                    className="flex gap-1"
+                    key={`recognition-criteria-${criteria.criterionKey}-${index}`}
+                    data-cy={`create-recognition-form-criteria-item-${index}`}
+                    id={`createRecognitionFormCriteriaItem${index}`}
+                  >
+                    {selectedRecognitionType !== '' && (
+                      <Form.Item
+                        className="w-1/2 text-xs text-gray-950"
+                        name={['recognitionCriteria', index, 'id']}
+                        initialValue={criteria.id}
+                        hidden
+                        data-cy={`create-recognition-form-criteria-id-field-${index}`}
+                        id={`createRecognitionFormCriteriaIdField${index}`}
+                      ></Form.Item>
+                    )}
                     <Form.Item
                       className="w-1/2 text-xs text-gray-950"
-                      name={['recognitionCriteria', index, 'id']}
-                      initialValue={criteria.id}
+                      name={['recognitionCriteria', index, 'criteriaId']}
+                      initialValue={
+                        criteria.criteriaId ?? criteria.criteria?.id
+                      }
                       hidden
-                      data-cy={`create-recognition-form-criteria-id-field-${index}`}
-                      id={`createRecognitionFormCriteriaIdField${index}`}
+                      data-cy={`create-recognition-form-criteria-criteria-id-field-${index}`}
+                      id={`createRecognitionFormCriteriaCriteriaIdField${index}`}
                     ></Form.Item>
-                  )}
-                  <Form.Item
-                    className="w-1/2 text-xs text-gray-950"
-                    name={['recognitionCriteria', index, 'criteriaId']}
-                    initialValue={criteria.id}
-                    hidden
-                    data-cy={`create-recognition-form-criteria-criteria-id-field-${index}`}
-                    id={`createRecognitionFormCriteriaCriteriaIdField${index}`}
-                  ></Form.Item>
-                  <Form.Item
-                    labelAlign="left"
-                    className="w-1/2 text-xs text-gray-950"
-                    label={getLabel('Criteria')}
-                    name={['recognitionCriteria', index, 'criterionKey']}
-                    initialValue={criteria.criterionKey}
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Please select at least one criterion',
-                      },
-                    ]}
-                    data-cy={`create-recognition-form-criteria-key-field-${index}`}
-                    id={`createRecognitionFormCriteriaKeyField${index}`}
-                  >
-                    <Input
-                      className={commonClass}
-                      disabled
-                      data-cy={`create-recognition-form-criteria-key-input-${index}`}
-                      id={`createRecognitionFormCriteriaKeyInput${index}`}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    className="w-1/2 text-xs text-gray-950"
-                    label={getLabel('Weight')}
-                    name={['recognitionCriteria', index, 'weight']}
-                    initialValue={criteria.weight}
-                    rules={[
-                      { required: true, message: 'Please enter weight' },
-                      {
-                        validator: (notused, value) => {
-                          const weight = parseFloat(value || 0); // Default to 0 if value is invalid
-                          if (weight < 0.1 || weight > 1) {
-                            return Promise.reject(
-                              'The weight should be between 0.1-1',
-                            );
-                          }
-                          return Promise.resolve();
+                    <Form.Item
+                      labelAlign="left"
+                      className="w-1/2 text-xs text-gray-950"
+                      label={getLabel('Criteria')}
+                      name={['recognitionCriteria', index, 'criterionKey']}
+                      initialValue={criteria.criterionKey}
+                      hidden={isCriteriaOnlyEdit}
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Please select at least one criterion',
                         },
-                      },
-                    ]}
-                    data-cy={`create-recognition-form-criteria-weight-field-${index}`}
-                    id={`createRecognitionFormCriteriaWeightField${index}`}
-                  >
-                    <Input
-                      type="number"
-                      min={0.1} // Browser-level constraint
-                      max={1} // Browser-level constraint
-                      step={0.01}
-                      placeholder="Enter weight (0.1-1)"
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value || '0');
-                        handleWeightChange(index, value);
-                      }}
-                      data-cy={`create-recognition-form-criteria-weight-input-${index}`}
-                      id={`createRecognitionFormCriteriaWeightInput${index}`}
-                    />
-                  </Form.Item>
-
-                  <Form.Item
-                    className="w-1/2 text-xs text-gray-950"
-                    label={getLabel('Operator')}
-                    name={['recognitionCriteria', index, 'operator']}
-                    initialValue={criteria.operator}
-                    rules={[
-                      { required: true, message: 'Please enter operator' },
-                    ]}
-                    data-cy={`create-recognition-form-criteria-operator-field-${index}`}
-                    id={`createRecognitionFormCriteriaOperatorField${index}`}
-                  >
-                    <Select
-                      placeholder="Select operator"
-                      className={commonClass}
-                      onChange={(value) => {
-                        const updated = [...selectedCriteria];
-                        updated[index].operator = value;
-                        setSelectedCriteria(updated);
-                      }}
-                      data-cy={`create-recognition-form-criteria-operator-select-${index}`}
-                      id={`createRecognitionFormCriteriaOperatorSelect${index}`}
+                      ]}
+                      data-cy={`create-recognition-form-criteria-key-field-${index}`}
+                      id={`createRecognitionFormCriteriaKeyField${index}`}
                     >
-                      {Object.values(AggregateOperator).map(
-                        (operator, opIndex) => (
-                          <Select.Option
-                            key={`operator-${operator}-${opIndex}`}
-                            value={operator}
-                            className={commonClass}
-                            data-cy={`create-recognition-form-criteria-operator-option-${index}-${opIndex}`}
-                            id={`createRecognitionFormCriteriaOperatorOption${index}${opIndex}`}
-                          >
-                            {operator}
-                          </Select.Option>
-                        ),
-                      )}
-                    </Select>
-                  </Form.Item>
+                      <Input
+                        className={commonClass}
+                        disabled
+                        data-cy={`create-recognition-form-criteria-key-input-${index}`}
+                        id={`createRecognitionFormCriteriaKeyInput${index}`}
+                      />
+                    </Form.Item>
 
-                  <Form.Item
-                    className="w-1/2 text-xs text-gray-950"
-                    label={getLabel('Condition')}
-                    name={['recognitionCriteria', index, 'condition']}
-                    initialValue={criteria.condition}
-                    rules={[
-                      { required: true, message: 'Please enter condition' },
-                    ]}
-                    data-cy={`create-recognition-form-criteria-condition-field-${index}`}
-                    id={`createRecognitionFormCriteriaConditionField${index}`}
-                  >
-                    <Select
-                      placeholder="Select condition"
-                      className={commonClass}
-                      onChange={(value) => {
-                        const updated = [...selectedCriteria];
-                        updated[index].condition = value;
-                        setSelectedCriteria(updated);
-                      }}
-                      data-cy={`create-recognition-form-criteria-condition-select-${index}`}
-                      id={`createRecognitionFormCriteriaConditionSelect${index}`}
+                    <Form.Item
+                      className="w-1/2 text-xs text-gray-950"
+                      label={getLabel('Weight')}
+                      name={['recognitionCriteria', index, 'weight']}
+                      initialValue={criteria.weight}
+                      hidden={isCriteriaOnlyEdit}
+                      rules={[
+                        { required: true, message: 'Please enter weight' },
+                        {
+                          validator: (notused, value) => {
+                            const weight = parseFloat(value || 0); // Default to 0 if value is invalid
+                            if (weight < 0.1 || weight > 1) {
+                              return Promise.reject(
+                                'The weight should be between 0.1-1',
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                      data-cy={`create-recognition-form-criteria-weight-field-${index}`}
+                      id={`createRecognitionFormCriteriaWeightField${index}`}
                     >
-                      {Object.values(ConditionOperator).map(
-                        (operator, condIndex) => (
-                          <Select.Option
-                            key={`condition-${operator}-${condIndex}`}
-                            value={operator}
-                            className={commonClass}
-                            data-cy={`create-recognition-form-criteria-condition-option-${index}-${condIndex}`}
-                            id={`createRecognitionFormCriteriaConditionOption${index}${condIndex}`}
-                          >
-                            {operator}
-                          </Select.Option>
-                        ),
-                      )}
-                    </Select>
-                  </Form.Item>
+                      <Input
+                        type="number"
+                        min={0.1} // Browser-level constraint
+                        max={1} // Browser-level constraint
+                        step={0.01}
+                        placeholder="Enter weight (0.1-1)"
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value || '0');
+                          handleWeightChange(index, value);
+                        }}
+                        data-cy={`create-recognition-form-criteria-weight-input-${index}`}
+                        id={`createRecognitionFormCriteriaWeightInput${index}`}
+                      />
+                    </Form.Item>
 
-                  <Form.Item
-                    className="w-1/2 text-xs text-gray-950"
-                    label={getLabel('Value')}
-                    name={['recognitionCriteria', index, 'value']}
-                    initialValue={criteria.value}
-                    rules={[{ required: true, message: 'Please enter value' }]}
-                    data-cy={`create-recognition-form-criteria-value-field-${index}`}
-                    id={`createRecognitionFormCriteriaValueField${index}`}
-                  >
-                    <Input
-                      type="number"
-                      placeholder="Enter value"
-                      className={commonClass}
-                      data-cy={`create-recognition-form-criteria-value-input-${index}`}
-                      id={`createRecognitionFormCriteriaValueInput${index}`}
-                    />
-                  </Form.Item>
-                  <Image
-                    src={cancelIcon}
-                    alt="remove"
-                    width={16}
-                    height={16}
-                    onClick={() => {
-                      const updatedCriteria = selectedCriteria.filter(
-                        (nonUsed: any, i: number) => i !== index,
-                      );
-                      setSelectedCriteria(updatedCriteria);
-                      setTotalWeight(calculateTotalWeight(updatedCriteria));
-                      // Reset the form field for recognitionCriteria to avoid stale state
-                      form.resetFields(['recognitionCriteria']);
-                      form.setFieldsValue({
-                        criteria: updatedCriteria.map(
-                          (c: any) => c.criteriaId || c.id,
-                        ),
-                        recognitionCriteria: updatedCriteria,
-                      });
-                    }}
-                    className="cursor-pointer"
-                    data-cy={`create-recognition-form-criteria-remove-${index}`}
-                    id={`createRecognitionFormCriteriaRemove${index}`}
-                  />
-                </div>
-              ))}
+                    <Form.Item
+                      className="w-1/2 text-xs text-gray-950"
+                      label={getLabel('Operator')}
+                      name={['recognitionCriteria', index, 'operator']}
+                      initialValue={criteria.operator}
+                      rules={[
+                        { required: true, message: 'Please enter operator' },
+                      ]}
+                      data-cy={`create-recognition-form-criteria-operator-field-${index}`}
+                      id={`createRecognitionFormCriteriaOperatorField${index}`}
+                    >
+                      <Select
+                        placeholder="Select operator"
+                        className={commonClass}
+                        onChange={(value) => {
+                          const updated = [...selectedCriteria];
+                          updated[index].operator = value;
+                          setSelectedCriteria(updated);
+                        }}
+                        data-cy={`create-recognition-form-criteria-operator-select-${index}`}
+                        id={`createRecognitionFormCriteriaOperatorSelect${index}`}
+                      >
+                        {Object.values(AggregateOperator).map(
+                          (operator, opIndex) => (
+                            <Select.Option
+                              key={`operator-${operator}-${opIndex}`}
+                              value={operator}
+                              className={commonClass}
+                              data-cy={`create-recognition-form-criteria-operator-option-${index}-${opIndex}`}
+                              id={`createRecognitionFormCriteriaOperatorOption${index}${opIndex}`}
+                            >
+                              {operator}
+                            </Select.Option>
+                          ),
+                        )}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      className="w-1/2 text-xs text-gray-950"
+                      label={getLabel('Condition')}
+                      name={['recognitionCriteria', index, 'condition']}
+                      initialValue={criteria.condition}
+                      rules={[
+                        { required: true, message: 'Please enter condition' },
+                      ]}
+                      data-cy={`create-recognition-form-criteria-condition-field-${index}`}
+                      id={`createRecognitionFormCriteriaConditionField${index}`}
+                    >
+                      <Select
+                        placeholder="Select condition"
+                        className={commonClass}
+                        onChange={(value) => {
+                          const updated = [...selectedCriteria];
+                          updated[index].condition = value;
+                          setSelectedCriteria(updated);
+                        }}
+                        data-cy={`create-recognition-form-criteria-condition-select-${index}`}
+                        id={`createRecognitionFormCriteriaConditionSelect${index}`}
+                      >
+                        {Object.values(ConditionOperator).map(
+                          (operator, condIndex) => (
+                            <Select.Option
+                              key={`condition-${operator}-${condIndex}`}
+                              value={operator}
+                              className={commonClass}
+                              data-cy={`create-recognition-form-criteria-condition-option-${index}-${condIndex}`}
+                              id={`createRecognitionFormCriteriaConditionOption${index}${condIndex}`}
+                            >
+                              {operator}
+                            </Select.Option>
+                          ),
+                        )}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      className="w-1/2 text-xs text-gray-950"
+                      label={getLabel('Value')}
+                      name={['recognitionCriteria', index, 'value']}
+                      initialValue={criteria.value}
+                      rules={[
+                        { required: true, message: 'Please enter value' },
+                      ]}
+                      data-cy={`create-recognition-form-criteria-value-field-${index}`}
+                      id={`createRecognitionFormCriteriaValueField${index}`}
+                    >
+                      <Input
+                        type="number"
+                        placeholder="Enter value"
+                        className={commonClass}
+                        data-cy={`create-recognition-form-criteria-value-input-${index}`}
+                        id={`createRecognitionFormCriteriaValueInput${index}`}
+                      />
+                    </Form.Item>
+                    {!isCriteriaOnlyEdit && (
+                      <Image
+                        src={cancelIcon}
+                        alt="remove"
+                        width={16}
+                        height={16}
+                        onClick={() => {
+                          const updatedCriteria = selectedCriteria.filter(
+                            (nonUsed: any, i: number) => i !== index,
+                          );
+                          setSelectedCriteria(updatedCriteria);
+                          setTotalWeight(calculateTotalWeight(updatedCriteria));
+                          // Reset the form field for recognitionCriteria to avoid stale state
+                          form.resetFields(['recognitionCriteria']);
+                          form.setFieldsValue({
+                            criteria: updatedCriteria.map(
+                              (c: any) => c.criteriaId || c.id,
+                            ),
+                            recognitionCriteria: updatedCriteria,
+                          });
+                        }}
+                        className="cursor-pointer"
+                        data-cy={`create-recognition-form-criteria-remove-${index}`}
+                        id={`createRecognitionFormCriteriaRemove${index}`}
+                      />
+                    )}
+                  </div>
+                ),
+              )}
             </div>
           </div>
 
           {!createCategory &&
+            !isCriteriaOnlyEdit &&
             currentStep === 1 &&
             selectedCriteria?.length > 0 && (
               <div
@@ -1676,7 +1792,9 @@ const RecognitionForm: React.FC<PropsData> = ({
               {/* Step 2 only */}
               <div
                 className={
-                  currentStep === 1 ? 'flex justify-center mb-3' : 'hidden'
+                  currentStep === 1 && !isCriteriaOnlyEdit
+                    ? 'flex justify-center mb-3'
+                    : 'hidden'
                 }
                 data-cy="create-recognition-form-new-criteria-container"
                 id="createRecognitionFormNewCriteriaContainer"
@@ -1846,7 +1964,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 <Input />
               </Form.Item>
 
-              <div className="flex gap-2 mb-4 ">
+              <div className="flex items-center justify-center gap-2 mb-4 ">
                 <Form.Item shouldUpdate noStyle>
                   {() => {
                     const t =
@@ -1857,8 +1975,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                           type={t === 'Fixed' ? 'primary' : 'default'}
                           className={
                             t === 'Fixed'
-                              ? 'rounded-full px-6'
-                              : 'rounded-full px-6 border-gray-300'
+                              ? 'rounded-lg px-6'
+                              : 'rounded-lg px-6 border-gray-300'
                           }
                           onClick={() => {
                             setFormulaError('');
@@ -1874,8 +1992,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                           type={t === 'Formula' ? 'primary' : 'default'}
                           className={
                             t === 'Formula'
-                              ? 'rounded-full px-6'
-                              : 'rounded-full px-6 border-gray-300'
+                              ? 'rounded-lg px-6'
+                              : 'rounded-lg px-6 border-gray-300'
                           }
                           onClick={() => {
                             setFormulaError('');
@@ -2142,7 +2260,11 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Button
               type="default"
               onClick={() => {
-                if (isFormulaOnlyEdit || currentStep === 0) {
+                if (
+                  isFormulaOnlyEdit ||
+                  isCriteriaOnlyEdit ||
+                  currentStep === 0
+                ) {
                   handleWizardClose();
                 } else {
                   setCurrentStep((s) => s - 1);
@@ -2150,7 +2272,9 @@ const RecognitionForm: React.FC<PropsData> = ({
               }}
               data-cy="create-recognition-wizard-back"
             >
-              {currentStep === 0 || isFormulaOnlyEdit ? 'Cancel' : 'Back'}
+              {currentStep === 0 || isFormulaOnlyEdit || isCriteriaOnlyEdit
+                ? 'Cancel'
+                : 'Back'}
             </Button>
 
             {!isLastWizardStep ? (
@@ -2191,11 +2315,15 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Button
                 loading={
                   selectedRecognitionType !== ''
-                    ? updateWithCriteriaLoading || updateFormulaLoading
+                    ? updateWithCriteriaLoading ||
+                      updateFormulaLoading ||
+                      updateRecognitionCriteriaLoading
                     : createLoading || createFormulaLoading
                 }
                 disabled={
+                  (isCriteriaOnlyEdit && criteriaOnlyIndex < 0) ||
                   (!createCategory &&
+                    !isCriteriaOnlyEdit &&
                     currentStep === 1 &&
                     !showFormulaStep &&
                     selectedCriteria?.length > 0 &&
