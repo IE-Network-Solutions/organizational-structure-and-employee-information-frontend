@@ -86,25 +86,57 @@ const ReconciliationDetailTable = ({
 
   const columns = [
     {
-      title: <span id="reconciliation-detail-table-employee-name-title" data-cy="reconciliation-detail-table-employee-name-title" className="text-sm font-bold text-[#4b4b4b]">Employee</span>,
+      title: (
+        <span
+          id="reconciliation-detail-table-employee-name-title"
+          data-cy="reconciliation-detail-table-employee-name-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Employee
+        </span>
+      ),
       dataIndex: 'employeeName',
       key: 'employeeName',
       minWidth: 200,
     },
     {
-      title: <span id="reconciliation-detail-table-current-title" data-cy="reconciliation-detail-table-current-title" className="text-sm font-bold text-[#4b4b4b]">Current</span>,
+      title: (
+        <span
+          id="reconciliation-detail-table-current-title"
+          data-cy="reconciliation-detail-table-current-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Current
+        </span>
+      ),
       dataIndex: 'current',
       key: 'current',
       minWidth: 150,
     },
     {
-      title: <span id="reconciliation-detail-table-previous-title" data-cy="reconciliation-detail-table-previous-title" className="text-sm font-bold text-[#4b4b4b]">Previous</span>,
+      title: (
+        <span
+          id="reconciliation-detail-table-previous-title"
+          data-cy="reconciliation-detail-table-previous-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Previous
+        </span>
+      ),
       dataIndex: 'previous',
       key: 'previous',
       minWidth: 150,
     },
     {
-      title: <span id="reconciliation-detail-table-difference-title" data-cy="reconciliation-detail-table-difference-title" className="text-sm font-bold text-[#4b4b4b]">Difference</span>,
+      title: (
+        <span
+          id="reconciliation-detail-table-difference-title"
+          data-cy="reconciliation-detail-table-difference-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Difference
+        </span>
+      ),
       dataIndex: 'difference',
       key: 'difference',
       minWidth: 150,
@@ -136,9 +168,33 @@ const ReconciliationDetailTable = ({
 
   const payrollVarianceData =
     reconcilationDetails?.employeeVariances?.items?.map((item: any) => ({
-      employeeName: <span id="reconciliation-detail-table-employee-name" data-cy="reconciliation-detail-table-employee-name" className="text-sm font-normal text-[#4d4d4d]">{item.employeeName}</span>,
-      previous: <span id="reconciliation-detail-table-previous" data-cy="reconciliation-detail-table-previous" className="text-sm font-normal text-[#4d4d4d]">{Number(item.previous).toLocaleString()}</span>,
-      current: <span id="reconciliation-detail-table-current" data-cy="reconciliation-detail-table-current" className="text-sm font-normal text-[#4d4d4d]">{Number(item.current).toLocaleString()}</span>,
+      employeeName: (
+        <span
+          id="reconciliation-detail-table-employee-name"
+          data-cy="reconciliation-detail-table-employee-name"
+          className="text-sm font-normal text-[#4d4d4d]"
+        >
+          {item.employeeName}
+        </span>
+      ),
+      previous: (
+        <span
+          id="reconciliation-detail-table-previous"
+          data-cy="reconciliation-detail-table-previous"
+          className="text-sm font-normal text-[#4d4d4d]"
+        >
+          {Number(item.previous).toLocaleString()}
+        </span>
+      ),
+      current: (
+        <span
+          id="reconciliation-detail-table-current"
+          data-cy="reconciliation-detail-table-current"
+          className="text-sm font-normal text-[#4d4d4d]"
+        >
+          {Number(item.current).toLocaleString()}
+        </span>
+      ),
       difference:
         item.difference != null && !isNaN(Number(item.difference))
           ? Number(item.difference).toLocaleString()
@@ -206,7 +262,7 @@ const ReconciliationDetailTable = ({
               </div>
               <div
                 data-cy="reconciliation-detail-table-previous-container"
-                className="text-base font-normal text-[#4d4d4d]"
+                className="text-base font-medium text-[#4d4d4d]"
               >
                 {formatMoneyLike(componentSummary?.previous)}
               </div>
@@ -220,7 +276,7 @@ const ReconciliationDetailTable = ({
               </div>
               <div
                 data-cy="reconciliation-detail-table-current-container"
-                className="text-base font-normal text-[#4d4d4d]"
+                className="text-base font-medium text-[#4d4d4d]"
               >
                 {formatMoneyLike(componentSummary?.current)}
               </div>
@@ -238,7 +294,7 @@ const ReconciliationDetailTable = ({
               </div>
               <div
                 data-cy="reconciliation-detail-table-variance-container"
-                className={`text-base font-normal ${varianceClass}`}
+                className={`text-base font-medium ${varianceClass}`}
               >
                 {formatMoneyLike(componentSummary?.variance)}
               </div>
@@ -252,7 +308,7 @@ const ReconciliationDetailTable = ({
               </div>
               <div
                 data-cy="reconciliation-detail-table-variance-percentage-container"
-                className={`text-base font-normal ${varianceClass}`}
+                className={`text-base font-medium ${varianceClass}`}
               >
                 {componentSummary?.variancePercentage ?? '--'}
               </div>
@@ -331,7 +387,7 @@ const ReconciliationDetailTable = ({
 
           <div
             data-cy="reconciliation-detail-table-wrap"
-            className="w-full overflow-x-auto"
+            className="w-full overflow-x-auto scrollbar-none"
           >
             <Table
               loading={isLoadingReconciliationDetails}

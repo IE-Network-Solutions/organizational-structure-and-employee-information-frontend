@@ -3,17 +3,15 @@ import {
   Breadcrumb,
   Button,
   Card,
-  Col,
   Divider,
+  Dropdown,
   Modal,
   notification,
-  Row,
   Select,
   Table,
   Tabs,
-  Tag,
 } from 'antd';
-import { CalendarOutlined, CheckOutlined } from '@ant-design/icons';
+import { CalendarOutlined } from '@ant-design/icons';
 import ReconciliationDetailTable from './_components/reconciliationDetailTable';
 import { useState, useEffect } from 'react';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
@@ -29,7 +27,6 @@ import { useGetReconciliation } from '@/store/server/features/payroll/reconcilat
 import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { useRouter } from 'next/navigation';
-import { MdKeyboardArrowLeft } from 'react-icons/md';
 import {
   useGetPayrollApprovalByPayPeriodId,
   useGetPendingPayrollApprovals,
@@ -40,13 +37,9 @@ import {
   useLastApprovingPayroll,
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const { Option } = Select;
-const impactColors = {
-  High: 'red',
-  Medium: 'orange',
-  Low: 'green',
-};
 
 const PayrollReconcilation = () => {
   const router = useRouter();
@@ -67,6 +60,7 @@ const PayrollReconcilation = () => {
     useEmployeeStore();
   const [activeTab, setActiveTab] = useState('1');
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isShowMobileFilters, setIsShowMobileFilters] = useState(false);
 
   const authStore = useAuthenticationStore.getState();
   const { userId } = useAuthenticationStore();
@@ -81,16 +75,14 @@ const PayrollReconcilation = () => {
   const { mutate: lastApproving, isLoading: isLastApproving } =
     useLastApprovingPayroll();
   // Fetch payroll approval by payPeriodId
-  const {
-    refetch: refetchPayrollApprovalByPayPeriod,
-  } = useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
+  const { refetch: refetchPayrollApprovalByPayPeriod } =
+    useGetPayrollApprovalByPayPeriodId(currentPayPeriodId);
   const { data: payroll, refetch } = useGetActivePayroll(
     '',
     employeePageSize || 10,
     employeeCurrentPage || 1,
   );
 
-  const hasPendingApprovals = pendingApprovals?.items?.length > 0;
   const pendingApproval = pendingApprovals?.items?.[0] || null;
   const { isMobile } = useIsMobile();
 
@@ -150,7 +142,15 @@ const PayrollReconcilation = () => {
 
   const columns = [
     {
-      title: <span id="payroll-reconciliation-types-title" data-cy="payroll-reconciliation-types-title" className="text-sm font-bold text-[#4b4b4b]">Types</span>,
+      title: (
+        <span
+          id="payroll-reconciliation-types-title"
+          data-cy="payroll-reconciliation-types-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Types
+        </span>
+      ),
       dataIndex: 'types',
       key: 'types',
       minWidth: 200,
@@ -166,7 +166,15 @@ const PayrollReconcilation = () => {
       ),
     },
     {
-      title: <span id="payroll-reconciliation-previous-title" data-cy="payroll-reconciliation-previous-title" className="text-sm font-bold text-[#4b4b4b]">Previous</span>,
+      title: (
+        <span
+          id="payroll-reconciliation-previous-title"
+          data-cy="payroll-reconciliation-previous-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Previous
+        </span>
+      ),
       dataIndex: 'previous',
       key: 'previous',
       minWidth: 150,
@@ -180,7 +188,15 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: <span id="payroll-reconciliation-current-title" data-cy="payroll-reconciliation-current-title" className="text-sm font-bold text-[#4b4b4b]">Current</span>,
+      title: (
+        <span
+          id="payroll-reconciliation-current-title"
+          data-cy="payroll-reconciliation-current-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Current
+        </span>
+      ),
       dataIndex: 'current',
       key: 'current',
       minWidth: 150,
@@ -195,7 +211,15 @@ const PayrollReconcilation = () => {
     },
 
     {
-      title: <span id="payroll-reconciliation-variance-title" data-cy="payroll-reconciliation-variance-title" className="text-sm font-bold text-[#4b4b4b]">Variance(AMT)</span>,
+      title: (
+        <span
+          id="payroll-reconciliation-variance-title"
+          data-cy="payroll-reconciliation-variance-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Variance(AMT)
+        </span>
+      ),
       dataIndex: 'variance',
       key: 'variance',
       minWidth: 150,
@@ -224,7 +248,15 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: <span id="payroll-reconciliation-variance-percentage-title" data-cy="payroll-reconciliation-variance-percentage-title" className="text-sm font-bold text-[#4b4b4b]">Variance(%)</span>,
+      title: (
+        <span
+          id="payroll-reconciliation-variance-percentage-title"
+          data-cy="payroll-reconciliation-variance-percentage-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Variance(%)
+        </span>
+      ),
       dataIndex: 'variancePercentage',
       key: 'variancePercentage',
       minWidth: 150,
@@ -255,7 +287,15 @@ const PayrollReconcilation = () => {
       },
     },
     {
-      title: <span id="payroll-reconciliation-impact-title" data-cy="payroll-reconciliation-impact-title" className="text-sm font-bold text-[#4b4b4b]">Impact</span>,
+      title: (
+        <span
+          id="payroll-reconciliation-impact-title"
+          data-cy="payroll-reconciliation-impact-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Impact
+        </span>
+      ),
       dataIndex: 'impact',
       key: 'impact',
       minWidth: 150,
@@ -264,9 +304,33 @@ const PayrollReconcilation = () => {
   ];
 
   const payrollVarianceData = data?.components?.map((item: any) => ({
-    types: <span id="payroll-reconciliation-types" data-cy="payroll-reconciliation-types" className="text-sm font-normal text-[#4d4d4d]">{item.label}</span>,
-    previous: <span id="payroll-reconciliation-previous" data-cy="payroll-reconciliation-previous" className="text-sm font-normal text-[#4d4d4d]">{Number(item.previous).toLocaleString()}</span>,
-    current: <span id="payroll-reconciliation-current" data-cy="payroll-reconciliation-current" className="text-sm font-normal text-[#4d4d4d]">{Number(item.current).toLocaleString()}</span>,
+    types: (
+      <span
+        id="payroll-reconciliation-types"
+        data-cy="payroll-reconciliation-types"
+        className="text-sm font-normal text-[#4d4d4d]"
+      >
+        {item.label}
+      </span>
+    ),
+    previous: (
+      <span
+        id="payroll-reconciliation-previous"
+        data-cy="payroll-reconciliation-previous"
+        className="text-sm font-normal text-[#4d4d4d]"
+      >
+        {Number(item.previous).toLocaleString()}
+      </span>
+    ),
+    current: (
+      <span
+        id="payroll-reconciliation-current"
+        data-cy="payroll-reconciliation-current"
+        className="text-sm font-normal text-[#4d4d4d]"
+      >
+        {Number(item.current).toLocaleString()}
+      </span>
+    ),
     variance:
       item.variance != null && !isNaN(Number(item.variance))
         ? Number(item.variance).toLocaleString()
@@ -276,20 +340,27 @@ const PayrollReconcilation = () => {
         ? item.variancePercentage
         : '--',
     impact: (
-      <div className="flex items-center gap-2">
-      <span
-                  data-cy="reconciliation-detail-table-impact-icon"
-                  className={`inline-block h-[6px] w-[6px] rounded-full ${
-                    (item.impact || '').toLowerCase() === 'high'
-                      ? 'bg-[#ff4d4f]'
-                      : (item.impact || '').toLowerCase() ===
-                          'medium'
-                        ? 'bg-[#faad14]'
-                        : 'bg-[#52c41a]'
-                  }`}
-                />
-        <span data-cy="reconciliation-detail-table-impact" className="capitalize">{item.impact}</span>
-        </div>
+      <div
+        data-cy="reconciliation-detail-table-impact-container"
+        className="flex items-center gap-2"
+      >
+        <span
+          data-cy="reconciliation-detail-table-impact-icon"
+          className={`inline-block h-[6px] w-[6px] rounded-full ${
+            (item.impact || '').toLowerCase() === 'high'
+              ? 'bg-[#ff4d4f]'
+              : (item.impact || '').toLowerCase() === 'medium'
+                ? 'bg-[#faad14]'
+                : 'bg-[#52c41a]'
+          }`}
+        />
+        <span
+          data-cy="reconciliation-detail-table-impact"
+          className="capitalize"
+        >
+          {item.impact}
+        </span>
+      </div>
     ),
   }));
 
@@ -364,7 +435,10 @@ const PayrollReconcilation = () => {
   };
 
   const getTabLabel = (key: string, text: string) => (
-    <span data-cy="payroll-reconciliation-tab-label" className={activeTab === key ? 'font-bold' : 'font-normal'}>
+    <span
+      data-cy="payroll-reconciliation-tab-label"
+      className={activeTab === key ? 'font-bold' : 'font-normal'}
+    >
       {text}
     </span>
   );
@@ -390,14 +464,26 @@ const PayrollReconcilation = () => {
       label: getTabLabel('4', 'Benefit'),
       children: renderTabContent('4'),
     },
-    { key: '5', label: getTabLabel('5', 'VP'), children: renderTabContent('5') },
+    {
+      key: '5',
+      label: getTabLabel('5', 'VP'),
+      children: renderTabContent('5'),
+    },
     {
       key: '6',
       label: getTabLabel('6', 'Incentive'),
       children: renderTabContent('6'),
     },
-    { key: '7', label: getTabLabel('7', 'Gross'), children: renderTabContent('7') },
-    { key: '8', label: getTabLabel('8', 'Tax'), children: renderTabContent('8') },
+    {
+      key: '7',
+      label: getTabLabel('7', 'Gross'),
+      children: renderTabContent('7'),
+    },
+    {
+      key: '8',
+      label: getTabLabel('8', 'Tax'),
+      children: renderTabContent('8'),
+    },
     {
       key: '9',
       label: getTabLabel('9', 'Pension'),
@@ -462,6 +548,44 @@ const PayrollReconcilation = () => {
     });
   };
 
+  const MobileFilters = () => (
+    <div
+      data-cy="reconciliation-detail-table-mobile-filters-container"
+      className="flex flex-col gap-4 bg-white border border-[#D9D9D9] rounded-lg p-4"
+    >
+      <Select
+        placeholder="Select date"
+        allowClear
+        suffixIcon={<CalendarOutlined />}
+        className="max-w-[215px] h-10"
+        value={previousPayPeriodId}
+        onChange={(value) => setPreviousPayPeriodId(value)}
+      >
+        {payPeriodData?.map((period: any) => (
+          <Option key={period.id} value={period.id}>
+            {dayjs(period.startDate).format('MMM DD, YYYY')} --
+            {dayjs(period.endDate).format('MMM DD, YYYY')}
+          </Option>
+        ))}
+      </Select>
+      <Select
+        allowClear
+        placeholder="Select date"
+        suffixIcon={<CalendarOutlined />}
+        className="max-w-[215px] h-10"
+        value={currentPayPeriodId}
+        onChange={(value) => setCurrentPayPeriodId(value)}
+      >
+        {payPeriodData?.map((period: any) => (
+          <Option key={period.id} value={period.id}>
+            {dayjs(period.startDate).format('MMM DD, YYYY')} --
+            {dayjs(period.endDate).format('MMM DD, YYYY')}
+          </Option>
+        ))}
+      </Select>
+    </div>
+  );
+
   const formatNumber = (value: number | string | null | undefined) =>
     Number(value ?? 0).toLocaleString();
 
@@ -469,50 +593,59 @@ const PayrollReconcilation = () => {
     `ETB ${formatNumber(value)}`;
 
   return (
-    <div
-      id="payroll-reconciliation-page"
-      data-cy="payroll-reconciliation-page"
-    >
+    <div id="payroll-reconciliation-page" data-cy="payroll-reconciliation-page">
       <style data-cy="payroll-reconciliation-page-styles">{`
+        @media (min-width: 640px) {
         .full-bleed-header-divider {
           width: calc(100% + 48px) !important;
           margin-left: -24px !important;
           margin-right: -24px !important;
           min-width: calc(100% + 48px) !important;
         }
+      }
       `}</style>
       <div
         className="mt-6"
         id="payroll-reconciliation-header"
         data-cy="payroll-reconciliation-header"
       >
-        <div id="payroll-reconciliation-header-container" className="flex flex-wrap items-start justify-between gap-4">
-          <div data-cy="payroll-reconciliation-header-content" id="payroll-reconciliation-header-content" className="flex items-start gap-2">
-            <div className="py-3">
-            <Button
-            type="default"
-              value={'back'}
-              name="back"
-              onClick={handleGoBack}
-              className="border-[1px] border-[#D9D9D9] h-8 w-8 p-0 m-0"
-              id="payroll-reconciliation-back-btn"
-              data-cy="payroll-reconciliation-back-btn"
-            >
-              <ArrowBackIosIcon className="text-[8px]" />
-            </Button>
-            </div>
+        <div
+          id="payroll-reconciliation-header-container"
+          className="flex justify-between gap-4"
+          data-cy="payroll-reconciliation-header-container"
+        >
+          <div
+            data-cy="payroll-reconciliation-header-content"
+            id="payroll-reconciliation-header-content"
+            className="flex items-start gap-2"
+          >
             <div
-              data-cy="org-settings-header-container"
+              data-cy="payroll-reconciliation-back-btn-container"
+              className="py-3"
             >
+              <Button
+                type="default"
+                value={'back'}
+                name="back"
+                onClick={handleGoBack}
+                className="border-[1px] border-[#D9D9D9] h-8 w-8 p-0 m-0"
+                id="payroll-reconciliation-back-btn"
+                data-cy="payroll-reconciliation-back-btn"
+              >
+                <ArrowBackIosIcon className="text-[8px]" />
+              </Button>
+            </div>
+            <div data-cy="org-settings-header-container">
               <h3
-                className="text-gray-900 text-2xl font-bold mb-0"
+                className="text-gray-900 text-2xl font-bold mb-0 text-nowrap"
                 data-cy="org-settings-page-header-title"
                 id="org-settings-page-header-title"
               >
                 Payroll Reconciliation
               </h3>
               <Breadcrumb
-                className="mt-2 mb-0"
+                className="mt-2 mb-0 whitespace-nowrap"
+                style={{ whiteSpace: 'nowrap' }}
                 items={[
                   {
                     title: (
@@ -523,13 +656,21 @@ const PayrollReconcilation = () => {
                           router.push('/payroll/payroll');
                         }}
                         data-cy="payroll-reconciliation-breadcrumb-payroll-link"
+                        className="text-xs sm:text-sm"
                       >
                         Payroll
                       </a>
                     ),
                   },
                   {
-                    title: 'Employee’s Payroll Reconciliation',
+                    title: (
+                      <span
+                        data-cy="payroll-reconciliation-breadcrumb-employee-reconciliation"
+                        className="text-xs sm:text-sm"
+                      >
+                        Employee’s Payroll Reconciliation
+                      </span>
+                    ),
                   },
                 ]}
                 data-cy="payroll-reconciliation-breadcrumb"
@@ -539,15 +680,16 @@ const PayrollReconcilation = () => {
 
           <div
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
-            className="flex flex-wrap items-center justify-end gap-3 pt-3"
+            className="flex items-center justify-end gap-3 pt-3"
           >
             <Button
-              size="large"
-              className="h-10 sm:px-4 text-[#3A3A3A] border-[#D9D9D9]"
-              icon={<SaveAltIcon />}
+              type="default"
+              size="small"
+              className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
+              icon={<SaveAltIcon className="text-sm" />}
             >
               <span data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285">
-               {!isMobile && 'Export'}
+                {!isMobile && 'Export'}
               </span>
             </Button>
             {true && (
@@ -555,10 +697,11 @@ const PayrollReconcilation = () => {
                 id="payroll-approve-button"
                 data-cy="payroll-approve-button"
                 type="primary"
-                icon={<DoneOutlineIcon />}
-                className="h-10 px-4"
+                icon={<DoneOutlineIcon className="text-[10px]" />}
+                className="h-8 w-8 sm:w-auto sm:px-4"
                 onClick={() => setIsApproveModalOpen(true)}
                 loading={isApproving || isLastApproving}
+                size="small"
               >
                 {!isMobile && 'Approve Payroll'}
               </Button>
@@ -569,50 +712,70 @@ const PayrollReconcilation = () => {
           className="full-bleed-header-divider"
           style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
         />
-
-        <Row gutter={[16, 16]} align="middle" className="mt-6">
-          <Col xs={24} sm={12} md={8} lg={6} xl={5} className="md:ml-auto">
-            <div data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-291">
-              <Select
-                placeholder="Select date"
-                allowClear
-                suffixIcon={<CalendarOutlined />}
-                className="w-full h-10"
-                value={previousPayPeriodId}
-                onChange={(value) => setPreviousPayPeriodId(value)}
-              >
-                {payPeriodData?.map((period: any) => (
-                  <Option key={period.id} value={period.id}>
-                    {dayjs(period.startDate).format('MMM DD, YYYY')} --
-                    {dayjs(period.endDate).format('MMM DD, YYYY')}
-                  </Option>
-                ))}
-              </Select>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6} xl={5}>
-            <Select
-              allowClear
-              placeholder="Select date"
-              suffixIcon={<CalendarOutlined />}
-              className="w-full h-10"
-              value={currentPayPeriodId}
-              onChange={(value) => setCurrentPayPeriodId(value)}
-            >
-              {payPeriodData?.map((period: any) => (
-                <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} --
-                  {dayjs(period.endDate).format('MMM DD, YYYY')}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-        </Row>
+      </div>
+      <div
+        data-cy="payroll-reconciliation-mobile-filters-container"
+        className="sm:hidden flex justify-end"
+      >
+        <Dropdown
+          overlay={<MobileFilters />}
+          trigger={['click']}
+          open={isShowMobileFilters}
+          onOpenChange={setIsShowMobileFilters}
+          data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
+          className="sm:hidden"
+        >
+          <Button
+            className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
+            id="time-attendance-employee-attendance-mobile-filter-toggle-button"
+            data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
+            icon={
+              <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+            }
+          >
+            Filter
+          </Button>
+        </Dropdown>
+      </div>
+      <div
+        data-cy="payroll-reconciliation-filters-container"
+        className="justify-end gap-4 my-4 hidden sm:flex"
+      >
+        <Select
+          placeholder="Select date"
+          allowClear
+          suffixIcon={<CalendarOutlined />}
+          className="max-w-[215px] h-10"
+          value={previousPayPeriodId}
+          onChange={(value) => setPreviousPayPeriodId(value)}
+        >
+          {payPeriodData?.map((period: any) => (
+            <Option key={period.id} value={period.id}>
+              {dayjs(period.startDate).format('MMM DD, YYYY')} --
+              {dayjs(period.endDate).format('MMM DD, YYYY')}
+            </Option>
+          ))}
+        </Select>
+        <Select
+          allowClear
+          placeholder="Select date"
+          suffixIcon={<CalendarOutlined />}
+          className="max-w-[215px] h-10"
+          value={currentPayPeriodId}
+          onChange={(value) => setCurrentPayPeriodId(value)}
+        >
+          {payPeriodData?.map((period: any) => (
+            <Option key={period.id} value={period.id}>
+              {dayjs(period.startDate).format('MMM DD, YYYY')} --
+              {dayjs(period.endDate).format('MMM DD, YYYY')}
+            </Option>
+          ))}
+        </Select>
       </div>
 
       <div
         data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-326"
-        className="grid w-full grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-[80px] mb-6"
+        className="grid w-full grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-[80px] mb-6 mt-3"
       >
         {/* Total Payroll Cost */}
         <Card
@@ -666,7 +829,12 @@ const PayrollReconcilation = () => {
             data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-355"
             className="text-sm text-[#4d4d4d] mt-3 font-normal"
           >
-            <span className="text-[#F04438]">-4</span>{' '}
+            <span
+              data-cy="reconciliation-detail-table-net-variance-negative-container"
+              className="text-[#F04438]"
+            >
+              -4
+            </span>{' '}
             <span
               data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-357"
               className="font-normal text-[#4d4d4d]"
