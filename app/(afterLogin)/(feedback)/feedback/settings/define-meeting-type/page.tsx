@@ -53,10 +53,10 @@ const DefineMeetingType = () => {
   }
   return (
     <>
-      <div className="p-5 rounded-2xl bg-white h-full">
+      <div className="rounded-2xl bg-white h-full">
         <Spin spinning={isLoading}>
           {meetingTypes?.items && meetingTypes.items.length > 0 ? (
-            <div className="">
+            <div className="border-[1px] border-gray-200 rounded-lg p-4">
               <div
                 className="grid grid-cols-12 flex-col-reverse justify-between"
                 data-cy="settings-define-meeting-type-content"

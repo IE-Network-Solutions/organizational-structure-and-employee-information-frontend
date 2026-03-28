@@ -21,13 +21,13 @@ const Page = () => {
     useGetAllRecognitionWithRelations();
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
+      className="rounded-2xl bg-white h-full"
       data-cy="settings-recognition-page"
       id="settingsRecognitionPage"
     >
       <Spin spinning={isLoading} data-cy="settings-recognition-spin">
         <div
-          className="grid grid-cols-12 flex-col-reverse justify-between"
+          className="grid grid-cols-12 flex-col-reverse justify-between border-[1px] border-gray-200 rounded-lg p-4"
           data-cy="settings-recognition-content"
           id="settingsRecognitionContent"
         >
