@@ -17,8 +17,10 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-#talent-acquisition-candidate-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
-#talent-acquisition-candidate-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+#talent-acquisition-candidate-table-scroll-wrapper
+  .ant-table-content::-webkit-scrollbar,
+#talent-acquisition-candidate-table-scroll-wrapper
+  .ant-table-body::-webkit-scrollbar {
   display: none;
 }
 
