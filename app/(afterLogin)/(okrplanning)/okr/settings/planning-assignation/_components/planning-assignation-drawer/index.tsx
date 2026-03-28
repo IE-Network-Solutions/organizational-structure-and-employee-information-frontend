@@ -154,6 +154,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               <span
                 className="text-[#ff4d4f] text-[14px] leading-none"
                 aria-hidden
+                data-cy="okr-planning-assignation-assignee-required-indicator"
               >
                 *
               </span>
@@ -361,6 +362,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               <span
                 className="text-[#ff4d4f] text-[14px] leading-none"
                 aria-hidden
+                data-cy="okr-planning-assignation-plan-required-indicator"
               >
                 *
               </span>

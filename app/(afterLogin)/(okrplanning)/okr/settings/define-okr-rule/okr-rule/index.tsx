@@ -142,6 +142,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
               <span
                 className="text-[#ff4d4f] text-[14px] leading-none"
                 aria-hidden
+                data-cy="okr-rule-modal-name-required-indicator"
               >
                 *
               </span>
@@ -178,6 +179,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-rule-modal-personal-required-indicator"
                   >
                     *
                   </span>
@@ -212,6 +214,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-rule-modal-team-required-indicator"
                   >
                     *
                   </span>

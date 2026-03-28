@@ -336,6 +336,7 @@ const ScoringModal: React.FC = () => {
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-criteria-modal-name-required-indicator"
                   >
                     *
                   </span>
@@ -376,6 +377,7 @@ const ScoringModal: React.FC = () => {
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-criteria-modal-percentage-required-indicator"
                   >
                     *
                   </span>
@@ -417,6 +419,7 @@ const ScoringModal: React.FC = () => {
               <span
                 className="text-[#ff4d4f] text-[14px] leading-none"
                 aria-hidden
+                data-cy="okr-criteria-modal-department-required-indicator"
               >
                 *
               </span>
@@ -531,6 +534,7 @@ const ScoringModal: React.FC = () => {
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-criteria-modal-users-required-indicator"
                   >
                     *
                   </span>
@@ -695,6 +699,7 @@ const ScoringModal: React.FC = () => {
               <span
                 className="text-[#ff4d4f] text-[14px] leading-none"
                 aria-hidden
+                data-cy="okr-criteria-modal-criteria-required-indicator"
               >
                 *
               </span>

@@ -178,6 +178,7 @@ const AssignTargetModal: React.FC = () => {
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-target-modal-department-required-indicator"
                   >
                     *
                   </span>
@@ -228,6 +229,7 @@ const AssignTargetModal: React.FC = () => {
                   <span
                     className="text-[#ff4d4f] text-[14px] leading-none"
                     aria-hidden
+                    data-cy="okr-target-modal-criteria-required-indicator"
                   >
                     *
                   </span>
@@ -287,6 +289,7 @@ const AssignTargetModal: React.FC = () => {
                     <span
                       className="text-[#ff4d4f] text-[14px] leading-none"
                       aria-hidden
+                      data-cy={`okr-target-modal-month-required-indicator-${month}`}
                     >
                       *
                     </span>
