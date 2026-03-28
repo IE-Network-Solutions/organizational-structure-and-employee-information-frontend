@@ -84,6 +84,13 @@ interface CopilotChatRequest {
 interface CopilotChatResponse {
   success: boolean;
   answer: string;
+  /**
+   * Rendering hint from backend:
+   * - "table"   → show data.table as a table
+   * - "summary" → show answer as narrative text
+   * - "list"    → show list-style data
+   */
+  responseType?: 'table' | 'summary' | 'list' | null;
   data?: {
     table?: {
       type: string;
@@ -94,13 +101,6 @@ interface CopilotChatResponse {
     objectiveTitles?: string[];
     [key: string]: any;
   };
-  /**
-   * Rendering hint from backend:
-   * - "table"   → show data.table as a table
-   * - "summary" → show answer as narrative text
-   * - "list"    → show list-style data
-   */
-  responseType?: 'table' | 'summary' | 'list';
   /**
    * Optional URL for Excel export when tabular data is available.
    */
@@ -327,6 +327,61 @@ export async function exportCopilotTableToExcel(
  * @param sessionId - Optional session ID for OKR session-specific queries
  * @param signal - Optional AbortSignal to cancel the request (e.g. when user clicks Stop)
  */
+/** Body for POST /copilot/share (matches SharePayloadV1). */
+export interface CopilotSharePayloadV1 {
+  v: 1;
+  title?: string;
+  messages: Array<Record<string, unknown>>;
+}
+
+/**
+ * Create a server-backed share id (short URL). Returns null if API unavailable or unauthenticated.
+ */
+export async function createCopilotShareOnBackend(
+  payload: CopilotSharePayloadV1,
+): Promise<string | null> {
+  const base = (AZURE_APP_SERVICE || '').replace(/\/+$/, '');
+  if (!base) return null;
+  const token = await getCurrentToken();
+  const { tenantId, userId } = useAuthenticationStore.getState();
+  if (!tenantId || !token) return null;
+  const shareUrl = `${base}/share`;
+  try {
+    const res = await axios.post<{ shareId: string }>(shareUrl, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        tenantId,
+        ...(userId ? { userId } : {}),
+      },
+      timeout: 30000,
+    });
+    const id = res.data?.shareId;
+    return typeof id === 'string' && id.length > 0 ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Public GET: load shared chat payload by id (no auth).
+ */
+export async function fetchCopilotShareById(
+  shareId: string,
+): Promise<CopilotSharePayloadV1 | null> {
+  const base = (AZURE_APP_SERVICE || '').replace(/\/+$/, '');
+  if (!base || !shareId?.trim()) return null;
+  const url = `${base}/share/${encodeURIComponent(shareId.trim())}`;
+  try {
+    const res = await axios.get<CopilotSharePayloadV1>(url, { timeout: 20000 });
+    const d = res.data;
+    if (d?.v !== 1 || !Array.isArray(d.messages)) return null;
+    return d;
+  } catch {
+    return null;
+  }
+}
+
 export const sendCopilotChatRequest = async (
   query: string,
   sessionId?: string,
@@ -403,7 +458,7 @@ export const sendCopilotChatRequest = async (
       success: response.data.success !== false, // Default to true if not explicitly false
       answer: response.data.answer || 'No response received',
       data: response.data.data, // Includes data.table for table-capable intents
-      responseType: response.data.responseType || null,
+      responseType: response.data.responseType ?? null,
       exportUrl: response.data.exportUrl || null,
       intent: response.data.intent,
       error: response.data.error || null,

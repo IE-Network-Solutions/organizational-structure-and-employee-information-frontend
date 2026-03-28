@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Input, Button, Tooltip } from 'antd';
+import { Input, Tooltip } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 import SelamnewHandIcon from './SelamnewHandIcon';
 
@@ -15,14 +15,7 @@ interface CopilotInputProps {
 }
 
 /**
- * CopilotInput - Input area for user messages
- *
- * Features:
- * - Text input with placeholder examples
- * - Send button
- * - Enter key support
- * - Input stays active while loading (user can type).
- * - Send disabled until response finishes or user stops; optional Stop button.
+ * Workspace V2 composer — wide rounded field, circular primary send (paper plane).
  */
 const CopilotInput: React.FC<CopilotInputProps> = ({
   value,
@@ -30,9 +23,9 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
   onSend,
   onStop,
   isLoading,
-  placeholder = 'Ask about attendance, employees, OKRs…',
+  placeholder = 'Ask Your Copilot',
 }) => {
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (value.trim() && !isLoading) {
@@ -42,54 +35,62 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
   };
 
   const showStop = isLoading && onStop;
+  const canSend = value.trim().length > 0 && !isLoading;
 
   return (
     <div
-      className="flex gap-2 p-4 border-t border-gray-200 bg-white"
+      className="border-t border-slate-200 bg-white px-4 pb-4 pt-3"
       id="copilot-input-wrapper"
       data-cy="copilot-input-wrapper"
     >
-      <Input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyPress={handleKeyPress}
-        placeholder={placeholder}
-        className="flex-1"
-        id="copilot-input"
-        data-cy="copilot-input"
-      />
-      {showStop ? (
-        <Tooltip title="Stop response">
-          <button
-            type="button"
-            onClick={onStop}
-            className="flex items-center justify-center w-10 h-10 min-w-[40px] rounded-full border border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1"
-            id="copilot-stop-button"
-            data-cy="copilot-stop-button"
-            aria-label="Stop response"
-          >
-            <span
-              className="copilot-hand-cooking inline-flex items-center justify-center flex-shrink-0"
-              aria-hidden
-              data-cy="copilot-stop-icon-wrapper"
+      <div
+        id="copilot-input-composer"
+        data-cy="copilot-input-composer"
+        className="mx-auto flex max-w-4xl items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(54,54,240,0.1)]"
+      >
+        <Input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          bordered={false}
+          className="!bg-transparent text-[15px] text-slate-800 placeholder:text-slate-400"
+          id="copilot-input"
+          data-cy="copilot-input"
+        />
+        {showStop ? (
+          <Tooltip title="Stop">
+            <button
+              type="button"
+              onClick={onStop}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors hover:border-primary/40 hover:bg-light_purple hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+              id="copilot-stop-button"
+              data-cy="copilot-stop-button"
+              aria-label="Stop response"
             >
-              <SelamnewHandIcon className="w-5 h-5" />
-            </span>
-          </button>
-        </Tooltip>
-      ) : (
-        <Button
-          type="primary"
-          icon={<SendOutlined />}
-          onClick={onSend}
-          disabled={!value.trim()}
-          className="flex items-center justify-center"
-          id="copilot-send-button"
-          data-cy="copilot-send-button"
-        >
-          Send
-        </Button>
-      )}
+              <SelamnewHandIcon className="h-5 w-5" />
+            </button>
+          </Tooltip>
+        ) : (
+          <Tooltip title={canSend ? 'Send' : 'Type a message'}>
+            <button
+              type="button"
+              onClick={onSend}
+              disabled={!canSend}
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ${
+                canSend
+                  ? 'bg-primary text-white shadow-sm hover:brightness-105 active:scale-[0.97]'
+                  : 'cursor-not-allowed bg-slate-200 text-slate-400'
+              }`}
+              id="copilot-send-button"
+              data-cy="copilot-send-button"
+              aria-label="Send message"
+            >
+              <SendOutlined />
+            </button>
+          </Tooltip>
+        )}
+      </div>
     </div>
   );
 };

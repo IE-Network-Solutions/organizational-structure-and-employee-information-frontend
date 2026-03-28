@@ -21,29 +21,35 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
   return (
     <button
       id="copilot-button"
+      type="button"
       onClick={onClick}
-      disabled={isActive}
-      className={`flex items-center gap-2.5 px-4 py-2 rounded-full border-none transition-all duration-200 ${
+      className={`flex items-center gap-2.5 rounded-full border px-4 py-2 transition-all duration-200 ${
         isActive
-          ? 'bg-blue-50 cursor-default opacity-80'
-          : 'bg-white cursor-pointer'
+          ? 'cursor-pointer border-primary/40 bg-light_purple opacity-90 hover:opacity-100'
+          : 'cursor-pointer border-slate-200 bg-white hover:border-primary/35 hover:shadow-md'
       }`}
       style={{
-        boxShadow:
-          '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)',
+        boxShadow: isActive
+          ? '0 1px 3px rgba(54, 54, 240, 0.12)'
+          : '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
       }}
       onMouseEnter={(e) => {
+        if (isActive) return;
         e.currentTarget.style.boxShadow =
-          '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)';
+          '0 4px 14px rgba(54, 54, 240, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08)';
         e.currentTarget.style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow =
-          '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)';
         e.currentTarget.style.transform = 'translateY(0)';
+        if (isActive) {
+          e.currentTarget.style.boxShadow = '0 1px 3px rgba(54, 54, 240, 0.12)';
+        } else {
+          e.currentTarget.style.boxShadow =
+            '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)';
+        }
       }}
       data-cy="copilot-button"
-      aria-label="Open SelamNew Copilot"
+      aria-label={isActive ? 'Close SelamNew Copilot' : 'Open SelamNew Copilot'}
       aria-current={isActive ? 'page' : undefined}
     >
       <div
@@ -56,6 +62,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
           flexShrink: 0,
         }}
         className="overflow-hidden"
+        id="copilot-button-icon-wrapper"
         data-cy="copilot-button-icon-wrapper"
       >
         <svg
@@ -65,6 +72,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           style={{ display: 'block' }}
+          id="copilot-button-icon"
           data-cy="copilot-button-icon"
         >
           <path
@@ -73,6 +81,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-1"
             data-cy="copilot-button-icon-path-1"
           />
           <path
@@ -81,6 +90,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-2"
             data-cy="copilot-button-icon-path-2"
           />
           <path
@@ -89,6 +99,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-3"
             data-cy="copilot-button-icon-path-3"
           />
           <path
@@ -97,6 +108,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-4"
             data-cy="copilot-button-icon-path-4"
           />
           <path
@@ -105,6 +117,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-5"
             data-cy="copilot-button-icon-path-5"
           />
           <path
@@ -113,6 +126,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-6"
             data-cy="copilot-button-icon-path-6"
           />
           <path
@@ -121,6 +135,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-7"
             data-cy="copilot-button-icon-path-7"
           />
           <path
@@ -129,6 +144,7 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-8"
             data-cy="copilot-button-icon-path-8"
           />
           <path
@@ -137,13 +153,14 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({
             strokeWidth="1.94378"
             strokeMiterlimit="10"
             strokeLinecap="round"
+            id="copilot-button-icon-path-9"
             data-cy="copilot-button-icon-path-9"
           />
         </svg>
       </div>
       <span
-        className="text-sm font-medium"
-        style={{ color: '#374151' }}
+        className={`text-sm font-semibold ${isActive ? 'text-primary' : 'text-slate-700'}`}
+        id="copilot-button-text"
         data-cy="copilot-button-text"
       >
         Copilot

@@ -45,6 +45,10 @@ import { useUpdateEmployeeInformation } from '@/store/server/features/employees/
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
 import CopilotModule from '@/components/copilot/CopilotModule';
+import {
+  COPILOT_SHARE_QUERY,
+  COPILOT_SHARE_REF_QUERY,
+} from '@/utils/copilotShare';
 
 const { Header, Content, Sider } = Layout;
 
@@ -100,6 +104,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMounted || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get(COPILOT_SHARE_QUERY) ||
+      params.get(COPILOT_SHARE_REF_QUERY)
+    ) {
+      setCopilotOpen(true);
+    }
+  }, [isMounted, pathname, setCopilotOpen]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -1568,7 +1583,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               }}
             >
               {isCopilotOpen ? (
-                <CopilotModule onClose={() => setCopilotOpen(false)} />
+                <div
+                  id="copilot-workspace-root"
+                  data-cy="copilot-workspace-root"
+                >
+                  <CopilotModule onClose={() => setCopilotOpen(false)} />
+                </div>
               ) : (
                 children
               )}

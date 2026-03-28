@@ -7,25 +7,16 @@ import {
   UserOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons';
-import SelamnewHandIcon from './SelamnewHandIcon';
 
 const { Text } = Typography;
 
 interface CopilotEmptyStateProps {
   onPromptSelect: (prompt: string) => void;
-  /** User's first name (or display name) for personalized greeting e.g. "Hello Muluken!" */
   userName?: string;
 }
 
 /**
- * CopilotEmptyState - First-time experience with grouped example prompts
- *
- * Displays example prompts organized by module:
- * - Time & Attendance
- * - Employees & Organization
- * - OKR
- *
- * Each prompt can be clicked to auto-fill the input.
+ * Drawer empty state — same headline as main Copilot + optional starter chips.
  */
 const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
   onPromptSelect,
@@ -53,90 +44,91 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
   };
 
   const iconMap = {
-    'Time & Attendance': <ClockCircleOutlined className="text-blue-500" />,
-    'Employees & Organization': <UserOutlined className="text-green-500" />,
-    OKR: <CheckCircleOutlined className="text-purple-500" />,
+    'Time & Attendance': <ClockCircleOutlined className="text-primary" />,
+    'Employees & Organization': <UserOutlined className="text-primary" />,
+    OKR: <CheckCircleOutlined className="text-primary" />,
   };
 
   return (
     <div
-      className="flex flex-col items-center justify-center min-h-full py-8 px-4"
+      className="flex min-h-full flex-col items-center px-3 py-8"
       id="copilot-empty-state"
       data-cy="copilot-empty-state"
     >
       <div
-        className="flex items-start gap-4 mb-8 max-w-md mx-auto text-left w-full"
+        className="mb-8 max-w-md text-center"
+        id="copilot-empty-state-content"
         data-cy="copilot-empty-state-content"
       >
-        <span
-          className="copilot-hand-cooking inline-flex items-center justify-center flex-shrink-0 w-14 h-14 rounded-full bg-white border border-gray-200 shadow-sm"
-          aria-hidden
-          data-cy="copilot-stop-icon-wrapper"
+        <p
+          className="text-base font-semibold leading-relaxed text-slate-900"
+          id="copilot-empty-state-title"
+          data-cy="copilot-empty-state-title"
         >
-          <SelamnewHandIcon className="w-8 h-8" />
-        </span>
-        <div
-          className="flex-1 min-w-0 pt-0.5"
-          data-cy="copilot-empty-state-greeting"
+          {userName
+            ? `Hi ${userName} — ask your copilot to get started, or use available reports.`
+            : 'Ask your copilot to get started, Use the available Reports.'}
+        </p>
+        <p
+          className="mt-3 text-[11px] text-slate-400"
+          id="copilot-empty-state-disclaimer"
+          data-cy="copilot-empty-state-disclaimer"
         >
-          <Text
-            className="text-xl font-semibold text-gray-800 block mb-2"
-            data-cy="copilot-empty-state-title"
-          >
-            {userName ? `Hello ${userName}!` : 'Welcome to SelamNew Copilot'}
-          </Text>
-          <Text
-            type="secondary"
-            className="text-sm block text-gray-600"
-            data-cy="copilot-empty-state-subtitle"
-          >
-            SelamNew Copilot can help you answer questions, complete tasks, and
-            discover insights from your HR data. Ready to explore? Select one of
-            the suggestions below to get started.
-          </Text>
-        </div>
+          AI-generated content may be incorrect.
+        </p>
       </div>
 
       <div
-        className="w-full max-w-lg space-y-6"
+        className="w-full max-w-lg space-y-5"
+        id="copilot-empty-state-prompts"
         data-cy="copilot-empty-state-prompts"
       >
-        {Object.entries(examplePrompts).map(([category, prompts], index) => (
-          <div
-            key={category}
-            data-cy={`copilot-empty-state-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-          >
+        {Object.entries(examplePrompts).map(([category, prompts], index) => {
+          const catSlug = category.toLowerCase().replace(/\s+/g, '-');
+          return (
             <div
-              className="flex items-center gap-2 mb-3"
-              data-cy={`copilot-empty-state-category-header-${category.toLowerCase().replace(/\s+/g, '-')}`}
+              key={category}
+              id={`copilot-empty-state-category-${catSlug}`}
+              data-cy={`copilot-empty-state-category-${catSlug}`}
             >
-              {iconMap[category as keyof typeof iconMap]}
-              <Text strong className="text-sm text-gray-700">
-                {category}
-              </Text>
+              <div
+                className="mb-2 flex items-center gap-2"
+                id={`copilot-empty-state-category-header-${catSlug}`}
+                data-cy={`copilot-empty-state-category-header-${catSlug}`}
+              >
+                {iconMap[category as keyof typeof iconMap]}
+                <Text strong className="text-sm text-slate-800">
+                  {category}
+                </Text>
+              </div>
+              <div
+                className="flex flex-wrap gap-2"
+                id={`copilot-empty-state-prompts-list-${catSlug}`}
+                data-cy={`copilot-empty-state-prompts-list-${catSlug}`}
+              >
+                {prompts.map((prompt) => {
+                  const promptSlug = prompt.toLowerCase().replace(/\s+/g, '-');
+                  return (
+                    <Button
+                      key={prompt}
+                      size="small"
+                      type="default"
+                      onClick={() => onPromptSelect(prompt)}
+                      className="rounded-lg border-slate-200 bg-white text-xs text-slate-700 hover:!border-primary/40 hover:!text-primary"
+                      id={`copilot-example-prompt-${catSlug}-${promptSlug}`}
+                      data-cy={`copilot-example-prompt-${catSlug}-${promptSlug}`}
+                    >
+                      {prompt}
+                    </Button>
+                  );
+                })}
+              </div>
+              {index < Object.keys(examplePrompts).length - 1 && (
+                <Divider className="my-4 border-slate-100" />
+              )}
             </div>
-            <div
-              className="flex flex-wrap gap-2"
-              data-cy={`copilot-empty-state-prompts-list-${category.toLowerCase().replace(/\s+/g, '-')}`}
-            >
-              {prompts.map((prompt) => (
-                <Button
-                  key={prompt}
-                  size="small"
-                  type="default"
-                  onClick={() => onPromptSelect(prompt)}
-                  className="text-xs rounded-md border-gray-300 text-gray-700 hover:border-blue-400 hover:text-blue-600 bg-white"
-                  data-cy={`copilot-example-prompt-${category.toLowerCase().replace(/\s+/g, '-')}-${prompt.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  {prompt}
-                </Button>
-              ))}
-            </div>
-            {index < Object.keys(examplePrompts).length - 1 && (
-              <Divider className="my-4" />
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

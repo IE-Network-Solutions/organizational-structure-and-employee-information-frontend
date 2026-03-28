@@ -195,11 +195,13 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
 
   const panelContent = (
     <div
-      className="flex flex-col h-full min-h-0"
+      className="flex h-full min-h-0 flex-col bg-[#F5F6F8]"
+      id="copilot-panel-content"
       data-cy="copilot-panel-content"
     >
       <div
-        className="px-4 pt-4 bg-white border-b border-gray-200 flex-shrink-0"
+        className="flex-shrink-0 border-b border-slate-200 bg-white px-4 pt-4"
+        id="copilot-panel-header"
         data-cy="copilot-panel-header"
       >
         <CopilotHeader
@@ -209,7 +211,8 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
         />
       </div>
       <div
-        className="flex-1 min-h-0 overflow-y-auto bg-gray-50"
+        className="min-h-0 flex-1 overflow-y-auto bg-[#F8F9FA]"
+        id="copilot-panel-messages"
         data-cy="copilot-panel-messages"
       >
         {messages.length === 0 ? (
@@ -223,7 +226,8 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
         )}
       </div>
       <div
-        className="bg-white border-t border-gray-200 flex-shrink-0"
+        className="flex-shrink-0 border-t border-slate-200 bg-[#F8F9FA]"
+        id="copilot-panel-input"
         data-cy="copilot-panel-input"
       >
         <CopilotInput
@@ -232,14 +236,17 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
           onSend={handleSend}
           onStop={handleStop}
           isLoading={isLoading}
+          placeholder="Ask Your Copilot"
         />
       </div>
       <div
-        className="px-4 py-2 bg-gray-50 border-t border-gray-200 flex-shrink-0"
+        className="flex-shrink-0 border-t border-slate-200 bg-white px-4 py-2"
+        id="copilot-panel-footer"
         data-cy="copilot-panel-footer"
       >
         <p
-          className="text-xs text-gray-500 text-center"
+          className="text-center text-[11px] text-slate-400"
+          id="copilot-panel-footer-text"
           data-cy="copilot-panel-footer-text"
         >
           Responses are role-aware and based on system data.
@@ -252,7 +259,8 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     <>
       {open && isFullScreen && (
         <div
-          className="fixed inset-0 z-[9999] w-screen h-screen bg-white flex flex-col overflow-hidden"
+          className="fixed inset-0 z-[9999] flex h-screen w-screen flex-col overflow-hidden bg-[#F5F6F8]"
+          id="copilot-panel-fullscreen-wrapper"
           data-cy="copilot-panel-fullscreen-wrapper"
         >
           {panelContent}

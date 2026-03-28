@@ -22,6 +22,7 @@ export const COPILOT_INTENTS: IntentCategory[] = [
       'Active employee list',
       'Employees under probation',
       'Employee resignation report',
+      // 'Attendance report',
       'Headcount by department',
       'Headcount by role',
       'Headcount by office',
@@ -33,8 +34,18 @@ export const COPILOT_INTENTS: IntentCategory[] = [
     ],
   },
   {
+    id: 'talent-acquisition',
+    label: 'Talent Acquisition',
+    icon: 'TeamOutlined',
+    intents: [
+      'Candidate pipeline status',
+      'Open job requisitions',
+      'Time to hire summary',
+    ],
+  },
+  {
     id: 'time-attendance',
-    label: 'Time & Attendance',
+    label: 'Time and Attendance',
     icon: 'ClockCircleOutlined',
     intents: [
       'Who is late today',
@@ -60,7 +71,7 @@ export const COPILOT_INTENTS: IntentCategory[] = [
   },
   {
     id: 'performance',
-    label: 'Performance (OKR)',
+    label: 'Performance',
     icon: 'RiseOutlined',
     intents: [
       'Who did not plan daily?',
