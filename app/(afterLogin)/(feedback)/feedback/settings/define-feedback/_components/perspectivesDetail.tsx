@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { Button, Card, Dropdown, Popconfirm } from 'antd';
 import { Department } from '@/types/dashboard/organization';
@@ -18,6 +19,7 @@ interface PerspectivesDetailProps {
 const PerspectivesDetail = ({
   perspectivesDetail,
 }: PerspectivesDetailProps) => {
+  const { isMobile } = useIsMobile();
   const { data: departments } = useGetDepartments();
   const { pageSize, setPageSize, page, setPage, setOpen, setSelectedFeedback } =
     ConversationStore();
@@ -30,10 +32,14 @@ const PerspectivesDetail = ({
     return departments?.find((item: Department) => item.id === id);
   };
   return (
-    <div className="border-[1px] rounded-lg p-1">
+    <div
+      className={`rounded-lg border-[1px] p-1 ${
+        isMobile ? 'border-gray-200 bg-white p-3 shadow-sm' : ''
+      }`}
+    >
       {paginatedData?.map((item: any) => (
         <Card
-          className="mx-2 my-2"
+          className={`my-2 ${isMobile ? 'mx-0 border-gray-200 shadow-none' : 'mx-2'}`}
           key={item.id}
           data-cy={`settings-define-feedback-perspective-card-${item.id}`}
           id={`settingsDefineFeedbackPerspectiveCard${item.id}`}

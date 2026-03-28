@@ -55,7 +55,9 @@ const CreateFeedback: React.FC = () => {
         departmentId: values.departmentId as string,
       };
 
-      const mutation = selectedFeedback?.id ? updatePerspective : addPerspective;
+      const mutation = selectedFeedback?.id
+        ? updatePerspective
+        : addPerspective;
 
       mutation(payload, {
         onSuccess: () => {
