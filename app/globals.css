@@ -181,6 +181,20 @@
   /* Safari and Chrome */
 }
 
+/* Stronger hide on small viewports (Ant Design modal body, iOS) */
+@media (max-width: 639px) {
+  .hide-scrollbar-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar-mobile::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+}
+
 /* Leaflet Map Styles */
 .leaflet-container {
   z-index: 1;

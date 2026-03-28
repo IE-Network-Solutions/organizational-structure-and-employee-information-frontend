@@ -31,9 +31,14 @@ const payPeriodOptionFormat = (start: string, end: string) =>
   `${dayjs(start).format('MMM DD,YYYY')} - ${dayjs(end).format('MMM DD,YYYY')}`;
 type BenefitEntitlementProps = {
   title: string;
+  /** Deduction type detail (fixed deduction): labels use "deduction" instead of "benefit". */
+  forDeductionDetail?: boolean;
 };
 
-const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
+const BenefitEntitlementSideBarEdit = ({
+  title,
+  forDeductionDetail = false,
+}: BenefitEntitlementProps) => {
   const {
     isBenefitEntitlementSidebarUpdateOpen,
     benefitData,
@@ -141,13 +146,14 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             id="compensation-benefit-sidebar-edit-title"
             data-cy="compensation-benefit-sidebar-edit-title"
           >
-            Edit Benefit Entitlement
-            {title ? (
+            {forDeductionDetail
+              ? 'Edit Deduction Entitlement'
+              : 'Edit Benefit Entitlement'}
+            {forDeductionDetail && title ? (
               <span
                 className="ml-1 font-normal text-gray-600"
-                data-cy="compensation-benefit-sidebar-edit-title-benefit-name"
+                data-cy="compensation-benefit-sidebar-edit-title-type-name"
               >
-                ({title})
               </span>
             ) : null}
           </span>
@@ -199,7 +205,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       mask={true}
       maskClosable={false}
       zIndex={10002}
-      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626]"
+      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
       classNames={{
         header:
           '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',

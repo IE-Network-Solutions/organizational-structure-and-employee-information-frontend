@@ -32,7 +32,9 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
  * @returns {Promise<any>} The response from the API.
  */
 
-const fetchAllowanceEntitlements = async (allowanceId: string | string[]) => {
+export const fetchAllowanceEntitlements = async (
+  allowanceId: string | string[],
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {
