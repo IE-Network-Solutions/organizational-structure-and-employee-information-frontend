@@ -11,7 +11,6 @@ import {
 import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { EllipsisOutlined } from '@ant-design/icons';
 import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 
 function Page() {
@@ -177,10 +176,35 @@ function Page() {
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-criteria-card-menu-button-${item.key}`}
                       >
-                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
-                          <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
-                          <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                        <svg
+                          width="14"
+                          height="4"
+                          viewBox="0 0 14 4"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          data-cy={`okr-criteria-card-menu-svg-${item.key}`}
+                        >
+                          <circle
+                            cx="2.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-1-${item.key}`}
+                          />
+                          <circle
+                            cx="7"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-2-${item.key}`}
+                          />
+                          <circle
+                            cx="11.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-3-${item.key}`}
+                          />
                         </svg>
                       </button>
                     </Dropdown>

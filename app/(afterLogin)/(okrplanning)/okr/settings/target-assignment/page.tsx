@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { Spin, Dropdown, MenuProps, Tag } from 'antd';
-import { EllipsisOutlined } from '@ant-design/icons';
 import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetModal from './_components/assign-target-drawer';
@@ -202,10 +201,35 @@ function Page() {
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-target-card-menu-button-${group.key}`}
                       >
-                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
-                          <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
-                          <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                        <svg
+                          width="14"
+                          height="4"
+                          viewBox="0 0 14 4"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          data-cy={`okr-target-card-menu-svg-${group.key}`}
+                        >
+                          <circle
+                            cx="2.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-target-card-menu-circle-1-${group.key}`}
+                          />
+                          <circle
+                            cx="7"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-target-card-menu-circle-2-${group.key}`}
+                          />
+                          <circle
+                            cx="11.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-target-card-menu-circle-3-${group.key}`}
+                          />
                         </svg>
                       </button>
                     </Dropdown>

@@ -8,7 +8,7 @@ import {
   Spin,
   Tag,
 } from 'antd';
-import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -139,7 +139,6 @@ const PlanAssignment: React.FC = () => {
     userToPlanning,
     employeeData,
     searchTerm,
-    allPlanningPeriods,
     getEmployeeData,
     getPlanningPeriodType,
   ]);
@@ -360,10 +359,35 @@ const PlanAssignment: React.FC = () => {
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
-                            <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
-                              <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
-                              <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                            <svg
+                              width="14"
+                              height="4"
+                              viewBox="0 0 14 4"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              data-cy={`okr-planning-assignation-card-menu-svg-${item.userId}`}
+                            >
+                              <circle
+                                cx="2.5"
+                                cy="2"
+                                r="1.5"
+                                fill="currentColor"
+                                data-cy={`okr-planning-assignation-card-menu-circle-1-${item.userId}`}
+                              />
+                              <circle
+                                cx="7"
+                                cy="2"
+                                r="1.5"
+                                fill="currentColor"
+                                data-cy={`okr-planning-assignation-card-menu-circle-2-${item.userId}`}
+                              />
+                              <circle
+                                cx="11.5"
+                                cy="2"
+                                r="1.5"
+                                fill="currentColor"
+                                data-cy={`okr-planning-assignation-card-menu-circle-3-${item.userId}`}
+                              />
                             </svg>
                           </button>
                         </Dropdown>

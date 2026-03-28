@@ -4,7 +4,6 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
 import { Spin, Dropdown, MenuProps } from 'antd';
 import React from 'react';
-import { EllipsisOutlined } from '@ant-design/icons';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
 import { useDeleteOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/mutations';
 import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/queries';
@@ -169,10 +168,35 @@ const DefineOkrRule = () => {
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-rule-card-menu-button-${item.id}`}
                       >
-                        <svg width="14" height="4" viewBox="0 0 14 4" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="2.5" cy="2" r="1.5" fill="currentColor"/>
-                          <circle cx="7" cy="2" r="1.5" fill="currentColor"/>
-                          <circle cx="11.5" cy="2" r="1.5" fill="currentColor"/>
+                        <svg
+                          width="14"
+                          height="4"
+                          viewBox="0 0 14 4"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          data-cy={`okr-rule-card-menu-svg-${item.id}`}
+                        >
+                          <circle
+                            cx="2.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-rule-card-menu-circle-1-${item.id}`}
+                          />
+                          <circle
+                            cx="7"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-rule-card-menu-circle-2-${item.id}`}
+                          />
+                          <circle
+                            cx="11.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-rule-card-menu-circle-3-${item.id}`}
+                          />
                         </svg>
                       </button>
                     </Dropdown>
