@@ -435,6 +435,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         children: [
           {
             title: (
+              <span data-cy="nav-tree-manage-employees-dashboard">Dashboard</span>
+            ),
+            key: '/employees/dashboard',
+            className: 'font-bold',
+            permissions: ['view_employees_dashboard'],
+          },
+          {
+            title: (
               <span data-cy="nav-tree-manage-employees">Manage Employees</span>
             ),
             key: '/employees/manage-employees',
