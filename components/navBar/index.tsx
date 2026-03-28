@@ -1636,8 +1636,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                paddingRight: 24,
-                paddingLeft: 24,
+                paddingRight: isMobile ? 8 : 24,
+                paddingLeft: isMobile ? 8 : 24,
                 background: '#ffffff',
               }}
             >
