@@ -253,7 +253,6 @@ const CustomWorkingScheduleDrawer = () => {
       data-cy="org-components-workschedule-customdrawer-index-customdrawerlayout-1"
       centered
       zIndex={10002}
-
     >
       <Form
         form={form}
