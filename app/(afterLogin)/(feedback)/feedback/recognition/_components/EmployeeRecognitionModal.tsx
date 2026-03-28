@@ -156,6 +156,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       title: 'Employees',
       dataIndex: 'recipientId',
       key: 'recipientId',
+      width: 200,
       render: (recipientId: string) =>
         recipientId ? <EmpRender userId={recipientId} /> : '-',
       sorter: (a, b) => a.recipientId.localeCompare(b.recipientId),
@@ -164,6 +165,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       title: 'Criteria',
       dataIndex: 'criteriaScore',
       key: 'criteriaScore',
+      width: 260,
       render: (criteriaScore: any[]) =>
         criteriaScore?.map((c, i) => (
           <Tag
@@ -180,6 +182,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       title: 'Total Value',
       dataIndex: 'totalPoints',
       key: 'totalPoints',
+      width: 110,
       sorter: (a, b) => Number(a.totalPoints) - Number(b.totalPoints),
     },
   ];
@@ -348,7 +351,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
                 .toLowerCase()
                 .includes(input.toLowerCase())
             }
-            className="w-full h-10 col-span-6"
+            className="w-full h-10 md:col-span-6 col-span-12"
             onChange={(value) => setSelectedEmployeeId(value)}
             data-cy="employee-recognition-modal-employee-select"
           >
@@ -367,7 +370,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
           <Select
             allowClear
             onChange={(value) => setFilterOption(value)}
-            className="col-span-6 h-10"
+            className="md:col-span-6 col-span-12 h-10"
             placeholder="Filter  By Selection"
             data-cy="employee-recognition-modal-filter-select"
             id="employeeRecognitionModalFilterSelect"
@@ -396,11 +399,11 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
           </Select>
         </div>
         <div
-          className="h-80 overflow-y-auto scrollbar-none"
+          className="h-80 min-h-0 min-w-0 max-w-full overflow-y-auto overflow-x-auto [-webkit-overflow-scrolling:touch] scrollbar-none"
           data-cy="employee-recognition-modal-table-scroll"
         >
           <p
-            className="text-sm text-gray-500 mt-2"
+            className="mt-2 text-sm text-gray-500"
             data-cy="employee-recognition-modal-selected-count"
             id="employeeRecognitionModalSelectedCount"
           >
@@ -413,6 +416,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             dataSource={filteredEmployees}
             rowKey="recipientId"
             loading={createRecognitionLoading}
+            scroll={{ x: 640 }}
             data-cy="employee-recognition-modal-table"
             id="employeeRecognitionModalTable"
           />

@@ -38,7 +38,7 @@ function RecognitionDetailLayoutShell({
   return (
     <div className="" data-cy="recognition-detail-layout">
       <div
-        className="flex flex-wrap  items-center justify-between gap-4 mb-1 py-3"
+        className="flex items-center justify-between gap-4 mb-1 py-3"
         data-cy="recognition-detail-layout-toolbar"
       >
         <div
@@ -107,7 +107,12 @@ function RecognitionDetailLayoutShell({
           className="shrink-0 h-10"
           data-cy="recognition-detail-recognize-employee"
         >
-          Recognize Employee
+          <span
+            data-cy="recognition-detail-recognize-employee-text"
+            className="hidden md:block"
+          >
+            Recognize Employee
+          </span>
         </Button>
       </div>
 

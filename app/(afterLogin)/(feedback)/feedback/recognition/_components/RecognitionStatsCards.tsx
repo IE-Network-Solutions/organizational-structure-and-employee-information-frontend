@@ -75,13 +75,13 @@ function RecognitionStatsCards({
 
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6"
+      className="flex w-full gap-4 my-6 overflow-x-auto scrollbar-none md:grid md:overflow-x-visible md:scrollbar-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
       data-cy="recognition-stats-cards"
     >
       {cards.map((card) => (
         <Card
           key={card.key}
-          className="bg-white w-full border border-[#E5E7EB] rounded-lg p-3"
+          className="bg-white w-full border border-[#E5E7EB] rounded-lg p-3 md:w-full min-w-[265px]"
           bordered
           bodyStyle={{ padding: 0 }}
           data-cy={card.cardCy}
