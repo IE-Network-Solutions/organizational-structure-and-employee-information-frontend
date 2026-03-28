@@ -17,8 +17,16 @@ export default function Index() {
       id="meetingLayoutId"
       data-cy="feedback-meeting-page-tab-landing-layout"
       title="Meetings"
-      subtitle="Manage your Meetings"
-      buttonTitle={'Add New'}
+      subtitle={
+        <p className="flex items-center gap-1.5 text-slate-400 text-sm font-normal">
+          <span>CFR</span>
+          <span>/</span>
+          <span>Conversation</span>
+          <span>/</span>
+          <span className="text-slate-700 font-medium">Meeting</span>
+        </p>
+      }
+      buttonTitle={'Create Meeting'}
       buttonIcon={
         <FaPlus
           data-cy="feedback-meeting-page-icon-plus"

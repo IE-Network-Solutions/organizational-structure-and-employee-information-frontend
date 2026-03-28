@@ -47,16 +47,17 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
       <BlockWrapper className="bg-white ">
         <div
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48"
-          className="flex flex-wrap justify-between items-center"
+          className="flex justify-between items-start mb-6"
         >
           <CustomBreadcrumb
             title={title}
             subtitle={subtitle ?? ''}
             isRecognition={true}
+            compact={true}
           />
           <div
             data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-54"
-            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+            className="flex items-center gap-4"
           >
             {!buttonDisabled
               ? buttonTitle && (
@@ -75,7 +76,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                         id={`${id}-createButtonId`}
                         icon={buttonIcon ?? <FaPlus />}
                         onClick={onClickHandler}
-                        className="text-xs bg-blue-600 hover:bg-blue-700 h-10 w-5 sm:w-auto sm:px-5 px-6 py-6"
+                        className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-lg border-none"
+                        textClassName="text-sm font-semibold"
                       />
                     )}
                   </AccessGuard>
@@ -127,8 +129,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           </div>
         </div>
         <div
-          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120 border border-gray-200 "
-          className="w-full h-auto"
+          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
+          className="w-full h-auto border-t border-gray-100 pt-6"
         >
           {children}
         </div>

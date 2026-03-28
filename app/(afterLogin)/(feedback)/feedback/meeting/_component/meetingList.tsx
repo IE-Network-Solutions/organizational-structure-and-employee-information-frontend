@@ -11,6 +11,8 @@ import {
   Spin,
   Modal,
   Button,
+  Timeline,
+  Tag,
 } from 'antd';
 import {
   CalendarOutlined,
@@ -242,248 +244,82 @@ const MeetingList = () => {
 
         {/* Meeting Cards */}
         {meetings?.items?.length !== 0 ? (
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ml-4"
-            data-cy="feedback-meeting-component-meetinglist-div-meetings-grid"
-            id="feedback-meeting-component-meetinglist-div-meetings-grid"
-          >
-            {meetings?.items?.map((meeting: any, index: number) => (
-              <Link
-                key={index}
-                href={`/feedback/meeting/${meeting.id}`}
-                passHref
-                data-cy={`feedback-meeting-component-meetinglist-link-meeting-${meeting.id}`}
-                id={`feedback-meeting-component-meetinglist-link-meeting-${meeting.id}`}
-              >
-                <Card
-                  loading={meetingLoading}
-                  bodyStyle={{ padding: 10 }}
-                  title={
-                    <div
-                      className="flex flex-col"
-                      data-cy={`feedback-meeting-component-meetinglist-div-card-title-${meeting.id}`}
-                      id={`feedback-meeting-component-meetinglist-div-card-title-${meeting.id}`}
-                    >
-                      <span
-                        className="text-base font-semibold text-black"
-                        data-cy={`feedback-meeting-component-meetinglist-span-meeting-title-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-span-meeting-title-${meeting.id}`}
-                      >
-                        {' '}
-                        {meeting.title}
-                      </span>
-                      <span
-                        className="text-sm font-normal text-black"
-                        data-cy={`feedback-meeting-component-meetinglist-span-meeting-type-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-span-meeting-type-${meeting.id}`}
-                      >
-                        {meeting.meetingType?.name || '-'}
-                      </span>
+          <div className="mt-6">
+            <Timeline
+              mode="left"
+              data-cy="feedback-meeting-component-meetinglist-timeline"
+              className="custom-meeting-timeline ml-[100px] mt-2"
+              items={meetings?.items?.map((meeting: any) => ({
+                style: { height: '76px', paddingBottom: 0 },
+                dot: (
+                  <div className="relative flex items-center justify-center top-1">
+                    <div className="absolute right-6 w-24 text-right text-black/70 text-[13px] font-medium leading-none">
+                      {dayjs(meeting.createdAt).format('YYYY-M-D')}
                     </div>
-                  }
-                  className="rounded-xl h-full border border-gray-200"
-                  headStyle={{ borderBottom: 'none' }}
-                  data-cy={`feedback-meeting-component-meetinglist-card-${meeting.id}`}
-                  id={`feedback-meeting-component-meetinglist-card-${meeting.id}`}
-                >
-                  <div
-                    className="space-y-2.5 text-sm text-gray-600"
-                    data-cy={`feedback-meeting-component-meetinglist-div-card-content-${meeting.id}`}
-                    id={`feedback-meeting-component-meetinglist-div-card-content-${meeting.id}`}
-                  >
-                    <div
-                      className="flex items-center gap-2"
-                      data-cy={`feedback-meeting-component-meetinglist-div-card-content-date-${meeting.id}`}
-                      id={`feedback-meeting-component-meetinglist-div-card-content-date-${meeting.id}`}
-                    >
-                      <CalendarOutlined
-                        className="text-blue text-xl"
-                        data-cy={`feedback-meeting-component-meetinglist-icon-date-${meeting.id}`}
-                        id={`feedback-component-meetinglist-icon-date-${meeting.id}`}
-                      />
-                      <div
-                        className="flex flex-col"
-                        data-cy={`feedback-meeting-component-meetinglist-div-card-content-date-text-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-div-card-content-date-text-${meeting.id}`}
-                      >
-                        <span
-                          className="font-semibold text-black"
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-date-label-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-date-label-${meeting.id}`}
-                        >
-                          Date
-                        </span>
-                        <span
-                          className="font-bold"
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-date-value-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-date-value-${meeting.id}`}
-                        >
-                          {dayjs(meeting.createdAt).format('YYYY-MM-DD HH:mm')}
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2"
-                      data-cy={`feedback-meeting-component-meetinglist-div-card-content-chairperson-${meeting.id}`}
-                      id={`feedback-meeting-component-meetinglist-div-card-content-chairperson-${meeting.id}`}
-                    >
-                      <UserOutlined
-                        className="text-blue text-xl"
-                        data-cy={`feedback-meeting-component-meetinglist-icon-chairperson-${meeting.id}`}
-                        id={`feedback-component-meetinglist-icon-chairperson-${meeting.id}`}
-                      />
-                      <div
-                        className="flex flex-col"
-                        data-cy={`feedback-meeting-component-meetinglist-div-card-content-chairperson-text-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-div-card-content-chairperson-text-${meeting.id}`}
-                      >
-                        <span
-                          className="font-semibold text-black"
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-chairperson-label-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-chairperson-label-${meeting.id}`}
-                        >
-                          Chair person
-                        </span>
-                        <span
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-chairperson-value-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-chairperson-value-${meeting.id}`}
-                        >
-                          <EmployeeDetails
-                            type="all"
-                            empId={meeting.chairpersonId}
-                            data-cy={`feedback-meeting-component-meetinglist-span-card-content-chairperson-value-${meeting.id}`}
-                          />
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2"
-                      data-cy={`feedback-meeting-component-meetinglist-div-card-content-facilitator-${meeting.id}`}
-                      id={`feedback-meeting-component-meetinglist-div-card-content-facilitator-${meeting.id}`}
-                    >
-                      <UserOutlined
-                        className="text-blue text-xl"
-                        data-cy={`feedback-meeting-component-meetinglist-icon-facilitator-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-icon-facilitator-${meeting.id}`}
-                      />
-                      <div
-                        className="flex flex-col"
-                        data-cy={`feedback-meeting-component-meetinglist-div-card-content-facilitator-text-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-div-card-content-facilitator-text-${meeting.id}`}
-                      >
-                        <span
-                          className="font-semibold text-black"
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-facilitator-label-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-facilitator-label-${meeting.id}`}
-                        >
-                          Facilitator
-                        </span>
-                        <span
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-facilitator-value-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-facilitator-value-${meeting.id}`}
-                        >
-                          <EmployeeDetails
-                            type="all"
-                            empId={meeting.facilitatorId}
-                          />
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      className="flex items-center gap-2"
-                      data-cy={`feedback-meeting-component-meetinglist-div-card-content-location-${meeting.id}`}
-                      id={`feedback-meeting-component-meetinglist-div-card-content-location-${meeting.id}`}
-                    >
-                      <EnvironmentOutlined
-                        className="text-blue text-xl"
-                        data-cy={`feedback-meeting-component-meetinglist-icon-location-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-icon-location-${meeting.id}`}
-                      />
-                      <div
-                        className="flex flex-col"
-                        data-cy={`feedback-meeting-component-meetinglist-div-card-content-location-text-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-div-card-content-location-text-${meeting.id}`}
-                      >
-                        <span
-                          className="font-semibold text-black"
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-location-label-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-location-label-${meeting.id}`}
-                        >
-                          Location
-                        </span>
-                        <span
-                          data-cy={`feedback-meeting-component-meetinglist-span-card-content-location-value-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-span-card-content-location-value-${meeting.id}`}
-                        >
-                          <span
-                            data-cy={`feedback-meeting-component-meetinglist-span-card-content-location-type-${meeting.id}`}
-                            id={`feedback-meeting-component-meetinglist-span-card-content-location-type-${meeting.id}`}
-                          >
-                            {meeting.locationType} •{' '}
-                            <strong
-                              data-cy={`feedback-meeting-component-meetinglist-strong-card-content-location-${meeting.id}`}
-                              id={`feedback-meeting-component-meetinglist-strong-card-content-location-${meeting.id}`}
-                            >
-                              {meeting.locationType == 'virtual'
-                                ? meeting.virtualLink
-                                : meeting?.physicalLocation}
-                            </strong>
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-
-                    <div
-                      className="flex items-center gap-2"
-                      data-cy={`feedback-meeting-component-meetinglist-div-card-content-attendees-${meeting.id}`}
-                      id={`feedback-meeting-component-meetinglist-div-card-content-attendees-${meeting.id}`}
-                    >
-                      <FiUsers
-                        className="text-blue text-xl"
-                        data-cy={`feedback-meeting-component-meetinglist-icon-attendees-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-icon-attendees-${meeting.id}`}
-                      />
-                      <div
-                        className="flex flex-col"
-                        data-cy={`feedback-meeting-component-meetinglist-div-card-content-attendees-text-${meeting.id}`}
-                        id={`feedback-meeting-component-meetinglist-div-card-content-attendees-text-${meeting.id}`}
-                      >
-                        <div
-                          className="font-semibold text-black"
-                          data-cy={`feedback-meeting-component-meetinglist-div-card-content-attendees-label-${meeting.id}`}
-                          id={`feedback-meeting-component-meetinglist-div-card-content-attendees-label-${meeting.id}`}
-                        >
-                          Attendees
-                        </div>
-                        {meeting?.attendees?.length > 0 ? (
-                          <Avatar.Group
-                            maxCount={5}
-                            maxStyle={{
-                              color: '#f56a00',
-                              backgroundColor: '#fde3cf',
-                            }}
-                            className="mt-1"
-                            data-cy={`feedback-meeting-component-meetinglist-avatar-group-${meeting.id}`}
-                          >
-                            {meeting.attendees
-                              ?.filter((i: any) => i.userId)
-                              .map((attendee: any) => (
-                                <EmployeeDetails
-                                  key={attendee.userId}
-                                  type="avatar"
-                                  empId={attendee.userId}
-                                />
-                              ))}
-                          </Avatar.Group>
-                        ) : (
-                          '-'
-                        )}
-                      </div>
-                    </div>
+                    <div className="w-3.5 h-3.5 rounded-full border-[2.5px] border-[#1E40AF] bg-white translate-x-[0.5px]" />
                   </div>
-                </Card>
-              </Link>
-            ))}
+                ),
+                children: (
+                  <Link
+                    href={`/feedback/meeting/${meeting.id}`}
+                    passHref
+                    key={meeting.id}
+                    className="block hover:no-underline group w-full ml-1 px-4 py-2 border border-transparent rounded-xl hover:border-[#B3D0F6] hover:bg-[#F2F7FF] transition-all -mt-2"
+                  >
+                    <div className="flex items-start justify-between w-full h-full">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-black/70 font-medium text-[15px] max-w-[500px] truncate group-hover:text-blue-600 transition-colors">
+                          {meeting.title}
+                        </span>
+
+                        <div className="flex items-center gap-4">
+                          <Avatar.Group
+                            maxCount={3}
+                            size={24}
+                            className="border-none"
+                          >
+                            {meeting.attendees?.slice(0, 3).map((att: any) => (
+                              <EmployeeDetails
+                                key={att.userId}
+                                empId={att.userId}
+                                type="avatar"
+                              />
+                            ))}
+                          </Avatar.Group>
+                          {meeting.attendees?.length > 3 && (
+                            <span className="text-xs text-black/70">
+                              +{meeting.attendees.length - 3}
+                            </span>
+                          )}
+
+                          {meeting.virtualLink ||
+                          meeting.locationType === 'virtual' ? (
+                            <div
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                window.open(meeting.virtualLink, '_blank');
+                              }}
+                              className="px-3 py-1 bg-[#EBF4FF] text-[#1E57A3] text-[12px] font-medium rounded-md flex items-center gap-2 cursor-pointer hover:bg-blue-100 transition-all border border-[#DFEDFF]"
+                            >
+                              Zoom Meeting
+                            </div>
+                          ) : (
+                            <div className="text-xs text-black/70 italic">
+                              {meeting.physicalLocation || meeting.locationType}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-black/70 text-[11px] font-medium px-3 py-1 rounded border border-gray-200 mt-0">
+                        {dayjs(meeting.createdAt).format('h:mmA')}
+                      </div>
+                    </div>
+                  </Link>
+                ),
+              }))}
+            />
           </div>
         ) : (
           <div

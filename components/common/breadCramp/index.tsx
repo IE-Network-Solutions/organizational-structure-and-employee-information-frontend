@@ -27,7 +27,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
 }) => (
   <div
     className={classNames(
-      'w-full flex flex-col justify-start items-start',
+      'flex flex-col justify-start items-start',
       compact ? 'gap-1 py-1' : 'gap-2 py-2',
       isRecognition ? 'bg-white' : '',
       rootClassName,
