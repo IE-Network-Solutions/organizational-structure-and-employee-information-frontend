@@ -405,6 +405,7 @@ const CustomWorkingScheduleDrawer = () => {
                             bordered={false}
                             inputReadOnly
                             className="custom-timepicker"
+                            suffixIcon={null}
                             onChange={(time) =>
                               setDetail(record.day, {
                                 startTime: time
@@ -433,6 +434,7 @@ const CustomWorkingScheduleDrawer = () => {
                             bordered={false}
                             inputReadOnly
                             className="custom-timepicker"
+                            suffixIcon={null}
                             onChange={(time) =>
                               setDetail(record.day, {
                                 endTime: time
