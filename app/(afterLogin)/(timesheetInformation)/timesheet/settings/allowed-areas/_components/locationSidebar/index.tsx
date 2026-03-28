@@ -130,7 +130,7 @@ const LocationSidebar = () => {
   };
 
   const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] w-full';
+  const controlClass = 'mt-1 h-[40px] w-full';
 
   const handleLocationChange = (lat: number, lng: number) => {
     form.setFieldValue('latitude', lat);
@@ -185,14 +185,14 @@ const LocationSidebar = () => {
           >
             <Button
               type="default"
-              className="h-10 px-6 rounded-lg"
+              className="h-8 border border-[#D9D9D9] text-[#4d4d4d] text-sm font-normal"
               onClick={() => onClose()}
             >
               Cancel
             </Button>
             <Button
               type="primary"
-              className="h-10 px-6 rounded-lg"
+              className="h-8 font-normal"
               onClick={() => form.submit()}
             >
               {allowedAreaId ? 'Update' : 'Create'}
@@ -218,16 +218,10 @@ const LocationSidebar = () => {
             data-cy="time-attendance-settings-allowed-areas-sidebar-form"
           >
             <div
-              className="p-4"
               id="time-attendance-settings-allowed-areas-sidebar-form-container"
               data-cy="time-attendance-settings-allowed-areas-sidebar-form-container"
             >
-              <Space.Compact
-                direction="vertical"
-                className="w-full"
-                id="time-attendance-settings-allowed-areas-sidebar-form-fields"
-                data-cy="time-attendance-settings-allowed-areas-sidebar-form-fields"
-              >
+              
                 <Form.Item
                   id="time-attendance-settings-allowed-areas-sidebar-title"
                   data-cy="time-attendance-settings-allowed-areas-sidebar-title"
@@ -324,7 +318,7 @@ const LocationSidebar = () => {
                       radius={formValues.distance}
                       onLocationChange={handleLocationChange}
                       onRadiusChange={handleRadiusChange}
-                      height="400px"
+                      height="230px"
                       data-cy="time-attendance-settings-allowed-areas-sidebar-map-picker"
                     />
                   </div>
@@ -545,7 +539,6 @@ const LocationSidebar = () => {
                     />
                   </Form.Item>
                 )}
-              </Space.Compact>
             </div>
           </Form>
         </Spin>
