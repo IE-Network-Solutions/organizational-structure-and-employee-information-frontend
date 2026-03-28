@@ -15,7 +15,6 @@ const Workflow = () => {
     <div
       id="time-attendance-settings-approvals-page-container"
       data-cy="time-attendance-settings-approvals-page-container"
-      className="px-2 sm:px-5 py-2"
     >
       <div
         className=" p-3 rounded-2xl border-[1px] border-[#D9D9D9] "

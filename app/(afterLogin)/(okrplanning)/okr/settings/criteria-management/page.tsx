@@ -147,7 +147,7 @@ function Page() {
             {assignedCriteriaData?.map((item: any) => (
               <div
                 key={item.key}
-                className="bg-white border border-[#d9d9d9] rounded-[12px] p-5 hover:shadow-sm transition-shadow relative"
+                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
                 id={`okr-criteria-card-${item.key}`}
                 data-cy={`okr-criteria-card-${item.key}`}
               >

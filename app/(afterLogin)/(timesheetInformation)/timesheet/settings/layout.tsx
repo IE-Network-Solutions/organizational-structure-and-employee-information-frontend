@@ -261,8 +261,8 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       data-cy="time-attendance-settings-layout-wrapper"
     >
       <div
-        className="px-4 pt-4 flex items-center justify-between"
-        data-cy="org-settings-header-container"
+        className="pt-4 flex items-center justify-between"
+        data-cy="time-attendance-settings-header-container"
       >
         <div
           id="time-attendance-settings-page-header-container"
@@ -341,14 +341,12 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           data-cy="time-attendance-settings-tabs-container"
           id="time-attendance-settings-tabs-container"
         >
-          <div
-            className="px-4 pr-6"
-            data-cy="time-attendance-settings-tabs-wrapper"
-          >
+          <div data-cy="time-attendance-settings-tabs-wrapper">
             <Tabs
               activeKey={activeKey}
               onChange={handleTabChange}
               items={items}
+              moreIcon={false}
               tabBarStyle={{
                 marginBottom: 0,
                 marginLeft: 0,

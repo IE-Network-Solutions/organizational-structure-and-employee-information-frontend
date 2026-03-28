@@ -111,6 +111,8 @@ const getAllPlannedTasksForReport = async (
     headers,
   });
 };
+
+export const fetchPlannedTasksForReport = getAllPlannedTasksForReport;
 const getAllReportedPlanningTask = async (planId: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;

@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Avatar, Button, Dropdown, Space, Table } from 'antd';
+import { Avatar, Button, Dropdown, Table } from 'antd';
 import TableFilter from './tableFilter';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
@@ -16,13 +16,9 @@ import {
 } from '@/helpers/calculateHelper';
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import dayjs from 'dayjs';
 import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
-import {
-  AttendanceRecord,
-  AttendanceRecordTypeBadgeTheme,
-} from '@/types/timesheet/attendance';
+import { AttendanceRecord } from '@/types/timesheet/attendance';
 import {
   formatBreakTypeToStatus,
   formatToAttendanceStatuses,
@@ -39,6 +35,7 @@ import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
+import statusType from '../statusType';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -106,13 +103,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}`}
         className="flex items-center gap-1.5"
       >
-        <div
-          id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-employee-attendance-id-div`}
-          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-employee-attendance-id-div`}
-          className="mx-1 text-sm"
-        >
-          {employeeData?.employeeInformation?.employeeAttendanceId}
-        </div>
         <Avatar
           data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-avatar`}
           size={24}
@@ -126,17 +116,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           <div
             id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-text-div`}
             data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-text-div`}
-            className="text-xs text-gray-900 flex gap-2"
+            className="text-sm font-normal text-[#4d4d4d] flex gap-2"
           >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
-          </div>
-          <div
-            id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-email-div`}
-            data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-email-div`}
-            className="text-[10px] leading-4 text-gray-600"
-          >
-            {employeeData?.email}
           </div>
         </div>
       </div>
@@ -158,8 +141,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
       dataIndex: 'userId',
       key: 'createdBy',
-      sorter: true,
       render: (text: string) => <EmpRender userId={text} />,
+      width: 250,
     },
     {
       title: (
@@ -173,9 +156,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
       dataIndex: 'createdAt',
       key: 'createdAt',
-      sorter: true,
       render: (date: string) => (
-        <div data-cy="employee-attendance-components-employeeattendancetable-index-tsx-index-div-161">
+        <div
+          className="text-sm font-normal text-[#4d4d4d]"
+          data-cy="employee-attendance-components-employeeattendancetable-index-tsx-index-div-161"
+        >
           {dayjs(date).format(DATE_FORMAT)}
         </div>
       ),
@@ -206,11 +191,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               <div
                 id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div`}
                 data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div`}
-                className="text-xs text-gray-600 mt-1"
+                className="text-sm font-normal text-[#4d4d4d]"
               >
                 <div
                   id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner`}
                   data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner`}
+                  className="text-sm font-normal text-[#4d4d4d]"
                 >
                   {attendanceBreak?.endAt ? (
                     dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
@@ -231,6 +217,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               <div
                 id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
                 data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
+                className="text-sm font-normal text-[#4d4d4d]"
               >
                 {date
                   ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
@@ -267,11 +254,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               <div
                 id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div`}
                 data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div`}
-                className="text-xs text-gray-600 mt-1"
+                className="text-sm font-normal text-[#4d4d4d]"
               >
                 <div
                   id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner`}
                   data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner`}
+                  className="text-sm font-normal text-[#4d4d4d]"
                 >
                   {attendanceBreak?.startAt ? (
                     dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
@@ -292,6 +280,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               <div
                 id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
                 data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
+                className="text-sm font-normal text-[#4d4d4d]"
               >
                 {date
                   ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
@@ -324,61 +313,33 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             record,
           );
           return (
-            <Space data-cy="time-attendance-employee-attendance-row-status-badge-space">
-              <StatusBadge
-                data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}`}
-                theme={breakStatus.status.theme}
-                key={breakStatus.status.text}
+            <div
+              id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
+              data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
+              className="text-center"
+            >
+              <div
+                id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
+                data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
               >
-                <div
-                  id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
-                  data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
-                  className="text-center"
-                >
-                  <div
-                    id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
-                    data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
-                  >
-                    {breakStatus.status.text}
-                  </div>
-                </div>
-              </StatusBadge>
-            </Space>
+                {statusType(breakStatus.status.text)}
+              </div>
+            </div>
           );
         } else {
           const statuses = formatToAttendanceStatuses(record);
           return (
-            <Space data-cy="time-attendance-employee-attendance-row-status-badge-space">
+            <div data-cy="time-attendance-employee-attendance-row-status-badge-div">
               {statuses.map((status) => (
-                <StatusBadge
-                  data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}`}
-                  theme={AttendanceRecordTypeBadgeTheme[status.status]}
+                <div
                   key={status.status}
+                  id={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
+                  data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
                 >
-                  <div
-                    id={`time-attendance-employee-attendance-row-status-badge-${status.status}-div`}
-                    data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-div`}
-                    className="text-center"
-                  >
-                    <div
-                      id={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
-                      data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
-                    >
-                      {status.status}
-                    </div>
-                    {status.text && (
-                      <div
-                        id={`time-attendance-employee-attendance-row-status-badge-${status.status}-text-div`}
-                        data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-text-div`}
-                        className="font-normal"
-                      >
-                        {status.text}
-                      </div>
-                    )}
-                  </div>
-                </StatusBadge>
+                  {statusType(status.status)}
+                </div>
               ))}
-            </Space>
+            </div>
           );
         }
       },
@@ -400,6 +361,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         <div
           id={`time-attendance-employee-attendance-row-over-time-div-${text}`}
           data-cy={`time-attendance-employee-attendance-row-over-time-div-${text}`}
+          className="text-sm font-normal text-[#4d4d4d]"
         >
           {text}
         </div>
@@ -421,6 +383,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         <div
           id={`time-attendance-employee-attendance-row-total-time-div-${text}`}
           data-cy={`time-attendance-employee-attendance-row-total-time-div-${text}`}
+          className="text-sm font-normal text-[#4d4d4d]"
         >
           {text}
         </div>
@@ -449,7 +412,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           >
             <Button
               type="text"
-              className="border-none"
+              className="border-none hover:bg-transparent"
               id={`${item?.id}buttonPopOverActionForOnEditActionId`}
               onClick={() => {
                 (setEmployeeId(item?.userId),
@@ -459,7 +422,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
             >
               <span
-                className="font-bold text-base text-[#1e40af]"
+                className="text-[#1e40af] text-sm font-normal"
                 id="time-attendance-employee-attendance-table-edit-button-span"
                 data-cy="time-attendance-employee-attendance-table-edit-button-span"
               >
@@ -569,11 +532,15 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   };
 
   return (
-    <>
+    <div
+      id="time-attendance-employee-attendance-table-card"
+      data-cy="time-attendance-employee-attendance-table-card"
+      className="border-[1px] border-[#D9D9D9] rounded-lg"
+    >
       <div
         id="time-attendance-employee-attendance-table-filter-section"
         data-cy="time-attendance-employee-attendance-table-filter-section"
-        className="mb-4"
+        className="mb-4 px-5 pt-4"
       >
         <TableFilter
           data-cy="time-attendance-employee-attendance-table-filter"
@@ -585,7 +552,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         data-cy="time-attendance-employee-attendance-table-container"
       >
         <div
-          className="flex  overflow-x-auto scrollbar-none  w-full"
+          className="flex overflow-x-auto scrollbar-none  w-full"
           id="time-attendance-employee-attendance-table-scroll-wrapper"
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
@@ -599,12 +566,18 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               onChange: handleRowSelection,
             }}
             pagination={false}
-            rowClassName={() => 'h-[60px]'}
             scroll={{ x: 'max-content' }}
-            className="w-full"
+            className="w-full [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd):hover>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr.ant-table-row:nth-child(even):hover>td]:!bg-white"
             onChange={handleTableChange}
             id="time-attendance-employee-attendance-table"
             data-cy="time-attendance-employee-attendance-table"
+            rowClassName={(record, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              const selected = getCurrentPageSelectedKeys().includes(
+                record.key,
+              );
+              return selected ? `${base} [&>td]:!bg-white` : base;
+            }}
           />
         </div>
         {isMobile || isTablet ? (
@@ -629,7 +602,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           />
         )}
       </div>
-    </>
+    </div>
   );
 };
 

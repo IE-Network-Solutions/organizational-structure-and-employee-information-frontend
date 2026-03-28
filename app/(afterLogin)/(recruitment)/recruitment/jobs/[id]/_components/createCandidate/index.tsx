@@ -10,7 +10,6 @@ import {
   Select,
   Upload,
 } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
 import { InboxOutlined } from '@ant-design/icons';
@@ -58,6 +57,22 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   const isInternalApplicant = useAuthenticationStore.getState().userId;
   const { data: statusStage } = useGetStages();
 
+  const openJobs = React.useMemo(() => {
+    const items = (jobList as any)?.items ?? [];
+    const now = Date.now();
+    return items.filter((job: any) => {
+      const deadline = job?.jobDeadline
+        ? new Date(job.jobDeadline).getTime()
+        : null;
+      const deadlinePassed =
+        typeof deadline === 'number' && Number.isFinite(deadline)
+          ? deadline < now
+          : false;
+      const status = job?.jobStatus;
+      return status === 'Open' && !deadlinePassed;
+    });
+  }, [jobList]);
+
   const { mutate: createCandidate, isLoading: isCreatingCandidate } =
     useCreateCandidate();
 
@@ -96,13 +111,19 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
     // Remove resumeUrl from form values since we're handling file separately
     delete formValues?.resumeUrl;
+    // Stage is not selected in the UI anymore; we will pick the initial stage.
+    delete formValues?.stageId;
+
+    const initialStageId =
+      (statusStage as any)?.items?.find?.((s: any) => s?.isInitial)?.id ??
+      (statusStage as any)?.items?.[0]?.id;
 
     const formattedValues = {
       ...formValues,
       isExternal: isInternalApplicant === ' ' ? true : false,
       createdBy: isInternalApplicant,
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
-      applicantStatusStageId: formValues?.stageId,
+      applicantStatusStageId: initialStageId,
     };
 
     // Append each field individually instead of as JSON string
@@ -129,6 +150,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   return (
     <Modal
       data-cy="talent-acquisition-job-create-candidate-drawer"
+      className="ta-candidate-modal"
       open={createJobDrawer}
       onCancel={onClose}
       footer={null}
@@ -158,7 +180,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: 32,
+          padding: 16,
         },
       }}
       zIndex={10002}
@@ -168,147 +190,200 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         data-cy="talent-acquisition-job-create-candidate-form"
         form={form}
         layout="vertical"
+        requiredMark={false}
         onFinish={handleSubmit}
       >
         <div
-          className="bg-white border border-[#D9D9D9] rounded-lg px-4 py-2"
+          className="bg-white border border-[#D9D9D9] rounded-lg -mx-3 sm:mx-0"
           data-cy="talent-acquisition-create-candidate-form-container"
         >
-          <Form.Item
-            id="fullNameId"
-            name="fullName"
-            label={
-              <span
-                data-cy="-id-components-createcandidate-index-tsx-index-span-179"
-                className="text-sm font-medium text-gray-700"
-              >
-                Full Name{' '}
-              </span>
-            }
-            rules={[
-              { required: true, message: 'Please input full name!' },
-              {
-                pattern: /^[a-zA-Z\s]+$/,
-                message: 'Only letters and spaces are allowed!',
-              },
-            ]}
+          <div
+            className="px-3 sm:px-4 py-2"
+            data-cy="talent-acquisition-create-candidate-form-inner"
           >
-            <Input
-              id="talent-acquisition-job-create-candidate-input-full-name"
-              data-cy="talent-acquisition-job-create-candidate-input-full-name"
-              placeholder="Full Name"
-              className="w-full h-10 text-sm"
-            />
-          </Form.Item>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-              <Form.Item
-                id="emailAddressId"
-                name="email"
-                label={
-                  <span
-                    data-cy="-id-components-createcandidate-index-tsx-index-span-205"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Email{' '}
-                  </span>
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please input the email address!',
-                  },
-                  {
-                    type: 'email',
-                    message: 'Please enter a valid email address!',
-                  },
-                ]}
-              >
-                <Input
-                  id="talent-acquisition-job-create-candidate-input-email"
-                  data-cy="talent-acquisition-job-create-candidate-input-email"
-                  type="email"
-                  className="text-sm w-full h-10"
-                  placeholder="test@mail.com"
-                />
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-              <Form.Item
-                id="phoneNumberId"
-                name="phone"
-                label={
-                  <span
-                    data-cy="-id-components-createcandidate-index-tsx-index-span-232"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Phone Number{' '}
-                    <span
-                      className="text-red-500"
-                      aria-hidden
-                      data-cy="talent-acquisition-create-candidate-phone-required"
-                    >
-                      *
-                    </span>
-                  </span>
-                }
-                rules={[
-                  { required: true, message: 'Please input the phone number!' },
-                  {
-                    pattern: /^\+?[0-9]\d{1,14}$/,
-                    message: 'Please enter a valid phone number!',
-                  },
-                ]}
-              >
-                <PhoneInput
-                  defaultCountry="et"
-                  placeholder="Input"
-                  className="!rounded-lg !bg-gray-100 !border-gray-300 w-full [&_.react-international-phone-input-container]:!rounded-lg [&_.react-international-phone-input-container]:!bg-gray-100 [&_.react-international-phone-input-container]:!border-gray-300 [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden"
-                  style={
-                    {
-                      '--react-international-phone-height': '40px',
-                      '--react-international-phone-background-color': '#f5f5f5',
-                      '--react-international-phone-border-radius': '8px',
-                      '--react-international-phone-border-color': '#d9d9d9',
-                    } as React.CSSProperties
-                  }
-                  inputClassName="!bg-transparent !border-0 text-sm placeholder:text-gray-400 focus:!shadow-none"
-                  data-cy="talent-acquisition-job-create-candidate-input-phone"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-              <Form.Item
-                id="jobId"
-                name="jobInformationId"
-                label={
-                  <span
-                    data-cy="-id-components-createcandidate-index-tsx-index-span-261"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Job{' '}
-                  </span>
-                }
-                rules={
-                  jobId
-                    ? []
-                    : [{ required: true, message: 'Please select a job' }]
-                }
-              >
-                <Select
-                  id="talent-acquisition-job-create-candidate-select-job"
-                  data-cy="talent-acquisition-job-create-candidate-select-job"
-                  className="text-sm w-full h-10"
-                  placeholder="Select a job type"
-                  disabled={!!jobId}
+            <Form.Item
+              id="fullNameId"
+              name="fullName"
+              label={
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="talent-acquisition-create-candidate-full-name-label"
                 >
-                  {jobList &&
-                    jobList?.items?.map((job: any) => (
+                  <span
+                    data-cy="talent-acquisition-create-candidate-full-name-label-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Full Name
+                  </span>
+                  <span
+                    className="text-red-500"
+                    aria-hidden
+                    data-cy="talent-acquisition-create-candidate-full-name-required"
+                  >
+                    *
+                  </span>
+                </div>
+              }
+              rules={[
+                { required: true, message: 'Please input full name!' },
+                {
+                  pattern: /^[a-zA-Z\s]+$/,
+                  message: 'Only letters and spaces are allowed!',
+                },
+              ]}
+            >
+              <Input
+                id="talent-acquisition-job-create-candidate-input-full-name"
+                data-cy="talent-acquisition-job-create-candidate-input-full-name"
+                placeholder="Full Name"
+                className="w-full h-10 text-sm"
+              />
+            </Form.Item>
+
+            <Row gutter={16}>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Form.Item
+                  id="emailAddressId"
+                  name="email"
+                  label={
+                    <div
+                      className="flex items-center justify-between"
+                      data-cy="talent-acquisition-create-candidate-email-label"
+                    >
+                      <span
+                        data-cy="talent-acquisition-create-candidate-email-label-text"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Email
+                      </span>
+                      <span
+                        className="text-red-500"
+                        aria-hidden
+                        data-cy="talent-acquisition-create-candidate-email-required"
+                      >
+                        *
+                      </span>
+                    </div>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please input the email address!',
+                    },
+                    {
+                      type: 'email',
+                      message: 'Please enter a valid email address!',
+                    },
+                  ]}
+                >
+                  <Input
+                    id="talent-acquisition-job-create-candidate-input-email"
+                    data-cy="talent-acquisition-job-create-candidate-input-email"
+                    type="email"
+                    className="text-sm w-full h-10"
+                    placeholder="test@mail.com"
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+                <Form.Item
+                  id="phoneNumberId"
+                  name="phone"
+                  label={
+                    <div
+                      className="flex items-center justify-between"
+                      data-cy="talent-acquisition-create-candidate-phone-label"
+                    >
+                      <span
+                        data-cy="talent-acquisition-create-candidate-phone-label-text"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Phone Number
+                      </span>
+                      <span
+                        className="text-red-500"
+                        aria-hidden
+                        data-cy="talent-acquisition-create-candidate-phone-required"
+                      >
+                        *
+                      </span>
+                    </div>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please input the phone number!',
+                    },
+                    {
+                      pattern: /^\+?[0-9]\d{1,14}$/,
+                      message: 'Please enter a valid phone number!',
+                    },
+                  ]}
+                >
+                  <PhoneInput
+                    defaultCountry="et"
+                    placeholder="Input"
+                    className="!rounded-lg !bg-gray-100 !border-gray-300 w-full [&_.react-international-phone-input-container]:!rounded-lg [&_.react-international-phone-input-container]:!bg-gray-100 [&_.react-international-phone-input-container]:!border-gray-300 [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden"
+                    style={
+                      {
+                        '--react-international-phone-height': '40px',
+                        '--react-international-phone-background-color':
+                          '#f5f5f5',
+                        '--react-international-phone-border-radius': '8px',
+                        '--react-international-phone-border-color': '#d9d9d9',
+                      } as React.CSSProperties
+                    }
+                    inputClassName="!bg-transparent !border-0 text-sm placeholder:text-gray-400 focus:!shadow-none"
+                    data-cy="talent-acquisition-job-create-candidate-input-phone"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+                <Form.Item
+                  id="jobId"
+                  name="jobInformationId"
+                  label={
+                    <div
+                      className="flex items-center justify-between"
+                      data-cy="talent-acquisition-create-candidate-job-label"
+                    >
+                      <span
+                        data-cy="talent-acquisition-create-candidate-job-label-text"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Job
+                      </span>
+                      {!jobId ? (
+                        <span
+                          className="text-red-500"
+                          aria-hidden
+                          data-cy="talent-acquisition-create-candidate-job-required"
+                        >
+                          *
+                        </span>
+                      ) : null}
+                    </div>
+                  }
+                  rules={
+                    jobId
+                      ? []
+                      : [{ required: true, message: 'Please select a job' }]
+                  }
+                >
+                  <Select
+                    id="talent-acquisition-job-create-candidate-select-job"
+                    data-cy="talent-acquisition-job-create-candidate-select-job"
+                    size="large"
+                    className="w-full"
+                    placeholder="Select a job type"
+                    disabled={!!jobId}
+                    popupClassName="org-structure-branch-select-dropdown"
+                  >
+                    {openJobs?.map((job: any) => (
                       <Option
                         key={job?.id}
                         value={job?.id}
@@ -318,157 +393,151 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                         {job?.jobTitle}
                       </Option>
                     ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-              <Form.Item
-                id="cgpaId"
-                name="CGPA"
-                label={
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={24} lg={12} md={12} xl={12}>
+                <Form.Item
+                  id="cgpaId"
+                  name="CGPA"
+                  label={
+                    <div
+                      className="flex items-center justify-between"
+                      data-cy="talent-acquisition-create-candidate-cgpa-label"
+                    >
+                      <span
+                        data-cy="talent-acquisition-create-candidate-cgpa-label-text"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        CGPA
+                      </span>
+                      <span
+                        className="text-red-500"
+                        aria-hidden
+                        data-cy="talent-acquisition-create-candidate-cgpa-required"
+                      >
+                        *
+                      </span>
+                    </div>
+                  }
+                  rules={[
+                    { required: true, message: 'Please input CGPA' },
+                    {
+                      validator: async (rule, value) => {
+                        void rule;
+                        if (
+                          value === undefined ||
+                          value === null ||
+                          value === ''
+                        )
+                          return;
+                        const num = Number(value);
+                        if (!Number.isFinite(num)) return;
+                        if (num > 4)
+                          throw new Error(
+                            'CGPA must be less than or equal to 4',
+                          );
+                        if (num < 0)
+                          throw new Error(
+                            'CGPA must be greater than or equal to 0',
+                          );
+                      },
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    id="talent-acquisition-job-create-candidate-input-cgpa"
+                    data-cy="talent-acquisition-job-create-candidate-input-cgpa"
+                    min={0}
+                    max={4}
+                    step={0.01}
+                    className="text-sm w-full h-10"
+                    placeholder="CGPA"
+                  />
+                </Form.Item>
+                <div
+                  data-cy="-id-components-createcandidate-index-tsx-index-div-311"
+                  className="flex items-center justify-start gap-1 ml-1"
+                >
+                  <FaInfoCircle />
+                  <div
+                    data-cy="-id-components-createcandidate-index-tsx-index-div-313"
+                    className="text-xs text-gray-500"
+                  >
+                    Put your point 4.0 scale
+                  </div>
+                </div>
+              </Col>
+            </Row>
+
+            <Form.Item
+              id="documentNameId"
+              name="resumeUrl"
+              label={
+                <div
+                  className="flex items-center justify-between"
+                  data-cy="talent-acquisition-create-candidate-cv-label"
+                >
                   <span
-                    data-cy="-id-components-createcandidate-index-tsx-index-span-295"
+                    data-cy="talent-acquisition-create-candidate-cv-label-text"
                     className="text-sm font-medium text-gray-700"
                   >
-                    CGPA{' '}
+                    CV
                   </span>
-                }
-                rules={[{ required: true, message: 'Please input CGPA' }]}
-              >
-                <InputNumber
-                  id="talent-acquisition-job-create-candidate-input-cgpa"
-                  data-cy="talent-acquisition-job-create-candidate-input-cgpa"
-                  min={0}
-                  max={4}
-                  step={0.01}
-                  className="text-sm w-full h-10"
-                  placeholder="CGPA"
-                />
-              </Form.Item>
-              <div
-                data-cy="-id-components-createcandidate-index-tsx-index-div-311"
-                className="flex items-center justify-start gap-1 ml-1"
-              >
-                <FaInfoCircle />
-                <div
-                  data-cy="-id-components-createcandidate-index-tsx-index-div-313"
-                  className="text-xs text-gray-500"
-                >
-                  Put your point 4.0 scale
-                </div>
-              </div>
-            </Col>
-          </Row>
-
-          <Form.Item
-            id="stageId"
-            name="stageId"
-            label={
-              <span
-                data-cy="-id-components-createcandidate-index-tsx-index-span-321"
-                className="text-sm font-medium text-gray-700"
-              >
-                Stage{' '}
-              </span>
-            }
-          >
-            <Select
-              id="talent-acquisition-job-create-candidate-select-stage"
-              data-cy="talent-acquisition-job-create-candidate-select-stage"
-              placeholder="Select a stage"
-              className="w-full h-10 text-sm"
-            >
-              {statusStage &&
-                statusStage?.items?.map((stage: any) => (
-                  <Option
-                    key={stage?.id}
-                    value={stage?.id}
-                    id={`talent-acquisition-job-create-candidate-option-stage-${stage?.id}`}
-                    data-cy={`talent-acquisition-job-create-candidate-option-stage-${stage?.id}`}
+                  <span
+                    className="text-red-500"
+                    aria-hidden
+                    data-cy="talent-acquisition-create-candidate-cv-required"
                   >
-                    {stage?.title}
-                  </Option>
-                ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            id="coverLetterId"
-            name="coverLetter"
-            label={
-              <span
-                data-cy="-id-components-createcandidate-index-tsx-index-span-348"
-                className="text-sm font-medium text-gray-700"
-              >
-                Cover Letter{' '}
-              </span>
-            }
-            rules={[{ required: true, message: 'Please input cover letter' }]}
-          >
-            <TextArea
-              rows={4}
-              className="text-sm w-full"
-              placeholder="Please enter your cover letter here"
-              id="talent-acquisition-job-create-candidate-textarea-cover-letter"
-              data-cy="talent-acquisition-job-create-candidate-textarea-cover-letter"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="documentNameId"
-            name="resumeUrl"
-            label={
-              <span
-                data-cy="-id-components-createcandidate-index-tsx-index-span-367"
-                className="text-sm font-medium text-gray-700"
-              >
-                CV{' '}
-              </span>
-            }
-            rules={[{ required: true, message: 'Please upload your CV' }]}
-          >
-            <Dragger
-              id="talent-acquisition-job-create-candidate-upload-cv"
-              data-cy="talent-acquisition-job-create-candidate-upload-cv"
-              name="documentName"
-              fileList={documentFileList}
-              onChange={handleDocumentChange}
-              onRemove={handleDocumentRemove}
-              customRequest={customRequest}
-              listType="picture"
-              accept=".pdf,.doc,.docx"
-              className="!border-gray-200 !border-dashed !rounded-2xl bg-[#F9FAFB]"
+                    *
+                  </span>
+                </div>
+              }
+              rules={[{ required: true, message: 'Please upload your CV' }]}
             >
-              <p
-                data-cy="-id-components-createcandidate-index-tsx-index-p-384"
-                className="flex items-center justify-center"
+              <Dragger
+                id="talent-acquisition-job-create-candidate-upload-cv"
+                data-cy="talent-acquisition-job-create-candidate-upload-cv"
+                name="documentName"
+                fileList={documentFileList}
+                onChange={handleDocumentChange}
+                onRemove={handleDocumentRemove}
+                customRequest={customRequest}
+                listType="picture"
+                accept=".pdf,.doc,.docx"
+                className="!border-gray-200 !border-dashed !rounded-2xl bg-[#F9FAFB]"
               >
-                <InboxOutlined
-                  style={{ fontSize: '40px', color: '#1E40AF' }}
-                  className="text-primary"
-                />
-              </p>
-              <div
-                data-cy="-id-components-createcandidate-index-tsx-index-div-392"
-                className="flex flex-col justify-center items-center text-sm font-medium text-gray-700"
-              >
-                <p data-cy="-id-components-createcandidate-index-tsx-index-p-393">
-                  Upload your CV
-                </p>
                 <p
-                  data-cy="-id-components-createcandidate-index-tsx-index-p-394"
-                  className="text-gray-400 text-sm font-normal"
+                  data-cy="-id-components-createcandidate-index-tsx-index-p-384"
+                  className="flex items-center justify-center"
                 >
-                  or drag and drop it here
+                  <InboxOutlined
+                    style={{ fontSize: '40px', color: '#1E40AF' }}
+                    className="text-primary"
+                  />
                 </p>
-              </div>
-            </Dragger>
-          </Form.Item>
-          <div
-            data-cy="-id-components-createcandidate-index-tsx-index-div-400"
-            className="text-xs text-gray-500 mb-4"
-          >
-            Max file size: 5MB. File formats: .pdf, .doc, .docx
+                <div
+                  data-cy="-id-components-createcandidate-index-tsx-index-div-392"
+                  className="flex flex-col justify-center items-center text-sm font-medium text-gray-700"
+                >
+                  <p data-cy="-id-components-createcandidate-index-tsx-index-p-393">
+                    Upload your CV
+                  </p>
+                  <p
+                    data-cy="-id-components-createcandidate-index-tsx-index-p-394"
+                    className="text-gray-400 text-sm font-normal"
+                  >
+                    or drag and drop it here
+                  </p>
+                </div>
+              </Dragger>
+            </Form.Item>
+            <div
+              data-cy="-id-components-createcandidate-index-tsx-index-div-400"
+              className="text-xs text-gray-500 mb-4"
+            >
+              Max file size: 5MB. File formats: .pdf, .doc, .docx
+            </div>
           </div>
         </div>
 

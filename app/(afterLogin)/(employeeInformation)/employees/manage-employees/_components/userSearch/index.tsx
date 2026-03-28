@@ -6,6 +6,7 @@ import {
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Select, DatePicker, Radio, Button, Row, Col } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -65,16 +66,8 @@ const EmployeeSearch: React.FC = () => {
     onSelectChange(value, 'employmentType');
   };
 
-  const handleJoinedDateChange = (
-    date: dayjs.Dayjs | null,
-    dateString: string | string[] | null,
-  ) => {
-    const dateValue =
-      dateString == null
-        ? ''
-        : Array.isArray(dateString)
-          ? dateString[0]
-          : dateString;
+  const handleJoinedDateChange = (date: any, dateString: string | string[]) => {
+    const dateValue = Array.isArray(dateString) ? dateString[0] : dateString;
     onSelectChange(dateValue, 'joinedDate');
   };
 
@@ -87,6 +80,8 @@ const EmployeeSearch: React.FC = () => {
     ? 'notNull'
     : 'notNull';
 
+  const fieldLabelClass = 'block text-sm font-normal text-black mb-1.5';
+
   const Filters = (
     <div
       className="space-y-4"
@@ -98,12 +93,18 @@ const EmployeeSearch: React.FC = () => {
         id="employee-search-filters-content"
         data-cy="employee-search-filters-content"
       >
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           <Col span={12}>
+            <label
+              className={fieldLabelClass}
+              data-cy="employee-search-label-office"
+            >
+              Office
+            </label>
             <Select
               id={`selectBranches${searchParams.allOffices}`}
               data-cy={`selectBranches${searchParams.allOffices}`}
-              placeholder="Office"
+              placeholder="Select"
               value={searchParams.allOffices || undefined}
               onChange={handleBranchChange}
               allowClear
@@ -127,10 +128,16 @@ const EmployeeSearch: React.FC = () => {
             </Select>
           </Col>
           <Col span={12}>
+            <label
+              className={fieldLabelClass}
+              data-cy="employee-search-label-department"
+            >
+              Department
+            </label>
             <Select
               id={`selectDepartment${searchParams.allJobs}`}
               data-cy={`selectDepartment${searchParams.allJobs}`}
-              placeholder="Department"
+              placeholder="Select"
               value={searchParams.allJobs || undefined}
               onChange={handleDepartmentChange}
               allowClear
@@ -155,12 +162,18 @@ const EmployeeSearch: React.FC = () => {
           </Col>
         </Row>
 
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           <Col span={12}>
+            <label
+              className={fieldLabelClass}
+              data-cy="employee-search-label-gender"
+            >
+              Gender
+            </label>
             <Select
               id={`selectGender${searchParams.gender}`}
               data-cy={`selectGender${searchParams.gender}`}
-              placeholder="Gender"
+              placeholder="Select"
               value={searchParams.gender || undefined}
               onChange={handleGenderChange}
               allowClear
@@ -187,10 +200,16 @@ const EmployeeSearch: React.FC = () => {
             </Select>
           </Col>
           <Col span={12}>
+            <label
+              className={fieldLabelClass}
+              data-cy="employee-search-label-employment-type"
+            >
+              Employment Type
+            </label>
             <Select
               id={`selectEmploymentType${searchParams.employmentType}`}
               data-cy={`selectEmploymentType${searchParams.employmentType}`}
-              placeholder="Employment Type"
+              placeholder="Select"
               value={searchParams.employmentType || undefined}
               onChange={handleEmploymentTypeChange}
               allowClear
@@ -214,36 +233,19 @@ const EmployeeSearch: React.FC = () => {
             </Select>
           </Col>
         </Row>
-        <Row gutter={16}>
+
+        <Row gutter={[16, 16]}>
           <Col span={12}>
-            <Select
-              id={`selectStatus${searchParams.allStatus}`}
-              data-cy={`selectStatus${searchParams.allStatus}`}
-              placeholder="Status"
-              value={searchParams.allStatus || undefined}
-              onChange={handleStatusChange}
-              allowClear
-              className="w-full h-10 rounded-lg border-gray-200"
+            <label
+              className={fieldLabelClass}
+              data-cy="employee-search-label-joined-date"
             >
-              <Option
-                value={activeStatusValue}
-                data-cy={`employee-search-select-status-option-active`}
-              >
-                Active
-              </Option>
-              <Option
-                value={inactiveStatusValue}
-                data-cy={`employee-search-select-status-option-inactive`}
-              >
-                Inactive
-              </Option>
-            </Select>
-          </Col>
-          <Col span={12}>
+              Joined Date
+            </label>
             <DatePicker
               id={`datePickerJoinedDate${searchParams.joinedDate}`}
               data-cy={`datePickerJoinedDate${searchParams.joinedDate}`}
-              placeholder="Joined Date"
+              placeholder="Select date"
               value={
                 searchParams.joinedDate
                   ? dayjs(searchParams.joinedDate)
@@ -341,6 +343,36 @@ const EmployeeSearch: React.FC = () => {
               )}
             />
           </Col>
+          <Col span={12}>
+            <label
+              className={fieldLabelClass}
+              data-cy="employee-search-label-status"
+            >
+              Status
+            </label>
+            <Select
+              id={`selectStatus${searchParams.allStatus}`}
+              data-cy={`selectStatus${searchParams.allStatus}`}
+              placeholder="Select"
+              value={searchParams.allStatus || undefined}
+              onChange={handleStatusChange}
+              allowClear
+              className="w-full h-10 rounded-lg border-gray-200"
+            >
+              <Option
+                value={activeStatusValue}
+                data-cy={`employee-search-select-status-option-active`}
+              >
+                Active
+              </Option>
+              <Option
+                value={inactiveStatusValue}
+                data-cy={`employee-search-select-status-option-inactive`}
+              >
+                Inactive
+              </Option>
+            </Select>
+          </Col>
         </Row>
       </div>
     </div>
@@ -356,38 +388,64 @@ const EmployeeSearch: React.FC = () => {
   };
 
   return (
-    <div data-cy="employee-search-container" className="p-2 min-w-[320px]">
-      <div data-cy="employee-search-container" className="mb-4">
-        <h3
-          data-cy="employee-search-title"
-          className="text-base font-semibold mb-4 px-1"
+    <div
+      data-cy="employee-search-container"
+      className="p-4 min-w-[320px] sm:min-w-[400px] bg-white rounded-lg border border-gray-200 shadow-sm"
+    >
+      {/* Header: title, subtitle, close */}
+      <div
+        className="flex items-start justify-between gap-2 mb-4"
+        data-cy="employee-search-header"
+      >
+        <div data-cy="employee-search-header-title">
+          <h3
+            data-cy="employee-search-title"
+            className="text-base font-bold text-[#4d4d4d] m-0 mb-1"
+          >
+            Filter
+          </h3>
+          <p
+            data-cy="employee-search-description"
+            className="text-sm text-[#8c8c8c] m-0 font-normal"
+          >
+            Select All filters that apply
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsMobileFilterVisible(false)}
+          className="shrink-0 p-1 text-gray-400 hover:text-gray-600 rounded"
+          id="employee-search-close-btn"
+          data-cy="employee-search-close-btn"
+          aria-label="Close"
         >
-          Filter
-        </h3>
-        <p
-          data-cy="employee-search-description"
-          className="text-sm font-semibold mb-4 px-1"
-        >
-          Select all Filters
-        </p>
+          <CloseOutlined className="text-base" />
+        </button>
+      </div>
+
+      {/* Filter fields */}
+      <div className="mb-4" data-cy="employee-search-filters-wrapper">
         {Filters}
       </div>
+
+      {/* Footer */}
       <div
-        className="flex justify-end gap-2 pt-4 border-t border-gray-100"
+        className="flex justify-end gap-2 pt-4 border-t border-gray-200"
         id="employee-search-footer"
         data-cy="employee-search-footer"
       >
         <Button
           type="default"
           onClick={handleReset}
-          className="py-1 rounded-lg h-8"
+          className="h-8 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
           id="employee-search-reset-btn"
           data-cy="employee-search-reset-btn"
         >
           Reset
         </Button>
         <Button
-          className="bg-[#1e40af] text-white py-1 rounded-lg border-none h-8"
+          type="primary"
+          className="h-8 font-normal"
           onClick={() => setIsMobileFilterVisible(false)}
           id="employee-search-save-btn"
           data-cy="employee-search-save-btn"

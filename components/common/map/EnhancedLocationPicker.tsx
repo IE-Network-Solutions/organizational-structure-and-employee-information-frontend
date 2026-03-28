@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, InputNumber, message, Slider, Space, Typography } from 'antd';
+import { InputNumber, Slider, Space, Typography } from 'antd';
 import dynamic from 'next/dynamic';
 import LocationSearch from './LocationSearch';
 
@@ -108,25 +108,6 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
     handleLocationChange(lat, lng);
   };
 
-  const handleUseCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          handleLocationChange(latitude, longitude);
-          message.success('Current location set successfully!');
-        },
-        () => {
-          message.error(
-            'Unable to get current location. Please select manually.',
-          );
-        },
-      );
-    } else {
-      message.error('Geolocation is not supported by this browser.');
-    }
-  };
-
   return (
     <div className="w-full" data-cy="enhanced-location-picker">
       {/* Map with integrated search */}
@@ -148,19 +129,6 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
               autoSearch={autoSearch}
             />
           </div>
-        </div>
-
-        {/* Use Current Location button positioned at bottom left of map */}
-        <div
-          data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-div-154"
-          className="absolute bottom-4 left-4 z-10"
-        >
-          <Button
-            className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 shadow-sm rounded-md px-4 py-2 h-auto text-sm"
-            onClick={handleUseCurrentLocation}
-          >
-            Use Current Location
-          </Button>
         </div>
 
         {/* Map */}

@@ -103,7 +103,7 @@ export const useApprovalStore = create<UserState>()(
         isCreated: false,
         setIsCreated: (isCreated: boolean) => set({ isCreated }),
 
-        level: 1,
+        level: 0,
         setLevel: (level: number) => {
           set({
             level,

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Row, Col, Card } from 'antd';
+import { Row, Col, Card, Radio } from 'antd';
 import {
   DndContext,
   PointerSensor,
@@ -19,32 +19,67 @@ import CustomFieldModal from './_components/CustomFieldModal';
 const FIELD_TYPES = [
   {
     id: 'textField',
-    label: 'Text Field',
-    description: 'Input field for text',
+    label: <Radio>Text Field</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-text-field-description"
+        className="px-6 text-xs"
+      >
+        Input field for text
+      </p>
+    ),
     fieldType: 'input' as const,
   },
   {
     id: 'textArea',
-    label: 'Text Area',
-    description: 'Input field for larger text',
+    label: <Radio>Text Area</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-text-area-description"
+        className="px-6 text-xs"
+      >
+        Input field for larger text
+      </p>
+    ),
     fieldType: 'input' as const,
   },
   {
     id: 'checkbox',
-    label: 'Checkbox',
-    description: 'Input field for multiple values',
+    label: <Radio>Checkbox</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-checkbox-description"
+        className="px-6 text-xs"
+      >
+        Input field for multiple values
+      </p>
+    ),
     fieldType: 'checkbox' as const,
   },
   {
     id: 'radio',
-    label: 'Radio box',
-    description: 'Input field for single value',
+    label: <Radio type="text">Radio box</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-radio-description"
+        className="px-6 text-xs"
+      >
+        Input field for single value
+      </p>
+    ),
     fieldType: 'select' as const,
   },
   {
     id: 'dropdown',
-    label: 'Dropdown',
-    description: 'Input field for selecting a value',
+    label: <Radio>Dropdown</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-dropdown-description"
+        className="px-6 text-xs"
+      >
+        Input field for selecting a value
+      </p>
+    ),
     fieldType: 'select' as const,
   },
 ];
@@ -120,27 +155,46 @@ const CustomFieldsPage: React.FC = () => {
       id="settings-custom-fields-page"
       data-cy="settings-custom-fields-page"
     >
+      <style data-cy="settings-custom-fields-page-style" jsx global>{`
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio-checked
+          .ant-radio-inner {
+          border-color: #8c8c8c !important;
+          background-color: #fff !important;
+        }
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio-checked
+          .ant-radio-inner::after {
+          background-color: #fff;
+        }
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio-wrapper:hover
+          .ant-radio-inner,
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio:hover
+          .ant-radio-inner {
+          border-color: #8c8c8c;
+        }
+      `}</style>
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <Row gutter={24}>
           <Col xs={24} md={10} lg={10}>
             <Card
-              title="Field Type"
               bordered
-              className="mb-4"
+              className="mb-4 custom-fields-radio-neutral"
               id="settings-custom-fields-field-types-card"
               data-cy="settings-custom-fields-field-types-card"
+              headStyle={{ borderBottom: 'none' }}
             >
-              <p
-                data-cy="settings-custom-fields-field-types-description"
-                className="text-gray-500 text-xs mb-4 px-2"
-              >
-                Drag a field type to a form category to add a custom field.
-              </p>
               <div
                 data-cy="settings-custom-fields-field-types-list"
                 className="flex flex-col gap-3"
               >
-                {FIELD_TYPES.map((ft) => (
+                {FIELD_TYPES.map((ft: any) => (
                   <DraggableFieldTypeCard
                     key={ft.id}
                     id={ft.id}
@@ -154,17 +208,11 @@ const CustomFieldsPage: React.FC = () => {
           </Col>
           <Col xs={24} md={14} lg={14}>
             <Card
-              title="Form Category"
               bordered
+              headStyle={{ borderBottom: 'none' }}
               id="settings-custom-fields-form-categories-card"
               data-cy="settings-custom-fields-form-categories-card"
             >
-              <p
-                data-cy="settings-custom-fields-form-categories-description"
-                className="text-gray-500 text-xs mb-4 px-2"
-              >
-                Drop a field type here to add it to the category.
-              </p>
               <div
                 data-cy="settings-custom-fields-form-categories-list"
                 className="flex flex-col gap-4"

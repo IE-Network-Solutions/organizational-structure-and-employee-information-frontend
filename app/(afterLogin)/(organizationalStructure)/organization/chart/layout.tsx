@@ -83,26 +83,13 @@ export default function ChartLayout({
   const { reset } = useDepartmentStore();
 
   const [canResetView, setCanResetView] = useState(false);
-  const hasSeenInitialFitRef = useRef(false);
-  const lastCanResetFalseAtRef = useRef(0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handler = (event: Event) => {
       const custom = event as CustomEvent<{ canReset?: boolean }>;
       const canReset = !!custom.detail?.canReset;
-      if (!canReset) {
-        hasSeenInitialFitRef.current = true;
-        lastCanResetFalseAtRef.current = Date.now();
-        setCanResetView(false);
-      } else {
-        // Only show Reset after we've seen initial fit, and not within 600ms of a false (ignore delayed onMoveEnd)
-        const cooldownMs = 600;
-        const allowShow =
-          hasSeenInitialFitRef.current &&
-          Date.now() - lastCanResetFalseAtRef.current > cooldownMs;
-        setCanResetView(allowShow);
-      }
+      setCanResetView(canReset);
     };
     window.addEventListener(
       'org-structure-can-reset-view',
@@ -252,9 +239,13 @@ export default function ChartLayout({
                 {canResetView && (
                   <Button
                     title="Reset view"
-                    icon={<ReloadOutlined style={{ fontSize: 16 }} />}
+                    icon={
+                      <ReloadOutlined
+                        style={{ fontSize: 16, color: '#1E40AF' }}
+                      />
+                    }
                     type="default"
-                    className="h-8 sm:h-10 px-3 rounded-lg border border-gray-300 text-[#000000B2] hover:border-[#4096FF] hover:text-[#4096FF] font-normal flex items-center justify-center gap-2"
+                    className="h-8 sm:h-10 px-3 rounded-lg border border-[#1E40AF] text-[#1E40AF] hover:border-[#1E40AF] hover:bg-[#4096FF] hover:text-white font-normal flex items-center justify-center gap-2"
                     style={{ boxShadow: 'none' }}
                     data-cy="org-structure-reset-view-btn"
                     id="org-structure-reset-view-btn"
