@@ -180,18 +180,18 @@ const AddEmployeeModal = (props: any) => {
             )}
             {current === 1 && (
               <>
-              <Card
-                bodyStyle={{ padding: 0 }}
-                className="px-2 pt-2 border-[1px] border-[#D9D9D9]"
-                id="user-sidebar-card-job"
-                data-cy="user-sidebar-card-job"
-              >
-                <JobTimeLineForm
-                  form={form}
-                  data-cy="user-sidebar-job-timeline-form"
-                />
-              </Card>
-              <ButtonContinue
+                <Card
+                  bodyStyle={{ padding: 0 }}
+                  className="px-2 pt-2 border-[1px] border-[#D9D9D9]"
+                  id="user-sidebar-card-job"
+                  data-cy="user-sidebar-card-job"
+                >
+                  <JobTimeLineForm
+                    form={form}
+                    data-cy="user-sidebar-job-timeline-form"
+                  />
+                </Card>
+                <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
                   data-cy="user-sidebar-button-continue"
@@ -200,17 +200,17 @@ const AddEmployeeModal = (props: any) => {
             )}
             {current === 2 && (
               <>
-              <Card
-                bodyStyle={{ padding: 0 }}
-                className="pt-2"
-                id="user-sidebar-card-additional"
-                data-cy="user-sidebar-card-additional"
-                bordered={false}
-                style={{ border: 'none', boxShadow: 'none' }}
-              >
-                <DocumentUploadForm data-cy="user-sidebar-document-upload-form" />
-              </Card>
-              <ButtonContinue
+                <Card
+                  bodyStyle={{ padding: 0 }}
+                  className="pt-2"
+                  id="user-sidebar-card-additional"
+                  data-cy="user-sidebar-card-additional"
+                  bordered={false}
+                  style={{ border: 'none', boxShadow: 'none' }}
+                >
+                  <DocumentUploadForm data-cy="user-sidebar-document-upload-form" />
+                </Card>
+                <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
                   data-cy="user-sidebar-button-continue"
@@ -219,17 +219,17 @@ const AddEmployeeModal = (props: any) => {
             )}
             {current === 3 && (
               <>
-              <Card
-                bodyStyle={{ padding: 0 }}
-                className="px-2 py-2"
-                id="user-sidebar-card-custom"
-                data-cy="user-sidebar-card-custom"
-                bordered={false}
-                style={{ border: 'none', boxShadow: 'none' }}
-              >
-                <CustomFieldsForm />
-              </Card>
-              <ButtonContinue
+                <Card
+                  bodyStyle={{ padding: 0 }}
+                  className="px-2 py-2"
+                  id="user-sidebar-card-custom"
+                  data-cy="user-sidebar-card-custom"
+                  bordered={false}
+                  style={{ border: 'none', boxShadow: 'none' }}
+                >
+                  <CustomFieldsForm />
+                </Card>
+                <ButtonContinue
                   handleBackClick={handleBackClick}
                   handleContinueClick={handleContinueClick}
                   isLoading={isLoading}

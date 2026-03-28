@@ -109,8 +109,8 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
               id="job-add-job-info-submit-row"
               data-cy="job-add-job-info-submit-row"
             >
-               <Button
-              type="default"
+              <Button
+                type="default"
                 className="border border-[#D9D9D9] font-normal text-[#4d4d4d]"
                 htmlType="button"
                 value={'cancel'}
@@ -132,7 +132,6 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
               >
                 Save
               </Button>
-             
             </Row>
           </Form.Item>
         </Form>

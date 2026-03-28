@@ -230,12 +230,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-effective-start-date-label"
               >
                 Effective Date{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-effective-start-date-required`}
-              >
-                *
-              </span>
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-effective-start-date-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="joinedDate"
@@ -301,12 +301,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-salary-label"
               >
                 Basic Salary{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-salary-required`}
-              >
-                *
-              </span>
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-salary-required`}
+                >
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -415,12 +415,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                   data-cy="job-timeline-position-label-text"
                 >
                   Position{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-position-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-position-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -523,12 +523,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                   data-cy="job-timeline-employement-type-label-text"
                 >
                   Employment Type{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-employement-type-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-employement-type-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -575,12 +575,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-status-label"
               >
                 Status{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-status-required`}
-              >
-                *
-              </span>
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-status-required`}
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Please select Status' }]}
@@ -629,12 +629,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                   data-cy="job-timeline-department-label-text"
                 >
                   Team{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-department-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-department-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -681,12 +681,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-member-label"
               >
                 Member{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-member-required`}
-              >
-                *
-              </span>
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-member-required`}
+                >
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -794,12 +794,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                   data-cy="job-timeline-branch-label-text"
                 >
                   Office{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-branch-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`job-timeline-branch-required`}
+                  >
+                    *
+                  </span>
                 </span>
                 <Button
                   type="text"
@@ -843,12 +843,12 @@ const JobTimeLineForm: React.FC<JobTimeLineFormProps> = ({
                 data-cy="job-timeline-allowance-label"
               >
                 Allowance{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`job-timeline-allowance-required`}
-              >
-                *
-              </span>
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`job-timeline-allowance-required`}
+                >
+                  *
+                </span>
               </span>
             }
           >

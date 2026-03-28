@@ -38,7 +38,6 @@ import {
 import { MdDelete } from 'react-icons/md';
 import { MdEdit } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EmptyImage } from '@/components/emptyIndicator';
 import {
   OffBoardingTasksUpdateStatus,
   EmployeeOffBoardingTasks,
@@ -527,8 +526,8 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   id="offboarding-tasks-empty-wrapper"
                   data-cy="offboarding-tasks-empty-wrapper"
                 >
-                    No offboarding tasks
-                  </div>
+                  No offboarding tasks
+                </div>
               )}
             </DroppableArea>
             {isDeleteModalVisible && taskToDelete && (

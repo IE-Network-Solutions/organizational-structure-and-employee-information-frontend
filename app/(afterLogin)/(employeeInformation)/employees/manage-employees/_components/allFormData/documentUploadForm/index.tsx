@@ -50,10 +50,7 @@ const DocumentUploadForm = () => {
   };
 
   return (
-    <div
-      id="document-upload-form"
-      data-cy="document-upload-form"
-    >
+    <div id="document-upload-form" data-cy="document-upload-form">
       <div
         data-cy="document-upload-form-container"
         className="mb-8 border rounded-lg p-3 bg-white shadow-sm"

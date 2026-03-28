@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableColumnsType, Tooltip, Avatar as AntAvatar } from 'antd';
+import { Table, TableColumnsType, Avatar as AntAvatar } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
@@ -126,82 +126,81 @@ const UserTable = () => {
       key: item?.id,
       employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
       employee_name: (
-        
+        <div
+          className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
+          id={`user-table-employee-name-${item?.id}`}
+          data-cy={`user-table-employee-name-${item?.id}`}
+        >
           <div
-            className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
-            id={`user-table-employee-name-${item?.id}`}
-            data-cy={`user-table-employee-name-${item?.id}`}
+            className="relative w-6 h-6 rounded-full overflow-hidden"
+            id={`user-table-employee-avatar-wrapper-${item?.id}`}
+            data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}
           >
-            <div
-              className="relative w-6 h-6 rounded-full overflow-hidden"
-              id={`user-table-employee-avatar-wrapper-${item?.id}`}
-              data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}
-            >
-              {(() => {
-                if (
-                  item?.profileImage &&
-                  typeof item?.profileImage === 'string'
-                ) {
-                  try {
-                    const parsed = JSON.parse(item.profileImage);
-                    const url =
-                      parsed.url && parsed.url.startsWith('http')
-                        ? parsed.url
-                        : null;
+            {(() => {
+              if (
+                item?.profileImage &&
+                typeof item?.profileImage === 'string'
+              ) {
+                try {
+                  const parsed = JSON.parse(item.profileImage);
+                  const url =
+                    parsed.url && parsed.url.startsWith('http')
+                      ? parsed.url
+                      : null;
 
-                    if (url) {
-                      return (
-                        <Image
-                          src={url}
-                          alt="Employee avatar"
-                          layout="fill"
-                          className="object-cover"
-                          id={`user-table-employee-avatar-${item?.id}`}
-                          data-cy={`user-table-employee-avatar-${item?.id}`}
-                        />
-                      );
-                    }
-                  } catch {
-                    if (item.profileImage.startsWith('http')) {
-                      return (
-                        <Image
-                          src={item.profileImage}
-                          alt="Employee avatar"
-                          layout="fill"
-                          className="object-cover"
-                          id={`user-table-employee-avatar-${item?.id}`}
-                          data-cy={`user-table-employee-avatar-${item?.id}`}
-                        />
-                      );
-                    }
+                  if (url) {
+                    return (
+                      <Image
+                        src={url}
+                        alt="Employee avatar"
+                        layout="fill"
+                        className="object-cover"
+                        id={`user-table-employee-avatar-${item?.id}`}
+                        data-cy={`user-table-employee-avatar-${item?.id}`}
+                      />
+                    );
+                  }
+                } catch {
+                  if (item.profileImage.startsWith('http')) {
+                    return (
+                      <Image
+                        src={item.profileImage}
+                        alt="Employee avatar"
+                        layout="fill"
+                        className="object-cover"
+                        id={`user-table-employee-avatar-${item?.id}`}
+                        data-cy={`user-table-employee-avatar-${item?.id}`}
+                      />
+                    );
                   }
                 }
+              }
 
-                // Fallback: Ant Design default avatar when no valid profile image
-                return (
-                  <AntAvatar
-                    size={24}
-                    icon={<UserOutlined />}
-                    className="w-6 h-6"
-                    data-cy={`user-table-employee-avatar-${item?.id}`}
-                  />
-                );
-              })()}
-            </div>
-            <div
-              className="flex flex-col justify-center"
-              id={`user-table-employee-info-${item?.id}`}
-              data-cy={`user-table-employee-info-${item?.id}`}
-            >
-              <span
-                id={`user-table-employee-display-name-${item?.id}`}
-                data-cy={`user-table-employee-display-name-${item?.id}`}
-                className="text-[#4d4d4d] text-sm font-normal"
-              >
-                {displayName}
-              </span>
-            </div>
+              // Fallback: Ant Design default avatar when no valid profile image
+              return (
+                <AntAvatar
+                  size={24}
+                  icon={<UserOutlined />}
+                  className="w-6 h-6"
+                  data-cy={`user-table-employee-avatar-${item?.id}`}
+                />
+              );
+            })()}
           </div>
+          <div
+            className="flex flex-col justify-center"
+            id={`user-table-employee-info-${item?.id}`}
+            data-cy={`user-table-employee-info-${item?.id}`}
+          >
+            <span
+              id={`user-table-employee-display-name-${item?.id}`}
+              data-cy={`user-table-employee-display-name-${item?.id}`}
+              className="text-[#4d4d4d] text-sm font-normal"
+            >
+              {displayName}
+            </span>
+          </div>
+        </div>
       ),
       job_title: (
         <span
@@ -292,7 +291,6 @@ const UserTable = () => {
           rowClassName={(notUsed, index) =>
             index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
           }
-
         />
         {isMobile || isTablet ? (
           <CustomMobilePagination

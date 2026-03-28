@@ -82,12 +82,12 @@ const EmployeeAddressForm = () => {
                   data-cy="employee-address-city-label"
                 >
                   City{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`employee-address-city-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`employee-address-city-required`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               id="addressCityId"

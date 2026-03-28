@@ -49,12 +49,12 @@ const EmergencyContactForm = () => {
                   className="text-sm font-normal text-[#030712]"
                 >
                   Full Name{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`emergency-contact-full-name-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`emergency-contact-full-name-required`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[{ required: true, message: 'Full Name is required' }]}
@@ -94,12 +94,12 @@ const EmergencyContactForm = () => {
                       className="text-sm font-normal text-[#030712]"
                     >
                       Nationality{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`emergency-contact-nationality-required`}
-              >
-                *
-              </span>
+                      <span
+                        style={{ color: 'red' }}
+                        data-cy={`emergency-contact-nationality-required`}
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   id="emergencyContactNationality"
@@ -148,12 +148,12 @@ const EmergencyContactForm = () => {
                   className="text-sm font-normal text-[#030712]"
                 >
                   Phone Number{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`emergency-contact-phone-number-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`emergency-contact-phone-number-required`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               id="phoneNumber"
@@ -185,12 +185,12 @@ const EmergencyContactForm = () => {
                   className="text-sm font-normal text-[#030712]"
                 >
                   Gender{' '}
-              <span
-                style={{ color: 'red' }}
-                data-cy={`emergency-contact-gender-required`}
-              >
-                *
-              </span>
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`emergency-contact-gender-required`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               id="emergencyContactGender"

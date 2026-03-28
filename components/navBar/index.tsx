@@ -57,8 +57,8 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-import dayjs from 'dayjs';
+// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+// import dayjs from 'dayjs';
 // import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 
@@ -1264,7 +1264,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ],
     [groupedMenuItems],
   );
-  const { mutate: employeeInfo } = useCreateEmployee();
+  // const { mutate: employeeInfo } = useCreateEmployee();
 
   // const handleUserInfoUpdate = () => {
   //   const fullName = employeeData?.firstName?.split(' ') || [];
