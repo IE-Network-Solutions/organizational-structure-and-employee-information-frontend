@@ -155,6 +155,7 @@ const AssignTargetModal: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
+        requiredMark={false}
         onFinish={onSubmit}
         className=""
         id="okr-target-modal-form"
@@ -173,6 +174,12 @@ const AssignTargetModal: React.FC = () => {
                     data-cy="okr-target-modal-department-label-text"
                   >
                     Department
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                  >
+                    *
                   </span>
                   <Tooltip title="Select the department for this assignment.">
                     <QuestionCircleOutlined
@@ -217,6 +224,12 @@ const AssignTargetModal: React.FC = () => {
                     data-cy="okr-target-modal-criteria-label-text"
                   >
                     Criteria
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                  >
+                    *
                   </span>
                   <Tooltip title="Select the criteria for this assignment.">
                     <QuestionCircleOutlined
@@ -270,6 +283,12 @@ const AssignTargetModal: React.FC = () => {
                       data-cy={`okr-target-modal-month-label-text-${month}`}
                     >
                       {month} Target
+                    </span>
+                    <span
+                      className="text-[#ff4d4f] text-[14px] leading-none"
+                      aria-hidden
+                    >
+                      *
                     </span>
                   </div>
                 }

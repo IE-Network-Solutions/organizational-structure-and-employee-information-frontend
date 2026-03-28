@@ -139,17 +139,17 @@ const DefineOkrRule = () => {
             {OkrRules?.items?.map((item: any) => (
               <div
                 key={item.id}
-                className="bg-white border border-[#d9d9d9] rounded-[12px] p-5 hover:shadow-sm transition-shadow relative"
+                className="bg-white border border-[#d9d9d9] rounded-[8px] py-3 px-4 min-w-[323px] min-h-[78px] hover:shadow-sm transition-shadow relative flex flex-col gap-2"
                 id={`okr-rule-card-${item.id}`}
                 data-cy={`okr-rule-card-${item.id}`}
               >
                 {/* Top Row: Title and Menu */}
                 <div
-                  className="flex justify-between items-start mb-6"
+                  className="flex justify-between items-start mb-0"
                   data-cy={`okr-rule-card-header-${item.id}`}
                 >
                   <p
-                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    className="text-[14px] font-normal text-[#262626] flex-1 mr-2 leading-tight"
                     id={`okr-rule-card-title-${item.id}`}
                     data-cy={`okr-rule-card-title-${item.id}`}
                   >
@@ -165,7 +165,7 @@ const DefineOkrRule = () => {
                       placement="bottomRight"
                     >
                       <button
-                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-rule-card-menu-button-${item.id}`}
                       >
@@ -181,14 +181,14 @@ const DefineOkrRule = () => {
                   data-cy={`okr-rule-card-footer-${item.id}`}
                 >
                   <div
-                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                    className="h-[22px] px-3 py-0 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa] inline-flex items-center"
                     id={`okr-rule-card-self-${item.id}`}
                     data-cy={`okr-rule-card-self-${item.id}`}
                   >
                     Self Contribution: {item.myOkrPercentage || 0}
                   </div>
                   <div
-                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                    className="h-[22px] px-3 py-0 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa] inline-flex items-center"
                     id={`okr-rule-card-team-${item.id}`}
                     data-cy={`okr-rule-card-team-${item.id}`}
                   >

@@ -70,7 +70,7 @@ const PlanAssignment: React.FC = () => {
       const planningPeriod = allPlanningPeriods?.items?.find(
         (period: any) => period.id === planningPeriodId,
       );
-      return planningPeriod?.intervalType || 'daily';
+      return planningPeriod?.intervalType || 'Daily';
     };
   }, [allPlanningPeriods]);
 
@@ -128,8 +128,10 @@ const PlanAssignment: React.FC = () => {
           ...item,
           employeeName: getEmployeeData(item?.userId),
           planningPeriodType:
-            planningPeriodType.charAt(0).toUpperCase() +
-            planningPeriodType.slice(1),
+            planningPeriodType.toLowerCase() === 'day'
+              ? 'Daily'
+              : planningPeriodType.charAt(0).toUpperCase() +
+                planningPeriodType.slice(1),
           updatedAt: item?.lastUpdated,
         };
       });
@@ -270,7 +272,7 @@ const PlanAssignment: React.FC = () => {
                 return (
                   <div
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                    className="bg-white border border-[#d9d9d9] rounded-[8px] py-2 px-4 min-h-[80px] hover:shadow-sm transition-shadow relative"
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
@@ -286,13 +288,13 @@ const PlanAssignment: React.FC = () => {
                       >
                         {item?.profileImage ? (
                           <Avatar
-                            size={40}
+                            size={24}
                             src={item?.profileImage}
                             data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
                           />
                         ) : (
                           <Avatar
-                            size={40}
+                            size={24}
                             className="bg-[#f0f0f0] text-[#8c8c8c]"
                             data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
                           >
@@ -308,7 +310,7 @@ const PlanAssignment: React.FC = () => {
                       >
                         {/* Tag */}
                         <div
-                          className="mb-2"
+                          className="mb-0"
                           data-cy={`okr-planning-assignation-card-tag-wrapper-${item.userId}`}
                         >
                           <Tag
@@ -322,7 +324,7 @@ const PlanAssignment: React.FC = () => {
 
                         {/* Name */}
                         <p
-                          className="text-[15px] font-semibold text-[#262626] mb-0.5 truncate"
+                          className="text-[14px] font-semibold text-[rgba(0,0,0,0.7)] mb-0.5 truncate"
                           id={`okr-planning-assignation-card-name-${item.userId}`}
                           data-cy={`okr-planning-assignation-card-name-${item.userId}`}
                         >
@@ -354,7 +356,7 @@ const PlanAssignment: React.FC = () => {
                           data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
                         >
                           <button
-                            className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                            className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >

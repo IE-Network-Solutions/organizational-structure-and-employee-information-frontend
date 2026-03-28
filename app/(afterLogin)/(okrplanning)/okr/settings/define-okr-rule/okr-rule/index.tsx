@@ -121,6 +121,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
       <Form
         form={form}
         layout="vertical"
+        requiredMark={false}
         onFinish={onFinish}
         className="pt-4"
         id="okr-rule-modal-form"
@@ -139,14 +140,15 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                 OKR rule name
               </span>
               <span
-                className="text-red-500"
-                data-cy="okr-rule-modal-name-required-indicator"
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
               >
                 *
               </span>
             </div>
           }
           name="title"
+          required
           rules={[
             { required: true, message: 'Please enter the OKR rule name' },
           ]}
@@ -174,14 +176,15 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                     Personal Contribution
                   </span>
                   <span
-                    className="text-red-500"
-                    data-cy="okr-rule-modal-personal-required-indicator"
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
                   >
                     *
                   </span>
                 </div>
               }
               name="myOkrPercentage"
+              required
               rules={[{ required: true, message: 'Required' }]}
               data-cy="okr-rule-modal-personal-field"
             >
@@ -207,14 +210,15 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                     Team Contribution
                   </span>
                   <span
-                    className="text-red-500"
-                    data-cy="okr-rule-modal-team-required-indicator"
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
                   >
                     *
                   </span>
                 </div>
               }
               name="teamOkrPercentage"
+              required
               rules={[{ required: true, message: 'Required' }]}
               data-cy="okr-rule-modal-team-field"
             >

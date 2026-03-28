@@ -313,6 +313,7 @@ const ScoringModal: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
+        requiredMark={false}
         onFinish={onFinish}
         className=""
         id="okr-criteria-modal-form"
@@ -331,6 +332,12 @@ const ScoringModal: React.FC = () => {
                     data-cy="okr-criteria-modal-name-label-text"
                   >
                     Name configuration
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                  >
+                    *
                   </span>
                   <Tooltip title="Enter a name for this scoring configuration.">
                     <QuestionCircleOutlined
@@ -366,6 +373,12 @@ const ScoringModal: React.FC = () => {
                   >
                     Total Percentage
                   </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                  >
+                    *
+                  </span>
                   <Tooltip title="Enter the total percentage (0-100).">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
@@ -400,6 +413,12 @@ const ScoringModal: React.FC = () => {
                 data-cy="okr-criteria-modal-department-label-text"
               >
                 Department
+              </span>
+              <span
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
+              >
+                *
               </span>
               <Tooltip title="Select departments to filter employees.">
                 <QuestionCircleOutlined
@@ -508,6 +527,12 @@ const ScoringModal: React.FC = () => {
                     data-cy="okr-criteria-modal-users-label-text"
                   >
                     Users
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                  >
+                    *
                   </span>
                   <Tooltip title="Select specific users for this configuration.">
                     <QuestionCircleOutlined
@@ -666,6 +691,12 @@ const ScoringModal: React.FC = () => {
                 data-cy="okr-criteria-modal-criteria-label-text"
               >
                 Chritaria
+              </span>
+              <span
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
+              >
+                *
               </span>
               <Tooltip title="Select the criteria items.">
                 <QuestionCircleOutlined

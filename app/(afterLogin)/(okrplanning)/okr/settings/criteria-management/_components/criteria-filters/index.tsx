@@ -107,7 +107,7 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
         }
         .custom-filter-select-v3 .ant-select-selector {
           height: 44px !important;
-          border-radius: 8px !important;
+          border-radius: 6px !important;
           border-color: #d9d9d9 !important;
           padding-left: 12px !important;
           padding-right: 12px !important;

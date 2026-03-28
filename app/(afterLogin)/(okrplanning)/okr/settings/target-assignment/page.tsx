@@ -172,17 +172,17 @@ function Page() {
             {groupedData.map((group: any) => (
               <div
                 key={group.key}
-                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                className="bg-white border border-[#d9d9d9] rounded-[8px] py-2 px-4 min-h-[112px] hover:shadow-sm transition-shadow relative flex flex-col justify-between"
                 id={`okr-target-card-${group.key}`}
                 data-cy={`okr-target-card-${group.key}`}
               >
                 {/* Top Row: Criteria Name and Menu */}
                 <div
-                  className="flex justify-between items-start mb-2"
+                  className="flex justify-between items-start mb-0"
                   data-cy={`okr-target-card-header-${group.key}`}
                 >
                   <p
-                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    className="text-[14px] font-normal text-black flex-1 mr-2 leading-tight"
                     id={`okr-target-card-title-${group.key}`}
                     data-cy={`okr-target-card-title-${group.key}`}
                   >
@@ -198,7 +198,7 @@ function Page() {
                       placement="bottomRight"
                     >
                       <button
-                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-target-card-menu-button-${group.key}`}
                       >
@@ -210,11 +210,11 @@ function Page() {
 
                 {/* Second Row: Department Tag */}
                 <div
-                  className="mb-4"
+                  className="mb-0"
                   data-cy={`okr-target-card-dept-wrapper-${group.key}`}
                 >
                   <Tag
-                    className="px-2 py-0.5 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa]"
+                    className="h-[22px] px-2 py-0 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa] inline-flex items-center"
                     id={`okr-target-card-dept-${group.key}`}
                     data-cy={`okr-target-card-dept-${group.key}`}
                   >
@@ -224,17 +224,17 @@ function Page() {
 
                 {/* Divider Line */}
                 <div
-                  className="h-[1px] bg-[#f0f0f0] mb-4"
+                  className="h-[1px] bg-[#f0f0f0] mb-0"
                   data-cy={`okr-target-card-divider-${group.key}`}
                 />
 
                 {/* Bottom Row: Month Targets */}
                 <div
-                  className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1"
+                  className="flex items-center gap-[8px] overflow-x-auto scrollbar-none pb-1"
                   data-cy={`okr-target-card-targets-${group.key}`}
                 >
                   <span
-                    className="text-[13px] font-bold text-[#262626] whitespace-nowrap"
+                    className="text-[14px] font-normal text-black whitespace-nowrap"
                     data-cy={`okr-target-card-targets-label-${group.key}`}
                   >
                     Target
@@ -242,7 +242,7 @@ function Page() {
                   {group.targets.map((t: any) => (
                     <Tag
                       key={t.id}
-                      className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] rounded-[4px] bg-white whitespace-nowrap m-0"
+                      className="h-[22px] px-2 py-0 text-[12px] font-medium text-[rgba(0,0,0,0.7)] border-[#d9d9d9] rounded-[4px] bg-[rgba(0,0,0,0.02)] whitespace-nowrap m-0 inline-flex items-center"
                       data-cy={`okr-target-card-target-item-${group.key}-${t.id}`}
                     >
                       {t.month} : {Math.round(parseFloat(t.target))}

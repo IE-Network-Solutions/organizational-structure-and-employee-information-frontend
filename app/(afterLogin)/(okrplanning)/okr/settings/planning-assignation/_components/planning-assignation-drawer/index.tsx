@@ -126,6 +126,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
       <Form
         form={form}
         layout="vertical"
+        requiredMark={false}
         onFinish={onFinish}
         className=""
         id="okr-planning-assignation-modal-form"
@@ -149,6 +150,12 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 data-cy="okr-planning-assignation-assignee-label-text"
               >
                 Assignee
+              </span>
+              <span
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
+              >
+                *
               </span>
               <Tooltip title="Choose the employees you want to assign OKR plans to.">
                 <QuestionCircleOutlined
@@ -350,6 +357,12 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 data-cy="okr-planning-assignation-plan-label-text"
               >
                 Plan
+              </span>
+              <span
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
+              >
+                *
               </span>
               <Tooltip title="Choose the OKR planning periods for these employees.">
                 <QuestionCircleOutlined
