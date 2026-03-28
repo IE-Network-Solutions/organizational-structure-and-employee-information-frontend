@@ -26,7 +26,6 @@ interface CopilotIntentPanelProps {
   onOpenSavedChat: (id: string) => void;
   onDeleteSavedChat: (id: string, e?: React.MouseEvent) => void;
   sharedView: boolean;
-  onStartNewChat: () => void;
   onRenameSavedChat: (id: string, title: string) => void;
 }
 
@@ -44,7 +43,6 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
   onOpenSavedChat,
   onDeleteSavedChat,
   sharedView,
-  onStartNewChat,
   onRenameSavedChat,
 }) => {
   const uid = (base: string) => `${base}-${variant}`;
@@ -175,7 +173,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
           id={uid('copilot-saved-reports-section')}
           data-cy={ucy('copilot-saved-reports-section')}
         >
-          <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="mb-3">
             <span
               id={uid('copilot-saved-section-label')}
               className="text-sm font-semibold text-slate-900"
@@ -183,17 +181,6 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
             >
               Saved
             </span>
-            {!sharedView && (
-              <button
-                type="button"
-                onClick={onStartNewChat}
-                className="text-xs font-medium text-[#1677ff] hover:underline"
-                id={uid('copilot-panel-new-chat')}
-                data-cy={ucy('copilot-panel-new-chat')}
-              >
-                New conversation
-              </button>
-            )}
           </div>
 
           {savedChats.length === 0 ? (

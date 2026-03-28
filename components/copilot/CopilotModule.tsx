@@ -535,12 +535,6 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
     setInputValue('');
   }, [router, pathname]);
 
-  const handleNewChat = useCallback(() => {
-    setMessages([]);
-    setInputValue('');
-    setSharedView(false);
-  }, []);
-
   /** Save icon on user bubble: add this question to Saved immediately (no confirm step). */
   const handleRequestSaveUserQuestion = useCallback(
     (userMsg: Message) => {
@@ -878,7 +872,7 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                   type="info"
                   showIcon
                   message="Read-only shared conversation"
-                  description="You can only view this thread. Use New conversation in the side panel to start fresh, or sign in to continue privately."
+                  description="You can only view this thread. Sign in to continue privately, or close and reopen Copilot to start fresh."
                   className="rounded-xl border-slate-200"
                   id="copilot-shared-readonly-banner"
                   data-cy="copilot-shared-readonly-banner"
@@ -944,7 +938,6 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
               onOpenSavedChat={handleOpenSavedChat}
               onDeleteSavedChat={handleDeleteSavedChat}
               sharedView={sharedView}
-              onStartNewChat={handleNewChat}
               onRenameSavedChat={handleRenameSavedChat}
             />
           </div>
@@ -986,7 +979,6 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             onOpenSavedChat={handleOpenSavedChat}
             onDeleteSavedChat={handleDeleteSavedChat}
             sharedView={sharedView}
-            onStartNewChat={handleNewChat}
             onRenameSavedChat={handleRenameSavedChat}
           />
         </div>
