@@ -395,14 +395,10 @@ const Status: React.FC = () => {
       const newOrder = arrayMove(orderedMiddleItems, oldIndex, newIndex);
       setOrderedMiddleItems(newOrder);
 
-      const ids = [
-        ...initialStatuses.map((s: any) => s.id),
-        ...newOrder.map((s: any) => s.id),
-        ...finalStatuses.map((s: any) => s.id),
-      ];
+      const ids = newOrder.map((s: any) => s.id);
       if (ids.length > 0) reorderStatuses(ids);
     },
-    [orderedMiddleItems, initialStatuses, finalStatuses, reorderStatuses],
+    [orderedMiddleItems, reorderStatuses],
   );
 
   if (fetchLoading) {
