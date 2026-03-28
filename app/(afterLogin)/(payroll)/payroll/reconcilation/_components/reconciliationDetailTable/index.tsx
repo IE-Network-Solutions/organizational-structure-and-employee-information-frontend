@@ -28,6 +28,18 @@ interface ReconciliationDetailTableProps {
   componentSummary?: ComponentSummary;
 }
 
+/** Parse API / locale strings (e.g. "1,234.56") so Number() is not NaN. */
+function parseNumericLike(value: unknown): number | null {
+  if (value == null || value === '') return null;
+  const s = String(value)
+    .replace(/,/g, '')
+    .replace(/\s/g, '')
+    .trim();
+  if (s === '' || s === 'NaN') return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
+}
+
 const ReconciliationDetailTable = ({
   previousPayPeriodId,
   currentPayPeriodId,
@@ -140,12 +152,12 @@ const ReconciliationDetailTable = ({
       dataIndex: 'difference',
       key: 'difference',
       minWidth: 150,
-      render: (key: string) => {
+      render: (key: string | number) => {
         if (key == null || key === '' || key === 'NaN' || key === '--') {
           return '--';
         }
-        const differenceValue = Number(key);
-        if (isNaN(differenceValue)) {
+        const differenceValue = parseNumericLike(key);
+        if (differenceValue == null) {
           return '--';
         }
         const className =
@@ -159,7 +171,7 @@ const ReconciliationDetailTable = ({
             data-cy="reconcilation-detail-table-difference"
             className={className}
           >
-            {key}
+            {differenceValue.toLocaleString()}
           </span>
         );
       },
@@ -195,10 +207,10 @@ const ReconciliationDetailTable = ({
           {Number(item.current).toLocaleString()}
         </span>
       ),
-      difference:
-        item.difference != null && !isNaN(Number(item.difference))
-          ? Number(item.difference).toLocaleString()
-          : '--',
+      difference: (() => {
+        const n = parseNumericLike(item.difference);
+        return n !== null ? n : '--';
+      })(),
       userId: item.userId || item.employeeId || item.id,
     }));
 
