@@ -2,11 +2,7 @@
 
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 import { Button, Card, Dropdown, Popconfirm, Spin, Tag } from 'antd';
-import {
-  ArrowLeftOutlined,
-  EllipsisOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
+import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
@@ -15,6 +11,7 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import RecognitionForm from '../../_components/recognition/createRecognition';
 import { AiOutlineTrophy } from 'react-icons/ai';
 import { LuSuperscript } from 'react-icons/lu';
+import { IoChevronBackSharp } from 'react-icons/io5';
 
 type RecognitionCriterion = {
   id?: string;
@@ -96,8 +93,8 @@ export default function RecognitionDetailPage() {
           <Button
             type="default"
             size="small"
-            icon={<ArrowLeftOutlined />}
-            className="!h-8 !w-8 !p-0 flex items-center justify-center"
+            icon={<IoChevronBackSharp />}
+            className="!h-8 !w-8 !p-0 flex items-center justify-center border-[1px] border-gray-200 rounded-lg"
             onClick={() => router.back()}
             data-cy="recognition-detail-back"
             aria-label="Back"
@@ -190,14 +187,16 @@ export default function RecognitionDetailPage() {
                               {child?.frequency}
                             </Tag>
                           )}
-                          {child?.department && (
-                            <Tag
-                              className="text-xs"
-                              data-cy="recognition-detail-item-department-tag"
-                            >
-                              {child?.department?.name}
-                            </Tag>
-                          )}
+
+                          <Tag
+                            className="text-xs"
+                            data-cy="recognition-detail-item-department-tag"
+                          >
+                            {
+                              selectedRecognition?.children?.department
+                                ?.createdAt
+                            }
+                          </Tag>
 
                           <Tag
                             className="text-xs"
@@ -429,7 +428,7 @@ export default function RecognitionDetailPage() {
                                         items: [
                                           {
                                             key: 'edit',
-                                            label: 'Edit',
+                                            label: 'Edit Recognition Criterion',
                                             icon: (
                                               <Edit2Icon className="w-4 h-4 text-xs" />
                                             ),

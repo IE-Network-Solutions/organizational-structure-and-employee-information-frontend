@@ -256,12 +256,17 @@ const RecognitionForm: React.FC<PropsData> = ({
       data-cy="create-recognition-drawer-header"
       id="createRecognitionDrawerHeader"
     >
-      <span data-cy="create-recognition-drawer-header-text">
+      <span
+        data-cy="create-recognition-drawer-header-text"
+        className="text-base font-bold"
+      >
         {selectedRecognitionType === ''
           ? 'Recognition Category'
-          : isCriteriaOnlyEdit
-            ? 'Edit recognition criterion'
-            : 'Update Recognition Category'}
+          : editType == 'formula'
+            ? 'Edit Formula'
+            : isCriteriaOnlyEdit
+              ? 'Recognition Criterion Edit '
+              : 'Update Recognition Category'}
       </span>
     </div>
   );
@@ -1110,9 +1115,13 @@ const RecognitionForm: React.FC<PropsData> = ({
         data-cy="create-recognition-wizard-modal"
       >
         {!isFormulaOnlyEdit && !isCriteriaOnlyEdit && (
-          <div className="px-6 pb-4" data-cy="create-recognition-wizard-steps">
+          <div
+            className="px-6 p-4"
+            data-cy="create-recognition-wizard-steps mt-3"
+          >
             <Steps
               size="small"
+              progressDot={true}
               current={currentStep}
               items={wizardStepItems}
               data-cy="create-recognition-wizard-steps-component"
@@ -2077,8 +2086,9 @@ const RecognitionForm: React.FC<PropsData> = ({
                                         ) ?? false;
                                       return (
                                         <>
-                                          <Button
-                                            key={`${cid}-${idx}`}
+                                          <Tag
+                                            data-cy={`create-recognition-formula-criteria-${cid}`}
+                                            id={`createRecognitionFormulaCriteria${cid}`}
                                             onClick={() =>
                                               handleFormulaOptionClick(
                                                 cid,
@@ -2086,27 +2096,20 @@ const RecognitionForm: React.FC<PropsData> = ({
                                                 'criteria',
                                               )
                                             }
-                                            className={` border-none shadow-none px-0 mx-0 `}
-                                            data-cy={`create-recognition-formula-criteria-${cid}`}
+                                            key={
+                                              isSelectedInFormula
+                                                ? 'blue'
+                                                : 'default'
+                                            }
+                                            color={
+                                              isSelectedInFormula
+                                                ? 'blue'
+                                                : 'default'
+                                            }
+                                            className="cursor-pointer h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none mb-2"
                                           >
-                                            {isSelectedInFormula ? (
-                                              <Tag
-                                                key={'blue'}
-                                                color={'blue'}
-                                                className="h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none"
-                                              >
-                                                {cname}
-                                              </Tag>
-                                            ) : (
-                                              <Tag
-                                                key={'default'}
-                                                color={'default'}
-                                                className="h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none"
-                                              >
-                                                {cname}
-                                              </Tag>
-                                            )}
-                                          </Button>
+                                            {cname}
+                                          </Tag>
                                         </>
                                       );
                                     },
