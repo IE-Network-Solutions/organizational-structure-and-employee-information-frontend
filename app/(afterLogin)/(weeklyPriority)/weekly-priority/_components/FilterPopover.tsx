@@ -53,7 +53,7 @@ const FilterPopover: React.FC = () => {
         data-cy="filter-popover-header"
       >
         <span
-          className="font-bold text-[18px] text-[#111827]"
+          className="font-normal text-[18px] text-[#111827]"
           data-cy="filter-popover-title"
         >
           Filter
@@ -79,16 +79,10 @@ const FilterPopover: React.FC = () => {
       >
         <div className="text-left" data-cy="filter-popover-department">
           <label
-            className="block text-[13px] font-semibold text-[#111827] mb-2"
+            className="block text-[13px] font-normal text-[#111827] mb-2"
             data-cy="filter-popover-department-label"
           >
-            Department{' '}
-            <span
-              className="text-red-500 ml-0.5"
-              data-cy="filter-popover-department-required"
-            >
-              *
-            </span>
+            Department
           </label>
           <Select
             placeholder="Select"
@@ -114,16 +108,10 @@ const FilterPopover: React.FC = () => {
 
         <div className="text-left" data-cy="filter-popover-week">
           <label
-            className="block text-[13px] font-semibold text-[#111827] mb-2"
+            className="block text-[13px] font-normal text-[#111827] mb-2"
             data-cy="filter-popover-week-label"
           >
-            Week{' '}
-            <span
-              className="text-red-500 ml-0.5"
-              data-cy="filter-popover-week-required"
-            >
-              *
-            </span>
+            Week
           </label>
           <Select
             placeholder="Select"
@@ -156,7 +144,7 @@ const FilterPopover: React.FC = () => {
       >
         <Button
           onClick={handleReset}
-          className="h-[40px] px-6 text-[#111827] font-semibold border-gray-200 rounded-[8px]"
+          className="h-[40px] px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9] rounded-[8px]"
           data-cy="filter-popover-reset-button"
         >
           <span data-cy="filter-popover-reset-button-text">Reset</span>
@@ -164,7 +152,7 @@ const FilterPopover: React.FC = () => {
         <Button
           type="primary"
           onClick={handleSave}
-          className="bg-[#254ec2] hover:bg-[#1e3e9a] h-[40px] px-6 text-white font-semibold rounded-[8px] border-none"
+          className="bg-[#254ec2] hover:bg-[#1e3e9a] h-[40px] px-6 text-white !font-normal rounded-[8px] border-none"
           data-cy="filter-popover-save-button"
         >
           Save Filter

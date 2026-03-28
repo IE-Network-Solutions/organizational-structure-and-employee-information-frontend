@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Form, Select, Button, Row, Col, ConfigProvider, Popover } from 'antd';
-import { X } from 'lucide-react';
-import { FilterOutlined } from '@ant-design/icons';
+import { Filter, X } from 'lucide-react';
 import dayjs from 'dayjs';
 
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -33,8 +32,8 @@ interface FilterPopoverProps {
 }
 
 const CustomLabel = ({ title }: { title: string }) => (
-  <span className="text-[13px] font-semibold text-gray-800" data-cy="payroll-filter-popover-custom-label">
-    {title} <span className="text-red-500 ml-1" data-cy="payroll-filter-popover-custom-label-asterisk">*</span>
+  <span className="text-[13px] font-normal text-gray-800" data-cy="payroll-filter-popover-custom-label">
+    {title}
   </span>
 );
 
@@ -266,7 +265,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
         {/* Header Section */}
         <div className="mb-6" data-cy="payroll-filter-popover-header">
           <h2
-            className="text-[16px] font-bold text-gray-900 m-0 leading-tight"
+            className="text-[16px] font-normal text-gray-900 m-0 leading-tight"
             data-cy="payroll-filter-popover-header-title"
           >
             Filter
@@ -407,7 +406,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
               htmlType="button"
               size="large"
               onClick={onReset}
-              className="px-6 text-gray-600 font-semibold"
+              className="px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
               data-cy="payroll-filter-popover-reset-btn"
             >
               Reset
@@ -416,7 +415,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
               size="large" 
               type="primary" 
               htmlType="submit" 
-              className="bg-[#254ec2] hover:bg-[#1e3e9a] border-none px-6 font-semibold shadow-none"
+              className="bg-[#254ec2] hover:bg-[#1e3e9a] border-none px-6 !font-normal shadow-none"
               data-cy="payroll-filter-popover-save-btn"
             >
               Save Filter
@@ -442,7 +441,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onSearch, defaultValues }
         data-cy="payroll-open-filter-modal-click-button"
         className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
         size="large"
-        icon={<FilterOutlined className="text-gray-600" />}
+        icon={
+          <Filter
+            className="text-gray-600"
+            size={18}
+            strokeWidth={1.5}
+            aria-hidden
+          />
+        }
       >
         Filter
       </Button>

@@ -1,9 +1,6 @@
 import { Card } from 'antd';
 import React from 'react';
-import {
-  ArrowUpOutlined,
-  ArrowDownOutlined,
-} from '@ant-design/icons';
+import { ArrowDownOutlined } from '@ant-design/icons';
 
 interface PayrollCardProps {
   title?: string;
@@ -19,7 +16,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
     <div
       id="payroll-summary-card-view-column"
       data-cy="payroll-summary-card-view-column"
-      className="min-w-[calc(25%-12px)] flex-shrink-0"
+      className="w-full min-w-0 lg:w-auto lg:min-w-[calc(25%-12px)] lg:flex-shrink-0"
     >
       <Card
         id="payroll-summary-card-view-card"
@@ -28,7 +25,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
         className="h-full shadow-sm"
         style={{
           borderRadius: '10px',
-          border: '1px solid #e5e7eb',
+          border: '2px solid #A8AEB9',
         }}
         styles={{ body: { padding: '20px' } }}
       >
@@ -61,11 +58,10 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
             data-cy="payroll-summary-card-growth-view-text"
             className={`font-medium mr-1 ${isPositive ? 'text-success' : 'text-error'}`}
           >
-            {isPositive ? (
-              <ArrowUpOutlined data-cy="payroll-summary-card-growth-up-icon" />
-            ) : (
+            {!isPositive && (
               <ArrowDownOutlined data-cy="payroll-summary-card-growth-down-icon" />
-            )}{' '}
+            )}
+            {!isPositive && ' '}
             {isPositive ? '+' : ''}
             {growth || '--'}
           </span>

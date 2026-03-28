@@ -9,6 +9,8 @@ interface Props {
   onClose: () => void;
   onGenerate: (data: Incentive) => void;
   loading?: boolean;
+  /** When true, modal copy reflects regenerating existing payroll (vs first-time generate). */
+  isRegenerate?: boolean;
 }
 
 export interface Incentive {
@@ -19,6 +21,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
   onClose,
   onGenerate,
   loading = false,
+  isRegenerate = false,
 }) => {
   const [form] = Form.useForm();
   
@@ -76,25 +79,23 @@ const GeneratePayrollModal: React.FC<Props> = ({
           fontFamily: 'inherit',
         },
         components: {
-          Modal: {
-            titleFontSize: 18,
-            titleColor: '#000000',
+          Button: {
+            fontWeight: 400,
           },
           Form: {
             labelColor: '#333333',
-          }
-        }
+          },
+        },
       }}
     >
       <Modal
         data-cy="payroll-generate-modal"
         title={
-          <span 
-            data-cy="payroll-generate-modal-title-view-text" 
-            className="font-bold text-lg text-gray-900 tracking-wide"
-            
+          <span
+            style={{ fontWeight: 600, fontSize: '16px' }}
+            data-cy="payroll-generate-modal-title-view-text"
           >
-            Generate Payroll
+            {isRegenerate ? 'Regenerate Payroll' : 'Generate Payroll'}
           </span>
         }
         open={true}
@@ -106,26 +107,29 @@ const GeneratePayrollModal: React.FC<Props> = ({
         width={520}
         centered
         footer={[
-          <Button 
-            key="cancel" 
+          <Button
+            key="cancel"
             data-cy="payroll-generate-modal-cancel-click-button"
+            type="default"
             htmlType="button"
+            size="large"
             disabled={loading}
-            onClick={onClose} 
-            className="px-5"
+            onClick={onClose}
+            className="px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
           >
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
+          <Button
+            key="submit"
             data-cy="payroll-generate-modal-submit-click-button"
-            type="primary" 
+            type="primary"
             htmlType="button"
+            size="large"
             loading={loading}
-            onClick={handleGenerate} 
-            className="px-5"
+            onClick={handleGenerate}
+            className="px-6 !font-normal shadow-none"
           >
-            Generate
+            {isRegenerate ? 'Continue' : 'Generate'}
           </Button>,
         ]}
       >
@@ -153,6 +157,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 name="includeIncentive"
                 valuePropName="checked"
                 className="mb-5"
+                required
               >
                 <Switch data-cy="payroll-generate-modal-incentive-toggle-switch" />
               </Form.Item>
@@ -170,6 +175,9 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 }
                 name="date"
                 className="mb-5"
+                rules={[
+                  { required: true, message: 'Please select a date' },
+                ]}
               >
                 <DatePicker 
                   data-cy="payroll-generate-modal-daterange-view-input"
@@ -192,6 +200,9 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 }
                 name="payPeriod"
                 className="mb-0"
+                rules={[
+                  { required: true, message: 'Please select a pay period' },
+                ]}
               >
                 <Select 
                   data-cy="payroll-generate-modal-payperiod-view-select"
