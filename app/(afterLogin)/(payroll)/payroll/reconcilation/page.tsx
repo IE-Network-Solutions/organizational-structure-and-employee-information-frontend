@@ -5,12 +5,23 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { Button, Card, Col, Row, Select, Table, Tag, Tabs } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Modal,
+  Row,
+  Select,
+  Table,
+  Tag,
+  Tabs,
+  notification,
+} from 'antd';
 import { PiExportLight } from 'react-icons/pi';
+import { MdKeyboardArrowLeft } from 'react-icons/md';
 import { useState, useEffect } from 'react';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import DoneOutlineIcon from '@mui/icons-material/DoneOutline';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ReconciliationDetailTable from './_components/reconciliationDetailTable';
 
 import {
   useGetPayPeriod,
@@ -29,15 +40,19 @@ import {
   useGetPayrollApprovalByPayPeriodId,
   useGetPendingPayrollApprovals,
 } from '@/store/server/features/payroll/payrollApproval/queries';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useApprovePayrollApproval,
   useLastApprovingPayroll,
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const { Option } = Select;
+
+const impactColors: Record<string, string> = {
+  Low: '#52c41a',
+  Medium: '#faad14',
+  High: '#ff4d4f',
+};
 
 const reconciliationTabs = [
   { key: 'all', label: 'All Category' },
@@ -128,7 +143,6 @@ const PayrollReconcilation = () => {
     useEmployeeStore();
   const [activeTab, setActiveTab] = useState('1');
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
-  const [isShowMobileFilters, setIsShowMobileFilters] = useState(false);
 
   const authStore = useAuthenticationStore.getState();
   const { userId } = useAuthenticationStore();
@@ -138,6 +152,7 @@ const PayrollReconcilation = () => {
   // Fetch pending approvals with payPeriodId
   const { data: pendingApprovals, refetch: refetchPendingApprovals } =
     useGetPendingPayrollApprovals(currentPayPeriodId, 1, 10);
+  const pendingApproval = pendingApprovals?.items?.[0] ?? null;
   const { mutate: approvePayroll, isLoading: isApproving } =
     useApprovePayrollApproval();
   const { mutate: lastApproving, isLoading: isLastApproving } =
@@ -1231,10 +1246,29 @@ const PayrollReconcilation = () => {
             </div>
           </div>
         )}
+
+        <div
+          className="mt-6 flex justify-end gap-2 border-t border-[#f0f0f0] pt-4"
+          data-cy="payroll-approve-modal-actions"
+        >
+          <Button onClick={() => setIsApproveModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            data-cy="payroll-approve-modal-confirm"
+            loading={isApproving || isLastApproving}
+            onClick={handleApprovePayroll}
+          >
+            Approve Payroll
+          </Button>
+        </div>
       </Modal>
       </BlockWrapper>
     </div>
   );
+
+  return <MobileFilters />;
 };
 
 export default PayrollReconcilation;
