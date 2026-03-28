@@ -196,6 +196,7 @@ const EmployeeAttendanceSideBar = () => {
           onFinish={onFinish}
           id="time-attendance-employee-attendance-sidebar-form"
           data-cy="time-attendance-employee-attendance-sidebar-form"
+          requiredMark={false}
         >
           <Form.Item name="isAbsent" label="Is Absent">
             <div
@@ -224,7 +225,13 @@ const EmployeeAttendanceSideBar = () => {
                   className="text-sm font-normal"
                   data-cy="time-attendance-employee-attendance-sidebar-check-in-label"
                 >
-                  Check In
+                  Check In{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="time-attendance-employee-attendance-sidebar-check-in-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[{ required: !isAbsent, message: 'Required' }]}
@@ -270,7 +277,13 @@ const EmployeeAttendanceSideBar = () => {
                   className="text-sm font-normal"
                   data-cy="time-attendance-employee-attendance-sidebar-check-out-label"
                 >
-                  Check Out
+                  Check Out{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="time-attendance-employee-attendance-sidebar-check-out-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[{ required: !isAbsent, message: 'Required' }]}

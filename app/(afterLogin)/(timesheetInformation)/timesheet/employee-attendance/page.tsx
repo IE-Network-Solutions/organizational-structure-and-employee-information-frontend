@@ -216,13 +216,28 @@ const EmployeeAttendance = () => {
 
   return (
     <>
+    <style data-cy="time-attendance-employee-attendance-page-styles">{`
+     .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
+      `}</style>
       <div
         id="time-attendance-employee-attendance-page-container-view"
         data-cy="time-attendance-employee-attendance-page-container-view"
       >
         {/* Header Section */}
         <div
-          className="flex justify-between"
+          className="flex justify-between pt-6"
           id="time-attendance-employee-attendance-header-section"
           data-cy="time-attendance-employee-attendance-header-section"
         >
@@ -265,7 +280,7 @@ const EmployeeAttendance = () => {
 
           {/* Action Buttons */}
           <div
-            className="flex gap-2 py-4"
+            className="flex gap-2"
             id="time-attendance-employee-attendance-actions-row"
             data-cy="time-attendance-employee-attendance-actions-row"
           >
@@ -390,7 +405,10 @@ const EmployeeAttendance = () => {
             </PermissionWrapper>
           </div>
         </div>
-        <Divider />
+        <Divider
+        className="full-bleed-header-divider"
+                style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+                />
 
         {/* Hidden File Input */}
         <input
