@@ -150,7 +150,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     <Modal
       data-cy="talent-acquisition-job-create-candidate-drawer"
       // className="ta-candidate-modal"
-      
+
       open={createJobDrawer}
       onCancel={onClose}
       footer={null}
@@ -409,7 +409,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     </span>
                   }
                   extra={
-                    <span className="text-xs text-gray-500">
+                    <span
+                      data-cy="talent-acquisition-create-candidate-cgpa-info"
+                      className="text-xs text-gray-500"
+                    >
                       Put your point 4.0 scale
                     </span>
                   }
@@ -447,7 +450,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     controls={false}
                     className="text-sm w-full h-10 "
                     placeholder="0"
-                  
                   />
                 </Form.Item>
               </Col>

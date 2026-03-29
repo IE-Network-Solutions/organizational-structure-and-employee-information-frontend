@@ -172,7 +172,11 @@ const MOVE_TO_TALENT_POOL_CANDIDATE_LIMIT = 500;
 
 export const useGetCandidatesForMoveToTalentPool = (enabled: boolean) => {
   return useQuery(
-    ['allCandidates', 'moveToTalentPoolModal', MOVE_TO_TALENT_POOL_CANDIDATE_LIMIT],
+    [
+      'allCandidates',
+      'moveToTalentPoolModal',
+      MOVE_TO_TALENT_POOL_CANDIDATE_LIMIT,
+    ],
     () =>
       getAllCandidates(
         '',

@@ -68,7 +68,6 @@ const MoveToTalentPool: React.FC = () => {
       });
     });
   }, [candidatesForPool?.items, selectedCandidate]);
- console.log('candidateOptionsSource', candidateOptionsSource);
   useEffect(() => {
     const candidateArray = Array.isArray(selectedCandidate)
       ? selectedCandidate
@@ -133,9 +132,7 @@ const MoveToTalentPool: React.FC = () => {
         byId.set(candidateIdKey(item.id), item);
       }
     }
-    const selectedOptions = valueKeys
-      .map((k) => byId.get(k))
-      .filter(Boolean);
+    const selectedOptions = valueKeys.map((k) => byId.get(k)).filter(Boolean);
     setSelectedCandidate(selectedOptions);
   };
 
@@ -319,7 +316,11 @@ const MoveToTalentPool: React.FC = () => {
                       );
                     })}
                   </div>
-                  <style jsx global>{`
+                  <style
+                    data-cy="talent-acquisition-move-talent-pool-candidate-field-style"
+                    jsx
+                    global
+                  >{`
                     .move-talent-pool-candidate-field
                       .always-show-placeholder
                       .ant-select-selection-placeholder {
