@@ -16,6 +16,8 @@ import type { MenuProps } from 'antd';
 import {
   COPILOT_ERROR_MESSAGES,
   exportCopilotTableToExcel,
+  normalizeCopilotTableForDisplay,
+  type CopilotTableData,
 } from '@/utils/copilotApiService';
 import CopilotAiIcon from './CopilotAiIcon';
 import CopilotTypingDots from './CopilotTypingDots';
@@ -132,11 +134,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
       <>
         <div
           style={{
-            overflowX: 'hidden',
+            overflowX: 'auto',
             maxWidth: '100%',
-            borderRadius: '12px',
-            boxShadow: 'none',
-            border: '1px solid #E0E0E0',
+            borderRadius: '10px',
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #E5E7EB',
             background: '#fff',
             width: '100%',
           }}
@@ -147,87 +149,146 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             id={`copilot-table-${ik}`}
             data-cy={`copilot-table-${ik}`}
             dataSource={tableData.rows}
-            columns={tableData.columns.map((col) => ({
-              title: col.dataIndex === 'order' ? '' : col.title,
-              dataIndex: col.dataIndex,
-              key: col.key,
-              onHeaderCell: () =>
-                ({
-                  'data-column-key': String(col.dataIndex),
-                }) as React.HTMLAttributes<HTMLTableCellElement>,
-              onCell: () =>
-                ({
-                  'data-column-key': String(col.dataIndex),
-                }) as React.HTMLAttributes<HTMLTableCellElement>,
-              render: (text: any) => {
-                // Special styling for the order column
-                if (col.dataIndex === 'order') {
-                  return (
-                    <span
-                      style={{
-                        fontWeight: 600,
-                        color: '#1E40AF',
-                        display: 'inline-block',
-                        minWidth: '30px',
-                      }}
-                      data-cy="copilot-table-order-cell"
-                    >
-                      {text}
-                    </span>
-                  );
-                }
+            scroll={{ x: 'max-content' }}
+            columns={tableData.columns.map((col) => {
+              const isFullNameCol =
+                col.dataIndex === 'fullName' || col.key === 'fullName';
+              return {
+                title: col.dataIndex === 'order' ? '' : col.title,
+                dataIndex: col.dataIndex,
+                key: col.key,
+                onHeaderCell: () =>
+                  ({
+                    'data-column-key': String(col.dataIndex),
+                  }) as React.HTMLAttributes<HTMLTableCellElement>,
+                onCell: () =>
+                  ({
+                    'data-column-key': String(col.dataIndex),
+                  }) as React.HTMLAttributes<HTMLTableCellElement>,
+                ellipsis: false,
+                render: (text: any, record: Record<string, unknown>) => {
+                  if (col.dataIndex === 'order') {
+                    return (
+                      <span
+                        style={{
+                          fontWeight: 600,
+                          color: '#1E40AF',
+                          display: 'inline-block',
+                          minWidth: '30px',
+                        }}
+                        data-cy="copilot-table-order-cell"
+                      >
+                        {text}
+                      </span>
+                    );
+                  }
 
-                // Normalize complex cell values (e.g. nested objects) to readable text
-                let display: any = text;
+                  if (isFullNameCol) {
+                    const url =
+                      (record.profileImage as string | undefined) ||
+                      (record.profile_image as string | undefined) ||
+                      (record.profileUrl as string | undefined) ||
+                      (record.profilePictureUrl as string | undefined) ||
+                      (record.profilePicture as string | undefined) ||
+                      (record.photoUrl as string | undefined) ||
+                      (record.avatarUrl as string | undefined) ||
+                      (record.avatar as string | undefined) ||
+                      (record.imageUrl as string | undefined);
+                    const name =
+                      String(text ?? '').trim() ||
+                      [record.firstName, record.middleName, record.lastName]
+                        .filter(
+                          (v) => typeof v === 'string' && v.trim().length > 0,
+                        )
+                        .join(' ')
+                        .trim() ||
+                      '—';
+                    return (
+                      <span
+                        className="copilot-table-name-cell inline-flex max-w-none items-center gap-2.5 whitespace-nowrap"
+                        data-cy="copilot-table-name-cell"
+                      >
+                        {url ? (
+                          <Avatar
+                            src={url}
+                            size={32}
+                            className="shrink-0"
+                            alt=""
+                          />
+                        ) : (
+                          <Avatar
+                            size={32}
+                            icon={<UserOutlined className="text-sm" />}
+                            className="shrink-0"
+                            style={{
+                              backgroundColor: '#E5E7EB',
+                              color: '#6B7280',
+                            }}
+                          />
+                        )}
+                        <span
+                          className="whitespace-nowrap text-[13px] font-medium text-[#374151]"
+                          data-cy="copilot-table-name-text"
+                        >
+                          {name}
+                        </span>
+                      </span>
+                    );
+                  }
 
-                // If the cell is a user object, render full name
-                if (display && typeof display === 'object') {
-                  const userLike =
-                    'firstName' in display ||
-                    'middleName' in display ||
-                    'lastName' in display;
+                  let display: any = text;
 
-                  if (userLike) {
-                    const first = (display as any).firstName ?? '';
-                    const middle = (display as any).middleName ?? '';
-                    const last = (display as any).lastName ?? '';
-                    display = [first, middle, last]
-                      .map((v) => String(v || '').trim())
-                      .filter(Boolean)
-                      .join(' ');
-                  } else {
-                    // Fallback: stringify generic objects
-                    try {
-                      display = JSON.stringify(display);
-                    } catch {
-                      display = String(display);
+                  if (display && typeof display === 'object') {
+                    const userLike =
+                      'firstName' in display ||
+                      'middleName' in display ||
+                      'lastName' in display;
+
+                    if (userLike) {
+                      const first = (display as any).firstName ?? '';
+                      const middle = (display as any).middleName ?? '';
+                      const last = (display as any).lastName ?? '';
+                      display = [first, middle, last]
+                        .map((v) => String(v || '').trim())
+                        .filter(Boolean)
+                        .join(' ');
+                    } else {
+                      try {
+                        display = JSON.stringify(display);
+                      } catch {
+                        display = String(display);
+                      }
                     }
                   }
-                }
 
-                if (display == null || display === '') {
-                  display = '-';
-                }
-
-                return (
-                  <span
-                    className="copilot-table-cell-inner"
-                    style={{ display: 'block', minWidth: 0, maxWidth: '100%' }}
-                    data-cy="copilot-table-data-cell"
-                  >
-                    {display}
-                  </span>
-                );
-              },
-              ...(col.dataIndex === 'order'
-                ? {
-                    width: 56,
-                    align: 'center' as const,
+                  if (display == null || display === '') {
+                    display = '-';
                   }
-                : {
-                    ellipsis: false,
-                  }),
-            }))}
+
+                  return (
+                    <span
+                      className="copilot-table-cell-inner block whitespace-nowrap"
+                      data-cy="copilot-table-data-cell"
+                    >
+                      {display}
+                    </span>
+                  );
+                },
+                ...(col.dataIndex === 'order'
+                  ? {
+                      width: 56,
+                      align: 'center' as const,
+                    }
+                  : isFullNameCol
+                    ? {
+                        minWidth: 200,
+                        align: 'left' as const,
+                      }
+                    : {
+                        minWidth: 96,
+                      }),
+              };
+            })}
             pagination={
               tableData.rows.length > 10
                 ? {
@@ -256,16 +317,16 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             __html: `
               .copilot-table.copilot-table-compact .ant-table {
                 table-layout: auto !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
+                width: max-content !important;
+                min-width: 100% !important;
+                max-width: none !important;
                 font-size: 13px !important;
                 line-height: 1.45 !important;
               }
               .copilot-table .ant-table-container,
               .copilot-table .ant-table-content,
               .copilot-table .ant-table-body {
-                overflow-x: hidden !important;
+                overflow-x: auto !important;
               }
               .copilot-table .ant-table-container {
                 min-width: 0 !important;
@@ -273,6 +334,12 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               }
               .copilot-table .ant-table-cell {
                 border-inline-end: none !important;
+              }
+              .copilot-table .ant-table-thead > tr:first-child > th:first-child {
+                border-top-left-radius: 10px !important;
+              }
+              .copilot-table .ant-table-thead > tr:first-child > th:last-child {
+                border-top-right-radius: 10px !important;
               }
               .copilot-table .ant-table-thead > tr > th {
                 background: #F3F4F6 !important;
@@ -283,26 +350,22 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 border-right: none !important;
                 border-left: none !important;
                 border-top: none !important;
-                padding: 8px 12px !important;
-                white-space: normal !important;
-                word-break: break-word !important;
-                overflow-wrap: anywhere !important;
-                vertical-align: top !important;
+                padding: 10px 14px !important;
+                white-space: nowrap !important;
+                vertical-align: middle !important;
                 font-size: 13px !important;
               }
               .copilot-table .ant-table-tbody > tr > td {
-                padding: 8px 12px !important;
+                padding: 10px 14px !important;
                 text-align: left !important;
                 color: #374151 !important;
                 background: #fff !important;
                 border-bottom: 1px solid #E0E0E0 !important;
                 border-right: none !important;
                 border-left: none !important;
-                white-space: normal !important;
-                word-break: break-word !important;
-                overflow-wrap: anywhere !important;
+                white-space: nowrap !important;
                 overflow: visible !important;
-                vertical-align: top !important;
+                vertical-align: middle !important;
                 font-size: 13px !important;
               }
               .copilot-table .ant-table-thead > tr > th[data-column-key="order"],
@@ -348,7 +411,13 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
   const renderMessageContent = (message: Message) => {
     const text = message.text;
-    const tableData = message.tableData;
+    const rawTableData = message.tableData;
+    const tableData =
+      rawTableData?.type === 'table' &&
+      Array.isArray(rawTableData.columns) &&
+      rawTableData.columns.length > 0
+        ? normalizeCopilotTableForDisplay(rawTableData as CopilotTableData)
+        : rawTableData;
     const responseType = message.responseType;
     const isPermissionDenied = message.messageType === 'permission_denied';
     const isError = message.messageType === 'error';
@@ -466,9 +535,13 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 data-cy={`copilot-message-list-${mid}`}
               >
                 {tableData.rows.map((row, idx) => {
+                  const rowFullName =
+                    typeof row.fullName === 'string' ? row.fullName.trim() : '';
                   const userObj = row.user ?? row.userId;
                   let label: string;
-                  if (
+                  if (rowFullName) {
+                    label = rowFullName;
+                  } else if (
                     userObj &&
                     typeof userObj === 'object' &&
                     'firstName' in userObj
@@ -831,7 +904,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                             key === 'excel' &&
                             message.tableData?.type === 'table'
                           ) {
-                            void exportCopilotTableToExcel(message.tableData);
+                            void exportCopilotTableToExcel(
+                              normalizeCopilotTableForDisplay(
+                                message.tableData as CopilotTableData,
+                              ),
+                            );
                           }
                         },
                       }}

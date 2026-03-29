@@ -20,6 +20,7 @@ import {
   sendCopilotChatRequest,
   normalizeCopilotError,
   normalizeCopilotResponse,
+  normalizeCopilotTableForDisplay,
   parseCopilotResponse,
   COPILOT_ERROR_MESSAGES,
 } from '@/utils/copilotApiService';
@@ -734,6 +735,9 @@ const CopilotModule: React.FC = () => {
           (!Array.isArray(tableData.rows) || tableData.rows.length === 0)
         ) {
           tableData = undefined;
+        }
+        if (tableData) {
+          tableData = normalizeCopilotTableForDisplay(tableData);
         }
         const responseType = normalized.responseType;
         const displayText =

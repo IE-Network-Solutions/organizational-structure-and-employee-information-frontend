@@ -118,6 +118,95 @@ export interface CopilotTableData {
   rows: Array<Record<string, unknown>>;
 }
 
+const NAME_FRAGMENT_KEYS = ['firstName', 'middleName', 'lastName'] as const;
+const TRIM_WHEN_WIDE_KEYS = ['email', 'officeName'] as const;
+const TRIM_WHEN_BUSY_KEYS = ['positionName', 'employmentTypeName'] as const;
+
+/**
+ * Merges split name columns into one "Full Name" column, removes the index column,
+ * and drops bulky columns when many metrics remain — for a compact Copilot table.
+ */
+export function normalizeCopilotTableForDisplay(
+  tableData: CopilotTableData,
+): CopilotTableData {
+  let columns = tableData.columns.map((c) => ({ ...c }));
+  let rows = tableData.rows.map((r) => ({ ...r }));
+
+  const hasNameFragment = NAME_FRAGMENT_KEYS.some((k) =>
+    columns.some((c) => c.dataIndex === k),
+  );
+
+  if (hasNameFragment) {
+    const indices = NAME_FRAGMENT_KEYS.map((k) =>
+      columns.findIndex((c) => c.dataIndex === k),
+    ).filter((i) => i >= 0);
+    const insertAt = Math.min(...indices);
+
+    columns = columns.filter(
+      (c) =>
+        !NAME_FRAGMENT_KEYS.includes(c.dataIndex as (typeof NAME_FRAGMENT_KEYS)[number]),
+    );
+    columns.splice(insertAt, 0, {
+      key: 'fullName',
+      title: 'Full Name',
+      dataIndex: 'fullName',
+    });
+
+    rows = rows.map((row) => {
+      const r: Record<string, unknown> = { ...row };
+      const parts = NAME_FRAGMENT_KEYS.map((k) =>
+        String(r[k] ?? '').trim(),
+      ).filter(Boolean);
+      NAME_FRAGMENT_KEYS.forEach((k) => delete r[k]);
+      const merged = parts.join(' ').trim();
+      const existing = String(r.fullName ?? r.name ?? '').trim();
+      r.fullName = (merged || existing || '—') as unknown;
+      return r;
+    });
+  }
+
+  columns = columns.filter((c) => c.dataIndex !== 'order');
+  rows = rows.map((row) => {
+    const r = { ...row };
+    delete r.order;
+    return r;
+  });
+
+  const dropKeysFromRows = (
+    keys: readonly string[],
+    cols: typeof columns,
+    rowList: typeof rows,
+  ) => {
+    const nextCols = cols.filter(
+      (c) => !keys.includes(c.dataIndex as string),
+    );
+    const nextRows = rowList.map((row) => {
+      const r = { ...row };
+      keys.forEach((k) => delete (r as Record<string, unknown>)[k]);
+      return r;
+    });
+    return { cols: nextCols, rows: nextRows };
+  };
+
+  if (columns.length > 3) {
+    const dropped = dropKeysFromRows(TRIM_WHEN_WIDE_KEYS, columns, rows);
+    columns = dropped.cols;
+    rows = dropped.rows;
+  }
+
+  if (columns.length > 5) {
+    const dropped = dropKeysFromRows(TRIM_WHEN_BUSY_KEYS, columns, rows);
+    columns = dropped.cols;
+    rows = dropped.rows;
+  }
+
+  return {
+    ...tableData,
+    columns,
+    rows,
+  };
+}
+
 /**
  * Normalized result of a Copilot API response for consistent UI handling.
  * Covers all backend response formats: success/error, permission_denied, empty table, data.table, data.items, etc.
