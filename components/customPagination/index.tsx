@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Input, Select } from 'antd';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { DownOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
@@ -283,7 +283,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           size={isMobile ? 'small' : 'middle'}
           onChange={(value) => handleSizeChange(value)}
           data-cy="pagination-page-size-select"
-          suffixIcon={<BsChevronDown className="text-[10px] text-gray-500" />}
+          suffixIcon={<DownOutlined className="text-[10px] text-gray-500" />}
           dropdownStyle={{ borderRadius: '8px' }}
         >
           {selectPageSizes.map((size) => (

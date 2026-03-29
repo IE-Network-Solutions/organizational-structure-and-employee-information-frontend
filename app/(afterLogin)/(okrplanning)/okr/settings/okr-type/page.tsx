@@ -142,9 +142,7 @@ const OkrTypePage = () => {
       >
         {/* Advanced OKR Card */}
         <div
-          onClick={() =>
-            !isSwitching && handleRadioChange('Advanced')
-          }
+          onClick={() => !isSwitching && handleRadioChange('Advanced')}
           className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isAdvancedActive
               ? 'border-[#2b54ad] bg-white shadow-md'
@@ -183,9 +181,7 @@ const OkrTypePage = () => {
 
         {/* Basic OKR Card */}
         <div
-          onClick={() =>
-            !isSwitching && handleRadioChange('Basic')
-          }
+          onClick={() => !isSwitching && handleRadioChange('Basic')}
           className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isBasicActive
               ? 'border-[#2b54ad] bg-white shadow-md'
