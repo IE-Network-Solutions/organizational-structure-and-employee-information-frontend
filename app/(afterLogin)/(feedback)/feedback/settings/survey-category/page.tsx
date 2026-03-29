@@ -26,7 +26,11 @@ const page = () => {
       searchParams?.createdBy || '',
     );
   return (
-    <div data-cy="survey-category-page" id="surveyCategoryPage">
+    <div
+      data-cy="survey-category-page"
+      id="surveyCategoryPage"
+      className="rounded-lg border border-gray-200 p-4"
+    >
       <div
         className="flex justify-between text-xs mx-2 overflow-x-auto "
         data-cy={`survey-category-page-actions`}
