@@ -144,7 +144,9 @@ export function normalizeCopilotTableForDisplay(
 
     columns = columns.filter(
       (c) =>
-        !NAME_FRAGMENT_KEYS.includes(c.dataIndex as (typeof NAME_FRAGMENT_KEYS)[number]),
+        !NAME_FRAGMENT_KEYS.includes(
+          c.dataIndex as (typeof NAME_FRAGMENT_KEYS)[number],
+        ),
     );
     columns.splice(insertAt, 0, {
       key: 'fullName',
@@ -177,9 +179,7 @@ export function normalizeCopilotTableForDisplay(
     cols: typeof columns,
     rowList: typeof rows,
   ) => {
-    const nextCols = cols.filter(
-      (c) => !keys.includes(c.dataIndex as string),
-    );
+    const nextCols = cols.filter((c) => !keys.includes(c.dataIndex as string));
     const nextRows = rowList.map((row) => {
       const r = { ...row };
       keys.forEach((k) => delete (r as Record<string, unknown>)[k]);
