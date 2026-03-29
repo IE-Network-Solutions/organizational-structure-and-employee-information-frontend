@@ -674,6 +674,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   style={{
                     borderBottom: `1px solid ${COPILOT_THEME.userReportCardBorder}40`,
                   }}
+                  data-cy={`copilot-user-message-header-${mid}`}
                 >
                   <span
                     className="text-xs font-medium tabular-nums"
@@ -699,7 +700,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                     </Tooltip>
                   ) : null}
                 </div>
-                <div className="px-3 pb-3 pt-2.5">
+                <div
+                  className="px-3 pb-3 pt-2.5"
+                  data-cy={`copilot-user-message-body-${mid}`}
+                >
                   <Text
                     className="block text-left text-[15px] font-medium leading-snug whitespace-pre-wrap"
                     style={{ color: reportAccent }}
@@ -794,7 +798,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               id={`copilot-message-bubble-copilot-${mid}`}
               data-cy={`copilot-message-bubble-copilot-${mid}`}
             >
-              <div className="mb-3 flex items-center gap-2 border-b border-[#F3F4F6] pb-2">
+              <div
+                className="mb-3 flex items-center gap-2 border-b border-[#F3F4F6] pb-2"
+                data-cy={`copilot-assistant-message-header-${mid}`}
+              >
                 <span
                   className="text-xs tabular-nums text-[#9CA3AF]"
                   id={`copilot-assistant-message-time-${mid}`}
@@ -802,7 +809,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 >
                   {formatMessageTime(message.timestamp)}
                 </span>
-                <div className="ml-auto flex items-center">
+                <div
+                  className="ml-auto flex items-center"
+                  data-cy={`copilot-assistant-message-actions-${mid}`}
+                >
                   {showShareOnly ? (
                     <Dropdown
                       trigger={['click']}
@@ -830,9 +840,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                         type="text"
                         size="small"
                         icon={
-                          <ShareAltOutlined
-                            className="text-base text-[#9CA3AF]"
-                          />
+                          <ShareAltOutlined className="text-base text-[#9CA3AF]" />
                         }
                         className="!h-8 !min-w-0 !px-2 !text-[#9CA3AF] hover:!bg-transparent"
                         id={`copilot-share-exchange-button-${mid}`}
@@ -880,7 +888,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             id="copilot-loading-generating-box"
             data-cy="copilot-loading-generating-box"
           >
-            <div className="flex w-full justify-center">
+            <div
+              className="flex w-full justify-center"
+              data-cy="copilot-loading-dots-wrap"
+            >
               <CopilotTypingDots variant="dark" />
             </div>
           </div>

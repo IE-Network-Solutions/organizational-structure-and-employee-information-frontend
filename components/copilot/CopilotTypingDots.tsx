@@ -19,9 +19,18 @@ const CopilotTypingDots: React.FC<CopilotTypingDotsProps> = ({
     id="copilot-typing-dots"
     data-cy="copilot-typing-dots"
   >
-    <span className="copilot-typing-dots__dot" />
-    <span className="copilot-typing-dots__dot" />
-    <span className="copilot-typing-dots__dot" />
+    <span
+      className="copilot-typing-dots__dot"
+      data-cy="copilot-typing-dots-dot-1"
+    />
+    <span
+      className="copilot-typing-dots__dot"
+      data-cy="copilot-typing-dots-dot-2"
+    />
+    <span
+      className="copilot-typing-dots__dot"
+      data-cy="copilot-typing-dots-dot-3"
+    />
   </span>
 );
 

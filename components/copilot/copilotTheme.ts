@@ -24,7 +24,8 @@ export const COPILOT_THEME = {
   floatFabBorderWidth: 1,
   floatFabIcon: '#1E40AF',
   floatFabRadius: 6,
-  floatFabShadow: '0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(37, 99, 235, 0.12)',
+  floatFabShadow:
+    '0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(37, 99, 235, 0.12)',
   /** Popover pill — 265×46 */
   floatPopoverBorder: '#E5E7EB',
   floatPopoverText: '#374151',

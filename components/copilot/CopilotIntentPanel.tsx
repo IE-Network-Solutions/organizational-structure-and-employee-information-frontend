@@ -145,7 +145,10 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
           id={uid('copilot-saved-reports-section')}
           data-cy={ucy('copilot-saved-reports-section')}
         >
-          <div className="mb-3">
+          <div
+            className="mb-3"
+            data-cy={ucy('copilot-saved-section-label-wrap')}
+          >
             <span
               id={uid('copilot-saved-section-label')}
               className="text-[14px] font-semibold text-[#333333]"
@@ -181,7 +184,10 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
                       id={uid(`copilot-saved-edit-inline-${s.id}`)}
                       data-cy={`copilot-saved-edit-inline-${variant}-${s.id}`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div
+                        className="flex items-center gap-2"
+                        data-cy={`copilot-saved-edit-row-${variant}-${s.id}`}
+                      >
                         <Input
                           value={editSavedTitle}
                           onChange={(e) => setEditSavedTitle(e.target.value)}
@@ -215,7 +221,10 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center gap-2">
+                      <div
+                        className="flex items-center gap-2"
+                        data-cy={`copilot-saved-chat-row-${variant}-${s.id}`}
+                      >
                         <button
                           type="button"
                           onClick={() => onOpenSavedChat(s.id)}
@@ -285,6 +294,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#E5E7EB] bg-white text-[#6B7280] shadow-sm"
                   aria-hidden
+                  data-cy={ucy('copilot-intent-collapse-expand-icon')}
                 >
                   <CaretDownOutlined
                     className="text-[10px] transition-transform duration-200"

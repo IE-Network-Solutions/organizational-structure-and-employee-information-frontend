@@ -37,6 +37,7 @@ const CopilotFloatEntry: React.FC = () => {
         style={{ gap: GAP }}
         role="group"
         aria-label="Chat With Copilot"
+        data-cy="copilot-float-entry-row"
       >
         <div
           className="relative box-border flex shrink-0 items-center justify-center border bg-white px-5"
@@ -52,6 +53,7 @@ const CopilotFloatEntry: React.FC = () => {
         >
           <span
             className="select-none text-center text-[14px] font-medium leading-none text-[#374151]"
+            data-cy="copilot-float-label-text"
           >
             Chat With Copilot
           </span>
@@ -59,10 +61,12 @@ const CopilotFloatEntry: React.FC = () => {
             className="pointer-events-none absolute left-full top-1/2 z-0 -mt-[6px] border-y-[6px] border-l-[7px] border-y-transparent"
             style={{ borderLeftColor: COPILOT_THEME.floatPopoverBorder }}
             aria-hidden
+            data-cy="copilot-float-label-caret-border"
           />
           <span
             className="pointer-events-none absolute left-full top-1/2 z-[1] -mt-[5px] ml-px border-y-[5px] border-l-[6px] border-y-transparent border-l-white"
             aria-hidden
+            data-cy="copilot-float-label-caret-fill"
           />
         </div>
 

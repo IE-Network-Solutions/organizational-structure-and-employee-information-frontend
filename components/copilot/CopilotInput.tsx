@@ -85,11 +85,13 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
               className="flex shrink-0 items-center gap-1.5"
               style={{ height: composerH }}
               aria-hidden={false}
+              data-cy="copilot-input-leading"
             >
               <span
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border bg-white"
                 style={{ borderColor: chromeBorder }}
                 title="Copilot"
+                data-cy="copilot-input-avatar-wrap"
               >
                 <CopilotAiIcon
                   size={18}
@@ -136,7 +138,12 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
                 data-cy="copilot-stop-button"
                 aria-label="Stop response"
               >
-                <span className="text-xs font-semibold">Stop</span>
+                <span
+                  className="text-xs font-semibold"
+                  data-cy="copilot-stop-button-label"
+                >
+                  Stop
+                </span>
               </button>
             </Tooltip>
           ) : (
