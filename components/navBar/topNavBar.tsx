@@ -11,7 +11,6 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { FiSearch, FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
-import Copilot from '@/components/copilot';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
@@ -134,9 +133,6 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
             Install App
           </Button>
         )}
-
-        {/* Copilot Button */}
-        <Copilot />
 
         {/* Notification Bell */}
         <Dropdown

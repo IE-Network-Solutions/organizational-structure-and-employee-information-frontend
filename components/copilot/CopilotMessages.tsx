@@ -1,33 +1,44 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   Avatar,
   Typography,
-  Spin,
   Tag,
   Table,
   Button,
-  Modal,
   Alert,
   Collapse,
   Tooltip,
+  Dropdown,
 } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   COPILOT_ERROR_MESSAGES,
   exportCopilotTableToExcel,
 } from '@/utils/copilotApiService';
+import CopilotAiIcon from './CopilotAiIcon';
+import CopilotTypingDots from './CopilotTypingDots';
 import {
-  RobotOutlined,
-  ExpandOutlined,
-  CompressOutlined,
   WarningOutlined,
   InfoCircleOutlined,
   DownloadOutlined,
+  ShareAltOutlined,
   LinkOutlined,
+  FileExcelOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
+import { COPILOT_THEME } from './copilotTheme';
 
 const { Text } = Typography;
+
+function formatMessageTime(d: Date): string {
+  return d.toLocaleTimeString(undefined, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
 
 export interface Message {
   id: string;
@@ -101,9 +112,6 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   onShareExchange,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [fullScreenTableMessageId, setFullScreenTableMessageId] = useState<
-    string | null
-  >(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -113,19 +121,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     scrollToBottom();
   }, [messages.length, isLoading]);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-  };
-
   const safeInstanceKey = (key: string) => key.replace(/[^a-zA-Z0-9_-]/g, '_');
 
   const renderTable = (
     tableData: NonNullable<Message['tableData']>,
-    isFullScreen: boolean,
     instanceKey: string,
   ) => {
     const ik = safeInstanceKey(instanceKey);
@@ -133,11 +132,13 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
       <>
         <div
           style={{
-            overflowX: 'auto',
-            borderRadius: '8px',
-            boxShadow: isFullScreen ? 'none' : '0 2px 8px rgba(0, 0, 0, 0.08)',
+            overflowX: 'hidden',
+            maxWidth: '100%',
+            borderRadius: '12px',
+            boxShadow: 'none',
+            border: '1px solid #E0E0E0',
             background: '#fff',
-            minWidth: '100%',
+            width: '100%',
           }}
           id={`copilot-table-wrapper-${ik}`}
           data-cy={`copilot-table-wrapper-${ik}`}
@@ -150,6 +151,14 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               title: col.dataIndex === 'order' ? '' : col.title,
               dataIndex: col.dataIndex,
               key: col.key,
+              onHeaderCell: () =>
+                ({
+                  'data-column-key': String(col.dataIndex),
+                }) as React.HTMLAttributes<HTMLTableCellElement>,
+              onCell: () =>
+                ({
+                  'data-column-key': String(col.dataIndex),
+                }) as React.HTMLAttributes<HTMLTableCellElement>,
               render: (text: any) => {
                 // Special styling for the order column
                 if (col.dataIndex === 'order') {
@@ -157,7 +166,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                     <span
                       style={{
                         fontWeight: 600,
-                        color: '#3636F0',
+                        color: '#1E40AF',
                         display: 'inline-block',
                         minWidth: '30px',
                       }}
@@ -202,7 +211,8 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
                 return (
                   <span
-                    style={{ display: 'inline-block', minWidth: '200px' }}
+                    className="copilot-table-cell-inner"
+                    style={{ display: 'block', minWidth: 0, maxWidth: '100%' }}
                     data-cy="copilot-table-data-cell"
                   >
                     {display}
@@ -211,12 +221,10 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               },
               ...(col.dataIndex === 'order'
                 ? {
-                    width: 80,
+                    width: 56,
                     align: 'center' as const,
-                    fixed: 'left' as const,
                   }
                 : {
-                    width: 'auto',
                     ellipsis: false,
                   }),
             }))}
@@ -226,17 +234,17 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                     pageSize: 10,
                     showSizeChanger: false,
                     showQuickJumper: false,
-                    style: { marginTop: '16px', textAlign: 'center' },
+                    style: { marginTop: '12px', textAlign: 'center' },
                   }
                 : false
             }
-            size="middle"
-            className="copilot-table"
+            size="small"
+            className="copilot-table copilot-table-compact"
             rowKey={(record, index) => `row-${index}`}
             bordered={false}
             style={{
               backgroundColor: '#fff',
-              tableLayout: 'fixed',
+              tableLayout: 'auto',
               width: '100%',
             }}
           />
@@ -246,66 +254,87 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
           data-cy={`copilot-table-styles-${ik}`}
           dangerouslySetInnerHTML={{
             __html: `
-              .copilot-table .ant-table {
-                table-layout: fixed !important;
+              .copilot-table.copilot-table-compact .ant-table {
+                table-layout: auto !important;
                 width: 100% !important;
-                min-width: 400px !important;
+                max-width: 100% !important;
+                min-width: 0 !important;
+                font-size: 13px !important;
+                line-height: 1.45 !important;
+              }
+              .copilot-table .ant-table-container,
+              .copilot-table .ant-table-content,
+              .copilot-table .ant-table-body {
+                overflow-x: hidden !important;
               }
               .copilot-table .ant-table-container {
-                min-width: 100% !important;
+                min-width: 0 !important;
+                border: none !important;
+              }
+              .copilot-table .ant-table-cell {
+                border-inline-end: none !important;
               }
               .copilot-table .ant-table-thead > tr > th {
-                background: #fafafa !important;
+                background: #F3F4F6 !important;
+                color: #374151 !important;
                 font-weight: 600 !important;
-                border-bottom: 2px solid #e8e8e8 !important;
-                padding: 12px 16px !important;
-                white-space: nowrap !important;
-              }
-              .copilot-table .ant-table-thead > tr > th:first-child {
-                width: 80px !important;
-                min-width: 80px !important;
-                max-width: 80px !important;
-              }
-              .copilot-table .ant-table-thead > tr > th:last-child {
-                width: auto !important;
-                min-width: 300px !important;
+                text-align: left !important;
+                border-bottom: 1px solid #E0E0E0 !important;
+                border-right: none !important;
+                border-left: none !important;
+                border-top: none !important;
+                padding: 8px 12px !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                overflow-wrap: anywhere !important;
+                vertical-align: top !important;
+                font-size: 13px !important;
               }
               .copilot-table .ant-table-tbody > tr > td {
-                padding: 12px 16px !important;
-                border-bottom: 1px solid #f0f0f0 !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
+                padding: 8px 12px !important;
+                text-align: left !important;
+                color: #374151 !important;
+                background: #fff !important;
+                border-bottom: 1px solid #E0E0E0 !important;
+                border-right: none !important;
+                border-left: none !important;
+                white-space: normal !important;
+                word-break: break-word !important;
+                overflow-wrap: anywhere !important;
+                overflow: visible !important;
+                vertical-align: top !important;
+                font-size: 13px !important;
               }
-              .copilot-table .ant-table-tbody > tr > td:first-child {
-                width: 80px !important;
-                min-width: 80px !important;
-                max-width: 80px !important;
+              .copilot-table .ant-table-thead > tr > th[data-column-key="order"],
+              .copilot-table .ant-table-tbody > tr > td[data-column-key="order"] {
+                width: 1% !important;
+                min-width: 48px !important;
+                max-width: 72px !important;
                 text-align: center !important;
+                white-space: nowrap !important;
               }
-              .copilot-table .ant-table-tbody > tr > td:last-child {
-                width: auto !important;
-                min-width: 300px !important;
+              .copilot-table .ant-table-tbody > tr:last-child > td {
+                border-bottom: none !important;
               }
               .copilot-table .ant-table-thead > tr > th[data-column-key="user"],
               .copilot-table .ant-table-tbody > tr > td[data-column-key="user"] {
                 width: auto !important;
-                min-width: 300px !important;
+                min-width: 0 !important;
               }
               .copilot-table .ant-table-thead > tr > th[data-column-key="supervisor"],
               .copilot-table .ant-table-tbody > tr > td[data-column-key="supervisor"] {
                 width: auto !important;
-                min-width: 300px !important;
+                min-width: 0 !important;
               }
               .copilot-table .ant-table-tbody > tr:hover > td {
-                background: #f5f5f5 !important;
+                background: #fff !important;
               }
               .copilot-table .ant-pagination-item {
                 border-radius: 4px;
               }
               .copilot-table .ant-pagination-item-active {
-                background: #3636F0 !important;
-                border-color: #3636F0 !important;
+                background: #1E40AF !important;
+                border-color: #1E40AF !important;
               }
               .copilot-table .ant-pagination-item-active a {
                 color: #fff !important;
@@ -360,7 +389,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             </div>
           ) : (
             <Text
-              className="text-sm leading-relaxed whitespace-pre-wrap block mb-3"
+              className="copilot-assistant-body mb-3 block whitespace-pre-wrap text-[15px] font-normal leading-[1.5] text-[#333333]"
               id={`copilot-message-text-${mid}`}
               data-cy={`copilot-message-text-${mid}`}
             >
@@ -400,34 +429,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                         id={`copilot-summary-table-content-${mid}`}
                         data-cy={`copilot-summary-table-content-${mid}`}
                       >
-                        <div
-                          className="flex items-center justify-end gap-2 mb-2"
-                          id={`copilot-summary-table-actions-${mid}`}
-                          data-cy={`copilot-summary-table-actions-${mid}`}
-                        >
-                          <Button
-                            type="primary"
-                            size="small"
-                            onClick={() => exportCopilotTableToExcel(tableData)}
-                            id={`copilot-table-export-excel-summary-${mid}`}
-                            data-cy={`copilot-table-export-excel-summary-${mid}`}
-                          >
-                            Export to Excel
-                          </Button>
-                          <Button
-                            type="link"
-                            size="small"
-                            icon={<ExpandOutlined />}
-                            onClick={() =>
-                              setFullScreenTableMessageId(message.id)
-                            }
-                            id={`copilot-table-maximize-summary-${mid}`}
-                            data-cy={`copilot-table-maximize-summary-${mid}`}
-                          >
-                            Maximize
-                          </Button>
-                        </div>
-                        {renderTable(tableData, false, `${message.id}-summary`)}
+                        {renderTable(tableData, `${message.id}-summary`)}
                       </div>
                     ),
                   },
@@ -518,22 +520,6 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   );
                 })}
               </ul>
-              <div
-                className="mt-2"
-                id={`copilot-message-list-actions-${mid}`}
-                data-cy={`copilot-message-list-actions-${mid}`}
-              >
-                <Button
-                  type="link"
-                  size="small"
-                  onClick={() => exportCopilotTableToExcel(tableData)}
-                  className="p-0 h-auto !text-primary"
-                  id={`copilot-table-export-excel-list-${mid}`}
-                  data-cy={`copilot-table-export-excel-list-${mid}`}
-                >
-                  Export to Excel
-                </Button>
-              </div>
             </div>
           )}
 
@@ -546,55 +532,22 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
           Array.isArray(tableData.rows) &&
           tableData.rows.length > 0 && (
             <div
-              className="mt-4 mb-3 relative z-0"
+              className="mt-3 mb-0 relative z-0"
               id={`copilot-message-table-container-${mid}`}
               data-cy={`copilot-message-table-container-${mid}`}
             >
-              <div
-                className="flex items-center justify-between mb-3 gap-3"
-                id={`copilot-message-table-header-${mid}`}
-                data-cy={`copilot-message-table-header-${mid}`}
-              >
-                {tableData.title && (
-                  <Text
-                    strong
-                    className="text-base"
-                    style={{ color: '#262626' }}
-                    id={`copilot-message-table-title-${mid}`}
-                    data-cy={`copilot-message-table-title-${mid}`}
-                  >
-                    {tableData.title}
-                  </Text>
-                )}
-                <div
-                  className="flex items-center gap-3 ml-auto"
-                  id={`copilot-message-table-actions-${mid}`}
-                  data-cy={`copilot-message-table-actions-${mid}`}
+              {tableData.title ? (
+                <Text
+                  strong
+                  className="mb-2 block text-[13px] font-semibold"
+                  style={{ color: '#374151' }}
+                  id={`copilot-message-table-title-${mid}`}
+                  data-cy={`copilot-message-table-title-${mid}`}
                 >
-                  <Button
-                    type="primary"
-                    size="small"
-                    onClick={() => exportCopilotTableToExcel(tableData)}
-                    className="h-auto border-none bg-primary px-3 text-white hover:brightness-105"
-                    id={`copilot-table-export-excel-${mid}`}
-                    data-cy={`copilot-table-export-excel-${mid}`}
-                  >
-                    Export to Excel
-                  </Button>
-                  <Button
-                    type="link"
-                    size="small"
-                    icon={<ExpandOutlined />}
-                    onClick={() => setFullScreenTableMessageId(message.id)}
-                    className="relative z-10 h-auto p-0 text-slate-500 hover:!text-primary"
-                    id={`copilot-table-maximize-${mid}`}
-                    data-cy={`copilot-table-maximize-${mid}`}
-                  >
-                    Maximize
-                  </Button>
-                </div>
-              </div>
-              {renderTable(tableData, false, message.id)}
+                  {tableData.title}
+                </Text>
+              ) : null}
+              {renderTable(tableData, message.id)}
             </div>
           )}
         {tableData &&
@@ -679,7 +632,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
   return (
     <div
-      className="mx-auto h-full max-w-4xl space-y-5 overflow-y-auto px-2 py-4 md:px-4"
+      className="h-full w-full max-w-none space-y-6 overflow-y-auto px-1 py-2 sm:px-2"
       id="copilot-messages"
       data-cy="copilot-messages"
     >
@@ -687,41 +640,56 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
         const isUser = message.sender === 'user';
         const isPermissionDenied = message.messageType === 'permission_denied';
         const isError = message.messageType === 'error';
-        const assistantBubbleClass = isPermissionDenied
-          ? 'border-amber-300 bg-amber-50/90 shadow-sm'
+        const assistantBubbleSurface = isPermissionDenied
+          ? 'border border-amber-300 bg-amber-50/90'
           : isError
-            ? 'border-red-200 bg-red-50/80 shadow-sm'
-            : 'border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)]';
+            ? 'border border-red-200 bg-red-50/80'
+            : 'border border-[#E0E0E0] bg-white';
 
         if (isUser) {
           const canSaveQuestion =
             !readOnlyShared && onSaveUserQuestion && message.text?.trim();
           const mid = safeInstanceKey(message.id);
+          const reportAccent = COPILOT_THEME.userReportCardAccent;
           return (
             <div
               key={message.id}
-              className="flex justify-end gap-3"
+              className="flex justify-end items-start gap-4"
               id={`copilot-message-${mid}`}
               data-cy={`copilot-message-${message.id}`}
             >
               <div
-                className="max-w-[min(75%,36rem)] overflow-hidden rounded-[12px] border border-[#2563EB] bg-[#E3EDFF] shadow-sm"
+                className="max-w-[min(75%,22rem)] min-w-0 overflow-hidden border"
+                style={{
+                  borderRadius: COPILOT_THEME.userReportCardRadius,
+                  borderColor: COPILOT_THEME.userReportCardBorder,
+                  borderWidth: 1,
+                  backgroundColor: COPILOT_THEME.userReportCardBg,
+                }}
                 id={`copilot-message-bubble-user-${mid}`}
                 data-cy={`copilot-message-bubble-user-${mid}`}
               >
-                <div className="flex items-center justify-between px-3 pt-2.5 pb-1">
-                  <Text
-                    className="text-xs font-normal"
-                    style={{ color: '#2563EB' }}
+                <div
+                  className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-2"
+                  style={{
+                    borderBottom: `1px solid ${COPILOT_THEME.userReportCardBorder}40`,
+                  }}
+                >
+                  <span
+                    className="text-xs font-medium tabular-nums"
+                    style={{ color: reportAccent }}
+                    id={`copilot-user-message-time-${mid}`}
+                    data-cy={`copilot-user-message-time-${mid}`}
                   >
-                    {formatTime(message.timestamp)}
-                  </Text>
+                    {formatMessageTime(message.timestamp)}
+                  </span>
                   {canSaveQuestion ? (
                     <Tooltip title="Save this question to Saved reports">
                       <button
                         type="button"
                         onClick={() => onSaveUserQuestion(message)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded text-[#2563EB] transition-colors hover:bg-[#2563EB]/10"
+                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]/35"
+                        style={{ color: reportAccent }}
                         aria-label="Save question to Saved reports"
                         id={`copilot-user-message-save-${mid}`}
                         data-cy={`copilot-user-message-save-${mid}`}
@@ -729,14 +697,14 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                         <DownloadOutlined className="text-lg" />
                       </button>
                     </Tooltip>
-                  ) : (
-                    <span className="h-8 w-8 shrink-0" aria-hidden />
-                  )}
+                  ) : null}
                 </div>
-                <div className="px-3 pb-3 pt-0.5">
+                <div className="px-3 pb-3 pt-2.5">
                   <Text
-                    className="block text-sm font-medium leading-relaxed whitespace-pre-wrap"
-                    style={{ color: '#2563EB' }}
+                    className="block text-left text-[15px] font-medium leading-snug whitespace-pre-wrap"
+                    style={{ color: reportAccent }}
+                    id={`copilot-user-prompt-text-${mid}`}
+                    data-cy={`copilot-user-prompt-text-${mid}`}
                   >
                     {message.text}
                   </Text>
@@ -747,9 +715,20 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                 data-cy={`copilot-message-avatar-user-${mid}`}
                 className="inline-flex shrink-0"
               >
-                <Avatar size={36} className="bg-slate-200 text-slate-600">
-                  {userInitials}
-                </Avatar>
+                <Avatar
+                  size={COPILOT_THEME.userMessageAvatarSize}
+                  icon={
+                    <UserOutlined
+                      className="text-[16px]"
+                      style={{ color: COPILOT_THEME.userMessageAvatarIcon }}
+                    />
+                  }
+                  className="border-0"
+                  style={{
+                    backgroundColor: COPILOT_THEME.userMessageAvatarBg,
+                  }}
+                  aria-label={`User (${userInitials})`}
+                />
               </span>
             </div>
           );
@@ -759,97 +738,151 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
         const showShareOnly =
           !readOnlyShared && precedingUser && onShareExchange;
         const mid = safeInstanceKey(message.id);
+        const shareableTable =
+          message.tableData?.type === 'table' &&
+          Array.isArray(message.tableData.rows) &&
+          message.tableData.rows.length > 0;
+        const shareMenuItems: MenuProps['items'] = [
+          {
+            key: 'link',
+            label: 'Copy share link',
+            icon: <LinkOutlined />,
+          },
+          ...(shareableTable
+            ? [
+                {
+                  key: 'excel',
+                  label: 'Export table to Excel',
+                  icon: <FileExcelOutlined />,
+                },
+              ]
+            : []),
+        ];
 
         return (
           <div
             key={message.id}
-            className="flex justify-start gap-3"
+            className="flex justify-start items-start gap-4"
             id={`copilot-message-${mid}`}
             data-cy={`copilot-message-${message.id}`}
           >
             <span
-              id={`copilot-message-avatar-robot-${mid}`}
-              data-cy={`copilot-message-avatar-robot-${mid}`}
-              className="inline-flex shrink-0"
+              id={`copilot-message-avatar-assistant-${mid}`}
+              data-cy={`copilot-message-avatar-assistant-${mid}`}
+              className="inline-flex h-12 w-12 shrink-0 items-center justify-center"
             >
               <Avatar
-                size={36}
-                icon={<RobotOutlined />}
-                className="bg-slate-200 text-slate-600"
+                size={COPILOT_THEME.assistantAvatarSize}
+                icon={
+                  <CopilotAiIcon
+                    size={24}
+                    color={COPILOT_THEME.assistantAvatarGlyph}
+                    aria-hidden
+                  />
+                }
+                className="border-0"
+                style={{
+                  backgroundColor: COPILOT_THEME.assistantAvatarOutlinedBg,
+                }}
               />
             </span>
             <div
-              className={`max-w-[min(85%,48rem)] rounded-xl border px-4 py-3 ${assistantBubbleClass}`}
+              className={`min-w-0 flex-1 max-w-full p-4 sm:p-5 ${assistantBubbleSurface}`}
+              style={{
+                borderRadius: COPILOT_THEME.assistantBubbleRadius,
+              }}
               id={`copilot-message-bubble-copilot-${mid}`}
               data-cy={`copilot-message-bubble-copilot-${mid}`}
             >
-              {renderMessageContent(message)}
-              <div
-                className="mt-2 border-t border-slate-100 pt-2"
-                id={`copilot-message-timestamp-${mid}`}
-                data-cy={`copilot-message-timestamp-${mid}`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Text
-                    type="secondary"
-                    className="text-xs text-slate-500"
-                    id={`copilot-message-timestamp-text-${mid}`}
-                    data-cy={`copilot-message-timestamp-text-${mid}`}
-                  >
-                    {formatTime(message.timestamp)}
-                  </Text>
-                  {showShareOnly && (
-                    <div
-                      className="flex items-center gap-0.5"
-                      id={`copilot-exchange-actions-${mid}`}
-                      data-cy={`copilot-exchange-actions-${mid}`}
+              <div className="mb-3 flex items-center gap-2 border-b border-[#F3F4F6] pb-2">
+                <span
+                  className="text-xs tabular-nums text-[#9CA3AF]"
+                  id={`copilot-assistant-message-time-${mid}`}
+                  data-cy={`copilot-assistant-message-time-${mid}`}
+                >
+                  {formatMessageTime(message.timestamp)}
+                </span>
+                <div className="ml-auto flex items-center">
+                  {showShareOnly ? (
+                    <Dropdown
+                      trigger={['click']}
+                      placement="bottomRight"
+                      menu={{
+                        items: shareMenuItems,
+                        onClick: ({ key }) => {
+                          if (
+                            key === 'link' &&
+                            onShareExchange &&
+                            precedingUser
+                          ) {
+                            void onShareExchange(precedingUser, message);
+                          }
+                          if (
+                            key === 'excel' &&
+                            message.tableData?.type === 'table'
+                          ) {
+                            void exportCopilotTableToExcel(message.tableData);
+                          }
+                        },
+                      }}
                     >
-                      <Tooltip title="Copy share link (this Q&A only)">
-                        <Button
-                          type="text"
-                          size="small"
-                          icon={
-                            <LinkOutlined className="text-primary text-base" />
-                          }
-                          onClick={() =>
-                            void onShareExchange(precedingUser!, message)
-                          }
-                          className="!text-primary hover:!bg-primary/10"
-                          id={`copilot-share-exchange-button-${mid}`}
-                          data-cy={`copilot-share-exchange-button-${mid}`}
-                        />
-                      </Tooltip>
-                    </div>
-                  )}
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={
+                          <ShareAltOutlined
+                            className="text-base text-[#9CA3AF]"
+                          />
+                        }
+                        className="!h-8 !min-w-0 !px-2 !text-[#9CA3AF] hover:!bg-transparent"
+                        id={`copilot-share-exchange-button-${mid}`}
+                        data-cy={`copilot-share-exchange-button-${mid}`}
+                        aria-label="Share or export"
+                      />
+                    </Dropdown>
+                  ) : null}
                 </div>
               </div>
+              {renderMessageContent(message)}
             </div>
           </div>
         );
       })}
       {isLoading && (
         <div
-          className="flex justify-start gap-3"
+          className="flex items-center gap-3 px-1 py-2 sm:px-2"
           id="copilot-loading"
           data-cy="copilot-loading"
+          aria-busy="true"
         >
           <span
             id="copilot-loading-avatar"
             data-cy="copilot-loading-avatar"
-            className="inline-flex shrink-0"
+            className="inline-flex h-12 w-12 shrink-0 items-center justify-center"
           >
             <Avatar
-              size={36}
-              icon={<RobotOutlined />}
-              className="bg-slate-200 text-slate-600"
+              size={COPILOT_THEME.assistantAvatarSize}
+              icon={
+                <CopilotAiIcon
+                  size={24}
+                  color={COPILOT_THEME.assistantAvatarGlyph}
+                  aria-hidden
+                />
+              }
+              className="border-0"
+              style={{
+                backgroundColor: COPILOT_THEME.assistantAvatarOutlinedBg,
+              }}
             />
           </span>
           <div
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
-            id="copilot-loading-spinner"
-            data-cy="copilot-loading-spinner"
+            className="flex h-[76px] w-[58px] shrink-0 flex-col justify-end rounded-[10px] border border-[#E0E0E0] bg-white px-2 pb-3 pt-2"
+            id="copilot-loading-generating-box"
+            data-cy="copilot-loading-generating-box"
           >
-            <Spin size="small" />
+            <div className="flex w-full justify-center">
+              <CopilotTypingDots variant="dark" />
+            </div>
           </div>
         </div>
       )}
@@ -858,56 +891,6 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
         id="copilot-messages-end"
         data-cy="copilot-messages-end"
       />
-
-      {/* Full screen table modal - zIndex above full-screen Copilot wrapper (9999) so Maximize stays clickable */}
-      <Modal
-        open={!!fullScreenTableMessageId}
-        onCancel={() => setFullScreenTableMessageId(null)}
-        zIndex={10000}
-        footer={
-          <Button
-            icon={<CompressOutlined />}
-            onClick={() => setFullScreenTableMessageId(null)}
-            id="copilot-table-minimize"
-            data-cy="copilot-table-minimize"
-          >
-            Minimize
-          </Button>
-        }
-        width="95vw"
-        styles={{ body: { maxHeight: '85vh', overflow: 'auto' } }}
-        title={(() => {
-          const msg = messages.find((m) => m.id === fullScreenTableMessageId);
-          return msg?.tableData?.title || 'Table';
-        })()}
-        destroyOnClose
-      >
-        <div
-          id="copilot-table-modal"
-          data-cy="copilot-table-modal"
-          className="copilot-table-modal-inner"
-        >
-          {fullScreenTableMessageId &&
-            (() => {
-              const msg = messages.find(
-                (m) => m.id === fullScreenTableMessageId,
-              );
-              const tableData = msg?.tableData;
-              if (
-                !tableData ||
-                tableData.type !== 'table' ||
-                !tableData.columns ||
-                !tableData.rows
-              )
-                return null;
-              return renderTable(
-                tableData,
-                true,
-                `${fullScreenTableMessageId}-fullscreen`,
-              );
-            })()}
-        </div>
-      </Modal>
     </div>
   );
 };

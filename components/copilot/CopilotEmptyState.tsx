@@ -61,20 +61,13 @@ const CopilotEmptyState: React.FC<CopilotEmptyStateProps> = ({
         data-cy="copilot-empty-state-content"
       >
         <p
-          className="text-base font-semibold leading-relaxed text-slate-900"
+          className="text-[15px] font-medium leading-7 text-black md:text-[16px] md:leading-8"
           id="copilot-empty-state-title"
           data-cy="copilot-empty-state-title"
         >
           {userName
-            ? `Hi ${userName} — ask your copilot to get started, or use available reports.`
+            ? `Hi ${userName} — ask your copilot to get started, Use the available Reports.`
             : 'Ask your copilot to get started, Use the available Reports.'}
-        </p>
-        <p
-          className="mt-3 text-[11px] text-slate-400"
-          id="copilot-empty-state-disclaimer"
-          data-cy="copilot-empty-state-disclaimer"
-        >
-          AI-generated content may be incorrect.
         </p>
       </div>
 

@@ -195,7 +195,7 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
 
   const panelContent = (
     <div
-      className="flex h-full min-h-0 flex-col bg-[#F5F6F8]"
+      className="flex h-full min-h-0 flex-col bg-white"
       id="copilot-panel-content"
       data-cy="copilot-panel-content"
     >
@@ -211,7 +211,7 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
         />
       </div>
       <div
-        className="min-h-0 flex-1 overflow-y-auto bg-[#F8F9FA]"
+        className="min-h-0 flex-1 overflow-y-auto bg-white"
         id="copilot-panel-messages"
         data-cy="copilot-panel-messages"
       >
@@ -226,7 +226,7 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
         )}
       </div>
       <div
-        className="flex-shrink-0 border-t border-slate-200 bg-[#F8F9FA]"
+        className="flex-shrink-0 border-t border-slate-200 bg-white"
         id="copilot-panel-input"
         data-cy="copilot-panel-input"
       >
@@ -259,7 +259,7 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
     <>
       {open && isFullScreen && (
         <div
-          className="fixed inset-0 z-[9999] flex h-screen w-screen flex-col overflow-hidden bg-[#F5F6F8]"
+          className="fixed inset-0 z-[9999] flex h-screen w-screen flex-col overflow-hidden bg-white"
           id="copilot-panel-fullscreen-wrapper"
           data-cy="copilot-panel-fullscreen-wrapper"
         >

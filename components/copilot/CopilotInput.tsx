@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { Input, Tooltip } from 'antd';
-import { SendOutlined } from '@ant-design/icons';
-import SelamnewHandIcon from './SelamnewHandIcon';
+import { SendOutlined, EllipsisOutlined } from '@ant-design/icons';
+import CopilotAiIcon from './CopilotAiIcon';
+import { COPILOT_THEME } from './copilotTheme';
 
 interface CopilotInputProps {
   value: string;
@@ -12,11 +13,15 @@ interface CopilotInputProps {
   onStop?: () => void;
   isLoading: boolean;
   placeholder?: string;
+  /**
+   * `workspace` — field + send/stop only (generating indicator lives in the message thread).
+   * `default` — drawer composer: AI chip + more inline with field.
+   */
+  variant?: 'default' | 'workspace';
 }
 
-/**
- * Workspace V2 composer — wide rounded field, circular primary send (paper plane).
- */
+const SEND_SIZE = COPILOT_THEME.sendButtonPx;
+
 const CopilotInput: React.FC<CopilotInputProps> = ({
   value,
   onChange,
@@ -24,6 +29,7 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
   onStop,
   isLoading,
   placeholder = 'Ask Your Copilot',
+  variant = 'default',
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -36,60 +42,132 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
 
   const showStop = isLoading && onStop;
   const canSend = value.trim().length > 0 && !isLoading;
+  const isWorkspace = variant === 'workspace';
+  const sendBg = isWorkspace
+    ? COPILOT_THEME.workspaceSendBlue
+    : COPILOT_THEME.actionBlue;
+  const radius = isWorkspace
+    ? COPILOT_THEME.composerRadiusWorkspace
+    : COPILOT_THEME.composerRadius;
+  const composerW = COPILOT_THEME.composerMaxWidth;
+  const composerH = COPILOT_THEME.composerHeightPx;
+  const chromeBorder = COPILOT_THEME.composerChromeBorder;
 
   return (
     <div
-      className="border-t border-slate-200 bg-white px-4 pb-4 pt-3"
+      className={`border-t bg-white ${isWorkspace ? 'px-2 pb-6 pt-3' : 'px-4 pb-6 pt-4'}`}
+      style={{ borderColor: COPILOT_THEME.hairline }}
       id="copilot-input-wrapper"
       data-cy="copilot-input-wrapper"
     >
       <div
-        id="copilot-input-composer"
-        data-cy="copilot-input-composer"
-        className="mx-auto flex max-w-4xl items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus-within:border-primary/30 focus-within:shadow-[0_0_0_3px_rgba(54,54,240,0.1)]"
+        className="mx-auto w-full"
+        style={{ maxWidth: composerW }}
+        id="copilot-input-inner"
+        data-cy="copilot-input-inner"
       >
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          bordered={false}
-          className="!bg-transparent text-[15px] text-slate-800 placeholder:text-slate-400"
-          id="copilot-input"
-          data-cy="copilot-input"
-        />
-        {showStop ? (
-          <Tooltip title="Stop">
-            <button
-              type="button"
-              onClick={onStop}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition-colors hover:border-primary/40 hover:bg-light_purple hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-              id="copilot-stop-button"
-              data-cy="copilot-stop-button"
-              aria-label="Stop response"
+        <div
+          id="copilot-input-composer"
+          data-cy="copilot-input-composer"
+          className={`box-border flex w-full items-center border bg-white shadow-none ${
+            isWorkspace
+              ? 'gap-3 border-[#E5E7EB] px-4 py-0 focus-within:border-[#E5E7EB]'
+              : 'gap-2 border-[#E5E7EB] px-2 py-0 pl-3 transition-[box-shadow,border-color] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_2px_rgba(37,99,235,0.12)] sm:px-3 sm:pl-4'
+          }`}
+          style={{
+            borderRadius: radius,
+            height: composerH,
+            borderColor: chromeBorder,
+          }}
+        >
+          {!isWorkspace && (
+            <div
+              className="flex shrink-0 items-center gap-1.5"
+              style={{ height: composerH }}
+              aria-hidden={false}
             >
-              <SelamnewHandIcon className="h-5 w-5" />
-            </button>
-          </Tooltip>
-        ) : (
-          <Tooltip title={canSend ? 'Send' : 'Type a message'}>
-            <button
-              type="button"
-              onClick={onSend}
-              disabled={!canSend}
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 ${
-                canSend
-                  ? 'bg-primary text-white shadow-sm hover:brightness-105 active:scale-[0.97]'
-                  : 'cursor-not-allowed bg-slate-200 text-slate-400'
-              }`}
-              id="copilot-send-button"
-              data-cy="copilot-send-button"
-              aria-label="Send message"
-            >
-              <SendOutlined />
-            </button>
-          </Tooltip>
-        )}
+              <span
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border bg-white"
+                style={{ borderColor: chromeBorder }}
+                title="Copilot"
+              >
+                <CopilotAiIcon
+                  size={18}
+                  color={COPILOT_THEME.assistantAvatarGlyph}
+                  aria-hidden
+                />
+              </span>
+              <Tooltip title="More options">
+                <button
+                  type="button"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border bg-white text-[#6B7280] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A48B1]/25"
+                  style={{ borderColor: chromeBorder }}
+                  aria-label="More composer options"
+                  id="copilot-input-more"
+                  data-cy="copilot-input-more"
+                >
+                  <EllipsisOutlined className="text-lg" />
+                </button>
+              </Tooltip>
+            </div>
+          )}
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            bordered={false}
+            className={`min-w-0 flex-1 !bg-transparent text-[15px] font-medium leading-normal ${
+              isWorkspace
+                ? 'text-[#374151] placeholder:text-[#9CA3AF]'
+                : 'text-[#333333] placeholder:text-[#9CA3AF]'
+            }`}
+            id="copilot-input"
+            data-cy="copilot-input"
+          />
+          {showStop ? (
+            <Tooltip title="Stop">
+              <button
+                type="button"
+                onClick={onStop}
+                className="flex shrink-0 items-center justify-center rounded-full border border-[#d9d9d9] bg-white text-[#595959] transition-colors hover:border-primary/40 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/25"
+                style={{ width: SEND_SIZE, height: SEND_SIZE }}
+                id="copilot-stop-button"
+                data-cy="copilot-stop-button"
+                aria-label="Stop response"
+              >
+                <span className="text-xs font-semibold">Stop</span>
+              </button>
+            </Tooltip>
+          ) : (
+            <Tooltip title={canSend ? 'Send' : 'Type a message'}>
+              <button
+                type="button"
+                onClick={onSend}
+                disabled={!canSend}
+                className={`flex shrink-0 items-center justify-center rounded-full text-base transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                  canSend
+                    ? isWorkspace
+                      ? 'text-white shadow-sm active:scale-[0.97] focus-visible:ring-[#1D4ED8]/40'
+                      : 'text-white shadow-sm hover:brightness-105 active:scale-[0.97] focus-visible:ring-[#2563EB]/40'
+                    : 'cursor-not-allowed bg-[#F3F4F6] text-[#9CA3AF]'
+                }`}
+                style={{
+                  width: SEND_SIZE,
+                  height: SEND_SIZE,
+                  ...(canSend ? { backgroundColor: sendBg } : {}),
+                }}
+                id="copilot-send-button"
+                data-cy="copilot-send-button"
+                aria-label="Send message"
+              >
+                <SendOutlined
+                  className={`text-[15px] ${canSend ? 'text-white' : '!text-[#9CA3AF]'}`}
+                />
+              </button>
+            </Tooltip>
+          )}
+        </div>
       </div>
     </div>
   );

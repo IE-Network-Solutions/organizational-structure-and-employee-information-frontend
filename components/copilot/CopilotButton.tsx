@@ -10,9 +10,7 @@ interface CopilotButtonProps {
 /**
  * CopilotButton - Entry point for the Copilot in the header
  *
- * Displays a pill-shaped button with SelamNew hand icon and "Copilot" text.
- * Designed to be subtle but discoverable with a modern, enterprise-grade appearance.
- * Uses the SelamNew hand icon for UI consistency.
+ * Pill button with SelamNew hand icon and "Copilot" text.
  */
 const CopilotButton: React.FC<CopilotButtonProps> = ({
   onClick,

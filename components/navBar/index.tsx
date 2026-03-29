@@ -56,10 +56,10 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-// import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-// import dayjs from 'dayjs';
-// import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import dayjs from 'dayjs';
+import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
@@ -249,6 +249,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const okrMode = useOKRStore((state) => state.okrMode);
   const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
     useCopilotStore();
+  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -1695,7 +1696,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   id="copilot-workspace-root"
                   data-cy="copilot-workspace-root"
                 >
-                  <CopilotModule onClose={() => setCopilotOpen(false)} />
+                  <CopilotModule />
                 </div>
               ) : (
                 children

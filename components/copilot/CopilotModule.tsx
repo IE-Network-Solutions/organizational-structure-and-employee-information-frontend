@@ -8,8 +8,8 @@ import React, {
   useMemo,
 } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Button, message, Alert } from 'antd';
-import { MenuUnfoldOutlined } from '@ant-design/icons';
+import { message, Alert } from 'antd';
+import CopilotReportsPanelToggle from './CopilotReportsPanelToggle';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CopilotMessages, { Message } from './CopilotMessages';
@@ -49,10 +49,6 @@ function persistSavedChats(chats: SavedChatSession[]) {
     })),
   }));
   localStorage.setItem(COPILOT_SAVED_CHATS_KEY, JSON.stringify(toStore));
-}
-
-interface CopilotModuleProps {
-  onClose: () => void;
 }
 
 /**
@@ -438,7 +434,7 @@ function transformResponseDataToTable(
  * Triggered by the Copilot button (no route). Layout: Header | [Chat | Intents].
  * Intents are collapsible by default so chat area is visible without scrolling.
  */
-const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
+const CopilotModule: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { userId } = useAuthenticationStore();
@@ -806,44 +802,37 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
 
   const content = (
     <div
-      className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-[#F5F6F8] px-3 pb-3 pt-2 md:px-4"
+      className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-white px-2 pb-2 pt-2"
       id="copilot-module"
       data-cy="copilot-module"
     >
       <div
-        className="flex min-h-0 flex-1 gap-3 overflow-hidden md:gap-4"
+        className="flex min-h-0 flex-1 gap-4 overflow-hidden md:gap-6"
         id="copilot-module-body"
         data-cy="copilot-module-body"
       >
         <div
-          className="flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-slate-200/90 bg-[#F8F9FA] shadow-sm"
+          className="flex h-full min-w-0 flex-1 flex-col overflow-hidden bg-white"
           id="copilot-module-chat-container"
           data-cy="copilot-module-chat-container"
         >
           <div
-            className="min-h-0 flex-1 overflow-y-auto px-3 py-6 md:px-6"
+            className="min-h-0 flex-1 overflow-y-auto bg-white px-2 py-4 md:px-3 md:py-6"
             id="copilot-module-chat-messages"
             data-cy="copilot-module-chat-messages"
           >
             {messages.length === 0 ? (
               <div
-                className="flex h-full min-h-[200px] flex-col items-center justify-center px-4 text-center"
+                className="flex h-full min-h-[240px] flex-col items-center justify-center px-4 text-center"
                 id="copilot-module-empty-state"
                 data-cy="copilot-module-empty-state"
               >
                 <p
-                  className="max-w-lg text-base font-semibold leading-relaxed text-slate-900 md:text-lg"
+                  className="max-w-[40rem] text-[15px] font-medium leading-7 text-black md:text-[16px] md:leading-8"
                   id="copilot-module-empty-state-greeting"
                   data-cy="copilot-module-empty-state-greeting"
                 >
                   Ask your copilot to get started, Use the available Reports.
-                </p>
-                <p
-                  className="mt-8 text-[11px] text-slate-400"
-                  id="copilot-disclaimer"
-                  data-cy="copilot-disclaimer"
-                >
-                  AI-generated content may be incorrect.
                 </p>
               </div>
             ) : (
@@ -858,13 +847,13 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             )}
           </div>
           <div
-            className="flex-shrink-0 bg-[#F8F9FA]"
+            className="flex-shrink-0 bg-white"
             id="copilot-module-chat-input-container"
             data-cy="copilot-module-chat-input-container"
           >
             {sharedView ? (
               <div
-                className="border-t border-slate-200 px-4 pb-4 pt-3"
+                className="border-t border-slate-200 px-2 pb-3 pt-2"
                 id="copilot-shared-readonly-banner-wrap"
                 data-cy="copilot-shared-readonly-banner-wrap"
               >
@@ -879,52 +868,36 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
                 />
               </div>
             ) : (
-              <>
-                {messages.length > 0 && (
-                  <p
-                    className="px-4 pb-1 pt-2 text-center text-[11px] text-slate-400"
-                    id="copilot-disclaimer-inline"
-                    data-cy="copilot-disclaimer-inline"
-                  >
-                    AI-generated content may be incorrect.
-                  </p>
-                )}
-                <CopilotInput
-                  value={inputValue}
-                  onChange={setInputValue}
-                  onSend={handleSend}
-                  onStop={handleStop}
-                  isLoading={isLoading}
-                  placeholder="Ask Your Copilot"
-                />
-              </>
+              <CopilotInput
+                variant="workspace"
+                value={inputValue}
+                onChange={setInputValue}
+                onSend={handleSend}
+                onStop={handleStop}
+                isLoading={isLoading}
+                placeholder="Ask Your Copilot"
+              />
             )}
           </div>
         </div>
 
         {!isIntentPanelVisible && (
           <div
-            className="hidden shrink-0 flex-col justify-start md:flex"
-            id="copilot-module-show-intents-desktop"
-            data-cy="copilot-module-show-intents-desktop"
+            className="hidden shrink-0 flex-col items-center justify-start pt-2 md:flex"
+            id="copilot-module-reports-toggle-desktop-wrap"
+            data-cy="copilot-module-reports-toggle-desktop-wrap"
           >
-            <Button
-              type="default"
-              icon={<MenuUnfoldOutlined />}
-              onClick={() => setIsIntentPanelVisible(true)}
-              className="flex h-auto items-center gap-2 rounded-xl border-primary/30 bg-white px-4 py-3 !text-primary shadow-md hover:!border-primary hover:!text-primary"
-              title="Saved and available reports"
+            <CopilotReportsPanelToggle
+              expanded={false}
+              onToggle={() => setIsIntentPanelVisible(true)}
               id="copilot-show-intents-button"
-              data-cy="copilot-show-intents-button"
-            >
-              Reports
-            </Button>
+            />
           </div>
         )}
 
         {isIntentPanelVisible && (
           <div
-            className="hidden h-full w-[min(100%,320px)] shrink-0 flex-col overflow-hidden md:flex"
+            className="hidden h-full w-[min(320px,22vw)] min-w-[260px] max-w-[340px] shrink-0 flex-col overflow-hidden md:flex"
             id="copilot-module-intent-panel-desktop"
             data-cy="copilot-module-intent-panel-desktop"
           >
@@ -932,7 +905,6 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
               variant="desktop"
               onIntentSelect={handleIntentSelect}
               onHide={() => setIsIntentPanelVisible(false)}
-              onCloseWorkspace={onClose}
               activeIntentLabel={activeIntentLabel}
               savedChats={savedChats}
               onOpenSavedChat={handleOpenSavedChat}
@@ -946,20 +918,15 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
 
       {!isIntentPanelVisible && (
         <div
-          className="mt-2 shrink-0 md:hidden"
+          className="mt-2 flex shrink-0 flex-col items-center gap-2 md:hidden"
           id="copilot-module-show-intents-mobile"
           data-cy="copilot-module-show-intents-mobile"
         >
-          <Button
-            type="default"
-            icon={<MenuUnfoldOutlined />}
-            onClick={() => setIsIntentPanelVisible(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-primary/30 py-3 !text-primary shadow-md"
+          <CopilotReportsPanelToggle
+            expanded={false}
+            onToggle={() => setIsIntentPanelVisible(true)}
             id="copilot-show-intents-button-mobile"
-            data-cy="copilot-show-intents-button-mobile"
-          >
-            Saved and available reports
-          </Button>
+          />
         </div>
       )}
 
@@ -973,7 +940,6 @@ const CopilotModule: React.FC<CopilotModuleProps> = ({ onClose }) => {
             variant="mobile"
             onIntentSelect={handleIntentSelect}
             onHide={() => setIsIntentPanelVisible(false)}
-            onCloseWorkspace={onClose}
             activeIntentLabel={activeIntentLabel}
             savedChats={savedChats}
             onOpenSavedChat={handleOpenSavedChat}
