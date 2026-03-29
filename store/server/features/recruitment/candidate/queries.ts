@@ -167,6 +167,26 @@ export const useGetAllCandidates = (
   );
 };
 
+/** Unfiltered candidate list for pickers (e.g. Move to Talent Pool). */
+const MOVE_TO_TALENT_POOL_CANDIDATE_LIMIT = 500;
+
+export const useGetCandidatesForMoveToTalentPool = (enabled: boolean) => {
+  return useQuery(
+    ['allCandidates', 'moveToTalentPoolModal', MOVE_TO_TALENT_POOL_CANDIDATE_LIMIT],
+    () =>
+      getAllCandidates(
+        '',
+        '',
+        '',
+        '',
+        '',
+        MOVE_TO_TALENT_POOL_CANDIDATE_LIMIT,
+        1,
+      ),
+    { enabled, staleTime: 60_000 },
+  );
+};
+
 export const useGetTalentPoolCategory = () => {
   return useQuery('TalentPoolCategory', getTalentPoolCategory);
 };

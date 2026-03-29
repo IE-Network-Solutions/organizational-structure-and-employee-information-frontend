@@ -11,7 +11,6 @@ import {
   Upload,
 } from 'antd';
 import React, { useEffect } from 'react';
-import { FaInfoCircle } from 'react-icons/fa';
 import { InboxOutlined } from '@ant-design/icons';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -150,11 +149,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   return (
     <Modal
       data-cy="talent-acquisition-job-create-candidate-drawer"
-      className="ta-candidate-modal"
+      // className="ta-candidate-modal"
+      
       open={createJobDrawer}
       onCancel={onClose}
       footer={null}
-      width={630}
+      width={809}
       title={
         <div
           id="talent-acquisition-create-candidate-div-header"
@@ -180,7 +180,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: 16,
+          padding: '16px 70px',
         },
       }}
       zIndex={10002}
@@ -194,7 +194,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         onFinish={handleSubmit}
       >
         <div
-          className="bg-white border border-[#D9D9D9] rounded-lg -mx-3 sm:mx-0"
+          className="bg-white border border-[#D9D9D9] rounded-lg  sm:mx-0 mx-auto"
           data-cy="talent-acquisition-create-candidate-form-container"
         >
           <div
@@ -205,16 +205,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="fullNameId"
               name="fullName"
               label={
-                <div
-                  className="flex items-center justify-between"
+                <span
+                  className="text-sm font-medium text-gray-700"
                   data-cy="talent-acquisition-create-candidate-full-name-label"
                 >
-                  <span
-                    data-cy="talent-acquisition-create-candidate-full-name-label-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
+                  <span data-cy="talent-acquisition-create-candidate-full-name-label-text">
                     Full Name
-                  </span>
+                  </span>{' '}
                   <span
                     className="text-red-500"
                     aria-hidden
@@ -222,7 +219,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   >
                     *
                   </span>
-                </div>
+                </span>
               }
               rules={[
                 { required: true, message: 'Please input full name!' },
@@ -246,16 +243,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   id="emailAddressId"
                   name="email"
                   label={
-                    <div
-                      className="flex items-center justify-between"
+                    <span
+                      className="text-sm font-medium text-gray-700"
                       data-cy="talent-acquisition-create-candidate-email-label"
                     >
-                      <span
-                        data-cy="talent-acquisition-create-candidate-email-label-text"
-                        className="text-sm font-medium text-gray-700"
-                      >
+                      <span data-cy="talent-acquisition-create-candidate-email-label-text">
                         Email
-                      </span>
+                      </span>{' '}
                       <span
                         className="text-red-500"
                         aria-hidden
@@ -263,7 +257,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                       >
                         *
                       </span>
-                    </div>
+                    </span>
                   }
                   rules={[
                     {
@@ -291,16 +285,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   id="phoneNumberId"
                   name="phone"
                   label={
-                    <div
-                      className="flex items-center justify-between"
+                    <span
+                      className="text-sm font-medium text-gray-700"
                       data-cy="talent-acquisition-create-candidate-phone-label"
                     >
-                      <span
-                        data-cy="talent-acquisition-create-candidate-phone-label-text"
-                        className="text-sm font-medium text-gray-700"
-                      >
+                      <span data-cy="talent-acquisition-create-candidate-phone-label-text">
                         Phone Number
-                      </span>
+                      </span>{' '}
                       <span
                         className="text-red-500"
                         aria-hidden
@@ -308,7 +299,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                       >
                         *
                       </span>
-                    </div>
+                    </span>
                   }
                   rules={[
                     {
@@ -347,26 +338,26 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   id="jobId"
                   name="jobInformationId"
                   label={
-                    <div
-                      className="flex items-center justify-between"
+                    <span
+                      className="text-sm font-medium text-gray-700"
                       data-cy="talent-acquisition-create-candidate-job-label"
                     >
-                      <span
-                        data-cy="talent-acquisition-create-candidate-job-label-text"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Job
+                      <span data-cy="talent-acquisition-create-candidate-job-label-text">
+                        Job Type
                       </span>
                       {!jobId ? (
-                        <span
-                          className="text-red-500"
-                          aria-hidden
-                          data-cy="talent-acquisition-create-candidate-job-required"
-                        >
-                          *
-                        </span>
+                        <>
+                          {' '}
+                          <span
+                            className="text-red-500"
+                            aria-hidden
+                            data-cy="talent-acquisition-create-candidate-job-required"
+                          >
+                            *
+                          </span>
+                        </>
                       ) : null}
-                    </div>
+                    </span>
                   }
                   rules={
                     jobId
@@ -378,8 +369,8 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     id="talent-acquisition-job-create-candidate-select-job"
                     data-cy="talent-acquisition-job-create-candidate-select-job"
                     size="large"
-                    className="w-full"
-                    placeholder="Select a job type"
+                    className="w-full h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selection-item]:!leading-[38px]"
+                    placeholder="Select job type"
                     disabled={!!jobId}
                     popupClassName="org-structure-branch-select-dropdown"
                   >
@@ -401,16 +392,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   id="cgpaId"
                   name="CGPA"
                   label={
-                    <div
-                      className="flex items-center justify-between"
+                    <span
+                      className="text-sm font-medium text-gray-700"
                       data-cy="talent-acquisition-create-candidate-cgpa-label"
                     >
-                      <span
-                        data-cy="talent-acquisition-create-candidate-cgpa-label-text"
-                        className="text-sm font-medium text-gray-700"
-                      >
+                      <span data-cy="talent-acquisition-create-candidate-cgpa-label-text">
                         CGPA
-                      </span>
+                      </span>{' '}
                       <span
                         className="text-red-500"
                         aria-hidden
@@ -418,7 +406,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                       >
                         *
                       </span>
-                    </div>
+                    </span>
+                  }
+                  extra={
+                    <span className="text-xs text-gray-500">
+                      Put your point 4.0 scale
+                    </span>
                   }
                   rules={[
                     { required: true, message: 'Please input CGPA' },
@@ -451,22 +444,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     min={0}
                     max={4}
                     step={0.01}
-                    className="text-sm w-full h-10"
-                    placeholder="CGPA"
+                    controls={false}
+                    className="text-sm w-full h-10 "
+                    placeholder="0"
+                  
                   />
                 </Form.Item>
-                <div
-                  data-cy="-id-components-createcandidate-index-tsx-index-div-311"
-                  className="flex items-center justify-start gap-1 ml-1"
-                >
-                  <FaInfoCircle />
-                  <div
-                    data-cy="-id-components-createcandidate-index-tsx-index-div-313"
-                    className="text-xs text-gray-500"
-                  >
-                    Put your point 4.0 scale
-                  </div>
-                </div>
               </Col>
             </Row>
 
@@ -474,16 +457,13 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="documentNameId"
               name="resumeUrl"
               label={
-                <div
-                  className="flex items-center justify-between"
+                <span
+                  className="text-sm font-medium text-gray-700"
                   data-cy="talent-acquisition-create-candidate-cv-label"
                 >
-                  <span
-                    data-cy="talent-acquisition-create-candidate-cv-label-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
+                  <span data-cy="talent-acquisition-create-candidate-cv-label-text">
                     CV
-                  </span>
+                  </span>{' '}
                   <span
                     className="text-red-500"
                     aria-hidden
@@ -491,7 +471,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   >
                     *
                   </span>
-                </div>
+                </span>
               }
               rules={[{ required: true, message: 'Please upload your CV' }]}
             >
@@ -505,7 +485,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 customRequest={customRequest}
                 listType="picture"
                 accept=".pdf,.doc,.docx"
-                className="!border-gray-200 !border-dashed !rounded-2xl bg-[#F9FAFB]"
+                className="!border-gray-200 !border-dashed !rounded-lg bg-[#F9FAFB]"
               >
                 <p
                   data-cy="-id-components-createcandidate-index-tsx-index-p-384"
@@ -532,12 +512,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 </div>
               </Dragger>
             </Form.Item>
-            <div
-              data-cy="-id-components-createcandidate-index-tsx-index-div-400"
-              className="text-xs text-gray-500 mb-4"
-            >
-              Max file size: 5MB. File formats: .pdf, .doc, .docx
-            </div>
           </div>
         </div>
 
@@ -564,7 +538,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               loading={isCreatingCandidate}
               disabled={isCreatingCandidate}
             >
-              Create
+              Continue
             </Button>
           </div>
         </Form.Item>

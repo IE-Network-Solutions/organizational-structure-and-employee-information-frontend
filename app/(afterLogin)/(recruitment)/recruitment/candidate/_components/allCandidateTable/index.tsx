@@ -68,7 +68,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'candidateName',
-      key: 'candidateName',
+      key: 'fullName',
       render: (text: string) => (
         <div
           className="text-sm text-gray-700"
@@ -271,6 +271,7 @@ const AllCandidateTable: React.FC = () => {
       } else {
         setDeleteTriggerRect(null);
       }
+      console.log('candidatasadsadase', candidate);
       setSelectedCandidate(candidate);
       setDeleteCandidateId(candidate?.id);
       setDeleteCandidateModal(true);
@@ -302,7 +303,7 @@ const AllCandidateTable: React.FC = () => {
       </div>
     );
   }
-
+  
   const data = candidateList?.items?.map((item: any, index: any) => {
     const editDeleteItems = [
       {
@@ -468,8 +469,13 @@ const AllCandidateTable: React.FC = () => {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
-      // Use selectedRows directly to avoid filtering the full list on every click.
-      setSelectedCandidate((selectedRows as CandidateData[]) ?? []);
+      console.log('selectedRows', selectedRows);
+      setSelectedCandidate(
+        (selectedRows as CandidateData[])?.map((candidate) => ({
+          ...candidate,
+          fullName: candidate.candidateName,
+        })) ?? []
+      );
     },
   };
 
@@ -514,7 +520,7 @@ const AllCandidateTable: React.FC = () => {
           })}
         />
       </div>
-
+<div className='px-4'>
       {isMobile || isTablet ? (
         <CustomMobilePagination
           data-cy="talent-acquisition-candidate-table-pagination-mobile"
@@ -533,6 +539,7 @@ const AllCandidateTable: React.FC = () => {
           onShowSizeChange={onSizeChange}
         />
       )}
+      </div>
       <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
       <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
       <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />
