@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,6 +13,10 @@ import {
   type ChartOptions,
   type Plugin,
 } from 'chart.js';
+import { FeedbackCardSkeleton } from './PerformanceCardSkeletons';
+import { useGetFeedbackStatsDashboard } from '@/store/server/features/performance/feedback-stats/queries';
+import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 
 ChartJS.register(
   CategoryScale,
@@ -32,62 +36,39 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-/** Colored glow: shadow tint matches each dataset's line color (not a neutral gray). */
+/** Colored glow under the line (soft drop shadow), tinted per dataset. */
 const lineGlowPlugin: Plugin<'line'> = {
   id: 'feedbackLineGlow',
   beforeDatasetDraw(chart, args) {
     const { ctx } = chart;
     const ds = chart.data.datasets[args.index];
     const lineColor =
-      typeof ds.borderColor === 'string' ? ds.borderColor : '#2563EB';
+      typeof ds.borderColor === 'string' ? ds.borderColor : '#1D4ED8';
     ctx.save();
-    ctx.shadowColor = hexToRgba(lineColor, 0.55);
-    ctx.shadowBlur = 16;
+    ctx.shadowColor = hexToRgba(lineColor, 0.45);
+    ctx.shadowBlur = 18;
     ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
+    ctx.shadowOffsetY = 6;
   },
   afterDatasetDraw(chart) {
     chart.ctx.restore();
   },
 };
 
-const lineData = {
-  labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-  datasets: [
-    {
-      label: 'Appreciation',
-      data: [98, 26, 26, 11],
-      borderColor: '#2563EB',
-      backgroundColor: '#FFFFFF',
-      tension: 0.35,
-      borderWidth: 2,
-      fill: false,
-      pointRadius: 5,
-      pointHoverRadius: 6,
-      pointBackgroundColor: '#FFFFFF',
-      pointBorderColor: '#2563EB',
-      pointBorderWidth: 2,
-    },
-    {
-      label: 'Reprimand',
-      data: [56, 89, 64, 80],
-      borderColor: '#F87171',
-      backgroundColor: '#FFFFFF',
-      tension: 0.35,
-      borderWidth: 2,
-      fill: false,
-      pointRadius: 5,
-      pointHoverRadius: 6,
-      pointBackgroundColor: '#FFFFFF',
-      pointBorderColor: '#F87171',
-      pointBorderWidth: 2,
-    },
-  ],
+const dottedGrid = {
+  display: true,
+  drawOnChartArea: true,
+  color: 'rgba(148, 163, 184, 0.55)',
+  lineWidth: 1,
+  borderDash: [4, 4],
 };
 
-const lineOptions: ChartOptions<'line'> = {
+const baseLineOptions: ChartOptions<'line'> = {
   responsive: true,
   maintainAspectRatio: false,
+  layout: {
+    padding: { top: 6, right: 12, bottom: 4, left: 6 },
+  },
   interaction: {
     mode: 'index',
     intersect: false,
@@ -115,7 +96,7 @@ const lineOptions: ChartOptions<'line'> = {
                 : '#6B7280';
             return {
               text: dataset.label ?? '',
-              fillStyle: stroke,
+              fillStyle: '#FFFFFF',
               strokeStyle: stroke,
               lineWidth: 2,
               lineDash: [] as number[],
@@ -135,15 +116,13 @@ const lineOptions: ChartOptions<'line'> = {
   },
   scales: {
     x: {
+      offset: true,
       grid: {
-        display: true,
-        drawOnChartArea: true,
-        color: 'rgba(0, 0, 0, 0.08)',
+        ...dottedGrid,
       },
       border: {
         display: true,
         color: '#E5E7EB',
-        width: 1,
         dash: [4, 4],
         dashOffset: 0,
       },
@@ -154,16 +133,12 @@ const lineOptions: ChartOptions<'line'> = {
     },
     y: {
       min: 0,
-      max: 100,
       ticks: {
-        stepSize: 20,
         color: '#6B7280',
         font: { size: 12 },
       },
       grid: {
-        display: true,
-        drawOnChartArea: true,
-        color: 'rgba(0, 0, 0, 0.08)',
+        ...dottedGrid,
       },
       border: {
         display: false,
@@ -178,8 +153,8 @@ function StatBlock({
   title,
   total,
   totalClass,
-  kpi = 120,
-  engagement = 120,
+  kpi = 0,
+  engagement = 0,
 }: {
   title: string;
   total: number;
@@ -209,7 +184,115 @@ function StatBlock({
   );
 }
 
-export default function FeedbackCard() {
+type FeedbackCardProps = {
+  sessionId?: string | null;
+  monthId?: string | null;
+};
+
+export default function FeedbackCard({
+  sessionId: sessionIdProp,
+  monthId: monthIdProp,
+}: FeedbackCardProps) {
+  const { data: activeSession, isLoading: activeSessionLoading } =
+    useGetActiveSession();
+  const { data: activeMonth, isLoading: activeMonthLoading } =
+    useGetActiveMonth();
+
+  const resolvedSessionId =
+    sessionIdProp ??
+    (activeSession as { id?: string } | undefined)?.id ??
+    undefined;
+  const resolvedMonthId =
+    monthIdProp ?? (activeMonth as { id?: string } | undefined)?.id ?? undefined;
+
+  const { data, isLoading: statsLoading, isError } = useGetFeedbackStatsDashboard(
+    resolvedSessionId,
+    resolvedMonthId,
+  );
+
+  const contextLoading =
+    (sessionIdProp == null && activeSessionLoading) ||
+    (monthIdProp == null && activeMonthLoading);
+  const showSpinner =
+    contextLoading || (Boolean(resolvedSessionId && resolvedMonthId) && statsLoading);
+
+  const summary = data?.summary;
+  const series = data?.series ?? [];
+
+  const { chartYMax, yTickStep } = useMemo(() => {
+    if (!series.length) return { chartYMax: 100, yTickStep: 20 };
+    const peak = Math.max(
+      ...series.flatMap((p) => [p.appreciation, p.reprimand]),
+      0,
+    );
+    if (peak === 0) return { chartYMax: 100, yTickStep: 20 };
+    const padded = Math.ceil(peak / 20) * 20;
+    const chartYMax = Math.max(100, padded);
+    const yTickStep = 20;
+    return { chartYMax, yTickStep };
+  }, [series]);
+
+  const lineChartOptions = useMemo(
+    () =>
+      ({
+        ...baseLineOptions,
+        scales: {
+          ...baseLineOptions.scales,
+          y: {
+            ...baseLineOptions.scales?.y,
+            max: chartYMax,
+            ticks: {
+              ...baseLineOptions.scales?.y?.ticks,
+              stepSize: yTickStep,
+            },
+          },
+        },
+      }) as ChartOptions<'line'>,
+    [chartYMax, yTickStep],
+  );
+
+  const lineChartData = useMemo(
+    () => ({
+      labels: series.map((p) => p.label),
+      datasets: [
+        {
+          label: 'Appreciation',
+          data: series.map((p) => p.appreciation),
+          borderColor: '#1D4ED8',
+          backgroundColor: '#FFFFFF',
+          tension: 0,
+          borderWidth: 2.5,
+          fill: false,
+          pointRadius: 5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#FFFFFF',
+          pointBorderColor: '#1D4ED8',
+          pointBorderWidth: 2,
+        },
+        {
+          label: 'Reprimand',
+          data: series.map((p) => p.reprimand),
+          borderColor: '#FB7185',
+          backgroundColor: '#FFFFFF',
+          tension: 0,
+          borderWidth: 2.5,
+          fill: false,
+          pointRadius: 5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#FFFFFF',
+          pointBorderColor: '#FB7185',
+          pointBorderWidth: 2,
+        },
+      ],
+    }),
+    [series],
+  );
+
+  const missingContext =
+    !resolvedSessionId || !resolvedMonthId
+      ? 'Active session or month is not available.'
+      : null;
+
   return (
     <section
       className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm h-[456px]"
@@ -217,26 +300,46 @@ export default function FeedbackCard() {
     >
       <h2 className="mb-4 text-lg font-semibold text-gray-900">Feedback</h2>
 
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-        <StatBlock
-          title="Total Appreciation"
-          total={120}
-          totalClass="text-blue"
-        />
-        <StatBlock
-          title="Total Reprimand"
-          total={120}
-          totalClass="text-red-400"
-        />
-      </div>
+      {showSpinner ? (
+        <FeedbackCardSkeleton />
+      ) : missingContext ? (
+        <p className="text-sm text-gray-500">{missingContext}</p>
+      ) : isError ? (
+        <p className="text-sm text-red-500">Failed to load feedback stats.</p>
+      ) : (
+        <>
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+            <StatBlock
+              title="Total Appreciation"
+              total={summary?.totalAppreciation ?? 0}
+              totalClass="text-blue"
+              kpi={summary?.appreciation?.kpi}
+              engagement={summary?.appreciation?.engagement}
+            />
+            <StatBlock
+              title="Total Reprimand"
+              total={summary?.totalReprimand ?? 0}
+              totalClass="text-red-400"
+              kpi={summary?.reprimand?.kpi}
+              engagement={summary?.reprimand?.engagement}
+            />
+          </div>
 
-      <div className="h-[247px] w-full">
-        <Line
-          data={lineData}
-          options={lineOptions}
-          plugins={[lineGlowPlugin]}
-        />
-      </div>
+          <div className="h-[247px] w-full">
+            {series.length > 0 ? (
+              <Line
+                data={lineChartData}
+                options={lineChartOptions}
+                plugins={[lineGlowPlugin]}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-gray-500">
+                No trend data for this period.
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </section>
   );
 }
