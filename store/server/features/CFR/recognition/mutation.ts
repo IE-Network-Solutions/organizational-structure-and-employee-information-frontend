@@ -195,6 +195,7 @@ export const useCreateRecognition = () => {
   return useMutation(createRecognition, {
     onSuccess: (notused, variables: any) => {
       queryClient.invalidateQueries('recognitions');
+      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
       queryClient.invalidateQueries('recognitionTypes');
       queryClient.invalidateQueries('recognitionTypesWithRelations');
 
@@ -209,7 +210,7 @@ export const useCreateEmployeeRecognition = () => {
   return useMutation(createEmployeeRecognition, {
     onSuccess: (notused, variables: any) => {
       queryClient.invalidateQueries('recognitions');
-      const method = variables?.method?.toUpperCase();
+      queryClient.invalidateQueries('recognitionsByParentRecognitionType');      const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
@@ -324,6 +325,7 @@ export const useDeleteRecognition = () => {
   return useMutation(deleteRecognition, {
     onSuccess: () => {
       queryClient.invalidateQueries('recognitions');
+      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
       handleSuccessMessage('DELETE');
     },
   });
@@ -336,6 +338,7 @@ export const useDeleteBulkRecognitions = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('recognitions');
+        queryClient.invalidateQueries('recognitionsByParentRecognitionType');
         handleSuccessMessage('DELETE');
       },
     },
