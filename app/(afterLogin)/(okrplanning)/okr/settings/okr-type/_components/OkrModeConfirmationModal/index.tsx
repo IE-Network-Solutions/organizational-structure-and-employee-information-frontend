@@ -31,7 +31,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
       onCancel={onCancel}
       footer={null}
       centered
-      width="min(620px, calc(100vw - 32px))"
+      width="min(621px, calc(100vw - 32px))"
       wrapClassName="okr-settings-modal-responsive-wrap"
       styles={{
         content: {
@@ -48,12 +48,12 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
       data-cy="okr-mode-confirmation-modal"
     >
       <div
-        className="py-2 min-w-0 max-w-full"
+        className="flex flex-col gap-6 min-w-0 max-w-full"
         data-cy="okr-mode-confirmation-modal-content"
       >
         {/* Header with Icon */}
         <div
-          className="flex items-center gap-3 mb-6"
+          className="flex items-center gap-3"
           data-cy="okr-mode-confirmation-modal-header"
         >
           <WarningFilled
@@ -70,7 +70,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
 
         {/* Content Section */}
         <div
-          className="space-y-6 mb-8 pr-0 sm:pr-4 min-w-0"
+          className="flex flex-col gap-4 pr-0 sm:pr-4 min-w-0"
           data-cy="okr-mode-confirmation-modal-content-section"
         >
           {isBasicToAdvanced ? (
@@ -120,7 +120,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
               >
                 Switching to Basic OKR will convert all Key Results to{' '}
                 <span
-                  className="font-normal text-[rgba(0,0,0,0.7)]"
+                  className="font-bold text-[rgba(0,0,0,0.7)]"
                   data-cy="okr-mode-confirmation-modal-achieved-text"
                 >
                   Achieved / Not Achieved
@@ -129,7 +129,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
                 percentages will be disabled. Your previous Advanced metric
                 configurations and progress history will be safely stored and{' '}
                 <span
-                  className="font-normal text-[rgba(0,0,0,0.7)]"
+                  className="font-bold text-[rgba(0,0,0,0.7)]"
                   data-cy="okr-mode-confirmation-modal-restore-text"
                 >
                   can be restored
@@ -139,7 +139,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
             </>
           )}
           <p
-            className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+            className="text-[14px] font-bold text-[rgba(0,0,0,0.7)]"
             data-cy="okr-mode-confirmation-modal-question"
           >
             Do you wish to continue with this process ?
@@ -148,14 +148,14 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
 
         {/* Action Buttons */}
         <div
-          className="flex justify-end gap-3 min-w-0"
+          className="flex justify-end gap-[8px] min-w-0"
           data-cy="okr-mode-confirmation-modal-actions"
         >
           <Button
             type="default"
             onClick={onCancel}
             disabled={loading}
-            className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
+            className="h-[32px] w-[68px] px-0 py-0 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium flex items-center justify-center"
             id="okr-mode-confirmation-cancel-button"
             data-cy="okr-mode-confirmation-cancel-button"
           >
@@ -165,7 +165,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
             type="primary"
             onClick={onConfirm}
             loading={loading}
-            className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
+            className="h-[32px] w-[68px] px-0 py-0 rounded-lg bg-[#1E40AF] hover:bg-[#1E40AF] focus:bg-[#1E40AF] border-none font-medium flex items-center justify-center"
             id="okr-mode-confirmation-confirm-button"
             data-cy="okr-mode-confirmation-confirm-button"
           >
@@ -180,7 +180,14 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
           padding: 0 !important;
         }
         .ant-modal-content {
-          border-radius: 12px !important;
+          border-radius: 8px !important;
+        }
+        /* Force button dimensions (AntD may override widths via min-width/padding) */
+        .ant-modal[data-cy='okr-mode-confirmation-modal'] .ant-btn {
+          height: 32px !important;
+          width: 68px !important;
+          min-width: 68px !important;
+          padding: 0 !important;
         }
         .ant-modal-close {
           top: 20px !important;

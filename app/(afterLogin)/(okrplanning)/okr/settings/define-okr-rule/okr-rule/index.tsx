@@ -159,7 +159,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
         >
           <Input
             placeholder="Enter OKR rule name"
-            className="h-11"
+            className="h-10"
             data-cy="okr-rule-modal-name-input"
           />
         </Form.Item>
@@ -195,7 +195,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
               <Input
                 type="number"
                 placeholder="Enter personal contribution"
-                className="h-11"
+                className="h-10"
                 data-cy="okr-rule-modal-personal-input"
               />
             </Form.Item>
@@ -230,7 +230,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
               <Input
                 type="number"
                 placeholder="Enter team contribution"
-                className="h-11"
+                className="h-10"
                 data-cy="okr-rule-modal-team-input"
               />
             </Form.Item>

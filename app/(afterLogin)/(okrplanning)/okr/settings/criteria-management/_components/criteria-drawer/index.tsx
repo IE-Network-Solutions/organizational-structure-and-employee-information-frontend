@@ -355,7 +355,7 @@ const ScoringModal: React.FC = () => {
             >
               <Input
                 placeholder="Update all UI screens"
-                className="h-11"
+                className="h-10"
                 data-cy="okr-criteria-modal-name-input"
               />
             </Form.Item>
@@ -397,7 +397,7 @@ const ScoringModal: React.FC = () => {
               <Input
                 type="number"
                 placeholder="Input"
-                className="h-11"
+                className="h-10"
                 data-cy="okr-criteria-modal-percentage-input"
               />
             </Form.Item>
@@ -443,7 +443,7 @@ const ScoringModal: React.FC = () => {
             <Select
               mode="multiple"
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+                className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               value={watchedDepartments}
@@ -474,7 +474,7 @@ const ScoringModal: React.FC = () => {
             {/* Always visible placeholder overlay */}
             <span
               className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
+              style={{ lineHeight: '40px' }}
               data-cy="okr-criteria-modal-department-placeholder"
             >
               Select Department
@@ -559,7 +559,7 @@ const ScoringModal: React.FC = () => {
                 <Select
                   mode="multiple"
                   placeholder=""
-                  className="w-full h-11 custom-modal-select always-show-placeholder"
+                  className="w-full h-10 custom-modal-select always-show-placeholder"
                   maxTagCount={0}
                   maxTagPlaceholder={() => null}
                   value={watchedUsers}
@@ -590,7 +590,7 @@ const ScoringModal: React.FC = () => {
                 {/* Always visible placeholder overlay */}
                 <span
                   className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                  style={{ lineHeight: '44px' }}
+                  style={{ lineHeight: '40px' }}
                   data-cy="okr-criteria-modal-users-placeholder"
                 >
                   Select Users
@@ -624,7 +624,7 @@ const ScoringModal: React.FC = () => {
               <Select
                 value={userTypeFilter}
                 onChange={setUserTypeFilter}
-                className="h-11"
+                className="h-10"
                 placeholder="Select"
                 data-cy="okr-criteria-modal-filter-select"
               >
@@ -724,7 +724,7 @@ const ScoringModal: React.FC = () => {
             <Select
               mode="multiple"
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               value={watchedCriteria}
@@ -758,7 +758,7 @@ const ScoringModal: React.FC = () => {
             {/* Always visible placeholder overlay */}
             <span
               className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
+              style={{ lineHeight: '40px' }}
               data-cy="okr-criteria-modal-criteria-placeholder"
             >
               Select Criteria
@@ -828,13 +828,13 @@ const ScoringModal: React.FC = () => {
                 <Input
                   value={criteria.name}
                   disabled
-                  className="flex-1 h-11"
+                  className="flex-1 h-10"
                   data-cy={`okr-criteria-modal-weight-name-input-${criteria.vpCriteriaId}`}
                 />
                 <Input
                   type="number"
                   value={weights[criteria.vpCriteriaId] || ''}
-                  className="flex-1 h-11"
+                  className="flex-1 h-10"
                   onChange={(e) =>
                     setWeights({
                       ...weights,
@@ -852,7 +852,7 @@ const ScoringModal: React.FC = () => {
           .custom-centered-select-wrapper .ant-select-selector {
             display: flex !important;
             align-items: center !important;
-            height: 44px !important;
+            height: 40px !important;
             padding-top: 0 !important;
             padding-bottom: 0 !important;
             position: relative !important;

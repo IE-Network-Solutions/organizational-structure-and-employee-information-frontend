@@ -189,7 +189,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
             <Select
               mode="multiple"
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               value={userIds} // Correctly pass selected IDs to show selection in dropdown
@@ -253,7 +253,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
             {/* Always visible placeholder overlay */}
             <span
               className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
+              style={{ lineHeight: '40px' }}
               data-cy="okr-planning-assignation-assignee-placeholder"
             >
               Select Employee
@@ -266,7 +266,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               .custom-centered-select-wrapper .ant-select-selector {
                 display: flex !important;
                 align-items: center !important;
-                height: 44px !important;
+                height: 40px !important;
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
                 position: relative !important;
@@ -413,7 +413,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
             <Select
               mode="multiple"
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               id="okr-planning-assignation-plan-select"
@@ -448,7 +448,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
             </Select>
             <span
               className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
+              style={{ lineHeight: '40px' }}
               data-cy="okr-planning-assignation-plan-placeholder"
             >
               Select Plan
@@ -525,7 +525,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               >
                 <Select
                   placeholder=""
-                  className={`w-full h-11 custom-modal-select ${scoringConfigurationId ? '' : 'always-show-placeholder'}`}
+                  className={`w-full h-10 custom-modal-select ${scoringConfigurationId ? '' : 'always-show-placeholder'}`}
                   id="okr-planning-assignation-scoring-select"
                   data-cy="okr-planning-assignation-scoring-select"
                   dropdownClassName="custom-assignee-dropdown"
@@ -545,7 +545,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 {!scoringConfigurationId && (
                   <span
                     className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                    style={{ lineHeight: '44px' }}
+                      style={{ lineHeight: '40px' }}
                     data-cy="okr-planning-assignation-scoring-placeholder"
                   >
                     Select Configuration
@@ -585,7 +585,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               >
                 <Select
                   placeholder=""
-                  className={`w-full h-11 custom-modal-select ${okrRuleId ? '' : 'always-show-placeholder'}`}
+                  className={`w-full h-10 custom-modal-select ${okrRuleId ? '' : 'always-show-placeholder'}`}
                   id="okr-planning-assignation-rule-select"
                   data-cy="okr-planning-assignation-rule-select"
                   dropdownClassName="custom-assignee-dropdown"
@@ -605,7 +605,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 {!okrRuleId && (
                   <span
                     className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                    style={{ lineHeight: '44px' }}
+                      style={{ lineHeight: '40px' }}
                     data-cy="okr-planning-assignation-rule-placeholder"
                   >
                     Select Rule

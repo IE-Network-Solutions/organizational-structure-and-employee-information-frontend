@@ -1,7 +1,7 @@
 import { Input, Select } from 'antd';
 import React from 'react';
-import { LuFilter } from 'react-icons/lu';
 import { SearchOutlined } from '@ant-design/icons';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 
 interface TargetFiltersProps {
   onSearchChange: (value: string) => void;
@@ -44,7 +44,7 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
             onChange={handleSearch}
             allowClear
             addonAfter={<SearchOutlined />}
-            className="w-full h-11 custom-search-input-v2"
+            className="w-full h-8 custom-search-input-v2"
             id="okr-target-filters-search-input"
             data-cy="okr-target-filters-search-input"
           />
@@ -61,7 +61,7 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
                 className="flex items-center gap-2 text-[rgba(0,0,0,0.7)]"
                 data-cy="okr-target-filters-select-placeholder"
               >
-                <LuFilter
+                <MdOutlineFilterAlt
                   className="text-[14px]"
                   data-cy="okr-target-filters-select-placeholder-icon"
                 />
@@ -75,7 +75,7 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
             }
             onChange={handleTypeChange}
             allowClear
-            className="h-11 min-w-fit custom-filter-select-v3"
+            className="h-8 min-w-fit custom-filter-select-v3"
             suffixIcon={null}
             id="okr-target-filters-select"
             data-cy="okr-target-filters-select"
@@ -125,9 +125,17 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
           border-color: #bfbfbf !important;
         }
 
+        @media (max-width: 640px) {
+          /* On mobile the filter button should shrink to its content */
+          .custom-filter-select-v3.ant-select {
+            width: auto !important;
+            min-width: unset !important;
+          }
+        }
+
         /* Search v2 - Matching Filter Height and Icon Box */
         .custom-search-input-v2.ant-input-group-wrapper {
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input-v2.ant-input-group-wrapper .ant-input-wrapper {
           display: flex !important;
@@ -136,12 +144,12 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
           border-radius: 8px !important;
           overflow: hidden !important;
           background-color: white !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input-v2.ant-input-group-wrapper .ant-input {
           border: none !important;
           box-shadow: none !important;
-          height: 44px !important;
+          height: 32px !important;
           padding-left: 12px !important;
           font-size: 14px !important;
           color: #262626 !important;
@@ -158,7 +166,7 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input-v2.ant-input-group-wrapper
           .ant-input-group-addon

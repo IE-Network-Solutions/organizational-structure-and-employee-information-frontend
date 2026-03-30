@@ -197,7 +197,7 @@ const AssignTargetModal: React.FC = () => {
             >
               <Select
                 placeholder="Select Department"
-                className="w-full h-11 custom-modal-select"
+                className="w-full h-10 custom-modal-select"
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-target-modal-department-select"
               >
@@ -248,7 +248,7 @@ const AssignTargetModal: React.FC = () => {
             >
               <Select
                 placeholder="Select Criteria"
-                className="w-full h-11 custom-modal-select"
+                className="w-full h-10 custom-modal-select"
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-target-modal-criteria-select"
               >
@@ -303,7 +303,7 @@ const AssignTargetModal: React.FC = () => {
                 <Input
                   type="number"
                   placeholder="Input"
-                  className="h-11"
+                  className="h-10"
                   data-cy={`okr-target-modal-month-input-${month}`}
                 />
               </Form.Item>
@@ -324,7 +324,7 @@ const AssignTargetModal: React.FC = () => {
           .okr-settings-modal .custom-modal-select .ant-select-selector {
             display: flex !important;
             align-items: center !important;
-            height: 44px !important;
+            height: 40px !important;
           }
           .okr-settings-modal
             .custom-assignee-dropdown

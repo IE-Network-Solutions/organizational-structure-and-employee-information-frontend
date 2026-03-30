@@ -162,7 +162,7 @@ const PlanAssignment: React.FC = () => {
             data-cy={`okr-planning-assignation-card-edit-access-guard-${item?.userId}`}
           >
             <div
-              className="flex items-center gap-3 py-1"
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
               onClick={() => handleEdit(item)}
               id={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
               data-cy={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
@@ -197,7 +197,7 @@ const PlanAssignment: React.FC = () => {
               data-cy={`okr-planning-assignation-card-delete-popconfirm-${item?.userId}`}
             >
               <div
-                className="flex items-center gap-3 py-1 text-red-600"
+                  className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
                 id={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
                 data-cy={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
               >
@@ -237,7 +237,7 @@ const PlanAssignment: React.FC = () => {
             addonAfter={<SearchOutlined className="text-[#8c8c8c]" />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md h-11 custom-search-input"
+            className="w-full max-w-md h-8 custom-search-input"
             id="okr-planning-assignation-search-input"
             data-cy="okr-planning-assignation-search-input"
           />
@@ -351,7 +351,7 @@ const PlanAssignment: React.FC = () => {
                           menu={{ items: getMenuItems(item) }}
                           trigger={['click']}
                           placement="bottomRight"
-                          overlayClassName="custom-menu-dropdown"
+                          overlayClassName="okr-settings-menu-dropdown"
                           data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
                         >
                           <button
@@ -449,7 +449,7 @@ const PlanAssignment: React.FC = () => {
       <style jsx global data-cy="okr-planning-assignation-styles">{`
         /* Search Input Styling */
         .custom-search-input.ant-input-group-wrapper {
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input.ant-input-group-wrapper .ant-input-wrapper {
           display: flex !important;
@@ -458,12 +458,12 @@ const PlanAssignment: React.FC = () => {
           border-radius: 8px !important;
           overflow: hidden !important;
           background-color: white !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input.ant-input-group-wrapper .ant-input {
           border: none !important;
           box-shadow: none !important;
-          height: 44px !important;
+          height: 32px !important;
           padding-left: 12px !important;
           font-size: 14px !important;
           color: #262626 !important;
@@ -479,7 +479,7 @@ const PlanAssignment: React.FC = () => {
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input.ant-input-group-wrapper
           .ant-input-group-addon

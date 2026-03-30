@@ -87,7 +87,7 @@ function Page() {
             data-cy={`okr-target-card-edit-access-guard-${group.key}`}
           >
             <div
-              className="flex items-center gap-3 py-1"
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
               onClick={() => handleEditClick(firstId)}
               id={`okr-target-card-edit-menu-item-${group.key}`}
               data-cy={`okr-target-card-edit-menu-item-${group.key}`}
@@ -114,7 +114,7 @@ function Page() {
             data-cy={`okr-target-card-delete-access-guard-${group.key}`}
           >
             <div
-              className="flex items-center gap-3 py-1 text-red-600"
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
               onClick={() => handleDelete(firstId)}
               id={`okr-target-card-delete-menu-item-${group.key}`}
               data-cy={`okr-target-card-delete-menu-item-${group.key}`}
@@ -195,6 +195,7 @@ function Page() {
                       menu={{ items: getMenuItems(group) }}
                       trigger={['click']}
                       placement="bottomRight"
+                      overlayClassName="okr-settings-menu-dropdown"
                     >
                       <button
                         className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
