@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Col, Form, Input, Row } from 'antd';
+import { Button, Card, Col, Form, Input, Row } from 'antd';
 import DynamicFormFields from '../../dynamicFormDisplayer';
 import UseSetCategorizedFormData from '../../customField';
 import { validateName } from '@/utils/validation';
@@ -13,34 +13,42 @@ const EmployeeAddressForm = () => {
         title={
           <div
             data-cy="employee-address-form-title-div"
-            className="flex items-center gap-2 text-gray-600"
+            className="flex items-center gap-2"
           >
-            <div
-              data-cy="employee-address-form-icon-div"
-              className="p-1.5 bg-blue-50 rounded text-blue-500"
-            >
-              <LocationPinIcon fontSize="small" />
-            </div>
+            <Button
+              data-cy="employee-address-form-icon"
+              className="border border-[#73adff]"
+              type="default"
+              icon={
+                <LocationPinIcon fontSize="small" className="text-[#73adff]" />
+              }
+            ></Button>
             <span
               data-cy="employee-address-form-title"
-              className="text-sm font-medium"
+              className="text-sm font-normal text-[#4d4d4d]"
             >
               Address
             </span>
           </div>
         }
-        className="h-full shadow-sm"
+        className="h-full"
         bodyStyle={{ padding: '16px' }}
       >
         <Form.Item
-          className="font-semibold text-xs"
+          className="text-sm font-normal text-[#030712]"
           name={['address', 'country']}
           label={
             <span
-              className="text-gray-500"
+              className="text-sm font-normal text-[#030712]"
               data-cy="employee-address-country-label"
             >
-              Country
+              Country{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`employee-address-country-required`}
+              >
+                *
+              </span>
             </span>
           }
           id="addressCountryId"
@@ -66,14 +74,20 @@ const EmployeeAddressForm = () => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              className="font-semibold text-xs"
+              className="text-sm font-normal text-[#030712]"
               name={['address', 'city']}
               label={
                 <span
-                  className="text-gray-500 mb-1"
+                  className="text-sm font-normal text-[#030712] mb-1"
                   data-cy="employee-address-city-label"
                 >
-                  City
+                  City{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`employee-address-city-required`}
+                  >
+                    *
+                  </span>
                 </span>
               }
               id="addressCityId"
@@ -101,7 +115,7 @@ const EmployeeAddressForm = () => {
               name={['address', 'subCity']}
               label={
                 <span
-                  className="text-gray-500"
+                  className="text-sm font-normal text-[#030712]"
                   data-cy="employee-address-subcity-label"
                 >
                   Sub City
@@ -121,10 +135,16 @@ const EmployeeAddressForm = () => {
           name={['address', 'phoneNumber']}
           label={
             <span
-              className="text-gray-500"
+              className="text-sm font-normal text-[#030712]"
               data-cy="employee-address-phone-label"
             >
-              Phone Number
+              Phone Number{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`employee-address-phone-number-required`}
+              >
+                *
+              </span>
             </span>
           }
           id="phoneNumber"
@@ -151,150 +171,6 @@ const EmployeeAddressForm = () => {
           data-cy="employee-address-dynamic-fields"
         />
       </Card>
-
-      {/* <Row gutter={16} id="employee-address-row" data-cy="employee-address-row">
-        <Col
-          xs={24}
-          sm={12}
-          id="employee-address-country-col"
-          data-cy="employee-address-country-col"
-        >
-          <Form.Item
-            className="font-semibold text-xs"
-            name={['address', 'country']}
-            label={
-              <span
-                className="text-gray-500"
-                data-cy="employee-address-country-label"
-              >
-                Country
-              </span>
-            }
-            id="addressCountryId"
-            data-cy="addressCountryId"
-            rules={[
-              {
-                required: true,
-                validator: (rule, value) =>
-                  !validateName('country', value)
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error(validateName('country', value) || ''),
-                      ),
-              },
-            ]}
-          >
-            <Input
-              id="employee-address-country-input"
-              data-cy="employee-address-country-input"
-            />
-          </Form.Item>
-        </Col>
-        <Col
-          xs={24}
-          sm={12}
-          id="employee-address-city-col"
-          data-cy="employee-address-city-col"
-        >
-          <Form.Item
-            className="font-semibold text-xs"
-            name={['address', 'city']}
-            label={
-              <span
-                className="text-gray-500"
-                data-cy="employee-address-city-label"
-              >
-                City
-              </span>
-            }
-            id="addressCityId"
-            data-cy="addressCityId"
-            rules={[
-              {
-                required: true,
-                validator: (rule, value) =>
-                  !validateName('city', value)
-                    ? Promise.resolve()
-                    : Promise.reject(
-                        new Error(validateName('city', value) || ''),
-                      ),
-              },
-            ]}
-          >
-            <Input
-              id="employee-address-city-input"
-              data-cy="employee-address-city-input"
-            />
-          </Form.Item>
-        </Col>
-        <Col
-          xs={24}
-          sm={12}
-          id="employee-address-subcity-col"
-          data-cy="employee-address-subcity-col"
-        >
-          <Form.Item
-            name={['address', 'subCity']}
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                data-cy="employee-address-subcity-label"
-              >
-                Sub City
-              </span>
-            }
-            id="addressSubCityId"
-            data-cy="addressSubCityId"
-          >
-            <Input
-              id="employee-address-subcity-input"
-              data-cy="employee-address-subcity-input"
-            />
-          </Form.Item>
-        </Col>
-        <Col
-          xs={24}
-          sm={12}
-          id="employee-address-phone-col"
-          data-cy="employee-address-phone-col"
-        >
-          <Form.Item
-            name={['address', 'phoneNumber']}
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                data-cy="employee-address-phone-label"
-              >
-                Phone Number
-              </span>
-            }
-            id="phoneNumber"
-            data-cy="phoneNumber"
-            rules={[
-              {
-                required: true,
-                message: 'Phone Number is required.',
-              },
-              {
-                pattern: /^\+?[0-9]\d{6,14}$/,
-                message: 'Enter a valid phone number',
-              },
-            ]}
-          >
-            <Input
-              id="employee-address-phone-input"
-              data-cy="employee-address-phone-input"
-            />
-          </Form.Item>
-        </Col>
-      </Row>
-     
-      <AddCustomField
-        formTitle="address"
-        customEmployeeInformationForm={currentAddressForm}
-        id="employee-address-custom-field"
-        data-cy="employee-address-custom-field"
-      /> */}
     </div>
   );
 };

@@ -33,7 +33,7 @@ const DeleteCandidate: React.FC = () => {
 
   const dropdownContent = (
     <div
-      className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+      className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden delete-candidate-dropdown-content"
       // style={{ width: DELETE_PANEL_WIDTH }}
       data-cy="delete-candidate-dropdown-content"
     >
@@ -65,14 +65,14 @@ const DeleteCandidate: React.FC = () => {
           className="text-xs text-gray-700 text-wrap px-3"
           data-cy="delete-candidate-dropdown-message"
         >
-          Are you Sure you want to delete{' '}
+          Are you sure you want to delete{' '}
           <span
             className="font-medium text-gray-900"
             data-cy="delete-candidate-dropdown-candidate-name"
           >
             {candidateName}
           </span>{' '}
-          from candidates ?
+          from candidates?
         </p>
       </div>
       <div
@@ -113,6 +113,7 @@ const DeleteCandidate: React.FC = () => {
             if (!open) handleCancel();
           }}
           placement="bottomLeft"
+          overlayClassName="delete-candidate-dropdown-overlay"
           dropdownRender={() => dropdownContent}
         >
           <span

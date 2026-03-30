@@ -1,13 +1,13 @@
 import React, { FC } from 'react';
 import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -45,7 +45,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
 
   const MobileFilters = () => (
     <div
-      className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[320px] max-w-[420px] overflow-hidden"
+      className="bg-white rounded-lg border border-gray-200 min-w-[320px] sm:max-w-[420px] overflow-hidden"
       id="time-attendance-employee-attendance-mobile-filter-menu"
       data-cy="time-attendance-employee-attendance-mobile-filter-menu"
     >
@@ -276,14 +276,14 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             form.resetFields();
             onChange({});
           }}
-          className="h-8 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
+          className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
           data-cy="time-attendance-employee-attendance-mobile-filter-reset"
         >
           Reset
         </Button>
         <Button
           type="primary"
-          className="h-8 px-4 rounded-md"
+          className="h-8 font-normal text-sm text-white"
           onClick={() => {
             setIsShowMobileFilters(false);
           }}
@@ -305,16 +305,15 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       <div
         id="time-attendance-employee-attendance-mobile-filter-div"
         data-cy="time-attendance-employee-attendance-mobile-filter-div"
-        className="space-y-4"
       >
         <div
           id="time-attendance-employee-attendance-mobile-filter-date-range-div"
           data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
-          className="flex justify-between gap-2"
+          className="flex justify-between"
         >
           <div
             data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-            className="w-1/2"
+            className="w-1/2 sm:w-1/3 "
           >
             <Form.Item
               data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
@@ -324,13 +323,12 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               <Select
                 id="time-attendance-employee-attendance-mobile-filter-employee-select"
                 data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
-                placeholder="Select Employee"
+                placeholder="Search Employee"
                 allowClear
-                className={selectClassName}
+                className="h-8"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
-                size="large"
                 onChange={(value) => {
                   form.setFieldsValue({ employeeId: value });
                   onChange(getFilterValues());
@@ -342,6 +340,14 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   ).includes(input.toLowerCase())
                 }
                 value={form.getFieldValue('employeeId')}
+                suffixIcon={
+                  <div
+                    data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-suffix-icon-div"
+                    className="text-gray-400 border-l p-2"
+                  >
+                    <SearchOutlined />
+                  </div>
+                }
               />
             </Form.Item>
           </div>
@@ -354,10 +360,12 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
           >
             <Button
-              className={`h-10 rounded-lg flex items-center justify-center border border-[#d4d4d4]`}
+              className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
               id="time-attendance-employee-attendance-mobile-filter-toggle-button"
               data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              icon={<FilterAltIcon />}
+              icon={
+                <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+              }
             >
               Filter
             </Button>

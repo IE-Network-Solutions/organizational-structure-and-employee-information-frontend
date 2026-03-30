@@ -1,6 +1,14 @@
 'use client';
-import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Spin, Tag } from 'antd';
-import { SearchOutlined, MoreOutlined } from '@ant-design/icons';
+import {
+  Input,
+  Popconfirm,
+  Avatar,
+  Dropdown,
+  MenuProps,
+  Spin,
+  Tag,
+} from 'antd';
+import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -262,7 +270,7 @@ const PlanAssignment: React.FC = () => {
                 return (
                   <div
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[16px] p-5 hover:shadow-sm transition-shadow relative"
+                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
@@ -278,13 +286,13 @@ const PlanAssignment: React.FC = () => {
                       >
                         {item?.profileImage ? (
                           <Avatar
-                            size={48}
+                            size={40}
                             src={item?.profileImage}
                             data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
                           />
                         ) : (
                           <Avatar
-                            size={48}
+                            size={40}
                             className="bg-[#f0f0f0] text-[#8c8c8c]"
                             data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
                           >
@@ -346,11 +354,11 @@ const PlanAssignment: React.FC = () => {
                           data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
                         >
                           <button
-                            className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-lg text-[#8c8c8c] hover:text-[#262626] hover:border-[#1890ff] transition-colors"
+                            className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
-                            <MoreOutlined className="text-lg" />
+                            <EllipsisOutlined className="text-lg" />
                           </button>
                         </Dropdown>
                       </div>

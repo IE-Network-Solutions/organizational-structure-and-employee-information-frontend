@@ -27,7 +27,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   isUpdateLoading,
 }) => {
   const { isMobile } = useIsMobile();
-
   // Ref to track last processed fiscal year dates to avoid infinite loops
   const lastProcessedFiscalYearRef = useRef<{
     start: string | null;
@@ -378,7 +377,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         id={`org-settings-fiscal-year-session-${index}`}
       >
         <Row gutter={8} align="middle">
-          <Col span={12}>
+          <Col
+            span={isMobile ? undefined : 12}
+            flex={isMobile ? 'auto' : undefined}
+            style={isMobile ? { minWidth: 0 } : undefined}
+          >
             <Form.Item
               name={['sessionData', index, 'sessionName']}
               rules={[
@@ -390,14 +393,17 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             >
               <Input
                 size="middle"
-                className="w-full font-normal text-sm"
+                className="w-full font-normal text-sm h-8"
                 placeholder="Enter session name"
                 data-cy={`org-settings-fiscal-year-session-name-input-${index}`}
                 id={`org-settings-fiscal-year-session-name-input-${index}`}
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col
+            span={isMobile ? undefined : 12}
+            flex={isMobile ? 'none' : undefined}
+          >
             <Form.Item
               name={['sessionData', index, 'sessionDateRange']}
               getValueFromEvent={(dates) => {
@@ -460,7 +466,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               <RangePicker
                 size="middle"
                 format="YYYY-MM-DD"
-                className="w-full"
+                className={
+                  isMobile
+                    ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
+                    : 'w-full h-8 [&_.ant-picker-input]:h-8'
+                }
                 data-cy={`org-settings-fiscal-year-session-date-range-input-${index}`}
                 id={`org-settings-fiscal-year-session-date-range-input-${index}`}
               />
@@ -483,7 +493,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         data-cy="org-settings-fiscal-year-session-drawer-description-container"
       >
         <p
-          className="text-sm text-gray-600 mb-4"
+          className="text-sm text-[rgba(0,0,0,0.45)] mb-4"
           data-cy="org-settings-fiscal-year-session-drawer-description"
         >
           {calendarType === 'Semester' &&
@@ -522,7 +532,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         className="px-0"
       >
         <div
-          className="px-2 py-1 border-2 border-gray-200 rounded-lg"
+          className="px-2 py-1 border border-gray-200 rounded-lg"
           data-cy="org-settings-fiscal-year-session-drawer-sessions-container"
         >
           <h3
@@ -542,16 +552,14 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
           id="org-settings-fiscal-year-session-previous-btn-form-item"
         >
           <div
-            className={`flex justify-end pt-2 pb-0 sm:p-2 gap-3 ${
-              isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'
-            }`}
+            className={`flex justify-end w-full pt-2 pb-0  gap-3 shadow-none`}
             data-cy="org-settings-fiscal-year-session-previous-btn-container"
             id="org-settings-fiscal-year-session-previous-btn-container"
           >
             <Button
               type="default"
               onClick={handlePrevious}
-              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-session-previous-btn"
               id="org-settings-fiscal-year-session-previous-btn"
             >
@@ -571,7 +579,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 <Button
                   type="primary"
                   onClick={handleNext}
-                  className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+                  className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 min-w-[100px]"
                   disabled={hasErrors}
                   data-cy="org-settings-fiscal-year-session-next-btn"
                   id="org-settings-fiscal-year-session-next-btn"

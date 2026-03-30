@@ -45,7 +45,6 @@ const TimezoneSelect = () => {
   };
   return (
     <div
-      className="px-5 rounded-2xl bg-white h-full"
       id="time-attendance-settings-time-zone-container"
       data-cy="time-attendance-settings-time-zone-container"
     >

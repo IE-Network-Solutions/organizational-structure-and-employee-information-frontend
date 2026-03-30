@@ -217,7 +217,6 @@ const CustomWorkingScheduleDrawer = () => {
       onCancel={handleCancel}
       open={isOpen}
       width={720}
-      styles={{ body: { padding: 16 } }}
       footer={
         <div
           className="flex justify-end items-center w-full pt-3"
@@ -231,7 +230,7 @@ const CustomWorkingScheduleDrawer = () => {
           >
             <Button
               type="default"
-              className="font-medium h-10 px-5 rounded-lg"
+              className="font-normal h-8 border border-[#D9D9D9] text-[#4d4d4d]"
               onClick={handleCancel}
               data-cy="org-settings-work-schedule-drawer-cancel-btn"
               id="org-settings-work-schedule-drawer-cancel-btn"
@@ -240,7 +239,7 @@ const CustomWorkingScheduleDrawer = () => {
             </Button>
             <Button
               type="primary"
-              className="font-medium h-10 px-5 rounded-lg"
+              className="font-normal h-8"
               onClick={handleSubmit}
               loading={isUpdateLoading || isCreateLoading}
               data-cy="org-settings-work-schedule-drawer-submit-btn"
@@ -317,7 +316,7 @@ const CustomWorkingScheduleDrawer = () => {
                     className={`h-10 min-w-[72px] px-4 rounded-lg border text-base transition-colors ${
                       item.workDay
                         ? 'border-primary text-primary bg-white'
-                        : 'border-gray-300 text-gray-500 bg-[#f5f5f5]'
+                        : 'border-gray-300 text-[#4d4d4d]'
                     }`}
                     onClick={() => handleSwitchChange(item.day, !item.workDay)}
                     data-cy={`org-settings-work-schedule-day-chip-${dayKey}`}
@@ -357,7 +356,7 @@ const CustomWorkingScheduleDrawer = () => {
                 return (
                   <div
                     key={record.day}
-                    className="border border-gray-300 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                    className="border border-gray-300 rounded-xl p-2 sm:p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
                     data-cy={`org-settings-work-schedule-daily-card-${dayKey}`}
                   >
                     <div
@@ -391,7 +390,7 @@ const CustomWorkingScheduleDrawer = () => {
                       data-cy={`org-settings-work-schedule-time-duration-wrap-${dayKey}`}
                     >
                       <div
-                        className="h-10 px-3 rounded-lg border border-gray-300 bg-[#f8f8f8] inline-flex items-center gap-2"
+                        className="h-10 px-3 rounded-lg border border-gray-300 bg-white inline-flex items-center gap-2"
                         data-cy={`org-settings-work-schedule-time-box-${dayKey}`}
                       >
                         <Form.Item
@@ -418,6 +417,7 @@ const CustomWorkingScheduleDrawer = () => {
                         </Form.Item>
                         <span
                           data-cy={`org-settings-work-schedule-time-separator-${dayKey}`}
+                          className="text-[#d9d9d9]"
                         >
                           →
                         </span>
@@ -449,7 +449,7 @@ const CustomWorkingScheduleDrawer = () => {
                         />
                       </div>
                       <span
-                        className="h-10 px-4 rounded-lg border border-[#91caff] bg-[#e6f4ff] text-[#1677ff] inline-flex items-center text-base"
+                        className="h-10 px-1 sm:px-4 rounded-lg border border-[#91caff] bg-[#e6f4ff] text-[#1677ff] inline-flex items-center text-sm text-nowrap"
                         data-cy={`org-settings-work-schedule-duration-${dayKey}`}
                       >
                         {`${hours}h ${minutes.toString().padStart(2, '0')}m`}

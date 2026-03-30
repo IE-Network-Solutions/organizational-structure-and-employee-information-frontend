@@ -85,7 +85,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       key: 'branches',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'branches' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'branches' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-branches-tab-label"
           id="org-settings-branches-tab-label"
         >
@@ -98,7 +98,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       key: 'fiscalYear',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'fiscalYear' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'fiscalYear' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-fiscal-year-tab-label"
           id="org-settings-fiscal-year-tab-label"
         >
@@ -110,7 +110,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       key: 'transfer',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'transfer' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'transfer' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-transfer-tab-label"
           id="org-settings-transfer-tab-label"
         >
@@ -122,7 +122,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
       key: 'merge',
       label: (
         <div
-          className={`text-base m-0 ${activeKey === 'merge' ? 'text-primary' : 'text-gray-800'}`}
+          className={`text-base m-0 ${activeKey === 'merge' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-merge-tab-label"
           id="org-settings-merge-tab-label"
         >
@@ -168,11 +168,14 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         </div>
       )}
       <div
-        className="min-h-screen bg-white mr-6"
+        className="min-h-screen bg-white"
         data-cy="org-settings-layout-div"
         id="org-settings-layout-div"
       >
-        <div className="px-4 pt-4" data-cy="org-settings-header-container">
+        <div
+          className="px-4 md:px-6 pt-4"
+          data-cy="org-settings-header-container"
+        >
           <h3
             className="text-gray-900 text-2xl font-bold mb-0"
             data-cy="org-settings-page-header-title"
@@ -181,7 +184,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             Setting
           </h3>
           <Breadcrumb
-            className="mt-2 mb-4"
+            className="mt-2 mb-0"
             items={[
               {
                 title: (
@@ -204,12 +207,16 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             data-cy="org-settings-breadcrumb"
           />
         </div>
+        <hr
+          className="border-gray-200 my-4 w-full"
+          data-cy="org-settings-breadcrumb-divider"
+        />
         <div
           className="bg-white mb-4"
           data-cy="org-settings-tabs-container"
           id="org-settings-tabs-container"
         >
-          <div className="px-4 pr-6" data-cy="org-settings-tabs-wrapper">
+          <div className="px-4 md:px-6" data-cy="org-settings-tabs-wrapper">
             <Tabs
               activeKey={activeKey}
               onChange={handleTabChange}
@@ -228,7 +235,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                     id="org-settings-branches-add-btn-guard"
                   >
                     <Button
-                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      className={`h-8 font-normal ${isMobile ? 'ml-4' : ''}`}
                       icon={
                         <FaPlus
                           data-cy="org-settings-branches-add-btn-icon"
@@ -250,11 +257,12 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                     id="org-settings-fiscal-year-create-btn-guard"
                   >
                     <Button
-                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      className={`h-10 font-normal ${isMobile ? 'ml-4' : ''}`}
                       icon={
                         <FaPlus
                           data-cy="org-settings-fiscal-year-create-btn-icon"
                           id="org-settings-fiscal-year-create-btn-icon"
+                          className="font-normal"
                         />
                       }
                       type="primary"
@@ -267,14 +275,14 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                   </AccessGuard>
                 ) : null
               }
-              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              className="org-settings-tabs-foldfix [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
             />
           </div>
         </div>
         <div
-          className="px-4 pr-6 mb-4"
+          className="px-4 md:px-6 mb-4"
           data-cy="org-settings-content-wrapper"
           id="org-settings-content-wrapper"
         >

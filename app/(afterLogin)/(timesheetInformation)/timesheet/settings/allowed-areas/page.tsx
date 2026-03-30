@@ -9,7 +9,6 @@ const Page = () => {
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
       id="time-attendance-settings-allowed-areas-container"
       data-cy="time-attendance-settings-allowed-areas-container"
     >
