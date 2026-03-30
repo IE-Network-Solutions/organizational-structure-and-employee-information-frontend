@@ -31,6 +31,7 @@ import {
   Tooltip,
   Avatar,
   Breadcrumb,
+  Divider,
   Dropdown,
   Typography,
 } from 'antd';
@@ -1195,6 +1196,16 @@ const Payroll = () => {
           : 'min-h-screen bg-white p-6'
       }
     >
+      <style data-cy="payroll-dashboard-full-bleed-divider-styles">{`
+        @media (min-width: 640px) {
+        .payroll-dashboard-full-bleed-header-divider {
+          width: calc(100% + 96px) !important;
+          margin-left: -48px !important;
+          margin-right: -48px !important;
+          min-width: calc(100% + 96px) !important;
+        }
+      }
+      `}</style>
       <div
         id="payroll-dashboard-inner-wrapper"
         data-cy="payroll-dashboard-inner-wrapper"
@@ -1221,23 +1232,29 @@ const Payroll = () => {
             </h2>
             <Breadcrumb
               data-cy="payroll-dashboard-breadcrumb"
-              className="mt-1"
+              className="mt-2 mb-0 whitespace-nowrap"
+              style={{ whiteSpace: 'nowrap' }}
               items={[
                 {
                   title: (
-                    <span
-                      data-cy="payroll-breadcrumb-root"
-                      className="text-gray-400"
+                    <a
+                      href="/payroll/payroll"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        router.push('/payroll/payroll');
+                      }}
+                      data-cy="payroll-reconciliation-breadcrumb-payroll-link"
+                      className="text-xs sm:text-sm"
                     >
                       Payroll
-                    </span>
+                    </a>
                   ),
                 },
                 {
                   title: (
                     <span
                       data-cy="payroll-breadcrumb-current"
-                      className="text-gray-600"
+                      className="text-xs sm:text-sm"
                     >
                       Payroll
                     </span>
@@ -1570,14 +1587,18 @@ const Payroll = () => {
         </Modal>
       </div>
 
-      {/* Divider between header and content card (desktop only, full width) */}
-      <div
-        id="payroll-header-divider-view-container"
-        data-cy="payroll-header-divider-view-container"
-        className={
-          isMobile ? 'hidden' : 'h-[2px] w-full bg-gray-100 mb-8 -mr-6'
-        }
-      />
+      {/* Divider between header and content card (desktop only, full width within padded main) */}
+      {!isMobile && (
+        <div
+          id="payroll-header-divider-view-container"
+          data-cy="payroll-header-divider-view-container"
+        >
+          <Divider
+            className="payroll-dashboard-full-bleed-header-divider"
+            style={{ margin: '16px 0 24px 0', borderColor: '#f0f0f0' }}
+          />
+        </div>
+      )}
 
       <div
         id="payroll-dashboard-content-wrapper"
