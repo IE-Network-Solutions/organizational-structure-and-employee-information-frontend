@@ -28,7 +28,7 @@ import {
   TableColumnsType,
 } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
 import {
@@ -440,6 +440,83 @@ function DetailPage() {
     updateSearchValue(key, value);
   };
 
+  const activeFilterChips = useMemo(() => {
+    const chips: {
+      id: string;
+      label: string;
+      onRemove: () => void;
+    }[] = [];
+    const sv = searchValue ?? {};
+
+    if (sv.childRecognitionTypeId) {
+      const name =
+        recognitionTypes?.find((t: any) => t.id === sv.childRecognitionTypeId)
+          ?.name ?? 'Type';
+      chips.push({
+        id: 'type',
+        label: name,
+        onRemove: () => {
+          updateSearchValue('childRecognitionTypeId', '');
+          setCurrent(1);
+        },
+      });
+    }
+    if (sv.calendarId) {
+      const year = getAllFisicalYear?.items?.find(
+        (y: FiscalYear) => y.id === sv.calendarId,
+      );
+      chips.push({
+        id: 'year',
+        label: year?.name ?? 'Year',
+        onRemove: () => {
+          updateSearchValue('calendarId', '');
+          updateSearchValue('sessionId', '');
+          updateSearchValue('monthId', '');
+          setCurrent(1);
+        },
+      });
+    }
+    if (sv.sessionId) {
+      const cal = getAllFisicalYear?.items?.find(
+        (y: FiscalYear) => y.id === sv.calendarId,
+      );
+      const session = cal?.sessions?.find(
+        (s: Session) => s.id === sv.sessionId,
+      );
+      chips.push({
+        id: 'session',
+        label: session?.name ?? 'Session',
+        onRemove: () => {
+          updateSearchValue('sessionId', '');
+          updateSearchValue('monthId', '');
+          setCurrent(1);
+        },
+      });
+    }
+    if (sv.monthId) {
+      const cal = getAllFisicalYear?.items?.find(
+        (y: FiscalYear) => y.id === sv.calendarId,
+      );
+      const sess = cal?.sessions?.find((s: Session) => s.id === sv.sessionId);
+      const month = sess?.months?.find((m: Month) => m.id === sv.monthId);
+      chips.push({
+        id: 'month',
+        label: month?.name ?? 'Month',
+        onRemove: () => {
+          updateSearchValue('monthId', '');
+          setCurrent(1);
+        },
+      });
+    }
+    return chips;
+  }, [
+    searchValue,
+    recognitionTypes,
+    getAllFisicalYear,
+    updateSearchValue,
+    setCurrent,
+  ]);
+
   const handleRowClick = (record: any) => {
     setSelectedRecognitionId(record?.id ?? null);
     setDetailModalOpen(true);
@@ -495,248 +572,296 @@ function DetailPage() {
           className="flex items-center justify-between gap-4 mb-4"
           data-cy="recognition-history-filters-row"
         >
-          <Select
-            placeholder="Search Employee"
-            onChange={(value) => handleSearchChange('userId', value)}
-            allowClear
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              String(option?.label ?? '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            size="large"
-            suffixIcon={
-              <div
-                className="border-l border-gray-200  flex items-center justify-center h-8 "
-                data-cy="recognition-history-employee-search-suffix"
-              >
-                {' '}
-                <SearchOutlined className="ml-2" />
-              </div>
-            }
-            className="w-full rounded-md h-8 md:w-[300px] "
-            options={allUserData?.items?.map((item: any) => ({
-              value: item?.id,
-              label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
-            }))}
-          />
-
-          <Popover
-            trigger="click"
-            placement="bottomRight"
-            open={filterPopoverOpen}
-            onOpenChange={(open) => {
-              setFilterPopoverOpen(open);
-              if (open) setDraftFilters(searchValue ?? {});
-            }}
-            content={
-              <div
-                className="md:w-[570px] w-[320px] py-4 px-5"
-                data-cy="recognition-history-filter-popover"
-              >
+          <div
+            data-cy="recognition-history-employee-search-container"
+            className="min-w-0 w-full md:flex-1 md:max-w-xl lg:max-w-2xl"
+          >
+            <Select
+              placeholder="Search Employee"
+              value={searchValue?.userId || undefined}
+              onChange={(value) => {
+                handleSearchChange('userId', value ?? '');
+                setCurrent(1);
+              }}
+              allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                String(option?.label ?? '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              size="large"
+              suffixIcon={
                 <div
-                  className="flex items-center justify-between mb-3 "
-                  data-cy="recognition-history-filter-popover-header"
+                  className="flex h-8 items-center justify-center border-l border-gray-200 pl-2"
+                  data-cy="recognition-history-employee-search-suffix"
                 >
-                  <div
-                    className="text-base font-bold text-black/70"
-                    data-cy="recognition-history-filter-popover-title"
-                  >
-                    Filter
-                  </div>
-                  <Button
-                    type="text"
-                    icon={<CloseOutlined />}
-                    onClick={() => setFilterPopoverOpen(false)}
-                  />
+                  <SearchOutlined className="ml-1" />
                 </div>
+              }
+              className="md:w-[300px] w-full  h-8"
+              options={allUserData?.items?.map((item: any) => ({
+                value: item?.id,
+                label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`,
+              }))}
+              data-cy="recognition-history-employee-search"
+            />
+          </div>
 
+          <div
+            data-cy="recognition-history-filters-actions-container"
+            className="flex flex-wrap items-center justify-start gap-2 md:justify-end"
+          >
+            <div
+              data-cy="recognition-history-filters-actions-chips-container"
+              className="md:flex gap-2  hidden"
+            >
+              {activeFilterChips.map((chip) => (
                 <div
-                  className=""
-                  data-cy="recognition-history-filter-popover-body"
+                  key={chip.id}
+                  className="inline-flex max-w-full items-center gap-0.5 rounded-lg border border-gray-200 bg-white py-1 pl-2.5 pr-1 text-sm font-normal text-black/70"
+                  data-cy={`recognition-history-filter-chip-${chip.id}`}
+                >
+                  <span
+                    data-cy="recognition-history-filter-chip-label"
+                    className="truncate"
+                  >
+                    {chip.label}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={chip.onRemove}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-black/45 hover:bg-gray-100 hover:text-black/70"
+                    aria-label={`Remove ${chip.label}`}
+                    data-cy={`recognition-history-filter-chip-remove-${chip.id}`}
+                  >
+                    <CloseOutlined className="text-[10px]" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <Popover
+              trigger="click"
+              placement="bottomRight"
+              open={filterPopoverOpen}
+              onOpenChange={(open) => {
+                setFilterPopoverOpen(open);
+                if (open) setDraftFilters(searchValue ?? {});
+              }}
+              content={
+                <div
+                  className="md:w-[570px] w-[320px] py-4 px-5"
+                  data-cy="recognition-history-filter-popover"
                 >
                   <div
-                    className="grid grid-cols-1 md:grid-cols-2 gap-3"
-                    data-cy="recognition-history-filter-grid"
+                    className="flex items-center justify-between mb-3 "
+                    data-cy="recognition-history-filter-popover-header"
                   >
-                    <div data-cy="recognition-history-filter-type-field">
-                      <div
-                        className="text-sm font-normal text-black/70 mb-2"
-                        data-cy="recognition-history-filter-type-label"
-                      >
-                        Type
-                      </div>
-                      <Select
-                        placeholder="Select"
-                        allowClear
-                        className="w-full h-10"
-                        value={
-                          draftFilters?.childRecognitionTypeId || undefined
-                        }
-                        onChange={(value) =>
-                          setDraftFilters((prev) => ({
-                            ...prev,
-                            childRecognitionTypeId: value,
-                          }))
-                        }
-                        options={
-                          recognitionTypes?.map((item: any) => ({
-                            key: item?.id,
-                            value: item?.id,
-                            label: item?.name,
-                          })) ?? []
-                        }
-                      />
-                    </div>
-                    <div data-cy="recognition-history-filter-year-field">
-                      <div
-                        className="text-sm font-normal text-black/70 mb-2"
-                        data-cy="recognition-history-filter-year-label"
-                      >
-                        Year
-                      </div>
-                      <Select
-                        placeholder="Select"
-                        allowClear
-                        className="w-full h-10"
-                        value={draftFilters?.calendarId || undefined}
-                        onChange={(value) =>
-                          setDraftFilters((prev) => ({
-                            ...prev,
-                            calendarId: value,
-                            sessionId: undefined,
-                            monthId: undefined,
-                          }))
-                        }
-                        options={
-                          getAllFisicalYear?.items?.map((item: any) => ({
-                            key: item?.id,
-                            value: item?.id,
-                            label: item?.name,
-                          })) ?? []
-                        }
-                      />
-                    </div>
-
-                    <div data-cy="recognition-history-filter-session-field">
-                      <div
-                        className="text-sm font-normal text-black/70 mb-2"
-                        data-cy="recognition-history-filter-session-label"
-                      >
-                        Session
-                      </div>
-                      <Select
-                        placeholder="Select"
-                        allowClear
-                        className="w-full h-10"
-                        value={draftFilters?.sessionId || undefined}
-                        onChange={(value) =>
-                          setDraftFilters((prev) => ({
-                            ...prev,
-                            sessionId: value,
-                            monthId: undefined,
-                          }))
-                        }
-                        options={
-                          getAllFisicalYear?.items
-                            ?.find(
-                              (item: FiscalYear) =>
-                                item?.id === draftFilters?.calendarId,
-                            )
-                            ?.sessions?.map((session: Session) => ({
-                              key: session?.id,
-                              value: session?.id,
-                              label: session?.name,
-                            })) ?? []
-                        }
-                      />
-                    </div>
-                    <div data-cy="recognition-history-filter-month-field">
-                      <div
-                        className="text-sm font-normal text-black/70 mb-2"
-                        data-cy="recognition-history-filter-month-label"
-                      >
-                        Month
-                      </div>
-                      <Select
-                        placeholder="Select"
-                        allowClear
-                        className="w-full h-10"
-                        value={draftFilters?.monthId || undefined}
-                        onChange={(value) =>
-                          setDraftFilters((prev) => ({
-                            ...prev,
-                            monthId: value,
-                          }))
-                        }
-                        options={
-                          getAllFisicalYear?.items
-                            ?.find(
-                              (item: FiscalYear) =>
-                                item?.id === draftFilters?.calendarId,
-                            )
-                            ?.sessions?.find(
-                              (item: Session) =>
-                                item?.id === draftFilters?.sessionId,
-                            )
-                            ?.months?.map((month: Month) => ({
-                              key: month?.id,
-                              value: month?.id,
-                              label: month?.name,
-                            })) ?? []
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    className="flex items-center justify-end gap-3 pt-4"
-                    data-cy="recognition-history-filter-actions"
-                  >
-                    <Button
-                      onClick={() => {
-                        setDraftFilters(searchValue ?? {});
-                        setFilterPopoverOpen(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        handleSearchChange(
-                          'childRecognitionTypeId',
-                          draftFilters?.childRecognitionTypeId as string,
-                        );
-                        handleSearchChange(
-                          'calendarId',
-                          draftFilters?.calendarId as string,
-                        );
-                        handleSearchChange(
-                          'sessionId',
-                          draftFilters?.sessionId as string,
-                        );
-                        handleSearchChange(
-                          'monthId',
-                          draftFilters?.monthId as string,
-                        );
-                        setCurrent(1);
-                        setFilterPopoverOpen(false);
-                      }}
+                    <div
+                      className="text-base font-bold text-black/70"
+                      data-cy="recognition-history-filter-popover-title"
                     >
                       Filter
-                    </Button>
+                    </div>
+                    <Button
+                      type="text"
+                      icon={<CloseOutlined />}
+                      onClick={() => setFilterPopoverOpen(false)}
+                    />
+                  </div>
+
+                  <div
+                    className=""
+                    data-cy="recognition-history-filter-popover-body"
+                  >
+                    <div
+                      className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                      data-cy="recognition-history-filter-grid"
+                    >
+                      <div data-cy="recognition-history-filter-type-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-type-label"
+                        >
+                          Type
+                        </div>
+                        <Select
+                          placeholder="Select"
+                          allowClear
+                          className="w-full h-10"
+                          value={
+                            draftFilters?.childRecognitionTypeId || undefined
+                          }
+                          onChange={(value) =>
+                            setDraftFilters((prev) => ({
+                              ...prev,
+                              childRecognitionTypeId: value,
+                            }))
+                          }
+                          options={
+                            recognitionTypes?.map((item: any) => ({
+                              key: item?.id,
+                              value: item?.id,
+                              label: item?.name,
+                            })) ?? []
+                          }
+                        />
+                      </div>
+                      <div data-cy="recognition-history-filter-year-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-year-label"
+                        >
+                          Year
+                        </div>
+                        <Select
+                          placeholder="Select"
+                          allowClear
+                          className="w-full h-10"
+                          value={draftFilters?.calendarId || undefined}
+                          onChange={(value) =>
+                            setDraftFilters((prev) => ({
+                              ...prev,
+                              calendarId: value,
+                              sessionId: undefined,
+                              monthId: undefined,
+                            }))
+                          }
+                          options={
+                            getAllFisicalYear?.items?.map((item: any) => ({
+                              key: item?.id,
+                              value: item?.id,
+                              label: item?.name,
+                            })) ?? []
+                          }
+                        />
+                      </div>
+
+                      <div data-cy="recognition-history-filter-session-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-session-label"
+                        >
+                          Session
+                        </div>
+                        <Select
+                          placeholder="Select"
+                          allowClear
+                          className="w-full h-10"
+                          value={draftFilters?.sessionId || undefined}
+                          onChange={(value) =>
+                            setDraftFilters((prev) => ({
+                              ...prev,
+                              sessionId: value,
+                              monthId: undefined,
+                            }))
+                          }
+                          options={
+                            getAllFisicalYear?.items
+                              ?.find(
+                                (item: FiscalYear) =>
+                                  item?.id === draftFilters?.calendarId,
+                              )
+                              ?.sessions?.map((session: Session) => ({
+                                key: session?.id,
+                                value: session?.id,
+                                label: session?.name,
+                              })) ?? []
+                          }
+                        />
+                      </div>
+                      <div data-cy="recognition-history-filter-month-field">
+                        <div
+                          className="text-sm font-normal text-black/70 mb-2"
+                          data-cy="recognition-history-filter-month-label"
+                        >
+                          Month
+                        </div>
+                        <Select
+                          placeholder="Select"
+                          allowClear
+                          className="w-full h-10"
+                          value={draftFilters?.monthId || undefined}
+                          onChange={(value) =>
+                            setDraftFilters((prev) => ({
+                              ...prev,
+                              monthId: value,
+                            }))
+                          }
+                          options={
+                            getAllFisicalYear?.items
+                              ?.find(
+                                (item: FiscalYear) =>
+                                  item?.id === draftFilters?.calendarId,
+                              )
+                              ?.sessions?.find(
+                                (item: Session) =>
+                                  item?.id === draftFilters?.sessionId,
+                              )
+                              ?.months?.map((month: Month) => ({
+                                key: month?.id,
+                                value: month?.id,
+                                label: month?.name,
+                              })) ?? []
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className="flex items-center justify-end gap-3 pt-4"
+                      data-cy="recognition-history-filter-actions"
+                    >
+                      <Button
+                        onClick={() => {
+                          setDraftFilters(searchValue ?? {});
+                          setFilterPopoverOpen(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          handleSearchChange(
+                            'childRecognitionTypeId',
+                            (draftFilters?.childRecognitionTypeId as string) ??
+                              '',
+                          );
+                          handleSearchChange(
+                            'calendarId',
+                            (draftFilters?.calendarId as string) ?? '',
+                          );
+                          handleSearchChange(
+                            'sessionId',
+                            (draftFilters?.sessionId as string) ?? '',
+                          );
+                          handleSearchChange(
+                            'monthId',
+                            (draftFilters?.monthId as string) ?? '',
+                          );
+                          setCurrent(1);
+                          setFilterPopoverOpen(false);
+                        }}
+                      >
+                        Filter
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            }
-          >
-            <Button className="h-8" icon={<MdOutlineFilterAlt />}>
-              Filter
-            </Button>
-          </Popover>
+              }
+            >
+              <button
+                type="button"
+                className="inline-flex h-8 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-sm font-normal text-black/70 hover:border-gray-300 hover:bg-gray-50"
+                data-cy="recognition-history-filter-trigger"
+              >
+                <MdOutlineFilterAlt className="text-lg text-black/55" />
+                Filter
+              </button>
+            </Popover>
+          </div>
         </div>
 
         {hasSelectedRows && (

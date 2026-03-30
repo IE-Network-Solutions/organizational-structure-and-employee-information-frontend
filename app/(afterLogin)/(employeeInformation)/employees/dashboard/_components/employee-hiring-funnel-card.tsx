@@ -112,7 +112,7 @@ export default function EmployeeHiringFunnelCard() {
 
   return (
     <Card
-      className="shadow-sm border border-gray-200 rounded-lg w-full min-h-[355px]"
+      className="shadow-sm border border-gray-200 rounded-lg w-full min-h-[418px]"
       bodyStyle={{ padding: 21 }}
       id="employee-hiring-funnel-card"
       data-cy="employee-hiring-funnel-card"
