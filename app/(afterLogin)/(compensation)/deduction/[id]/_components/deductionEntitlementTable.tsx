@@ -194,7 +194,7 @@ const DeductionEntitlementTable: React.FC<DeductionEntitlementTableProps> = ({
       dataIndex: 'Amount',
       key: 'Amount',
       width: isMobile ? 140 : 130,
-      render: (amount: string, record: any) =>
+      render: (amount: string) =>
         amount != null && amount !== '' ? (
           <span
             className="text-[13px] text-[#434343]"

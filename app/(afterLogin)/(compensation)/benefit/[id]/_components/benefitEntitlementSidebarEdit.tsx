@@ -36,7 +36,6 @@ type BenefitEntitlementProps = {
 };
 
 const BenefitEntitlementSideBarEdit = ({
-  title,
   forDeductionDetail = false,
 }: BenefitEntitlementProps) => {
   const {

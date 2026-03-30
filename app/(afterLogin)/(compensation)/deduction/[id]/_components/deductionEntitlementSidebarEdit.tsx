@@ -26,13 +26,7 @@ const inputClassName = 'w-full rounded-md border-gray-300';
 const payPeriodOptionFormat = (start: string, end: string) =>
   `${dayjs(start).format('MMM DD,YYYY')} - ${dayjs(end).format('MMM DD,YYYY')}`;
 
-type DeductionEntitlementEditProps = {
-  title: string;
-};
-
-const DeductionEntitlementSideBarEdit = ({
-  title,
-}: DeductionEntitlementEditProps) => {
+const DeductionEntitlementSideBarEdit = () => {
   const {
     isDeductionEntitlementSidebarEditOpen,
     editDeductionData,
