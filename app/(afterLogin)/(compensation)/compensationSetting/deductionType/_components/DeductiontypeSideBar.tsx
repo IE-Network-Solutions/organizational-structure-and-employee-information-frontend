@@ -7,7 +7,7 @@ import { CloseOutlined } from '@ant-design/icons';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import {
   useCreateAllowanceType,
-  useUpdateCompensation,
+  useEditAllowanceType,
 } from '@/store/server/features/compensation/settings/mutations';
 
 const { TextArea } = Input;
@@ -22,9 +22,9 @@ const DeductiontypeSideBar = () => {
     departmentUsers,
   } = useCompensationSettingStore();
   const { mutate: createAllowanceType, isLoading } = useCreateAllowanceType();
-  const { mutate: updateAllowanceType, isLoading: updateIsLoading } =
-    useUpdateCompensation();
-  const isSubmitting = isLoading || updateIsLoading;
+  const { mutate: editDeductionType, isLoading: editIsLoading } =
+    useEditAllowanceType();
+  const isSubmitting = isLoading || editIsLoading;
 
   const [form] = Form.useForm();
   const isRated = Form.useWatch('isRate', form);
@@ -85,8 +85,8 @@ const DeductiontypeSideBar = () => {
       applicableTo: 'PER-EMPLOYEE',
     };
     if (selectedDeductionRecord?.id) {
-      updateAllowanceType(
-        { id: selectedDeductionRecord?.id, values: value },
+      editDeductionType(
+        { id: selectedDeductionRecord.id, data: value },
         {
           onSuccess: () => {
             form.resetFields();
