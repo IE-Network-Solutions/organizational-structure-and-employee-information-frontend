@@ -7,6 +7,7 @@ import { CloseOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useCreateEmployeeSurvey,
   useUpdateEmployeeSurvey,
@@ -40,6 +41,11 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   const [form] = Form.useForm();
   const { survey, openModal } = EmployeeSurveyStore();
   const isEditMode = Boolean(open && openModal && survey?.id);
+  const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile updates after modal open.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
   const { data: userData, isLoading } = useGetActiveEmployee();
   const users = userData?.items || [];
@@ -282,7 +288,33 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
       }
       footer={footer}
       destroyOnClose
-      width={isEditMode ? undefined : 640}
+      centered={!isMobileViewport}
+      width={isMobileViewport ? '100%' : isEditMode ? undefined : 640}
+      style={
+        isMobileViewport
+          ? {
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              transform: 'none',
+              width: '100%',
+              maxWidth: '100%',
+            }
+          : undefined
+      }
+      styles={{
+        content: isMobileViewport
+          ? { width: '100%', maxWidth: '100%', margin: 0, borderRadius: 12 }
+          : undefined,
+        body: {
+          maxHeight: isMobileViewport ? 'calc(100vh - 220px)' : undefined,
+          overflowY: isMobileViewport ? 'auto' : undefined,
+        },
+      }}
       data-cy="employee-survey-modal"
     >
       {isEditMode ? (
