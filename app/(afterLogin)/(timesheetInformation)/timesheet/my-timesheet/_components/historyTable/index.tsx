@@ -293,7 +293,10 @@ const HistoryTable = () => {
           id="time-attendance-history-table-toolbar"
           data-cy="time-attendance-history-table-toolbar"
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-8 sm:px-4 sm:pb-2 sm:pt-4 lg:gap-12 lg:px-5">
+          <div
+            className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-8 sm:px-4 sm:pb-2 sm:pt-4 lg:gap-12 lg:px-5"
+            data-cy="time-attendance-history-table-toolbar-inner"
+          >
             <div
               className="min-w-0 w-full sm:w-auto sm:shrink"
               data-cy="time-attendance-history-table-filter-wrapper"
@@ -343,11 +346,12 @@ const HistoryTable = () => {
             dataSource={tableData}
             pagination={false}
             scroll={{ x: LEAVE_TABLE_SCROLL_X }}
-            rowClassName={(_, index) =>
-              index % 2 === 1
+            rowClassName={(record, index) => {
+              void record;
+              return index % 2 === 1
                 ? 'leave-history-table-row-even'
-                : 'leave-history-table-row-odd'
-            }
+                : 'leave-history-table-row-odd';
+            }}
             tableLayout="fixed"
             id="time-attendance-history-table"
             data-cy="time-attendance-history-table"

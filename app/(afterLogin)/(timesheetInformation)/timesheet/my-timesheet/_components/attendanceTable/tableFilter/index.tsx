@@ -17,9 +17,6 @@ const selectFieldClassName =
 const rangePickerClassName =
   'w-full min-h-[44px] rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
 
-/** Single DatePicker: same visual weight as range row; each popup is one month (fits narrow screens). */
-const singleDatePickerClassName = rangePickerClassName;
-
 /** Inside composite “range” row: no outer border on each picker (wrapper supplies one ring). */
 const compositeSegmentPickerClassName =
   'w-full min-h-[44px] border-0 bg-transparent shadow-none rounded-none [&_.ant-picker]:border-0 [&_.ant-picker]:shadow-none [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
@@ -76,7 +73,10 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 className={selectFieldClassName}
                 suffixIcon={suffixIcon}
                 options={attendanceRecordTypeOption}
-                optionRender={(option: { label?: React.ReactNode; value?: string }) => {
+                optionRender={(option: {
+                  label?: React.ReactNode;
+                  value?: string;
+                }) => {
                   const isSelected = option?.value === selectedType;
                   const optKey = String(option?.value ?? 'option');
                   return (
@@ -109,7 +109,10 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               id="time-attendance-attendance-table-filter-date-range-mobile-shell"
               data-cy="time-attendance-attendance-table-filter-date-range-mobile-shell"
             >
-              <div className="flex min-w-0 flex-1 border-r border-gray-200">
+              <div
+                className="flex min-w-0 flex-1 border-r border-gray-200"
+                data-cy="time-attendance-attendance-table-filter-date-from-mobile-segment"
+              >
                 <Form.Item
                   className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
                   id="time-attendance-attendance-table-filter-date-from-mobile"
@@ -118,7 +121,8 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   dependencies={[['date', 1]]}
                   rules={[
                     ({ getFieldValue }) => ({
-                      validator(_rule, value: Dayjs | null | undefined) {
+                      validator(rule, value: Dayjs | null | undefined) {
+                        void rule;
                         const end = getFieldValue(['date', 1]) as
                           | Dayjs
                           | null
@@ -153,7 +157,10 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               >
                 →
               </span>
-              <div className="flex min-w-0 flex-1">
+              <div
+                className="flex min-w-0 flex-1"
+                data-cy="time-attendance-attendance-table-filter-date-to-mobile-segment"
+              >
                 <Form.Item
                   className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
                   id="time-attendance-attendance-table-filter-date-to-mobile"
@@ -162,7 +169,8 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   dependencies={[['date', 0]]}
                   rules={[
                     ({ getFieldValue }) => ({
-                      validator(_rule, value: Dayjs | null | undefined) {
+                      validator(rule, value: Dayjs | null | undefined) {
+                        void rule;
                         const start = getFieldValue(['date', 0]) as
                           | Dayjs
                           | null
@@ -254,7 +262,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
             data-cy="time-attendance-attendance-table-filter-date"
           >
             <DatePicker.RangePicker
-              className="h-9 w-full"
+              className={`h-9 ${rangePickerClassName}`}
               style={{ width: '100%' }}
               separator={'→'}
               format={DATE_FORMAT}

@@ -101,7 +101,10 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
             id="time-attendance-history-table-filter-date-mobile-shell"
             data-cy="time-attendance-history-table-filter-date-mobile-shell"
           >
-            <div className="flex min-w-0 flex-1 border-r border-gray-200">
+            <div
+              className="flex min-w-0 flex-1 border-r border-gray-200"
+              data-cy="time-attendance-history-table-filter-date-from-mobile-segment"
+            >
               <Form.Item
                 className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
                 id="time-attendance-history-table-filter-date-from-mobile"
@@ -110,16 +113,15 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
                 dependencies={[['date', 1]]}
                 rules={[
                   ({ getFieldValue }) => ({
-                    validator(_rule, value: Dayjs | null | undefined) {
+                    validator(rule, value: Dayjs | null | undefined) {
+                      void rule;
                       const end = getFieldValue(['date', 1]) as
                         | Dayjs
                         | null
                         | undefined;
                       if (value && end && value.isAfter(end, 'day')) {
                         return Promise.reject(
-                          new Error(
-                            'Start date must be on or before end date',
-                          ),
+                          new Error('Start date must be on or before end date'),
                         );
                       }
                       return Promise.resolve();
@@ -145,7 +147,10 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
             >
               →
             </span>
-            <div className="flex min-w-0 flex-1">
+            <div
+              className="flex min-w-0 flex-1"
+              data-cy="time-attendance-history-table-filter-date-to-mobile-segment"
+            >
               <Form.Item
                 className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
                 id="time-attendance-history-table-filter-date-to-mobile"
@@ -154,16 +159,15 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
                 dependencies={[['date', 0]]}
                 rules={[
                   ({ getFieldValue }) => ({
-                    validator(_rule, value: Dayjs | null | undefined) {
+                    validator(rule, value: Dayjs | null | undefined) {
+                      void rule;
                       const start = getFieldValue(['date', 0]) as
                         | Dayjs
                         | null
                         | undefined;
                       if (start && value && value.isBefore(start, 'day')) {
                         return Promise.reject(
-                          new Error(
-                            'End date must be on or after start date',
-                          ),
+                          new Error('End date must be on or after start date'),
                         );
                       }
                       return Promise.resolve();
@@ -218,7 +222,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
           data-cy="time-attendance-history-table-filter-date-range"
         >
           <DatePicker.RangePicker
-            className="h-9 w-full"
+            className={`h-9 ${rangePickerClassName}`}
             style={{ width: '100%' }}
             separator="→"
             format={DATE_FORMAT}

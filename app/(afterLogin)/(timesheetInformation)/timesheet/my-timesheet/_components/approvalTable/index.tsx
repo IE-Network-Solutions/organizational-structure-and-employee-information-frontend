@@ -105,8 +105,7 @@ const ApprovalTable = () => {
   }, [userCurrentPage, pageSize, searchEmployee, filterStatus, refetch]);
 
   /** True on first load and on every refetch (e.g. filter / page changes). `isLoading` alone misses refetches when `keepPreviousData` is on. */
-  const isApprovalListLoading =
-    isLoadingApproval || isFetchingApproval;
+  const isApprovalListLoading = isLoadingApproval || isFetchingApproval;
 
   // Normalize response: support both { items, meta } and { data: { items, meta } }
   const payload = approvalData?.data ?? approvalData;
@@ -363,7 +362,10 @@ const ApprovalTable = () => {
       width: 128,
       onCell: () => ({ style: rowCellPadding }),
       render: (val: string) => (
-        <span className={`${rowCellClass} whitespace-nowrap`}>
+        <span
+          className={`${rowCellClass} whitespace-nowrap`}
+          data-cy="time-attendance-approval-table-cell-start-date"
+        >
           {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
         </span>
       ),
@@ -375,7 +377,10 @@ const ApprovalTable = () => {
       width: 128,
       onCell: () => ({ style: rowCellPadding }),
       render: (val: string) => (
-        <span className={`${rowCellClass} whitespace-nowrap`}>
+        <span
+          className={`${rowCellClass} whitespace-nowrap`}
+          data-cy="time-attendance-approval-table-cell-end-date"
+        >
           {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
         </span>
       ),
@@ -387,7 +392,12 @@ const ApprovalTable = () => {
       width: 72,
       onCell: () => ({ style: rowCellPadding }),
       render: (v: number) => (
-        <span className={`${rowCellClass} whitespace-nowrap`}>{v}</span>
+        <span
+          className={`${rowCellClass} whitespace-nowrap`}
+          data-cy="time-attendance-approval-table-cell-days"
+        >
+          {v}
+        </span>
       ),
     },
     {
@@ -603,11 +613,12 @@ const ApprovalTable = () => {
         scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
         locale={{ emptyText: 'No leave requests' }}
         className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
-        rowClassName={(_, index) =>
-          index % 2 === 1
+        rowClassName={(record, index) => {
+          void record;
+          return index % 2 === 1
             ? 'my-timesheet-approval-table-row-even'
-            : 'my-timesheet-approval-table-row-odd'
-        }
+            : 'my-timesheet-approval-table-row-odd';
+        }}
         id="time-attendance-approval-table"
         data-cy="time-attendance-approval-table"
       />

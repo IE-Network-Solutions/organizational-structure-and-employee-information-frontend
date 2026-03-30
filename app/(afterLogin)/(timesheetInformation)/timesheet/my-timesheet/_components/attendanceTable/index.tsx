@@ -1,4 +1,3 @@
- 
 import React, { useEffect } from 'react';
 import { Button, Dropdown, message, Space, Table, Tag } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
@@ -104,8 +103,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       ? attendanceMetaTotalPages
       : Math.ceil((data?.meta?.totalItems ?? 0) / safeAttendancePageSize),
   );
-  const attendanceWrapPaginationManyPages =
-    attendanceResolvedTotalPages > 3;
+  const attendanceWrapPaginationManyPages = attendanceResolvedTotalPages > 3;
   const { mutate: exportAttendanceData } = UseExportAttendanceData();
 
   const handleExport = (exportType: 'PDF' | 'EXCEL') => {
@@ -545,11 +543,12 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           scroll={{ x: 'min-content' }}
           id="time-attendance-attendance-table"
           data-cy="time-attendance-attendance-table"
-          rowClassName={(_, index) =>
-            index % 2 === 1
+          rowClassName={(record, index) => {
+            void record;
+            return index % 2 === 1
               ? 'time-attendance-table-row-even'
-              : 'time-attendance-table-row-odd'
-          }
+              : 'time-attendance-table-row-odd';
+          }}
         />
         <div
           className={`mx-1 ${isMobile || isTablet ? 'mt-6' : ''}`}

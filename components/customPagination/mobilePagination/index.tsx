@@ -48,8 +48,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   const totalPages = Math.max(1, fromMeta ?? fromCount);
 
   /** ≤3 pages (and not forced stack): keep pager + “Go to” on one row even on narrow viewports. */
-  const keepPagerAndGoToOnOneRow =
-    totalPages <= 3 && !stackPagerAndGoTo;
+  const keepPagerAndGoToOnOneRow = totalPages <= 3 && !stackPagerAndGoTo;
 
   const handlePrevious = () => {
     if (activeCurrentPage > 1) {
@@ -96,8 +95,8 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
 
   const visiblePageItems = getVisiblePageItems();
 
-  const [goToPageValue, setGoToPageValue] = useState(
-    () => String(activeCurrentPage),
+  const [goToPageValue, setGoToPageValue] = useState(() =>
+    String(activeCurrentPage),
   );
 
   useEffect(() => {
@@ -177,7 +176,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
             className="min-w-0 flex-1 overflow-x-auto overflow-y-hidden px-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             data-cy="components-custompagination-mobilepagination-pages-scroll"
           >
-            <div className="flex w-max min-w-0 flex-nowrap items-center justify-center gap-1 sm:gap-2">
+            <div
+              className="flex w-max min-w-0 flex-nowrap items-center justify-center gap-1 sm:gap-2"
+              data-cy="components-custompagination-mobilepagination-pages-strip"
+            >
               {visiblePageItems.map((item) => {
                 if (item === 'ellipsis') {
                   return (
