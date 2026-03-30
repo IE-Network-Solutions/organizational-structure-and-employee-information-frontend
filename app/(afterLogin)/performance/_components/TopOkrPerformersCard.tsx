@@ -6,6 +6,7 @@ import { Avatar } from 'antd';
 import { TopOkrPerformersCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetOkrTotalSummaryLeaderboard } from '@/store/server/features/performance/okr-total-summary/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
+import Link from 'next/link';
 
 /** API sometimes returns noisy strings; extract first usable http(s) URL if present. */
 function avatarSrcFromApi(raw: string | null | undefined): string | undefined {
@@ -59,9 +60,12 @@ export default function TopOkrPerformersCard({
       className="h-[406px] rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
       data-cy="performance-top-okr-performers-card"
     >
-      <h2 className="mb-4 text-base font-bold text-black">
+      <div className="flex items-center justify-between gap-2 mb-4 ">
+      <h2 className="text-base font-bold text-black">
         Top OKR Performers
       </h2>
+      <Link href="/performance/employees"  className="text-sm font-normal text-primary hover:underline focus:outline-none">View All</Link>
+      </div>
       {showSpinner ? (
         <TopOkrPerformersCardSkeleton />
       ) : missingSession ? (

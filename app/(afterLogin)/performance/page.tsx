@@ -5,7 +5,7 @@ import OkrProgressCard from './_components/OkrProgressCard';
 import FeedbackCard from './_components/FeedbackCard';
 import TopOkrPerformersCard from './_components/TopOkrPerformersCard';
 import FeedbackPerformersCard from './_components/FeedbackPerformersCard';
-import ActionPlanCard from './_components/ActionPlanCard';
+import ActionPlanCard from './_components/actionPlan';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import RecentHrActions from '../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
 import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';

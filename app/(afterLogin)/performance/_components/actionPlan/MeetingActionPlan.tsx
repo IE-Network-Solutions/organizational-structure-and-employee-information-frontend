@@ -4,11 +4,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Progress } from 'antd';
 import { TrendingDown, TrendingUp } from 'lucide-react';
-import { ActionPlanCardSkeleton } from './PerformanceCardSkeletons';
+import { ActionPlanCardSkeleton } from '../PerformanceCardSkeletons';
 import { useGetActionPlansDashboard } from '@/store/server/features/performance/action-plans/queries';
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 import Link from 'next/link';
+import { usePerformanceUIState } from '@/store/uistate/features/performance';
 
 /** Matches performance dashboard recent-actions audit scope */
 const PERFORMANCE_AUDIT_LOG_MODULES = [
@@ -71,7 +72,7 @@ type ActionPlanCardProps = {
   onMonthChange?: (monthId: string) => void;
 };
 
-export default function ActionPlanCard({
+    export default function MeetingActionPlan({
   sessionId: sessionIdProp,
   monthId: monthIdProp,
   monthOptions,
@@ -197,16 +198,19 @@ export default function ActionPlanCard({
     );
     if (!exists) setSelectedMonthIdLocal(null);
   }, [monthOptions, selectedMonthIdLocal]);
-
+ const { selectedTab, setSelectedTab } = usePerformanceUIState();
   return (
     <section
       className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm h-[444px]"
       data-cy="performance-action-plan-card"
     >
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="text-base font-bold text-black">Action Plan</h2>
+        <h2 className="text-base font-bold text-black">Meeting Action Plan</h2>
+        <div className="flex items-center gap-2">
 
-        {orderedMonthsForUi.length > 0 && (
+        
+        
+    {orderedMonthsForUi.length > 0 && (
           <>
             {!isMonthListOpen && (
               <button
@@ -254,8 +258,10 @@ export default function ActionPlanCard({
             )}
           </>
         )}
+        <button type="button" onClick={() => setSelectedTab('survey')} className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50">Survey</button>
+        {/* <button type="button" onClick={() => setSelectedTab('meeting')} className={`px-3 py-1 text-xs rounded border transition ${selectedTab === 'meeting' ? 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Meeting</button> */}
       </div>
-
+      </div>
       {showSpinner ? (
         <ActionPlanCardSkeleton />
       ) : missingContext ? (
