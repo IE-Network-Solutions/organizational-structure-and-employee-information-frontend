@@ -15,13 +15,16 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
   targetNames,
 }) => {
   const { Option } = Select;
+  const [selectedType, setSelectedType] = React.useState<string | null>(null);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
   };
 
-  const handleTypeChange = (value: string) => {
-    onTypeChange(value);
+  const handleTypeChange = (value?: string) => {
+    const next = value ?? null;
+    setSelectedType(next);
+    onTypeChange(next ?? '');
   };
 
   return (
@@ -50,11 +53,33 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
           />
         </div>
 
-        {/* Filter Select on the Right */}
+        {/* Selected filter chip(s) + Filter Select on the Right */}
         <div
-          className="flex-shrink-0"
+          className="flex-shrink-0 flex items-center gap-2"
           data-cy="okr-target-filters-select-wrapper"
         >
+          {selectedType ? (
+            <div
+              className="h-6 inline-flex items-center gap-2 px-2 border border-[#d9d9d9] rounded-[6px] bg-white text-[12px] text-[rgba(0,0,0,0.7)]"
+              data-cy="okr-target-filters-selected-chip"
+            >
+              <span
+                className="max-w-[160px] truncate"
+                data-cy="okr-target-filters-selected-chip-text"
+              >
+                {selectedType}
+              </span>
+              <button
+                type="button"
+                className="h-4 w-4 inline-flex items-center justify-center text-[rgba(0,0,0,0.45)] hover:text-[rgba(0,0,0,0.7)]"
+                onClick={() => handleTypeChange(undefined)}
+                aria-label="Clear filter"
+                data-cy="okr-target-filters-selected-chip-clear"
+              >
+                ×
+              </button>
+            </div>
+          ) : null}
           <Select
             placeholder={
               <div
@@ -75,6 +100,7 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
             }
             onChange={handleTypeChange}
             allowClear
+            value={null as any}
             className="h-8 min-w-fit custom-filter-select-v3"
             suffixIcon={null}
             id="okr-target-filters-select"
@@ -116,9 +142,22 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
           inset-inline-end: 12px !important;
           position: static !important;
           transform: none !important;
+        }
+        /* Keep showing 'Filter' even after selecting an option (AntD hides it via opacity: 0) */
+        .custom-filter-select-v3.ant-select-single .ant-select-selector
+          .ant-select-selection-placeholder {
+          display: flex !important;
+          align-items: center !important;
           opacity: 1 !important;
+          visibility: visible !important;
         }
         .custom-filter-select-v3 .ant-select-selection-search {
+          display: none !important;
+        }
+        .custom-filter-select-v3.ant-select-single .ant-select-selection-item {
+          display: none !important;
+        }
+        .custom-filter-select-v3.ant-select-single .ant-select-clear {
           display: none !important;
         }
         .custom-filter-select-v3:hover .ant-select-selector {
