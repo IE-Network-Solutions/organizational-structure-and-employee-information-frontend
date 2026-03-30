@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Modal } from 'antd';
+import { Modal, Button } from 'antd';
 import { CloseCircleFilled, CloseOutlined } from '@ant-design/icons';
-import CustomButton from '@/components/common/buttons/customButton';
 
 interface UnreportedUsersModalProps {
   open: boolean;
@@ -99,22 +98,24 @@ const UnreportedUsersModal: React.FC<UnreportedUsersModalProps> = ({
           className="flex justify-end gap-3"
           data-cy="unreported-users-modal-actions"
         >
-          <CustomButton
+          <Button
             type="default"
-            title="Cancel"
             onClick={onClose}
-            className="h-11 px-8 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626]"
+            className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
             id="unreported-users-cancel-button"
             data-cy="unreported-users-cancel-button"
-          />
-          <CustomButton
+          >
+            Cancel
+          </Button>
+          <Button
             type="primary"
-            title="Change"
             disabled={true}
-            className="h-11 px-8 rounded-lg bg-[#f5f5f5] text-[#bfbfbf] border-[#d9d9d9] cursor-not-allowed"
+            className="h-10 px-8 rounded-lg bg-[#f5f5f5] text-[#bfbfbf] border-[#d9d9d9] cursor-not-allowed font-medium flex items-center justify-center"
             id="unreported-users-change-button"
             data-cy="unreported-users-change-button"
-          />
+          >
+            Change
+          </Button>
         </div>
       </div>
 

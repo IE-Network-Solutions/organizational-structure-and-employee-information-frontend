@@ -2,79 +2,14 @@
 import React, { useEffect } from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useGetAccrualRules } from '@/store/server/features/timesheet/accrualRule/queries';
-import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import { Button, Table } from 'antd';
+import { Card, Tag } from 'antd';
 import NewAccrualRuleSidebar from './_components/newAccrualRuleSidebar';
-import usePagination from '@/utils/usePagination';
-import { DefaultTablePagination } from '@/utils/defaultTablePagination';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import { FaPlus } from 'react-icons/fa';
 
 const Page = () => {
-  const {
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-    setPage,
-    setLimit,
-    setOrderBy,
-    setOrderDirection,
-  } = usePagination();
-  const { setIsShowNewAccrualRuleSidebar, isShowNewAccrualRuleSidebar } =
-    useTimesheetSettingsStore();
-  const { data, isFetching, refetch } = useGetAccrualRules({
-    page,
-    limit,
-    orderBy,
-    orderDirection,
-  });
-  const columns: TableColumnsType<any> = [
-    {
-      title: 'Accrual Rule',
-      dataIndex: 'title',
-      key: 'title',
-      sorter: true,
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-accrual-rule-table-row-title"
-          data-cy="time-attendance-settings-accrual-rule-table-row-title"
-        >
-          {text}
-        </div>
-      ),
-    },
-    {
-      title: 'Accrual Period',
-      dataIndex: 'period',
-      key: 'period',
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-accrual-rule-table-row-period"
-          data-cy="time-attendance-settings-accrual-rule-table-row-period"
-        >
-          {text}
-        </div>
-      ),
-    },
-    {
-      title: 'Submitted Date',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (text: string) => (
-        <div
-          id="time-attendance-settings-accrual-rule-table-row-created-at"
-          data-cy="time-attendance-settings-accrual-rule-table-row-created-at"
-        >
-          {dayjs(text).format(DATE_FORMAT)}
-        </div>
-      ),
-    },
-  ];
-
+  const { isShowNewAccrualRuleSidebar } = useTimesheetSettingsStore();
+  const { data, refetch } = useGetAccrualRules({});
   const tableData = () => {
     return data
       ? data.items.map((item) => ({
@@ -94,68 +29,53 @@ const Page = () => {
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white w-full h-full"
       id="time-attendance-settings-accrual-rule-container"
       data-cy="time-attendance-settings-accrual-rule-container"
     >
       <div
-        className="flex items-center justify-between mb-4"
-        id="time-attendance-settings-accrual-rule-header"
-        data-cy="time-attendance-settings-accrual-rule-header"
-      >
-        <h1
-          className="text-lg text-bold"
-          id="time-attendance-settings-accrual-rule-title"
-          data-cy="time-attendance-settings-accrual-rule-title"
-        >
-          Accrual Rule
-        </h1>
-        <AccessGuard
-          permissions={[Permissions.CreateLeaveAccrual]}
-          data-cy="time-attendance-settings-accrual-rule-add-button-access-guard"
-        >
-          <Button
-            size="large"
-            type="primary"
-            id="time-attendance-settings-accrual-rule-add-button"
-            data-cy="time-attendance-settings-accrual-rule-add-button"
-            icon={
-              <FaPlus data-cy="time-attendance-settings-accrual-rule-add-button-icon" />
-            }
-            className="h-10 w-10 sm:w-auto"
-            onClick={() => setIsShowNewAccrualRuleSidebar(true)}
-          >
-            <span
-              id="time-attendance-settings-accrual-rule-add-button-label"
-              data-cy="time-attendance-settings-accrual-rule-add-button-label"
-              className="hidden md:inline"
-            >
-              {' '}
-              New Accrual Rule
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-      <div
-        className="overflow-x-auto scrollbar-none w-full"
+        className="w-full border border-[#D9D9D9] p-4 rounded-lg"
         id="time-attendance-settings-accrual-rule-table-container"
         data-cy="time-attendance-settings-accrual-rule-table-container"
       >
-        <Table
-          columns={columns}
-          className=""
-          loading={isFetching}
-          dataSource={tableData()}
-          pagination={DefaultTablePagination(data?.meta?.totalItems)}
-          onChange={(pagination, filters, sorter: any) => {
-            setPage(pagination.current ?? 1);
-            setLimit(pagination.pageSize ?? 10);
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-          id="time-attendance-settings-accrual-rule-table"
-          data-cy="time-attendance-settings-accrual-rule-table"
-        />
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          data-cy="time-attendance-settings-accrual-rule-cards-grid"
+        >
+          {tableData().map((item) => (
+            <Card
+              key={item.key}
+              className="rounded-lg border border-gray-200 !shadow-none"
+              bodyStyle={{ padding: 12 }}
+              id={`time-attendance-settings-accrual-rule-card-${item.key}`}
+              data-cy={`time-attendance-settings-accrual-rule-card-${item.key}`}
+            >
+              <div
+                id="time-attendance-settings-accrual-rule-card-header"
+                data-cy="time-attendance-settings-accrual-rule-card-header"
+                className="flex items-start justify-between gap-2"
+              >
+                <div
+                  className="text-base font-semibold text-[#4d4d4d] leading-5"
+                  data-cy="time-attendance-settings-accrual-rule-card-title"
+                >
+                  {item.title}
+                </div>
+                <Tag
+                  className=" bg-[#fafafa] text-xs text-[#4b4b4b] border border-[#d9d9d9] rounded-[4px] px-2 py-0.5"
+                  data-cy="time-attendance-settings-accrual-rule-card-period"
+                >
+                  {item.period}
+                </Tag>
+              </div>
+              <div
+                className="mt-2 text-sm text-black"
+                data-cy="time-attendance-settings-accrual-rule-card-date"
+              >
+                {dayjs(item.createdAt).format(DATE_FORMAT)}
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
 
       <NewAccrualRuleSidebar data-cy="time-attendance-settings-accrual-rule-sidebar" />

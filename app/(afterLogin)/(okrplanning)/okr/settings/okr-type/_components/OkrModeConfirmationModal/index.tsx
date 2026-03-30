@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Modal } from 'antd';
+import { Modal, Button } from 'antd';
 import { WarningFilled, CloseOutlined } from '@ant-design/icons';
-import CustomButton from '@/components/common/buttons/customButton';
 
 interface OkrModeConfirmationModalProps {
   open: boolean;
@@ -136,27 +135,29 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
 
         {/* Action Buttons */}
         <div
-          className="flex justify-end gap-3 px-1"
+          className="flex justify-end gap-3"
           data-cy="okr-mode-confirmation-modal-actions"
         >
-          <CustomButton
+          <Button
             type="default"
-            title="Cancel"
             onClick={onCancel}
             disabled={loading}
-            className="h-11 px-8 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626]"
+            className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
             id="okr-mode-confirmation-cancel-button"
             data-cy="okr-mode-confirmation-cancel-button"
-          />
-          <CustomButton
+          >
+            Cancel
+          </Button>
+          <Button
             type="primary"
-            title="Change"
             onClick={onConfirm}
             loading={loading}
-            className="h-11 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] border-none"
+            className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
             id="okr-mode-confirmation-confirm-button"
             data-cy="okr-mode-confirmation-confirm-button"
-          />
+          >
+            Change
+          </Button>
         </div>
       </div>
 

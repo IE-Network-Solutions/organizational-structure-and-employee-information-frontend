@@ -5,11 +5,13 @@ import {
 } from '@/store/uistate/features/employees/employeeManagment';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
 import React from 'react';
-import { LuPencil } from 'react-icons/lu';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
 import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const BankInformationComponent = ({
   mergedFields,
@@ -120,13 +122,13 @@ const BankInformationComponent = ({
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-semibold text-gray-500 m-0"
+        className="text-base font-normal text-[#4d4d4d] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -138,35 +140,43 @@ const BankInformationComponent = ({
     <Card
       loading={isLoading}
       title={
-        <span
-          className="text-base font-bold text-gray-900"
-          data-cy="bank-information-card-title"
-        >
-          Bank Information
-        </span>
+        !edit.bankInformation ? (
+          <span
+            className="text-base font-bold text-[#4d4d4d]"
+            data-cy="bank-information-card-title"
+          >
+            Bank Information
+          </span>
+        ) : null
       }
       extra={
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          selfShouldAccess
-          id={id}
-          data-cy="bank-information-edit-guard"
-        >
-          <button
-            type="button"
-            onClick={() => handleEditChange('bankInformation')}
-            className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-            id="bank-information-edit-icon"
-            data-cy="bank-information-edit-icon"
+        !edit.bankInformation ? (
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id={id}
+            data-cy="bank-information-edit-guard"
           >
-            <LuPencil size={16} className="text-black" />
-          </button>
-        </AccessGuard>
+            <button
+              onClick={() => handleEditChange('bankInformation')}
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
+              id="bank-information-edit-icon"
+              data-cy="bank-information-edit-icon"
+            >
+              <EditOutlinedIcon className="text-sm" />
+            </button>
+          </AccessGuard>
+        ) : null
       }
       className="bank-information-card rounded-lg border border-gray-200 my-6"
       id="bank-information-card"
       data-cy="bank-information-card"
-      headStyle={{ borderBottom: 'none' }}
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {edit.bankInformation ? (
         <Form
@@ -179,12 +189,59 @@ const BankInformationComponent = ({
           data-cy="bank-information-form"
         >
           <Row
+            justify="space-between"
+            align="middle"
+            className="mb-4 w-full"
+            style={{ width: '100%' }}
+            id="personal-data-update-user-info-header-row"
+            data-cy="personal-data-update-user-info-header-row"
+          >
+            <Col>
+              <span
+                data-cy="bank-information-form-title"
+                className="text-sm font-normal text-black"
+              >
+                Bank Information
+              </span>
+            </Col>
+            <Col>
+              <div
+                data-cy="bank-information-form-buttons"
+                className="flex items-center gap-2"
+              >
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => setEdit('bankInformation')}
+                  id="bank-information-cancel-btn"
+                  data-cy="bank-information-cancel-btn"
+                  className="border border-red-500 h-6 w-6"
+                >
+                  <CloseIcon className="text-red-500 text-[10px]" />
+                </Button>
+                <Button
+                  type="primary"
+                  size="small"
+                  htmlType="submit"
+                  id="bank-information-submit-btn"
+                  data-cy="bank-information-submit-btn"
+                  className="h-6 w-6"
+                >
+                  <CheckIcon className="text-white text-[10px]" />
+                </Button>
+              </div>
+            </Col>
+          </Row>
+          <Row
             gutter={[16, 24]}
             id="bank-information-form-row"
             data-cy="bank-information-form-row"
           >
             <Col
-              lg={16}
+              className="w-full"
+              lg={24}
+              sm={24}
+              xs={24}
               id="bank-information-form-col"
               data-cy="bank-information-form-col"
             >
@@ -249,26 +306,6 @@ const BankInformationComponent = ({
                   />
                 </Form.Item>
               ))}
-            </Col>
-          </Row>
-          <Row
-            id="bank-information-submit-row"
-            data-cy="bank-information-submit-row"
-          >
-            <Col
-              span={24}
-              style={{ textAlign: 'right' }}
-              id="bank-information-submit-col"
-              data-cy="bank-information-submit-col"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="bank-information-submit-btn"
-                data-cy="bank-information-submit-btn"
-              >
-                Save Changes
-              </Button>
             </Col>
           </Row>
         </Form>

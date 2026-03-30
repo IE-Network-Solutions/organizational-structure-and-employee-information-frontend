@@ -63,27 +63,26 @@ const TeamCard: React.FC<TeamCardProps> = ({
     >
       {/* Plain card with team name and team leader */}
       <div
-        className={`bg-white border border-gray-200 rounded-lg py-4 px-1 shadow-sm relative ${
+        className={`bg-white border border-gray-200 rounded-lg py-4 pl-3 pr-10 lg:pr-3 shadow-sm relative ${
           isDragging ? 'shadow-lg' : ''
         } ${isOverlay ? 'shadow-xl' : ''}`}
         data-cy={`merge-team-card-inner-${department.id}`}
       >
-        {/* X button - only visible on mobile */}
         {onRemove && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onRemove();
             }}
-            className="absolute top-2 right-2 lg:hidden z-20 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 transition-colors"
+            className="absolute top-2 right-2 lg:hidden z-20 w-6 h-6 flex items-center justify-center rounded-full bg-transparent hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
             data-cy={`merge-team-card-remove-${department.id}`}
             aria-label="Remove team"
           >
-            <CloseOutlined className="text-xs" />
+            <CloseOutlined className="text-sm" />
           </button>
         )}
         <div
-          className="text-center"
+          className="text-center min-w-0"
           data-cy={`merge-team-card-content-${department.id}`}
         >
           {isLoadingTeamLead ? (
@@ -97,14 +96,14 @@ const TeamCard: React.FC<TeamCardProps> = ({
             <>
               <Tooltip title={department.name} placement="top">
                 <p
-                  className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate"
+                  className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate max-w-full"
                   data-cy={`merge-team-card-name-${department.id}`}
                 >
                   {department.name}
                 </p>
               </Tooltip>
               <p
-                className="text-xs text-gray-500 m-0 truncate"
+                className="text-xs text-gray-500 m-0 truncate max-w-full"
                 data-cy={`merge-team-card-lead-${department.id}`}
               >
                 Not assigned
@@ -114,14 +113,14 @@ const TeamCard: React.FC<TeamCardProps> = ({
             <>
               <Tooltip title={department.name} placement="top">
                 <p
-                  className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate"
+                  className="text-base font-bold text-gray-800 m-0 mb-0.5 truncate max-w-full"
                   data-cy={`merge-team-card-name-${department.id}`}
                 >
                   {department.name}
                 </p>
               </Tooltip>
               <p
-                className="text-xs text-gray-600 m-0 truncate"
+                className="text-xs text-gray-600 m-0 truncate max-w-full"
                 data-cy={`merge-team-card-lead-${department.id}`}
               >
                 {teamLeadName}

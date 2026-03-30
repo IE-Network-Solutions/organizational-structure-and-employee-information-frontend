@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Modal } from 'antd';
+import { Modal, Button } from 'antd';
 import { CheckCircleFilled, CloseOutlined } from '@ant-design/icons';
-import CustomButton from '@/components/common/buttons/customButton';
 
 interface OkrModeEffectsModalProps {
   open: boolean;
@@ -98,14 +97,15 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
           className="flex justify-end"
           data-cy="okr-mode-effects-modal-actions"
         >
-          <CustomButton
+          <Button
             type="primary"
-            title="Success"
             onClick={onClose}
-            className="h-11 px-10 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] border-none"
+            className="h-10 px-10 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
             id="okr-mode-effects-modal-ok-button"
             data-cy="okr-mode-effects-modal-ok-button"
-          />
+          >
+            Success
+          </Button>
         </div>
       </div>
 

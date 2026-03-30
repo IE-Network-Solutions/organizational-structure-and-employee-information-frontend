@@ -36,7 +36,7 @@ const MergeButton: React.FC<MergeButtonProps> = ({
         onClick={onClick}
         disabled={disabled}
         loading={loading}
-        className={`px-4 h-9 flex items-center gap-2 ${hasItemsInBuckets ? 'bg-primary border-primary text-white hover:bg-primary/90' : `${borderColorClass} ${textColorClass}`}`}
+        className={`px-4 h-9 flex items-center gap-2 font-normal ${hasItemsInBuckets ? 'bg-primary border-primary text-white hover:bg-primary/90' : `bg-transparent hover:bg-gray-50 ${borderColorClass} ${textColorClass}`}`}
         data-cy={
           isMobile
             ? 'org-settings-merge-submit-btn-mobile'
@@ -49,7 +49,7 @@ const MergeButton: React.FC<MergeButtonProps> = ({
         }
       >
         <span
-          className={hasItemsInBuckets ? 'text-white' : textColorClass}
+          className={`font-normal ${hasItemsInBuckets ? 'text-white' : textColorClass}`}
           data-cy={isMobile ? 'merge-button-text-mobile' : 'merge-button-text'}
         >
           Merge

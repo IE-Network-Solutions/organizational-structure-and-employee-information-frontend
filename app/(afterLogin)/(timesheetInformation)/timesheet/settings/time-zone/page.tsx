@@ -4,6 +4,8 @@ import { useGetTimeZone } from '@/store/server/features/timesheet/timeZone/queri
 import AccessGuard from '@/utils/permissionGuard';
 import { Button, Form, Select } from 'antd';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { IoLocationOutline } from 'react-icons/io5';
+import { LuClock3 } from 'react-icons/lu';
 
 // Define the type for GMT offset options
 interface GmtOffsetOption {
@@ -43,88 +45,125 @@ const TimezoneSelect = () => {
   };
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
       id="time-attendance-settings-time-zone-container"
       data-cy="time-attendance-settings-time-zone-container"
     >
-      {/* <PageHeader title="Time Zone" size="small"></PageHeader> */}
-      <h1
-        className="text-lg text-bold"
-        id="time-attendance-settings-time-zone-title"
-        data-cy="time-attendance-settings-time-zone-title"
-      >
-        Time Zone
-      </h1>
-
       <div
-        className="mt-4"
+        className="rounded-xl border border-gray-200 bg-white p-4"
         id="time-attendance-settings-time-zone-content"
         data-cy="time-attendance-settings-time-zone-content"
       >
-        <div
-          id="time-attendance-settings-time-zone-description"
-          data-cy="time-attendance-settings-time-zone-description"
-        >
-          Update your timezone
-        </div>
-
         <Form
           onFinish={handleFinish}
           id="time-attendance-settings-time-zone-form"
           data-cy="time-attendance-settings-time-zone-form"
         >
-          <Form.Item
-            name="timezone"
-            rules={[
-              { required: true, message: 'Please select your timezone!' },
-            ]}
-            id="time-attendance-settings-time-zone-timezone-field"
-            data-cy="time-attendance-settings-time-zone-timezone-field"
+          <div
+            id="time-attendance-settings-time-zone-description-container"
+            data-cy="time-attendance-settings-time-zone-description-container"
+            className="flex items-center gap-2 text-gray-600"
           >
-            <Select
-              showSearch
-              placeholder="Select GMT offset"
-              style={{ width: 200 }}
-              options={gmtOffsets}
-              id="time-attendance-settings-time-zone-timezone-select"
-              data-cy="time-attendance-settings-time-zone-timezone-select"
+            <IoLocationOutline
+              size={20}
+              data-cy="time-attendance-settings-time-zone-current-location-icon"
             />
-          </Form.Item>
-          <Form.Item
-            id="time-attendance-settings-time-zone-submit-field"
-            data-cy="time-attendance-settings-time-zone-submit-field"
-          >
-            <AccessGuard
-              permissions={[Permissions.UpdateTimeZone]}
-              data-cy="time-attendance-settings-time-zone-submit-button-access-guard"
+            <span
+              id="time-attendance-settings-time-zone-description"
+              data-cy="time-attendance-settings-time-zone-description"
             >
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isLoading}
-                id="time-attendance-settings-time-zone-submit-button"
-                data-cy="time-attendance-settings-time-zone-submit-button"
-              >
-                Update Timezone
-              </Button>
-            </AccessGuard>
-          </Form.Item>
-        </Form>
-        <hr data-cy="timesheet-settings-time-zone-page-tsx-page-hr-113" />
-        <div
-          className="text-xl"
-          id="time-attendance-settings-time-zone-current"
-          data-cy="time-attendance-settings-time-zone-current"
-        >
-          Your Current Timezone:
-          <span
-            className="font-extrabold"
+              Your Current Timezone
+            </span>
+          </div>
+          <div
+            className="mt-2 text-[42px] font-bold leading-[1.1] text-gray-900"
             id="time-attendance-settings-time-zone-current-value"
             data-cy="time-attendance-settings-time-zone-current-value"
           >
-            {data?.timezone} GMT
-          </span>{' '}
-        </div>
+            {data?.timezone || '+00:00'} GMT
+          </div>
+          <div
+            id="time-attendance-settings-time-zone-current-value-container"
+            data-cy="time-attendance-settings-time-zone-current-value-container"
+            className="mt-2 flex items-center gap-2 text-xl text-gray-600"
+          >
+            <LuClock3
+              size={20}
+              data-cy="time-attendance-settings-time-zone-current-clock-icon"
+            />
+            <span
+              id="time-attendance-settings-time-zone-current-city"
+              data-cy="time-attendance-settings-time-zone-current-city"
+            >
+              {data?.timezone}
+            </span>
+          </div>
+          <div
+            id="time-attendance-settings-time-zone-timezone-select-divider"
+            data-cy="time-attendance-settings-time-zone-timezone-select-divider"
+            className="my-4 border-t border-gray-200"
+          />
+
+          <label
+            id="time-attendance-settings-time-zone-timezone-select-label"
+            data-cy="time-attendance-settings-time-zone-timezone-select-label"
+            className="text-sm font-medium text-gray-900"
+            htmlFor="time-attendance-settings-time-zone-timezone-select"
+          >
+            Select Timezone{' '}
+            <span
+              id="time-attendance-settings-time-zone-timezone-select-label-asterisk"
+              data-cy="time-attendance-settings-time-zone-timezone-select-label-asterisk"
+              className="text-red-500"
+            >
+              *
+            </span>
+          </label>
+          <div
+            id="time-attendance-settings-time-zone-timezone-select-container"
+            data-cy="time-attendance-settings-time-zone-timezone-select-container"
+            className="mt-2 flex items-start gap-3"
+          >
+            <Form.Item
+              name="timezone"
+              rules={[
+                { required: true, message: 'Please select your timezone!' },
+              ]}
+              id="time-attendance-settings-time-zone-timezone-field"
+              data-cy="time-attendance-settings-time-zone-timezone-field"
+              className="mb-0 flex-1"
+            >
+              <Select
+                showSearch
+                className="h-10"
+                placeholder="Select"
+                options={gmtOffsets}
+                id="time-attendance-settings-time-zone-timezone-select"
+                data-cy="time-attendance-settings-time-zone-timezone-select"
+              />
+            </Form.Item>
+            <Form.Item
+              id="time-attendance-settings-time-zone-submit-field"
+              data-cy="time-attendance-settings-time-zone-submit-field"
+              className="mb-0"
+            >
+              <AccessGuard
+                permissions={[Permissions.UpdateTimeZone]}
+                data-cy="time-attendance-settings-time-zone-submit-button-access-guard"
+              >
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={isLoading}
+                  className="h-10 px-6 rounded-lg"
+                  id="time-attendance-settings-time-zone-submit-button"
+                  data-cy="time-attendance-settings-time-zone-submit-button"
+                >
+                  Update Timezone
+                </Button>
+              </AccessGuard>
+            </Form.Item>
+          </div>
+        </Form>
       </div>
     </div>
   );
