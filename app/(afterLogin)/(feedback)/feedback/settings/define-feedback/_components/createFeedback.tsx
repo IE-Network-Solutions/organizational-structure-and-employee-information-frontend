@@ -205,7 +205,8 @@ const CreateFeedback: React.FC = () => {
       style={
         isMobileViewport
           ? {
-              height: 552,
+              height: 'auto',
+              maxHeight: 'calc(100vh - 16px)',
               position: 'fixed',
               top: 'auto',
               bottom: 0,
@@ -216,6 +217,7 @@ const CreateFeedback: React.FC = () => {
               padding: 0,
               width: '100%',
               maxWidth: '100%',
+              paddingBottom: 'env(safe-area-inset-bottom)',
             }
           : { height: 552 }
       }
@@ -225,10 +227,12 @@ const CreateFeedback: React.FC = () => {
               width: '100%',
               maxWidth: '100%',
               margin: 0,
+              maxHeight: 'calc(100vh - 16px)',
+              overflow: 'hidden',
             }
           : undefined,
         body: {
-          maxHeight: 552,
+          maxHeight: isMobileViewport ? 'calc(100vh - 220px)' : 552,
           overflowY: 'auto',
         },
       }}
