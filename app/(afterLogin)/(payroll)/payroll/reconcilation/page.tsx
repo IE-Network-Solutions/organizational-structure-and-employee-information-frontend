@@ -692,7 +692,7 @@ const PayrollReconcilation = () => {
               </span>
             </Button>
 
-            {true && (
+            {pendingApprovals && (
               <Dropdown
                 trigger={['click']}
                 open={isApproveDropdownOpen}
