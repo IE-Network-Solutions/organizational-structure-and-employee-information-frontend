@@ -19,9 +19,7 @@ function avatarSrcFromApi(raw: string | null | undefined): string | undefined {
 function formatOkrScore(value: number): string {
   if (!Number.isFinite(value)) return '—';
   const rounded = Math.round(value * 100) / 100;
-  return Number.isInteger(rounded)
-    ? `${rounded}%`
-    : `${rounded.toFixed(2)}%`;
+  return Number.isInteger(rounded) ? `${rounded}%` : `${rounded.toFixed(2)}%`;
 }
 
 type TopOkrPerformersCardProps = {
@@ -39,17 +37,17 @@ export default function TopOkrPerformersCard({
     (activeSession as { id?: string } | undefined)?.id ??
     undefined;
 
-  const { data, isLoading: leaderboardLoading, isError } =
-    useGetOkrTotalSummaryLeaderboard(resolvedSessionId);
+  const {
+    data,
+    isLoading: leaderboardLoading,
+    isError,
+  } = useGetOkrTotalSummaryLeaderboard(resolvedSessionId);
 
   const contextLoading = sessionIdProp == null && activeSessionLoading;
   const showSpinner =
     contextLoading || (Boolean(resolvedSessionId) && leaderboardLoading);
 
-  const performers = useMemo(
-    () => data?.performers ?? [],
-    [data?.performers],
-  );
+  const performers = useMemo(() => data?.performers ?? [], [data?.performers]);
 
   const missingSession =
     !resolvedSessionId && !showSpinner
@@ -58,7 +56,7 @@ export default function TopOkrPerformersCard({
 
   return (
     <section
-      className="h-[338px] rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+      className="h-[406px] rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
       data-cy="performance-top-okr-performers-card"
     >
       <h2 className="mb-4 text-base font-bold text-black">
@@ -71,9 +69,11 @@ export default function TopOkrPerformersCard({
       ) : isError ? (
         <p className="text-sm text-red-500">Failed to load leaderboard.</p>
       ) : (
-        <ul className="scrollbar-none h-[265px] space-y-3 overflow-y-auto">
+        <ul className="scrollbar-none h-[340px] space-y-3 overflow-y-auto">
           {performers.length === 0 ? (
-            <li className="text-sm text-gray-500">No performers for this session.</li>
+            <li className="text-sm text-gray-500">
+              No performers for this session.
+            </li>
           ) : (
             performers.map((person) => {
               const src = avatarSrcFromApi(person.avatarUrl);

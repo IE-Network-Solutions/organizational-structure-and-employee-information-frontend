@@ -6,6 +6,7 @@ import { OkrProgressCardSkeleton } from './PerformanceCardSkeletons';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetDepartmentsLevels } from '@/store/server/features/performance/departments-levels/queries';
 import { useGetOkrDepartmentsOkrProgress } from '@/store/server/features/performance/okr-total-summary/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 
@@ -42,11 +43,14 @@ export default function OkrProgressCard({
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<
     string | undefined
   >();
+  const [selectedOrgLevel, setSelectedOrgLevel] = useState<number>(1);
+  const [isLevelsListOpen, setIsLevelsListOpen] = useState(false);
 
   const { data: activeSession, isLoading: activeSessionLoading } =
     useGetActiveSession();
   const { data: departmentsData, isLoading: departmentsLoading } =
     useGetDepartments();
+  const { data: departmentsLevelsData } = useGetDepartmentsLevels();
 
   const resolvedSessionId =
     sessionIdProp ??
@@ -58,30 +62,86 @@ export default function OkrProgressCard({
     [departmentsData],
   );
 
+  const filteredDepartmentsList = useMemo(() => {
+    return departmentsList?.filter((d) => d.level === selectedOrgLevel);
+  }, [departmentsList, selectedOrgLevel]);
+  console.log('filteredDepartmentsList', filteredDepartmentsList);
+  const levelsList = useMemo(() => {
+    const rawLevels =
+      (departmentsLevelsData as any)?.levels ||
+      (departmentsLevelsData as any)?.items ||
+      (departmentsLevelsData as any)?.data?.levels ||
+      (departmentsLevelsData as any)?.data?.items ||
+      departmentsLevelsData;
+
+    const arr = Array.isArray(rawLevels) ? rawLevels : [];
+
+    return arr
+      .map((lvl: any, idx: number) => {
+        const levelNumber = Number(
+          lvl?.orgLevel ?? lvl?.level ?? lvl?.value ?? lvl?.number ?? idx + 1,
+        );
+
+        return {
+          id: String(lvl?.id ?? levelNumber),
+          levelNumber: Number.isFinite(levelNumber) ? levelNumber : idx + 1,
+          label: String(
+            lvl?.name ?? lvl?.label ?? lvl?.title ?? `Level ${levelNumber}`,
+          ),
+        };
+      })
+      .sort((a, b) => a.levelNumber - b.levelNumber);
+  }, [departmentsLevelsData]);
+
+  const selectedLevel = useMemo(
+    () => levelsList.find((l) => l.levelNumber === selectedOrgLevel) ?? null,
+    [levelsList, selectedOrgLevel],
+  );
+
+  const orderedLevels = useMemo(() => {
+    if (!levelsList.length) return [];
+
+    const hasSelected = levelsList.some(
+      (l) => l.levelNumber === selectedOrgLevel,
+    );
+
+    if (!hasSelected) return levelsList;
+
+    return [
+      ...levelsList.filter((l) => l.levelNumber === selectedOrgLevel),
+      ...levelsList.filter((l) => l.levelNumber !== selectedOrgLevel),
+    ];
+  }, [levelsList, selectedOrgLevel]);
+
   const progressPayload = useMemo(() => {
     if (!resolvedSessionId) return null;
-    if (selectedDepartmentId) {
-      return {
-        sessionId: resolvedSessionId,
-        orgLevel: 3,
-        departmentIds: [selectedDepartmentId],
-      };
-    }
+
+    const orgLevel = selectedOrgLevel ?? 1;
+    const departmentIds =
+      orgLevel === 1
+        ? []
+        : selectedDepartmentId
+          ? [selectedDepartmentId]
+          : ([] as string[]);
+
     return {
       sessionId: resolvedSessionId,
-      orgLevel: 1,
-      departmentIds: [] as string[],
+      orgLevel,
+      departmentIds,
     };
-  }, [resolvedSessionId, selectedDepartmentId]);
+  }, [resolvedSessionId, selectedDepartmentId, selectedOrgLevel]);
 
-  const { data, isLoading: progressLoading, isError } =
-    useGetOkrDepartmentsOkrProgress(progressPayload);
+  const {
+    data,
+    isLoading: progressLoading,
+    isError,
+  } = useGetOkrDepartmentsOkrProgress(progressPayload);
 
   const contextLoading = sessionIdProp == null && activeSessionLoading;
   const showSpinner =
     contextLoading || (Boolean(progressPayload) && progressLoading);
 
-  const isLevel1 = !selectedDepartmentId;
+  const isLevel1 = selectedOrgLevel === 1;
 
   const pieData = useMemo(() => {
     const kr = data?.keyResultProgress;
@@ -136,17 +196,63 @@ export default function OkrProgressCard({
       <div className="mb-4 flex justify-between gap-2">
         <p className="text-base font-bold text-black">OKR Progress</p>
         <div className="flex items-center gap-4 text-sm">
-          <button
-            type="button"
-            onClick={() => setSelectedDepartmentId(undefined)}
-            className={`h-[22px] rounded-md border px-3 text-xs font-normal transition-colors ${
-              isLevel1
-                ? 'border-blue-700 bg-blue-50 text-blue-800'
-                : 'border-gray-200 bg-gray-50 text-gray-600'
-            }`}
-          >
-            Level 1
-          </button>
+          {!isLevelsListOpen && (
+            <button
+              type="button"
+              onClick={() => setIsLevelsListOpen((prev) => !prev)}
+              aria-expanded={isLevelsListOpen}
+              aria-controls="performance-okr-level-items"
+              className={`px-3 py-1 text-xs rounded border transition flex-shrink-0 ${
+                isLevel1
+                  ? 'bg-blue-50 text-blue-800 border-blue-700 hover:bg-blue-50'
+                  : 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50'
+              }`}
+              id="performance-okr-level-active-toggle"
+              data-cy="performance-okr-level-active-toggle"
+            >
+              Org-{selectedLevel?.label ?? `Level ${selectedOrgLevel}`}
+            </button>
+          )}
+
+          {isLevelsListOpen && (
+            <div
+              id="performance-okr-level-items"
+              data-cy="performance-okr-level-items"
+              className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+            >
+              {orderedLevels.length ? (
+                orderedLevels.map((level) => (
+                  <button
+                    key={level.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedOrgLevel(level.levelNumber);
+                      setSelectedDepartmentId(undefined);
+                      setIsLevelsListOpen(false);
+                    }}
+                    className={[
+                      'px-3 py-1 text-xs rounded border transition flex-shrink-0',
+                      selectedOrgLevel === level.levelNumber
+                        ? 'bg-gray-100 text-gray-900 border-gray-300'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                    ].join(' ')}
+                    id={`performance-okr-level-item-${level.id}`}
+                    data-cy={`performance-okr-level-item-${level.id}`}
+                  >
+                    Org-{level.label}
+                  </button>
+                ))
+              ) : (
+                <button
+                  type="button"
+                  className="px-3 py-1 text-xs rounded border transition flex-shrink-0 bg-white text-gray-600 border-gray-200"
+                  onClick={() => setIsLevelsListOpen(false)}
+                >
+                  No Levels
+                </button>
+              )}
+            </div>
+          )}
           <Select
             size="small"
             allowClear
@@ -159,10 +265,12 @@ export default function OkrProgressCard({
             className="min-w-[168px] text-xs"
             popupMatchSelectWidth={false}
             data-cy="performance-okr-progress-select-department"
-            options={departmentsList.map((dept: { id: string; name: string }) => ({
-              value: dept.id,
-              label: dept.name,
-            }))}
+            options={filteredDepartmentsList.map(
+              (dept: { id: string; name: string }) => ({
+                value: dept.id,
+                label: dept.name,
+              }),
+            )}
           />
         </div>
       </div>
@@ -206,17 +314,16 @@ export default function OkrProgressCard({
                       </span>
                       <span className="text-gray-600">{dept.percent}%</span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-gray-100">
-                      <div className="w-full">
-                        <Progress
-                          percent={dept.percent}
-                          showInfo={false}
-                          strokeColor={dept.color}
-                          trailColor="#f3f4f6"
-                          size="small"
-                          className="!h-2 !rounded-full"
-                        />
-                      </div>
+                    {/* <div className="h-2 overflow-hidden rounded-full bg-gray-100"> */}
+                    <div className="w-full h-3">
+                      <Progress
+                        percent={dept.percent}
+                        showInfo={false}
+                        strokeColor={'#1E40AF'}
+                        size={{ height: 12 }}
+                        className="h-3"
+                      />
+                      {/* </div> */}
                     </div>
                   </div>
                 ))

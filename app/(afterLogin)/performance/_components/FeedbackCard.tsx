@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -78,9 +78,11 @@ const baseLineOptions: ChartOptions<'line'> = {
       position: 'bottom',
       align: 'center',
       labels: {
-        color: '#6B7280',
+        color: '#374151',
         usePointStyle: true,
-        padding: 20,
+        boxWidth: 8,
+        boxHeight: 8,
+        padding: 24,
         font: {
           size: 12,
           family:
@@ -96,14 +98,14 @@ const baseLineOptions: ChartOptions<'line'> = {
                 : '#6B7280';
             return {
               text: dataset.label ?? '',
-              fillStyle: '#FFFFFF',
+              fillStyle: stroke,
               strokeStyle: stroke,
-              lineWidth: 2,
+              lineWidth: 0,
               lineDash: [] as number[],
               hidden: !chart.isDatasetVisible(i),
               index: i,
               datasetIndex: i,
-              pointStyle: 'circle' as const,
+              pointStyle: 'rectRounded' as const,
             };
           });
         },
@@ -187,34 +189,121 @@ function StatBlock({
 type FeedbackCardProps = {
   sessionId?: string | null;
   monthId?: string | null;
+  monthOptions?: Array<{ id: string; name?: string | null; active?: boolean }>;
+  onMonthChange?: (monthId: string) => void;
 };
 
 export default function FeedbackCard({
   sessionId: sessionIdProp,
   monthId: monthIdProp,
+  monthOptions,
 }: FeedbackCardProps) {
   const { data: activeSession, isLoading: activeSessionLoading } =
     useGetActiveSession();
   const { data: activeMonth, isLoading: activeMonthLoading } =
     useGetActiveMonth();
 
+  const [isMonthListOpen, setIsMonthListOpen] = useState(false);
+  const [selectedMonthIdLocal, setSelectedMonthIdLocal] = useState<
+    string | null
+  >(() => {
+    const last = monthOptions?.length
+      ? monthOptions[monthOptions.length - 1]
+      : null;
+    return last?.id ? String(last.id) : null;
+  });
+
+  useEffect(() => {
+    if (sessionIdProp == null) return;
+    if (!monthOptions?.length) return;
+
+    const last = monthOptions[monthOptions.length - 1];
+    if (last?.id) setSelectedMonthIdLocal(String(last.id));
+    setIsMonthListOpen(false);
+  }, [sessionIdProp, monthOptions?.length]);
+
+  const orderedMonthsForUi = useMemo(() => {
+    const months = monthOptions ?? [];
+    if (!months.length) return [];
+    const activeId =
+      selectedMonthIdLocal ??
+      (activeMonth && 'id' in activeMonth ? String(activeMonth.id) : null);
+    if (!activeId) return months;
+
+    return [
+      ...months.filter((m) => String(m.id) === activeId),
+      ...months.filter((m) => String(m.id) !== activeId),
+    ];
+  }, [monthOptions, activeMonth, selectedMonthIdLocal]);
+
+  const resolvedMonthIdForUi = useMemo(() => {
+    if (selectedMonthIdLocal) return String(selectedMonthIdLocal);
+    if (activeMonth && 'id' in activeMonth)
+      return String((activeMonth as any).id);
+    return null;
+  }, [selectedMonthIdLocal, activeMonth]);
+
+  useEffect(() => {
+    if (selectedMonthIdLocal) return;
+    if ((monthOptions?.length ?? 0) > 0) return;
+    if (!activeMonthLoading) {
+      const id = (activeMonth as { id?: string } | undefined)?.id;
+      if (id) setSelectedMonthIdLocal(String(id));
+    }
+  }, [activeMonthLoading, activeMonth, selectedMonthIdLocal, monthOptions]);
+
+  useEffect(() => {
+    if (!selectedMonthIdLocal) return;
+    const exists = (monthOptions ?? []).some(
+      (m) => String(m.id) === String(selectedMonthIdLocal),
+    );
+    if (!exists) setSelectedMonthIdLocal(null);
+  }, [monthOptions, selectedMonthIdLocal]);
+
+  const selectedMonthName = useMemo(() => {
+    if (!resolvedMonthIdForUi) return null;
+    const match = orderedMonthsForUi.find(
+      (m) => String(m.id) === resolvedMonthIdForUi,
+    );
+    return match?.name ?? null;
+  }, [orderedMonthsForUi, resolvedMonthIdForUi]);
+
   const resolvedSessionId =
     sessionIdProp ??
     (activeSession as { id?: string } | undefined)?.id ??
     undefined;
-  const resolvedMonthId =
-    monthIdProp ?? (activeMonth as { id?: string } | undefined)?.id ?? undefined;
 
-  const { data, isLoading: statsLoading, isError } = useGetFeedbackStatsDashboard(
-    resolvedSessionId,
-    resolvedMonthId,
-  );
+  const lastMonthIdFromOptions = monthOptions?.length
+    ? String(monthOptions[monthOptions.length - 1].id)
+    : null;
+
+  const hasMonthOptionsProp = monthOptions !== undefined;
+
+  // IMPORTANT:
+  // - If `monthOptions` is provided, the backend expects the month to belong
+  //   to the selected session.
+  // - So we must not fall back to `activeMonth.id` when monthOptions is empty
+  //   or when we don't have a valid month from monthOptions yet.
+  const resolvedMonthId =
+    selectedMonthIdLocal ??
+    monthIdProp ??
+    lastMonthIdFromOptions ??
+    (hasMonthOptionsProp
+      ? undefined
+      : (activeMonth as { id?: string } | undefined)?.id);
+
+  const {
+    data,
+    isLoading: statsLoading,
+    isError,
+  } = useGetFeedbackStatsDashboard(resolvedSessionId, resolvedMonthId);
 
   const contextLoading =
     (sessionIdProp == null && activeSessionLoading) ||
-    (monthIdProp == null && activeMonthLoading);
+    (resolvedMonthId == null && activeMonthLoading);
   const showSpinner =
-    contextLoading || (Boolean(resolvedSessionId && resolvedMonthId) && statsLoading);
+    contextLoading ||
+    (Boolean(resolvedSessionId && resolvedMonthId) && statsLoading);
 
   const summary = data?.summary;
   const series = data?.series ?? [];
@@ -259,12 +348,12 @@ export default function FeedbackCard({
           label: 'Appreciation',
           data: series.map((p) => p.appreciation),
           borderColor: '#1D4ED8',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'transparent',
           tension: 0,
-          borderWidth: 2.5,
+          borderWidth: 1.2,
           fill: false,
-          pointRadius: 5,
-          pointHoverRadius: 6,
+          pointRadius: 4,
+          pointHoverRadius: 4.2,
           pointBackgroundColor: '#FFFFFF',
           pointBorderColor: '#1D4ED8',
           pointBorderWidth: 2,
@@ -272,13 +361,13 @@ export default function FeedbackCard({
         {
           label: 'Reprimand',
           data: series.map((p) => p.reprimand),
-          borderColor: '#FB7185',
-          backgroundColor: '#FFFFFF',
+          borderColor: '#FF7875',
+          backgroundColor: 'transparent',
           tension: 0,
-          borderWidth: 2.5,
+          borderWidth: 1.2,
           fill: false,
-          pointRadius: 5,
-          pointHoverRadius: 6,
+          pointRadius: 4,
+          pointHoverRadius: 4.2,
           pointBackgroundColor: '#FFFFFF',
           pointBorderColor: '#FB7185',
           pointBorderWidth: 2,
@@ -292,13 +381,64 @@ export default function FeedbackCard({
     !resolvedSessionId || !resolvedMonthId
       ? 'Active session or month is not available.'
       : null;
-
+  console.log('resolvedMonthId', resolvedMonthId);
   return (
     <section
-      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm h-[456px]"
+      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm min-h-[477px]"
       data-cy="performance-feedback-card"
     >
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Feedback</h2>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-gray-900">Feedback</h2>
+
+        {orderedMonthsForUi.length > 0 && (
+          <>
+            {!isMonthListOpen && (
+              <button
+                type="button"
+                onClick={() => setIsMonthListOpen(true)}
+                aria-expanded={isMonthListOpen}
+                aria-controls="performance-feedback-month-items"
+                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                id="performance-feedback-month-active-toggle"
+                data-cy="performance-feedback-month-active-toggle"
+              >
+                {selectedMonthName ??
+                  (activeMonth as { name?: string } | undefined)?.name ??
+                  'Select Month'}
+              </button>
+            )}
+
+            {isMonthListOpen && (
+              <div
+                id="performance-feedback-month-items"
+                data-cy="performance-feedback-month-items"
+                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+              >
+                {orderedMonthsForUi.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      setIsMonthListOpen(false);
+                      setSelectedMonthIdLocal(String(m.id));
+                    }}
+                    className={[
+                      'px-3 py-1 text-xs rounded border transition flex-shrink-0',
+                      resolvedMonthIdForUi === String(m.id)
+                        ? 'bg-gray-100 text-gray-900 border-gray-300'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                    ].join(' ')}
+                    id={`performance-feedback-month-item-${m.name ?? m.id}`}
+                    data-cy={`performance-feedback-month-item-${m.name ?? m.id}`}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {showSpinner ? (
         <FeedbackCardSkeleton />
@@ -325,7 +465,7 @@ export default function FeedbackCard({
             />
           </div>
 
-          <div className="h-[247px] w-full">
+          <div className="h-[268px] w-full">
             {series.length > 0 ? (
               <Line
                 data={lineChartData}

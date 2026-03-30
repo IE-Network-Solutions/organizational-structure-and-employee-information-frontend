@@ -1,6 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { UserOutlined } from '@ant-design/icons';
+import { Avatar, Progress } from 'antd';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { ActionPlanCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetActionPlansDashboard } from '@/store/server/features/performance/action-plans/queries';
@@ -11,33 +13,142 @@ const GREEN = '#10b981';
 const ORANGE = '#f59e0b';
 const RED = '#ef4444';
 
+const FALLBACK_ACTION_PLAN_PERFORMERS = [
+  {
+    id: '1',
+    name: 'Emily Chen',
+    role: 'Product Designer',
+    survey: 34,
+    meeting: 14,
+    score: 80,
+  },
+  {
+    id: '2',
+    name: 'Emily Chen',
+    role: 'Product Designer',
+    survey: 34,
+    meeting: 14,
+    score: 80,
+  },
+  {
+    id: '3',
+    name: 'Emily Chen',
+    role: 'Product Designer',
+    survey: 34,
+    meeting: 14,
+    score: 20,
+  },
+  {
+    id: '3',
+    name: 'Emily Chen',
+    role: 'Product Designer',
+    survey: 34,
+    meeting: 14,
+    score: 20,
+  },
+  {
+    id: '3',
+    name: 'Emily Chen',
+    role: 'Product Designer',
+    survey: 34,
+    meeting: 14,
+    score: 20,
+  },
+];
+
 type ActionPlanCardProps = {
   sessionId?: string | null;
   monthId?: string | null;
+  monthOptions?: Array<{ id: string; name?: string | null; active?: boolean }>;
+  onMonthChange?: (monthId: string) => void;
 };
 
 export default function ActionPlanCard({
   sessionId: sessionIdProp,
   monthId: monthIdProp,
+  monthOptions,
 }: ActionPlanCardProps) {
   const { data: activeSession, isLoading: activeSessionLoading } =
     useGetActiveSession();
   const { data: activeMonth, isLoading: activeMonthLoading } =
     useGetActiveMonth();
 
+  const [isMonthListOpen, setIsMonthListOpen] = useState(false);
+  const [selectedMonthIdLocal, setSelectedMonthIdLocal] = useState<
+    string | null
+  >(() => {
+    const last = monthOptions?.length
+      ? monthOptions[monthOptions.length - 1]
+      : null;
+    return last?.id ? String(last.id) : null;
+  });
+
+  useEffect(() => {
+    if (sessionIdProp == null) return;
+    if (!monthOptions?.length) return;
+
+    const last = monthOptions[monthOptions.length - 1];
+    if (last?.id) setSelectedMonthIdLocal(String(last.id));
+    setIsMonthListOpen(false);
+  }, [sessionIdProp, monthOptions?.length]);
+
   const resolvedSessionId =
     sessionIdProp ??
     (activeSession as { id?: string } | undefined)?.id ??
     undefined;
-  const resolvedMonthId =
-    monthIdProp ?? (activeMonth as { id?: string } | undefined)?.id ?? undefined;
 
-  const { data, isLoading: dashboardLoading, isError } =
-    useGetActionPlansDashboard(resolvedSessionId, resolvedMonthId);
+  const lastMonthIdFromOptions = monthOptions?.length
+    ? String(monthOptions[monthOptions.length - 1].id)
+    : null;
+
+  const resolvedMonthId =
+    selectedMonthIdLocal ??
+    lastMonthIdFromOptions ??
+    monthIdProp ??
+    (activeMonth as { id?: string } | undefined)?.id ??
+    undefined;
+
+  const orderedMonthsForUi = useMemo(() => {
+    const months = monthOptions ?? [];
+    if (!months.length) return [];
+
+    const activeMonthId =
+      selectedMonthIdLocal ??
+      (activeMonth && typeof activeMonth === 'object' && 'id' in activeMonth
+        ? String((activeMonth as any).id)
+        : null);
+    if (!activeMonthId) return months;
+
+    return [
+      ...months.filter((m) => String(m.id) === activeMonthId),
+      ...months.filter((m) => String(m.id) !== activeMonthId),
+    ];
+  }, [monthOptions, activeMonth, selectedMonthIdLocal]);
+
+  const resolvedMonthIdForUi = useMemo(() => {
+    if (resolvedMonthId !== undefined && resolvedMonthId !== null) {
+      return String(resolvedMonthId);
+    }
+    return null;
+  }, [resolvedMonthId]);
+
+  const selectedMonthName = useMemo(() => {
+    if (!resolvedMonthIdForUi) return null;
+    const match = orderedMonthsForUi.find(
+      (m) => String(m.id) === resolvedMonthIdForUi,
+    );
+    return match?.name ?? null;
+  }, [orderedMonthsForUi, resolvedMonthIdForUi]);
+
+  const {
+    data,
+    isLoading: dashboardLoading,
+    isError,
+  } = useGetActionPlansDashboard(resolvedSessionId, resolvedMonthId);
 
   const contextLoading =
     (sessionIdProp == null && activeSessionLoading) ||
-    (monthIdProp == null && activeMonthLoading);
+    (resolvedMonthId == null && activeMonthLoading);
   const showSpinner =
     contextLoading ||
     (Boolean(resolvedSessionId && resolvedMonthId) && dashboardLoading);
@@ -60,16 +171,82 @@ export default function ActionPlanCard({
 
   const hasMonthOverMonth =
     pctDiff !== null && pctDiff !== undefined && !Number.isNaN(pctDiff);
-  const diffFormatted = hasMonthOverMonth
-    ? `${pctDiff > 0 ? '+' : ''}${pctDiff}%`
-    : null;
+  const diffFormatted = hasMonthOverMonth ? `${Math.abs(pctDiff)}%` : null;
+
+  useEffect(() => {
+    if (selectedMonthIdLocal) return;
+    if ((monthOptions?.length ?? 0) > 0) return;
+    if (!activeMonthLoading) {
+      const id = (activeMonth as { id?: string } | undefined)?.id;
+      if (id) setSelectedMonthIdLocal(String(id));
+    }
+  }, [activeMonthLoading, activeMonth, selectedMonthIdLocal, monthOptions]);
+
+  useEffect(() => {
+    if (!selectedMonthIdLocal) return;
+    const exists = (monthOptions ?? []).some(
+      (m) => String(m.id) === String(selectedMonthIdLocal),
+    );
+    if (!exists) setSelectedMonthIdLocal(null);
+  }, [monthOptions, selectedMonthIdLocal]);
 
   return (
     <section
-      className="h-[177px] rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm h-[444px]"
       data-cy="performance-action-plan-card"
     >
-      <h2 className="mb-2 text-base font-bold text-black">Action Plan</h2>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h2 className="text-base font-bold text-black">Action Plan</h2>
+
+        {orderedMonthsForUi.length > 0 && (
+          <>
+            {!isMonthListOpen && (
+              <button
+                type="button"
+                onClick={() => setIsMonthListOpen(true)}
+                aria-expanded={isMonthListOpen}
+                aria-controls="performance-action-plan-month-items"
+                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                id="performance-action-plan-month-active-toggle"
+                data-cy="performance-action-plan-month-active-toggle"
+              >
+                {selectedMonthName ??
+                  (activeMonth as { name?: string } | undefined)?.name ??
+                  'Select Month'}
+              </button>
+            )}
+
+            {isMonthListOpen && (
+              <div
+                id="performance-action-plan-month-items"
+                data-cy="performance-action-plan-month-items"
+                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+              >
+                {orderedMonthsForUi.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      setIsMonthListOpen(false);
+                      setSelectedMonthIdLocal(String(m.id));
+                    }}
+                    className={[
+                      'px-3 py-1 text-xs rounded border transition flex-shrink-0',
+                      resolvedMonthIdForUi === String(m.id)
+                        ? 'bg-gray-100 text-gray-900 border-gray-300'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                    ].join(' ')}
+                    id={`performance-action-plan-month-item-${m.name ?? m.id}`}
+                    data-cy={`performance-action-plan-month-item-${m.name ?? m.id}`}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {showSpinner ? (
         <ActionPlanCardSkeleton />
@@ -87,28 +264,20 @@ export default function ActionPlanCard({
               </div>
               {hasMonthOverMonth ? (
                 <div className="flex shrink-0 items-center gap-1">
-                  {pctDiff > 0 ? (
+                  {pctDiff >= 0 ? (
                     <TrendingUp
-                      className="h-5 w-5 shrink-0 text-emerald-600"
+                      className="h-4 w-4 shrink-0 text-red-400"
                       strokeWidth={2.25}
                       aria-hidden
                     />
-                  ) : pctDiff < 0 ? (
+                  ) : (
                     <TrendingDown
-                      className="h-5 w-5 shrink-0 text-red-500"
+                      className="h-4 w-4 shrink-0 text-red-400"
                       strokeWidth={2.25}
                       aria-hidden
                     />
-                  ) : null}
-                  <span
-                    className={`text-sm font-medium ${
-                      pctDiff > 0
-                        ? 'text-emerald-600'
-                        : pctDiff < 0
-                          ? 'text-red-500'
-                          : 'text-gray-600'
-                    }`}
-                  >
+                  )}
+                  <span className="text-sm font-medium text-red-400">
                     {diffFormatted}
                   </span>
                   <span className="text-sm text-gray-500">Last Month</span>
@@ -123,31 +292,31 @@ export default function ActionPlanCard({
           </div>
 
           <div
-            className="mt-3 flex h-4 sm:h-3 w-full rounded-full overflow-hidden bg-gray-100"
+            className="mt-4 flex h-3 w-full overflow-hidden rounded-full bg-gray-100"
             data-cy="performance-action-plan-segmented-bar"
             aria-label="Action plan breakdown"
           >
             <div
-              className="h-full bg-[#10B981] rounded-r-full"
+              className="h-full rounded-l-full bg-[#10B981]"
               style={{ width: `${resolvedWidth}%` }}
               data-cy="performance-action-plan-segment-resolved"
               title={`Resolved ${resolved}`}
             />
             <div
-              className="h-full bg-orange rounded-full"
+              className="h-full bg-orange"
               style={{ width: `${pendingWidth}%` }}
               data-cy="performance-action-plan-segment-pending"
               title={`Pending ${pending}`}
             />
             <div
-              className="h-full bg-red-500 rounded-full"
+              className="h-full rounded-r-full bg-red-500"
               style={{ width: `${unresolvedWidth}%` }}
               data-cy="performance-action-plan-segment-unresolved"
               title={`Unresolved ${unresolved}`}
             />
           </div>
 
-          <div className="mt-3 flex gap-10 text-xs font-medium">
+          <div className="mt-3 flex gap-10 text-sm font-medium">
             <div className="text-start" style={{ color: GREEN }}>
               Resolved {resolved}
             </div>
@@ -155,9 +324,59 @@ export default function ActionPlanCard({
               Pending {pending}
             </div>
             <div className="text-start" style={{ color: RED }}>
-              Unresolved {unresolved}
+              unresolved {unresolved}
             </div>
           </div>
+
+          <div className="my-4 h-px w-full bg-gray-200" />
+
+          <ul className="space-y-2 h-[230px] overflow-y-auto scrollbar-none">
+            {FALLBACK_ACTION_PLAN_PERFORMERS.map((performer) => (
+              <li key={performer.id}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <Avatar
+                      size={40}
+                      icon={<UserOutlined />}
+                      className="shrink-0 bg-gray-200 text-gray-500"
+                    />
+                    <div className="min-w-0">
+                      <p className="truncate text-2xl font-semibold leading-none text-gray-900 sm:text-lg">
+                        {performer.name}
+                      </p>
+                      <p className="truncate pt-1 text-sm text-gray-500">
+                        {performer.role}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="rounded-md border border-gray-300 bg-gray-50 px-3 py-1 text-sm text-gray-600">
+                      Survey:{performer.survey}
+                    </span>
+                    <span className="rounded-md border border-gray-300 bg-gray-50 px-3 py-1 text-sm text-gray-600">
+                      Meeting:{performer.meeting}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-row-reverse items-center">
+                  <span className="w-9 text-right text-xl text-gray-600 sm:text-base">
+                    {performer.score}%
+                  </span>
+                  <div className="flex-1">
+                    <Progress
+                      percent={performer.score}
+                      showInfo={false}
+                      strokeColor="#1E40AF"
+                      trailColor="#e5e7eb"
+                      strokeWidth={6}
+                    />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </>
       )}
     </section>

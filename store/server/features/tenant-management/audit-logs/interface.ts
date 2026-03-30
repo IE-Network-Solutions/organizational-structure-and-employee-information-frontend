@@ -12,6 +12,7 @@ export interface AuditLogRequestBody {
 }
 
 export interface AggregateAuditLogParams {
+  modules?: string[];
   module?: string | null | undefined;
   page?: number;
   limit?: number;
