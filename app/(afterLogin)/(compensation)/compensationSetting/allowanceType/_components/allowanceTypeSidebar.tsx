@@ -18,10 +18,20 @@ export const COMPENSATION_PERIOD = ['MONTHLY', 'WEEKLY'];
 
 interface AllowanceTypeSideBarProps {
   onAddToSelect?: (allowanceData: any) => void; // Callback to add allowance to select without creating it
+  /**
+   * Used by other modules that reuse this component as a standalone modal.
+   * The component already renders a Modal; these props allow minor customization.
+   */
+  asModal?: boolean;
+  modalWidth?: number;
+  'data-cy'?: string;
 }
 
 const AllowanceTypeSideBar = ({
   onAddToSelect,
+  asModal,
+  modalWidth,
+  'data-cy': dataCy,
 }: AllowanceTypeSideBarProps = {}) => {
   const {
     isAllowanceOpen,
@@ -32,6 +42,8 @@ const AllowanceTypeSideBar = ({
     resetStore,
     selectedAllowanceRecord,
   } = useCompensationSettingStore();
+
+  void asModal;
 
   const { mutate: createAllowanceType, isLoading: isCreating } =
     useCreateAllowanceType();
@@ -186,10 +198,10 @@ const AllowanceTypeSideBar = ({
             </Button>
           </div>
         }
-        width={640}
+        width={modalWidth ?? 640}
         centered
         style={{ maxWidth: 'calc(100vw - 32px)' }}
-        data-cy="compensation-settings-allowance-sidebar-modal"
+        data-cy={dataCy ?? 'compensation-settings-allowance-sidebar-modal'}
         rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] [&_.ant-form-item-required]:before:!hidden [&_.ant-form-item-required]:after:!hidden max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
         classNames={{
           header:
