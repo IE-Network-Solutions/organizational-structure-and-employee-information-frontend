@@ -46,6 +46,10 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const router = useRouter();
   const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile updates after modal open.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const {
     setOpen,
     openRecognitionCategoryModal,
@@ -326,8 +330,25 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               : 'New Category'}
           </span>
         }
-        centered
+        centered={!isMobileViewport}
         open={openRecognitionCategoryModal}
+        width={isMobileViewport ? '100%' : undefined}
+        style={
+          isMobileViewport
+            ? {
+                position: 'fixed',
+                top: 'auto',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                margin: 0,
+                padding: 0,
+                transform: 'none',
+                maxWidth: '100%',
+                width: '100%',
+              }
+            : undefined
+        }
         onCancel={() => {
           setOpenRecognitionCategoryModal(false);
           setRecognitionCategoryEditId('');
@@ -336,7 +357,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         okText={recognitionCategoryEditId?.trim() ? 'Update' : 'Create'}
         confirmLoading={isCreatingCategory || isUpdatingCategory}
         onOk={() => categoryForm.submit()}
-        styles={{ body: { paddingTop: 8 } }}
+        styles={{
+          body: {
+            paddingTop: 8,
+            maxHeight: isMobileViewport ? 'calc(100vh - 220px)' : undefined,
+            overflowY: isMobileViewport ? 'auto' : undefined,
+          },
+          content: {
+            ...(isMobileViewport
+              ? { borderRadius: 12, width: '100%', maxWidth: '100%' }
+              : {}),
+          },
+        }}
         destroyOnClose
         data-cy="recognition-category-modal"
       >

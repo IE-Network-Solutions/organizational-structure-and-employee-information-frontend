@@ -142,6 +142,10 @@ const RecognitionForm: React.FC<PropsData> = ({
   } = useUpdateRecognitionCriteria();
   const [selectedCriteria, setSelectedCriteria] = useState<any>([]);
   const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile updates after modal open.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const [pendingNewCriteriaId, setPendingNewCriteriaId] = useState<
     string | null
   >(null);
@@ -1088,38 +1092,71 @@ const RecognitionForm: React.FC<PropsData> = ({
     }
     .create-recognition-criteria-select-scroll .ant-select-selector::-webkit-scrollbar { display: none; }
     .create-recognition-criteria-select-scroll .ant-select-selector { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Mobile: keep stepper as dots+line (no titles/descriptions) */
+    .recognition-steps--hide-title .ant-steps-item-title,
+    .recognition-steps--hide-title .ant-steps-item-description {
+      display: none !important;
+    }
   `}</style>
       <Modal
         title={modalHeader}
         open={isWizardOpen}
         onCancel={handleWizardClose}
         footer={null}
-        centered
-        width={isMobile ? '100%' : '50%'}
+        centered={!isMobileViewport}
+        width={isMobileViewport ? '100%' : '50%'}
+        style={
+          isMobileViewport
+            ? {
+                position: 'fixed',
+                top: 'auto',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                margin: 0,
+                padding: 0,
+                transform: 'none',
+                width: '100%',
+                maxWidth: '100%',
+              }
+            : undefined
+        }
         destroyOnClose
         styles={{
           body: {
             paddingTop: 0,
-            maxHeight:
-              currentStep === 0 && !isCriteriaOnlyEdit
+            maxHeight: isMobileViewport
+              ? 'calc(100vh - 220px)'
+              : currentStep === 0 && !isCriteriaOnlyEdit
                 ? 583
                 : showFormulaStep && currentStep === 2
                   ? 640
                   : 457,
-            overflowY: showFormulaStep && currentStep === 2 ? 'auto' : 'hidden',
+            overflowY: isMobileViewport
+              ? 'auto'
+              : showFormulaStep && currentStep === 2
+                ? 'auto'
+                : 'hidden',
           },
           content: {
             borderRadius: 12,
+            ...(isMobileViewport
+              ? { width: '100%', maxWidth: '100%', margin: 0 }
+              : {}),
           },
         }}
         data-cy="create-recognition-wizard-modal"
       >
         {!isFormulaOnlyEdit && !isCriteriaOnlyEdit && (
           <div
-            className="px-6 p-4"
+            className={`px-6 p-4 ${
+              isMobileViewport ? 'recognition-steps--hide-title' : ''
+            }`}
             data-cy="create-recognition-wizard-steps mt-3"
           >
             <Steps
+              direction="horizontal"
               size="small"
               progressDot={true}
               current={currentStep}
@@ -2172,11 +2209,27 @@ const RecognitionForm: React.FC<PropsData> = ({
           {/* department moved into the step-1 frequency/department row above */}
 
           <Modal
-            centered
-            width={isMobile ? undefined : '30vw'}
+            centered={!isMobileViewport}
+            width={isMobileViewport ? '100%' : undefined}
             title=""
             open={isModalVisible}
             onCancel={() => setIsModalVisible(false)}
+            style={
+              isMobileViewport
+                ? {
+                    position: 'fixed',
+                    top: 'auto',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    margin: 0,
+                    padding: 0,
+                    transform: 'none',
+                    width: '100%',
+                    maxWidth: '100%',
+                  }
+                : undefined
+            }
             footer={
               <div
                 className="flex justify-center items-center space-x-4"
@@ -2204,6 +2257,19 @@ const RecognitionForm: React.FC<PropsData> = ({
                 </Button>
               </div>
             }
+            styles={{
+              content: {
+                borderRadius: 12,
+                ...(isMobileViewport
+                  ? { width: '100%', maxWidth: '100%', margin: 0 }
+                  : {}),
+              },
+              body: {
+                paddingTop: 0,
+                maxHeight: isMobileViewport ? 'calc(100vh - 240px)' : undefined,
+                overflowY: isMobileViewport ? 'auto' : undefined,
+              },
+            }}
             data-cy="create-recognition-criteria-modal"
           >
             <Form
