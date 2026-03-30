@@ -4,6 +4,7 @@ import {
 } from '@/store/server/features/CFR/meeting/type/mutations';
 
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 import { Button, Form, Input, Modal } from 'antd';
 import React, { useEffect } from 'react';
@@ -21,6 +22,11 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
 }) => {
   const { setMeetingType } = useMeetingStore();
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile updates after modal open.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const { mutate: createMeetingType, isLoading: createLoading } =
     useCreateMeetingType();
   const { mutate: updateMeetingType, isLoading: updateLoading } =
@@ -64,10 +70,34 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
       open={open}
       onCancel={handleDrawerClose}
       footer={null}
-      centered
-      width={780}
+      centered={!isMobileViewport}
+      width={isMobileViewport ? '100%' : 780}
       destroyOnClose
       bodyStyle={{ paddingTop: 8 }}
+      style={
+        isMobileViewport
+          ? {
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              transform: 'none',
+              width: '100%',
+              maxWidth: '100%',
+            }
+          : undefined
+      }
+      styles={{
+        content: isMobileViewport
+          ? { width: '100%', maxWidth: '100%', margin: 0, borderRadius: 12 }
+          : undefined,
+        body: isMobileViewport
+          ? { maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }
+          : undefined,
+      }}
       title={
         <div
           className="text-4 font-semibold text-gray-700"

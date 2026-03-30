@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Modal } from 'antd';
 import { MdClose } from 'react-icons/md';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface DrawerProps {
   open: boolean;
@@ -19,6 +20,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
   loading,
   form,
 }) => {
+  const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile updates after modal open.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   React.useEffect(() => {
     if (!open) return;
 
@@ -44,12 +50,36 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      centered
-      width={720}
+      centered={!isMobileViewport}
+      width={isMobileViewport ? '100%' : 720}
       destroyOnClose
       // Keep modal content static; agenda section handles its own scroll.
       bodyStyle={{ paddingTop: 0 }}
       title={null}
+      style={
+        isMobileViewport
+          ? {
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              transform: 'none',
+              width: '100%',
+              maxWidth: '100%',
+            }
+          : undefined
+      }
+      styles={{
+        content: isMobileViewport
+          ? { width: '100%', maxWidth: '100%', margin: 0, borderRadius: 12 }
+          : undefined,
+        body: isMobileViewport
+          ? { maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }
+          : undefined,
+      }}
       data-cy="meeting-template-drawer"
     >
       <div>
