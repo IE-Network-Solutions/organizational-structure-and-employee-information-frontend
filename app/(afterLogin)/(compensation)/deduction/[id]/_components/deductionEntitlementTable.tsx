@@ -418,10 +418,7 @@ const DeductionEntitlementTable: React.FC<DeductionEntitlementTableProps> = ({
         </>
       </Spin>
       <DeductionEntitlementSideBar data-cy="compensation-deduction-entitlement-sidebar" />
-      <DeductionEntitlementSideBarEdit
-        title={title}
-        data-cy="compensation-deduction-entitlement-sidebar-edit"
-      />
+      <DeductionEntitlementSideBarEdit data-cy="compensation-deduction-entitlement-sidebar-edit" />
       <BenefitEntitlementSideBarEdit
         title={title}
         forDeductionDetail
