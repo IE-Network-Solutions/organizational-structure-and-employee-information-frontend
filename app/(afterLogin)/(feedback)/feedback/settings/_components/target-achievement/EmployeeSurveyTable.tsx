@@ -345,45 +345,141 @@ const EmployeeSurveyTable: React.FC = () => {
       id="employeeSurveyTablePage"
     >
       <div
-        className="flex justify-between gap-4 mb-6 p-3"
+        className="flex flex-col gap-4 mb-6 p-3 md:flex-row md:justify-between"
         data-cy="employee-survey-table-filters"
         id="employeeSurveyTableFilters"
       >
-        <Select
-          showSearch
-          placeholder="Search Employee"
-          className="h-8 rounded-lg border border-gray-500  p-0 m-0"
-          style={{ width: 300 }}
-          allowClear
-          loading={empLoading}
-          suffixIcon={
-            userId ? (
-              ''
-            ) : (
-              <span className="ml-1 pl-2 border-l border-gray-500 flex items-center  ">
-                <SearchIcon className="text-gray-900 " fontSize="small" />
+        <div className="flex items-center gap-3 w-full">
+          <Select
+            showSearch
+            placeholder="Search Employee"
+            className="h-8 rounded-lg border border-gray-500 p-0 m-0 w-full md:w-[300px]"
+            allowClear
+            loading={empLoading}
+            suffixIcon={
+              userId ? (
+                ''
+              ) : (
+                <span className="ml-1 pl-2 border-l border-gray-500 flex items-center  ">
+                  <SearchIcon className="text-gray-900 " fontSize="small" />
+                </span>
+              )
+            }
+            value={userId ?? undefined}
+            onChange={(value) => {
+              setUserId(normalizeNullableId(value));
+              setCurrentPage(1);
+            }}
+            filterOption={(input: any, option: any) =>
+              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+            }
+            options={employeeData?.items?.map((item: any) => ({
+              ...item,
+              value: item?.id,
+              label:
+                item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
+            }))}
+            data-cy="employee-survey-table-employee-filter"
+            id="employeeSurveyTableEmployeeFilter"
+          />
+
+          <Popover
+            placement="bottomRight"
+            trigger="click"
+            open={isMobileFilterVisible}
+            onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
+            content={
+              <div className="space-y-4 p-2 min-w-[260px]">
+                <Select
+                  loading={depLoading}
+                  placeholder="Filter by Department"
+                  className="w-full h-10 rounded-lg border-gray-200"
+                  allowClear
+                  showSearch
+                  value={departmentId ?? undefined}
+                  onChange={(value) => {
+                    setDepartmentId(normalizeNullableId(value));
+                    setCurrentPage(1);
+                  }}
+                  filterOption={(input, option) =>
+                    (option?.children as any)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  data-cy="employee-survey-table-department-filter"
+                  id="employeeSurveyTableDepartmentFilter"
+                >
+                  {departmentData?.map((dept: any) => (
+                    <Option
+                      key={dept.id}
+                      value={dept.id}
+                      data-cy={`employee-survey-table-department-option-${dept.id}`}
+                    >
+                      {dept.name}
+                    </Option>
+                  ))}
+                </Select>
+
+                <Select
+                  placeholder="Filter by Month"
+                  className="w-full h-10 rounded-lg border-gray-200"
+                  allowClear
+                  showSearch
+                  value={monthId ?? undefined}
+                  onChange={(value) => {
+                    setMonthId(normalizeNullableId(value));
+                    setCurrentPage(1);
+                  }}
+                  filterOption={(input, option) =>
+                    (option?.children as any)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  loading={monthsLoading}
+                  data-cy="employee-survey-table-month-filter"
+                  id="employeeSurveyTableMonthFilter"
+                >
+                  {months?.items
+                    ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
+                    ?.map((month: any) => (
+                      <Option
+                        key={month.id}
+                        value={month.id}
+                        data-cy={`employee-survey-table-month-option-${month.id}`}
+                      >
+                        {month?.session?.name}-{month.name}
+                      </Option>
+                    ))}
+                </Select>
+              </div>
+            }
+          >
+            <Button
+              type="default"
+              size="large"
+              className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2 shrink-0"
+              id="employee-survey-table-filter-toggle-btn"
+              data-cy="employee-survey-table-filter-toggle-btn"
+              icon={
+                <FilterAltOutlinedIcon
+                  className="text-gray-600"
+                  fontSize="small"
+                />
+              }
+            >
+              <span
+                id="employee-survey-table-filter-toggle-btn-text"
+                data-cy="employee-survey-table-filter-toggle-btn-text"
+                className="text-gray-600 text-sm"
+              >
+                Filter
               </span>
-            )
-          }
-          value={userId ?? undefined}
-          onChange={(value) => {
-            setUserId(normalizeNullableId(value));
-            setCurrentPage(1);
-          }}
-          filterOption={(input: any, option: any) =>
-            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
-          }
-          options={employeeData?.items?.map((item: any) => ({
-            ...item,
-            value: item?.id,
-            label:
-              item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
-          }))}
-          data-cy="employee-survey-table-employee-filter"
-          id="employeeSurveyTableEmployeeFilter"
-        />
+            </Button>
+          </Popover>
+        </div>
+
         <div
-          className="flex items-center gap-2 flex-wrap bg-blue-600"
+          className="flex items-center gap-2 flex-wrap bg-blue-600 w-full"
           id="employee-survey-table-active-filters"
           data-cy="employee-survey-table-active-filters"
         >
@@ -409,100 +505,6 @@ const EmployeeSurveyTable: React.FC = () => {
             </Tag>
           ))}
         </div>
-
-        <Popover
-          placement="bottomRight"
-          trigger="click"
-          open={isMobileFilterVisible}
-          onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
-          content={
-            <div className="space-y-4 p-2 min-w-[260px]">
-              <Select
-                loading={depLoading}
-                placeholder="Filter by Department"
-                className="w-full h-10 rounded-lg border-gray-200"
-                allowClear
-                showSearch
-                value={departmentId ?? undefined}
-                onChange={(value) => {
-                  setDepartmentId(normalizeNullableId(value));
-                  setCurrentPage(1);
-                }}
-                filterOption={(input, option) =>
-                  (option?.children as any)
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                data-cy="employee-survey-table-department-filter"
-                id="employeeSurveyTableDepartmentFilter"
-              >
-                {departmentData?.map((dept: any) => (
-                  <Option
-                    key={dept.id}
-                    value={dept.id}
-                    data-cy={`employee-survey-table-department-option-${dept.id}`}
-                  >
-                    {dept.name}
-                  </Option>
-                ))}
-              </Select>
-
-              <Select
-                placeholder="Filter by Month"
-                className="w-full h-10 rounded-lg border-gray-200"
-                allowClear
-                showSearch
-                value={monthId ?? undefined}
-                onChange={(value) => {
-                  setMonthId(normalizeNullableId(value));
-                  setCurrentPage(1);
-                }}
-                filterOption={(input, option) =>
-                  (option?.children as any)
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                loading={monthsLoading}
-                data-cy="employee-survey-table-month-filter"
-                id="employeeSurveyTableMonthFilter"
-              >
-                {months?.items
-                  ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
-                  ?.map((month: any) => (
-                    <Option
-                      key={month.id}
-                      value={month.id}
-                      data-cy={`employee-survey-table-month-option-${month.id}`}
-                    >
-                      {month?.session?.name}-{month.name}
-                    </Option>
-                  ))}
-              </Select>
-            </div>
-          }
-        >
-          <Button
-            type="default"
-            size="large"
-            className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2"
-            id="employee-survey-table-filter-toggle-btn"
-            data-cy="employee-survey-table-filter-toggle-btn"
-            icon={
-              <FilterAltOutlinedIcon
-                className="text-gray-600"
-                fontSize="small"
-              />
-            }
-          >
-            <span
-              id="employee-survey-table-filter-toggle-btn-text"
-              data-cy="employee-survey-table-filter-toggle-btn-text"
-              className="text-gray-600 text-sm"
-            >
-              Filter
-            </span>
-          </Button>
-        </Popover>
       </div>
 
       <Table
