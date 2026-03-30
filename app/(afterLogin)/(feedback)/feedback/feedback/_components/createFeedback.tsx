@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Form, Select, Input, Button } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Form, Select, Input, Button, Modal } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import {
   useGetAllUsers,
   useGetActiveEmployee,
@@ -17,20 +18,12 @@ import {
 import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetPerspectiveById } from '@/store/server/features/CFR/feedback/queries';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const { TextArea } = Input;
 
 const CreateFeedbackForm = ({ form }: { form: any }) => {
   const { userId } = useAuthenticationStore();
-  // const {
-  //   activeTab,
-  //   setOpen,
-  //   selectedFeedbackRecord,
-  //   variantType,
-  //   setSelectedFeedbackRecord,
-  // } = ConversationStore();
   const {
     open,
     setOpen,
@@ -38,6 +31,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     selectedFeedbackRecord,
     variantType,
     activeTab,
+    setActiveTab,
   } = ConversationStore();
   const [selectedDepartment, setSelectedDepartmentId] = useState<string | null>(
     null,
@@ -81,7 +75,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         points:
           getAllFeedbackTypeById?.feedback?.find(
             (feedback: FeedbackItem) => feedback.id === values.feedbackId,
-          )?.points || 0, // Default to 0 if feedback is not found or points are undefined
+          )?.points || 0,
         issuerId: userId,
         feedbackTypeId: activeTab,
       };
@@ -94,309 +88,707 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
       });
     }
   };
-  // Ensure perspectiveIds is always an array
+
   const perspectiveIds =
     perspectiveData
       ?.filter(
         (perspective: any) => perspective.departmentId === selectedDepartment,
       )
-      ?.map((perspective: any) => perspective.id) || []; // Default to an empty array
+      ?.map((perspective: any) => perspective.id) || [];
 
-  // Ensure perspectiveIds is always an array to avoid errors
   const filteredFeedback = getAllFeedbackTypeById?.feedback?.filter(
     (item: any) => {
       if (item.perspectiveId) {
         return perspectiveIds.includes(item.perspectiveId);
-      } else {
-        return true;
       }
+      return true;
     },
   );
-  // const filteredFeedback=getAllFeedbackTypeById?.feedback
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedFeedbackRecord(null);
+    setSelectedDepartmentId(null);
+    form.resetFields();
+  };
+
   useEffect(() => {
-    const getDepartmenId = (perspectiveId: string | undefined) => {
+    const getDepartmentIdFromPerspective = (
+      perspectiveId: string | undefined,
+    ) => {
       const perspective = perspectiveData?.find(
         (item: any) => item.id === perspectiveId,
       );
       return perspective?.departmentId ?? null;
     };
-    if (selectedFeedbackRecord !== null)
+    if (selectedFeedbackRecord !== null) {
+      const departmentId = getDepartmentIdFromPerspective(
+        selectedFeedbackRecord?.perspectiveId,
+      );
       form.setFieldsValue({
         id: selectedFeedbackRecord?.id,
         recipientId: selectedFeedbackRecord?.recipientId,
         feedbackId: selectedFeedbackRecord?.feedbackId,
-        departmenId: getDepartmenId(selectedFeedbackRecord?.perspectiveId),
+        departmentId,
         reason: selectedFeedbackRecord?.reason,
         action: selectedFeedbackRecord?.action,
       });
-  }, [selectedFeedbackRecord]);
+      if (departmentId) {
+        setSelectedDepartmentId(departmentId);
+      }
+    }
+  }, [selectedFeedbackRecord, perspectiveData, form]);
+
+  useEffect(() => {
+    if (
+      selectedFeedbackRecord?.feedbackTypeId &&
+      open &&
+      selectedFeedbackRecord !== null
+    ) {
+      setActiveTab(selectedFeedbackRecord.feedbackTypeId);
+    }
+  }, [
+    selectedFeedbackRecord?.id,
+    selectedFeedbackRecord?.feedbackTypeId,
+    open,
+    selectedFeedbackRecord,
+    setActiveTab,
+  ]);
+
+  useEffect(() => {
+    if (selectedFeedbackRecord === null && open) {
+      form.setFieldsValue({ feedbackId: undefined });
+    }
+  }, [activeTab, selectedFeedbackRecord, open, form]);
 
   const activeTabName =
     getAllFeedbackTypes?.items?.find(
       (item: FeedbackTypeItems) => item.id === activeTab,
     )?.category ?? '';
 
-  const modalHeader = (
-    <div
-      className="flex justify-start text-xl font-extrabold text-gray-800 "
-      data-cy="feedback-feedback-components-createfeedback-div-header"
-      id="feedback-feedback-components-createfeedback-div-header"
-    >
-      {`${activeTabName} - ${variantType}`}
-    </div>
+  const selectedTypeMeta = getAllFeedbackTypes?.items?.find(
+    (item: FeedbackTypeItems) => item.id === activeTab,
   );
 
+  const ccSelectOptions = useMemo(() => {
+    const buildName = (item: any) => {
+      const fromParts =
+        `${item?.firstName ?? ''} ${item?.middleName ?? ''} ${item?.lastName ?? ''}`
+          .trim()
+          .replace(/\s+/g, ' ');
+      if (fromParts) return fromParts;
+      const alt = [item?.fullName, item?.name].find(
+        (v: unknown) => typeof v === 'string' && v.trim().length > 0,
+      );
+      return typeof alt === 'string' ? alt.trim() : '';
+    };
+    return (
+      getAllUsersData?.items
+        ?.filter((item: any) => item?.email)
+        ?.map((item: any) => {
+          const name = buildName(item);
+          const email = item.email as string;
+          return {
+            value: email,
+            label: name || email,
+          };
+        }) ?? []
+    );
+  }, [getAllUsersData?.items]);
+
+  const ccFieldValue = Form.useWatch('cc', form);
+  const ccEmails: string[] = Array.isArray(ccFieldValue) ? ccFieldValue : [];
+
+  const removeCcEmail = (email: string) => {
+    const next = ccEmails.filter((e) => e !== email);
+    form.setFieldValue('cc', next);
+  };
+
+  const isModalOpen =
+    (open && activeTabName !== '') || selectedFeedbackRecord !== null;
+
   return (
-    <CustomDrawerLayout
-      open={(open && activeTabName !== '') || selectedFeedbackRecord !== null}
-      onClose={() => {
-        setOpen(false);
-        setSelectedFeedbackRecord(null);
-        form.resetFields();
-      }}
-      modalHeader={modalHeader}
-      width="40%"
-      data-cy="feedback-feedback-components-createfeedback-drawer"
-      footer={
-        <Form.Item
-          data-cy="feedback-feedback-components-createfeedback-form-item-footer"
-          id="feedback-feedback-components-createfeedback-form-item-footer"
+    <>
+      <Modal
+        open={isModalOpen}
+        onCancel={handleClose}
+        footer={null}
+        closable={false}
+        centered
+        width={795}
+        destroyOnClose
+        maskClosable
+        className="add-feedback-modal"
+        styles={{
+          content: {
+            padding: 0,
+            borderRadius: 8,
+            overflow: 'hidden',
+            width: 'min(795px, calc(100vw - 24px))',
+            maxHeight: 'min(580px, calc(100vh - 48px))',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow:
+              '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
+          },
+        }}
+        data-cy="feedback-feedback-components-createfeedback-drawer"
+      >
+        <div
+          className="add-feedback-modal-root flex h-full min-h-0 max-h-[min(580px,calc(100vh-48px))] w-full min-w-0 flex-1 flex-col bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif]"
+          data-cy="feedback-create-feedback-modal-layout"
         >
           <div
-            className=" w-full bg-[#fff] flex justify-between space-x-5 p-4"
+            className="relative flex shrink-0 flex-row items-center gap-[10px] px-6 pb-2 pt-5"
+            data-cy="feedback-create-feedback-modal-header"
+          >
+            <span
+              className="m-0 flex-1 text-base font-bold leading-6 text-black/[0.7]"
+              data-cy="feedback-feedback-components-createfeedback-div-header"
+            >
+              {selectedFeedbackRecord !== null
+                ? 'Edit Feedback'
+                : variantType === 'appreciation'
+                  ? 'Add Appriciation'
+                  : 'Add Reprimand'}
+            </span>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={handleClose}
+              className="absolute right-5 top-4 flex h-[22px] w-[22px] items-center justify-center rounded border-0 bg-transparent p-0 text-black/[0.45] transition-colors hover:bg-black/[0.04]"
+              data-cy="feedback-create-feedback-modal-close"
+            >
+              <CloseOutlined
+                className="text-base"
+                data-cy="feedback-create-feedback-modal-close-icon"
+              />
+            </button>
+          </div>
+
+          <div
+            className="add-feedback-modal-body-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-3"
+            data-cy="feedback-create-feedback-modal-body"
+          >
+            <div
+              className="mx-auto flex w-full max-w-[747px] flex-col items-center gap-1"
+              data-cy="feedback-create-feedback-type-section"
+            >
+              <div
+                className="w-full text-center text-sm font-normal leading-[22px] text-black"
+                data-cy="feedback-create-feedback-type-label"
+              >
+                Select Type
+              </div>
+              <div
+                className="flex w-full flex-row flex-wrap items-center justify-center gap-3"
+                data-cy="feedback-create-feedback-type-toggles"
+              >
+                {getAllFeedbackTypes?.items?.map((item: FeedbackTypeItems) => {
+                  const selected = item.id === activeTab;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setActiveTab(item.id)}
+                      data-cy={`feedback-create-feedback-type-toggle-${item.id}`}
+                      className={`box-border flex h-8 min-w-0 shrink-0 items-center justify-center px-[15px] text-sm font-normal leading-[22px] transition-colors ${
+                        selected
+                          ? 'add-feedback-type-btn add-feedback-type-btn--primary rounded-md border border-solid border-[#1E40AF] bg-[#1E40AF] text-white shadow-[0px_2px_0px_rgba(5,145,255,0.1)]'
+                          : 'add-feedback-type-btn add-feedback-type-btn--default rounded-md border border-solid border-[#D9D9D9] bg-white text-black/[0.7] shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:border-[#bfbfbf]'
+                      }`}
+                    >
+                      {item.category}
+                    </button>
+                  );
+                })}
+              </div>
+              <p
+                className="m-0 w-full text-center text-sm font-normal leading-[22px] text-black"
+                data-cy="feedback-create-feedback-type-description"
+              >
+                {selectedTypeMeta?.description?.trim()
+                  ? selectedTypeMeta.description
+                  : `Content about what ${(selectedTypeMeta?.category ?? 'Engagement').toLowerCase()} ${variantType === 'appreciation' ? 'appreciation' : 'feedback'} is`}
+              </p>
+            </div>
+
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={onFinish}
+              requiredMark={false}
+              className="add-feedback-modal-form w-full max-w-[747px]"
+              initialValues={{
+                feedbackId: undefined,
+                reason: '',
+                action: '',
+                cc: [],
+              }}
+              data-cy="feedback-feedback-components-createfeedback-form"
+            >
+              {selectedFeedbackRecord !== null && (
+                <Form.Item name="id" hidden>
+                  <Input type="hidden" />
+                </Form.Item>
+              )}
+
+              <div
+                className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3"
+                data-cy="feedback-create-feedback-row-employee-dept"
+              >
+                <div
+                  className="min-w-0"
+                  data-cy="feedback-create-feedback-col-employee"
+                >
+                  <Form.Item
+                    name="recipientId"
+                    label={
+                      <span
+                        className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
+                        data-cy="feedback-create-feedback-label-employee"
+                      >
+                        Employee{' '}
+                        <span
+                          className="text-[#FF4D4F]"
+                          data-cy="feedback-create-feedback-label-employee-required"
+                        >
+                          *
+                        </span>
+                      </span>
+                    }
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select at least one employee!',
+                      },
+                    ]}
+                    data-cy="feedback-feedback-components-createfeedback-form-item-recipient"
+                  >
+                    <Select
+                      showSearch
+                      allowClear
+                      className="add-feedback-field-select w-full"
+                      placeholder="Select"
+                      data-cy="feedback-feedback-components-createfeedback-select-employee"
+                      options={
+                        getActiveEmployee?.items
+                          ?.filter((i: any) => i.id !== userId)
+                          ?.map((item: any) => ({
+                            label:
+                              `${item?.firstName} ${item?.middleName} ${item?.lastName}`.trim(),
+                            value: item?.id,
+                          })) ?? []
+                      }
+                      filterOption={(input, option) =>
+                        (option?.label as string)
+                          ?.toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                    />
+                  </Form.Item>
+                </div>
+                <div
+                  className="min-w-0"
+                  data-cy="feedback-create-feedback-col-department"
+                >
+                  <Form.Item
+                    name="departmentId"
+                    label={
+                      <span
+                        className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
+                        data-cy="feedback-create-feedback-label-department"
+                      >
+                        Department{' '}
+                        <span
+                          className="text-[#FF4D4F]"
+                          data-cy="feedback-create-feedback-label-department-required"
+                        >
+                          *
+                        </span>
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: 'Please select a department' },
+                    ]}
+                    data-cy="feedback-feedback-components-createfeedback-form-item-department"
+                  >
+                    <Select
+                      loading={isLoading}
+                      className="add-feedback-field-select w-full"
+                      placeholder="Select"
+                      data-cy="feedback-feedback-components-createfeedback-select-department"
+                      onChange={(departmentId: string) => {
+                        setSelectedDepartmentId(departmentId);
+                      }}
+                    >
+                      {departments?.map((department: any) => (
+                        <Select.Option
+                          key={department.id}
+                          value={department.id}
+                        >
+                          {department.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </div>
+              </div>
+
+              <Form.Item
+                name="feedbackId"
+                label={
+                  <span
+                    className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
+                    data-cy="feedback-create-feedback-label-feedback"
+                  >
+                    Feedback{' '}
+                    <span
+                      className="text-[#FF4D4F]"
+                      data-cy="feedback-create-feedback-label-feedback-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select at least one type!',
+                  },
+                ]}
+                data-cy="feedback-feedback-components-createfeedback-form-item-feedback"
+              >
+                <Select
+                  showSearch
+                  placeholder="Select"
+                  className="add-feedback-field-select w-full"
+                  data-cy="feedback-feedback-components-createfeedback-select-feedback"
+                  options={
+                    filteredFeedback
+                      ?.filter((i: any) => i.variant === variantType)
+                      ?.map((feedback: FeedbackItem) => ({
+                        label: feedback.name,
+                        value: feedback.id,
+                      })) ?? []
+                  }
+                  filterOption={(input, option) =>
+                    (option?.label as string)
+                      ?.toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="reason"
+                label={
+                  <span
+                    className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
+                    data-cy="feedback-create-feedback-label-reason"
+                  >
+                    Reason{' '}
+                    <span
+                      className="text-[#FF4D4F]"
+                      data-cy="feedback-create-feedback-label-reason-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
+                rules={[
+                  { required: true, message: 'Please provide a reason!' },
+                ]}
+                data-cy="feedback-feedback-components-createfeedback-form-item-reason"
+              >
+                <TextArea
+                  rows={2}
+                  placeholder="Textarea"
+                  className="add-feedback-field-textarea"
+                  data-cy="feedback-feedback-components-createfeedback-textarea-reason"
+                />
+              </Form.Item>
+
+              <Form.Item
+                name="action"
+                className={`${variantType === 'appreciation' ? 'hidden' : 'block'}`}
+                label={
+                  <span
+                    className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
+                    data-cy="feedback-create-feedback-label-action"
+                  >
+                    Action to Be Taken{' '}
+                    <span
+                      className="text-[#FF4D4F]"
+                      data-cy="feedback-create-feedback-label-action-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
+                rules={[{ message: 'Please describe the action to be taken!' }]}
+              >
+                <TextArea
+                  rows={2}
+                  placeholder="Describe the action to be taken"
+                  className="add-feedback-field-textarea"
+                  data-cy="feedback-feedback-components-createfeedback-textarea-action"
+                />
+              </Form.Item>
+
+              {selectedFeedbackRecord === null && (
+                <Form.Item
+                  label={
+                    <span
+                      className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
+                      data-cy="feedback-create-feedback-label-cc"
+                    >
+                      CC{' '}
+                      <span
+                        className="text-[#FF4D4F]"
+                        data-cy="feedback-create-feedback-label-cc-required"
+                      >
+                        *
+                      </span>
+                    </span>
+                  }
+                  required={false}
+                  className="mb-0"
+                  data-cy="feedback-feedback-components-createfeedback-form-item-cc"
+                >
+                  <Form.Item
+                    name="cc"
+                    noStyle
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select at least one CC!',
+                      },
+                    ]}
+                  >
+                    <Select
+                      mode="multiple"
+                      placeholder="Select"
+                      showSearch
+                      className="add-feedback-cc-trigger add-feedback-field-select w-full"
+                      data-cy="feedback-feedback-components-createfeedback-select-cc"
+                      optionFilterProp="label"
+                      filterOption={(input: string, option: any) => {
+                        const q = input.trim().toLowerCase();
+                        if (!q) return true;
+                        const label = String(option?.label ?? '').toLowerCase();
+                        const value = String(option?.value ?? '').toLowerCase();
+                        return label.includes(q) || value.includes(q);
+                      }}
+                      options={ccSelectOptions}
+                    />
+                  </Form.Item>
+                  {ccEmails.length > 0 ? (
+                    <div
+                      className="mt-2 flex flex-wrap gap-2"
+                      data-cy="feedback-create-feedback-cc-tags"
+                    >
+                      {ccEmails.map((email, tagIndex) => {
+                        const label =
+                          ccSelectOptions.find(
+                            (o: { value: string; label: string }) =>
+                              o.value === email,
+                          )?.label ?? email;
+                        return (
+                          <span
+                            key={email}
+                            className="add-feedback-cc-tag box-border inline-flex h-6 items-center gap-1 rounded border border-[#D9D9D9] bg-black/[0.02] px-2 py-px text-sm font-normal leading-[22px] text-black/[0.7]"
+                            data-cy={`feedback-create-feedback-cc-tag-${tagIndex}`}
+                          >
+                            {label}
+                            <button
+                              type="button"
+                              className="flex h-3 w-3 shrink-0 items-center justify-center border-0 bg-transparent p-0 text-black/[0.7] hover:text-black"
+                              aria-label={`Remove ${label}`}
+                              onClick={() => removeCcEmail(email)}
+                              data-cy={`feedback-create-feedback-cc-tag-remove-${tagIndex}`}
+                            >
+                              <CloseOutlined className="text-[10px]" />
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </Form.Item>
+              )}
+            </Form>
+          </div>
+
+          <div
+            className="flex shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5 pt-0"
             data-cy="feedback-feedback-components-createfeedback-div-footer"
-            id="feedback-feedback-components-createfeedback-div-footer"
           >
             <Button
-              className="h-12 p-5 px-12"
-              onClick={() => setOpen(false)}
-              type="default"
+              className="add-feedback-footer-cancel !m-0 !h-8 !min-w-[68px] !rounded-md !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] !text-sm !font-normal !leading-[22px] !text-black/[0.7] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#D9D9D9] hover:!text-black/[0.7]"
+              onClick={handleClose}
               data-cy="feedback-feedback-components-createfeedback-button-cancel"
-              id="feedback-feedback-components-createfeedback-button-cancel"
             >
               Cancel
             </Button>
-
             {selectedFeedbackRecord !== null ? (
               <Button
-                className="h-12 p-5 px-12"
                 type="primary"
+                className="add-feedback-footer-submit !m-0 !h-8 !min-w-[70px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1d3d99]"
                 onClick={() => form.submit()}
                 data-cy="feedback-feedback-components-createfeedback-button-update"
-                id="feedback-feedback-components-createfeedback-button-update"
               >
                 Update
               </Button>
             ) : (
               <Button
+                type="primary"
                 loading={
                   loadingCreateFeedbackRecord || loadingUpdateFeedbackRecord
                 }
-                type="primary"
-                className="h-12 p-5 px-12"
+                className="add-feedback-footer-submit !m-0 !h-8 !min-w-[70px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1d3d99]"
                 onClick={() => form.submit()}
                 data-cy="feedback-feedback-components-createfeedback-button-submit"
-                id="feedback-feedback-components-createfeedback-button-submit"
               >
-                Submit
+                Create
               </Button>
             )}
           </div>
-        </Form.Item>
-      }
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{
-          employeeId: [],
-          feedbackId: undefined,
-          reason: '',
-          action: '',
-          cc: [],
-        }}
-        data-cy="feedback-feedback-components-createfeedback-form"
-        id="feedback-feedback-components-createfeedback-form"
-      >
-        {selectedFeedbackRecord !== null && (
-          <Form.Item
-            name="id"
-            data-cy="feedback-feedback-components-createfeedback-form-item-id"
-            id="feedback-feedback-components-createfeedback-form-item-id"
-          ></Form.Item>
-        )}
-        {/* Select Employee ID */}
+        </div>
+      </Modal>
 
-        <Form.Item
-          name="recipientId"
-          label="Select Employee"
-          rules={[
-            { required: true, message: 'Please select at least one employee!' },
-          ]}
-          data-cy="feedback-feedback-components-createfeedback-form-item-recipient"
-          id="feedback-feedback-components-createfeedback-form-item-recipient"
-        >
-          <Select
-            showSearch
-            allowClear
-            className="h-10"
-            placeholder="Select employee"
-            options={
-              getActiveEmployee?.items
-                ?.filter((i: any) => i.id !== userId)
-                ?.map((item: any) => ({
-                  label: `${item?.firstName} ${item?.middleName} ${item?.lastName}`, // `label` for display
-                  value: item?.id, // `value` for internal use
-                })) ?? []
-            }
-            filterOption={(input, option) =>
-              (option?.label as string)
-                ?.toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            data-cy="feedback-feedback-components-createfeedback-select-employee"
-            id="feedback-feedback-components-createfeedback-select-employee"
-          />
-        </Form.Item>
-        <Form.Item
-          name="departmentId"
-          label="Select Department"
-          rules={[{ required: true, message: 'Please select a department' }]}
-          data-cy="feedback-feedback-components-createfeedback-form-item-department"
-          id="feedback-feedback-components-createfeedback-form-item-department"
-        >
-          <Select
-            loading={isLoading}
-            className="h-10"
-            placeholder="Select a department"
-            onChange={(departmentId: string) =>
-              setSelectedDepartmentId(departmentId)
-            }
-            data-cy="feedback-feedback-components-createfeedback-select-department"
-            id="feedback-feedback-components-createfeedback-select-department"
-          >
-            {departments?.map((department: any) => (
-              <Select.Option
-                key={department.id}
-                value={department.id}
-                data-cy={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}
-                id={`feedback-feedback-components-createfeedback-select-option-department-${department.id}`}
-              >
-                {department.name}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        {/* Select Type */}
-        <Form.Item
-          name="feedbackId"
-          label="Select Feedback"
-          rules={[
-            { required: true, message: 'Please select at least one type!' },
-          ]}
-          data-cy="feedback-feedback-components-createfeedback-form-item-feedback"
-          id="feedback-feedback-components-createfeedback-form-item-feedback"
-        >
-          <Select
-            showSearch
-            placeholder="Select Feedback"
-            className="h-10"
-            options={
-              filteredFeedback
-                ?.filter((i: any) => i.variant === variantType)
-                ?.map((feedback: FeedbackItem) => ({
-                  key: feedback.id, // Optional, used for React rendering optimization
-                  label: feedback.name, // Text displayed in the dropdown
-                  value: feedback.id, // Unique identifier
-                })) ?? []
-            }
-            filterOption={(input, option) =>
-              (option?.label as string)
-                ?.toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            data-cy="feedback-feedback-components-createfeedback-select-feedback"
-            id="feedback-feedback-components-createfeedback-select-feedback"
-          />
-        </Form.Item>
-
-        {/* Reason */}
-        <Form.Item
-          name="reason"
-          label="Reason"
-          rules={[{ required: true, message: 'Please provide a reason!' }]}
-          data-cy="feedback-feedback-components-createfeedback-form-item-reason"
-          id="feedback-feedback-components-createfeedback-form-item-reason"
-        >
-          <TextArea
-            rows={4}
-            placeholder="Enter reason or description"
-            data-cy="feedback-feedback-components-createfeedback-textarea-reason"
-            id="feedback-feedback-components-createfeedback-textarea-reason"
-          />
-        </Form.Item>
-
-        {/* Action to Be Taken */}
-        <Form.Item
-          name="action"
-          className={`${variantType === 'appreciation' ? 'hidden' : 'block'}`}
-          label="Action to Be Taken"
-          rules={[
-            {
-              message: 'Please describe the action to be taken!',
-            },
-          ]}
-          data-cy="feedback-feedback-components-createfeedback-form-item-action"
-          id="feedback-feedback-components-createfeedback-form-item-action"
-        >
-          <TextArea
-            rows={4}
-            placeholder="Describe the action to be taken"
-            data-cy="feedback-feedback-components-createfeedback-textarea-action"
-            id="feedback-feedback-components-createfeedback-textarea-action"
-          />
-        </Form.Item>
-
-        {/* CC */}
-        {selectedFeedbackRecord === null && (
-          <Form.Item
-            name="cc"
-            label="CC"
-            rules={[
-              { required: true, message: 'Please select at least one CC!' },
-            ]}
-            className="mb-8"
-            data-cy="feedback-feedback-components-createfeedback-form-item-cc"
-            id="feedback-feedback-components-createfeedback-form-item-cc"
-          >
-            <Select
-              mode="multiple"
-              placeholder="Select CC employee(s)"
-              filterOption={(input: any, option: any) =>
-                (option?.label ?? '')
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={
-                getAllUsersData?.items?.map((item: any) => ({
-                  key: item?.id,
-                  value: item?.email,
-                  label:
-                    item?.firstName +
-                    ' ' +
-                    item?.middleName +
-                    '' +
-                    item?.lastName,
-                })) ?? []
-              }
-              data-cy="feedback-feedback-components-createfeedback-select-cc"
-              id="feedback-feedback-components-createfeedback-select-cc"
-            />
-          </Form.Item>
-        )}
-      </Form>
-    </CustomDrawerLayout>
+      <style data-cy="feedback-create-feedback-modal-styles" jsx global>{`
+        .add-feedback-modal.ant-modal {
+          width: min(795px, calc(100vw - 24px)) !important;
+          max-width: calc(100vw - 24px) !important;
+        }
+        .add-feedback-modal .ant-modal-content {
+          width: min(795px, calc(100vw - 24px)) !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        .add-feedback-modal .ant-modal-body {
+          flex: 1 1 auto !important;
+          display: flex !important;
+          flex-direction: column !important;
+          min-height: 0 !important;
+          padding: 0 !important;
+          overflow: hidden !important;
+        }
+        .add-feedback-modal-form.ant-form {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 12px !important;
+        }
+        .add-feedback-modal-form .ant-form-item {
+          margin-bottom: 0 !important;
+        }
+        .add-feedback-modal-form .ant-form-item-label {
+          padding: 0 0 8px !important;
+        }
+        .add-feedback-modal-form .ant-form-item-label > label {
+          font-family: Calibri, Candara, 'Segoe UI', sans-serif !important;
+          height: auto !important;
+        }
+        .add-feedback-modal .add-feedback-field-select .ant-select-selector {
+          box-sizing: border-box !important;
+          height: 40px !important;
+          min-height: 40px !important;
+          border-radius: 8px !important;
+          border: 1px solid #d9d9d9 !important;
+          padding: 0 12px !important;
+          padding-inline-end: 36px !important;
+          align-items: center !important;
+          box-shadow: none !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-select
+          .ant-select-selection-item,
+        .add-feedback-modal
+          .add-feedback-field-select
+          .ant-select-selection-search-input,
+        .add-feedback-modal
+          .add-feedback-field-select
+          .ant-select-selection-placeholder {
+          font-family: Calibri, Candara, 'Segoe UI', sans-serif !important;
+          font-size: 16px !important;
+          line-height: 24px !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-select
+          .ant-select-selection-item {
+          color: rgba(0, 0, 0, 0.7) !important;
+          line-height: 38px !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-select
+          .ant-select-selection-placeholder {
+          color: rgba(0, 0, 0, 0.25) !important;
+          line-height: 38px !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-select:hover
+          .ant-select-selector {
+          border-color: #d9d9d9 !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-select.ant-select-focused
+          .ant-select-selector {
+          border-color: #1e40af !important;
+          box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.12) !important;
+        }
+        .add-feedback-modal .add-feedback-field-select .ant-select-arrow {
+          color: rgba(0, 0, 0, 0.25) !important;
+          font-size: 12px !important;
+        }
+        .add-feedback-modal .add-feedback-field-textarea textarea.ant-input {
+          box-sizing: border-box !important;
+          min-height: 52px !important;
+          padding: 4px 11px !important;
+          border-radius: 6px !important;
+          border: 1px solid #d9d9d9 !important;
+          font-family: Calibri, Candara, 'Segoe UI', sans-serif !important;
+          font-size: 14px !important;
+          line-height: 22px !important;
+          color: rgba(0, 0, 0, 0.7) !important;
+          box-shadow: none !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-textarea
+          textarea.ant-input::placeholder {
+          color: rgba(0, 0, 0, 0.25) !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-textarea
+          textarea.ant-input:hover {
+          border-color: #d9d9d9 !important;
+        }
+        .add-feedback-modal
+          .add-feedback-field-textarea
+          textarea.ant-input:focus {
+          border-color: #1e40af !important;
+          box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.12) !important;
+        }
+        .add-feedback-footer-cancel.ant-btn-default:not(:disabled) {
+          font-family: Calibri, Candara, 'Segoe UI', sans-serif !important;
+        }
+        .add-feedback-footer-submit.ant-btn-primary:not(:disabled) {
+          font-family: Calibri, Candara, 'Segoe UI', sans-serif !important;
+          background: #1e40af !important;
+          border-color: #1e40af !important;
+        }
+        .add-feedback-cc-trigger.ant-select-multiple
+          .ant-select-selection-overflow-item:not(
+            .ant-select-selection-overflow-item-suffix
+          ) {
+          display: none !important;
+        }
+        .add-feedback-cc-trigger.ant-select-multiple .ant-select-selector {
+          height: 40px !important;
+          min-height: 40px !important;
+        }
+      `}</style>
+    </>
   );
 };
 

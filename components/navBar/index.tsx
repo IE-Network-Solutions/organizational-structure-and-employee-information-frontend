@@ -435,7 +435,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         children: [
           {
             title: (
-              <span data-cy="nav-tree-manage-employees-dashboard">Dashboard</span>
+              <span data-cy="nav-tree-manage-employees-dashboard">
+                Dashboard
+              </span>
             ),
             key: '/employees/dashboard',
             className: 'font-bold',
@@ -1139,7 +1141,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
-    const treeItemByRouteMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<
+      string,
+      (typeof accessibleTreeItems)[0]
+    >();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
 
