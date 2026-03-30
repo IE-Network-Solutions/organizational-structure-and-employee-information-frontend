@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import { useGetIntern } from '@/store/server/features/recruitment/intern/query';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
-import { CloseOutlined, LoadingOutlined } from '@ant-design/icons';
+import { CloseOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useDeleteIntern } from '@/store/server/features/recruitment/intern/mutation';
 import CustomPagination from '@/components/customPagination';
@@ -26,7 +26,7 @@ import { useEmployeeDepartments } from '@/store/server/features/employees/employ
 import { useRouter } from 'next/navigation';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useState, useEffect } from 'react';
 import { DATE_FORMAT } from '@/utils/constants';
 
@@ -153,14 +153,13 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-name"
           data-cy="talent-acquisition-intern-table-column-name"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Name
         </span>
       ),
       dataIndex: 'fullName',
-      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
       width: 200,
     },
 
@@ -169,14 +168,14 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-phone-number"
           data-cy="talent-acquisition-intern-table-column-phone-number"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Phone Number
         </span>
       ),
       dataIndex: 'phone',
       ellipsis: true,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
       width: 150,
     },
     {
@@ -184,14 +183,13 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-cgpa"
           data-cy="talent-acquisition-intern-table-column-cgpa"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           CGPA
         </span>
       ),
       dataIndex: 'CGPA',
-      sorter: (a: InternTableData, b: InternTableData) => a.CGPA - b.CGPA,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
       width: 150,
     },
     {
@@ -199,7 +197,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-department"
           data-cy="talent-acquisition-intern-table-column-department"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Department
         </span>
@@ -207,7 +205,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       dataIndex: 'departmentId',
       sorter: false,
       width: 200,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
     },
 
     {
@@ -215,27 +213,27 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-application-date"
           data-cy="talent-acquisition-intern-table-column-application-date"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Application Date
         </span>
       ),
       dataIndex: 'createdAt',
       width: 150,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
     },
     {
       title: (
         <span
           id="talent-acquisition-intern-table-column-cv"
           data-cy="talent-acquisition-intern-table-column-cv"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           CV
         </span>
       ),
       dataIndex: 'resumeUrl',
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
       width: 150,
     },
     {
@@ -243,14 +241,14 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-year-of-graduation"
           data-cy="talent-acquisition-intern-table-column-year-of-graduation"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Year of Graduation
         </span>
       ),
       dataIndex: 'graduateYear',
       width: 200,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
     },
 
     {
@@ -258,13 +256,13 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         <span
           id="talent-acquisition-intern-table-column-action"
           data-cy="talent-acquisition-intern-table-column-action"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Action
         </span>
       ),
       dataIndex: 'action',
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm text-[#4b4b4b] font-normal',
       width: 150,
     },
   ];
@@ -360,10 +358,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           >
             <Button
               onClick={(e: any) => e.stopPropagation()}
-              type="text"
-              icon={<MoreHorizIcon />}
-              className="border-2 border-[#D9D9D9] rounded-md p-1"
-            />
+              type="default"
+              className="border-[1px] border-[#D9D9D9] rounded-md p-1 h-8"
+            >
+              <MoreHorizIcon />
+            </Button>
           </Dropdown>
         ),
       };
@@ -591,18 +590,18 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       {/* Footer */}
       <div
         data-cy="talent-acquisition-intern-table-filter-footer"
-        className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2"
+        className="px-6 py-4 flex justify-end gap-2"
       >
         <Button
           onClick={handleResetFilters}
-          className="h-10 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
+          className="h-8 border-[1px] border-[#d9d9d9] font-normal"
           data-cy="talent-acquisition-talent-roaster-table-filter-reset"
         >
           Reset
         </Button>
         <Button
           type="primary"
-          className="h-10 px-4 rounded-md"
+          className="h-8 font-normal"
           onClick={() => setFilterDropdownOpen(false)}
           data-cy="talent-acquisition-talent-roaster-table-filter-save"
         >
@@ -625,7 +624,6 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       >
         <div
           data-cy="talent-acquisition-intern-table-input-search-container"
-          className="w-1/2"
         >
           <Input
             id={`inputInternNames`}
@@ -633,8 +631,16 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             placeholder="Search intern"
             value={searchParams.fullName}
             onChange={(e) => handleSearchCandidate(e.target.value, 'fullName')}
-            className="w-full h-10 rounded-md"
+            className="w-full h-8 max-w-[300px]"
             allowClear
+            suffix={
+              <div
+                data-cy="talent-acquisition-intern-table-input-search-suffix-icon-div"
+                className="text-gray-400 border-l p-2"
+              >
+                <SearchOutlined />
+              </div>
+            }
           />
         </div>
         <Dropdown
@@ -644,13 +650,14 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           dropdownRender={() => filterInternContent}
         >
           <Button
-            className="border border-[#d9d9d9] text-gray-600 text-sm"
-            icon={<FilterAltIcon fontSize="small" className="text-gray-600" />}
+            className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
+            icon={<FilterAltOutlinedIcon className="text-[#374151] text-base" />}
           >
             {!isMobile && 'Filter'}
           </Button>
         </Dropdown>
       </div>
+      <div className=' overflow-x-auto scrollbar-none'>
       <Table
         data-cy="talent-acquisition-intern-table"
         className="w-full"
@@ -658,7 +665,6 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         dataSource={data}
         loading={isLoading}
         pagination={false}
-        scroll={{ x: 1000 }}
         onRow={(record) => ({
           onClick: (event) => {
             // Only navigate if the click is not on a checkbox, button, link, or dropdown
@@ -672,7 +678,13 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             }
           },
         })}
+        rowHoverable={false}
+        rowClassName={(notUsed, index) => {
+          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+          return base;
+        }}
       />
+      </div>
       {isMobile || isTablet ? (
         <div
           id="talent-acquisition-intern-table-pagination-mobile"

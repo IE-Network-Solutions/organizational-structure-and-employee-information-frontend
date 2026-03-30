@@ -118,8 +118,8 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
                 onClick={() => handlePageClick(item)}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg font-medium transition-colors ${
                   isActive
-                    ? 'text-[#1e40af] border border-[#1e40af] bg-white'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'text-[#1e40af] border border-[#1e40af] bg-white font-semibold '
+                    : 'text-[#4d4d4d] font-normal hover:bg-gray-100'
                 }`}
                 data-cy={`mobile-pagination-page-${item}`}
                 aria-label={`Go to page ${item}`}

@@ -12,7 +12,7 @@ import {
   Dropdown,
   Form,
 } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { Option } from 'antd/es/mentions';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { useGetTalentRoaster } from '@/store/server/features/recruitment/talent-roaster/query';
@@ -28,7 +28,7 @@ import { useEmployeeDepartments } from '@/store/server/features/employees/employ
 import { useRouter } from 'next/navigation';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { DATE_FORMAT } from '@/utils/constants';
 
 // Define proper interfaces for talent roaster data
@@ -151,14 +151,13 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-name"
           data-cy="talent-acquisition-talent-roaster-table-column-name"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Name
         </span>
       ),
       dataIndex: 'fullName',
-      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
       width: 200,
     },
 
@@ -167,14 +166,14 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-phone"
           data-cy="talent-acquisition-talent-roaster-table-column-phone"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Phone Number
         </span>
       ),
       dataIndex: 'phone',
       ellipsis: true,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
       width: 150,
     },
     {
@@ -182,23 +181,12 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-cgpa"
           data-cy="talent-acquisition-talent-roaster-table-column-cgpa"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           CGPA
         </span>
       ),
       dataIndex: 'CGPA',
-      sorter: (a: TableDataItem, b: TableDataItem) => {
-        const aVal =
-          typeof a.CGPA === 'number'
-            ? a.CGPA
-            : parseFloat(a.CGPA as string) || 0;
-        const bVal =
-          typeof b.CGPA === 'number'
-            ? b.CGPA
-            : parseFloat(b.CGPA as string) || 0;
-        return aVal - bVal;
-      },
       width: 150,
     },
     {
@@ -206,19 +194,14 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-department"
           data-cy="talent-acquisition-talent-roaster-table-column-department"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Department
         </span>
       ),
       dataIndex: 'departmentId',
-      sorter: (a, b) => {
-        const aText = typeof a.departmentId === 'string' ? a.departmentId : '';
-        const bText = typeof b.departmentId === 'string' ? b.departmentId : '';
-        return aText.localeCompare(bText);
-      },
       width: 200,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
     },
 
     {
@@ -226,27 +209,27 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-application-date"
           data-cy="talent-acquisition-talent-roaster-table-column-application-date"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Application Date
         </span>
       ),
       dataIndex: 'createdAt',
       width: 150,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
     },
     {
       title: (
         <span
           id="talent-acquisition-talent-roaster-table-column-cv"
           data-cy="talent-acquisition-talent-roaster-table-column-cv"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           CV
         </span>
       ),
       dataIndex: 'resumeUrl',
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
       width: 150,
     },
     {
@@ -254,14 +237,14 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-year-of-graduation"
           data-cy="talent-acquisition-talent-roaster-table-column-year-of-graduation"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Year of Graduation
         </span>
       ),
       dataIndex: 'graduateYear',
       width: 200,
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
     },
 
     {
@@ -269,13 +252,13 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         <span
           id="talent-acquisition-talent-roaster-table-column-action"
           data-cy="talent-acquisition-talent-roaster-table-column-action"
-          className="font-bold text-base text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b]"
         >
           Action
         </span>
       ),
       dataIndex: 'action',
-      className: 'text-sm text-[#4b4b4b]',
+      className: 'text-sm font-normal text-[#4b4b4b]',
       width: 150,
     },
   ];
@@ -374,11 +357,12 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           >
             <Button
               onClick={(e: any) => e.stopPropagation()}
-              type="text"
-              icon={<MoreHorizIcon />}
-              className="border-2 border-[#D9D9D9] rounded-md p-1"
+              type="default"
+              className="border-[1px] border-[#D9D9D9] rounded-md p-1 h-8"
               data-cy="talent-acquisition-talent-roaster-table-button-action"
-            />
+            >
+              <MoreHorizIcon />
+</Button>
           </Dropdown>
         ),
       };
@@ -627,18 +611,18 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       {/* Footer */}
       <div
         data-cy="talent-acquisition-talent-roaster-table-filter-footer"
-        className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2"
+        className="px-6 py-4 flex justify-end gap-2"
       >
         <Button
           onClick={handleResetFilters}
-          className="h-10 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
+          className="h-8 border-[1px] border-[#d9d9d9] font-normal"
           data-cy="talent-acquisition-talent-roaster-table-filter-reset"
         >
           Reset
         </Button>
         <Button
           type="primary"
-          className="h-10 px-4 rounded-md"
+          className="h-8 font-normal"
           onClick={() => setFilterDropdownOpen(false)}
           data-cy="talent-acquisition-talent-roaster-table-filter-save"
         >
@@ -661,7 +645,6 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       >
         <div
           data-cy="talent-acquisition-talent-roaster-table-input-search-container"
-          className="w-1/2"
         >
           <Input
             id={`inputTalentRoasterNames`}
@@ -669,8 +652,16 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             placeholder="Search talent roster"
             value={searchParams.fullName}
             onChange={(e) => handleSearchCandidate(e.target.value, 'fullName')}
-            className="w-full h-10 rounded-md"
+            className="w-full h-8 max-w-[300px]"
             allowClear
+            suffix={
+              <div
+                data-cy="talent-acquisition-talent-roaster-table-input-search-suffix-icon-div"
+                className="text-gray-400 border-l p-2"
+              >
+                <SearchOutlined />
+              </div>
+            }
           />
         </div>
         <Dropdown
@@ -682,21 +673,24 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         >
           <Button
             data-cy="talent-acquisition-talent-roaster-table-button-filter-button"
-            className="border border-[#d9d9d9] text-gray-600 text-sm"
-            icon={<FilterAltIcon fontSize="small" className="text-gray-600" />}
+            className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
+            icon={<FilterAltOutlinedIcon className="text-[#374151] text-base" />}
           >
             {!isMobile && 'Filter'}
           </Button>
         </Dropdown>
       </div>
-
+<div
+        data-cy="talent-acquisition-talent-roaster-table-scroll-wrapper"
+        style={{ overflow: 'hidden' }}
+        className="w-full overflow-x-auto scrollbar-none"
+      >
       <Table
         data-cy="talent-acquisition-talent-roaster-table"
         className="w-full"
         columns={columns}
         dataSource={data}
         loading={isLoading}
-        scroll={{ x: 1000 }}
         pagination={false}
         rowSelection={rowSelection}
         onRow={(record) => ({
@@ -714,7 +708,16 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             }
           },
         })}
+        rowHoverable={false}
+        rowClassName={(record, index) => {
+          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+          const selected = selectedRowKeys.includes(
+            record.id,
+          );
+          return selected ? `${base} [&>td]:!bg-white` : base;
+        }}
       />
+      </div>
       {isMobile || isTablet ? (
         <div
           id="talent-acquisition-talent-roaster-table-pagination-mobile"

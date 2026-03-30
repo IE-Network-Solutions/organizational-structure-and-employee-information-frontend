@@ -1,11 +1,9 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import TalentPoolPage from '../talent-resource/talent-pool/_components/talentPoolpage';
 import { useTalentResourceStore } from '@/store/uistate/features/recruitment/talent-resource';
 import TalentRoasterPage from './talent-roaster/page';
 import InternPage from './intern/page';
 import { Breadcrumb, Button, Divider, Tabs } from 'antd';
-import Link from 'next/link';
 import AccessGuard from '@/utils/permissionGuard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -118,25 +116,33 @@ const TalentResourcePage = () => {
     <div
       id="talent-acquisition-talent-resource-page-div-container"
       data-cy="talent-acquisition-talent-resource-page-div-container"
-      className="h-auto w-full px-2 sm:px-6"
     >
-      <CustomBreadcrumb
-        title={
-          <span
-            className="text-xl"
-            data-cy="talent-acquisition-talent-resource-page-breadcrumb-title"
-          >
-            Talent Resource
-          </span>
+      <style data-cy="talent-acquisition-talent-resource-page-styles">{`
+        @media (min-width: 640px) {
+        .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
         }
-        subtitle={
+      }
+      `}</style>
+      <div className='pt-6'>
+      <h3
+              className="text-black text-2xl font-bold mb-0"
+              data-cy="talent-acquisition-talent-resource-page-breadcrumb-title"
+              id="talent-acquisition-talent-resource-page-breadcrumb-title"
+            >
+            Talent Resource
+          </h3>
+        
           <Breadcrumb
             data-cy="talent-acquisition-talent-resource-page-breadcrumb"
             items={[
               {
                 title: (
                   <span
-                    className="text-xs"
+                  className="text-sm font-normal"
                     data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-title"
                   >
                     Talent Aquistion
@@ -145,21 +151,18 @@ const TalentResourcePage = () => {
               },
               {
                 title: (
-                  <Link
-                    className="text-xs"
+                  <span
+                    className="text-sm text-[#4d4d4d] font-normal"
                     data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-link"
-                    href="/recruitment/talent-resource"
                   >
                     Talent Resource
-                  </Link>
+                  </span>
                 ),
               },
             ]}
           />
-        }
-        data-cy="manage-employees-breadcrumb"
-      />
-      <Divider />
+          </div>
+      <Divider className="full-bleed-header-divider" />
 
       <Tabs
         id="talent-acquisition-talent-resource-page-div-tabs"
@@ -173,7 +176,7 @@ const TalentResourcePage = () => {
               <span
                 id="talent-acquisition-talent-resource-tab-talent-pool"
                 data-cy="talent-acquisition-talent-resource-tab-talent-pool"
-                className="text-xs sm:text-sm text-nowrap"
+                className="text-base font-normal"
               >
                 Talent Pool
               </span>
@@ -182,7 +185,7 @@ const TalentResourcePage = () => {
               <div
                 id="talent-acquisition-talent-resource-page-div-content"
                 data-cy="talent-acquisition-talent-resource-page-div-content"
-                className="w-full h-auto rounded-md border border-[#d9d9d9]"
+                className="w-full h-auto rounded-lg border border-[#d9d9d9] mt-4"
               >
                 <TalentPoolPage />
               </div>
@@ -194,7 +197,7 @@ const TalentResourcePage = () => {
               <span
                 id="talent-acquisition-talent-resource-page-tab-talent-roster-label"
                 data-cy="talent-acquisition-talent-resource-tab-talent-roster"
-                className="text-xs sm:text-sm text-nowrap"
+                className="text-base font-normal"
               >
                 Talent Roster
               </span>
@@ -203,7 +206,7 @@ const TalentResourcePage = () => {
               <div
                 id="talent-acquisition-talent-resource-page-div-content"
                 data-cy="talent-acquisition-talent-resource-page-div-content"
-                className="w-full h-auto bg-white rounded-md border border-[#d9d9d9]"
+                className="w-full h-auto rounded-lg border border-[#d9d9d9] mt-4"
               >
                 <TalentRoasterPage />
               </div>
@@ -214,7 +217,7 @@ const TalentResourcePage = () => {
             label: (
               <span
                 data-cy="talent-acquisition-talent-resource-tab-intern"
-                className="text-xs sm:text-sm text-nowrap"
+                className="text-base font-normal"
               >
                 Intern
               </span>
@@ -223,7 +226,7 @@ const TalentResourcePage = () => {
               <div
                 id="talent-acquisition-talent-resource-page-div-content"
                 data-cy="talent-acquisition-talent-resource-page-div-content"
-                className="w-full h-auto border-2 border-[#d9d9d9] rounded-lg"
+                className="w-full h-auto border-[1px] border-[#d9d9d9] rounded-lg mt-4"
               >
                 <InternPage />
               </div>
@@ -237,7 +240,7 @@ const TalentResourcePage = () => {
                 type="primary"
                 id="createUserButton"
                 data-cy="talent-acquisition-talent-pool-page-button-add"
-                className="h-10"
+                className="h-10 w-12 sm:w-auto font-normal"
                 icon={<PersonAddOutlinedIcon />}
                 onClick={handleAdd}
               >
@@ -256,54 +259,44 @@ const TalentResourcePage = () => {
                   data-cy="talent-acquisition-talent-roaster-page-div-button-move-job"
                   className="mr-4"
                 >
-                  <CustomButton
-                    title={
-                      !(isMobile || isTablet) && (
-                        <span
-                          data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-197"
-                          className="hidden sm:inline"
-                        >
-                          Move to Job
-                        </span>
-                      )
-                    }
+                  <Button
+                    type="primary"
                     id="createUserButton"
                     data-cy="talent-acquisition-talent-roaster-button-move-job"
                     icon={<IoIosShareAlt className="md:mr-0 ml-2" size={20} />}
                     onClick={handleMoveToJobPipeline}
-                    className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
-                  />
+                    className="h-8 w-12 sm:w-auto"
+                  >
+                      <span
+                          data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-197"
+                          className="hidden sm:inline text-sm font-normal"
+                        >
+                          Move to Job
+                        </span>
+                  </Button>
                 </div>
               )}
               <Button
+                type="default"
                 id="copyLinkButton"
                 data-cy="talent-acquisition-talent-roaster-button-copy-link"
-                className="h-10 w-10 sm:w-auto border-1 border-[#d9d9d9] rounded-md"
+                className="h-10 w-12 sm:w-auto border-[1px] border-[#d9d9d9] font-normal text-base"
                 icon={<ContentCopyOutlinedIcon className="text-[#4d4d4d]" />}
                 onClick={handleCopyLink}
                 title="Copy public application link"
-              >
-                <span
-                  data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-227"
-                  className="hidden sm:inline text-sm text-[#4d4d4d]"
-                >
-                  Copy Link
-                </span>
+              >                
+                  {!isMobile && 'Copy Link'}
               </Button>
               <Button
                 type="primary"
                 id="createUserButton"
                 data-cy="talent-acquisition-talent-roaster-button-new"
-                className="h-10 w-10 sm:w-auto"
+                className="h-10 w-12 sm:w-auto font-normal"
                 icon={<PersonAddOutlinedIcon />}
                 onClick={handleCreate}
               >
-                <span
-                  data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-216"
-                  className="hidden sm:inline"
-                >
-                  Add Talent Roster
-                </span>
+               
+                  {!isMobile && 'Add Talent Roster'}
               </Button>
             </div>
           ) : activeTab === 3 ? (
@@ -316,32 +309,24 @@ const TalentResourcePage = () => {
                 type="default"
                 id="createUserButton"
                 data-cy="talent-acquisition-intern-button-copy-link"
-                className="h-10 w-10 sm:w-auto border-1 border-[#d9d9d9] rounded-md"
+                className="h-10 w-12 sm:w-auto border-[1px] border-[#d9d9d9] rounded-md font-normal text-base "
                 icon={<ContentCopyOutlinedIcon className="text-[#4d4d4d]" />}
                 onClick={handleCopyLinkIntern}
                 title="Copy public application link"
               >
-                <span
-                  data-cy="recruitment-talent-resource-intern-page-tsx-page-span-115"
-                  className="hidden sm:inline text-sm text-[#4d4d4d]"
-                >
-                  Copy Link
-                </span>
+                  {!isMobile && 'Copy Link'}
+                
               </Button>
               <Button
                 type="primary"
                 id="createUserButton"
                 data-cy="talent-acquisition-intern-button-new"
-                className="h-10 w-10 sm:w-auto"
+                className="h-10 w-12 sm:w-auto font-normal"
                 icon={<PersonAddOutlinedIcon />}
                 onClick={handleCreateIntern}
               >
-                <span
-                  data-cy="recruitment-talent-resource-intern-page-tsx-page-span-104"
-                  className="hidden sm:inline"
-                >
-                  Add Intern
-                </span>
+                
+                  {!isMobile && 'Add Intern'}
               </Button>
             </div>
           ) : null

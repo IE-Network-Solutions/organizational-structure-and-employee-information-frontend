@@ -24,6 +24,7 @@ import {
 } from '@/store/server/features/recruitment/intern/mutation';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useQueryClient } from 'react-query';
+import { Inbox } from 'lucide-react';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -174,13 +175,13 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
         >
           <h2
             data-cy="talent-acquisition-intern-drawer-title"
-            className="text-xl font-bold text-gray-800 m-0"
+            className="text-xl font-bold text-black m-0"
           >
             {isEdit ? 'Edit Intern Applicant' : 'Intern Applicants'}{' '}
           </h2>
           <p
             data-cy="talent-acquisition-intern-drawer-description"
-            className="text-sm text-gray-500 mt-1 mb-0 font-normal"
+            className="text-sm text-black mt-1 mb-0 font-normal"
           >
             Please fill in all the information correctly
           </p>
@@ -189,12 +190,13 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
       footer={
         <div
           data-cy="talent-acquisition-intern-drawer-footer"
-          className="flex justify-end gap-3 px-20"
+          className="flex justify-end gap-2 sm:px-20"
         >
           <Button
             type="default"
             onClick={onClose}
             data-cy="talent-acquisition-intern-drawer-button-cancel"
+            className="h-8 border-[1px] border-[#d9d9d9] font-normal"
           >
             Cancel
           </Button>
@@ -202,6 +204,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             type="primary"
             onClick={() => form.submit()}
             data-cy="talent-acquisition-intern-drawer-button-submit"
+            className="h-8 font-normal"
           >
             {isEdit ? 'Update' : 'Create'}
           </Button>
@@ -217,7 +220,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
         data-cy="talent-acquisition-intern-drawer-body"
       >
         <div
-          className="rounded-lg bg-gray-50/50 py-5 px-5 border-2 border-[#d9d9d9]"
+          className="rounded-lg  py-5 px-5 border-[1px] border-[#d9d9d9]"
           data-cy="talent-acquisition-intern-drawer-body-form"
         >
           <Form
@@ -226,6 +229,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             form={form}
             layout="vertical"
             onFinish={handleSubmit}
+            requiredMark={false}
           >
             <Form.Item
               data-cy="talent-acquisition-intern-form-item-full-name"
@@ -234,9 +238,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               label={
                 <span
                   data-cy="intern-components-drawer-index-tsx-index-span-225"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Full-Name
+                  Full Name{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[
@@ -274,9 +279,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   label={
                     <span
                       data-cy="intern-components-drawer-index-tsx-index-span-251"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      Email Address
+                      Email Address{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[
@@ -314,9 +320,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   label={
                     <span
                       data-cy="intern-components-drawer-index-tsx-index-span-278"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      Phone Number
+                      Phone Number{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[
@@ -356,9 +363,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   label={
                     <span
                       data-cy="intern-components-drawer-index-tsx-index-span-307"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      CGPA
+                      CGPA{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[{ required: true, message: 'Please input CGPA' }]}
@@ -395,9 +403,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               label={
                 <span
                   data-cy="intern-components-drawer-index-tsx-index-span-338"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Expected Year of Graduation
+                  Expected Year of Graduation{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[
@@ -422,9 +431,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               label={
                 <span
                   data-cy="intern-components-drawer-index-tsx-index-span-362"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Department
+                  Department{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input department!' }]}
@@ -460,9 +470,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               label={
                 <span
                   data-cy="intern-components-drawer-index-tsx-index-span-397"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Cover Letter
+                  Cover Letter{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input cover letter' }]}
@@ -482,9 +493,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               label={
                 <span
                   data-cy="intern-components-drawer-index-tsx-index-span-416"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Upload CV
+                  Upload CV{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[
@@ -508,14 +520,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 listType="picture"
                 accept=".pdf,.doc,.docx"
               >
-                <p data-cy="intern-components-drawer-index-tsx-index-p-441">
-                  <Image
-                    preview={false}
-                    className="w-full max-w-xs"
-                    src={cvUpload.src}
-                    alt="Loading"
-                  />
-                </p>
+                <div className="flex items-center justify-center">
+                  <Inbox className="w-10 h-10 text-primary" />
+                </div>
                 <div
                   data-cy="intern-components-drawer-index-tsx-index-div-449"
                   className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"

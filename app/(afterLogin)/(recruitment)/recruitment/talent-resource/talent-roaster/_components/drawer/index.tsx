@@ -26,6 +26,7 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import { useTalentRoasterStore } from '@/store/uistate/features/recruitment/talent-resource/talent-roaster';
 import { useQueryClient } from 'react-query';
+import { Inbox } from 'lucide-react';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -121,7 +122,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       label: 'Cancel',
       key: 'cancel',
       className:
-        'h-10 px-5 rounded-md border border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:text-gray-800',
+        'h-8 border-[1px] border-[#d9d9d9] font-normal',
       size: 'large',
       onClick: onClose,
       id: 'talent-acquisition-talent-roaster-button-cancel',
@@ -130,7 +131,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
     {
       label: isEdit ? 'Update' : 'Create',
       key: 'create',
-      className: 'h-10 px-5 rounded-md',
+      className: 'h-8 font-normal',
       size: 'large',
       type: 'primary',
       loading: isEdit ? isUpdateLoading : isCreateLoading,
@@ -210,7 +211,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
         >
           <h2
             data-cy="talent-acquisition-talent-roaster-drawer-title"
-            className="text-xl font-bold text-gray-800 m-0"
+            className="text-xl font-bold text-black m-0"
           >
             {isEdit
               ? 'Edit Talent Roaster Applicant'
@@ -218,7 +219,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
           </h2>
           <p
             data-cy="talent-acquisition-talent-roaster-drawer-description"
-            className="text-sm text-gray-500 mt-1 mb-0 font-normal"
+            className="text-sm text-black mt-1 mb-0 font-normal"
           >
             Please fill in all the information correctly
           </p>
@@ -227,7 +228,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       footer={
         <div
           data-cy="talent-acquisition-talent-roaster-drawer-footer"
-          className="flex justify-end gap-3 pr-10"
+          className="flex justify-end gap-2 sm:px-20"
         >
           <CustomDrawerFooterButton buttons={footerModalItems} />
         </div>
@@ -243,7 +244,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
       >
         <div
           data-cy="talent-acquisition-talent-roaster-drawer-body-form"
-          className="rounded-lg bg-gray-50/50 py-5 px-5 border-2 border-[#d9d9d9]"
+          className="rounded-lg  py-5 px-5 border-[1px] border-[#d9d9d9]"
         >
           <Form
             id="talent-acquisition-talent-roaster-form"
@@ -251,6 +252,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             form={form}
             layout="vertical"
             onFinish={handleSubmit}
+            requiredMark={false}
           >
             <Form.Item
               data-cy="talent-acquisition-talent-roaster-form-item-full-name"
@@ -259,9 +261,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               label={
                 <span
                   data-cy="talent-roaster-components-drawer-index-tsx-index-span-230"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Full-Name
+                  Full Name{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[
@@ -289,9 +292,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   label={
                     <span
                       data-cy="talent-roaster-components-drawer-index-tsx-index-span-256"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      Email Address
+                      Email Address{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[
@@ -323,9 +327,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   label={
                     <span
                       data-cy="talent-roaster-components-drawer-index-tsx-index-span-283"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      Phone Number
+                      Phone Number{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[
@@ -359,9 +364,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   label={
                     <span
                       data-cy="talent-roaster-components-drawer-index-tsx-index-span-312"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      CGPA
+                      CGPA{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[{ required: true, message: 'Please input CGPA' }]}
@@ -398,9 +404,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   label={
                     <span
                       data-cy="talent-roaster-components-drawer-index-tsx-index-span-344"
-                      className="text-md font-semibold text-gray-700"
+                      className="text-sm font-normal text-black"
                     >
-                      Year of Graduation
+                      Year of Graduation{' '}
+                      <span className="text-error" data-cy="custom-label-required">*</span>
                     </span>
                   }
                   rules={[
@@ -430,9 +437,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               label={
                 <span
                   data-cy="talent-roaster-components-drawer-index-tsx-index-span-368"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Department
+                  Department{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input department!' }]}
@@ -469,9 +477,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               label={
                 <span
                   data-cy="talent-roaster-components-drawer-index-tsx-index-span-404"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Cover Letter
+                  Cover Letter{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input cover letter' }]}
@@ -490,9 +499,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
               label={
                 <span
                   data-cy="talent-roaster-components-drawer-index-tsx-index-span-423"
-                  className="text-md font-semibold text-gray-700"
+                  className="text-sm font-normal text-black"
                 >
-                  Upload CV
+                  Upload CV{' '}
+                  <span className="text-error" data-cy="custom-label-required">*</span>
                 </span>
               }
               rules={[
@@ -516,14 +526,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                 listType="picture"
                 accept=".pdf,.doc,.docx"
               >
-                <p data-cy="talent-roaster-components-drawer-index-tsx-index-p-448">
-                  <Image
-                    preview={false}
-                    className="w-full max-w-xs"
-                    src={cvUpload.src}
-                    alt="Loading"
-                  />
-                </p>
+                <div className="flex items-center justify-center">
+                  <Inbox className="w-10 h-10 text-primary" />
+                </div>
+
                 <div
                   data-cy="talent-roaster-components-drawer-index-tsx-index-div-456"
                   className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
