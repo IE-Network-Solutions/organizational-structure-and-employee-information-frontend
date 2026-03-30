@@ -257,11 +257,12 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                     id="org-settings-fiscal-year-create-btn-guard"
                   >
                     <Button
-                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+                      className={`h-10 font-normal ${isMobile ? 'ml-4' : ''}`}
                       icon={
                         <FaPlus
                           data-cy="org-settings-fiscal-year-create-btn-icon"
                           id="org-settings-fiscal-year-create-btn-icon"
+                          className="font-normal"
                         />
                       }
                       type="primary"
@@ -274,7 +275,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                   </AccessGuard>
                 ) : null
               }
-              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              className="org-settings-tabs-foldfix [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
             />

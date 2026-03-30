@@ -256,44 +256,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           smoothZoom={smoothZoom}
           radius={currentRadius}
         />
-        <Marker
-          position={position}
-          icon={L.divIcon({
-            className: 'custom-marker',
-            html: `
-                              <div style="
-                  background: #e9d5ff;
-                  border: 2px solid #3636F0;
-                  border-radius: 50%;
-                  width: 24px;
-                  height: 24px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  box-shadow: 0 2px 8px rgba(54, 54, 240, 0.3);
-                ">
-                  <div style="
-                    background: #3636F0;
-                    border-radius: 50%;
-                    width: 16px;
-                    height: 16px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                  ">
-                    <div style="
-                      background: #3636F0;
-                      border-radius: 50%;
-                      width: 8px;
-                      height: 8px;
-                    "></div>
-                  </div>
-                </div>
-            `,
-            iconSize: [24, 24],
-            iconAnchor: [12, 12],
-          })}
-        />
+        <Marker position={position} />
         <Circle
           center={position}
           radius={currentRadius * 1000} // Convert km to meters

@@ -8,7 +8,6 @@ const Page = () => {
   const { data } = useGetCarryOverRules();
   return (
     <div
-      className="px-2 sm:px-5 py-2"
       id="time-attendance-settings-carry-over-rule-container"
       data-cy="time-attendance-settings-carry-over-rule-container"
     >
