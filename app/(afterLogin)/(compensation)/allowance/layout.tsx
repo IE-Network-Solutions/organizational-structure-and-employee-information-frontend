@@ -37,7 +37,7 @@ const AllowanceDetailHeader = ({ allowanceId }: { allowanceId: string }) => {
 
   return (
     <div
-      className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 sm:border-b sm:border-gray-200"
+      className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
       id="compensation-allowance-detail-header"
       data-cy="compensation-allowance-detail-header"
     >
@@ -118,7 +118,7 @@ const AllowanceDetailHeader = ({ allowanceId }: { allowanceId: string }) => {
 
 const AllAllowancePageHeader = () => (
   <div
-    className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 sm:border-b sm:border-gray-200"
+    className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
     id="compensation-allowance-all-layout-header"
     data-cy="compensation-allowance-all-layout-header"
   >
@@ -201,13 +201,11 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       >
         {isDetailPage && allowanceId ? (
           <>
-            <BreadcrumbRule />
             <AllowanceDetailHeader allowanceId={allowanceId as string} />
             <BreadcrumbRule />
           </>
         ) : isAllAllowancePage ? (
           <>
-            <BreadcrumbRule />
             <AllAllowancePageHeader />
             <BreadcrumbRule />
           </>

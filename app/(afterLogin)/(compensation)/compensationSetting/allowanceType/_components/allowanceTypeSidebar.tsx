@@ -35,7 +35,6 @@ const AllowanceTypeSideBar = ({
 }: AllowanceTypeSideBarProps = {}) => {
   const {
     isAllowanceOpen,
-    isRateAllowance,
     isAllEmployee,
     setIsAllEmployee,
     setIsRateAllowance,
@@ -52,6 +51,8 @@ const AllowanceTypeSideBar = ({
 
   const [form] = Form.useForm();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
+  const selectedRateMode = Form.useWatch('isRate', form);
+  const hasSelectedRateMode = typeof selectedRateMode === 'boolean';
 
   const isLoading = isCreating || isEditing;
 
@@ -70,6 +71,7 @@ const AllowanceTypeSideBar = ({
       });
     } else {
       form.resetFields();
+      form.setFieldValue('isRate', undefined);
       setIsRateAllowance(false);
     }
   }, [selectedAllowanceRecord, form, setIsAllEmployee, setIsRateAllowance]);
@@ -281,7 +283,9 @@ const AllowanceTypeSideBar = ({
                 <Form.Item
                   name="isRate"
                   className="form-item !mb-0"
-                  initialValue={!selectedAllowanceRecord ? false : undefined}
+                  rules={[
+                    { required: true, message: 'Please select Fixed or Rate' },
+                  ]}
                   id="compensation-settings-allowance-sidebar-rate-item"
                   data-cy="compensation-settings-allowance-sidebar-rate-item"
                 >
@@ -297,7 +301,7 @@ const AllowanceTypeSideBar = ({
                         onRateToggle(false);
                       }}
                       className={`h-9 inline-flex items-center gap-2 rounded-md border px-4 text-sm font-normal transition-colors ${
-                        !isRateAllowance
+                        selectedRateMode === false
                           ? 'border-[#2F54EB] bg-white text-[#262626]'
                           : 'border-[#D9D9D9] bg-white text-[#262626] hover:bg-gray-50'
                       }`}
@@ -307,7 +311,7 @@ const AllowanceTypeSideBar = ({
                         aria-hidden
                         data-cy="compensation-settings-allowance-sidebar-rate-toggle-fixed-indicator"
                         className={`relative inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border bg-white ${
-                          !isRateAllowance
+                          selectedRateMode === false
                             ? 'border-[#2F54EB]'
                             : 'border-[#BFBFBF]'
                         }`}
@@ -315,7 +319,9 @@ const AllowanceTypeSideBar = ({
                         <span
                           data-cy="compensation-settings-allowance-sidebar-rate-toggle-fixed-indicator-dot"
                           className={`h-1.5 w-1.5 rounded-full ${
-                            !isRateAllowance ? 'bg-[#2F54EB]' : 'bg-transparent'
+                            selectedRateMode === false
+                              ? 'bg-[#2F54EB]'
+                              : 'bg-transparent'
                           }`}
                         />
                       </span>
@@ -328,7 +334,7 @@ const AllowanceTypeSideBar = ({
                         onRateToggle(true);
                       }}
                       className={`h-9 inline-flex items-center gap-2 rounded-md border px-4 text-sm font-normal transition-colors ${
-                        isRateAllowance
+                        selectedRateMode === true
                           ? 'border-[#2F54EB] bg-white text-[#262626]'
                           : 'border-[#D9D9D9] bg-white text-[#262626] hover:bg-gray-50'
                       }`}
@@ -338,7 +344,7 @@ const AllowanceTypeSideBar = ({
                         aria-hidden
                         data-cy="compensation-settings-allowance-sidebar-rate-toggle-rate-indicator"
                         className={`relative inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border bg-white ${
-                          isRateAllowance
+                          selectedRateMode === true
                             ? 'border-[#2F54EB]'
                             : 'border-[#BFBFBF]'
                         }`}
@@ -346,7 +352,9 @@ const AllowanceTypeSideBar = ({
                         <span
                           data-cy="compensation-settings-allowance-sidebar-rate-toggle-rate-indicator-dot"
                           className={`h-1.5 w-1.5 rounded-full ${
-                            isRateAllowance ? 'bg-[#2F54EB]' : 'bg-transparent'
+                            selectedRateMode === true
+                              ? 'bg-[#2F54EB]'
+                              : 'bg-transparent'
                           }`}
                         />
                       </span>
@@ -356,128 +364,132 @@ const AllowanceTypeSideBar = ({
                 </Form.Item>
               </div>
 
-              <div
-                className="flex flex-col gap-4"
-                data-cy="compensation-settings-allowance-sidebar-amounts"
-              >
-                <Form.Item
-                  name="defaultAmount"
-                  label={isRateAllowance ? 'Rate' : 'Fixed Amount'}
-                  id="compensation-settings-allowance-sidebar-default-amount-item"
-                  data-cy="compensation-settings-allowance-sidebar-default-amount-item"
-                  rules={[
-                    { required: true, message: 'Amount is Required' },
-                    {
-                      validator: (notused, value) => {
-                        void notused;
-                        if (
-                          value != null &&
-                          value !== '' &&
-                          Number(value) < 0
-                        ) {
-                          return Promise.reject(
-                            new Error('Amount cannot be negative'),
-                          );
-                        }
-                        if (isRateAllowance) {
-                          const n = Number(value);
-                          if (Number.isFinite(n) && (n < 0 || n > 100)) {
+              {hasSelectedRateMode && (
+                <div
+                  className="flex flex-col gap-4"
+                  data-cy="compensation-settings-allowance-sidebar-amounts"
+                >
+                  <Form.Item
+                    name="defaultAmount"
+                    label={selectedRateMode ? 'Rate' : 'Fixed Amount'}
+                    id="compensation-settings-allowance-sidebar-default-amount-item"
+                    data-cy="compensation-settings-allowance-sidebar-default-amount-item"
+                    rules={[
+                      { required: true, message: 'Amount is Required' },
+                      {
+                        validator: (notused, value) => {
+                          void notused;
+                          if (
+                            value != null &&
+                            value !== '' &&
+                            Number(value) < 0
+                          ) {
                             return Promise.reject(
-                              new Error('Rate must be between 0 and 100'),
+                              new Error('Amount cannot be negative'),
                             );
                           }
-                        }
-                        return Promise.resolve();
+                          if (selectedRateMode) {
+                            const n = Number(value);
+                            if (Number.isFinite(n) && (n < 0 || n > 100)) {
+                              return Promise.reject(
+                                new Error('Rate must be between 0 and 100'),
+                              );
+                            }
+                          }
+                          return Promise.resolve();
+                        },
                       },
-                    },
-                  ]}
-                  className="form-item !mb-0"
-                >
-                  <Input
-                    id="compensation-settings-allowance-sidebar-default-amount-input"
-                    data-cy="compensation-settings-allowance-sidebar-default-amount-input"
-                    className="control rounded-md font-normal placeholder:font-normal"
-                    type="number"
-                    min={0}
-                    max={isRateAllowance ? 100 : undefined}
-                    placeholder="0"
-                    style={{ height: 40, padding: '8px 12px' }}
-                  />
-                </Form.Item>
+                    ]}
+                    className="form-item !mb-0"
+                  >
+                    <Input
+                      id="compensation-settings-allowance-sidebar-default-amount-input"
+                      data-cy="compensation-settings-allowance-sidebar-default-amount-input"
+                      className="control rounded-md font-normal placeholder:font-normal"
+                      type="number"
+                      min={0}
+                      max={selectedRateMode ? 100 : undefined}
+                      placeholder="0"
+                      style={{ height: 40, padding: '8px 12px' }}
+                    />
+                  </Form.Item>
 
-                <Form.Item
-                  name="nonTaxableAmount"
-                  label="Non-Taxable Amount"
-                  dependencies={['defaultAmount', 'isRate']}
-                  id="compensation-settings-allowance-sidebar-non-taxable-amount-item"
-                  data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-item"
-                  rules={[
-                    {
-                      validator: (notused, value) => {
-                        void notused;
-                        if (
-                          value != null &&
-                          value !== '' &&
-                          Number(value) < 0
-                        ) {
-                          return Promise.reject(
-                            new Error('Non-taxable amount cannot be negative'),
+                  <Form.Item
+                    name="nonTaxableAmount"
+                    label="Non-Taxable Amount"
+                    dependencies={['defaultAmount', 'isRate']}
+                    id="compensation-settings-allowance-sidebar-non-taxable-amount-item"
+                    data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-item"
+                    rules={[
+                      {
+                        validator: (notused, value) => {
+                          void notused;
+                          if (
+                            value != null &&
+                            value !== '' &&
+                            Number(value) < 0
+                          ) {
+                            return Promise.reject(
+                              new Error(
+                                'Non-taxable amount cannot be negative',
+                              ),
+                            );
+                          }
+                          const defaultAmount =
+                            form.getFieldValue('defaultAmount');
+                          const isRateForm = Boolean(
+                            form.getFieldValue('isRate'),
                           );
-                        }
-                        const defaultAmount =
-                          form.getFieldValue('defaultAmount');
-                        const isRateForm = Boolean(
-                          form.getFieldValue('isRate'),
-                        );
-                        if (
-                          !isRateForm &&
-                          value != null &&
-                          value !== '' &&
-                          defaultAmount != null &&
-                          defaultAmount !== '' &&
-                          Number(value) > Number(defaultAmount)
-                        ) {
-                          return Promise.reject(
-                            new Error(
-                              'Non-taxable amount cannot exceed the fixed amount',
-                            ),
-                          );
-                        }
-                        return Promise.resolve();
+                          if (
+                            !isRateForm &&
+                            value != null &&
+                            value !== '' &&
+                            defaultAmount != null &&
+                            defaultAmount !== '' &&
+                            Number(value) > Number(defaultAmount)
+                          ) {
+                            return Promise.reject(
+                              new Error(
+                                'Non-taxable amount cannot exceed the fixed amount',
+                              ),
+                            );
+                          }
+                          return Promise.resolve();
+                        },
                       },
-                    },
-                  ]}
-                  className="form-item !mb-0"
-                >
-                  <Input
-                    id="compensation-settings-allowance-sidebar-non-taxable-amount-input"
-                    data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-input"
-                    className="control rounded-md font-normal placeholder:font-normal"
-                    type="number"
-                    min={0}
-                    placeholder="Enter non-taxable amount"
-                    style={{ height: 40, padding: '8px 12px' }}
-                  />
-                </Form.Item>
+                    ]}
+                    className="form-item !mb-0"
+                  >
+                    <Input
+                      id="compensation-settings-allowance-sidebar-non-taxable-amount-input"
+                      data-cy="compensation-settings-allowance-sidebar-non-taxable-amount-input"
+                      className="control rounded-md font-normal placeholder:font-normal"
+                      type="number"
+                      min={0}
+                      placeholder="Enter non-taxable amount"
+                      style={{ height: 40, padding: '8px 12px' }}
+                    />
+                  </Form.Item>
 
-                <Form.Item
-                  name="isAllEmployee"
-                  label="All Employees are entitled"
-                  valuePropName="checked"
-                  className="form-item !mb-0"
-                  initialValue={true}
-                  id="compensation-settings-allowance-sidebar-all-item"
-                  data-cy="compensation-settings-allowance-sidebar-all-item"
-                >
-                  <Switch
-                    onChange={handleAllEmployeeChange}
-                    checked={isAllEmployee}
-                    disabled={Boolean(selectedAllowanceRecord)}
-                    id="compensation-settings-allowance-sidebar-all-switch"
-                    data-cy="compensation-settings-allowance-sidebar-all-switch"
-                  />
-                </Form.Item>
-              </div>
+                  <Form.Item
+                    name="isAllEmployee"
+                    label="All Employees are entitled"
+                    valuePropName="checked"
+                    className="form-item !mb-0"
+                    initialValue={true}
+                    id="compensation-settings-allowance-sidebar-all-item"
+                    data-cy="compensation-settings-allowance-sidebar-all-item"
+                  >
+                    <Switch
+                      onChange={handleAllEmployeeChange}
+                      checked={isAllEmployee}
+                      disabled={Boolean(selectedAllowanceRecord)}
+                      id="compensation-settings-allowance-sidebar-all-switch"
+                      data-cy="compensation-settings-allowance-sidebar-all-switch"
+                    />
+                  </Form.Item>
+                </div>
+              )}
 
               {!isAllEmployee && !selectedAllowanceRecord && (
                 <Form.Item
