@@ -192,7 +192,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
           <div
             data-cy="settings-layout-tabs-container"
-            className={`px-4 pr-6 mb-4 ${isMobile ? '[&_.ant-tabs-nav-wrap]:overflow-x-auto [&_.ant-tabs-nav-wrap]:pb-1' : ''}`}
+            className={`w-full  md:px-4 mb-4 `}
           >
             <Tabs
               activeKey={getActiveKey()}
@@ -203,7 +203,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                 marginLeft: 0,
                 paddingLeft: 0,
                 paddingRight: 0,
-                ...(isMobile ? { minWidth: 'min-content' } : {}),
+                // ...(isMobile ? { minWidth: 'min-content' } : {}),
               }}
               tabBarExtraContent={
                 getActiveKey() === 'defineFeedback' ? (

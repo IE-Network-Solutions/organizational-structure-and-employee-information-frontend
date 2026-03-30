@@ -6,7 +6,9 @@ import { Button, Card, Input, Dropdown, Modal } from 'antd';
 import { Edit2Icon } from 'lucide-react';
 import React from 'react';
 import { MdDeleteOutline } from 'react-icons/md';
-import { EllipsisOutlined, SearchOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
+
+import styles from './feedbackTypeDetail.module.css';
 
 interface FeedbackTypeDetailProps {
   feedbackTypeDetail: any;
@@ -40,11 +42,9 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
   return (
     <div
-      className={
-        isMobile
-          ? 'rounded-lg border border-gray-200 bg-white p-3 shadow-sm'
-          : ''
-      }
+      className={`rounded-lg border-[1px] border-gray-200 bg-white shadow-sm ${
+        isMobile ? ' p-3 ' : 'p-2'
+      }`}
       data-cy={`feedback-type-detail-${variantType}-panel`}
     >
       <div
@@ -58,25 +58,22 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
           data-cy={`feedback-type-detail-${variantType}-search-container`}
           id={`feedbackTypeDetail${variantType}SearchContainer`}
         >
-          <Input.Search
-            placeholder={searchPlaceholder}
-            allowClear
-            onChange={(e) =>
-              variantType === 'appreciation'
-                ? setSearchAppreciationQuery(e.target.value)
-                : variantType === 'reprimand'
-                  ? setSearchReprimandQuery(e.target.value)
-                  : null
-            }
-            enterButton={
-              isMobile ? (
-                <SearchOutlined className="text-base text-gray-600" />
-              ) : undefined
-            }
-            className={`w-full [&_.ant-input]:rounded-md ${isMobile ? '[&_.ant-input-group-addon]:rounded-md [&_.ant-input-group-addon]:border-gray-200' : 'sm:w-80 md:w-96 lg:w-[300px]'}`}
-            data-cy={`feedback-type-detail-${variantType}-search`}
-            id={`feedbackTypeDetail${variantType}Search`}
-          />
+          <div className={isMobile ? styles.mobileSearch : undefined}>
+            <Input.Search
+              placeholder={searchPlaceholder}
+              allowClear
+              onChange={(e) =>
+                variantType === 'appreciation'
+                  ? setSearchAppreciationQuery(e.target.value)
+                  : variantType === 'reprimand'
+                    ? setSearchReprimandQuery(e.target.value)
+                    : null
+              }
+              className={`w-full rounded-md ${isMobile ? '' : 'sm:w-80 md:w-96 lg:w-72'}`}
+              data-cy={`feedback-type-detail-${variantType}-search`}
+              id={`feedbackTypeDetail${variantType}Search`}
+            />
+          </div>
         </div>
       </div>
       {feedbackTypeDetail?.items?.map((item: any) => (

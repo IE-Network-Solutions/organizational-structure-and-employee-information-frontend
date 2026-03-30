@@ -33,8 +33,8 @@ const PerspectivesDetail = ({
   };
   return (
     <div
-      className={`rounded-lg border-[1px] p-1 ${
-        isMobile ? 'border-gray-200 bg-white p-3 shadow-sm' : ''
+      className={`rounded-lg border-[1px] border-gray-200 bg-white shadow-sm ${
+        isMobile ? ' p-3 ' : 'p-1'
       }`}
     >
       {paginatedData?.map((item: any) => (

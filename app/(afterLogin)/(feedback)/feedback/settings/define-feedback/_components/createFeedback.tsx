@@ -148,7 +148,7 @@ const CreateFeedback: React.FC = () => {
       onCancel={onCloseHandler}
       footer={
         <div
-          className="w-full flex justify-center space-x-5"
+          className="w-full flex justify-end space-x-5"
           data-cy="create-feedback-form-actions"
           id="createFeedbackFormActions"
         >
@@ -193,7 +193,8 @@ const CreateFeedback: React.FC = () => {
       }
       title={modalHeader}
       centered
-      width={523}
+      className="md:w-[523px] w-[100%]"
+      // width={523}
       style={{ height: 552 }}
       styles={{
         body: {
