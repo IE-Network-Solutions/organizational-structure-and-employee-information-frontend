@@ -107,10 +107,18 @@ export default function RecognitionTypeCriteriaCard({
               }}
               data-cy={`recognition-type-criteria-import-${type.id}`}
             >
-              <span data-cy={`recognition-type-criteria-import-text-${type.id}`} className="hidden md:block">Import Custom Criteria</span>
+              <span
+                data-cy={`recognition-type-criteria-import-text-${type.id}`}
+                className="hidden md:block"
+              >
+                Import Custom Criteria
+              </span>
             </Button>
           ) : null}
-          <div data-cy={`recognition-type-criteria-expand-button-${type.id}`} className="border border-gray-200 rounded-[4px] p-1 h-[24px] w-[24px] flex items-center justify-center">
+          <div
+            data-cy={`recognition-type-criteria-expand-button-${type.id}`}
+            className="border border-gray-200 rounded-[4px] p-1 h-[24px] w-[24px] flex items-center justify-center"
+          >
             <Button
               type="text"
               className="flex h-8 w-8 items-center justify-center text-gray-500"

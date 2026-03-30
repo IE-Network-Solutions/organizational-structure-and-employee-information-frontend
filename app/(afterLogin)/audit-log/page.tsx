@@ -576,7 +576,7 @@ const AuditLogPage = () => {
               id="audit-log-filter-popover"
             >
               <Button
-                className="h-8 flex items-center gap-2 border border-gray-200 text-gray-700 bg-white transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF]"
+                className="h-8 flex items-center gap-2 leading-none border border-gray-200 text-gray-700 bg-white transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF] [&_.ant-btn-icon]:flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:leading-none [&_.ant-btn-icon>*]:block"
                 id="audit-log-filter-button"
                 data-cy="audit-log-filter-button"
                 htmlType="button"
@@ -593,7 +593,7 @@ const AuditLogPage = () => {
                 }}
               >
                 <span
-                  className="hidden md:block"
+                  className="hidden md:block leading-none"
                   data-cy="audit-log-filter-button-text"
                   id="audit-log-filter-button-text"
                 >

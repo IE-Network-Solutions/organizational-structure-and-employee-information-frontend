@@ -177,6 +177,26 @@ const PayrollReconcilation = () => {
     });
 
   const { data: employeeData } = useGetAllUsers();
+   
+  const formatNumber = (value: number | string | undefined | null): string => {
+    if (value === undefined || value === null || value === '') return '0';
+    const num = typeof value === 'string' ? Number(value) : value;
+    if (!Number.isFinite(num)) return '0';
+    return num
+      .toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+      .replace(/\.0+$/, '')
+      .replace(/(\.\d*[1-9])0+$/, '$1');
+  };
+  const formatETB = (value: number | string | undefined | null): string => {
+    if (value === undefined || value === null || value === '') return 'ETB 0';
+    const num = typeof value === 'string' ? Number(value) : value;
+    if (!Number.isFinite(num)) return 'ETB 0';
+    const formatted = num.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return `ETB ${formatted}`;
+  };
 
   const employeeOptions =
     employeeData?.items?.map((emp: any) => ({
@@ -646,7 +666,7 @@ const PayrollReconcilation = () => {
           data-cy="manage-employees-header"
         >
           <div
-            className="flex items-start gap-3"
+            className="flex items-center gap-3"
             data-cy="payroll-reconciliation-header-left"
           >
             <Button
@@ -657,7 +677,7 @@ const PayrollReconcilation = () => {
               id="payroll-reconciliation-back-btn"
               data-cy="payroll-reconciliation-back-btn"
             >
-              <MdKeyboardArrowLeft className="text-xl" />
+              <MdKeyboardArrowLeft className="text-xl leading-none block" />
             </Button>
             <div data-cy="payroll-reconciliation-title-wrapper">
               <CustomBreadcrumb
@@ -786,484 +806,482 @@ const PayrollReconcilation = () => {
               </span>
             </p>
           </Card>
-        {/* Net Variance */}
-        <Card
-          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
-          loading={isLoading}
-        >
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
-            className="text-[#707070] text-base mb-2 font-normal"
+          {/* Net Variance */}
+          <Card
+            className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+            loading={isLoading}
           >
-            Net Variance
-          </p>
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
-            className="text-3xl font-bold text-black"
-          >
-            {formatETB(data?.summary?.netVariance)}
-          </p>
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-355"
-            className="text-sm text-[#4d4d4d] mt-3 font-normal"
-          >
-            <span
-              data-cy="reconciliation-detail-table-net-variance-negative-container"
-              className="text-[#F04438]"
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
+              className="text-[#707070] text-base mb-2 font-normal"
             >
-              -4
-            </span>{' '}
-            <span
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-357"
-              className="font-normal text-[#4d4d4d]"
+              Net Variance
+            </p>
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
+              className="text-3xl font-bold text-black"
             >
-              Since Last pay period
-            </span>
-          </p>
-        </Card>
-        {/* Headcount Impact */}
-        <Card
-          className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
-          loading={isLoading}
-        >
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
-            className="text-[#707070] text-base mb-2 font-normal"
+              {formatETB(data?.summary?.netVariance)}
+            </p>
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-355"
+              className="text-sm text-[#4d4d4d] mt-3 font-normal"
+            >
+              <span
+                data-cy="reconciliation-detail-table-net-variance-negative-container"
+                className="text-[#F04438]"
+              >
+                -4
+              </span>{' '}
+              <span
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-357"
+                className="font-normal text-[#4d4d4d]"
+              >
+                Since Last pay period
+              </span>
+            </p>
+          </Card>
+          {/* Headcount Impact */}
+          <Card
+            className="w-full rounded-lg border border-[#D0D7E2] shadow-none"
+            loading={isLoading}
           >
-            Headcount Impact
-          </p>
-          <p
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
-            className="text-3xl font-bold text-black"
-          >
-            {formatNumber(data?.summary?.headcount)} Employees
-          </p>
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
+              className="text-[#707070] text-base mb-2 font-normal"
+            >
+              Headcount Impact
+            </p>
+            <p
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
+              className="text-3xl font-bold text-black"
+            >
+              {formatNumber(data?.summary?.headcount)} Employees
+            </p>
 
-          <div
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-388"
-            className="flex gap-4 text-sm mt-3 text-black"
-          >
-            <p
-              className="font-normal text-[#4d4d4d]"
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-389"
+            <div
+              data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-388"
+              className="flex gap-4 text-sm mt-3 text-black"
             >
-              Previous:{' '}
-              <span
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
+              <p
                 className="font-normal text-[#4d4d4d]"
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-389"
               >
-                {formatNumber(data?.summary?.previousHeadcount)}
-              </span>
-            </p>
-            <p
-              className="font-normal text-[#4d4d4d]"
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395"
-            >
-              Termination:{' '}
-              <span
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
+                Previous:{' '}
+                <span
+                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
+                  className="font-normal text-[#4d4d4d]"
+                >
+                  {formatNumber(data?.summary?.previousHeadcount)}
+                </span>
+              </p>
+              <p
                 className="font-normal text-[#4d4d4d]"
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395"
               >
-                {formatNumber(data?.summary?.terminations)}
-              </span>
-            </p>
-          </div>
-        </Card>
-      </div>
-      <Tabs
-        activeKey={activeTab}
-        onChange={setActiveTab}
-        items={items}
-        tabBarGutter={24}
-        size="large"
-        tabBarStyle={{ textAlign: 'center' }}
-        data-cy="employee-detail-tabs"
-      />
-      <Modal
-        data-cy="payroll-approve-modal"
-        open={isApproveModalOpen}
-        onCancel={() => setIsApproveModalOpen(false)}
-        footer={null}
-        centered
-        width={600}
-        className="p-6"
-      >
-        <div
-          data-cy="payroll-reconciliation-tabs"
-          className="w-full mt-8 overflow-x-auto"
-        >
-          <Tabs
-            activeKey={activeTabKey}
-            onChange={(key) => setActiveTabKey(key)}
-            items={reconciliationTabs}
-            className="mb-2"
-          />
+                Termination:{' '}
+                <span
+                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
+                  className="font-normal text-[#4d4d4d]"
+                >
+                  {formatNumber(data?.summary?.terminations)}
+                </span>
+              </p>
+            </div>
+          </Card>
         </div>
-
-        {activeTabKey === 'all' && payrollVarianceData.length > 0 && (
+        <Tabs
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          items={items}
+          tabBarGutter={24}
+          size="large"
+          tabBarStyle={{ textAlign: 'center' }}
+          data-cy="employee-detail-tabs"
+        />
+        <Modal
+          data-cy="payroll-approve-modal"
+          open={isApproveModalOpen}
+          onCancel={() => setIsApproveModalOpen(false)}
+          footer={null}
+          centered
+          width={600}
+          className="p-6"
+        >
           <div
-            data-cy="payroll-reconciliation-all-category-table"
-            className="w-full mt-4 overflow-x-auto"
+            data-cy="payroll-reconciliation-tabs"
+            className="w-full mt-8 overflow-x-auto"
           >
-            <Table
-              loading={isLoading}
-              dataSource={payrollVarianceData}
-              columns={columns}
-              pagination={false}
+            <Tabs
+              activeKey={activeTabKey}
+              onChange={(key) => setActiveTabKey(key)}
+              items={reconciliationTabs}
+              className="mb-2"
             />
           </div>
-        )}
 
-        {activeTabKey !== 'all' && payrollVarianceData.length > 0 && (
-          <div
-            data-cy="payroll-reconciliation-detail-section"
-            className="mt-8 flex flex-col md:flex-row gap-6 items-start"
-          >
-            {/* Left summary panel for selected component */}
+          {activeTabKey === 'all' && payrollVarianceData.length > 0 && (
             <div
-              data-cy="payroll-reconciliation-detail-summary-card"
-              className="w-full md:w-[260px] border border-[#f0f0f0] rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] bg-white shrink-0"
+              data-cy="payroll-reconciliation-all-category-table"
+              className="w-full mt-4 overflow-x-auto"
             >
-              {(() => {
-                const selected = payrollVarianceData[0] as any;
-                const impactLabel = selected?.impact?.props?.children || '';
-                const impactKey =
-                  typeof impactLabel === 'string'
-                    ? (impactLabel as keyof typeof impactColors)
-                    : 'Low';
-
-                return (
-                  <>
-                    <div
-                      className="mb-4"
-                      data-cy="payroll-reconciliation-detail-summary-previous"
-                    >
-                      <div
-                        className="text-[#00000073] mb-1 text-[13px]"
-                        data-cy="payroll-reconciliation-detail-summary-previous-label"
-                      >
-                        Total Previous
-                      </div>
-                      <div
-                        className="text-[15px]"
-                        data-cy="payroll-reconciliation-detail-summary-previous-value"
-                      >
-                        {selected?.previous ?? '--'}
-                      </div>
-                    </div>
-
-                    <div
-                      className="mb-5"
-                      data-cy="payroll-reconciliation-detail-summary-current"
-                    >
-                      <div
-                        className="text-[#00000073] mb-1 text-[13px]"
-                        data-cy="payroll-reconciliation-detail-summary-current-label"
-                      >
-                        Current
-                      </div>
-                      <div
-                        className="text-[15px]"
-                        data-cy="payroll-reconciliation-detail-summary-current-value"
-                      >
-                        {selected?.current ?? '--'}
-                      </div>
-                    </div>
-
-                    <div
-                      className="border-t border-[#f0f0f0] pt-4 mb-4"
-                      data-cy="payroll-reconciliation-detail-summary-variance-amt"
-                    >
-                      <div
-                        className="text-[#00000073] mb-1 text-[13px]"
-                        data-cy="payroll-reconciliation-detail-summary-variance-amt-label"
-                      >
-                        Variance(AMT)
-                      </div>
-                      <div
-                        className="text-[#ff4d4f]"
-                        data-cy="payroll-reconciliation-detail-summary-variance-amt-value"
-                      >
-                        {selected?.variance ?? '--'}
-                      </div>
-                    </div>
-
-                    <div
-                      className="mb-5"
-                      data-cy="payroll-reconciliation-detail-summary-variance-pct"
-                    >
-                      <div
-                        className="text-[#00000073] mb-1 text-[13px]"
-                        data-cy="payroll-reconciliation-detail-summary-variance-pct-label"
-                      >
-                        Variance(%)
-                      </div>
-                      <div
-                        className="text-[#52c41a]"
-                        data-cy="payroll-reconciliation-detail-summary-variance-pct-value"
-                      >
-                        {selected?.variancePercentage ?? '--'}
-                      </div>
-                    </div>
-
-                    <div
-                      className="border-t border-[#f0f0f0] pt-4"
-                      data-cy="payroll-reconciliation-detail-summary-impact"
-                    >
-                      <div
-                        className="text-[#00000073] mb-2 text-[13px]"
-                        data-cy="payroll-reconciliation-detail-summary-impact-label"
-                      >
-                        Impact
-                      </div>
-                      <div
-                        className="flex items-center gap-2"
-                        data-cy="payroll-reconciliation-detail-summary-impact-value"
-                      >
-                        <span
-                          className="w-1.5 h-1.5 rounded-full"
-                          style={{
-                            backgroundColor:
-                              impactColors[impactKey] || impactColors.Low,
-                          }}
-                          data-cy="payroll-reconciliation-detail-summary-impact-value-color"
-                        />
-                        <span
-                          className="text-[13px]"
-                          data-cy="payroll-reconciliation-detail-summary-impact-text"
-                        >
-                          {impactLabel || '--'}
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                );
-              })()}
+              <Table
+                loading={isLoading}
+                dataSource={payrollVarianceData}
+                columns={columns}
+                pagination={false}
+              />
             </div>
+          )}
 
-            {/* Right panel: employees table for selected component */}
+          {activeTabKey !== 'all' && payrollVarianceData.length > 0 && (
             <div
-              data-cy="payroll-reconciliation-detail-table-panel"
-              className="flex-1 w-full bg-[#fafafa] border border-[#f0f0f0] rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
+              data-cy="payroll-reconciliation-detail-section"
+              className="mt-8 flex flex-col md:flex-row gap-6 items-start"
             >
-              {/* Search / employee select */}
+              {/* Left summary panel for selected component */}
               <div
-                data-cy="payroll-reconciliation-detail-search-wrap"
-                className="w-full max-w-xs mb-5"
+                data-cy="payroll-reconciliation-detail-summary-card"
+                className="w-full md:w-[260px] border border-[#f0f0f0] rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] bg-white shrink-0"
               >
-                <Select
-                  showSearch
-                  allowClear
-                  className="h-11 w-full rounded-lg border-[#d9d9d9] bg-white text-[14px]"
-                  placeholder="Search Employee"
-                  value={search || undefined}
-                  onChange={(value) => {
-                    setSearch(value || '');
-                    setCurrentPage(1);
-                  }}
-                  filterOption={(input, option) => {
-                    const label = option?.label as string | undefined;
-                    return (
-                      typeof label === 'string' &&
-                      label.toLowerCase().includes(input.toLowerCase())
-                    );
-                  }}
-                  data-cy="payroll-reconciliation-detail-search-select"
-                  options={employeeOptions}
-                />
+                {(() => {
+                  const selected = payrollVarianceData[0] as any;
+                  const impactLabel = selected?.impact?.props?.children || '';
+                  const impactKey =
+                    typeof impactLabel === 'string'
+                      ? (impactLabel as keyof typeof impactColors)
+                      : 'Low';
+
+                  return (
+                    <>
+                      <div
+                        className="mb-4"
+                        data-cy="payroll-reconciliation-detail-summary-previous"
+                      >
+                        <div
+                          className="text-[#00000073] mb-1 text-[13px]"
+                          data-cy="payroll-reconciliation-detail-summary-previous-label"
+                        >
+                          Total Previous
+                        </div>
+                        <div
+                          className="text-[15px]"
+                          data-cy="payroll-reconciliation-detail-summary-previous-value"
+                        >
+                          {selected?.previous ?? '--'}
+                        </div>
+                      </div>
+
+                      <div
+                        className="mb-5"
+                        data-cy="payroll-reconciliation-detail-summary-current"
+                      >
+                        <div
+                          className="text-[#00000073] mb-1 text-[13px]"
+                          data-cy="payroll-reconciliation-detail-summary-current-label"
+                        >
+                          Current
+                        </div>
+                        <div
+                          className="text-[15px]"
+                          data-cy="payroll-reconciliation-detail-summary-current-value"
+                        >
+                          {selected?.current ?? '--'}
+                        </div>
+                      </div>
+
+                      <div
+                        className="border-t border-[#f0f0f0] pt-4 mb-4"
+                        data-cy="payroll-reconciliation-detail-summary-variance-amt"
+                      >
+                        <div
+                          className="text-[#00000073] mb-1 text-[13px]"
+                          data-cy="payroll-reconciliation-detail-summary-variance-amt-label"
+                        >
+                          Variance(AMT)
+                        </div>
+                        <div
+                          className="text-[#ff4d4f]"
+                          data-cy="payroll-reconciliation-detail-summary-variance-amt-value"
+                        >
+                          {selected?.variance ?? '--'}
+                        </div>
+                      </div>
+
+                      <div
+                        className="mb-5"
+                        data-cy="payroll-reconciliation-detail-summary-variance-pct"
+                      >
+                        <div
+                          className="text-[#00000073] mb-1 text-[13px]"
+                          data-cy="payroll-reconciliation-detail-summary-variance-pct-label"
+                        >
+                          Variance(%)
+                        </div>
+                        <div
+                          className="text-[#52c41a]"
+                          data-cy="payroll-reconciliation-detail-summary-variance-pct-value"
+                        >
+                          {selected?.variancePercentage ?? '--'}
+                        </div>
+                      </div>
+
+                      <div
+                        className="border-t border-[#f0f0f0] pt-4"
+                        data-cy="payroll-reconciliation-detail-summary-impact"
+                      >
+                        <div
+                          className="text-[#00000073] mb-2 text-[13px]"
+                          data-cy="payroll-reconciliation-detail-summary-impact-label"
+                        >
+                          Impact
+                        </div>
+                        <div
+                          className="flex items-center gap-2"
+                          data-cy="payroll-reconciliation-detail-summary-impact-value"
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                impactColors[impactKey] || impactColors.Low,
+                            }}
+                            data-cy="payroll-reconciliation-detail-summary-impact-value-color"
+                          />
+                          <span
+                            className="text-[13px]"
+                            data-cy="payroll-reconciliation-detail-summary-impact-text"
+                          >
+                            {impactLabel || '--'}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
+              {/* Right panel: employees table for selected component */}
               <div
-                data-cy="payroll-reconciliation-detail-table-wrapper"
-                className="bg-white rounded-lg overflow-hidden border-b border-[#f0f0f0]"
+                data-cy="payroll-reconciliation-detail-table-panel"
+                className="flex-1 w-full bg-[#fafafa] border border-[#f0f0f0] rounded-lg p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
               >
-                <table
-                  className="w-full text-left border-collapse"
-                  data-cy="payroll-reconciliation-detail-table"
+                {/* Search / employee select */}
+                <div
+                  data-cy="payroll-reconciliation-detail-search-wrap"
+                  className="w-full max-w-xs mb-5"
                 >
-                  <thead
-                    className="bg-[#fafafa]"
-                    data-cy="payroll-reconciliation-detail-table-head"
-                  >
-                    <tr data-cy="payroll-reconciliation-detail-table-head-row">
-                      <th
-                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
-                        data-cy="payroll-reconciliation-detail-table-head-employee"
-                      >
-                        Employee
-                      </th>
-                      <th
-                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
-                        data-cy="payroll-reconciliation-detail-table-head-current"
-                      >
-                        Current
-                      </th>
-                      <th
-                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
-                        data-cy="payroll-reconciliation-detail-table-head-previous"
-                      >
-                        Previous
-                      </th>
-                      <th
-                        className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
-                        data-cy="payroll-reconciliation-detail-table-head-diff"
-                      >
-                        Difference
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    className="divide-y divide-[#f0f0f0]"
-                    data-cy="payroll-reconciliation-detail-table-body"
-                  >
-                    {isLoadingDetails && (
-                      <tr data-cy="payroll-reconciliation-detail-table-loading-row">
-                        <td
-                          colSpan={4}
-                          className="py-8 text-center text-[#00000073]"
-                          data-cy="payroll-reconciliation-detail-table-loading-cell"
-                        >
-                          Loading...
-                        </td>
-                      </tr>
-                    )}
-                    {!isLoadingDetails &&
-                      reconciliationDetails?.employeeVariances?.items?.map(
-                        (item: any) => {
-                          const employeeName = item.employeeName || '--';
-                          const current = Number(item.current).toFixed(2);
-                          const previous = Number(item.previous).toFixed(2);
-                          const rawDiff =
-                            item.difference != null &&
-                            !isNaN(Number(item.difference))
-                              ? Number(item.difference).toFixed(2)
-                              : '--';
-                          const diffNum = Number(rawDiff);
-                          const diffClass =
-                            rawDiff === '--'
-                              ? 'text-[#000000d9]'
-                              : diffNum > 0
-                                ? 'text-[#ff4d4f]'
-                                : diffNum < 0
-                                  ? 'text-[#52c41a]'
-                                  : 'text-[#000000d9]';
+                  <Select
+                    showSearch
+                    allowClear
+                    className="h-11 w-full rounded-lg border-[#d9d9d9] bg-white text-[14px]"
+                    placeholder="Search Employee"
+                    value={search || undefined}
+                    onChange={(value) => {
+                      setSearch(value || '');
+                      setCurrentPage(1);
+                    }}
+                    filterOption={(input, option) => {
+                      const label = option?.label as string | undefined;
+                      return (
+                        typeof label === 'string' &&
+                        label.toLowerCase().includes(input.toLowerCase())
+                      );
+                    }}
+                    data-cy="payroll-reconciliation-detail-search-select"
+                    options={employeeOptions}
+                  />
+                </div>
 
-                          return (
-                            <tr
-                              data-cy="payroll-reconciliation-detail-table-body-row"
-                              key={
-                                item.userId ||
-                                item.employeeId ||
-                                item.id ||
-                                employeeName
-                              }
-                              className="hover:bg-[#fafafa] transition-colors"
-                            >
-                              <td
-                                className="py-4 px-4 text-[#000000d9]"
-                                data-cy="payroll-reconciliation-detail-table-body-employee"
-                              >
-                                {employeeName}
-                              </td>
-                              <td
-                                className="py-4 px-4 text-[#000000d9]"
-                                data-cy="payroll-reconciliation-detail-table-body-current"
-                              >
-                                {current}
-                              </td>
-                              <td
-                                className="py-4 px-4 text-[#000000d9]"
-                                data-cy="payroll-reconciliation-detail-table-body-previous"
-                              >
-                                {previous}
-                              </td>
-                              <td
-                                className={`py-4 px-4 ${diffClass}`}
-                                data-cy="payroll-reconciliation-detail-table-body-diff"
-                              >
-                                {rawDiff}
-                              </td>
-                            </tr>
-                          );
-                        },
-                      )}
-                    {!isLoadingDetails &&
-                      !reconciliationDetails?.employeeVariances?.items
-                        ?.length && (
-                        <tr data-cy="payroll-reconciliation-detail-table-empty-row">
+                <div
+                  data-cy="payroll-reconciliation-detail-table-wrapper"
+                  className="bg-white rounded-lg overflow-hidden border-b border-[#f0f0f0]"
+                >
+                  <table
+                    className="w-full text-left border-collapse"
+                    data-cy="payroll-reconciliation-detail-table"
+                  >
+                    <thead
+                      className="bg-[#fafafa]"
+                      data-cy="payroll-reconciliation-detail-table-head"
+                    >
+                      <tr data-cy="payroll-reconciliation-detail-table-head-row">
+                        <th
+                          className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                          data-cy="payroll-reconciliation-detail-table-head-employee"
+                        >
+                          Employee
+                        </th>
+                        <th
+                          className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                          data-cy="payroll-reconciliation-detail-table-head-current"
+                        >
+                          Current
+                        </th>
+                        <th
+                          className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                          data-cy="payroll-reconciliation-detail-table-head-previous"
+                        >
+                          Previous
+                        </th>
+                        <th
+                          className="py-3.5 px-4 font-medium text-[#000000d9] border-b border-[#f0f0f0]"
+                          data-cy="payroll-reconciliation-detail-table-head-diff"
+                        >
+                          Difference
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      className="divide-y divide-[#f0f0f0]"
+                      data-cy="payroll-reconciliation-detail-table-body"
+                    >
+                      {isLoadingDetails && (
+                        <tr data-cy="payroll-reconciliation-detail-table-loading-row">
                           <td
                             colSpan={4}
                             className="py-8 text-center text-[#00000073]"
-                            data-cy="payroll-reconciliation-detail-table-empty-cell"
+                            data-cy="payroll-reconciliation-detail-table-loading-cell"
                           >
-                            No employee found
+                            Loading...
                           </td>
                         </tr>
                       )}
-                  </tbody>
-                </table>
-              </div>
+                      {!isLoadingDetails &&
+                        reconciliationDetails?.employeeVariances?.items?.map(
+                          (item: any) => {
+                            const employeeName = item.employeeName || '--';
+                            const current = Number(item.current).toFixed(2);
+                            const previous = Number(item.previous).toFixed(2);
+                            const rawDiff =
+                              item.difference != null &&
+                              !isNaN(Number(item.difference))
+                                ? Number(item.difference).toFixed(2)
+                                : '--';
+                            const diffNum = Number(rawDiff);
+                            const diffClass =
+                              rawDiff === '--'
+                                ? 'text-[#000000d9]'
+                                : diffNum > 0
+                                  ? 'text-[#ff4d4f]'
+                                  : diffNum < 0
+                                    ? 'text-[#52c41a]'
+                                    : 'text-[#000000d9]';
 
-              {/* Pagination */}
-              <div
-                data-cy="payroll-reconciliation-detail-pagination"
-                className="mt-4 flex justify-end"
-              >
-                {isMobile || isTablet ? (
-                  <CustomMobilePagination
-                    currentPage={currentPage}
-                    totalResults={
-                      reconciliationDetails?.employeeVariances?.meta
-                        ?.totalItems ?? 0
-                    }
-                    pageSize={pageSize}
-                    onShowSizeChange={(current, size) => {
-                      setCurrentPage(current);
-                      setPageSize(size);
-                    }}
-                  />
-                ) : (
-                  <CustomPagination
-                    current={currentPage}
-                    total={
-                      reconciliationDetails?.employeeVariances?.meta
-                        ?.totalItems ?? 0
-                    }
-                    pageSize={pageSize}
-                    onChange={(page, size) => {
-                      setCurrentPage(page);
-                      if (size) {
-                        setPageSize(size);
+                            return (
+                              <tr
+                                data-cy="payroll-reconciliation-detail-table-body-row"
+                                key={
+                                  item.userId ||
+                                  item.employeeId ||
+                                  item.id ||
+                                  employeeName
+                                }
+                                className="hover:bg-[#fafafa] transition-colors"
+                              >
+                                <td
+                                  className="py-4 px-4 text-[#000000d9]"
+                                  data-cy="payroll-reconciliation-detail-table-body-employee"
+                                >
+                                  {employeeName}
+                                </td>
+                                <td
+                                  className="py-4 px-4 text-[#000000d9]"
+                                  data-cy="payroll-reconciliation-detail-table-body-current"
+                                >
+                                  {current}
+                                </td>
+                                <td
+                                  className="py-4 px-4 text-[#000000d9]"
+                                  data-cy="payroll-reconciliation-detail-table-body-previous"
+                                >
+                                  {previous}
+                                </td>
+                                <td
+                                  className={`py-4 px-4 ${diffClass}`}
+                                  data-cy="payroll-reconciliation-detail-table-body-diff"
+                                >
+                                  {rawDiff}
+                                </td>
+                              </tr>
+                            );
+                          },
+                        )}
+                      {!isLoadingDetails &&
+                        !reconciliationDetails?.employeeVariances?.items
+                          ?.length && (
+                          <tr data-cy="payroll-reconciliation-detail-table-empty-row">
+                            <td
+                              colSpan={4}
+                              className="py-8 text-center text-[#00000073]"
+                              data-cy="payroll-reconciliation-detail-table-empty-cell"
+                            >
+                              No employee found
+                            </td>
+                          </tr>
+                        )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination */}
+                <div
+                  data-cy="payroll-reconciliation-detail-pagination"
+                  className="mt-4 flex justify-end"
+                >
+                  {isMobile || isTablet ? (
+                    <CustomMobilePagination
+                      currentPage={currentPage}
+                      totalResults={
+                        reconciliationDetails?.employeeVariances?.meta
+                          ?.totalItems ?? 0
                       }
-                    }}
-                    onShowSizeChange={(newPageSize) => {
-                      setPageSize(newPageSize);
-                      setCurrentPage(1);
-                    }}
-                  />
-                )}
+                      pageSize={pageSize}
+                      onShowSizeChange={(current, size) => {
+                        setCurrentPage(current);
+                        setPageSize(size);
+                      }}
+                    />
+                  ) : (
+                    <CustomPagination
+                      current={currentPage}
+                      total={
+                        reconciliationDetails?.employeeVariances?.meta
+                          ?.totalItems ?? 0
+                      }
+                      pageSize={pageSize}
+                      onChange={(page, size) => {
+                        setCurrentPage(page);
+                        if (size) {
+                          setPageSize(size);
+                        }
+                      }}
+                      onShowSizeChange={(newPageSize) => {
+                        setPageSize(newPageSize);
+                        setCurrentPage(1);
+                      }}
+                    />
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div
-          className="mt-6 flex justify-end gap-2 border-t border-[#f0f0f0] pt-4"
-          data-cy="payroll-approve-modal-actions"
-        >
-          <Button onClick={() => setIsApproveModalOpen(false)}>
-            Cancel
-          </Button>
-          <Button
-            type="primary"
-            data-cy="payroll-approve-modal-confirm"
-            loading={isApproving || isLastApproving}
-            onClick={handleApprovePayroll}
+          <div
+            className="mt-6 flex justify-end gap-2 border-t border-[#f0f0f0] pt-4"
+            data-cy="payroll-approve-modal-actions"
           >
-            Approve Payroll
-          </Button>
-        </div>
-      </Modal>
+            <Button onClick={() => setIsApproveModalOpen(false)}>Cancel</Button>
+            <Button
+              type="primary"
+              data-cy="payroll-approve-modal-confirm"
+              loading={isApproving || isLastApproving}
+              onClick={handleApprovePayroll}
+            >
+              Approve Payroll
+            </Button>
+          </div>
+        </Modal>
       </BlockWrapper>
     </div>
   );
@@ -1272,4 +1290,3 @@ const PayrollReconcilation = () => {
 };
 
 export default PayrollReconcilation;
-

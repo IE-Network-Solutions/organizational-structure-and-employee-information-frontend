@@ -484,7 +484,7 @@ const AdminDashboard = () => {
                                   className={
                                     new Date(
                                       activeSubscription.trialEndAt &&
-                                      activeSubscription.isTrial
+                                        activeSubscription.isTrial
                                         ? activeSubscription.trialEndAt
                                         : activeSubscription.endAt,
                                     ).getTime() -
@@ -497,7 +497,7 @@ const AdminDashboard = () => {
                                   {Math.ceil(
                                     (new Date(
                                       activeSubscription.trialEndAt &&
-                                      activeSubscription.isTrial
+                                        activeSubscription.isTrial
                                         ? activeSubscription.trialEndAt
                                         : activeSubscription.endAt,
                                     ).getTime() -

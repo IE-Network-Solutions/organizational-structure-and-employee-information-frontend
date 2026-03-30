@@ -74,7 +74,7 @@ const PersonSlide: FC<{ person: CardPerson; slideIndex: number }> = ({
   >
     {person.user?.profileImage ? (
       <Avatar
-      size={48}
+        size={48}
         src={person.user.profileImage}
         alt={`${person.user.firstName || ''}`}
         className="w-12 2xl:w-12 h-10 2xl:h-12 rounded-full"
@@ -82,7 +82,7 @@ const PersonSlide: FC<{ person: CardPerson; slideIndex: number }> = ({
       />
     ) : (
       <Avatar
-      size={48}
+        size={48}
         icon={<UserOutlined data-cy="dashboard-card-list-card-avatar-icon" />}
         className="w-12 2xl:w-12 h-10 2xl:h-12 rounded-full"
         data-cy="dashboard-card-list-card-avatar-default"

@@ -1,5 +1,13 @@
 import React from 'react';
-import { Modal, Form, Switch, DatePicker, Select, Button, ConfigProvider } from 'antd';
+import {
+  Modal,
+  Form,
+  Switch,
+  DatePicker,
+  Select,
+  Button,
+  ConfigProvider,
+} from 'antd';
 import { IoCloseOutline } from 'react-icons/io5';
 import dayjs from 'dayjs';
 
@@ -24,13 +32,14 @@ const GeneratePayrollModal: React.FC<Props> = ({
   isRegenerate = false,
 }) => {
   const [form] = Form.useForm();
-  
+
   const { data: payPeriodData } = useGetPayPeriod();
 
   React.useEffect(() => {
     if (payPeriodData && payPeriodData.length > 0) {
       // Find the currently active (OPEN) pay period
-      const activePeriod = payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
+      const activePeriod =
+        payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
       if (activePeriod && !form.getFieldValue('payPeriod')) {
         form.setFieldsValue({ payPeriod: activePeriod.id });
       }
@@ -91,19 +100,24 @@ const GeneratePayrollModal: React.FC<Props> = ({
       <Modal
         data-cy="payroll-generate-modal"
         title={
-          <span
-            style={{ fontWeight: 600, fontSize: '16px' }}
+          <h2
+            className="text-[16px] font-normal text-gray-900 m-0 leading-tight"
             data-cy="payroll-generate-modal-title-view-text"
           >
             {isRegenerate ? 'Regenerate Payroll' : 'Generate Payroll'}
-          </span>
+          </h2>
         }
         open={true}
         maskClosable={!loading}
         onCancel={() => {
           if (!loading) onClose();
         }}
-        closeIcon={<IoCloseOutline size={24} className="text-gray-600 hover:text-gray-900" />}
+        closeIcon={
+          <IoCloseOutline
+            size={24}
+            className="text-gray-600 hover:text-gray-900"
+          />
+        }
         width={520}
         centered
         footer={[
@@ -133,7 +147,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
           </Button>,
         ]}
       >
-        <div 
+        <div
           data-cy="payroll-generate-modal-body-view-container"
           className="border border-gray-200 rounded-lg p-6 mt-6 mb-2"
         >
@@ -147,7 +161,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
               <Form.Item
                 label={
-                  <span 
+                  <span
                     data-cy="payroll-generate-modal-incentive-label-view-text"
                     className="text-sm font-medium text-gray-700"
                   >
@@ -166,7 +180,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             <div data-cy="payroll-generate-modal-daterange-view-container">
               <Form.Item
                 label={
-                  <span 
+                  <span
                     data-cy="payroll-generate-modal-daterange-label-view-text"
                     className="text-sm font-medium text-gray-700"
                   >
@@ -175,14 +189,12 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 }
                 name="date"
                 className="mb-5"
-                rules={[
-                  { required: true, message: 'Please select a date' },
-                ]}
+                rules={[{ required: true, message: 'Please select a date' }]}
               >
-                <DatePicker 
+                <DatePicker
                   data-cy="payroll-generate-modal-daterange-view-input"
-                  style={{ width: '100%' }} 
-                  placeholder="Select date" 
+                  style={{ width: '100%' }}
+                  placeholder="Select date"
                   size="large"
                 />
               </Form.Item>
@@ -191,7 +203,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             <div data-cy="payroll-generate-modal-payperiod-view-container">
               <Form.Item
                 label={
-                  <span 
+                  <span
                     data-cy="payroll-generate-modal-payperiod-label-view-text"
                     className="text-sm font-medium text-gray-700"
                   >
@@ -204,14 +216,16 @@ const GeneratePayrollModal: React.FC<Props> = ({
                   { required: true, message: 'Please select a pay period' },
                 ]}
               >
-                <Select 
+                <Select
                   data-cy="payroll-generate-modal-payperiod-view-select"
-                  placeholder="Select pay period" 
+                  placeholder="Select pay period"
                   size="large"
-                  options={payPeriodData?.map((period: any) => ({
-                    value: period.id,
-                    label: `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
-                  })) || []}
+                  options={
+                    payPeriodData?.map((period: any) => ({
+                      value: period.id,
+                      label: `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
+                    })) || []
+                  }
                 />
               </Form.Item>
             </div>

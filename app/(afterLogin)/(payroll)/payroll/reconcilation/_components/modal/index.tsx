@@ -186,8 +186,8 @@ const PayrollReconcilationModal = ({
           },
           Form: {
             labelColor: '#333333',
-          }
-        }
+          },
+        },
       }}
     >
       <Modal
