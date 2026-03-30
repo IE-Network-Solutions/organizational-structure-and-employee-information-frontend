@@ -158,8 +158,8 @@ export default function KRSummaryBar({
         variant="achieved"
       />
       <StatPill
-        label="krProgress"
-        value={`${values.progress}%`}
+        label="Key Result Progress"
+        value={`${formatNumber(Number(values.progress))}%`}
         variant="progress"
       />
     </div>

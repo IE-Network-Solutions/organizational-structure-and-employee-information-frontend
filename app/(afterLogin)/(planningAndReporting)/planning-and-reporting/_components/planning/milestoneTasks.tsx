@@ -104,7 +104,7 @@ const TaskRow = ({ task, keyResult }: any) => (
         Priority
       </Text>
       <Tag
-        className="font-bold border-none w-16 text-center capitalize text-[10px]"
+        className="font-bold min-w-[79px] text-center capitalize text-[10px]"
         color={getPriorityColor(task?.priority)}
       >
         {task?.priority || 'None'}
@@ -121,7 +121,7 @@ const TaskRow = ({ task, keyResult }: any) => (
         Weight:
       </Text>
       <Tag
-        className="font-bold border-none w-16 text-center text-blue text-[10px] ml-2"
+        className="ml-2 font-bold min-w-[79px] text-center text-blue text-[10px]"
         color="#B2B2FF"
       >
         {task?.weight || 0}
@@ -131,7 +131,7 @@ const TaskRow = ({ task, keyResult }: any) => (
       {keyResult?.metricType?.name !== 'Milestone' &&
         keyResult?.metricType?.name !== 'Achieve' && (
           <>
-            <Text type="secondary" className="text-[10px">
+            <Text type="secondary" className="text-[10px]">
               <span
                 data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-114"
                 className="text-xl text-blue"
@@ -141,7 +141,7 @@ const TaskRow = ({ task, keyResult }: any) => (
               Target:
             </Text>
             <Tag
-              className="font-bold border-none w-16 text-center text-blue text-[10px]"
+              className="font-bold min-w-[79px] text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
               {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
@@ -157,7 +157,7 @@ const TaskRow = ({ task, keyResult }: any) => (
         className="flex justify-between gap-2 w-[100%] sm:w-full py-2"
       >
         <Tag
-          className="font-bold border-none w-16 text-center capitalize text-[10px]"
+          className="font-bold min-w-[79px] text-center capitalize text-[10px]"
           color={getPriorityColor(task?.priority)}
         >
           {task?.priority || 'None'}
@@ -180,10 +180,7 @@ const TaskRow = ({ task, keyResult }: any) => (
             </span>
             Weight
           </span>
-          <Tag
-            className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"
-            color="#e7e7ff"
-          >
+          <Tag className="font-semibold text-blue text-xs" color="#e7e7ff">
             {task?.weight || 0}
           </Tag>
         </div>
@@ -196,7 +193,7 @@ const TaskRow = ({ task, keyResult }: any) => (
               <span className="text-xl text-blue">&bull;</span> Target:
             </Text>
             <Tag
-              className="font-bold border-none w-16 text-center text-blue text-[10px]"
+              className="font-bold min-w-[79px] text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
               {Number(task?.targetValue)?.toLocaleString() || 'N/A'}

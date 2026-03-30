@@ -1,7 +1,6 @@
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { Button, Form, Modal, Spin, Tooltip } from 'antd';
+import { Button, Form, Modal, Spin, Tag, Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -57,7 +56,6 @@ function CreatePlan() {
   const [form] = Form.useForm();
   const { resetToInitial } = useClickStatus();
   const hasAutoPopulated = useRef(false);
-  const [lastSaved, setLastSaved] = useState('');
 
   const onClose = () => {
     setOpen(false);
@@ -65,7 +63,6 @@ function CreatePlan() {
     form.resetFields();
     resetWeights();
     hasAutoPopulated.current = false;
-    setLastSaved('');
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
@@ -106,11 +103,15 @@ function CreatePlan() {
     if (!open) prevOpenForInitRef.current = false;
   }, [open, cadencePeriodOptions, activePlanPeriodId]);
 
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+
   useEffect(() => {
-    if (open && !isEditing) {
-      setLastSaved(dayjs().format('h:mm A'));
+    if (open) {
+      setLastSavedAt(new Date());
+    } else {
+      setLastSavedAt(null);
     }
-  }, [open, isEditing]);
+  }, [open]);
 
   useEffect(() => {
     if (!open || cadencePeriodOptions.length === 0) return;
@@ -458,6 +459,7 @@ function CreatePlan() {
       return Number(sum) + Number(field?.weight || 0);
     }, 0);
     setWeight(namesKey, totalWeight);
+    setLastSavedAt(new Date());
   };
   const handleAddBoard = (kId: string, metadata?: any) => {
     const namesKey = `names-${kId}`;
@@ -488,6 +490,7 @@ function CreatePlan() {
 
     setTimeout(() => {
       form.setFieldsValue({ [namesKey]: [newTask, ...currentBoard] });
+      setLastSavedAt(new Date());
     }, 0);
   };
 
@@ -589,15 +592,22 @@ function CreatePlan() {
     >
       <div
         data-cy="create-plan-modal-shell"
-        className="flex max-h-[min(88vh,calc(100dvh-32px))] flex-col bg-white"
+        className="pr-ant-tag-scope flex max-h-[min(88vh,calc(100dvh-32px))] flex-col bg-white"
       >
         <header
           data-cy="create-plan-modal-header"
-          className="flex shrink-0 items-start justify-between gap-3 border-b px-5 py-4 md:px-6"
-          style={{ borderColor: PR_BORDER }}
+          className="flex shrink-0 items-start justify-between"
+          style={{
+            height: 45,
+            paddingTop: 13,
+            paddingLeft: 24,
+            paddingRight: 24,
+            opacity: 1,
+            columnGap: 10,
+          }}
         >
           <h2
-            className="text-lg font-bold md:text-xl"
+            className="text-sm font-bold"
             style={{ color: PR_TEXT }}
             data-cy="create-plan-modal-header-title"
           >
@@ -624,8 +634,7 @@ function CreatePlan() {
         {cadencePeriodOptions.length > 1 ? (
           <section
             data-cy="create-plan-cadence-section"
-            className="shrink-0 border-b px-5 py-4 text-center md:px-6"
-            style={{ borderColor: PR_BORDER }}
+            className="shrink-0 px-5 py-4 text-center md:px-6"
           >
             <p
               className="mb-3 text-sm font-medium"
@@ -670,8 +679,7 @@ function CreatePlan() {
           </section>
         ) : (
           <section
-            className="shrink-0 border-b px-5 py-3 text-center md:px-6"
-            style={{ borderColor: PR_BORDER }}
+            className="shrink-0 px-5 py-3 text-center md:px-6"
             data-cy="create-plan-period-hint-only"
           >
             <p
@@ -701,7 +709,6 @@ function CreatePlan() {
               form={form}
               name="dynamic_form_item"
               onFinish={handleOnFinish}
-              onValuesChange={() => setLastSaved(dayjs().format('h:mm A'))}
             >
               {planningPeriodHierarchy?.parentPlan == null ? (
                 <PlanningObjectiveComponent
@@ -744,30 +751,36 @@ function CreatePlan() {
 
         <footer
           data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-493"
-          className="flex shrink-0 flex-col gap-4 border-t px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6"
-          style={{ borderColor: PR_BORDER }}
+          className="flex shrink-0 flex-col gap-4 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6"
         >
           <div
-            className="flex flex-col gap-1"
+            className="flex items-center gap-3"
             data-cy="create-plan-footer-meta"
           >
-            <span
+            <Tag
               data-cy="create-plan-total-weight"
-              className="inline-flex w-fit rounded-lg px-3 py-1.5 text-sm font-semibold"
+              className="!m-0"
               style={{
                 backgroundColor: PR_PRIMARY_MUTED,
                 color: PR_PRIMARY,
               }}
             >
-              Total Weight: {Math.round(Number(totalWeight) || 0)}%
-            </span>
-            <span
-              data-cy="create-plan-last-saved"
-              className="text-xs"
-              style={{ color: PR_TEXT_MUTED }}
-            >
-              Last saved {lastSaved || '—'}
-            </span>
+              Total Weight: {Math.round(Number(totalWeight) || 0)}
+            </Tag>
+            {lastSavedAt && (
+              <span
+                className="text-xs"
+                style={{ color: PR_TEXT_MUTED }}
+                data-cy="create-plan-last-saved"
+              >
+                Last Saved{' '}
+                {lastSavedAt.toLocaleTimeString([], {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+              </span>
+            )}
           </div>
           <div
             className="flex justify-end gap-3"

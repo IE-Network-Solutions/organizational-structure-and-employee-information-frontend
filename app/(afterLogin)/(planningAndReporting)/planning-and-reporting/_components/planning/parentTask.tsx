@@ -104,7 +104,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
               data-cy="parent-task-tree-item-mobile-details"
             >
               <Tag
-                className="font-semibold border-none text-center capitalize px-1.5 py-0 h-4 text-xs"
+                className="font-semibold text-center capitalize text-xs"
                 color={getPriorityColor(task?.priority)}
                 data-cy={`parent-task-tree-item-mobile-priority-tag-${index}`}
               >
@@ -132,7 +132,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                   Weight
                 </span>
                 <Tag
-                  className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"
+                  className="font-semibold text-blue text-xs"
                   color="#e7e7ff"
                   data-cy={`parent-task-tree-item-mobile-weight-tag-${index}`}
                 >
@@ -220,7 +220,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
               data-cy="parent-task-tree-item-desktop-details"
             >
               <Tag
-                className="font-semibold border-none text-center capitalize px-3 py-1 h-6 text-sm"
+                className="font-semibold text-center capitalize text-sm"
                 color={getPriorityColor(task?.priority)}
                 data-cy={`parent-task-tree-item-desktop-priority-tag-${index}`}
               >
@@ -249,7 +249,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                   Weight
                 </Text>
                 <Tag
-                  className="font-semibold border-none text-blue px-3 py-1 h-6 text-sm"
+                  className="font-semibold text-blue text-sm"
                   color="#B2B2FF"
                   data-cy={`parent-task-tree-item-desktop-weight-tag-${index}`}
                 >
@@ -281,7 +281,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                     Target
                   </Text>
                   <Tag
-                    className="font-semibold border-none text-blue px-3 py-1 h-6 text-sm"
+                    className="font-semibold text-blue text-sm"
                     color="#B2B2FF"
                     data-cy={`parent-task-tree-item-desktop-target-tag-${index}`}
                   >

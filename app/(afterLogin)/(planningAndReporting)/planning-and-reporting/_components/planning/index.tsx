@@ -11,7 +11,10 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import {
+  useApprovalPlanningPeriods,
+  useDeletePlanById,
+} from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import dayjs from 'dayjs';
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
@@ -59,6 +62,7 @@ function Planning() {
   );
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
+  const { mutate: deletePlanById } = useDeletePlanById();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
@@ -261,6 +265,7 @@ function Planning() {
                       setSelectedPlanId(originalDataItem.id);
                       setOpen(true);
                     }}
+                    onDelete={() => deletePlanById(originalDataItem.id)}
                     canApprove={
                       userId ===
                       (getEmployeeData(originalDataItem?.userId)?.delegatedTo
@@ -269,6 +274,12 @@ function Planning() {
                           ?.id)
                     }
                     canEdit={
+                      userId === originalDataItem?.userId &&
+                      originalDataItem?.isValidated == false &&
+                      originalDataItem?.isReported == false &&
+                      isDataFromActiveSession(originalDataItem?.createdAt)
+                    }
+                    canDelete={
                       userId === originalDataItem?.userId &&
                       originalDataItem?.isValidated == false &&
                       originalDataItem?.isReported == false &&

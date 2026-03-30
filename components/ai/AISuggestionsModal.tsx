@@ -879,27 +879,25 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             aria-busy={loading}
             data-cy={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
             id={`ai-suggestion-trigger-compact${compactTriggerSuffix}`}
-            className={`flex h-9 min-w-[52px] flex-col items-center justify-center rounded-lg border px-2 py-0.5 font-bold leading-none text-[#2D5BFF] transition hover:opacity-90 disabled:cursor-not-allowed ${
+            className={`flex h-9 w-9 items-center justify-center rounded-lg border transition hover:opacity-90 disabled:cursor-not-allowed ${
               loading
-                ? 'pointer-events-none ring-2 ring-[#2D5BFF] ring-offset-1 ring-offset-white shadow-[0_0_14px_rgba(45,91,255,0.55),0_0_28px_rgba(45,91,255,0.25)] animate-pulse opacity-100'
+                ? 'pointer-events-none opacity-100 shadow-[0_0_14px_rgba(45,91,255,0.4)]'
                 : 'disabled:opacity-50'
             }`}
             style={{
               borderColor: '#2D5BFF',
               backgroundColor: '#E8EDFF',
+              color: '#2D5BFF',
+              fontSize: '16px',
+              fontWeight: 800,
             }}
           >
             <span
-              data-cy={`ai-suggestion-trigger-compact-plus${compactTriggerSuffix}`}
-              className={`text-[10px] leading-none ${loading ? 'invisible' : ''}`}
-            >
-              +
-            </span>
-            <span
               data-cy={`ai-suggestion-trigger-compact-label${compactTriggerSuffix}`}
-              className={`text-[11px] leading-tight ${loading ? 'invisible' : ''}`}
+              className={loading ? 'invisible' : 'relative flex items-center'}
             >
-              AI
+              A
+              <span className="absolute -top-1 -right-2 text-[10px] font-bold">+</span>
             </span>
           </button>
           {loading ? (

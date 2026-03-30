@@ -3,7 +3,6 @@ import { Button } from 'antd';
 import DefaultCardForm from '../planForms/defaultForm';
 import { groupParentTasks } from '../dataTransformer/plan';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
-import PlanningKrAISuggestions from './PlanningKrAISuggestions';
 
 interface Plan {
   id: string;
@@ -135,22 +134,14 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       >
                         <div
                           data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-109"
-                          className="pt-5 px-4 pb-0 flex justify-between items-center gap-3"
+                          className="py-3 px-4 flex justify-between items-center gap-3"
                         >
                           <div
                             data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-110"
                             className="text-sm flex items-center min-w-0 flex-1 pr-2"
                           >
-                            <strong
-                              data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-strong-111"
-                              className="text-gray-950 flex-shrink-0 whitespace-nowrap"
-                            >
-                              {planningPeriodHierarchy?.parentPlan?.name ||
-                                'Parent'}
-                              -task :
-                            </strong>
                             <span
-                              className="ml-2 text-gray-700 truncate flex-1 min-w-0"
+                              className="text-gray-700 truncate flex-1 min-w-0"
                               title={task.task}
                               data-cy="planningandreporting-planning-and-reporting-components-planning-createplanhierarchy-tsx-span-132"
                             >
@@ -161,31 +152,9 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             data-cy="planning-create-planhierarchy-milestone-task-actions"
                             className="flex flex-shrink-0 items-center gap-2"
                           >
-                            {planTypeNameForAi !== undefined &&
-                              task.keyResult && (
-                                <PlanningKrAISuggestions
-                                  keyResult={{
-                                    id: String(task.keyResult.id),
-                                    title: task.keyResult.title,
-                                    metricType: task.keyResult.metricType,
-                                    milestones: task.keyResult.milestones,
-                                    progress: task.keyResult.progress,
-                                  }}
-                                  form={form}
-                                  handleAddBoard={handleAddBoard}
-                                  handleAddName={handleAddName}
-                                  planTypeName={planTypeNameForAi}
-                                  hasParentPlan={hasParentPlanForAi ?? false}
-                                  getWeeklyPlanTasks={getWeeklyPlanTasksForAi}
-                                  userId={userId}
-                                  planningPeriodId={planningPeriodId}
-                                  planningUserId={planningUserId}
-                                  inlineWeeklyPlanTaskId={String(task.id)}
-                                />
-                              )}
                             <Button
-                              type="primary"
-                              className="h-8 flex-shrink-0 rounded-md border-none bg-[#3D41FF] px-4 font-bold hover:bg-[#3236e6]"
+                              type="default"
+                              className="h-8 flex-shrink-0 rounded-lg border border-[#E5E7EB] bg-white px-4 font-semibold text-[#2D5BFF] hover:bg-[#F5F6FA]"
                               onClick={() => {
                                 setMKAsATask(null);
                                 handleAddBoard(compositeKey, {
@@ -209,37 +178,32 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                                 data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-145"
                                 className="sm:hidden"
                               >
-                                Add Task
+                                Add Plan
                               </span>
                               <span
                                 data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-146"
                                 className="hidden sm:inline"
                               >
-                                Add plan Task
+                                Add Plan
                               </span>
                             </Button>
                           </div>
                         </div>
 
-                        <div
-                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-152"
-                          className="px-4 pb-5 pt-0"
-                        >
-                          <DefaultCardForm
-                            kId={keyResult.id}
-                            milestoneId={milestone.id}
-                            name={`names-${compositeKey}`}
-                            form={form}
-                            planningPeriodId={planningPeriodId || ''}
-                            userId={userId}
-                            parentPlanId={parentParentId || ''}
-                            planningUserId={planningUserId || ''}
-                            planTaskId={task.id || ''}
-                            isMKAsTask={!!mkAsATask}
-                            keyResult={keyResult}
-                            targetValue={task.targetValue}
-                          />
-                        </div>
+                        <DefaultCardForm
+                          kId={keyResult.id}
+                          milestoneId={milestone.id}
+                          name={`names-${compositeKey}`}
+                          form={form}
+                          planningPeriodId={planningPeriodId || ''}
+                          userId={userId}
+                          parentPlanId={parentParentId || ''}
+                          planningUserId={planningUserId || ''}
+                          planTaskId={task.id || ''}
+                          isMKAsTask={!!mkAsATask}
+                          keyResult={keyResult}
+                          targetValue={task.targetValue}
+                        />
                       </div>
                     );
                   })}
@@ -257,22 +221,14 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                   >
                     <div
                       data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-182"
-                      className="pt-5 px-4 pb-0 flex justify-between items-center gap-3"
+                      className="py-3 px-4 flex justify-between items-center gap-3"
                     >
                       <div
                         data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-183"
                         className="text-sm flex items-center min-w-0 flex-1 pr-2"
                       >
-                        <strong
-                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-strong-184"
-                          className="text-gray-950 flex-shrink-0 whitespace-nowrap"
-                        >
-                          {planningPeriodHierarchy?.parentPlan?.name ||
-                            'Parent'}
-                          -task :
-                        </strong>
                         <span
-                          className="ml-2 text-gray-700 truncate flex-1 min-w-0"
+                          className="text-gray-700 truncate flex-1 min-w-0"
                           title={task.task}
                           data-cy="planningandreporting-planning-and-reporting-components-planning-createplanhierarchy-tsx-span-225"
                         >
@@ -283,30 +239,9 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                         data-cy="planning-create-planhierarchy-kr-task-actions"
                         className="flex flex-shrink-0 items-center gap-2"
                       >
-                        {planTypeNameForAi !== undefined && task.keyResult && (
-                          <PlanningKrAISuggestions
-                            keyResult={{
-                              id: String(task.keyResult.id),
-                              title: task.keyResult.title,
-                              metricType: task.keyResult.metricType,
-                              milestones: task.keyResult.milestones,
-                              progress: task.keyResult.progress,
-                            }}
-                            form={form}
-                            handleAddBoard={handleAddBoard}
-                            handleAddName={handleAddName}
-                            planTypeName={planTypeNameForAi}
-                            hasParentPlan={hasParentPlanForAi ?? false}
-                            getWeeklyPlanTasks={getWeeklyPlanTasksForAi}
-                            userId={userId}
-                            planningPeriodId={planningPeriodId}
-                            planningUserId={planningUserId}
-                            inlineWeeklyPlanTaskId={String(task.id)}
-                          />
-                        )}
                         <Button
-                          type="primary"
-                          className="h-8 flex-shrink-0 rounded-md border-none bg-[#3D41FF] px-4 font-bold hover:bg-[#3236e6]"
+                          type="default"
+                          className="h-8 flex-shrink-0 rounded-lg border border-[#E5E7EB] bg-white px-4 font-semibold text-[#2D5BFF] hover:bg-[#F5F6FA]"
                           onClick={() => {
                             setMKAsATask(null);
                             handleAddBoard(compositeKey, {
@@ -329,37 +264,32 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                             data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-217"
                             className="sm:hidden"
                           >
-                            Add Task
+                            Add Plan
                           </span>
                           <span
                             data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-218"
                             className="hidden sm:inline"
                           >
-                            Add plan Task
+                            Add Plan
                           </span>
                         </Button>
                       </div>
                     </div>
 
-                    <div
-                      data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-div-222"
-                      className="px-4 pb-5 pt-0"
-                    >
-                      <DefaultCardForm
-                        kId={keyResult.id}
-                        milestoneId={null}
-                        name={`names-${compositeKey}`}
-                        form={form}
-                        planningPeriodId={planningPeriodId || ''}
-                        userId={userId}
-                        parentPlanId={parentParentId || ''}
-                        planningUserId={planningUserId || ''}
-                        planTaskId={task.id || ''}
-                        isMKAsTask={!!mkAsATask}
-                        keyResult={keyResult}
-                        targetValue={task.targetValue}
-                      />
-                    </div>
+                    <DefaultCardForm
+                      kId={keyResult.id}
+                      milestoneId={null}
+                      name={`names-${compositeKey}`}
+                      form={form}
+                      planningPeriodId={planningPeriodId || ''}
+                      userId={userId}
+                      parentPlanId={parentParentId || ''}
+                      planningUserId={planningUserId || ''}
+                      planTaskId={task.id || ''}
+                      isMKAsTask={!!mkAsATask}
+                      keyResult={keyResult}
+                      targetValue={task.targetValue}
+                    />
                   </div>
                 );
               })}

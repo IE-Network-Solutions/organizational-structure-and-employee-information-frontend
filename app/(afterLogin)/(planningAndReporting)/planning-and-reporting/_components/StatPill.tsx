@@ -27,16 +27,16 @@ export default function StatPill({
   value,
   variant = 'default',
 }: StatPillProps) {
-  const labelDisplay = label === 'krProgress' ? 'Key Result Progress' : label;
+  const labelDisplay = label;
 
   if (variant === 'achieved' || variant === 'progress') {
     return (
       <span
         data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-35"
-        className="inline-flex items-center rounded border px-3 py-1.5 text-xs font-semibold shadow-none"
+        className="inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold shadow-none"
         style={{
           backgroundColor: PR_METRIC_PILL_BG,
-          borderColor: PR_PROGRESS_BORDER,
+          borderColor: PR_BORDER,
           color: PR_METRIC_PILL_VALUE,
         }}
       >
@@ -61,7 +61,7 @@ export default function StatPill({
   return (
     <span
       data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-35"
-      className="inline-flex items-center rounded border px-3 py-1.5 text-xs font-semibold shadow-none"
+      className="inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold shadow-none"
       style={{
         backgroundColor: PR_SURFACE,
         borderColor: PR_BORDER,

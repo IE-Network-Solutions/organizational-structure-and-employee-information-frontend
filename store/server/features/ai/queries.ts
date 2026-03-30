@@ -14,9 +14,13 @@ const BASE_URL =
 
 /** Browser calls same-origin API routes to avoid CORS / mixed-content issues. */
 const weeklyPlanUrl = () =>
-  typeof window !== 'undefined' ? '/api/ai/weekly-plan' : `${BASE_URL}/weekly-plan`;
+  typeof window !== 'undefined'
+    ? '/api/ai/weekly-plan'
+    : `${BASE_URL}/weekly-plan`;
 const dailyPlanUrl = () =>
-  typeof window !== 'undefined' ? '/api/ai/daily-plan' : `${BASE_URL}/daily-plan`;
+  typeof window !== 'undefined'
+    ? '/api/ai/daily-plan'
+    : `${BASE_URL}/daily-plan`;
 
 const postWeeklyPlan = async (payload: { keyResultReport: any[] }) => {
   const { data } = await axios.post<WeeklyPlanResponse>(

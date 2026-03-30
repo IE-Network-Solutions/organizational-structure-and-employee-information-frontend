@@ -14,7 +14,10 @@ import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import Image from 'next/image';
-import { useApprovalReporting } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import {
+  useApprovalReporting,
+  useDeleteReportById,
+} from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
@@ -59,6 +62,7 @@ function Reporting() {
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
+  const { mutate: deleteReportById } = useDeleteReportById();
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
@@ -215,9 +219,11 @@ function Reporting() {
                     onApprove={() => handleApproveHandler(dataItem.id, true)}
                     onOpen={() => handleApproveHandler(dataItem.id, false)}
                     onEdit={() => {
+                      setOpenReportModal(true);
                       setSelectedReportId(dataItem.id);
                       setSelectedPlanId(dataItem.planId);
                     }}
+                    onDelete={() => deleteReportById(dataItem.id)}
                     canApprove={
                       userId ===
                       (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
@@ -226,6 +232,11 @@ function Reporting() {
                           ?.delegatedTo?.id)
                     }
                     canEdit={
+                      userId === (dataItem?.userId ?? dataItem?.createdBy) &&
+                      dataItem?.plan?.isReportValidated == false &&
+                      isDataFromActiveSession(dataItem?.createdAt)
+                    }
+                    canDelete={
                       userId === (dataItem?.userId ?? dataItem?.createdBy) &&
                       dataItem?.plan?.isReportValidated == false &&
                       isDataFromActiveSession(dataItem?.createdAt)

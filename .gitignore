@@ -32,6 +32,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# local diagnostics / scratch outputs
+lint-*.txt
+lint_errors*.txt
+*data-cy-errors*.txt
+unique-files-with-errors.txt
+how --stat*
+
+# generated runtime artifacts
+public/fallback-*.js
+
 
 # vercel
 .vercel

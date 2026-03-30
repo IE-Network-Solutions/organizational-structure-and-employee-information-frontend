@@ -113,7 +113,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
               Priority
             </Text>
             <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px] rounded-[4px]"
+              className="font-bold min-w-[79px] text-center capitalize text-[10px]"
               color={
                 task?.priority === 'high'
                   ? 'red'
@@ -138,7 +138,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                     Achieved
                   </Text>
                   <Tag
-                    className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                    className="font-bold min-w-[79px] text-center capitalize text-[10px]"
                     color={'blue'}
                   >
                     {Number(task?.actualValue)?.toLocaleString() || 'None'}
@@ -172,7 +172,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
               Weight
             </Text>
             <Tag
-              className="font-bold border-none w-10 text-center cap text-blue text-[10px]"
+              className="font-bold min-w-[79px] text-center capitalize text-blue text-[10px]"
               color="#B2B2FF"
             >
               {task?.weightPlan || 0}
@@ -186,7 +186,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             >
               <div data-cy="-components-reporting-milestone-index-tsx-index-div-148">
                 <Tag
-                  className="font-bold border-none w-16 text-center capitalize text-[10px] rounded-[4px]"
+                  className="font-bold min-w-[79px] text-center capitalize text-[10px]"
                   color={
                     task?.priority === 'high'
                       ? 'red'
@@ -215,7 +215,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                   Weight
                 </span>
                 <Tag
-                  className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"
+                  className="font-semibold text-blue text-xs"
                   color="#e7e7ff"
                 >
                   {task?.weightPlan || 0}

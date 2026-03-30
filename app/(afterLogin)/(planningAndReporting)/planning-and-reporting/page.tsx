@@ -24,6 +24,7 @@ import {
   PR_TEXT,
   PR_TEXT_MUTED,
 } from './_components/planningUiTokens';
+import './_components/planningAntTagScope.css';
 
 interface PlanningPeriod {
   id: string;
@@ -153,7 +154,7 @@ function PlanningReportingPageInner() {
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
-      className="min-h-screen w-full px-4 pb-10 md:px-8"
+      className="pr-ant-tag-scope min-h-screen w-full px-4 pb-10 md:px-8"
       style={{ backgroundColor: PR_PAGE_BG }}
     >
       <div
@@ -172,13 +173,6 @@ function PlanningReportingPageInner() {
               data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-header"
               className="flex min-w-0 flex-1 flex-col gap-1"
             >
-              <p
-                className="text-xs font-medium md:text-sm"
-                style={{ color: PR_TEXT_MUTED }}
-                data-cy="planning-reporting-breadcrumb"
-              >
-                OKR / Planning and Reporting
-              </p>
               <h1
                 className="text-2xl font-bold leading-tight tracking-tight md:text-[28px]"
                 style={{ color: PR_TEXT }}
@@ -186,6 +180,13 @@ function PlanningReportingPageInner() {
               >
                 Planning and Reporting
               </h1>
+              <p
+                className="text-xs font-medium md:text-sm"
+                style={{ color: PR_TEXT_MUTED }}
+                data-cy="planning-reporting-breadcrumb"
+              >
+                OKR / Planning and Reporting
+              </p>
             </header>
             <div
               id="pr-primary-action-slot"

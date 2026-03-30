@@ -1,8 +1,9 @@
-import { Tag } from 'antd';
 import { FC } from 'react';
 import MilestoneTasks from './milestoneTasks';
 import TasksDisplayer from '../reporting/milestone';
 import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
+import StatPill from '../StatPill';
+import { PR_BORDER, PR_PRIMARY, PR_TEXT, PR_TEXT_MUTED } from '../planningUiTokens';
 interface KeyResultTasksProps {
   keyResult?: any;
   keyResultIndex: number;
@@ -14,142 +15,83 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
   keyResultIndex,
   activeTab,
 }) => {
+  const metricTypeName = keyResult?.metricType?.name;
+
+  const targetValue =
+    metricTypeName === 'Milestone'
+      ? keyResult?.milestones?.length || 0
+      : metricTypeName === 'Achieve'
+        ? '100'
+        : Number(keyResult?.targetValue)?.toLocaleString() || 0;
+
+  const achievedValue =
+    metricTypeName === 'Milestone'
+      ? keyResult?.milestones?.filter((e: any) => e.status === 'Completed')
+          ?.length || 0
+      : metricTypeName === 'Achieve'
+        ? keyResult?.progress
+        : (
+            Number(keyResult?.currentValue) + Number(keyResult?.initialValue)
+          )?.toLocaleString() || 0;
+
+  const progressValue = `${keyResult?.progress || 0}%`;
+
   return (
     <div
-      className="my-3 pb-8 bg-white rounded-lg border"
+      className="my-3 rounded-lg border bg-white pb-6 shadow-none"
+      style={{ borderColor: PR_BORDER }}
       data-cy={`key-result-tasks-container-${keyResultIndex}`}
     >
       <div
-        className="grid gap-4 mt-3 sm:mt-0"
+        className="grid gap-4 px-3 pt-4 sm:px-6"
         data-cy={`key-result-tasks-grid-${keyResultIndex}`}
       >
         <div
-          className="flex gap-4 sm:px-10 sm:py-3"
+          className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
           data-cy={`key-result-tasks-header-${keyResultIndex}`}
         >
-          <div
-            className="items-center gap-2 hidden sm:flex"
-            data-cy={`key-result-tasks-target-section-${keyResultIndex}`}
-          >
+          <div className="min-w-0" data-cy={`key-result-tasks-title-section-${keyResultIndex}`}>
             <div
-              className="flex items-center gap-1"
-              data-cy={`key-result-tasks-target-label-container-${keyResultIndex}`}
+              className="flex items-center gap-2"
+              data-cy={`key-result-tasks-title-container-${keyResultIndex}`}
             >
-              <div
-                className="text-blue text-xl"
-                data-cy={`key-result-tasks-target-bullet-${keyResultIndex}`}
-              >
-                &#x2022;
-              </div>
-              <div
-                className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg"
-                data-cy={`key-result-tasks-target-label-${keyResultIndex}`}
-              >
-                {keyResult?.metricType?.name === 'Milestone'
-                  ? 'Milestones'
-                  : 'Target'}
+              <PlanningVpnKeyIcon
+                size={22}
+                color={PR_PRIMARY}
+                className="flex-shrink-0"
+                data-cy={`key-result-tasks-vpn-key-${keyResultIndex}`}
+              />
+              <div className="min-w-0">
+                <div
+                  className="text-xs font-semibold"
+                  style={{ color: PR_TEXT_MUTED }}
+                  data-cy={`key-result-tasks-subtitle-${keyResultIndex}`}
+                >
+                  Key Result
+                </div>
+                <h2
+                  className="text-sm font-bold leading-snug text-[#161A2C] sm:text-base"
+                  style={{ color: PR_TEXT }}
+                  data-cy={`key-result-tasks-title-${keyResultIndex}`}
+                >
+                  {keyResult?.title}
+                </h2>
               </div>
             </div>
-            <Tag
-              className="font-bold border-none min-w-8 text-center text-blue text-[10px]"
-              color="#B2B2FF"
-            >
-              {keyResult?.metricType?.name === 'Milestone'
-                ? keyResult?.milestones?.length || 0
-                : keyResult?.metricType?.name === 'Achieve'
-                  ? '100'
-                  : Number(keyResult?.targetValue)?.toLocaleString() || 0}
-            </Tag>
           </div>
 
           <div
-            className="items-center gap-2 hidden sm:flex"
-            data-cy={`key-result-tasks-achieved-section-${keyResultIndex}`}
+            className="flex flex-wrap items-center gap-2 sm:justify-end"
+            data-cy={`key-result-tasks-metrics-row-${keyResultIndex}`}
           >
-            <div
-              className="flex items-center gap-1"
-              data-cy={`key-result-tasks-achieved-label-container-${keyResultIndex}`}
-            >
-              <div
-                className="text-blue text-xl"
-                data-cy={`key-result-tasks-achieved-bullet-${keyResultIndex}`}
-              >
-                &#x2022;
-              </div>
-              <div
-                className="text-gray-500 font-semibold mt-1 text-[10px] flex items-center rounded-lg"
-                data-cy={`key-result-tasks-achieved-label-${keyResultIndex}`}
-              >
-                Achieved
-              </div>
-            </div>
-            <Tag
-              className="font-bold border-none min-w-8  text-center text-blue text-[10px]"
-              color="#B2B2FF"
-            >
-              {keyResult?.metricType?.name === 'Milestone'
-                ? keyResult?.milestones?.filter(
-                    (e: any) => e.status === 'Completed',
-                  )?.length || 0
-                : keyResult?.metricType?.name === 'Achieve'
-                  ? keyResult?.progress
-                  : (
-                      Number(keyResult?.currentValue) +
-                      Number(keyResult?.initialValue)
-                    )?.toLocaleString() || 0}
-            </Tag>
+            <StatPill
+              label={metricTypeName === 'Milestone' ? 'Milestones' : 'Target'}
+              value={targetValue}
+              variant={metricTypeName === 'Milestone' ? 'milestone' : 'target'}
+            />
+            <StatPill label="Achieved" value={achievedValue} variant="achieved" />
+            <StatPill label="KR Progress" value={progressValue} variant="progress" />
           </div>
-
-          <div
-            className="items-center gap-2 hidden sm:flex"
-            data-cy={`key-result-tasks-progress-section-${keyResultIndex}`}
-          >
-            <div
-              className="flex items-center gap-1"
-              data-cy={`key-result-tasks-progress-label-container-${keyResultIndex}`}
-            >
-              <div
-                className="text-green-600 text-xl"
-                data-cy={`key-result-tasks-progress-bullet-${keyResultIndex}`}
-              >
-                &#x2022;
-              </div>
-              <div
-                className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg"
-                data-cy={`key-result-tasks-progress-label-${keyResultIndex}`}
-              >
-                KR Progress
-              </div>
-            </div>
-            <Tag
-              className="font-bold border-none min-w-8 text-center text-green-600 text-[10px]"
-              color="#ddf4e9"
-            >
-              {keyResult?.progress || 0}%
-            </Tag>
-          </div>
-        </div>
-      </div>
-      <div
-        className="bg-white px-3 w-full sm:px-6"
-        data-cy={`key-result-tasks-title-section-${keyResultIndex}`}
-      >
-        <div
-          className="flex items-center gap-2 mb-1"
-          data-cy={`key-result-tasks-title-container-${keyResultIndex}`}
-        >
-          <PlanningVpnKeyIcon
-            size={32}
-            color="#3636f0"
-            className="flex-shrink-0"
-            data-cy={`key-result-tasks-vpn-key-${keyResultIndex}`}
-          />
-          <h2
-            className="text-sm font-semibold truncate min-w-0 flex-1"
-            data-cy={`key-result-tasks-title-${keyResultIndex}`}
-          >
-            {keyResult?.title}
-          </h2>
         </div>
       </div>
       {activeTab === 1 ? (

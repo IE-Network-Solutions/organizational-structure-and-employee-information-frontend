@@ -1,0 +1,25 @@
+/**
+ * Ant Design `Tag` layout for Planning & Reporting.
+ * Aligns with Tag global tokens: borderRadiusSM (4px), lineWidth (1px),
+ * controlPaddingHorizontalSM (8px), internal gap 4px, 22px height, opacity 1.
+ * Scope with class `pr-ant-tag-scope` on a parent (see page.tsx).
+ */
+.pr-ant-tag-scope .ant-tag {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 22px;
+  height: 22px;
+  padding: 1px 8px !important;
+  margin-inline-end: 0;
+  border-radius: 4px !important;
+  /* lineWidth / border: Ant Design Tag default (1px) */
+  line-height: 20px;
+  opacity: 1;
+}
+
+.pr-ant-tag-scope .ant-tag .anticon {
+  line-height: 1;
+}

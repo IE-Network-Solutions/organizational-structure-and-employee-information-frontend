@@ -153,7 +153,9 @@ function CreateReport() {
 
   const selectedPeriodMeta = useMemo(
     () =>
-      orderedCadencePeriodOptions.find((o) => o.value === modalPlanningPeriodId),
+      orderedCadencePeriodOptions.find(
+        (o) => o.value === modalPlanningPeriodId,
+      ),
     [orderedCadencePeriodOptions, modalPlanningPeriodId],
   );
 
@@ -694,7 +696,10 @@ function CreateReport() {
                 onFinish={handleOnFinish}
                 className="px-0"
               >
-                <div id="create-report-collapse" data-cy="create-report-collapse">
+                <div
+                  id="create-report-collapse"
+                  data-cy="create-report-collapse"
+                >
                   <Collapse
                     defaultActiveKey={formattedData?.flatMap((obj: any) =>
                       obj.keyResults?.map(

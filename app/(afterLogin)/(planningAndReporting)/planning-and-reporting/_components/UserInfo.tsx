@@ -83,7 +83,7 @@ export default function UserInfo({
   return (
     <div
       data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-47"
-      className="flex items-center gap-2 md:gap-3"
+      className="flex items-start gap-2 md:gap-3"
     >
       <div
         data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-48"
@@ -124,10 +124,10 @@ export default function UserInfo({
       >
         <div
           data-cy="planning-reporting-userinfo-name-row"
-          className="flex flex-wrap items-center gap-2"
+          className="flex items-center gap-2"
         >
           <p
-            className="text-sm font-semibold leading-tight md:text-base truncate max-w-[200px] md:max-w-none"
+            className="text-sm font-semibold leading-tight md:text-base truncate max-w-[200px] md:max-w-none whitespace-nowrap"
             style={{ color: PR_TEXT }}
             title={owner.name}
             data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
@@ -137,7 +137,7 @@ export default function UserInfo({
           {cadenceLabel ? (
             <span
               data-cy="planning-reporting-userinfo-cadence"
-              className="shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold md:text-xs"
+              className="inline-flex shrink-0 items-center leading-none rounded-md border px-2 py-0.5 text-[10px] font-semibold md:text-xs"
               style={{
                 borderColor: PR_BORDER,
                 backgroundColor: '#F8FAFC',
@@ -149,7 +149,7 @@ export default function UserInfo({
           ) : null}
         </div>
         <p
-          className="mt-0.5 text-xs leading-tight md:text-sm truncate"
+          className="mt-0 text-xs leading-tight md:text-sm truncate"
           style={{ color: PR_TEXT_MUTED }}
           title={teamLine || owner.role}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-115"
