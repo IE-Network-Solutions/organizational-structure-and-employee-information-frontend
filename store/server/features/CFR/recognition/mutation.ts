@@ -210,7 +210,8 @@ export const useCreateEmployeeRecognition = () => {
   return useMutation(createEmployeeRecognition, {
     onSuccess: (notused, variables: any) => {
       queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');      const method = variables?.method?.toUpperCase();
+      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
+      const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
     // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,

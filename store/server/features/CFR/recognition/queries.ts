@@ -402,4 +402,3 @@ export const useGetAllRecognition = ({
     () => getAllRecognitions({ searchValue, current, pageSize }),
   );
 };
-
