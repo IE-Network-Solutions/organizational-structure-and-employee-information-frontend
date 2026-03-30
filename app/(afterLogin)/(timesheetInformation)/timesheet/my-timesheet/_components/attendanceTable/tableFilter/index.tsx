@@ -73,12 +73,10 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 className={selectFieldClassName}
                 suffixIcon={suffixIcon}
                 options={attendanceRecordTypeOption}
-                optionRender={(option: {
-                  label?: React.ReactNode;
-                  value?: string;
-                }) => {
-                  const isSelected = option?.value === selectedType;
-                  const optKey = String(option?.value ?? 'option');
+                optionRender={(option) => {
+                  const { label, value } = option.data;
+                  const isSelected = value === selectedType;
+                  const optKey = String(value ?? 'option');
                   return (
                     <div
                       className="flex items-center justify-between rounded px-2 py-1"
@@ -90,7 +88,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                       <span
                         data-cy={`time-attendance-attendance-table-filter-type-option-label-${optKey}`}
                       >
-                        {option?.label}
+                        {label}
                       </span>
                       {isSelected ? (
                         <CheckOutlined style={{ color: '#1E40AF' }} />
@@ -227,9 +225,10 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 />
               }
               options={attendanceRecordTypeOption}
-              optionRender={(option: any) => {
-                const isSelected = option?.value === selectedType;
-                const optKey = String(option?.value ?? 'option');
+              optionRender={(option) => {
+                const { label, value } = option.data;
+                const isSelected = value === selectedType;
+                const optKey = String(value ?? 'option');
                 return (
                   <div
                     className="flex items-center justify-between rounded px-2 py-1"
@@ -241,7 +240,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                     <span
                       data-cy={`time-attendance-attendance-table-filter-type-option-label-${optKey}`}
                     >
-                      {option?.label}
+                      {label}
                     </span>
                     {isSelected ? (
                       <CheckOutlined style={{ color: '#1E40AF' }} />
