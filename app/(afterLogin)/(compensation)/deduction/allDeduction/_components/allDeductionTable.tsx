@@ -119,6 +119,8 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
     return dataSource.filter((row) => matchingIds.has(row.employeeId));
   }, [dataSource, searchText, employeeData?.items]);
 
+  const nameColumnWidth = isMobile ? 118 : isTablet ? 168 : 200;
+
   const columns: ColumnsType<DataRow> = useMemo(() => {
     const baseColumns: ColumnsType<DataRow> = [
       {
@@ -127,10 +129,10 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
         key: 'employeeName',
         ellipsis: true,
         fixed: 'left',
-        width: 200,
+        width: nameColumnWidth,
         render: (text: string) => (
           <span
-            className="text-[13px] text-[#434343]"
+            className={`text-[#434343] ${isMobile ? 'text-xs leading-snug' : 'text-[13px]'}`}
             data-cy="compensation-deduction-all-table-name-cell"
           >
             {text}
@@ -166,7 +168,7 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
     });
 
     return baseColumns;
-  }, [deductionItems]);
+  }, [deductionItems, nameColumnWidth, isMobile]);
 
   const paginatedData = useMemo(
     () =>

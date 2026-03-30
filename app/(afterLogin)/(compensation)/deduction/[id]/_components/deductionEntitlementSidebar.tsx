@@ -362,7 +362,7 @@ const DeductionEntitlementSideBar = () => {
           >
             <Button
               type="default"
-              className="h-8 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
+              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
               loading={createAllowanceEntitlementLoading}
               onClick={onClose}
               disabled={createAllowanceEntitlementLoading}
@@ -373,7 +373,7 @@ const DeductionEntitlementSideBar = () => {
             </Button>
             <Button
               type="primary"
-              className="h-8 px-4 rounded-md text-sm font-normal"
+              className="h-10 px-4 rounded-md text-sm font-normal"
               loading={createAllowanceEntitlementLoading}
               disabled={isSubmitDisabled}
               onClick={() => form.submit()}
@@ -587,11 +587,10 @@ const DeductionEntitlementSideBar = () => {
                             loading={payPeriodsLoading}
                             className={`w-full ${SELECT_40H}`}
                             options={(() => {
-                              const raw =
-                                payPeriods as unknown as
-                                  | any[]
-                                  | { items?: any[] }
-                                  | undefined;
+                              const raw = payPeriods as unknown as
+                                | any[]
+                                | { items?: any[] }
+                                | undefined;
                               const periodsList: any[] = Array.isArray(raw)
                                 ? raw
                                 : raw &&
