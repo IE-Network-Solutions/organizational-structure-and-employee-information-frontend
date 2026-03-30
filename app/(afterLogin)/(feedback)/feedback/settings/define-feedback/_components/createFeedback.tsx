@@ -13,9 +13,15 @@ import {
   useUpdatePerspective,
 } from '@/store/server/features/CFR/feedback/mutations';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const CreateFeedback: React.FC = () => {
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile state updates after modal opens.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
   const {
     selectedFeedback,
@@ -113,7 +119,7 @@ const CreateFeedback: React.FC = () => {
     } else {
       form?.resetFields();
     }
-  }, [selectedFeedback]);
+  }, [selectedFeedback, form, settingActiveTab]);
   const onCloseHandler = () => {
     form?.resetFields();
     setOpen(false);
@@ -192,11 +198,35 @@ const CreateFeedback: React.FC = () => {
         </div>
       }
       title={modalHeader}
-      centered
-      className="md:w-[523px] w-[100%]"
+      centered={!isMobileViewport}
+      className={isMobileViewport ? 'w-full' : 'w-[523px]'}
       // width={523}
-      style={{ height: 552 }}
+      width={isMobileViewport ? '100%' : 523}
+      style={
+        isMobileViewport
+          ? {
+              height: 552,
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              transform: 'none',
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              width: '100%',
+              maxWidth: '100%',
+            }
+          : { height: 552 }
+      }
       styles={{
+        content: isMobileViewport
+          ? {
+              width: '100%',
+              maxWidth: '100%',
+              margin: 0,
+            }
+          : undefined,
         body: {
           maxHeight: 552,
           overflowY: 'auto',
@@ -205,15 +235,28 @@ const CreateFeedback: React.FC = () => {
       maskClosable={false}
       data-cy="create-feedback-modal"
     >
-      <div className="flex flex-col gap-4">
+      <div
+        className="flex flex-col gap-4"
+        data-cy="create-feedback-modal-content"
+      >
         {settingActiveTab !== 'perspective' && (
-          <div className="flex flex-col items-center gap-2">
-            <span className="text-sm  font-medium">Select Type</span>
-            <div className="">
+          <div
+            className="flex flex-col items-center gap-2"
+            data-cy="create-feedback-select-type-section"
+          >
+            <span
+              className="text-sm  font-medium"
+              data-cy="create-feedback-select-type-title"
+            >
+              Select Type
+            </span>
+            <div className="" data-cy="create-feedback-select-type-buttons">
               {getAllFeedbackTypes?.items?.map((item: any) => (
                 <button
+                  key={item.category}
                   type="button"
                   onClick={() => setFeedbackModalType(item.category)}
+                  data-cy={`create-feedback-select-type-${item.category}`}
                   className={`px-5 py-1.5 text-sm rounded-lg transition-colors ${
                     feedbackModalType === item.category
                       ? 'bg-primary text-white shadow-sm'
@@ -224,7 +267,10 @@ const CreateFeedback: React.FC = () => {
                 </button>
               ))}
             </div>
-            <p className="text-sm  mt-1 text-center max-w-xs">
+            <p
+              className="text-sm  mt-1 text-center max-w-xs"
+              data-cy="create-feedback-select-type-description"
+            >
               Content about what {feedbackModalType} {variantType} is
             </p>
           </div>
