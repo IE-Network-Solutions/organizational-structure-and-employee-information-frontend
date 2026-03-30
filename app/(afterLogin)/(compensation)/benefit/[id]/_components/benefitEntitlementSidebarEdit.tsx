@@ -172,7 +172,7 @@ const BenefitEntitlementSideBarEdit = ({
         >
           <Button
             type="default"
-            className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
+            className="h-8 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
             loading={updateBenefitLoading}
             onClick={onClose}
             id="compensation-benefit-sidebar-edit-cancel-button"
@@ -182,7 +182,7 @@ const BenefitEntitlementSideBarEdit = ({
           </Button>
           <Button
             type="primary"
-            className="h-10 px-4 rounded-md text-sm font-normal"
+            className="h-8 px-4 rounded-md text-sm font-normal"
             loading={updateBenefitLoading}
             onClick={() => form.submit()}
             id="compensation-benefit-sidebar-edit-update-button"

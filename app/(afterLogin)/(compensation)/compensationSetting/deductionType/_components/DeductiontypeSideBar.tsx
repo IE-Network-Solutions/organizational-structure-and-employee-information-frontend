@@ -144,7 +144,7 @@ const DeductiontypeSideBar = () => {
           >
             <Button
               type="default"
-              className="h-10 rounded-md border border-gray-300 bg-white px-4 text-sm font-normal text-gray-900 hover:bg-gray-50"
+              className="h-8 rounded-md border border-gray-300 bg-white px-4 text-sm font-normal text-gray-900 hover:bg-gray-50"
               onClick={onClose}
               data-cy="compensation-settings-deduction-sidebar-cancel"
             >
@@ -152,7 +152,7 @@ const DeductiontypeSideBar = () => {
             </Button>
             <Button
               type="primary"
-              className="h-10 rounded-md px-4 text-sm font-normal"
+              className="h-8 rounded-md px-4 text-sm font-normal"
               loading={isSubmitting}
               onClick={() => form.submit()}
               data-cy="compensation-settings-deduction-sidebar-submit"
