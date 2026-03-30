@@ -1,8 +1,6 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Button, Form, Select, Spin, Checkbox } from 'antd';
+import { Button, Checkbox, Form, Modal, Select, Spin } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
-// import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useCreateAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { useParams } from 'next/navigation';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -13,15 +11,13 @@ const AllowanceEntitlementSideBar = () => {
   const {
     isAllowanceEntitlementSidebarOpen,
     resetStore,
-    // departmentUsers,
-    // setDepartmentUsers,
-    // selectedDepartment,
     setSelectedDepartment,
   } = useAllowanceEntitlementStore();
-  const { mutate: createAllowanceEntitlement } =
+
+  const { mutate: createAllowanceEntitlement, isLoading: isCreating } =
     useCreateAllowanceEntitlement();
+
   const [form] = Form.useForm();
-  // const { data: departments, isLoading } = useGetDepartmentsWithUsers();
   const { id } = useParams();
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
   const { data: allowanceData } = useFetchAllowance(id);
@@ -32,14 +28,19 @@ const AllowanceEntitlementSideBar = () => {
     setSelectedDepartment(null);
   };
 
-  const onFormSubmit = (formValues: any) => {
-    createAllowanceEntitlement({
-      compensationItemId: id,
-      employeeIds: formValues.employees,
-      totalAmount: Number(allowanceData?.defaultAmount || 0),
-      active: true,
-    });
-    onClose();
+  // Single-step create for BOTH fixed and rate allowances
+  const onSubmit = (formValues: any) => {
+    createAllowanceEntitlement(
+      {
+        compensationItemId: id,
+        employeeIds: [formValues.employee].filter(Boolean),
+        totalAmount: Number(allowanceData?.defaultAmount || 0),
+        active: true,
+      },
+      {
+        onSuccess: () => onClose(),
+      },
+    );
   };
 
   // Filter users based on checkbox filters - this will be computed in the render
@@ -68,117 +69,114 @@ const AllowanceEntitlementSideBar = () => {
     });
   };
 
-  // const handleDepartmentChange = (value: string) => {
-  //   setSelectedDepartment(value);
-  //   const department = departments.find((dept: any) => dept.name === value);
-  //   if (department) {
-  //     setDepartmentUsers(department.users);
-  //     form.setFieldsValue({
-  //       employees: department.users.map((user: any) => user.id),
-  //     });
-  //   }
-  // };
-
   return (
-    isAllowanceEntitlementSidebarOpen && (
-      <CustomDrawerLayout
-        data-cy="compensation-allowance-sidebar-layout"
-        open={isAllowanceEntitlementSidebarOpen}
-        onClose={onClose}
-        modalHeader={
-          <CustomDrawerHeader
-            className="flex justify-center"
-            data-testid="entitlement-sidebar-header"
-            data-cy="compensation-allowance-sidebar-header"
-          >
-            <span
-              id="compensation-allowance-sidebar-title-text"
-              data-cy="compensation-allowance-sidebar-title-text"
-            >
-              Add Allowance Entitlement
-            </span>
-          </CustomDrawerHeader>
-        }
-        footer={
-          <div
-            className="flex flex-row gap-4 justify-center py-3"
-            id="compensation-allowance-sidebar-footer"
-            data-cy="compensation-allowance-sidebar-footer"
-          >
-            <Button
-              type="default"
-              className="h-10 px-3 w-40"
-              size="large"
-              loading={allUserLoading}
-              onClick={() => onClose()}
-              id="compensation-allowance-sidebar-cancel-button"
-              data-cy="compensation-allowance-sidebar-cancel-button"
-            >
-              Cancel
-            </Button>
-
-            <Button
-              type="primary"
-              key="create"
-              className="h-10 px-3 w-40"
-              size="large"
-              loading={allUserLoading}
-              onClick={() => form.submit()}
-              id="compensation-allowance-sidebar-create-button"
-              data-cy="compensation-allowance-sidebar-create-button"
-            >
-              Create
-            </Button>
-          </div>
-        }
-        width="30%"
-        customMobileHeight="37vh"
-        data-testid="allowance-entitlement-sidebar"
-      >
-        <Spin
-          spinning={allUserLoading}
-          data-testid="entitlement-sidebar-loading"
-          data-cy="compensation-allowance-sidebar-loading"
+    <Modal
+      title={
+        <div
+          className="flex w-full items-center justify-between gap-4"
+          data-cy="compensation-allowance-sidebar-modal-title-row"
         >
-          <Form
-            layout="vertical"
-            form={form}
-            onFinish={(values) => onFormSubmit(values)}
-            requiredMark={CustomLabel}
-            data-testid="entitlement-form"
-            id="compensation-allowance-sidebar-form"
-            data-cy="compensation-allowance-sidebar-form"
+          <span
+            className="inline-flex min-h-6 min-w-0 flex-1 items-center text-left text-base font-semibold leading-6 text-gray-900"
+            id="compensation-allowance-sidebar-title-text"
+            data-cy="compensation-allowance-sidebar-title-text"
           >
-            {/* <Form.Item
-              name="department"
-              label="Select Department"
-              rules={[
-                { required: true, message: 'Please select a department' },
-              ]}
-            >
-              <Select
-                placeholder="Select a department"
-                onChange={handleDepartmentChange}
-              >
-                {departments?.map((department: any) => (
-                  <Select.Option key={department.id} value={department.name}>
-                    {department.name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item> */}
-
+            Add Allowance Entitlement
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
+            data-cy="compensation-allowance-sidebar-close"
+          >
+            <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
+          </button>
+        </div>
+      }
+      open={isAllowanceEntitlementSidebarOpen}
+      onCancel={onClose}
+      closable={false}
+      mask
+      maskClosable={false}
+      zIndex={10002}
+      width={560}
+      centered
+      style={{ maxWidth: 'calc(100vw - 32px)' }}
+      footer={
+        <div
+          className="flex w-full justify-end gap-3"
+          id="compensation-allowance-sidebar-footer"
+          data-cy="compensation-allowance-sidebar-footer"
+        >
+          <Button
+            type="default"
+            className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
+            loading={allUserLoading || isCreating}
+            onClick={onClose}
+            disabled={allUserLoading || isCreating}
+            id="compensation-allowance-sidebar-cancel-button"
+            data-cy="compensation-allowance-sidebar-cancel-button"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            className="h-10 px-4 rounded-md text-sm font-normal"
+            loading={allUserLoading || isCreating}
+            disabled={allUserLoading || isCreating}
+            onClick={() => form.submit()}
+            id="compensation-allowance-sidebar-create-button"
+            data-cy="compensation-allowance-sidebar-create-button"
+          >
+            Continue
+          </Button>
+        </div>
+      }
+      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] [&_.ant-form-item-required]:before:!hidden [&_.ant-form-item-required]:after:!hidden max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
+      classNames={{
+        header:
+          '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
+        body: '!px-6 !pb-0 !pt-0 hide-scrollbar hide-scrollbar-mobile',
+        footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
+      }}
+      styles={{
+        content: { borderRadius: 8, padding: 0 },
+        header: { borderBottom: 'none' },
+        body: {
+          borderBottom: 'none',
+          maxHeight: 'calc(100vh - 240px)',
+          overflowY: 'auto',
+        },
+        footer: { borderTop: 'none' },
+      }}
+      data-cy="compensation-allowance-sidebar-modal"
+    >
+      <Spin
+        spinning={allUserLoading || isCreating}
+        data-cy="compensation-allowance-sidebar-loading"
+      >
+        <Form
+          layout="vertical"
+          form={form}
+          onFinish={onSubmit}
+          requiredMark={CustomLabel}
+          id="compensation-allowance-sidebar-form"
+          data-cy="compensation-allowance-sidebar-form"
+          className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-normal [&_.ant-form-item-label>label]:text-[#262626]"
+        >
+          <div
+            className="rounded-lg border border-gray-200 px-4 py-3 mb-4"
+            data-cy="compensation-allowance-sidebar-filter-card"
+          >
             <div
-              className="mb-4 space-y-2"
-              id="compensation-allowance-sidebar-filter-wrapper"
-              data-cy="compensation-allowance-sidebar-filter-wrapper"
+              className="flex items-center gap-6"
+              data-cy="compensation-allowance-sidebar-filter-card-content"
             >
               <Form.Item
                 name="showDepartmentLeadsOnly"
                 valuePropName="checked"
                 noStyle
-                id="compensation-allowance-sidebar-leads-filter-item"
-                data-cy="compensation-allowance-sidebar-leads-filter-item"
               >
                 <Checkbox
                   onChange={(e) => {
@@ -186,25 +184,15 @@ const AllowanceEntitlementSideBar = () => {
                       form.setFieldValue('showNonLeadsOnly', false);
                     }
                   }}
-                  data-testid="department-leads-filter"
-                  id="compensation-allowance-sidebar-leads-filter-checkbox"
-                  data-cy="compensation-allowance-sidebar-leads-filter-checkbox"
+                  data-cy="compensation-allowance-sidebar-filter-leads"
                 >
-                  <span
-                    id="compensation-allowance-sidebar-leads-filter-text"
-                    data-cy="compensation-allowance-sidebar-leads-filter-text"
-                  >
-                    Show Team Leads
-                  </span>
+                  Team Lead
                 </Checkbox>
               </Form.Item>
-
               <Form.Item
                 name="showNonLeadsOnly"
                 valuePropName="checked"
                 noStyle
-                id="compensation-allowance-sidebar-nonleads-filter-item"
-                data-cy="compensation-allowance-sidebar-nonleads-filter-item"
               >
                 <Checkbox
                   onChange={(e) => {
@@ -212,93 +200,46 @@ const AllowanceEntitlementSideBar = () => {
                       form.setFieldValue('showDepartmentLeadsOnly', false);
                     }
                   }}
-                  data-testid="non-leads-filter"
-                  id="compensation-allowance-sidebar-nonleads-filter-checkbox"
-                  data-cy="compensation-allowance-sidebar-nonleads-filter-checkbox"
+                  data-cy="compensation-allowance-sidebar-filter-subordinates"
                 >
-                  <span
-                    id="compensation-allowance-sidebar-nonleads-filter-text"
-                    data-cy="compensation-allowance-sidebar-nonleads-filter-text"
-                  >
-                    Show Subordinates
-                  </span>
+                  Subordinates
                 </Checkbox>
               </Form.Item>
             </div>
 
             <Form.Item
-              noStyle
-              shouldUpdate={(prevValues, currentValues) =>
-                prevValues.showDepartmentLeadsOnly !==
-                  currentValues.showDepartmentLeadsOnly ||
-                prevValues.showNonLeadsOnly !== currentValues.showNonLeadsOnly
-              }
-              id="compensation-allowance-sidebar-dynamic-wrapper"
-              data-cy="compensation-allowance-sidebar-dynamic-wrapper"
-            >
-              {() => (
-                <Form.Item
-                  className="form-item"
-                  name="employees"
-                  label="Select Employees"
-                  rules={[
-                    { required: true, message: 'Please select employees' },
-                  ]}
-                  data-testid="employees-form-item"
-                  id="compensation-allowance-sidebar-employees-form-item"
-                  data-cy="compensation-allowance-sidebar-employees-form-item"
-                >
-                  <Select
-                    showSearch
-                    placeholder="Select a person"
-                    mode="multiple"
-                    className="w-full h-10 mt-2"
-                    allowClear
-                    maxTagCount={1}
-                    filterOption={(input: any, option: any) =>
-                      (option?.label ?? '')
-                        ?.toLowerCase()
-                        .includes(input.toLowerCase())
-                    }
-                    options={getFilteredUsers()?.map((item: any) => ({
-                      ...item,
-                      value: item?.id,
-                      label:
-                        item?.firstName +
-                        ' ' +
-                        item?.middleName +
-                        ' ' +
-                        item?.lastName,
-                    }))}
-                    loading={allUserLoading}
-                    data-testid="employees-select"
-                    id="compensation-allowance-sidebar-employees-select"
-                    data-cy="compensation-allowance-sidebar-employees-select"
-                  />
-                </Form.Item>
-              )}
-            </Form.Item>
-            {/* <Form.Item
-              name="employees"
-              label="Select Employees"
-              rules={[{ required: true, message: 'Please select employees' }]}
+              className="mb-0 mt-4"
+              name="employee"
+              label="Employee"
+              rules={[{ required: true, message: 'Please select an employee' }]}
+              data-cy="compensation-allowance-sidebar-employee-item"
             >
               <Select
-                mode="multiple"
-                placeholder="Select employees"
-                disabled={!selectedDepartment}
-              >
-                {departmentUsers?.map((user) => (
-                  <Select.Option key={user.id} value={user.id}>
-                    {user?.firstName} {user?.middleName} {user?.lastName}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item> */}
-          </Form>
-        </Spin>
-      </CustomDrawerLayout>
-    )
+                showSearch
+                placeholder="Select employee"
+                className="w-full h-10"
+                allowClear
+                filterOption={(input: any, option: any) =>
+                  (option?.label ?? '')
+                    ?.toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={getFilteredUsers()?.map((item: any) => ({
+                  value: item?.id,
+                  label:
+                    `${item?.firstName || ''} ${item?.middleName || ''} ${item?.lastName || ''}`
+                      .replace(/\s+/g, ' ')
+                      .trim(),
+                }))}
+                loading={allUserLoading}
+                id="compensation-allowance-sidebar-employee-select"
+                data-cy="compensation-allowance-sidebar-employee-select"
+              />
+            </Form.Item>
+          </div>
+        </Form>
+      </Spin>
+    </Modal>
   );
 };
 
