@@ -362,7 +362,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
               data-cy="talent-acquisition-talent-roaster-table-button-action"
             >
               <MoreHorizIcon />
-</Button>
+            </Button>
           </Dropdown>
         ),
       };
@@ -643,9 +643,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         data-cy="talent-acquisition-talent-roaster-table-filters"
         className="flex justify-between items-center py-4"
       >
-        <div
-          data-cy="talent-acquisition-talent-roaster-table-input-search-container"
-        >
+        <div data-cy="talent-acquisition-talent-roaster-table-input-search-container">
           <Input
             id={`inputTalentRoasterNames`}
             data-cy="talent-acquisition-talent-roaster-table-input-search"
@@ -674,49 +672,49 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           <Button
             data-cy="talent-acquisition-talent-roaster-table-button-filter-button"
             className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
-            icon={<FilterAltOutlinedIcon className="text-[#374151] text-base" />}
+            icon={
+              <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+            }
           >
             {!isMobile && 'Filter'}
           </Button>
         </Dropdown>
       </div>
-<div
+      <div
         data-cy="talent-acquisition-talent-roaster-table-scroll-wrapper"
         style={{ overflow: 'hidden' }}
         className="w-full overflow-x-auto scrollbar-none"
       >
-      <Table
-        data-cy="talent-acquisition-talent-roaster-table"
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
-        pagination={false}
-        rowSelection={rowSelection}
-        onRow={(record) => ({
-          onClick: (event) => {
-            // Only navigate if the click is not on a checkbox, button, link, or dropdown
-            const target = event.target as HTMLElement;
-            const isInteractiveElement = target.closest(
-              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
-            );
-
-            if (!isInteractiveElement) {
-              router.push(
-                `/recruitment/talent-resource/talent-roaster/${record?.id}`,
+        <Table
+          data-cy="talent-acquisition-talent-roaster-table"
+          className="w-full"
+          columns={columns}
+          dataSource={data}
+          loading={isLoading}
+          pagination={false}
+          rowSelection={rowSelection}
+          onRow={(record) => ({
+            onClick: (event) => {
+              // Only navigate if the click is not on a checkbox, button, link, or dropdown
+              const target = event.target as HTMLElement;
+              const isInteractiveElement = target.closest(
+                'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
               );
-            }
-          },
-        })}
-        rowHoverable={false}
-        rowClassName={(record, index) => {
-          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-          const selected = selectedRowKeys.includes(
-            record.id,
-          );
-          return selected ? `${base} [&>td]:!bg-white` : base;
-        }}
-      />
+
+              if (!isInteractiveElement) {
+                router.push(
+                  `/recruitment/talent-resource/talent-roaster/${record?.id}`,
+                );
+              }
+            },
+          })}
+          rowHoverable={false}
+          rowClassName={(record, index) => {
+            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+            const selected = selectedRowKeys.includes(record.id);
+            return selected ? `${base} [&>td]:!bg-white` : base;
+          }}
+        />
       </div>
       {isMobile || isTablet ? (
         <div

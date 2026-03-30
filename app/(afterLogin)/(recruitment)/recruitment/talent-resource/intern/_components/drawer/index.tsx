@@ -3,7 +3,6 @@ import {
   Button,
   Col,
   Form,
-  Image,
   Input,
   InputNumber,
   Modal,
@@ -16,7 +15,6 @@ import { UploadChangeParam } from 'antd/es/upload';
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect } from 'react';
 import { FaInfoCircle } from 'react-icons/fa';
-import cvUpload from '@/public/image/cvUpload.png';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useCreateIntern,
@@ -241,7 +239,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   className="text-sm font-normal text-black"
                 >
                   Full Name{' '}
-                  <span className="text-error" data-cy="custom-label-required">*</span>
+                  <span className="text-error" data-cy="custom-label-required">
+                    *
+                  </span>
                 </span>
               }
               rules={[
@@ -282,7 +282,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                       className="text-sm font-normal text-black"
                     >
                       Email Address{' '}
-                      <span className="text-error" data-cy="custom-label-required">*</span>
+                      <span
+                        className="text-error"
+                        data-cy="custom-label-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   rules={[
@@ -323,7 +328,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                       className="text-sm font-normal text-black"
                     >
                       Phone Number{' '}
-                      <span className="text-error" data-cy="custom-label-required">*</span>
+                      <span
+                        className="text-error"
+                        data-cy="custom-label-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   rules={[
@@ -366,7 +376,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                       className="text-sm font-normal text-black"
                     >
                       CGPA{' '}
-                      <span className="text-error" data-cy="custom-label-required">*</span>
+                      <span
+                        className="text-error"
+                        data-cy="custom-label-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   rules={[{ required: true, message: 'Please input CGPA' }]}
@@ -406,7 +421,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   className="text-sm font-normal text-black"
                 >
                   Expected Year of Graduation{' '}
-                  <span className="text-error" data-cy="custom-label-required">*</span>
+                  <span className="text-error" data-cy="custom-label-required">
+                    *
+                  </span>
                 </span>
               }
               rules={[
@@ -434,7 +451,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   className="text-sm font-normal text-black"
                 >
                   Department{' '}
-                  <span className="text-error" data-cy="custom-label-required">*</span>
+                  <span className="text-error" data-cy="custom-label-required">
+                    *
+                  </span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input department!' }]}
@@ -473,7 +492,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   className="text-sm font-normal text-black"
                 >
                   Cover Letter{' '}
-                  <span className="text-error" data-cy="custom-label-required">*</span>
+                  <span className="text-error" data-cy="custom-label-required">
+                    *
+                  </span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input cover letter' }]}
@@ -496,7 +517,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                   className="text-sm font-normal text-black"
                 >
                   Upload CV{' '}
-                  <span className="text-error" data-cy="custom-label-required">*</span>
+                  <span className="text-error" data-cy="custom-label-required">
+                    *
+                  </span>
                 </span>
               }
               rules={[
@@ -520,7 +543,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 listType="picture"
                 accept=".pdf,.doc,.docx"
               >
-                <div className="flex items-center justify-center">
+                <div
+                  data-cy="talent-acquisition-intern-upload-cv-icon"
+                  className="flex items-center justify-center"
+                >
                   <Inbox className="w-10 h-10 text-primary" />
                 </div>
                 <div

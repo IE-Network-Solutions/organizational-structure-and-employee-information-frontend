@@ -9,7 +9,6 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useTalentRoasterStore } from '@/store/uistate/features/recruitment/talent-resource/talent-roaster';
-import CustomButton from '@/components/common/buttons/customButton';
 import { IoIosShareAlt } from 'react-icons/io';
 import { PUBLIC_DOMAIN } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -20,7 +19,7 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 const TalentResourcePage = () => {
   const { setActiveTab, activeTab } = useTalentResourceStore();
   const { setIsAddCandidateVisible } = useInternStore();
-  const { isMobile, isTablet } = useIsMobile();
+  const { isMobile } = useIsMobile();
   const { tenantId } = useAuthenticationStore();
 
   const {
@@ -127,41 +126,44 @@ const TalentResourcePage = () => {
         }
       }
       `}</style>
-      <div className='pt-6'>
-      <h3
-              className="text-black text-2xl font-bold mb-0"
-              data-cy="talent-acquisition-talent-resource-page-breadcrumb-title"
-              id="talent-acquisition-talent-resource-page-breadcrumb-title"
-            >
-            Talent Resource
-          </h3>
-        
-          <Breadcrumb
-            data-cy="talent-acquisition-talent-resource-page-breadcrumb"
-            items={[
-              {
-                title: (
-                  <span
+      <div
+        data-cy="talent-acquisition-talent-resource-page-breadcrumb"
+        className="pt-6"
+      >
+        <h3
+          className="text-black text-2xl font-bold mb-0"
+          data-cy="talent-acquisition-talent-resource-page-breadcrumb-title"
+          id="talent-acquisition-talent-resource-page-breadcrumb-title"
+        >
+          Talent Resource
+        </h3>
+
+        <Breadcrumb
+          data-cy="talent-acquisition-talent-resource-page-breadcrumb"
+          items={[
+            {
+              title: (
+                <span
                   className="text-sm font-normal"
-                    data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-title"
-                  >
-                    Talent Aquistion
-                  </span>
-                ),
-              },
-              {
-                title: (
-                  <span
-                    className="text-sm text-[#4d4d4d] font-normal"
-                    data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-link"
-                  >
-                    Talent Resource
-                  </span>
-                ),
-              },
-            ]}
-          />
-          </div>
+                  data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-title"
+                >
+                  Talent Aquistion
+                </span>
+              ),
+            },
+            {
+              title: (
+                <span
+                  className="text-sm text-[#4d4d4d] font-normal"
+                  data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-link"
+                >
+                  Talent Resource
+                </span>
+              ),
+            },
+          ]}
+        />
+      </div>
       <Divider className="full-bleed-header-divider" />
 
       <Tabs
@@ -267,12 +269,12 @@ const TalentResourcePage = () => {
                     onClick={handleMoveToJobPipeline}
                     className="h-8 w-12 sm:w-auto"
                   >
-                      <span
-                          data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-197"
-                          className="hidden sm:inline text-sm font-normal"
-                        >
-                          Move to Job
-                        </span>
+                    <span
+                      data-cy="recruitment-talent-resource-talent-roaster-page-tsx-page-span-197"
+                      className="hidden sm:inline text-sm font-normal"
+                    >
+                      Move to Job
+                    </span>
                   </Button>
                 </div>
               )}
@@ -284,8 +286,8 @@ const TalentResourcePage = () => {
                 icon={<ContentCopyOutlinedIcon className="text-[#4d4d4d]" />}
                 onClick={handleCopyLink}
                 title="Copy public application link"
-              >                
-                  {!isMobile && 'Copy Link'}
+              >
+                {!isMobile && 'Copy Link'}
               </Button>
               <Button
                 type="primary"
@@ -295,8 +297,7 @@ const TalentResourcePage = () => {
                 icon={<PersonAddOutlinedIcon />}
                 onClick={handleCreate}
               >
-               
-                  {!isMobile && 'Add Talent Roster'}
+                {!isMobile && 'Add Talent Roster'}
               </Button>
             </div>
           ) : activeTab === 3 ? (
@@ -314,8 +315,7 @@ const TalentResourcePage = () => {
                 onClick={handleCopyLinkIntern}
                 title="Copy public application link"
               >
-                  {!isMobile && 'Copy Link'}
-                
+                {!isMobile && 'Copy Link'}
               </Button>
               <Button
                 type="primary"
@@ -325,8 +325,7 @@ const TalentResourcePage = () => {
                 icon={<PersonAddOutlinedIcon />}
                 onClick={handleCreateIntern}
               >
-                
-                  {!isMobile && 'Add Intern'}
+                {!isMobile && 'Add Intern'}
               </Button>
             </div>
           ) : null

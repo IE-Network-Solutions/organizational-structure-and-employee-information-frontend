@@ -333,9 +333,7 @@ const Filters = () => {
       data-cy="talent-acquisition-talent-pool-filter-div-container"
       className="flex items-center justify-between py-2"
     >
-      <div
-        data-cy="talent-acquisition-talent-pool-filter-input-search-container"
-      >
+      <div data-cy="talent-acquisition-talent-pool-filter-input-search-container">
         <Input
           id={`inputSearchByNameTop${searchParams?.search || ''}`}
           data-cy="talent-acquisition-talent-pool-filter-input-search"
@@ -368,7 +366,6 @@ const Filters = () => {
         <Button
           className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
           icon={<FilterAltOutlinedIcon className="text-[#374151] text-base" />}
-
         >
           {!isMobile && 'Filter'}
         </Button>

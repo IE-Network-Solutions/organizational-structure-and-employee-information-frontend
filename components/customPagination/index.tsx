@@ -210,8 +210,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
-
-       
       </div>
 
       {/* Info and Page Size Selector */}
@@ -245,7 +243,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
         <Select
           value={pageSize}
-          className='w-[108px] h-10 text-center text-sm px-1 border-gray-100'
+          className="w-[108px] h-10 text-center text-sm px-1 border-gray-100"
           size={isMobile ? 'small' : 'middle'}
           onChange={(value) => handleSizeChange(value)}
           data-cy="pagination-page-size-select"
@@ -275,7 +273,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             </span>
             <Input
               type="number"
-              placeholder='Input'
+              placeholder="Input"
               min={1}
               max={totalPages}
               value={goToPageValue}

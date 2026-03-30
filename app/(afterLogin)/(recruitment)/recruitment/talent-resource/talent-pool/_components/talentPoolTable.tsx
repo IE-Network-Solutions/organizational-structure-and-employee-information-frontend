@@ -68,19 +68,19 @@ const TalentPoolTable: React.FC<any> = () => {
           data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}
           className="flex flex-col gap-1"
         >
-            <span
-              className="text-sm font-normal text-black text-nowrap"
-              data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
-            >
-              {record?.jobCandidateInformation?.fullName ?? '-'}
-            </span>
-         
-            <span
+          <span
+            className="text-sm font-normal text-black text-nowrap"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
+          >
+            {record?.jobCandidateInformation?.fullName ?? '-'}
+          </span>
+
+          <span
             className="text-xs font-normal text-[#4b4b4b]"
-              data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
-            >
-              {record?.jobCandidateInformation?.email ?? '-'}
-            </span>
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
+          >
+            {record?.jobCandidateInformation?.email ?? '-'}
+          </span>
         </div>
       ),
     },
@@ -247,21 +247,23 @@ const TalentPoolTable: React.FC<any> = () => {
           />
         </div>
       ) : (
-        <div className=' overflow-x-auto scrollbar-none'>
-        <Table
-          data-cy="talent-acquisition-talent-pool-table"
-          dataSource={filteredItems}
-          columns={columns}
-          pagination={false}
-          loading={responseLoading}
-          rowKey="id"
-          rowHoverable={false}
-          rowClassName={(notUsed, index) => {
-            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-            return base;
-            
-          }}
-        />
+        <div
+          data-cy="talent-acquisition-talent-pool-table-container"
+          className=" overflow-x-auto scrollbar-none"
+        >
+          <Table
+            data-cy="talent-acquisition-talent-pool-table"
+            dataSource={filteredItems}
+            columns={columns}
+            pagination={false}
+            loading={responseLoading}
+            rowKey="id"
+            rowHoverable={false}
+            rowClassName={(notUsed, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              return base;
+            }}
+          />
         </div>
       )}
 

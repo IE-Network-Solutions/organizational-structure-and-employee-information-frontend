@@ -16,7 +16,11 @@ import dayjs from 'dayjs';
 import { useGetIntern } from '@/store/server/features/recruitment/intern/query';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
-import { CloseOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useDeleteIntern } from '@/store/server/features/recruitment/intern/mutation';
 import CustomPagination from '@/components/customPagination';
@@ -622,9 +626,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         data-cy="talent-acquisition-intern-table-filters"
         className="flex justify-between items-center py-4"
       >
-        <div
-          data-cy="talent-acquisition-intern-table-input-search-container"
-        >
+        <div data-cy="talent-acquisition-intern-table-input-search-container">
           <Input
             id={`inputInternNames`}
             data-cy="talent-acquisition-intern-table-input-search"
@@ -651,39 +653,46 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         >
           <Button
             className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
-            icon={<FilterAltOutlinedIcon className="text-[#374151] text-base" />}
+            icon={
+              <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+            }
           >
             {!isMobile && 'Filter'}
           </Button>
         </Dropdown>
       </div>
-      <div className=' overflow-x-auto scrollbar-none'>
-      <Table
-        data-cy="talent-acquisition-intern-table"
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
-        pagination={false}
-        onRow={(record) => ({
-          onClick: (event) => {
-            // Only navigate if the click is not on a checkbox, button, link, or dropdown
-            const target = event.target as HTMLElement;
-            const isInteractiveElement = target.closest(
-              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
-            );
+      <div
+        data-cy="talent-acquisition-intern-table-container"
+        className=" overflow-x-auto scrollbar-none"
+      >
+        <Table
+          data-cy="talent-acquisition-intern-table"
+          className="w-full"
+          columns={columns}
+          dataSource={data}
+          loading={isLoading}
+          pagination={false}
+          onRow={(record) => ({
+            onClick: (event) => {
+              // Only navigate if the click is not on a checkbox, button, link, or dropdown
+              const target = event.target as HTMLElement;
+              const isInteractiveElement = target.closest(
+                'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
+              );
 
-            if (!isInteractiveElement) {
-              router.push(`/recruitment/talent-resource/intern/${record?.id}`);
-            }
-          },
-        })}
-        rowHoverable={false}
-        rowClassName={(notUsed, index) => {
-          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-          return base;
-        }}
-      />
+              if (!isInteractiveElement) {
+                router.push(
+                  `/recruitment/talent-resource/intern/${record?.id}`,
+                );
+              }
+            },
+          })}
+          rowHoverable={false}
+          rowClassName={(notUsed, index) => {
+            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+            return base;
+          }}
+        />
       </div>
       {isMobile || isTablet ? (
         <div
