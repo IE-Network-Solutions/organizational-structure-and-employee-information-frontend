@@ -93,7 +93,7 @@ const compensationTypeTablesInitialState = {
   allowancePageSize: 10,
   allowanceCurrentPage: 1,
 
-  benefitPageSize: 10,
+  benefitPageSize: 9,
   benefitCurrentPage: 1,
 };
 

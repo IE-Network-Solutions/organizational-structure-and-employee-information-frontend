@@ -68,7 +68,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'candidateName',
-      key: 'candidateName',
+      key: 'fullName',
       render: (text: string) => (
         <div
           className="text-sm text-gray-700"
@@ -468,8 +468,12 @@ const AllCandidateTable: React.FC = () => {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
-      // Use selectedRows directly to avoid filtering the full list on every click.
-      setSelectedCandidate((selectedRows as CandidateData[]) ?? []);
+      setSelectedCandidate(
+        (selectedRows as CandidateData[])?.map((candidate) => ({
+          ...candidate,
+          fullName: candidate.candidateName,
+        })) ?? [],
+      );
     },
   };
 
@@ -514,25 +518,29 @@ const AllCandidateTable: React.FC = () => {
           })}
         />
       </div>
-
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          data-cy="talent-acquisition-candidate-table-pagination-mobile"
-          totalResults={candidateList?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      ) : (
-        <CustomPagination
-          data-cy="talent-acquisition-candidate-table-pagination-desktop"
-          current={currentPage}
-          total={candidateList?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
-      )}
+      <div
+        data-cy="talent-acquisition-candidate-table-pagination-container"
+        className="px-4"
+      >
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="talent-acquisition-candidate-table-pagination-mobile"
+            totalResults={candidateList?.meta?.totalItems ?? 1}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="talent-acquisition-candidate-table-pagination-desktop"
+            current={currentPage}
+            total={candidateList?.meta?.totalItems ?? 1}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onSizeChange}
+          />
+        )}
+      </div>
       <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
       <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
       <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />

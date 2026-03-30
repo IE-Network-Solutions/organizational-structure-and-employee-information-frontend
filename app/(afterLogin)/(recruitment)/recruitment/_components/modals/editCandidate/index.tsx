@@ -187,13 +187,13 @@ const EditCandidate: React.FC = () => {
       open={editCandidateModal}
       onCancel={() => setEditCandidateModal(false)}
       footer={null}
-      width={630}
-      className="ta-candidate-modal"
+      width={809}
+      // className="ta-candidate-modal"
       title={
         <div
           id="talent-acquisition-edit-candidate-div-header"
           data-cy="talent-acquisition-edit-candidate-div-header"
-          className="text-lg font-semibold text-gray-900"
+          className="flex flex-col"
         >
           Edit Candidate
         </div>
@@ -203,7 +203,7 @@ const EditCandidate: React.FC = () => {
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: 16,
+          padding: '16px 70px',
         },
       }}
       data-cy="talent-acquisition-edit-candidate-modal"
@@ -221,11 +221,11 @@ const EditCandidate: React.FC = () => {
         }}
       >
         <div
-          className="bg-white border border-[#D9D9D9] rounded-lg -mx-3 sm:mx-0"
+          className="bg-white border border-[#D9D9D9] rounded-lg  sm:mx-0 mx-auto"
           data-cy="talent-acquisition-edit-candidate-form-container"
         >
           <div
-            className="px-3 sm:px-4 py-2"
+            className="p-4"
             data-cy="talent-acquisition-edit-candidate-form-inner"
           >
             <Form.Item

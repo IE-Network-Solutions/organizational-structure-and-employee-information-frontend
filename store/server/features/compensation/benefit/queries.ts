@@ -93,9 +93,17 @@ const fetchBenefits = async () => {
  * @param {string | string[]} benefitId - The ID of the benefit for which entitlements are being fetched.
  * @returns {QueryObject} The query object for fetching benefit entitlements.
  */
-export const useFetchBenefitEntitlement = (benefitId: string | string[]) => {
-  return useQuery(['benefitEntitlement'], () =>
-    fetchBenefitEntitlement(benefitId),
+const normalizeBenefitId = (benefitId: string | string[] | undefined) =>
+  Array.isArray(benefitId) ? benefitId[0] : benefitId;
+
+export const useFetchBenefitEntitlement = (
+  benefitId: string | string[] | undefined,
+) => {
+  const id = normalizeBenefitId(benefitId);
+  return useQuery(
+    ['benefitEntitlement', id],
+    () => fetchBenefitEntitlement(id as string),
+    { enabled: Boolean(id) },
   );
 };
 
@@ -105,8 +113,11 @@ export const useFetchBenefitEntitlement = (benefitId: string | string[]) => {
  * @param {string | string[]} benefitId - The ID of the benefit to fetch.
  * @returns {QueryObject} The query object for fetching the benefit.
  */
-export const useFetchBenefit = (benefitId: string | string[]) => {
-  return useQuery(['benefit'], () => fetchBenefit(benefitId));
+export const useFetchBenefit = (benefitId: string | string[] | undefined) => {
+  const id = normalizeBenefitId(benefitId);
+  return useQuery(['benefit', id], () => fetchBenefit(id as string), {
+    enabled: Boolean(id),
+  });
 };
 
 /**

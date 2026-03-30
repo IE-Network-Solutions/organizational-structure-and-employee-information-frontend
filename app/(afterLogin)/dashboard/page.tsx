@@ -35,22 +35,13 @@ export default function Home() {
 
   const mainLayout = (
     <div className="min-h-screen" data-cy="dashboard-main-layout">
-      <div
-        className="border-b border-gray-200 my-5 "
-        data-cy="dashboard-header"
-      >
+      <div className="my-5 " data-cy="dashboard-header">
         <h1
           className="text-2xl font-bold text-gray-900"
           data-cy="dashboard-header-title"
         >
           Dashboard
         </h1>
-        <p
-          className="text-sm text-gray-500 mt-1"
-          data-cy="dashboard-header-breadcrumb"
-        >
-          Dashboard
-        </p>
       </div>
       <Header />
       <div data-cy="dashboard-content">

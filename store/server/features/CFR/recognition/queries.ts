@@ -43,6 +43,37 @@ const getAllRecognitionTypesChild = async () => {
     },
   });
 };
+const getRecognitionTypeParentChildById = async (parentId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child/${parentId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getRecognitionTypeChildById = async (
+  id: string,
+  pageSize: number,
+  current: number,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/childe-recognition-type/child/${id}/paginated?limit=${pageSize}&page=${current}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 const getAllRecognitionData = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -62,6 +93,20 @@ const getTotalRecognition = async () => {
 
   return crudRequest({
     url: `${ORG_DEV_URL}/recognition/TotalRecognitions`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+const getRecognitionTypeDashboardStats = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/dashboard/stats`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -148,6 +193,96 @@ const getRecognitionTypeById = async (id: string) => {
     },
   });
 };
+export const useGetRecognitionTypeParentChildById = (id: string) => {
+  return useQuery<any>(
+    ['recognitionTypeParentChild', id],
+    () => getRecognitionTypeParentChildById(id as string),
+    {
+      enabled: id ? true : false,
+      keepPreviousData: false,
+    },
+  );
+};
+
+const getRecognitionTypeParentWithChildren = async (
+  searchString: string,
+  pageSize: number,
+  current: number,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  // Construct query string safely, ensuring parentRecognitionId is not null/undefined
+  const queryStringParts = [`limit=${pageSize}`, `page=${current}`];
+
+  if (searchString !== null) {
+    // If parentRecognitionId is provided, add it as a query param
+    queryStringParts.push(`searchString=${searchString}`);
+  }
+
+  const queryString = queryStringParts.join('&');
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/parents/with-children?${queryString}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export interface ByParentRecognitionTypeParams {
+  parentRecognitionTypeId: string;
+  calendarId: string;
+  sessionId: string;
+  monthId: string;
+  recognitionTypeId: string;
+  userId: string;
+  pageSize: number;
+  current: number;
+}
+
+const getRecognitionsByParentRecognitionType = async (
+  params: ByParentRecognitionTypeParams,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const queryString = [
+    `parentRecognitionTypeId=${params.parentRecognitionTypeId}`,
+    `calendarId=${params.calendarId}`,
+    `sessionId=${params.sessionId}`,
+    `monthId=${params.monthId}`,
+    `recognitionTypeId=${params.recognitionTypeId}`,
+    `userId=${params.userId}`,
+    `limit=${params.pageSize}`,
+    `page=${params.current}`,
+  ].join('&');
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/recognition/by-parent-recognition-type?${queryString}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetRecognitionsByParentRecognitionType = (
+  params: ByParentRecognitionTypeParams | null,
+) => {
+  return useQuery<any>(
+    ['recognitionsByParentRecognitionType', params],
+    () =>
+      getRecognitionsByParentRecognitionType(
+        params as ByParentRecognitionTypeParams,
+      ),
+    {
+      enabled: params?.parentRecognitionTypeId ? true : false,
+      keepPreviousData: false,
+    },
+  );
+};
 
 export const useGetRecognitionTypeById = (id: string | null) => {
   return useQuery<any>(
@@ -169,12 +304,50 @@ export const useGetAllRecognitionTypeChild = () => {
   return useQuery<any>('recognitionTypesChild', getAllRecognitionTypesChild);
 };
 
+export const useGetRecognitionTypeChildById = (
+  id: string | null,
+  pageSize: number,
+  current: number,
+) => {
+  return useQuery<any>(
+    ['recognitionTypeChild', id, pageSize, current],
+    () => getRecognitionTypeChildById(id as string, pageSize, current),
+    {
+      enabled: id ? true : false,
+      keepPreviousData: false,
+    },
+  );
+};
+
 export const useGetAllRecognitionData = () => {
   return useQuery<any>('recognitionTypes', getAllRecognitionData);
 };
 
 export const useGetTotalRecognition = () => {
   return useQuery<any>('totalRecognition', getTotalRecognition);
+};
+
+export const useGetRecognitionTypeDashboardStats = () => {
+  return useQuery<any>(
+    'recognitionTypeDashboardStats',
+    getRecognitionTypeDashboardStats,
+  );
+};
+
+export const useGetRecognitionTypeParentWithChildren = (
+  searchCategory: string | null,
+  pageSize: number,
+  current: number,
+) => {
+  return useQuery<any>(
+    ['recognitionTypeParentWithChildren', searchCategory, current, pageSize],
+    () =>
+      getRecognitionTypeParentWithChildren(
+        searchCategory as string,
+        pageSize,
+        current,
+      ),
+  );
 };
 
 export const useGetAllRecognitionTypeWithOutCriteria = () => {

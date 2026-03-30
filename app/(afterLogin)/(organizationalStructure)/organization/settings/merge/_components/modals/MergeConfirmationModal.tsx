@@ -78,7 +78,7 @@ const MergeConfirmationModal: React.FC<MergeConfirmationModalProps> = ({
         </p>
 
         <div
-          className="bg-gray-50 rounded-lg p-4 mb-4"
+          className="bg-[#F3F4F6] rounded-lg p-4 mb-4 border border-[#D1D5DB]"
           data-cy="merge-confirmation-what-will-change-container"
         >
           <h4

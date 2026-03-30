@@ -1,6 +1,21 @@
 'use client';
-import { Table, Tag, Button, Space, Spin, Avatar } from 'antd';
-import { EditOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  Table,
+  Tag,
+  Button,
+  Space,
+  Spin,
+  Avatar,
+  Typography,
+  Breadcrumb,
+  Card,
+  Divider,
+  Pagination,
+  Dropdown,
+} from 'antd';
+import { UserOutlined, EyeOutlined } from '@ant-design/icons';
+import { MdOutlineEdit } from 'react-icons/md';
+import { BsThreeDots } from 'react-icons/bs';
 import Filters from './_components/filters';
 import { useRouter } from 'next/navigation';
 import Drawer from './_components/drawer';
@@ -10,10 +25,9 @@ import { useGetAllowance } from '@/store/server/features/payroll/employeeInforma
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import CustomPagination from '@/components/customPagination';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+
+const { Title, Text } = Typography;
 
 interface Employee {
   id: string;
@@ -133,8 +147,11 @@ const EmployeeInformation = () => {
         name: `${employee?.firstName} ${employee?.middleName || ''} ${employee?.lastName}`.trim(),
         profileImage: employee.profileImage,
         job: `${position}`,
-        salary: `${activeSalary} ETB`,
-        allowances: allowanceMap?.[employee?.id] || ['Not Specified'],
+        salary:
+          typeof activeSalary === 'number'
+            ? activeSalary.toLocaleString()
+            : activeSalary,
+        allowances: allowanceMap?.[employee?.id] || [],
         bank:
           employee.employeeInformation?.bankInformation?.bankName ||
           'Not Available',
@@ -149,20 +166,25 @@ const EmployeeInformation = () => {
       title: 'Employee',
       dataIndex: 'name',
       key: 'name',
+      width: 250,
       render: (text: string, record: any) => (
-        <Space data-cy={`payroll-employee-card-view-space-${record.id}`}>
+        <Space
+          data-cy={`payroll-employee-card-view-space-${record.key}`}
+          style={{ whiteSpace: 'nowrap' }}
+        >
           <Avatar
-            data-cy={`payroll-employee-avatar-view-component-${record.id}`}
+            data-cy={`payroll-employee-avatar-view-component-${record.key}`}
             size={32}
             src={record.profileImage}
             icon={<UserOutlined />}
           />
-          <span
-            id={`payroll-employee-name-view-text-${record.id}`}
-            data-cy={`payroll-employee-name-view-text-${record.id}`}
+          <Text
+            id={`payroll-employee-name-view-text-${record.key}`}
+            data-cy={`payroll-employee-name-view-text-${record.key}`}
+            style={{ fontSize: '14px', color: '#262626' }}
           >
             {text}
-          </span>
+          </Text>
         </Space>
       ),
     },
@@ -170,35 +192,54 @@ const EmployeeInformation = () => {
       title: 'Job Information',
       dataIndex: 'job',
       key: 'job',
+      width: 250,
+      render: (text: string) => (
+        <Text
+          style={{ fontSize: '14px', color: '#595959', whiteSpace: 'nowrap' }}
+        >
+          {text}
+        </Text>
+      ),
     },
     {
       title: 'Basic Salary',
       dataIndex: 'salary',
       key: 'salary',
+      width: 150,
     },
     {
-      title: 'Entitled Allowances',
+      title: 'Entitled Allowance',
       dataIndex: 'allowances',
       key: 'allowances',
-      render: (allowances: any) =>
-        allowances.map((item: any) => {
-          const color = item === 'Not Entitled' ? 'red' : 'gray-300';
-          return (
+      width: 300,
+      render: (allowances: any, record: any) => (
+        <Space wrap size={[4, 4]}>
+          {allowances.map((item: any, idx: number) => (
             <Tag
+              key={`${record.key}-${item.id || idx}`}
               id={`payroll-allowance-${item?.id}-view-tag`}
               data-cy={`payroll-allowance-${item?.id}-view-tag`}
-              className={`${color} text-sm text-black`}
-              key={item}
+              style={{
+                borderRadius: '4px',
+                margin: 0,
+                fontSize: '12px',
+                color: '#595959',
+                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                border: '1px solid #D9D9D9',
+                fontWeight: 500,
+              }}
             >
-              {item.name}
+              {item.name || item}
             </Tag>
-          );
-        }),
+          ))}
+        </Space>
+      ),
     },
     {
       title: 'Bank',
       dataIndex: 'bank',
       key: 'bank',
+      width: 150,
       render: (text: any) => (
         <span
           id={`payroll-bank-name-view-text-${text}`}
@@ -213,6 +254,7 @@ const EmployeeInformation = () => {
       title: 'Account Number',
       dataIndex: 'account',
       key: 'account',
+      width: 180,
       render: (text: any) => (
         <span
           id={`payroll-bank-account-view-text-${text}`}
@@ -226,32 +268,90 @@ const EmployeeInformation = () => {
     {
       title: 'Action',
       key: 'action',
+      width: 80,
       render: (record: any) => (
         <Space
-          id={`payroll-action-controls-view-space-${record.id}`}
-          data-cy={`payroll-action-controls-view-space-${record.id}`}
+          id={`payroll-action-controls-view-space-${record.key}`}
+          data-cy={`payroll-action-controls-view-space-${record.key}`}
           size="middle"
         >
           <AccessGuard
-            id={`payroll-edit-guard-view-component-${record.id}`}
-            data-cy={`payroll-edit-guard-view-component-${record.id}`}
+            id={`payroll-edit-guard-view-component-${record.key}`}
+            data-cy={`payroll-edit-guard-view-component-${record.key}`}
             permissions={[Permissions.UpdateAllowanceEntitlement]}
           >
-            <Button
-              type="primary"
-              id={`payroll-edit-allowance-click-button-${record.id}`}
-              data-cy={`payroll-edit-allowance-click-button-${record.id}`}
-              icon={
-                <EditOutlined
-                  id={`payroll-edit-allowance-click-icon-${record.id}`}
-                  data-cy={`payroll-edit-allowance-click-icon-${record.id}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(record);
+            <div
+              onClick={(e) => e.stopPropagation()}
+              data-cy="payroll-employee-row-actions-dropdown-wrapper"
+            >
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'view',
+                      label: (
+                        <span
+                          style={{ fontSize: '14px', color: '#262626' }}
+                          data-cy="payroll-employee-row-action-view"
+                        >
+                          View Detail
+                        </span>
+                      ),
+                      icon: (
+                        <EyeOutlined
+                          style={{ fontSize: '16px', color: '#595959' }}
+                        />
+                      ),
+                      onClick: () => handleDetail(record),
+                    },
+                    {
+                      key: 'edit',
+                      label: (
+                        <span
+                          style={{ fontSize: '14px', color: '#262626' }}
+                          data-cy="payroll-employee-row-action-edit"
+                        >
+                          Edit
+                        </span>
+                      ),
+                      icon: (
+                        <MdOutlineEdit
+                          style={{ fontSize: '16px', color: '#595959' }}
+                        />
+                      ),
+                      onClick: () => handleEdit(record),
+                    },
+                  ],
+                }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <Button
+                  id={`payroll-edit-allowance-click-button-${record.key}`}
+                  data-cy={`payroll-edit-allowance-click-button-${record.key}`}
+                  style={{
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '4px',
+                    width: '30px',
+                    height: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#ffffff',
+                    padding: 0,
                   }}
+                  icon={
+                    <BsThreeDots
+                      style={{
+                        color: '#000',
+                        fontSize: '20px',
+                        transform: 'translateY(2px)', // Precise adjustment for centering
+                      }}
+                    />
+                  }
                 />
-              }
-            />
+              </Dropdown>
+            </div>
           </AccessGuard>
         </Space>
       ),
@@ -271,8 +371,6 @@ const EmployeeInformation = () => {
     refetch();
   };
 
-  const { isMobile, isTablet } = useIsMobile();
-
   const filteredData = dataSource.filter((item) =>
     searchValue ? item.key === searchValue : true,
   );
@@ -291,66 +389,184 @@ const EmployeeInformation = () => {
 
   return (
     <div
-      className={isMobile ? 'p-1' : 'p-5'}
+      className="responsive-container"
+      style={{
+        padding: '24px 24px',
+        backgroundColor: '#fff',
+        minHeight: '100vh',
+        marginLeft: '-24px',
+        marginRight: '-24px',
+        width: 'calc(100% + 48px)',
+      }}
       id="payroll-employee-information-view-container"
       data-cy="payroll-employee-information-view-container"
     >
-      <div
-        className="flex justify-start items-center bg-[#ffffff] -mx-1"
-        id="payroll-employee-information-header-view-container"
-        data-cy="payroll-employee-information-header-view-container"
+      <style data-cy="payroll-employee-information-page-styles">{`
+        .page-title { font-size: 24px !important; margin-bottom: 4px !important; }
+        .responsive-container .ant-card-body { padding: 24px !important; }
+        
+        .ant-table-thead > tr > th {
+          background-color: #fafafa !important;
+          color: #595959 !important;
+          font-weight: 600 !important;
+          font-size: 14px !important;
+          border-bottom: 1px solid #f0f0f0 !important;
+        }
+
+        .ant-table-tbody > tr > td {
+          border-bottom: 1px solid #f0f0f0 !important;
+        }
+
+        .table-row-gray {
+          background-color: #fafafa !important;
+        }
+
+        .ant-table-tbody > tr:hover > td {
+          background-color: transparent !important;
+        }
+
+        /* Hide horizontal scrollbar while keeping scroll functionality */
+        .ant-table-content::-webkit-scrollbar {
+          display: none;
+        }
+        .ant-table-content {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+
+        @media (max-width: 768px) {
+          .page-title { font-size: 18px !important; }
+          .responsive-container { padding: 16px !important; }
+          .responsive-container .ant-card-body { padding: 16px 0 !important; }
+          .breadcrumb-container { padding: 0 !important; }
+          .filter-container { padding: 0 16px !important; }
+          .pagination-container { padding: 0 16px !important; }
+        }
+
+        .custom-pagination {
+          display: flex !important;
+          width: 100% !important;
+          justify-content: flex-start !important;
+          align-items: center !important;
+        }
+        .custom-pagination .ant-pagination-options {
+          margin-left: auto !important;
+          display: flex;
+          align-items: center;
+        }
+        .custom-pagination .ant-pagination-options-quick-jumper {
+          color: #8c8c8c;
+          font-size: 13px;
+        }
+        .custom-pagination .ant-pagination-options-quick-jumper input {
+          border-radius: 4px;
+        }
+        .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
+      `}</style>
+
+      <Title
+        level={2}
+        className="page-title"
+        style={{ fontWeight: 600 }}
+        data-cy="payroll-employee-information-title"
       >
-        <span
-          className="py-4 my-4 px-2 text-lg font-bold"
-          id="payroll-employee-information-title-view-text"
-          data-cy="payroll-employee-information-title-view-text"
+        Employee Payroll Information
+      </Title>
+
+      <div
+        className="breadcrumb-container"
+        data-cy="payroll-employee-information-breadcrumb-container"
+      >
+        <Breadcrumb
+          style={{ marginBottom: '20px', fontSize: '14px' }}
+          data-cy="payroll-employee-information-breadcrumb"
         >
-          Employees Payroll Information
-        </span>
+          <Breadcrumb.Item>Payroll</Breadcrumb.Item>
+          <Breadcrumb.Item>Employee Payroll Information</Breadcrumb.Item>
+        </Breadcrumb>
       </div>
-      <Filters
-        data-cy="payroll-employee-information-filter-interact-component"
-        onSearch={handleSearch}
+
+      <Divider
+        className="full-bleed-header-divider"
+        style={{ margin: '0 0 24px 0', borderColor: '#f0f0f0' }}
+        data-cy="payroll-employee-information-header-divider"
       />
 
-      <Spin
-        spinning={responseLoading || Loading}
-        data-cy="payroll-employee-information-loading-view-spin"
+      <Card
+        bordered
+        style={{
+          borderRadius: '8px',
+          border: '1px solid #f0f0f0',
+          boxShadow: 'none',
+        }}
+        bodyStyle={{ padding: '24px' }}
+        data-cy="payroll-employee-information-card"
       >
-        <Table
-          id="payroll-employee-information-view-table"
-          data-cy="payroll-employee-information-view-table"
-          dataSource={paginatedData}
-          columns={columns}
-          onRow={(record) => ({
-            onClick: () => handleDetail(record),
-            style: { cursor: 'pointer' },
-          })}
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-        />
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            data-cy="payroll-employee-information-pagination-interact-mobile"
-            totalResults={filteredData?.length || 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
+        <div
+          className="filter-container"
+          data-cy="payroll-employee-information-filter-container"
+        >
+          <Filters
+            data-cy="payroll-employee-information-filter-interact-component"
+            onSearch={handleSearch}
           />
-        ) : (
-          <CustomPagination
-            data-cy="payroll-employee-information-pagination-interact-desktop"
-            current={currentPage}
-            total={filteredData?.length || 0}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-              setCurrentPage(1);
-            }}
+        </div>
+
+        <Spin
+          spinning={responseLoading || Loading}
+          data-cy="payroll-employee-information-loading-view-spin"
+        >
+          <Table
+            id="payroll-employee-information-view-table"
+            data-cy="payroll-employee-information-view-table"
+            dataSource={paginatedData}
+            columns={columns}
+            rowClassName={(record, index) =>
+              index % 2 !== 0 ? 'table-row-gray' : ''
+            }
+            onRow={(record) => ({
+              onClick: () => handleDetail(record),
+              style: { cursor: 'pointer' },
+            })}
+            pagination={false}
+            scroll={{ x: 'max-content' }}
+            style={{ marginBottom: '24px' }}
           />
-        )}
-      </Spin>
+
+          <div
+            className="pagination-container"
+            style={{ marginTop: '24px' }}
+            data-cy="payroll-employee-information-pagination-wrapper"
+          >
+            <Pagination
+              className="custom-pagination"
+              current={currentPage}
+              total={filteredData?.length || 0}
+              pageSize={pageSize}
+              onChange={onPageChange}
+              showSizeChanger={false}
+              showQuickJumper
+              itemRender={(page, type, originalElement) => {
+                if (type === 'jump-prev' || type === 'jump-next') return '...';
+                return originalElement;
+              }}
+              data-cy="payroll-employee-information-pagination"
+            />
+          </div>
+        </Spin>
+      </Card>
       <Drawer data-cy="payroll-employee-information-drawer-view-component" />
     </div>
   );
