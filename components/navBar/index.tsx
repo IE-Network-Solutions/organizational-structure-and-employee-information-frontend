@@ -56,13 +56,20 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-// import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-// import dayjs from 'dayjs';
-// import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import dayjs from 'dayjs';
+import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useCopilotStore } from '@/store/uistate/features/copilot';
+import CopilotModule from '@/components/copilot/CopilotModule';
+import {
+  COPILOT_SHARE_QUERY,
+  COPILOT_SHARE_REF_QUERY,
+} from '@/utils/copilotShare';
 
 interface CustomMenuItem {
   key: string;
@@ -239,7 +246,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  const okrMode = useOKRStore((state) => state.okrMode);
+  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
+    useCopilotStore();
+  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -262,6 +272,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMounted || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get(COPILOT_SHARE_QUERY) ||
+      params.get(COPILOT_SHARE_REF_QUERY)
+    ) {
+      setCopilotOpen(true);
+      return;
+    }
+    // Sidebar / in-app navigation: hide Copilot full-page workspace so main `children` render.
+    setCopilotOpen(false);
+  }, [isMounted, pathname, setCopilotOpen]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -827,12 +851,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     [hasEndedFiscalYear],
   );
 
+  const menuTreeData = React.useMemo(() => {
+    const planningKey =
+      okrMode === 'Basic'
+        ? '/basic-okr/planning-and-reporting'
+        : '/planning-and-reporting';
+    return treeData.map((item) => {
+      if (item.key !== '/okr-menu' || !item.children) return item;
+      return {
+        ...item,
+        children: item.children.map((child) =>
+          child.key === '/planning-and-reporting'
+            ? { ...child, key: planningKey }
+            : child,
+        ),
+      };
+    });
+  }, [treeData, okrMode]);
+
   // Helper function moved to global scope
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
       // Get all routes and their permissions
-      const routesWithPermissions = getRoutesAndPermissions(treeData);
+      const routesWithPermissions = getRoutesAndPermissions(menuTreeData);
 
       // Check if user is owner - owners have access to all routes
       const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
@@ -913,7 +955,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       );
       return hasAllPermissions;
     },
-    [treeData, userData],
+    [menuTreeData, userData],
   );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
@@ -978,6 +1020,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIsModalOpen(false);
   };
 
+  const { mutate: employeeInfo } = useCreateEmployee();
+  const handleUserInfoUpdate = () => {
+    const fullName = employeeData?.firstName?.split(' ') || [];
+    const payloadUser = {
+      firstName: fullName[0] || '-',
+      middleName: fullName[1] || '-',
+      lastName: fullName[2] || '-',
+    };
+    const payloadEmp = {
+      joinedDate: employeeData?.createdAt
+        ? new Date(employeeData?.createdAt).toISOString()
+        : new Date().toISOString(),
+      dateOfBirth: dayjs().subtract(30, 'year'),
+      employeeAttendanceId: 1,
+      gender: 'male',
+      maritalStatus: 'SINGLE',
+      addresses: {},
+      additionalInformation: {},
+      bankInformation: {},
+      userId: userId,
+    };
+
+    updateEmployeeInformation({
+      id: userId,
+      values: payloadUser,
+    });
+    employeeInfo({
+      values: payloadEmp,
+    });
+  };
+
   // ✅ Check permission on pathname change
   useEffect(() => {
     const checkPermissions = async () => {
@@ -1033,7 +1106,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setExpandedKeys([]);
       return;
     }
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, menuTreeData);
     if (parentKey) {
       setExpandedKeys((prev) => {
         if (prev.length !== 1 || prev[0] !== parentKey) {
@@ -1042,7 +1115,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname, findParentMenuKey, treeData]);
+  }, [pathname, findParentMenuKey, menuTreeData]);
 
   useEffect(() => {
     setSelectedKeys([pathname]);
@@ -1060,11 +1133,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return;
     }
 
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, menuTreeData);
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
-  }, [expandedKeys.length, findParentMenuKey, pathname, treeData]);
+  }, [expandedKeys.length, findParentMenuKey, pathname, menuTreeData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1121,7 +1194,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return v.replace(/\/+$/, '') || '/';
     };
 
-    const accessibleTreeItems = treeData
+    const accessibleTreeItems = menuTreeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
@@ -1266,7 +1339,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return Array.from(groupedByParent.values()).filter(
       (group) => group.children.length > 0,
     );
-  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
+  }, [menuTreeData, modulesData, subscriptionData, subscriptionsData]);
 
   // Fallback skeleton structure used while modules data is not yet available
   const skeletonMenuItems = React.useMemo(
@@ -1317,39 +1390,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ],
     [groupedMenuItems],
   );
-  // const { mutate: employeeInfo } = useCreateEmployee();
-
-  // const handleUserInfoUpdate = () => {
-  //   const fullName = employeeData?.firstName?.split(' ') || [];
-  //   const payloadUser = {
-  //     firstName: fullName[0] || '-',
-  //     middleName: fullName[1] || '-',
-  //     lastName: fullName[2] || '-',
-  //   };
-  //   const payloadEmp = {
-  //     joinedDate: employeeData?.createdAt
-  //       ? new Date(employeeData?.createdAt).toISOString()
-  //       : new Date().toISOString(),
-  //     dateOfBirth: dayjs().subtract(30, 'year'),
-  //     employeeAttendanceId: 1,
-  //     gender: 'male',
-  //     maritalStatus: 'SINGLE',
-  //     addresses: {},
-  //     additionalInformation: {},
-  //     bankInformation: {},
-  //     userId: userId,
-  //   };
-
-  //   updateEmployeeInformation({
-  //     id: userId,
-  //     values: payloadUser,
-  //   });
-  //   employeeInfo({
-  //     values: payloadEmp,
-  //   });
-  // };
-
-  // Render the component with the layout and navigation on the left
 
   return (
     <Layout style={{ background: '#fff' }}>
@@ -1654,15 +1694,24 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 background: '#ffffff',
               }}
             >
-              {children}
+              {isCopilotOpen ? (
+                <div
+                  id="copilot-workspace-root"
+                  data-cy="copilot-workspace-root"
+                >
+                  <CopilotModule />
+                </div>
+              ) : (
+                children
+              )}
             </div>
           )}
-          {/* <CreateEmployeeJobInformation
+          <CreateEmployeeJobInformation
             onInfoSubmition={() => {
               handleUserInfoUpdate();
             }}
             id={userId}
-          /> */}
+          />
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}

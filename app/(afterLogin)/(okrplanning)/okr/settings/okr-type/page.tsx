@@ -3,10 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Radio } from 'antd';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
-import {
-  useUpdateOkrSetting,
-  useSwitchOkrMode,
-} from '@/store/server/features/okrplanning/okr-setting/mutations';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { useSwitchOkrMode } from '@/store/server/features/okrplanning/okr-setting/mutations';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 import OkrModeConfirmationModal from './_components/OkrModeConfirmationModal';
 import OkrModeEffectsModal from './_components/OkrModeEffectsModal';
@@ -16,8 +14,8 @@ import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSett
 
 const OkrTypePage = () => {
   const { okrMode, refetch } = useOkrSetting();
+  const setStoreOkrMode = useOKRStore((state) => state.setOkrMode);
   const { refetch: refetchSetting } = useGetOkrSetting();
-  const { isLoading: isUpdating } = useUpdateOkrSetting();
   const { mutate: switchOkrMode, isLoading: isSwitching } = useSwitchOkrMode();
   const {
     showNotReportedList,
@@ -65,6 +63,7 @@ const OkrTypePage = () => {
       onSuccess: () => {
         setConfirmationModalOpen(false);
         setEffectsModalOpen(true);
+        setStoreOkrMode(targetMode);
         refetch();
         refetchSetting();
       },
@@ -143,14 +142,12 @@ const OkrTypePage = () => {
       >
         {/* Advanced OKR Card */}
         <div
-          onClick={() =>
-            !(isUpdating || isSwitching) && handleRadioChange('Advanced')
-          }
+          onClick={() => !isSwitching && handleRadioChange('Advanced')}
           className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isAdvancedActive
               ? 'border-[#2b54ad] bg-white shadow-md'
               : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
-          } ${isUpdating || isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
+          } ${isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
           data-cy="okr-type-advanced-card"
           id="okr-type-advanced-card"
         >
@@ -160,8 +157,8 @@ const OkrTypePage = () => {
           >
             <Radio
               checked={isAdvancedActive}
-              disabled={isUpdating}
-              onChange={() => !isUpdating && handleRadioChange('Advanced')}
+              disabled={isSwitching}
+              onChange={() => !isSwitching && handleRadioChange('Advanced')}
               className="custom-brand-radio"
               data-cy="okr-type-advanced-radio"
             />
@@ -184,14 +181,12 @@ const OkrTypePage = () => {
 
         {/* Basic OKR Card */}
         <div
-          onClick={() =>
-            !(isUpdating || isSwitching) && handleRadioChange('Basic')
-          }
+          onClick={() => !isSwitching && handleRadioChange('Basic')}
           className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isBasicActive
               ? 'border-[#2b54ad] bg-white shadow-md'
               : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
-          } ${isUpdating || isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
+          } ${isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
           data-cy="okr-type-basic-card"
           id="okr-type-basic-card"
         >
@@ -201,8 +196,8 @@ const OkrTypePage = () => {
           >
             <Radio
               checked={isBasicActive}
-              disabled={isUpdating}
-              onChange={() => !isUpdating && handleRadioChange('Basic')}
+              disabled={isSwitching}
+              onChange={() => !isSwitching && handleRadioChange('Basic')}
               className="custom-brand-radio"
               data-cy="okr-type-basic-radio"
             />

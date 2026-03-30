@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Spin, Button, message } from 'antd';
 import { useQueryClient } from 'react-query';
 import {
@@ -12,20 +13,57 @@ import {
   useUpdateNotificationStatus,
   useMarkAllAsRead,
 } from '@/store/server/features/notification/mutation';
-import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EyeOutlined, FileTextOutlined, BellOutlined } from '@ant-design/icons';
-import { NotificationDetailVisible } from '@/app/(afterLogin)/(employeeInformation)/employees/notification/_component/notificationDetail';
+import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
+import { useCanAccessRoute } from '@/utils/routePermissions';
+import {
+  EyeOutlined,
+  FileTextOutlined,
+  BellOutlined,
+  DollarOutlined,
+  UserAddOutlined,
+  ClockCircleOutlined,
+  BarChartOutlined,
+  ReadOutlined,
+  GiftOutlined,
+  GlobalOutlined,
+} from '@ant-design/icons';
 import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 
+const toSlug = (v: string | number | null | undefined) =>
+  String(v ?? 'na')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+function getNotificationIcon(
+  item: NotificationType,
+): React.ComponentType<{ className?: string }> {
+  const s = (item.source_service ?? '').toLowerCase().replace(/_/g, '-');
+  const r = (item.route ?? '').toLowerCase();
+  if (s.includes('org-structure') || r.includes('quarter_completion'))
+    return GlobalOutlined;
+  if (s.includes('planning-and-reporting')) return BarChartOutlined;
+  if (s.includes('time-and-attendance')) return ClockCircleOutlined;
+  if (s.includes('training-and-learning')) return ReadOutlined;
+  if (s.includes('recruitment')) return UserAddOutlined;
+  if (
+    s.includes('compensation-and-benefits') ||
+    (r.includes('compensationsetting') && r.includes('allowance'))
+  )
+    return GiftOutlined;
+  if (s.includes('payroll')) return DollarOutlined;
+  return FileTextOutlined;
+}
+
 const PANEL_WIDTH = 400;
 const MAX_HEIGHT = 520;
-const LIST_LIMIT = 50;
+const LIST_LIMIT = 100;
 type FilterType = 'all' | 'unread' | 'seen';
 
 function isUnread(item: NotificationType): boolean {
-  return item.isRead === false;
+  return item.isRead !== true;
 }
 
 function formatTime(dateStr: string): string {
@@ -43,31 +81,37 @@ function NotificationItem({
   onMarkAsRead,
   onClick,
   formatTime,
+  hasAccess,
 }: {
   item: NotificationType;
   unread: boolean;
   onMarkAsRead: (e: React.MouseEvent, id: string) => void;
-  onClick: (id: string) => void;
+  onClick: (item: NotificationType) => void;
   formatTime: (dateStr: string) => string;
+  hasAccess: boolean;
 }) {
+  const IconComponent = getNotificationIcon(item);
+  const themeClasses = getNotificationThemeClasses(item);
   return (
     <div
-      id={`notification-item-${item.id}`}
-      data-cy={`notification-item-${item.id}`}
-      onClick={() => onClick(item.id)}
-      className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-50 border-l-2 border-transparent ${
-        unread ? 'opacity-100' : 'opacity-70'
-      }`}
+      id={`notification-item-${toSlug(item.id)}`}
+      data-cy={`notification-item-${toSlug(item.id)}`}
+      onClick={() => hasAccess && onClick(item)}
+      role={hasAccess ? 'button' : undefined}
+      title={
+        hasAccess ? undefined : "You don't have permission to view this page"
+      }
+      className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-l-2 ${themeClasses.border} ${unread ? 'opacity-100' : 'opacity-70'} ${hasAccess ? `cursor-pointer ${themeClasses.hover}` : 'cursor-not-allowed opacity-80'}`}
     >
       <div
-        data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-62"
         className="flex-shrink-0 relative mt-0.5"
+        data-cy={`notification-item-avatar-wrapper-${toSlug(item.id)}`}
       >
         <div
-          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-63"
-          className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"
+          className={`w-9 h-9 rounded-full flex items-center justify-center ${themeClasses.bg}`}
+          data-cy={`notification-item-icon-${toSlug(item.id)}`}
         >
-          <FileTextOutlined className="text-gray-500 text-sm" />
+          <IconComponent className={`text-sm ${themeClasses.icon}`} />
         </div>
         {unread && (
           <span
@@ -107,8 +151,8 @@ function NotificationItem({
       </div>
       <button
         type="button"
-        id={`notification-item-mark-read-${item.id}`}
-        data-cy={`notification-item-mark-read-${item.id}`}
+        id={`notification-item-mark-read-${toSlug(item.id)}`}
+        data-cy={`notification-item-mark-read-${toSlug(item.id)}`}
         onClick={(e) => {
           e.stopPropagation();
           if (unread) onMarkAsRead(e, item.id);
@@ -127,10 +171,18 @@ function NotificationItem({
   );
 }
 
+function getNotificationPath(item: NotificationType): string {
+  const routeStr =
+    item.route?.trim() || `/employees/notification?id=${item.id}`;
+  return routeStr.startsWith('/') ? routeStr : `/${routeStr}`;
+}
+
 export function NotificationDropdownPanel({
   open: isOpen,
 }: { open?: boolean } = {}) {
+  const router = useRouter();
   const queryClient = useQueryClient();
+  const canAccessRoute = useCanAccessRoute();
   const userId = useAuthenticationStore.getState().userId ?? '';
   const tenantId = useAuthenticationStore.getState().tenantId ?? undefined;
   const [filter, setFilter] = useState<FilterType>('all');
@@ -223,11 +275,6 @@ export function NotificationDropdownPanel({
 
   const showPushNotConfigured = !!userId && !VAPID_PUBLIC_KEY;
 
-  const {
-    setSelectedNotificationId,
-    setIsNotificationDetailVisible,
-    selectedNotificationId,
-  } = useNotificationDetailStore();
   const { data, isLoading } = useGetNotifications(userId, {
     page: 1,
     limit: LIST_LIMIT,
@@ -235,7 +282,10 @@ export function NotificationDropdownPanel({
   const { mutate: markAsRead } = useUpdateNotificationStatus();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
 
-  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+  const list = useMemo(
+    () => (Array.isArray(data) ? data : ((data as any)?.data ?? [])),
+    [data],
+  );
   const unreadList = useMemo(() => list.filter(isUnread), [list]);
   const readList = useMemo(
     () => list.filter((i: NotificationType) => !isUnread(i)),
@@ -256,9 +306,11 @@ export function NotificationDropdownPanel({
     markAllAsRead(userId);
   };
 
-  const handleItemClick = (id: string) => {
-    setSelectedNotificationId(id);
-    setIsNotificationDetailVisible(true);
+  const handleItemClick = (item: NotificationType) => {
+    const path = getNotificationPath(item);
+    if (!canAccessRoute(path)) return;
+    if (isUnread(item)) markAsRead(item.id);
+    router.push(path);
   };
 
   return (
@@ -414,20 +466,26 @@ export function NotificationDropdownPanel({
           ) : filter === 'all' &&
             (unreadList.length > 0 || readList.length > 0) ? (
             <div
-              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-390"
               className="p-2 space-y-4"
+              id="notification-all-sections"
+              data-cy="notification-all-sections"
             >
               {unreadList.length > 0 && (
-                <div data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-392">
+                <div
+                  id="notification-unread-section"
+                  data-cy="notification-unread-section"
+                >
                   <h3
-                    data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-h3-393"
+                    id="notification-unread-heading"
+                    data-cy="notification-unread-heading"
                     className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2"
                   >
                     Unread
                   </h3>
                   <div
-                    data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-396"
-                    className="space-y-0"
+                    className="space-y-3"
+                    id="notification-unread-list"
+                    data-cy="notification-unread-list"
                   >
                     {unreadList.map((item: NotificationType) => (
                       <NotificationItem
@@ -437,22 +495,28 @@ export function NotificationDropdownPanel({
                         onMarkAsRead={handleMarkAsRead}
                         onClick={handleItemClick}
                         formatTime={formatTime}
+                        hasAccess={canAccessRoute(getNotificationPath(item))}
                       />
                     ))}
                   </div>
                 </div>
               )}
               {readList.length > 0 && (
-                <div data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-411">
+                <div
+                  id="notification-previous-section"
+                  data-cy="notification-previous-section"
+                >
                   <h3
-                    data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-h3-412"
-                    className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2"
+                    id="notification-previous-heading"
+                    data-cy="notification-previous-heading"
+                    className="text-xs font-bold text-gray-500 uppercase tracking-wide px-3 mb-2 border-t border-gray-200 pt-3 mt-1"
                   >
                     Previous notifications
                   </h3>
                   <div
-                    data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-415"
-                    className="space-y-0"
+                    className="space-y-3"
+                    id="notification-previous-list"
+                    data-cy="notification-previous-list"
                   >
                     {readList.map((item: NotificationType) => (
                       <NotificationItem
@@ -462,6 +526,7 @@ export function NotificationDropdownPanel({
                         onMarkAsRead={handleMarkAsRead}
                         onClick={handleItemClick}
                         formatTime={formatTime}
+                        hasAccess={canAccessRoute(getNotificationPath(item))}
                       />
                     ))}
                   </div>
@@ -470,8 +535,9 @@ export function NotificationDropdownPanel({
             </div>
           ) : (
             <div
-              data-cy="organizational-structure-and-employee-information-frontend-components-navbar-notificationdropdownpanel-tsx-notificationdropdownpanel-div-431"
-              className="p-2 space-y-0"
+              className="p-2 space-y-3"
+              id="notification-filtered-list"
+              data-cy="notification-filtered-list"
             >
               {filtered.map((item: NotificationType) => (
                 <NotificationItem
@@ -481,15 +547,13 @@ export function NotificationDropdownPanel({
                   onMarkAsRead={handleMarkAsRead}
                   onClick={handleItemClick}
                   formatTime={formatTime}
+                  hasAccess={canAccessRoute(getNotificationPath(item))}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
-      {selectedNotificationId && (
-        <NotificationDetailVisible id={selectedNotificationId} />
-      )}
     </>
   );
 }
