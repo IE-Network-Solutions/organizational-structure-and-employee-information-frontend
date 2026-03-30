@@ -281,7 +281,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       params.get(COPILOT_SHARE_REF_QUERY)
     ) {
       setCopilotOpen(true);
+      return;
     }
+    // Sidebar / in-app navigation: hide Copilot full-page workspace so main `children` render.
+    setCopilotOpen(false);
   }, [isMounted, pathname, setCopilotOpen]);
 
   const triggerRouteLoaderStart = () => {
