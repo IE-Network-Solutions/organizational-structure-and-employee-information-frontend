@@ -46,7 +46,8 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
 }) => {
   const uid = (base: string) => `${base}-${variant}`;
   const ucy = (base: string) => `${base}-${variant}`;
-  const [expandedKeys, setExpandedKeys] = useState<string[]>(['employee']);
+  /** All categories start collapsed whenever Copilot opens (panel remounts with copilot workspace). */
+  const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [editingSavedId, setEditingSavedId] = useState<string | null>(null);
   const [editSavedTitle, setEditSavedTitle] = useState('');
 
@@ -103,7 +104,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
 
   return (
     <div
-      className="flex h-full min-h-0 flex-col overflow-hidden rounded-[10px] border border-[#E5E7EB] bg-[#F3F4F6]"
+      className="flex h-full min-h-0 flex-col overflow-hidden rounded-[10px] border border-[#E5E7EB] bg-white"
       id={uid('copilot-intent-panel')}
       data-cy={ucy('copilot-intent-panel')}
     >
@@ -135,7 +136,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
       </div>
 
       <div
-        className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3"
+        className="scrollbar-hide min-h-0 flex-1 space-y-3 overflow-y-auto p-3"
         id={uid('copilot-intent-panel-content')}
         data-cy={ucy('copilot-intent-panel-content')}
       >

@@ -133,6 +133,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
     return (
       <>
         <div
+          className="scrollbar-hide"
           style={{
             overflowX: 'auto',
             maxWidth: '100%',
@@ -705,7 +706,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
   return (
     <div
-      className="h-full w-full max-w-none space-y-6 overflow-y-auto px-1 py-2 sm:px-2"
+      className="scrollbar-hide h-full w-full max-w-none space-y-6 overflow-y-auto px-1 py-2 sm:px-2"
       id="copilot-messages"
       data-cy="copilot-messages"
     >

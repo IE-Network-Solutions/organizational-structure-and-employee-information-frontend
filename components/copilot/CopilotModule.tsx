@@ -821,7 +821,7 @@ const CopilotModule: React.FC = () => {
           data-cy="copilot-module-chat-container"
         >
           <div
-            className="min-h-0 flex-1 overflow-y-auto bg-white px-2 py-4 md:px-3 md:py-6"
+            className="scrollbar-hide min-h-0 flex-1 overflow-y-auto bg-white px-2 py-4 md:px-3 md:py-6"
             id="copilot-module-chat-messages"
             data-cy="copilot-module-chat-messages"
           >
