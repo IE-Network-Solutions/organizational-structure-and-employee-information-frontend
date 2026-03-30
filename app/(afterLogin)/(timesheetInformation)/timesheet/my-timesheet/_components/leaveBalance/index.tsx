@@ -1,8 +1,6 @@
-import { Swiper, SwiperSlide } from 'swiper/react';
 import LeaveBalanceCard from './balanceCard';
 import LeaveBalanceCardSkeleton from './balanceCardSkeleton';
 
-import 'swiper/css';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -39,52 +37,41 @@ const LeaveBalance = () => {
           data-cy="time-attendance-leave-balance-swiper-wrapper"
         >
           <div
-            className="w-full overflow-hidden"
+            className="w-full overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             id="time-attendance-leave-balance-swiper-slides-container"
             data-cy="time-attendance-leave-balance-swiper-slides-container"
           >
             {showSkeleton ? (
-              <Swiper
-                className="w-full"
-                spaceBetween={28}
-                breakpoints={{
-                  0: { slidesPerView: 1 },
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3.5 },
-                  1920: { slidesPerView: 3.5 },
-                }}
+              <div
+                className="flex w-max min-w-full gap-7 pr-1"
+                data-cy="time-attendance-leave-balance-cards-row"
               >
                 {Array.from({ length: SKELETON_CARD_COUNT }).map(
                   (unusedSlide, i) => {
                     void unusedSlide;
                     return (
-                      <SwiperSlide
+                      <div
                         key={i}
+                        className="shrink-0 w-[280px] sm:w-[320px] md:w-[340px]"
                         data-cy={`time-attendance-leave-balance-skeleton-slide-${i}`}
                       >
                         <LeaveBalanceCardSkeleton />
-                      </SwiperSlide>
+                      </div>
                     );
                   },
                 )}
-              </Swiper>
+              </div>
             ) : (
-              <Swiper
-                className="w-full"
-                id="swiperId"
-                data-cy="time-attendance-leave-balance-swiper-id"
-                spaceBetween={28}
-                breakpoints={{
-                  0: { slidesPerView: 1.5 },
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3.5 },
-                  1920: { slidesPerView: 3.5 },
-                }}
+              <div
+                className="flex w-max min-w-full gap-7 pr-1"
+                id="time-attendance-leave-balance-scroll-row"
+                data-cy="time-attendance-leave-balance-scroll-row"
               >
                 {filteredItems.map((item: any) => (
-                  <SwiperSlide
+                  <div
                     data-cy={`time-attendance-leave-balance-slide-${item.id}`}
                     key={item.id}
+                    className="shrink-0 w-[280px] sm:w-[320px] md:w-[340px]"
                   >
                     <LeaveBalanceCard
                       title={item?.leaveType?.title ?? ''}
@@ -96,9 +83,9 @@ const LeaveBalance = () => {
                       carried={item?.carriedOver ?? item?.carried ?? 0}
                       data-cy={`time-attendance-leave-balance-card-content-id-${item.id}`}
                     />
-                  </SwiperSlide>
+                  </div>
                 ))}
-              </Swiper>
+              </div>
             )}
           </div>
         </div>
