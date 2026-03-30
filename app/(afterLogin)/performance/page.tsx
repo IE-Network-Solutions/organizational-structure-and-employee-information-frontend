@@ -12,11 +12,12 @@ import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-man
 
 export default function PerformanceDashboardPage() {
   const { data: activeFiscalYears } = useGetActiveFiscalYears();
+  const modules = ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'];
   const {
     data: aggregateAuditLogsResponse,
     isLoading: isRecentActionsLoading,
   } = useGetAggregateAuditPostLogs({
-    modules: ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'],
+    modules: modules,
     page: 1,
     limit: 5,
     orderBy: 'performedAt',
@@ -162,6 +163,8 @@ export default function PerformanceDashboardPage() {
             <RecentHrActions
               auditLogs={aggregateAuditLogsResponse?.items ?? []}
               isLoading={isRecentActionsLoading}
+              auditLogModules={modules}
+              height="444px"
             />
           </div>
         </div>

@@ -9,51 +9,49 @@ import type { FeedbackStatsPerformer } from '@/store/server/features/performance
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 
-const ENGAGEMENT_BAR = '#C4B5FD';
-const KPI_BAR = '#3B82F6';
-const ENGAGEMENT_LABEL = '#7C3AED';
-const KPI_LABEL = '#2563EB';
+const ENGAGEMENT_BAR = '#4096FF';
+const KPI_BAR = '#1E40AF';
+const ENGAGEMENT_LABEL = '#4096FF';
+const KPI_LABEL = '#1E40AF';
 
 function SegmentedBar({
   engagementCount,
   kpiCount,
 }: Pick<FeedbackStatsPerformer, 'engagementCount' | 'kpiCount'>) {
   const sum = engagementCount + kpiCount;
-  const engFlex = sum > 0 ? engagementCount : 1;
-  const kpiFlex = sum > 0 ? kpiCount : 1;
+  const kpiPct = sum > 0 ? (kpiCount / sum) * 100 : 0;
+  const engPct = sum > 0 ? (engagementCount / sum) * 100 : 0;
+  const kpiOnly = kpiCount > 0 && engagementCount === 0;
+  const engOnly = engagementCount > 0 && kpiCount === 0;
 
   return (
-    <div className="flex w-full gap-2">
+    <div className="w-full">
       <div
-        className="flex min-w-0 flex-1 flex-col gap-2"
-        style={{ flex: `${engFlex} 1 0%` }}
+        className="flex h-[6px] w-full overflow-hidden rounded-full bg-gray-100 gap-0.5"
+        data-cy="performance-feedback-performers-segmented-bar"
+        aria-label="KPI and engagement breakdown"
       >
         <div
-          className="h-[6px] w-full rounded-full"
-          style={{ backgroundColor: ENGAGEMENT_BAR }}
-          title={`Engagement ${engagementCount}`}
-        />
-        <p
-          className="text-center text-xs font-medium"
-          style={{ color: ENGAGEMENT_LABEL }}
-        >
-          Engagement {engagementCount}
-        </p>
-      </div>
-      <div
-        className="flex min-w-0 flex-1 flex-col gap-2"
-        style={{ flex: `${kpiFlex} 1 0%` }}
-      >
-        <div
-          className="h-[6px] w-full rounded-full"
-          style={{ backgroundColor: KPI_BAR }}
+          className={`h-[6px] shrink-0 ${kpiOnly ? 'rounded-full' : 'rounded-r-full'}`}
+          style={{
+            width: `${kpiPct}%`,
+            backgroundColor: KPI_BAR,
+          }}
           title={`KPI ${kpiCount}`}
         />
-        <p
-          className="text-center text-xs font-medium"
-          style={{ color: KPI_LABEL }}
-        >
-          KPI {kpiCount}
+        <div
+          className={`h-[6px] shrink-0 ${engOnly ? 'rounded-full' : 'rounded-l-full'}`}
+          style={{
+            width: `${engPct}%`,
+            backgroundColor: ENGAGEMENT_BAR,
+          }}
+          title={`Engagement ${engagementCount}`}
+        />
+      </div>
+      <div className="mt-2 flex  gap-x-6 gap-y-1 text-xs font-medium items-center ">
+        <p className='w-1/2 text-center flex items-center justify-center' style={{ color: KPI_LABEL }}>KPI {kpiCount} | Point 0</p>
+        <p className='w-1/2 text-center' style={{ color: ENGAGEMENT_LABEL }}>
+          Engagement {engagementCount}
         </p>
       </div>
     </div>

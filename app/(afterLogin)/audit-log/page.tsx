@@ -7,9 +7,9 @@ import {
   ArrowDownOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetAggregateAuditLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
+import { useGetAggregateAuditLogs, useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
 import { AuditLog } from '@/types/tenant-management';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -33,16 +33,25 @@ const AUDIT_LOG_MODULES = [
   { label: 'Time and attendance', value: 'TimesheetAuditLog' },
 ];
 
+const ALL_AUDIT_LOG_MODULE_VALUES = AUDIT_LOG_MODULES.map((m) => m.value);
+
+const VALID_MODULE_VALUE_SET = new Set(ALL_AUDIT_LOG_MODULE_VALUES);
+
 const AuditLogPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const modulesQueryRaw = searchParams.get('modules');
+  const modulesFromUrl =
+    modulesQueryRaw != null && modulesQueryRaw.trim() !== ''
+      ? modulesQueryRaw
+      : null;
+  const moduleFromUrl = searchParams.get('module');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
     undefined,
   );
-  const [selectedModule, setSelectedModule] = useState<string | undefined>(
-    undefined,
-  );
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string | undefined>(
     undefined,
   );
@@ -53,9 +62,33 @@ const AuditLogPage = () => {
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
 
+  useEffect(() => {
+    if (modulesFromUrl) {
+      const parsed = modulesFromUrl
+        .split(',')
+        .map((s) => s.trim())
+        .filter((v) => VALID_MODULE_VALUE_SET.has(v));
+      setSelectedModules(parsed);
+      setCurrentPage(1);
+      return;
+    }
+    if (moduleFromUrl && VALID_MODULE_VALUE_SET.has(moduleFromUrl)) {
+      setSelectedModules([moduleFromUrl]);
+      setCurrentPage(1);
+      return;
+    }
+    if (!modulesFromUrl && moduleFromUrl === null) {
+      setSelectedModules([]);
+    }
+  }, [modulesFromUrl, moduleFromUrl]);
+
   const queryParams = useMemo(() => {
+    const modulesForRequest =
+      selectedModules.length > 0
+        ? selectedModules
+        : ALL_AUDIT_LOG_MODULE_VALUES;
     const params = {
-      module: selectedModule ?? 'all',
+      modules: modulesForRequest,
       page: currentPage,
       limit: pageSize,
       orderBy: 'performedAt',
@@ -70,15 +103,14 @@ const AuditLogPage = () => {
     currentPage,
     pageSize,
     selectedAction,
-    selectedModule,
+    selectedModules,
     selectedUserId,
     orderDirection,
     dateFrom,
     dateTo,
   ]);
-
   // Fetch audit logs from API
-  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditLogs(
+  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditPostLogs(
     queryParams,
     true,
   );
@@ -171,9 +203,8 @@ const AuditLogPage = () => {
       key: 'module',
       render: (unusedValue: any, record: any) => {
         // If a specific module is selected, show that module's display name
-        const displayName = selectedModule
-          ? getModuleDisplayName(selectedModule)
-          : getModuleDisplayName(record?.module);
+        const displayName = 
+         getModuleDisplayName(record?.module);
 
         return (
           <span
@@ -287,7 +318,7 @@ const AuditLogPage = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [
-    selectedModule,
+    selectedModules,
     selectedAction,
     selectedUserId,
     orderDirection,
@@ -390,6 +421,7 @@ const AuditLogPage = () => {
             className="w-full h-10"
             data-cy="audit-log-action-select-popover"
             id="audit-log-action-select-popover"
+
           >
             {actions.map((action) => (
               <Option
@@ -417,14 +449,15 @@ const AuditLogPage = () => {
           </div>
           <Select
             placeholder="Time and attendance"
-            value={selectedModule}
+            value={selectedModules}
             onChange={(value) => {
-              setSelectedModule(value || undefined);
+              setSelectedModules(Array.isArray(value) ? value : []);
               setCurrentPage(1);
             }}
-            className="w-full h-10"
+            className={`w-full  ${selectedModules.length > 0 ? 'min-h-10' : 'h-10'}`}
             data-cy="audit-log-module-select-popover"
             id="audit-log-module-select-popover"
+            mode="multiple"
           >
             {AUDIT_LOG_MODULES.map((module) => (
               <Option
@@ -449,7 +482,7 @@ const AuditLogPage = () => {
           onClick={() => {
             setDateFrom(null);
             setDateTo(null);
-            setSelectedModule(undefined);
+            setSelectedModules([]);
             setSelectedAction(undefined);
             setCurrentPage(1);
           }}

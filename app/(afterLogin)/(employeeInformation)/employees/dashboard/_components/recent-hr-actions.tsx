@@ -18,6 +18,7 @@ import {
   MdTrendingUp,
   MdUpdate,
   MdWorkspacesOutline,
+  MdOutlineAccessTimeFilled,
 } from 'react-icons/md';
 
 type RecentHrAction = {
@@ -33,6 +34,8 @@ type RecentHrAction = {
 type RecentHrActionsProps = {
   auditLogs?: AuditLog[];
   isLoading?: boolean;
+  auditLogModules?: string[];
+  height?: string;
 };
 
 const SKELETON_ITEMS_COUNT = 5;
@@ -63,56 +66,55 @@ const getActionTitle = (action?: string) => {
 const getIconDataByAction = (action?: string, module?: string) => {
   const actionLower = action?.toLowerCase();
   const moduleKey = module;
-  console.log(moduleKey, 'moduleKey');
 
   if (
     actionLower === 'create' ||
     actionLower === 'created' ||
     actionLower === 'creation'
   ) {
-    if (moduleKey === 'pension') {
+    if (moduleKey === 'PensionAuditLog') {
       return {
         icon: <MdAccountBalance className="w-4 h-4" />,
         iconBgClassName: 'bg-[#1E40AF]/15',
         iconClassName: 'text-[#1E40AF]',
       };
     }
-    if (moduleKey === 'payroll') {
+    if (moduleKey === 'PayrollAuditLog') {
       return {
         icon: <MdAccountBalanceWallet className="w-4 h-4" />,
         iconBgClassName: 'bg-[#323232]/15',
         iconClassName: 'text-[#323232]',
       };
     }
-    if (moduleKey === 'incentive') {
+    if (moduleKey === 'IncentiveAuditLog') {
       return {
         icon: <MdCardGiftcard className="w-4 h-4" />,
         iconBgClassName: 'bg-[#EB2F96]/15',
         iconClassName: 'text-[#EB2F96]',
       };
     }
-    if (moduleKey === 'deduction') {
+    if (moduleKey === 'DeductionAuditLog') {
       return {
         icon: <MdTrendingDown className="w-4 h-4" />,
         iconBgClassName: 'bg-[#FF4D4F]/15',
         iconClassName: 'text-[#FF4D4F]',
       };
     }
-    if (moduleKey === 'allowance') {
+    if (moduleKey === 'AllowanceAuditLog') {
       return {
         icon: <MdTrendingUp className="w-4 h-4" />,
         iconBgClassName: 'bg-[#52C41A]/15',
         iconClassName: 'text-[#52C41A]',
       };
     }
-    if (moduleKey === 'auditlog') {
+    if (moduleKey === 'OrgAndEmpAuditLog') {
       return {
         icon: <MdFactCheck className="w-4 h-4" />,
         iconBgClassName: 'bg-[#FFEC3D]/20',
         iconClassName: 'text-[#FFEC3D]',
       };
     }
-    if (moduleKey === 'payrollmerit') {
+    if (moduleKey === 'PayrollAuditLog') {
       return {
         icon: <MdWorkspacesOutline className="w-4 h-4" />,
         iconBgClassName: 'bg-[#4096FF]/15',
@@ -126,21 +128,28 @@ const getIconDataByAction = (action?: string, module?: string) => {
         iconClassName: 'text-[#1E40AF]',
       };
     }
-    if (moduleKey === 'rec') {
+    if (moduleKey === 'TimesheetAuditLog') {
+      return {
+        icon: <MdOutlineAccessTimeFilled  className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#4096FF]/15',
+        iconClassName: 'text-[#4096FF]',
+      };
+    }
+    if (moduleKey === 'RecruitmentAuditLog') {
       return {
         icon: <MdPersonSearch className="w-4 h-4" />,
         iconBgClassName: 'bg-[#52C41A]/15',
         iconClassName: 'text-[#52C41A]',
       };
     }
-    if (moduleKey === 'cfr') {
+    if (moduleKey === 'CFRAuditLog') {
       return {
         icon: <MdChatBubble className="w-4 h-4" />,
         iconBgClassName: 'bg-[#FFEC3D]/20',
         iconClassName: 'text-[#FFEC3D]',
       };
     }
-    if (moduleKey === 'tna') {
+    if (moduleKey === 'TNAAuditLog') {
       return {
         icon: <MdSchool className="w-4 h-4" />,
         iconBgClassName: 'bg-[#323232]/15',
@@ -177,6 +186,8 @@ const getIconDataByAction = (action?: string, module?: string) => {
 export default function RecentHrActions({
   auditLogs = [],
   isLoading = false,
+  auditLogModules = [],
+  height,
 }: RecentHrActionsProps) {
   const hasServerData = Array.isArray(auditLogs) && auditLogs.length > 0;
 
@@ -204,7 +215,7 @@ export default function RecentHrActions({
 
   return (
     <div
-      className="border border-gray-200 rounded-lg p-4 bg-white md:h-[444px] min-h-[430px]"
+      className={`border border-gray-200 rounded-lg p-4 bg-white h-[${height}]`}
       id="recent-hr-actions-card"
       data-cy="recent-hr-actions-card"
     >
@@ -232,9 +243,9 @@ export default function RecentHrActions({
             Recent HR Actions
           </h3>
         </div>
-
+        
         <Link
-          href="/audit-log"
+          href={`/audit-log?modules=${encodeURIComponent(auditLogModules?.join(',') ?? '')}`}
           className="text-sm font-medium text-blue hover:underline whitespace-nowrap"
           id="recent-hr-actions-view-all"
           data-cy="recent-hr-actions-view-all"

@@ -122,12 +122,22 @@ const getAggregateAuditPostLogs = async (
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  const modulesFromParam =
-    Array.isArray(params.modules) && params.modules.length
-      ? params.modules
-      : params.module && params.module !== 'all'
-      ? [params.module]
-      : ['RecruitmentAuditLog', 'OKRAuditLog'];
+  const modulesFromParam = ((): string[] => {
+    if (Array.isArray(params.modules) && params.modules.length) {
+      return params.modules;
+    }
+    if (typeof params.modules === 'string' && params.modules !== 'all') {
+      const parts = params.modules
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (parts.length) return parts;
+    }
+    if (params.module && params.module !== 'all') {
+      return [params.module];
+    }
+    return ['RecruitmentAuditLog', 'OKRAuditLog'];
+  })();
 
   // Build query parameters
   const queryParams: Record<string, any> = {
@@ -172,9 +182,12 @@ export const useGetAggregateAuditPostLogs = (
   params: AggregateAuditLogParams = {},
   isEnabled: boolean = true,
 ) => {
-  // Keep previous data when module is defined (including 'all')
   const shouldKeepPreviousData =
-    params.module !== null && params.module !== undefined;
+    (params.module !== null && params.module !== undefined) ||
+    (Array.isArray(params.modules) && params.modules.length > 0) ||
+    (typeof params.modules === 'string' &&
+      params.modules.length > 0 &&
+      params.modules !== 'all');
 
   return useQuery<ApiResponse<AuditLog>>(
     ['aggregate-audit-post-logs', params],

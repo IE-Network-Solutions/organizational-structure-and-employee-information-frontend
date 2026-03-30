@@ -8,6 +8,14 @@ import { ActionPlanCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetActionPlansDashboard } from '@/store/server/features/performance/action-plans/queries';
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
+import Link from 'next/link';
+
+/** Matches performance dashboard recent-actions audit scope */
+const PERFORMANCE_AUDIT_LOG_MODULES = [
+  'OKRAuditLog',
+  'CFRAuditLog',
+  'TNAAuditLog',
+] as const;
 
 const GREEN = '#10b981';
 const ORANGE = '#f59e0b';
@@ -329,39 +337,52 @@ export default function ActionPlanCard({
           </div>
 
           <div className="my-4 h-px w-full bg-gray-200" />
+          <div className="flex items-center justify-between my-3">
+            <span className="text-sm font-semibold text-black">
+              Top Action Owners
+            </span>
+            <Link
+              href={`/audit-log?modules=${encodeURIComponent(
+                PERFORMANCE_AUDIT_LOG_MODULES.join(','),
+              )}`}
+              className="text-sm font-normal text-primary hover:underline focus:outline-none"
+            >
+              View All
+            </Link>
+          </div>
 
-          <ul className="space-y-2 h-[230px] overflow-y-auto scrollbar-none">
+          <ul className="space-y-2 h-[205px] overflow-y-auto scrollbar-none">
             {FALLBACK_ACTION_PLAN_PERFORMERS.map((performer) => (
               <li key={performer.id}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <Avatar
-                      size={40}
+                      size={36}
                       icon={<UserOutlined />}
                       className="shrink-0 bg-gray-200 text-gray-500"
                     />
                     <div className="min-w-0">
-                      <p className="truncate text-2xl font-semibold leading-none text-gray-900 sm:text-lg">
+                      <p className="truncate text-sm font-normal leading-none text-black">
                         {performer.name}
                       </p>
-                      <p className="truncate pt-1 text-sm text-gray-500">
+                      <p className="truncate pt-1 text-xs text-black/45">
                         {performer.role}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex shrink-0 items-center gap-2">
-                    <span className="rounded-md border border-gray-300 bg-gray-50 px-3 py-1 text-sm text-gray-600">
+                    <span className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-black/70">
                       Survey:{performer.survey}
                     </span>
-                    <span className="rounded-md border border-gray-300 bg-gray-50 px-3 py-1 text-sm text-gray-600">
+                    <span className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-black/70">
                       Meeting:{performer.meeting}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex flex-row-reverse items-center">
-                  <span className="w-9 text-right text-xl text-gray-600 sm:text-base">
+                <div className="flex flex-row-reverse items-center gap-1">
+                  <span className=" text-right text-sm text-black/70 ">
                     {performer.score}%
                   </span>
                   <div className="flex-1">
