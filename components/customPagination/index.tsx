@@ -11,10 +11,14 @@ interface CustomPaginationProps {
   current: number;
   total: number;
   pageSize: number;
+  /** When set (e.g. `meta.totalPages`), preferred over `ceil(total / pageSize)`. */
+  totalPages?: number;
   onChange: (page: number, pageSize: number) => void;
   onShowSizeChange: (size: number) => void;
   /** When omitted, uses 5 / 10 / 25 / 50 / 75 / 100. Current `pageSize` is always included in the list. */
   pageSizeOptions?: number[];
+  /** When true, main row may wrap (e.g. many page buttons + selectors). */
+  wrapMainRow?: boolean;
   id?: string;
   'data-cy'?: string;
   grayBackground?: boolean; // Only for planning and reporting page
@@ -24,9 +28,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   current,
   total,
   pageSize,
+  totalPages: totalPagesProp,
   onChange,
   onShowSizeChange,
   pageSizeOptions,
+  wrapMainRow = false,
   id,
   'data-cy': dataCy,
   grayBackground = false,
@@ -43,7 +49,14 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     onShowSizeChange(value);
   };
 
-  const totalPages = Math.ceil(total / pageSize);
+  const safePageSize = pageSize > 0 ? pageSize : 1;
+  const fromMeta =
+    typeof totalPagesProp === 'number' &&
+    !Number.isNaN(totalPagesProp) &&
+    totalPagesProp >= 1
+      ? totalPagesProp
+      : null;
+  const totalPages = Math.max(1, fromMeta ?? Math.ceil(total / safePageSize));
   const { isMobile } = useIsMobile();
 
   const [goToPageValue, setGoToPageValue] = useState<string>('');
@@ -185,33 +198,35 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex justify-between items-center py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
+      className={`flex justify-between items-center py-6 ${wrapMainRow ? 'flex-wrap gap-y-4 gap-x-4' : ''} ${grayBackground ? 'bg-gray-100' : ''}`}
     >
       <div
         data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
         className="flex items-center space-x-2"
       >
         <button
+          type="button"
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           data-cy="pagination-prev-button"
-          className={`w-8 h-8 flex items-center justify-center border border-gray-100 rounded-[10px] ${
+          className={`w-8 h-8 flex items-center justify-center rounded-[6px] border-0 bg-transparent ${
             current === 1
               ? 'text-[#111827] opacity-50'
-              : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
+              : 'text-[#111827] hover:bg-gray-50 active:bg-gray-100'
           }`}
         >
           <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
         {renderPageNumbers()}
         <button
+          type="button"
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           data-cy="pagination-next-button"
-          className={`w-8 h-8 flex items-center justify-center border border-gray-100 rounded-[10px] ${
+          className={`w-8 h-8 flex items-center justify-center rounded-[6px] border-0 bg-transparent ${
             current === totalPages
               ? 'text-[#111827] opacity-50'
-              : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
+              : 'text-[#111827] hover:bg-gray-50 active:bg-gray-100'
           }`}
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />

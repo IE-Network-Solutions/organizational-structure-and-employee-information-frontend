@@ -8,9 +8,13 @@ interface MyTimesheetAttendancePaginationProps {
   current: number;
   total: number;
   pageSize: number;
+  /** When set (e.g. `meta.totalPages`), used when `ceil(total / pageSize)` is wrong or zero. */
+  totalPages?: number;
   onChange: (page: number, pageSize: number) => void;
   /** Optional; callers may pass for API compatibility — not invoked by this UI. */
   onShowSizeChange?: (size: number) => void;
+  /** When true, controls may wrap to the next line (e.g. many pages). */
+  wrapLayout?: boolean;
   id?: string;
   'data-cy'?: string;
 }
@@ -19,12 +23,22 @@ export default function MyTimesheetAttendancePagination({
   current,
   total,
   pageSize,
+  totalPages: totalPagesProp,
   onChange,
+  wrapLayout = false,
   id,
   'data-cy': dataCy,
 }: MyTimesheetAttendancePaginationProps) {
   const [goToPageInput, setGoToPageInput] = useState(String(current));
-  const totalPages = Math.ceil(total / pageSize) || 1;
+  const safePageSize = pageSize > 0 ? pageSize : 1;
+  const fromMeta =
+    typeof totalPagesProp === 'number' &&
+    !Number.isNaN(totalPagesProp) &&
+    totalPagesProp >= 1
+      ? totalPagesProp
+      : null;
+  const fromCount = Math.ceil(total / safePageSize);
+  const totalPages = Math.max(1, fromMeta ?? fromCount);
 
   useEffect(() => {
     setGoToPageInput(String(current));
@@ -59,7 +73,7 @@ export default function MyTimesheetAttendancePagination({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium border transition-colors ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[8px] text-sm font-medium border transition-colors ${
               current === i
                 ? 'bg-white text-primary border-primary'
                 : 'bg-white text-[#111827] border-gray-200 hover:bg-gray-100'
@@ -155,7 +169,7 @@ export default function MyTimesheetAttendancePagination({
     <div
       id={id ?? 'my-timesheet-attendance-pagination'}
       data-cy={dataCy ?? 'my-timesheet-attendance-pagination'}
-      className="flex justify-between items-center py-6"
+      className={`flex justify-between items-center py-6 ${wrapLayout ? 'flex-wrap gap-y-4 gap-x-4' : ''}`}
     >
       <div
         className="flex items-center gap-4"
@@ -166,13 +180,14 @@ export default function MyTimesheetAttendancePagination({
           data-cy="my-timesheet-attendance-pagination-controls"
         >
           <button
+            type="button"
             onClick={() => current > 1 && handlePageChange(current - 1)}
             disabled={current === 1}
             data-cy="my-timesheet-attendance-pagination-prev-button"
-            className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[6px] border-0 bg-transparent ${
               current === 1
-                ? 'text-[#111827] border-gray-200 opacity-50'
-                : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+                ? 'text-[#111827] opacity-50'
+                : 'text-[#111827] hover:bg-gray-100 active:bg-gray-200'
             }`}
           >
             <LeftOutlined className="text-xs" />
@@ -184,15 +199,16 @@ export default function MyTimesheetAttendancePagination({
             {renderPageNumbers()}
           </div>
           <button
+            type="button"
             onClick={() =>
               current < totalPages && handlePageChange(current + 1)
             }
             disabled={current === totalPages}
             data-cy="my-timesheet-attendance-pagination-next-button"
-            className={`w-8 h-8 flex items-center justify-center border rounded-[10px] ${
+            className={`w-8 h-8 flex items-center justify-center rounded-[6px] border-0 bg-transparent ${
               current === totalPages
-                ? 'text-[#111827] border-gray-200 opacity-50'
-                : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+                ? 'text-[#111827] opacity-50'
+                : 'text-[#111827] hover:bg-gray-100 active:bg-gray-200'
             }`}
           >
             <RightOutlined className="text-xs" />

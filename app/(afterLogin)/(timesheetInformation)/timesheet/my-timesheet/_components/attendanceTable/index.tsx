@@ -1,3 +1,4 @@
+ 
 import React, { useEffect } from 'react';
 import { Button, Dropdown, message, Space, Table, Tag } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
@@ -92,6 +93,19 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
     { filter: { ...userFilter, ...filter } },
   );
   const { isMobile, isTablet } = useIsMobile();
+
+  const safeAttendancePageSize = pageSize > 0 ? pageSize : 1;
+  const attendanceMetaTotalPages = data?.meta?.totalPages;
+  const attendanceResolvedTotalPages = Math.max(
+    1,
+    typeof attendanceMetaTotalPages === 'number' &&
+      !Number.isNaN(attendanceMetaTotalPages) &&
+      attendanceMetaTotalPages >= 1
+      ? attendanceMetaTotalPages
+      : Math.ceil((data?.meta?.totalItems ?? 0) / safeAttendancePageSize),
+  );
+  const attendanceWrapPaginationManyPages =
+    attendanceResolvedTotalPages > 3;
   const { mutate: exportAttendanceData } = UseExportAttendanceData();
 
   const handleExport = (exportType: 'PDF' | 'EXCEL') => {
@@ -131,7 +145,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         <div
           id="time-attendance-attendance-table-row-date-div"
           data-cy="time-attendance-attendance-table-row-date-div"
-          className="text-sm text-gray-900 py-4 whitespace-nowrap"
+          className="text-sm text-black py-2 whitespace-nowrap"
         >
           {dayjs(date).format(DATE_FORMAT)}
         </div>
@@ -145,7 +159,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         <div
           id="time-attendance-attendance-table-row-clock-in-div"
           data-cy="time-attendance-attendance-table-row-clock-in-div"
-          className="text-sm text-gray-900 py-4"
+          className="text-sm text-black py-2"
         >
           {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
@@ -159,7 +173,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         <div
           id="time-attendance-attendance-table-row-location-in-div"
           data-cy="time-attendance-attendance-table-row-location-in-div"
-          className="text-sm text-gray-900 py-4 flex items-center justify-between"
+          className="text-sm text-black py-2 flex items-center justify-between"
         >
           {geolocations?.[0]?.allowedArea?.title ?? ''} <GoLocation />
         </div>
@@ -173,7 +187,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         <div
           id="time-attendance-attendance-table-row-clock-out-div"
           data-cy="time-attendance-attendance-table-row-clock-out-div"
-          className="text-sm text-gray-900 py-4"
+          className="text-sm text-black py-2"
         >
           {date ? dayjs(date).format('HH:mm') : '-'}
         </div>
@@ -187,7 +201,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         <div
           id="time-attendance-attendance-table-row-location-out-div"
           data-cy="time-attendance-attendance-table-row-location-out-div"
-          className="text-sm text-gray-900 py-4 flex items-center justify-between"
+          className="text-sm text-black py-2 flex items-center justify-between"
         >
           {geolocations?.[geolocations.length - 1]?.allowedArea?.title ?? ''}{' '}
           <GoLocation data-cy="time-attendance-attendance-table-row-location-out-icon" />
@@ -204,7 +218,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           <div
             id="time-attendance-attendance-table-row-status-container"
             data-cy="time-attendance-attendance-table-row-status-container"
-            className="py-4"
+            className="py-2"
           >
             <Space
               id="time-attendance-attendance-table-row-status-space"
@@ -254,7 +268,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           <div
             id="time-attendance-attendance-table-row-total-time-div"
             data-cy="time-attendance-attendance-table-row-total-time-div"
-            className="text-sm text-gray-900 py-4"
+            className="text-sm text-black py-2"
           >
             {record.startAt && record.endAt
               ? `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`
@@ -271,7 +285,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         <div
           id="time-attendance-attendance-table-row-over-time-div"
           data-cy="time-attendance-attendance-table-row-over-time-div"
-          className="text-sm text-gray-900 py-4"
+          className="text-sm text-black py-2"
         >
           {minutes} min
         </div>
@@ -288,7 +302,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       sorter: true,
       render: (date: string) => (
         <div
-          className="text-sm text-gray-900 py-4 whitespace-nowrap"
+          className="text-sm text-black py-2 whitespace-nowrap"
           data-cy="time-attendance-attendance-table-row-date-div"
         >
           {dayjs(date).format(DATE_FORMAT)}
@@ -301,7 +315,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       key: 'startAt',
       render: (date: string) => (
         <div
-          className="text-sm text-gray-900 py-4"
+          className="text-sm text-black py-2"
           data-cy="time-attendance-attendance-table-row-clock-in-div"
         >
           {date ? dayjs(date).format('HH:mm') : '-'}
@@ -314,7 +328,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       key: 'endAt',
       render: (date: string) => (
         <div
-          className="text-sm text-gray-900 py-4"
+          className="text-sm text-black py-2"
           data-cy="time-attendance-attendance-table-row-clock-out-div"
         >
           {date ? dayjs(date).format('HH:mm') : '-'}
@@ -330,7 +344,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         const calcTotal = calculateAttendanceRecordToTotalWorkTime(record);
         return (
           <div
-            className="text-sm text-gray-900 py-4"
+            className="text-sm text-black py-2"
             data-cy="time-attendance-attendance-table-row-total-time-div"
           >
             {record.startAt && record.endAt
@@ -348,7 +362,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         const breakMs = calculateAttendanceRecordToTotalBreakTimeMs(record);
         return (
           <div
-            className="text-sm text-gray-900 py-4"
+            className="text-sm text-black py-2"
             data-cy="time-attendance-attendance-table-row-total-break-div"
           >
             {breakMs > 0
@@ -367,7 +381,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         const statuses = formatToAttendanceStatuses(record);
         return (
           <div
-            className="py-4"
+            className="py-2"
             data-cy="time-attendance-attendance-table-row-status-container"
           >
             <Space
@@ -397,10 +411,11 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
 
-    if (val.date) {
+    const dateRange = val.date as [string, string] | null | undefined;
+    if (dateRange?.[0] && dateRange?.[1]) {
       nFilter['date'] = {
-        from: val.date[0],
-        to: val.date[1],
+        from: dateRange[0],
+        to: dateRange[1],
       };
     }
 
@@ -429,7 +444,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       data-cy="time-attendance-attendance-table-container"
     >
       <div
-        className="flex items-center justify-between mb-6"
+        className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         id="time-attendance-attendance-table-header-container"
         data-cy="time-attendance-attendance-table-header-container"
       >
@@ -458,55 +473,60 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
             </>
           )}
         </div>
-        {/* Mobile Filter */}
+        {/* Mobile: full-width inline filters (stacked); see tableFilter */}
         <div
-          className="sm:hidden flex items-center w-full"
+          className="w-full sm:hidden"
           id="time-attendance-attendance-table-mobile-filter-container"
           data-cy="time-attendance-attendance-table-mobile-filter-container"
         >
-          <div
-            data-cy="my-timesheet-components-attendancetable-index-tsx-index-div-333"
-            className="h-10 flex w-full"
-          >
-            <AttendanceTableFilter
-              onChange={onFilterChange}
-              data-cy="time-attendance-attendance-table-mobile-filter"
-            />
-          </div>
+          <AttendanceTableFilter
+            onChange={onFilterChange}
+            data-cy="time-attendance-attendance-table-mobile-filter"
+          />
         </div>
       </div>
 
-      {/* Desktop Filter */}
+      {/* Desktop Filter — px matches card inset so Export is not flush to the border */}
       <div
-        className="hidden sm:block"
+        className="hidden sm:block px-3 pb-2 sm:px-4 lg:px-5"
         id="time-attendance-attendance-table-desktop-filter-container"
         data-cy="time-attendance-attendance-table-desktop-filter-container"
       >
         <div
-          className="flex flex-wrap items-center gap-4 justify-between mx-2"
+          className="flex w-full min-w-0 flex-nowrap items-center justify-between gap-8 lg:gap-12"
           data-cy="time-attendance-attendance-table-desktop-filter-row"
         >
-          <AttendanceTableFilter
-            onChange={onFilterChange}
-            data-cy="time-attendance-attendance-table-desktop-filter"
-          />
+          <div
+            className="min-w-0 shrink"
+            data-cy="time-attendance-attendance-table-desktop-filter-filters"
+          >
+            <AttendanceTableFilter
+              onChange={onFilterChange}
+              data-cy="time-attendance-attendance-table-desktop-filter"
+            />
+          </div>
           {variant === 'myTimesheet' && (
-            <Dropdown
-              menu={{ items: exportMenuItems }}
-              trigger={['click']}
-              placement="bottomRight"
+            <div
+              className="shrink-0 pl-4"
+              data-cy="time-attendance-attendance-table-desktop-export-wrap"
             >
-              <Button
-                type="primary"
-                ghost={true}
-                icon={<PiExportLight size={16} />}
-                data-cy="my-timesheet-attendance-export-button"
-                id="my-timesheet-attendance-export-button"
-                className="border-gray-300 text-gray-500 font-medium hover:text-primary hover:border-primary"
+              <Dropdown
+                menu={{ items: exportMenuItems }}
+                trigger={['click']}
+                placement="bottomRight"
               >
-                Export
-              </Button>
-            </Dropdown>
+                <Button
+                  type="primary"
+                  ghost={true}
+                  icon={<PiExportLight size={16} />}
+                  data-cy="my-timesheet-attendance-export-button"
+                  id="my-timesheet-attendance-export-button"
+                  className="border-gray-300 text-gray-500 font-medium hover:text-primary hover:border-primary"
+                >
+                  Export
+                </Button>
+              </Dropdown>
+            </div>
           )}
         </div>
       </div>
@@ -516,7 +536,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         data-cy="time-attendance-attendance-table-content"
       >
         <Table<AttendanceRecord>
-          className="mt-6"
+          className="mt-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
           columns={columns}
           dataSource={data?.items}
           loading={isFetching}
@@ -525,16 +545,24 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           scroll={{ x: 'min-content' }}
           id="time-attendance-attendance-table"
           data-cy="time-attendance-attendance-table"
+          rowClassName={(_, index) =>
+            index % 2 === 1
+              ? 'time-attendance-table-row-even'
+              : 'time-attendance-table-row-odd'
+          }
         />
         <div
-          className="mx-1"
+          className={`mx-1 ${isMobile || isTablet ? 'mt-6' : ''}`}
           data-cy="time-attendance-attendance-table-pagination-wrapper"
         >
           {isMobile || isTablet ? (
             <CustomMobilePagination
+              currentPage={currentPage}
               totalResults={data?.meta?.totalItems ?? 0}
+              totalPages={data?.meta?.totalPages}
               pageSize={pageSize}
-              onChange={onPageChange}
+              stackPagerAndGoTo={attendanceWrapPaginationManyPages}
+              onChange={(newPage) => onPageChange(newPage)}
               onShowSizeChange={onPageChange}
               data-cy="time-attendance-attendance-table-mobile-pagination"
             />
@@ -542,7 +570,9 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
             <MyTimesheetAttendancePagination
               current={currentPage}
               total={data?.meta?.totalItems ?? 0}
+              totalPages={data?.meta?.totalPages}
               pageSize={pageSize}
+              wrapLayout={attendanceWrapPaginationManyPages}
               onChange={onPageChange}
               onShowSizeChange={(size: number) => {
                 setPageSize(size);
@@ -554,7 +584,9 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
             <CustomPagination
               current={currentPage}
               total={data?.meta?.totalItems ?? 0}
+              totalPages={data?.meta?.totalPages}
               pageSize={pageSize}
+              wrapMainRow={attendanceWrapPaginationManyPages}
               onChange={onPageChange}
               onShowSizeChange={(size: number) => {
                 setPageSize(size);

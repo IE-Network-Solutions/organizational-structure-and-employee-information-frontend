@@ -137,7 +137,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
       className="min-h-screen bg-[#f5f5f5]"
     >
       <div
-        className="min-h-screen bg-white mr-0 sm:mr-6"
+        className="min-h-screen bg-white"
         data-cy="time-attendance-my-timesheet-layout-inner"
         id="time-attendance-my-timesheet-layout-inner"
       >

@@ -67,7 +67,7 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
           </div>
           <div
             className="text-sm font-medium"
-            style={{ color: '#1677FF' }}
+            style={{ color: '#6A7282' }}
             data-cy={`time-attendance-leave-balance-card-${title}-available-unit`}
           >
             days

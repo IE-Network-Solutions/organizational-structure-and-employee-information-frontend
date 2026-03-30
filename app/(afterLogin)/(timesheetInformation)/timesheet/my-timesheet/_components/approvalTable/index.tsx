@@ -32,6 +32,9 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 
 const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
+/** Min width for horizontal scroll on narrow viewports (aligned with leave table pattern). */
+const APPROVAL_TABLE_SCROLL_X = 960;
+
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage, setPageSize } =
     useCurrentLeaveApprovalStore();
@@ -81,6 +84,7 @@ const ApprovalTable = () => {
   const {
     data: approvalData,
     isLoading: isLoadingApproval,
+    isFetching: isFetchingApproval,
     refetch,
   } = useGetApprovalLeaveRequestAllStatus(
     userId ?? '',
@@ -99,6 +103,10 @@ const ApprovalTable = () => {
   useEffect(() => {
     refetch();
   }, [userCurrentPage, pageSize, searchEmployee, filterStatus, refetch]);
+
+  /** True on first load and on every refetch (e.g. filter / page changes). `isLoading` alone misses refetches when `keepPreviousData` is on. */
+  const isApprovalListLoading =
+    isLoadingApproval || isFetchingApproval;
 
   // Normalize response: support both { items, meta } and { data: { items, meta } }
   const payload = approvalData?.data ?? approvalData;
@@ -194,7 +202,7 @@ const ApprovalTable = () => {
                     okText="Approve"
                     cancelText="Cancel"
                     disabled={
-                      isLoadingApproval ||
+                      isApprovalListLoading ||
                       isLoadingEditApprover ||
                       allApproveIsLoading ||
                       allRejectIsLoading
@@ -247,7 +255,7 @@ const ApprovalTable = () => {
                     cancelText="Cancel"
                     okButtonProps={{ disabled: !rejectComment }}
                     disabled={
-                      isLoadingApproval ||
+                      isApprovalListLoading ||
                       isLoadingEditApprover ||
                       allApproveIsLoading ||
                       allRejectIsLoading
@@ -288,7 +296,7 @@ const ApprovalTable = () => {
       userRollId,
       tenantId,
       rejectComment,
-      isLoadingApproval,
+      isApprovalListLoading,
       isLoadingEditApprover,
       allApproveIsLoading,
       allRejectIsLoading,
@@ -327,41 +335,67 @@ const ApprovalTable = () => {
       '-'
     );
   };
+  const rowCellPadding = { paddingTop: 8, paddingBottom: 8 };
+  const rowCellClass = 'text-sm py-2 text-gray-900';
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Employee',
       dataIndex: 'userId',
       key: 'userId',
+      width: 200,
+      ellipsis: true,
+      onCell: () => ({ style: rowCellPadding }),
       render: (text: string) => <EmpRender userId={text} />,
     },
     {
       title: 'Type',
       dataIndex: 'leaveType',
       key: 'leaveType',
+      width: 180,
+      ellipsis: true,
+      onCell: () => ({ style: rowCellPadding }),
     },
     {
       title: 'Start Date',
       dataIndex: 'startAt',
       key: 'startAt',
-      render: (val: string) =>
-        val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-',
+      width: 128,
+      onCell: () => ({ style: rowCellPadding }),
+      render: (val: string) => (
+        <span className={`${rowCellClass} whitespace-nowrap`}>
+          {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
+        </span>
+      ),
     },
     {
       title: 'End Date',
       dataIndex: 'endAt',
       key: 'endAt',
-      render: (val: string) =>
-        val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-',
+      width: 128,
+      onCell: () => ({ style: rowCellPadding }),
+      render: (val: string) => (
+        <span className={`${rowCellClass} whitespace-nowrap`}>
+          {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
+        </span>
+      ),
     },
     {
       title: 'Days',
       dataIndex: 'days',
       key: 'days',
+      width: 72,
+      onCell: () => ({ style: rowCellPadding }),
+      render: (v: number) => (
+        <span className={`${rowCellClass} whitespace-nowrap`}>{v}</span>
+      ),
     },
     {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
+      width: 260,
+      onCell: () => ({ style: rowCellPadding }),
     },
   ];
 
@@ -398,6 +432,18 @@ const ApprovalTable = () => {
       ? meta.totalPages * pageSize
       : null);
   const totalItems = totalFromApi ?? 0;
+  const safeApprovalPageSize = pageSize > 0 ? pageSize : 1;
+  const approvalMetaTotalPages = meta?.totalPages;
+  const approvalResolvedTotalPages = Math.max(
+    1,
+    typeof approvalMetaTotalPages === 'number' &&
+      !Number.isNaN(approvalMetaTotalPages) &&
+      approvalMetaTotalPages >= 1
+      ? approvalMetaTotalPages
+      : Math.ceil((totalItems || 0) / safeApprovalPageSize),
+  );
+  const approvalWrapPaginationManyPages = approvalResolvedTotalPages > 3;
+
   const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {
       userId: userId,
@@ -440,14 +486,13 @@ const ApprovalTable = () => {
   };
   return (
     <Card
-      loading={isLoadingApproval}
       id="time-attendance-approval-table-card"
       data-cy="time-attendance-approval-table-card"
       className="border-gray-300"
       bodyStyle={{ padding: '0', paddingTop: 16 }}
     >
       <div
-        className="flex flex-wrap items-center justify-between gap-3 mb-3 mx-3"
+        className="mb-3 mx-3 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:items-center min-[400px]:justify-between min-[400px]:gap-2 sm:gap-3"
         id="time-attendance-approval-table-toolbar"
         data-cy="time-attendance-approval-table-toolbar"
       >
@@ -464,12 +509,12 @@ const ApprovalTable = () => {
               .toLowerCase()
               .includes(input.toLowerCase())
           }
-          className="min-w-[280px]"
+          className="w-full min-w-0 min-[400px]:min-w-[88px] min-[400px]:flex-1 min-[400px]:basis-0 md:flex-none md:basis-auto md:w-[280px] md:min-w-[280px] md:max-w-[280px] [&_.ant-select-selector]:!min-w-0"
           id="time-attendance-approval-table-search-employee"
           data-cy="time-attendance-approval-table-search-employee"
         />
         <div
-          className="flex flex-wrap items-center gap-2"
+          className="flex w-full min-w-0 flex-wrap items-center gap-2 min-[400px]:w-auto min-[400px]:shrink-0 min-[400px]:justify-end"
           data-cy="time-attendance-approval-table-toolbar-actions"
         >
           {selectedRowKeys.length > 0 && (
@@ -487,7 +532,7 @@ const ApprovalTable = () => {
               >
                 <Button
                   disabled={
-                    isLoadingApproval ||
+                    isApprovalListLoading ||
                     isLoadingEditApprover ||
                     allApproveIsLoading ||
                     allRejectIsLoading
@@ -516,7 +561,7 @@ const ApprovalTable = () => {
               >
                 <Button
                   disabled={
-                    isLoadingApproval ||
+                    isApprovalListLoading ||
                     isLoadingEditApprover ||
                     allApproveIsLoading ||
                     allRejectIsLoading
@@ -540,7 +585,7 @@ const ApprovalTable = () => {
             options={statusFilterOptions}
             value={filterStatus || undefined}
             onChange={(v) => setFilterStatus(v ?? '')}
-            className="min-w-[160px]"
+            className="w-full min-w-0 min-[400px]:w-[136px] min-[400px]:min-w-[120px] min-[400px]:shrink-0 sm:min-w-[160px] sm:w-[160px] [&_.ant-select-selector]:!min-w-0"
             id="time-attendance-approval-table-filter-status"
             data-cy="time-attendance-approval-table-filter-status"
           />
@@ -549,16 +594,20 @@ const ApprovalTable = () => {
       <Table
         rowSelection={rowSelection}
         columns={columns}
-        loading={
-          isLoadingApproval ||
-          isLoadingEditApprover ||
-          allApproveIsLoading ||
-          allRejectIsLoading
-        }
+        loading={{
+          spinning: isApprovalListLoading,
+        }}
         dataSource={allFilterData}
         pagination={false}
-        scroll={{ x: 'min-content' }}
+        // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
+        scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
         locale={{ emptyText: 'No leave requests' }}
+        className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
+        rowClassName={(_, index) =>
+          index % 2 === 1
+            ? 'my-timesheet-approval-table-row-even'
+            : 'my-timesheet-approval-table-row-odd'
+        }
         id="time-attendance-approval-table"
         data-cy="time-attendance-approval-table"
       />
@@ -569,7 +618,9 @@ const ApprovalTable = () => {
         <MyTimesheetAttendancePagination
           current={userCurrentPage}
           total={totalItems}
+          totalPages={meta?.totalPages}
           pageSize={pageSize}
+          wrapLayout={approvalWrapPaginationManyPages}
           onChange={onPageChange}
           onShowSizeChange={(newPageSize) => {
             setPageSize(newPageSize);

@@ -106,12 +106,11 @@ const getApprovalLeaveRequestAllStatus = async (
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    requesterId,
   });
   if (requestUserId) params.set('requestUserId', requestUserId);
   if (status) params.set('status', status);
   const response = await apiClient({
-    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/all-status?${params.toString()}`,
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-request/approval/current-approver/all-status/${requesterId}?${params.toString()}`,
     method: 'GET',
     headers,
   });

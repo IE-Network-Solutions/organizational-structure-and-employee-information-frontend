@@ -9,7 +9,7 @@ import {
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { CommonObject } from '@/types/commons/commonObject';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
-import dayjs from 'dayjs';
+import dayjs, { type Dayjs } from 'dayjs';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import usePagination from '@/utils/usePagination';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -18,8 +18,11 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { FaPlus } from 'react-icons/fa';
 import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const HistoryTable = () => {
+  const { isMobile, isTablet } = useIsMobile();
   const { userId } = useAuthenticationStore();
   const userFilter: Partial<LeaveRequestBody['filter']> = {
     userIds: [userId ?? ''],
@@ -107,17 +110,23 @@ const HistoryTable = () => {
   const rowCellClass = 'text-sm py-2';
   const cellStyle = { paddingTop: 8, paddingBottom: 8 };
 
+  /** Min widths keep cells readable; wrapper scrolls horizontally on narrow viewports. */
+  const LEAVE_TABLE_SCROLL_X = 920;
+
   const columns: TableColumnsType<any> = [
     {
       title: 'Type',
       dataIndex: 'leaveType',
       key: 'leaveType',
+      width: 200,
+      ellipsis: true,
       onCell: () => ({ style: cellStyle }),
       render: (text: string, record: { action?: LeaveRequest }) => (
         <button
           type="button"
           onClick={() => record.action && openDetail(record.action)}
-          className={`${rowCellClass} text-gray-600 hover:text-gray-900 hover:underline text-left w-full cursor-pointer`}
+          className={`${rowCellClass} block max-w-[200px] truncate text-left text-gray-600 hover:text-gray-900 hover:underline cursor-pointer`}
+          title={text}
           data-cy="time-attendance-leave-requests-table-type"
         >
           {text}
@@ -128,10 +137,11 @@ const HistoryTable = () => {
       title: 'Start Date',
       dataIndex: 'startAt',
       key: 'startAt',
+      width: 128,
       onCell: () => ({ style: cellStyle }),
       render: (date: string) => (
         <div
-          className={`${rowCellClass} text-gray-900`}
+          className={`${rowCellClass} whitespace-nowrap text-gray-900`}
           data-cy="time-attendance-leave-requests-table-start-date"
         >
           {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
@@ -142,10 +152,11 @@ const HistoryTable = () => {
       title: 'End Date',
       dataIndex: 'endAt',
       key: 'endAt',
+      width: 128,
       onCell: () => ({ style: cellStyle }),
       render: (date: string) => (
         <div
-          className={`${rowCellClass} text-gray-900`}
+          className={`${rowCellClass} whitespace-nowrap text-gray-900`}
           data-cy="time-attendance-leave-requests-table-end-date"
         >
           {date ? dayjs(date).format(DATE_DISPLAY_FORMAT) : '-'}
@@ -156,10 +167,11 @@ const HistoryTable = () => {
       title: 'Days',
       dataIndex: 'days',
       key: 'days',
+      width: 72,
       onCell: () => ({ style: cellStyle }),
       render: (text: number) => (
         <div
-          className={`${rowCellClass} text-gray-900`}
+          className={`${rowCellClass} whitespace-nowrap text-gray-900`}
           data-cy="time-attendance-leave-requests-table-days"
         >
           {text}
@@ -170,10 +182,12 @@ const HistoryTable = () => {
       title: 'Reason',
       dataIndex: 'reason',
       key: 'reason',
+      width: 200,
+      ellipsis: true,
       onCell: () => ({ style: cellStyle }),
       render: (text: string) => (
         <div
-          className={`${rowCellClass} text-gray-900 max-w-[200px] truncate`}
+          className={`${rowCellClass} max-w-[200px] truncate text-gray-900`}
           data-cy="time-attendance-leave-requests-table-reason"
           title={text}
         >
@@ -185,6 +199,7 @@ const HistoryTable = () => {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      width: 120,
       onCell: () => ({ style: cellStyle }),
       render: (text: LeaveRequestStatus) => {
         const config = statusTagConfig[text] ?? {
@@ -208,21 +223,40 @@ const HistoryTable = () => {
     },
   ];
 
+  const safeHistoryLimit = limit > 0 ? limit : 1;
+  const historyMetaTotalPages = data?.meta?.totalPages;
+  const historyResolvedTotalPages = Math.max(
+    1,
+    typeof historyMetaTotalPages === 'number' &&
+      !Number.isNaN(historyMetaTotalPages) &&
+      historyMetaTotalPages >= 1
+      ? historyMetaTotalPages
+      : Math.ceil((data?.meta?.totalItems ?? 0) / safeHistoryLimit),
+  );
+  const historyWrapPaginationManyPages = historyResolvedTotalPages > 3;
+
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<LeaveRequestBody['filter']> = { ...userFilter };
-    if (val.dateRange) {
+
+    const mobileDate = val.date as [unknown, unknown] | undefined;
+    const mobileStart = mobileDate?.[0];
+    const mobileEnd = mobileDate?.[1];
+    const dateRange = val.dateRange as [unknown, unknown] | undefined;
+
+    if (mobileStart && mobileEnd) {
       nFilter['date'] = {
-        from: val.dateRange[0],
-        to: val.dateRange[1],
+        from: dayjs(mobileStart as Dayjs).format('YYYY-MM-DD'),
+        to: dayjs(mobileEnd as Dayjs).format('YYYY-MM-DD'),
+      };
+    } else if (dateRange?.[0] && dateRange?.[1]) {
+      nFilter['date'] = {
+        from: dayjs(dateRange[0] as Dayjs).format('YYYY-MM-DD'),
+        to: dayjs(dateRange[1] as Dayjs).format('YYYY-MM-DD'),
       };
     }
 
     if (val.type) {
       nFilter['leaveTypeIds'] = [val.type];
-    }
-
-    if (val.status) {
-      nFilter['status'] = val.status;
     }
 
     setFilter(nFilter);
@@ -249,80 +283,112 @@ const HistoryTable = () => {
       </div>
 
       <div
-        className="rounded-lg border border-gray-200 overflow-hidden"
+        className="rounded-lg border border-gray-200 sm:overflow-hidden"
         id="time-attendance-history-table-bordered-wrapper"
         data-cy="time-attendance-history-table-bordered-wrapper"
       >
-        {/* Toolbar: Filter Type + Date range (all screens); New Request on desktop only (mobile: in layout header) */}
+        {/* Filters + New Request: one filter form; desktop matches attendance (left group / right action + gap). */}
         <div
-          className="flex flex-wrap items-center gap-3 p-3 sm:p-4"
+          className="p-3 sm:p-0"
           id="time-attendance-history-table-toolbar"
           data-cy="time-attendance-history-table-toolbar"
         >
-          <div
-            className="flex-1 min-w-0"
-            data-cy="time-attendance-history-table-filter-wrapper"
-          >
-            <HistoryTableFilter
-              onChange={onFilterChange}
-              data-cy="time-attendance-history-table-filter"
-            />
-          </div>
-          <AccessGuard
-            data-cy="time-attendance-history-table-add-button-access-guard"
-            permissions={[Permissions.SubmitLeaveRequest]}
-          >
-            <Button
-              size="large"
-              type="primary"
-              icon={<FaPlus />}
-              className="hidden sm:flex h-10 items-center justify-center shrink-0"
-              onClick={() => isShow(true)}
-              id="time-attendance-history-table-new-request-button"
-              data-cy="time-attendance-history-table-new-request-button"
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-8 sm:px-4 sm:pb-2 sm:pt-4 lg:gap-12 lg:px-5">
+            <div
+              className="min-w-0 w-full sm:w-auto sm:shrink"
+              data-cy="time-attendance-history-table-filter-wrapper"
             >
-              <span
-                className="inline"
-                data-cy="time-attendance-history-table-new-request-button-label"
+              <HistoryTableFilter
+                onChange={onFilterChange}
+                data-cy="time-attendance-history-table-filter"
+              />
+            </div>
+            <AccessGuard
+              data-cy="time-attendance-history-table-add-button-access-guard"
+              permissions={[Permissions.SubmitLeaveRequest]}
+            >
+              <div
+                className="hidden shrink-0 sm:block sm:pl-4"
+                data-cy="time-attendance-history-table-new-request-wrap"
               >
-                New Request
-              </span>
-            </Button>
-          </AccessGuard>
+                <Button
+                  size="large"
+                  type="primary"
+                  icon={<FaPlus />}
+                  className="flex h-10 items-center justify-center"
+                  onClick={() => isShow(true)}
+                  id="time-attendance-history-table-new-request-button"
+                  data-cy="time-attendance-history-table-new-request-button"
+                >
+                  <span
+                    className="inline"
+                    data-cy="time-attendance-history-table-new-request-button-label"
+                  >
+                    New Request
+                  </span>
+                </Button>
+              </div>
+            </AccessGuard>
+          </div>
         </div>
 
         <div
-          className="border-t border-gray-200"
+          className="border-t border-gray-200 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
           data-cy="time-attendance-history-table-container"
         >
           <Table
-            className="leave-table"
+            className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
             columns={columns}
             loading={isFetching}
             dataSource={tableData}
             pagination={false}
+            scroll={{ x: LEAVE_TABLE_SCROLL_X }}
+            rowClassName={(_, index) =>
+              index % 2 === 1
+                ? 'leave-history-table-row-even'
+                : 'leave-history-table-row-odd'
+            }
+            tableLayout="fixed"
             id="time-attendance-history-table"
             data-cy="time-attendance-history-table"
           />
           <div
-            className="mx-3"
+            className={`mx-2 sm:mx-3 ${isMobile || isTablet ? 'mt-6' : ''}`}
             data-cy="time-attendance-history-table-pagination-wrapper"
           >
-            <MyTimesheetAttendancePagination
-              current={page}
-              total={data?.meta?.totalItems ?? 0}
-              pageSize={limit}
-              onChange={(newPage, newPageSize) => {
-                setPage(newPage);
-                setLimit(newPageSize);
-              }}
-              onShowSizeChange={(newPageSize) => {
-                setLimit(newPageSize);
-                setPage(1);
-              }}
-              id="time-attendance-leave-requests-pagination"
-              data-cy="time-attendance-leave-requests-pagination"
-            />
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                currentPage={page}
+                totalResults={data?.meta?.totalItems ?? 0}
+                totalPages={data?.meta?.totalPages}
+                pageSize={limit}
+                stackPagerAndGoTo={historyWrapPaginationManyPages}
+                onChange={(newPage, newPageSize) => {
+                  setPage(newPage);
+                  setLimit(newPageSize);
+                }}
+                id="time-attendance-leave-requests-mobile-pagination"
+                data-cy="time-attendance-leave-requests-mobile-pagination"
+              />
+            ) : (
+              <MyTimesheetAttendancePagination
+                current={page}
+                total={data?.meta?.totalItems ?? 0}
+                totalPages={data?.meta?.totalPages}
+                pageSize={limit}
+                wrapLayout={historyWrapPaginationManyPages}
+                onChange={(newPage, newPageSize) => {
+                  setPage(newPage);
+                  setLimit(newPageSize);
+                }}
+                onShowSizeChange={(newPageSize) => {
+                  setLimit(newPageSize);
+                  setPage(1);
+                }}
+                id="time-attendance-leave-requests-pagination"
+                data-cy="time-attendance-leave-requests-pagination"
+              />
+            )}
           </div>
         </div>
       </div>
