@@ -56,7 +56,8 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
         planningPeriods: selectedPlanningUser.planningPeriod.map(
           (item: PlanningPeriodItem) => item.planningPeriodId,
         ),
-        scoringConfigurationId: (selectedPlanningUser as any).scoringConfigurationId,
+        scoringConfigurationId: (selectedPlanningUser as any)
+          .scoringConfigurationId,
         okrRuleId: (selectedPlanningUser as any).okrRuleId,
       });
     } else {
@@ -545,7 +546,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 {!scoringConfigurationId && (
                   <span
                     className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                      style={{ lineHeight: '40px' }}
+                    style={{ lineHeight: '40px' }}
                     data-cy="okr-planning-assignation-scoring-placeholder"
                   >
                     Select Configuration
@@ -605,7 +606,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 {!okrRuleId && (
                   <span
                     className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                      style={{ lineHeight: '40px' }}
+                    style={{ lineHeight: '40px' }}
                     data-cy="okr-planning-assignation-rule-placeholder"
                   >
                     Select Rule

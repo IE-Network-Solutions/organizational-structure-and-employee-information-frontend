@@ -197,7 +197,7 @@ const PlanAssignment: React.FC = () => {
               data-cy={`okr-planning-assignation-card-delete-popconfirm-${item?.userId}`}
             >
               <div
-                  className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+                className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
                 id={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
                 data-cy={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
               >

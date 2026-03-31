@@ -144,7 +144,8 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
           transform: none !important;
         }
         /* Keep showing 'Filter' even after selecting an option (AntD hides it via opacity: 0) */
-        .custom-filter-select-v3.ant-select-single .ant-select-selector
+        .custom-filter-select-v3.ant-select-single
+          .ant-select-selector
           .ant-select-selection-placeholder {
           display: flex !important;
           align-items: center !important;
