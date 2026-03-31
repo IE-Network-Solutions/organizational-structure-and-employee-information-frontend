@@ -187,6 +187,8 @@ const EditCandidate: React.FC = () => {
       onCancel={() => setEditCandidateModal(false)}
       footer={null}
       width={809}
+
+      
       // className="ta-candidate-modal"
       title={
         <div
@@ -541,7 +543,7 @@ const EditCandidate: React.FC = () => {
                 </div>
               </Dragger>
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               id="resumeUrlId"
               name="resumeUrl"
               label={
@@ -575,7 +577,7 @@ const EditCandidate: React.FC = () => {
                   No resume uploaded
                 </span>
               )}
-            </Form.Item>
+            </Form.Item> */}
           </div>
         </div>
         <Form.Item>
