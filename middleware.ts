@@ -55,6 +55,13 @@ export function middleware(req: NextRequest) {
 
     if (!isExcludedPath && isRootPath) {
       if (token) {
+        if (url.searchParams.has('basecamp')) {
+          const dest = new URL('/integrations/basecamp', req.url);
+          url.searchParams.forEach((value, key) => {
+            dest.searchParams.set(key, value);
+          });
+          return NextResponse.redirect(dest);
+        }
         return NextResponse.redirect(new URL('/dashboard', req.url));
       } else {
         return NextResponse.redirect(new URL('/authentication/login', req.url));

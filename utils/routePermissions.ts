@@ -190,6 +190,13 @@ const MENU_ROUTES: MenuRouteNode[] = [
       { key: '/admin/profile', permissions: ['view_admin_profile'] },
     ],
   },
+  {
+    key: 'integrations-menu',
+    permissions: ['view_admin_configuration'],
+    children: [
+      { key: '/integrations/basecamp', permissions: ['view_admin_configuration'] },
+    ],
+  },
 ];
 
 function flattenRoutes(items: MenuRouteNode[]): RouteWithPermissions[] {

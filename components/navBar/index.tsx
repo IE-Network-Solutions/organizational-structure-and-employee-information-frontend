@@ -862,6 +862,40 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       title: (
         <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-integrations"
+          className="flex items-center gap-2 h-12"
+        >
+          <AppstoreOutlined
+            style={{ fontSize: 18 }}
+            className={
+              expandedKeys.includes('integrations-menu') ? 'text-blue' : ''
+            }
+          />
+          <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-integrations-label">
+            Integrations
+          </span>
+        </span>
+      ),
+      key: 'integrations-menu',
+      className: 'font-bold',
+      permissions: ['view_admin_configuration'],
+      disabled: hasEndedFiscalYear,
+      children: [
+        {
+          title: (
+            <span data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-basecamp">
+              Basecamp
+            </span>
+          ),
+          key: '/integrations/basecamp',
+          className: 'font-bold',
+          permissions: ['view_admin_configuration'],
+        },
+      ],
+    },
+    {
+      title: (
+        <span
           data-cy="organizational-structure-and-employee-information-frontend-components-navbar-index-tsx-index-span-669"
           className="flex items-center gap-2 h-12"
         >
