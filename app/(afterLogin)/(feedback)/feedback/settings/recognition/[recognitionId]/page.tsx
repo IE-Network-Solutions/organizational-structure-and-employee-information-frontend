@@ -1,7 +1,7 @@
 'use client';
 
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
-import { Button, Card, Dropdown, Popconfirm, Spin, Tag } from 'antd';
+import { Button, Card, Dropdown, Popconfirm, Skeleton, Tag } from 'antd';
 import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Edit2Icon } from 'lucide-react';
@@ -134,11 +134,12 @@ export default function RecognitionDetailPage() {
       </div>
 
       <div className="mt-6" data-cy="recognition-detail-body">
-        <Spin spinning={isLoading} data-cy="recognition-detail-loading">
-          <div
-            className="flex flex-col gap-4"
-            data-cy="recognition-detail-list"
-          >
+        <div data-cy="recognition-detail-loading">
+          <Skeleton active loading={isLoading} paragraph={{ rows: 8 }}>
+            <div
+              className="flex flex-col gap-4"
+              data-cy="recognition-detail-list"
+            >
             {children?.map((child: any) => {
               const isExpanded = expandedChildId === String(child?.id);
               const criteriaCount = child?.recognitionCriteria?.length ?? 0;
@@ -486,8 +487,9 @@ export default function RecognitionDetailPage() {
                 No recognitions found.
               </div>
             )}
-          </div>
-        </Spin>
+            </div>
+          </Skeleton>
+        </div>
       </div>
       <RecognitionForm
         createCategory={false}

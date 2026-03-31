@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Dropdown, Popconfirm, Spin } from 'antd';
+import { Button, Card, Dropdown, Popconfirm, Skeleton } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 
@@ -25,12 +25,13 @@ const Page = () => {
       data-cy="settings-recognition-page"
       id="settingsRecognitionPage"
     >
-      <Spin spinning={isLoading} data-cy="settings-recognition-spin">
-        <div
-          className="grid grid-cols-12 flex-col-reverse justify-between border-[1px] border-gray-200 rounded-lg p-4"
-          data-cy="settings-recognition-content"
-          id="settingsRecognitionContent"
-        >
+      <div data-cy="settings-recognition-spin">
+        <Skeleton active loading={isLoading} paragraph={{ rows: 6 }}>
+          <div
+            className="grid grid-cols-12 flex-col-reverse justify-between border-[1px] border-gray-200 rounded-lg p-4"
+            data-cy="settings-recognition-content"
+            id="settingsRecognitionContent"
+          >
           <div
             className="col-span-12 "
             data-cy="settings-recognition-tabs-container"
@@ -139,8 +140,9 @@ const Page = () => {
               ))}
             </div>
           </div>
-        </div>
-      </Spin>
+          </div>
+        </Skeleton>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Dropdown, List, Popconfirm, Spin } from 'antd';
+import { Button, Card, Dropdown, List, Popconfirm, Skeleton } from 'antd';
 import React from 'react';
 import { EllipsisOutlined } from '@ant-design/icons';
 import MeetingTypeDrawer from './_components/meetingTypeDrawer';
@@ -54,7 +54,7 @@ const DefineMeetingType = () => {
   return (
     <>
       <div className="rounded-2xl bg-white h-full">
-        <Spin spinning={isLoading}>
+        <Skeleton active loading={isLoading} paragraph={{ rows: 6 }}>
           {meetingTypes?.items && meetingTypes.items.length > 0 ? (
             <div className="border-[1px] border-gray-200 rounded-lg p-4">
               <div
@@ -192,7 +192,7 @@ const DefineMeetingType = () => {
             onClose={onClose}
             data-cy="settings-define-meeting-type-drawer"
           />
-        </Spin>
+        </Skeleton>
       </div>
     </>
   );

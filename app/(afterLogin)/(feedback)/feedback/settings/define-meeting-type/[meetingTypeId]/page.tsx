@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
-import { Spin } from 'antd';
+import { Skeleton } from 'antd';
 import { useGetMeetingTypeById } from '@/store/server/features/CFR/meeting/type/queries';
 import MeetingTypeDetail from '../_components/meetingTypeDetail';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
@@ -49,9 +49,9 @@ const MeetingTypeDetailPage = () => {
   }
 
   return (
-    <Spin spinning={isLoading}>
+    <Skeleton active loading={isLoading} paragraph={{ rows: 8 }}>
       <MeetingTypeDetail data-cy="settings-define-meeting-type-detail" />
-    </Spin>
+    </Skeleton>
   );
 };
 

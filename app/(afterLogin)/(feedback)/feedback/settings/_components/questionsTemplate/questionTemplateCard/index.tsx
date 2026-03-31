@@ -7,7 +7,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import FeedbackPagination from '../../../../_components/feedbackPagination';
 import EditQuestionTemplate from './questionTemplateEdit';
-import { Spin } from 'antd';
+import { Skeleton } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -52,10 +52,10 @@ const QuestionTemplateCard: React.FC<any> = () => {
   if (isTemplateLoading)
     return (
       <div
-        className="flex justify-center items-center h-64"
+        className="h-64"
         data-cy="question-template-card-loading"
       >
-        <Spin size="large" />
+        <Skeleton active paragraph={{ rows: 6 }} className="px-2 py-4" />
       </div>
     );
 
