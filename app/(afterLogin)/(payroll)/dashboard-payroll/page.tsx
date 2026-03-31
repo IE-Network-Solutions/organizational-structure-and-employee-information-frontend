@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Breadcrumb, Divider, Select } from 'antd';
 import dayjs from 'dayjs';
@@ -13,20 +13,58 @@ import PaymentCards from './_components/payment-cards';
 import ActionCards from './_components/action-cards';
 import PieChart from './_components/pie-chart';
 import PayrollCards from './_components/cards';
+import DashboardPayrollSkeleton from './_components/skeleton';
 import RecentHrActions from '../../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
+import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 
 const { Option } = Select;
 
+type PayPeriod = {
+  id: string;
+  startDate: string;
+  endDate: string;
+  status?: string;
+  isActive?: boolean;
+};
+
 const DashboardPayroll = () => {
-  const { data: payPeriodData } = useGetPayPeriod();
+  const { data: payPeriodData, isLoading: isLoadingPayPeriod } = useGetPayPeriod();
   const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
   const setPayPeriodId = useDashboardPayrollStore((s) => s.setPayPeriodId);
+  const modules = [
+    'PayrollAuditLog',
+  ];
+  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
+    useGetAggregateAuditPostLogs(
+      {
+        modules: modules,
+        page: 1,
+        limit: 5,
+        orderBy: 'performedAt',
+        orderDirection: 'DESC',
+      },
+      true,
+    );
+  const auditLogsData = useMemo(() => {
+    return auditLogs?.items ?? [];
+  }, [auditLogs]);
 
   useEffect(() => {
-    if (payPeriodData?.length && !payPeriodId) {
-      setPayPeriodId(payPeriodData[0].id);
+    if (Array.isArray(payPeriodData) && payPeriodData.length > 0 && !payPeriodId) {
+      const activePayPeriod = payPeriodData.find((period: PayPeriod) => {
+        const normalizedStatus = period.status?.toUpperCase();
+        return period.isActive || normalizedStatus === 'OPEN' || normalizedStatus === 'ACTIVE';
+      });
+
+      setPayPeriodId((activePayPeriod ?? payPeriodData[0]).id);
     }
   }, [payPeriodData, payPeriodId, setPayPeriodId]);
+
+  const hasPayPeriods = Array.isArray(payPeriodData) && payPeriodData.length > 0;
+
+  if (isLoadingPayPeriod && !hasPayPeriods) {
+    return <DashboardPayrollSkeleton data-cy="dashboard-payroll-page-skeleton" />;
+  }
 
   return (
     <div
@@ -36,7 +74,7 @@ const DashboardPayroll = () => {
     >
       <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex w-full flex-col gap-4 px-3 pt-4 pb-4 sm:flex-row sm:items-end sm:justify-between sm:px-3"
+          className="flex w-full items-center justify-between"
           data-cy="dashboard-payroll-header"
         >
           <CustomBreadcrumb
@@ -77,10 +115,10 @@ const DashboardPayroll = () => {
             value={payPeriodId}
             onChange={(value) => setPayPeriodId(value)}
             allowClear={false}
-            className="w-full shrink-0 self-end sm:w-auto sm:min-w-[200px] sm:max-w-full [&_.ant-select-selector]:!h-11 [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-gray-300"
+            className="w-[217px] h-8"
           >
             {payPeriodData?.map(
-              (period: { id: string; startDate: string; endDate: string }) => (
+              (period: PayPeriod) => (
                 <Option
                   key={period.id}
                   value={period.id}
@@ -94,33 +132,30 @@ const DashboardPayroll = () => {
           </Select>
         </div>
 
-        <Divider
-          className="full-bleed-header-divider"
-          style={{ margin: 0, borderColor: '#e5e7eb' }}
-          data-cy="dashboard-payroll-header-divider"
-        />
 
-        <div className="px-3 py-4 sm:px-3" data-cy="dashboard-payroll-content">
+        <div data-cy="dashboard-payroll-content">
             <PayrollCards data-cy="dashboard-payroll-cards" />
           <div
             className="grid grid-cols-12 gap-4"
             data-cy="dashboard-payroll-middle-row"
           >
-            <div
-              className="col-span-12 lg:col-span-8"
-              data-cy="dashboard-payroll-graph-wrapper"
-            >
-              <Graph data-cy="dashboard-payroll-graph" />
-            </div>
-            <div
-              className="col-span-12 flex w-full lg:col-span-4"
-              data-cy="dashboard-payroll-payment-cards-wrapper"
-            >
+            <div className="col-span-12 flex flex-col-reverse lg:grid lg:grid-cols-12 gap-4 w-full">
               <div
-                className="w-full min-w-0"
-                data-cy="dashboard-payroll-payment-cards-inner"
+                className="col-span-12 lg:col-span-8"
+                data-cy="dashboard-payroll-graph-wrapper"
               >
-                <PaymentCards data-cy="dashboard-payroll-payment-cards" />
+                <Graph data-cy="dashboard-payroll-graph" />
+              </div>
+              <div
+                className="col-span-12 w-full lg:col-span-4"
+                data-cy="dashboard-payroll-payment-cards-wrapper"
+              >
+                <div
+                  className="w-full min-w-0"
+                  data-cy="dashboard-payroll-payment-cards-inner"
+                >
+                  <PaymentCards data-cy="dashboard-payroll-payment-cards" />
+                </div>
               </div>
             </div>
             <div
@@ -137,7 +172,7 @@ const DashboardPayroll = () => {
                 className="w-full min-w-0"
                 data-cy="dashboard-payroll-action-cards-inner"
               >
-                <RecentHrActions  />
+                <RecentHrActions auditLogs={auditLogsData} isLoading={isLoadingAuditLogs} auditLogModules={modules} />
               </div>
             </div>
           </div>

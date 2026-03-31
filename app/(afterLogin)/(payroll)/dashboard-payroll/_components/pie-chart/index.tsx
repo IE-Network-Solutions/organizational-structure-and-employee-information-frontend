@@ -13,6 +13,7 @@ import {
   useGetBenefitDetailsOverview,
 } from '@/store/server/features/financeDashboard/queries';
 import type { DetailsOverviewItem } from '@/store/server/features/financeDashboard/interface';
+import PayrollPieChartSkeleton from './skeleton';
 
 ChartJS.register(ArcElement, Tooltip);
 
@@ -68,21 +69,24 @@ export default function PieChart({
   const setAllowanceBenefitTab = useDashboardPayrollStore(
     (s) => s.setAllowanceBenefitTab,
   );
-  const { data: allowanceDetails } = useGetAllowanceDetailsOverview(
+  const { data: allowanceDetails, isLoading: isLoadingAllowanceDetails } = useGetAllowanceDetailsOverview(
   );
-  const { data: benefitDetails } = useGetBenefitDetailsOverview();
-
-  const rows = useMemo(
-    () => {
-      if (allowanceBenefitTab === 'allowance') {
-        return normalizeRows(allowanceDetails?.items);
-      }
-
+  const { data: benefitDetails, isLoading: isLoadingBenefitDetails } = useGetBenefitDetailsOverview();
+  const rows = useMemo(() => {
+    // Defensive: If a details fetch is still loading, always return the same (empty) array shape.
+    if (
+      (allowanceBenefitTab === 'allowance' && !allowanceDetails) ||
+      (allowanceBenefitTab !== 'allowance' && !benefitDetails)
+    ) {
+      return [];
+    }
+    if (allowanceBenefitTab === 'allowance') {
+      return normalizeRows(allowanceDetails?.items);
+    } else {
       return normalizeRows(benefitDetails?.items);
-    },
-    [allowanceBenefitTab, allowanceDetails, benefitDetails],
-  );
- console.log(allowanceDetails,"allowanceDetails")
+    }
+  }, [allowanceBenefitTab, allowanceDetails, benefitDetails]);
+
   const totalAmount = useMemo(
     () => rows.reduce((sum, r) => sum + r.amount, 0),
     [rows],
@@ -95,9 +99,9 @@ export default function PieChart({
         {
           data: rows.map((r) => r.amount),
           backgroundColor: rows.map((r) => r.color),
-          borderWidth: 2,
+          borderWidth: 0,
           borderColor: '#ffffff',
-          hoverOffset: 6,
+          hoverOffset: 2,
         },
       ],
     }),
@@ -122,14 +126,23 @@ export default function PieChart({
       ? 'Allowance Details'
       : 'Benefit Details';
 
+  const isLoadingActiveTab =
+    allowanceBenefitTab === 'allowance'
+      ? isLoadingAllowanceDetails
+      : isLoadingBenefitDetails;
+
+  if (isLoadingActiveTab) {
+    return <PayrollPieChartSkeleton data-cy={`${dataCy}-skeleton`} />;
+  }
+
   return (
     <Card
-      className="rounded-lg border border-gray-200 shadow-noe h-[417px]"
+      className="rounded-lg border border-gray-200 shadow-noe md:h-[410px] h-[510px]"
       bodyStyle={{ padding: '12px' }}
       data-cy={dataCy}
     >
       <div
-        className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        className="mb-4 flex gap-3 items-center justify-between"
         data-cy={`${dataCy}-header`}
       >
         <h3
@@ -206,7 +219,7 @@ export default function PieChart({
             <Doughnut data={chartData} options={chartOptions} />
           </div>
           <div
-            className="pointer-events-none relative z-10 flex max-w-[140px] flex-col items-center justify-center text-center"
+            className="pointer-events-none relative z-10 flex  flex-col items-center justify-center text-center"
             data-cy={`${dataCy}-chart-center`}
           >
             <span
@@ -219,11 +232,10 @@ export default function PieChart({
         </div>
 
         <div
-          className="min-w-0 flex-1 space-y-3 lg:pt-1 h-[330px] overflow-y-auto scrollbar-none"
+          className="w-full space-y-3 lg:pt-1 md:h-[330px] h-[130px] overflow-y-auto scrollbar-none"
           data-cy={`${dataCy}-list`}
         >
           {rows.map((row) => {
-            console.log(row,"rowrowrow")
             const pct =
               totalAmount > 0
                 ? Math.min(100, Math.round((row.amount / totalAmount) * 100))

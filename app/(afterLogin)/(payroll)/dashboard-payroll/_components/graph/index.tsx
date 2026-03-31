@@ -25,6 +25,7 @@ import type {
   MonthlyOverviewItem,
   MonthlyVariablePayOverviewItem,
 } from '@/store/server/features/financeDashboard/interface';
+import PayrollGraphSkeleton from './skeleton';
 
 const variablePayLineShadowPlugin: Plugin<'line'> = {
   id: 'variablePayLineShadow',
@@ -74,7 +75,7 @@ const MONTHS = [
 
 /** Stack bottom → top; Benefit / Allowance colors per design reference. */
 const SERIES = {
-  basicSalary: { label: 'Basic Salary', color: '#1f2937' },
+  basicSalary: { label: 'Basic Salary', color: '#F7E17E' },
   allowance: { label: 'Allowance', color: '#61dafb' },
   benefit: { label: 'Benefit', color: '#ffb761' },
   incentive: { label: 'Incentive', color: '#9B8CFF' },
@@ -116,7 +117,8 @@ export default function Graph({
     (s) => s.setSalaryChartView,
   );
   const { data: monthlyOverview } = useGetMonthlyOverview();
-  const { data: monthlyVariablePayOverview } = useGetMonthlyVariablePayOverview();
+  const { data: monthlyVariablePayOverview, isLoading: isLoadingMonthlyVariablePay } = useGetMonthlyVariablePayOverview();
+  const isLoadingGraph = !monthlyOverview || isLoadingMonthlyVariablePay;
 
   const chartLabels = useMemo(
     () =>
@@ -249,14 +251,13 @@ export default function Graph({
               : MONTHS.map(() => 0),
           borderColor: '#A78BFA',
           backgroundColor: 'transparent',
-          borderWidth: 2,
-          tension: 0.4,
+          borderWidth: 1.5,
+          tension: 0.3,
           fill: false,
-          pointRadius: 4,
+          pointRadius: 3,
           pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#8B5CF6',
-          pointBorderWidth: 2,
-          pointHoverRadius: 5,
+          pointBorderWidth: 1,
+          pointHoverRadius: 3,
         },
       ],
     }),
@@ -340,6 +341,10 @@ export default function Graph({
   const title =
     salaryChartView === 'salary-breakdown' ? 'Salary' : 'Total Variable Pay';
 
+  if (isLoadingGraph) {
+    return <PayrollGraphSkeleton data-cy={`${dataCy}-skeleton`} />;
+  }
+
   return (
     <Card
       className="rounded-lg border border-gray-200 shadow-sm  h-[333px]"
@@ -347,7 +352,7 @@ export default function Graph({
       data-cy={dataCy}
     >
       <div
-        className="mb-2 flex flex-col gap-2 sm:mb-3 sm:flex-row sm:items-center sm:justify-between"
+        className="mb-2 flex  gap-2 sm:mb-3 flex-row items-center justify-between"
         data-cy={`${dataCy}-header`}
       >
         <h3
@@ -413,13 +418,13 @@ export default function Graph({
       </div>
       {salaryChartView === 'salary-breakdown' ? (
         <div
-          className="mb-1 flex h-[28px] w-full max-w-[620px] flex-nowrap items-center gap-1 overflow-x-auto opacity-100"
+          className="mb-1 flex h-[28px] w-full max-w-[620px] flex-nowrap items-center gap-1 overflow-x-auto opacity-100 scrollbar-none"
           data-cy={`${dataCy}-legend`}
         >
           {LEGEND_ITEMS.map((item) => (
             <div
               key={item.label}
-              className="flex h-[28px] w-[79px] shrink-0 items-center gap-2 p-1 opacity-100"
+              className="flex h-[28px] w-[79px] shrink-0 items-center gap-2 p-1 opacity-100 "
               data-cy={`${dataCy}-legend-item-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
             >
               <span
@@ -444,7 +449,7 @@ export default function Graph({
         </div>
       ) : null}
       <div
-        className="h-[255px] w-full min-w-0 sm:h-[250px]"
+        className="h-[228px] w-full min-w-0 sm:h-[228px]"
         data-cy={`${dataCy}-chart`}
       >
         {salaryChartView === 'salary-breakdown' ? (

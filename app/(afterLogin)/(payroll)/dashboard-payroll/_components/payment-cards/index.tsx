@@ -4,6 +4,7 @@ import React from 'react';
 import { Card } from 'antd';
 import { useDashboardPayrollStore } from '@/store/uistate/features/payroll/dashboardPayroll';
 import { useGetPayrollByPayPeriod } from '@/store/server/features/financeDashboard/queries';
+import PayrollPaymentCardsSkeleton from './skeleton';
 
 type PaymentRow = {
   key: string;
@@ -23,7 +24,7 @@ export default function PaymentCards({
   'data-cy'?: string;
 }) {
   const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
-  const { data: payrollSummary } = useGetPayrollByPayPeriod({
+  const { data: payrollSummary, isLoading } = useGetPayrollByPayPeriod({
     limit: 1,
     page: 1,
     payPeriodId: payPeriodId ?? '',
@@ -33,7 +34,7 @@ export default function PaymentCards({
     {
       key: 'total-basic-salary',
       label: 'Total Basic Salary',
-      color: '#1f2937',
+      color: '#F7E17E',
       value: payrollSummary?.totalBasicSalaryAmount ?? 0,
       percent: `${payrollSummary?.keyMetricsPercentage?.totalBasicSalaryAmount ?? 0}%`,
     },
@@ -81,7 +82,10 @@ export default function PaymentCards({
     },
   
   ];
- console.log(paymentRows,"paymentRows")
+  if (isLoading) {
+    return <PayrollPaymentCardsSkeleton data-cy={`${dataCy}-skeleton`} />;
+  }
+
   return (
     <Card
       className="h-full rounded-lg border border-gray-200 shadow-sm"

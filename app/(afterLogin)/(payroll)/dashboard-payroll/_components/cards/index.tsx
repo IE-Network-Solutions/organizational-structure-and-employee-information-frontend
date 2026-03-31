@@ -5,11 +5,14 @@ import { Card } from 'antd';
 import {
   MdAttachMoney,
   MdCardGiftcard,
+  MdLocalAtm,
   MdMoney,
+  MdPayments,
 } from 'react-icons/md';
 import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
 import { useDashboardPayrollStore } from '@/store/uistate/features/payroll/dashboardPayroll';
 import { useGetPayrollByPayPeriod } from '@/store/server/features/financeDashboard/queries';
+import PayrollCardsSkeleton from './skeleton';
 
 type StatCardItem = {
   key: string;
@@ -33,12 +36,15 @@ export default function PayrollCards({
   'data-cy'?: string;
 }) {
   const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
-  const { data: payrollSummary } = useGetPayrollByPayPeriod({
+  const { data: payrollSummary, isLoading } = useGetPayrollByPayPeriod({
     limit: 1,
     page: 1,
     payPeriodId: payPeriodId ?? '',
   });
-  console.log(payrollSummary,"payrollSummary")
+
+  if (isLoading) {
+    return <PayrollCardsSkeleton data-cy={`${dataCy}-skeleton`} />;
+  }
 
   const statCards: StatCardItem[] = [
     {
@@ -59,8 +65,8 @@ export default function PayrollCards({
       trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0)}%`,
       trendUp:
         (payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0) >= 0,
-      icon: <MdAttachMoney className="text-primary" size={16} />,
-      iconBgClass: 'bg-[#E6F4FF]',
+      icon: <MdLocalAtm className="text-purple" size={16} />,
+      iconBgClass: 'bg-light_purple',
     },
     {
       key: 'total-allowance',
@@ -70,8 +76,8 @@ export default function PayrollCards({
       trendUp:
         (payrollSummary?.differenceFromLastPayPeriod?.totalAllowanceAmount ?? 0) >=
         0,
-      icon: <MdMoney className="text-[#16A34A]" size={16} />,
-      iconBgClass: 'bg-[#DCFCE7]',
+      icon: <MdPayments className="text-greenbg" size={16} />,
+      iconBgClass: 'bg-greenlight',
     },
     {
       key: 'total-benefit',
@@ -87,14 +93,14 @@ export default function PayrollCards({
 
   return (
     <div
-      className="mb-4 grid w-full grid-cols-1 gap-[19px] opacity-100 sm:grid-cols-2 lg:grid-cols-4"
+      className="mb-3 md:grid w-full gap-4 md:grid-cols-4 flex overflow-x-auto scrollbar-none"
       style={{ minHeight: 130 }}
       data-cy={dataCy}
     >
       {statCards.map((card) => (
         <Card
           key={card.key}
-          className="h-[122px] rounded-lg border border-gray-200 shadow-sm"
+          className="h-[122px] min-w-[250px] rounded-lg border border-gray-200 shadow-none"
           styles={{
             body: {
               padding: '12px 14px',
