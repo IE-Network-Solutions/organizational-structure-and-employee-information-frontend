@@ -329,7 +329,7 @@ const ListOfRoles = () => {
 
   const modalTitle = (
     <div
-      className="flex w-full justify-start items-center text-md font-extrabold"
+      className="flex w-full justify-start items-center text-base font-bold"
       id="settings-role-modal-title"
       data-cy="settings-role-modal-title"
     >
@@ -355,11 +355,17 @@ const ListOfRoles = () => {
               name="name"
               label={
                 <p
-                  className="text-xs font-bold text-gray-600"
+                  className="text-sm font-normal text-black mb-1"
                   id="settings-role-name-label"
                   data-cy="settings-role-name-label"
                 >
-                  Name
+                  Name{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`settings-role-name-required`}
+                  >
+                    *
+                  </span>
                 </p>
               }
               rules={[{ required: true, message: 'Enter role name!' }]}
@@ -368,7 +374,7 @@ const ListOfRoles = () => {
             >
               <Input
                 id="roleNameId"
-                className="h-10 text-xs text-gray-600"
+                className="h-10 text-gray-600"
                 placeholder="Enter role name"
                 data-cy="settings-role-name-input"
               />
@@ -377,11 +383,17 @@ const ListOfRoles = () => {
               name="description"
               label={
                 <p
-                  className="text-xs font-bold text-gray-600"
+                  className="text-sm font-normal text-black mb-1"
                   id="settings-role-description-label"
                   data-cy="settings-role-description-label"
                 >
-                  Description
+                  Description{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`settings-role-description-required`}
+                  >
+                    *
+                  </span>
                 </p>
               }
               rules={[{ required: true, message: 'Enter role description!' }]}
@@ -390,7 +402,7 @@ const ListOfRoles = () => {
             >
               <Input.TextArea
                 id="roleDescriptionId"
-                className="text-xs text-gray-600 resize-y"
+                className=" text-gray-600 resize-y"
                 placeholder="Enter role description"
                 rows={3}
                 data-cy="settings-role-description-input"
@@ -544,7 +556,7 @@ const ListOfRoles = () => {
                       >
                         <div
                           data-cy="settings-role-permission-group-icon-container"
-                          className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0"
+                          className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0 font-normal"
                         >
                           {getGroupIcon(group.name)}
                         </div>
@@ -554,7 +566,7 @@ const ListOfRoles = () => {
                         >
                           <p
                             data-cy="settings-role-permission-group-name"
-                            className="text-sm font-semibold text-gray-900 m-0"
+                            className="text-sm font-normal text-black m-0"
                           >
                             {group.name}
                           </p>
@@ -878,6 +890,7 @@ const ListOfRoles = () => {
           name="basic"
           layout="vertical"
           data-cy="settings-role-form"
+          requiredMark={false}
         >
           <div data-cy="settings-role-form-content">{renderStepContent()}</div>
           {renderFooter()}

@@ -1,4 +1,4 @@
-import { Card, Empty, Spin } from 'antd';
+import { Card, Empty, Skeleton, Spin } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -101,13 +101,7 @@ const GroupPermissionComponent = () => {
           id="settings-role-permission-group-empty-wrapper"
           data-cy="settings-role-permission-group-empty-wrapper"
         >
-          <Empty
-            description={'data not found'}
-            image={
-              <EmptyImage data-cy="settings-role-permission-group-empty-icon" />
-            }
-            data-cy="settings-role-permission-group-empty"
-          />
+          <Skeleton />
         </div>
       )}
     </Card>

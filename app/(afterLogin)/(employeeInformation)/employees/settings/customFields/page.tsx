@@ -15,6 +15,7 @@ import { useGetEmployeInformationForms } from '@/store/server/features/employees
 import DraggableFieldTypeCard from './_components/DraggableFieldTypeCard';
 import DroppableFormCategoryCard from './_components/DroppableFormCategoryCard';
 import CustomFieldModal from './_components/CustomFieldModal';
+import type { FieldTypeValue } from './_components/DraggableFieldTypeCard';
 
 const FIELD_TYPES = [
   {
@@ -41,7 +42,7 @@ const FIELD_TYPES = [
         Input field for larger text
       </p>
     ),
-    fieldType: 'input' as const,
+    fieldType: 'textArea' as const,
   },
   {
     id: 'checkbox',
@@ -58,7 +59,7 @@ const FIELD_TYPES = [
   },
   {
     id: 'radio',
-    label: <Radio type="text">Radio box</Radio>,
+    label: <Radio>Radio box</Radio>,
     description: (
       <p
         data-cy="settings-custom-fields-radio-description"
@@ -67,7 +68,7 @@ const FIELD_TYPES = [
         Input field for single value
       </p>
     ),
-    fieldType: 'select' as const,
+    fieldType: 'radio' as const,
   },
   {
     id: 'dropdown',
@@ -80,7 +81,7 @@ const FIELD_TYPES = [
         Input field for selecting a value
       </p>
     ),
-    fieldType: 'select' as const,
+    fieldType: 'dropdown' as const,
   },
 ];
 
@@ -99,6 +100,37 @@ const FORM_CATEGORIES = [
   },
 ];
 
+interface EditableField {
+  id?: string;
+  fieldName?: string;
+  fieldType?: FieldTypeValue;
+  fieldValidation?: string;
+  isActive?: boolean;
+  isRequired?: boolean;
+  options?: string[];
+  field?: {
+    id?: string;
+    fieldName?: string;
+    fieldType?: FieldTypeValue;
+    fieldValidation?: string;
+    isActive?: boolean;
+    isRequired?: boolean;
+    options?: string[];
+  };
+}
+
+const toFieldTypeValue = (value: string | undefined): FieldTypeValue => {
+  switch (value) {
+    case 'textArea':
+    case 'checkbox':
+    case 'radio':
+    case 'dropdown':
+      return value;
+    default:
+      return 'input';
+  }
+};
+
 const CustomFieldsPage: React.FC = () => {
   const { data: employeeInformationForms } = useGetEmployeInformationForms();
   const [modalOpen, setModalOpen] = useState(false);
@@ -106,11 +138,16 @@ const CustomFieldsPage: React.FC = () => {
     null,
   );
   const [selectedFieldType, setSelectedFieldType] = useState<
-    'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox'
+    FieldTypeValue
   >('input');
   const [highlightedFormTitle, setHighlightedFormTitle] = useState<
     string | null
   >(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [editingField, setEditingField] = useState<EditableField | null>(null);
+  const [editingFieldIndex, setEditingFieldIndex] = useState<number | null>(
+    null,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -132,20 +169,63 @@ const CustomFieldsPage: React.FC = () => {
     setModalOpen(true);
   }, []);
 
-  const handleModalSuccess = useCallback((formTitle: string) => {
-    setModalOpen(false);
-    setSelectedFormTitle(null);
-    setHighlightedFormTitle(formTitle);
-    const t = setTimeout(() => {
-      setHighlightedFormTitle(null);
-    }, 2500);
-    return () => clearTimeout(t);
-  }, []);
+  const handleModalSuccess = useCallback(
+    (formTitle: string, action: 'create' | 'edit') => {
+      setModalOpen(false);
+      setSelectedFormTitle(null);
+      setModalMode('create');
+      setEditingField(null);
+      setEditingFieldIndex(null);
+
+      if (action !== 'create') return;
+
+      setHighlightedFormTitle(formTitle);
+      const t = setTimeout(() => {
+        setHighlightedFormTitle(null);
+      }, 2500);
+      return () => clearTimeout(t);
+    },
+    [],
+  );
 
   const handleModalClose = useCallback(() => {
     setModalOpen(false);
     setSelectedFormTitle(null);
+    setModalMode('create');
+    setEditingField(null);
+    setEditingFieldIndex(null);
   }, []);
+
+  const handleEditField = useCallback(
+    ({
+      formTitle,
+      field,
+      fieldIndex,
+    }: {
+      formTitle: string;
+      field: any;
+      fieldIndex: number;
+    }) => {
+      setSelectedFormTitle(formTitle);
+      setSelectedFieldType(
+        toFieldTypeValue(field.fieldType ?? field.field?.fieldType),
+      );
+      setEditingField({
+        ...field,
+        fieldType: toFieldTypeValue(field.fieldType),
+        field: field.field
+          ? {
+              ...field.field,
+              fieldType: toFieldTypeValue(field.field.fieldType),
+            }
+          : undefined,
+      });
+      setEditingFieldIndex(fieldIndex);
+      setModalMode('edit');
+      setModalOpen(true);
+    },
+    [],
+  );
 
   const items = employeeInformationForms?.items ?? [];
 
@@ -194,7 +274,7 @@ const CustomFieldsPage: React.FC = () => {
                 data-cy="settings-custom-fields-field-types-list"
                 className="flex flex-col gap-3"
               >
-                {FIELD_TYPES.map((ft: any) => (
+                {FIELD_TYPES.map((ft) => (
                   <DraggableFieldTypeCard
                     key={ft.id}
                     id={ft.id}
@@ -233,6 +313,7 @@ const CustomFieldsPage: React.FC = () => {
                       fieldCount={fieldCount}
                       fields={fields}
                       isHighlighted={highlightedFormTitle === cat.formTitle}
+                      onEditField={handleEditField}
                     />
                   );
                 })}
@@ -250,6 +331,9 @@ const CustomFieldsPage: React.FC = () => {
           customEmployeeInformationForm={items.find(
             (item: any) => item.formTitle?.trim() === selectedFormTitle,
           )}
+          mode={modalMode}
+          editField={editingField}
+          editFieldIndex={editingFieldIndex}
           onSuccess={handleModalSuccess}
           onCancel={handleModalClose}
         />
