@@ -14,7 +14,6 @@ import {
 
 import React, { useEffect } from 'react';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import { FaInfoCircle } from 'react-icons/fa';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { InboxOutlined } from '@ant-design/icons';
 import { PhoneInput } from 'react-international-phone';
@@ -203,9 +202,13 @@ const EditCandidate: React.FC = () => {
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: '16px 70px',
+          padding: '4px 4px',
         },
       }}
+      classNames={{
+        body: 'py-2 px-2 md:py-4 md:px-[70px]',
+      }}
+      className="gb-bg-white"
       data-cy="talent-acquisition-edit-candidate-modal"
       zIndex={10002}
     >
@@ -345,19 +348,9 @@ const EditCandidate: React.FC = () => {
                 >
                   <PhoneInput
                     defaultCountry="et"
-                    placeholder="Input"
-                    className="!rounded-lg !bg-gray-100 !border-gray-300 w-full [&_.react-international-phone-input-container]:!rounded-lg [&_.react-international-phone-input-container]:!bg-gray-100 [&_.react-international-phone-input-container]:!border-gray-300 [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden"
-                    style={
-                      {
-                        '--react-international-phone-height': '40px',
-                        '--react-international-phone-background-color':
-                          '#f5f5f5',
-                        '--react-international-phone-border-radius': '8px',
-                        '--react-international-phone-border-color': '#d9d9d9',
-                      } as React.CSSProperties
-                    }
-                    inputClassName="!bg-transparent !border-0 text-sm placeholder:text-gray-400 focus:!shadow-none"
-                    data-cy="talent-acquisition-edit-candidate-input-phone"
+                    inputClassName="ant-input"
+                    className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
+                    data-cy={`talent-acquisition-job-edit-candidate-input-phone`}
                   />
                 </Form.Item>
               </Col>
@@ -417,16 +410,13 @@ const EditCandidate: React.FC = () => {
                   id="cgpaId"
                   name="CGPA"
                   label={
-                    <div
-                      className="flex items-center justify-between"
+                    <span
+                      className="text-sm font-medium text-gray-700"
                       data-cy="talent-acquisition-edit-candidate-cgpa-label"
                     >
-                      <span
-                        data-cy="talent-acquisition-edit-candidate-cgpa-label-text"
-                        className="text-sm font-medium text-gray-700"
-                      >
+                      <span data-cy="talent-acquisition-edit-candidate-cgpa-label-text">
                         CGPA
-                      </span>
+                      </span>{' '}
                       <span
                         className="text-red-500"
                         aria-hidden
@@ -434,34 +424,54 @@ const EditCandidate: React.FC = () => {
                       >
                         *
                       </span>
-                    </div>
+                    </span>
                   }
-                  rules={[{ required: true, message: 'Please input CGPA' }]}
+                  extra={
+                    <span
+                      data-cy="talent-acquisition-edit-candidate-cgpa-info"
+                      className="text-xs text-gray-500"
+                    >
+                      Put your point 4.0 scale
+                    </span>
+                  }
+                  rules={[
+                    { required: true, message: 'Please input CGPA' },
+                    {
+                      validator: async (rule, value) => {
+                        void rule;
+                        if (
+                          value === undefined ||
+                          value === null ||
+                          value === ''
+                        )
+                          return;
+                        const num = Number(value);
+                        if (!Number.isFinite(num)) return;
+                        if (num > 4)
+                          throw new Error(
+                            'CGPA must be less than or equal to 4',
+                          );
+                        if (num < 0)
+                          throw new Error(
+                            'CGPA must be greater than or equal to 0',
+                          );
+                      },
+                    },
+                  ]}
                 >
-                  <InputNumber
-                    id="talent-acquisition-edit-candidate-input-cgpa"
-                    data-cy="talent-acquisition-edit-candidate-input-cgpa"
-                    min={0}
-                    max={4}
-                    step={0.01}
-                    className="text-sm w-full h-10"
-                    placeholder="CGPA"
-                  />
-                </Form.Item>
-                <div
-                  id="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"
-                  data-cy="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"
-                  className="flex items-center justify-start gap-1 ml-1"
-                >
-                  <FaInfoCircle />
-                  <div
-                    id="talent-acquisition-edit-candidate-div-cgpa-info"
-                    data-cy="talent-acquisition-edit-candidate-div-cgpa-info"
-                    className="text-xs text-gray-500"
-                  >
-                    Put your point 4.0 scale
+                  <div data-cy="talent-acquisition-job-edit-candidate-input-cgpa-container" className="relative h-10 w-full flex items-center">
+                    <InputNumber
+                      id="talent-acquisition-job-edit-candidate-input-cgpa"
+                      data-cy="talent-acquisition-job-edit-candidate-input-cgpa"
+                      min={0}
+                      max={4}
+                      step={0.01}
+                      controls={false}
+                      className="text-sm w-full h-10 flex items-center" // preserve h-9, add flex alignment (redundancy okay for InputNumber container fix)
+                      placeholder="0"
+                    />
                   </div>
-                </div>
+                </Form.Item>
               </Col>
             </Row>
 
