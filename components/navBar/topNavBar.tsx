@@ -18,9 +18,7 @@ interface NavBarProps {
   /** When true, search and profile are omitted (e.g. payroll dashboard uses page-level Nav). */
 }
 
-const NavBar = ({
-  handleLogout,
-}: NavBarProps) => {
+const NavBar = ({ handleLogout }: NavBarProps) => {
   const router = useRouter();
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
@@ -84,7 +82,6 @@ const NavBar = ({
     },
   ];
 
-  
   return (
     <div
       data-cy="top-nav-bar"

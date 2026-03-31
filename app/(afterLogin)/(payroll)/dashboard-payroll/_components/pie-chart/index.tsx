@@ -5,9 +5,7 @@ import { Card, Tag } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
-import {
-  useDashboardPayrollStore,
-} from '@/store/uistate/features/payroll/dashboardPayroll';
+import { useDashboardPayrollStore } from '@/store/uistate/features/payroll/dashboardPayroll';
 import {
   useGetAllowanceDetailsOverview,
   useGetBenefitDetailsOverview,
@@ -36,7 +34,9 @@ type BreakdownRow = {
   entitledEmployeeCount: number;
 };
 
-function normalizeRows(items: DetailsOverviewItem[] | undefined): BreakdownRow[] {
+function normalizeRows(
+  items: DetailsOverviewItem[] | undefined,
+): BreakdownRow[] {
   if (!items?.length) return [];
 
   return items.map((item, i) => ({
@@ -69,9 +69,10 @@ export default function PieChart({
   const setAllowanceBenefitTab = useDashboardPayrollStore(
     (s) => s.setAllowanceBenefitTab,
   );
-  const { data: allowanceDetails, isLoading: isLoadingAllowanceDetails } = useGetAllowanceDetailsOverview(
-  );
-  const { data: benefitDetails, isLoading: isLoadingBenefitDetails } = useGetBenefitDetailsOverview();
+  const { data: allowanceDetails, isLoading: isLoadingAllowanceDetails } =
+    useGetAllowanceDetailsOverview();
+  const { data: benefitDetails, isLoading: isLoadingBenefitDetails } =
+    useGetBenefitDetailsOverview();
   const rows = useMemo(() => {
     // Defensive: If a details fetch is still loading, always return the same (empty) array shape.
     if (
@@ -261,9 +262,14 @@ export default function PieChart({
                     title={row.label}
                     data-cy={`${dataCy}-row-label-${rowKey}`}
                   >
-                    {row.label?.length > 20 ? row.label?.slice(0, 20) + '...' : row.label}
+                    {row.label?.length > 20
+                      ? row.label?.slice(0, 20) + '...'
+                      : row.label}
                   </span>
-                  <div className="flex items-center gap-6 w-full">
+                  <div
+                    className="flex items-center gap-6 w-full"
+                    data-cy={`${dataCy}-row-values-${rowKey}`}
+                  >
                     <span
                       className="flex-1 text-end text-xs text-black/70"
                       data-cy={`${dataCy}-row-count-${rowKey}`}

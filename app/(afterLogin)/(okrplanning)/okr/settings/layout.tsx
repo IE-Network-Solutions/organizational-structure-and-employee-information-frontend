@@ -357,7 +357,11 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           id="okr-settings-layout-children-wrapper-display-div"
           data-cy="okr-settings-layout-children-wrapper-display-div"
         >
-          {isTabLoading ? <TabContentSkeleton activeTab={activeTab} /> : children}
+          {isTabLoading ? (
+            <TabContentSkeleton activeTab={activeTab} />
+          ) : (
+            children
+          )}
         </div>
       </div>
     </div>

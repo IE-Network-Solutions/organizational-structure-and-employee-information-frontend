@@ -80,7 +80,6 @@ export default function PaymentCards({
       value: payrollSummary?.totalVpForAllEmployees ?? 0,
       percent: `${payrollSummary?.keyMetricsPercentage?.totalVpForAllEmployees ?? 0}%`,
     },
-  
   ];
   if (isLoading) {
     return <PayrollPaymentCardsSkeleton data-cy={`${dataCy}-skeleton`} />;

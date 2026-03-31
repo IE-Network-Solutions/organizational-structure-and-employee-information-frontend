@@ -9,28 +9,30 @@ import type {
   MonthlyVariablePayOverviewResponse,
 } from './interface';
 
-export const getMonthlyOverview = async (): Promise<MonthlyOverviewResponse> => {
-  const headers = await requestHeader();
+export const getMonthlyOverview =
+  async (): Promise<MonthlyOverviewResponse> => {
+    const headers = await requestHeader();
 
-  return crudRequest({
-    url: `${PAYROLL_URL}/payroll/monthly-overview`,
-    method: 'GET',
-    headers,
-  });
-};
+    return crudRequest({
+      url: `${PAYROLL_URL}/payroll/monthly-overview`,
+      method: 'GET',
+      headers,
+    });
+  };
 
 export const useGetMonthlyOverview = () =>
   useQuery(['monthly-overview'], () => getMonthlyOverview());
 
-export const getMonthlyVariablePayOverview = async (): Promise<MonthlyVariablePayOverviewResponse> => {
-  const headers = await requestHeader();
+export const getMonthlyVariablePayOverview =
+  async (): Promise<MonthlyVariablePayOverviewResponse> => {
+    const headers = await requestHeader();
 
-  return crudRequest({
-    url: `${PAYROLL_URL}/payroll/monthly-variable-pay-overview`,
-    method: 'GET',
-    headers,
-  });
-};
+    return crudRequest({
+      url: `${PAYROLL_URL}/payroll/monthly-variable-pay-overview`,
+      method: 'GET',
+      headers,
+    });
+  };
 
 export const useGetMonthlyVariablePayOverview = () =>
   useQuery(['monthly-variable-pay-overview'], () =>
@@ -58,31 +60,34 @@ export const getPayrollByPayPeriod = async ({
 
 export const useGetPayrollByPayPeriod = (params: PayrollByPayPeriodParams) =>
   useQuery(
-    ['find-all-payroll-by-pay-period', params.limit, params.page, params.payPeriodId],
+    [
+      'find-all-payroll-by-pay-period',
+      params.limit,
+      params.page,
+      params.payPeriodId,
+    ],
     () => getPayrollByPayPeriod(params),
     {
       enabled: Boolean(params.payPeriodId),
     },
   );
 
-export const getAllowanceDetailsOverview = async (): Promise<DetailsOverviewResponse> => {
-  const headers = await requestHeader();
+export const getAllowanceDetailsOverview =
+  async (): Promise<DetailsOverviewResponse> => {
+    const headers = await requestHeader();
 
-  return crudRequest({
-    url: `${PAYROLL_URL}/payroll/allowance-details-overview`,
-    method: 'GET',
-    headers,
-  });
-};
+    return crudRequest({
+      url: `${PAYROLL_URL}/payroll/allowance-details-overview`,
+      method: 'GET',
+      headers,
+    });
+  };
 
 export const useGetAllowanceDetailsOverview = () =>
-  useQuery(
-    ['allowance-detailsoverview'],
-    () => getAllowanceDetailsOverview()
-  );
+  useQuery(['allowance-detailsoverview'], () => getAllowanceDetailsOverview());
 
-  export const getBenefitDetailsOverview = async (
-  ): Promise<DetailsOverviewResponse> => {
+export const getBenefitDetailsOverview =
+  async (): Promise<DetailsOverviewResponse> => {
     const headers = await requestHeader();
 
     return crudRequest({
@@ -92,8 +97,5 @@ export const useGetAllowanceDetailsOverview = () =>
     });
   };
 
-  export const useGetBenefitDetailsOverview = () =>
-    useQuery(
-      ['benefit-details-overview'],
-      () => getBenefitDetailsOverview()
-    );
+export const useGetBenefitDetailsOverview = () =>
+  useQuery(['benefit-details-overview'], () => getBenefitDetailsOverview());

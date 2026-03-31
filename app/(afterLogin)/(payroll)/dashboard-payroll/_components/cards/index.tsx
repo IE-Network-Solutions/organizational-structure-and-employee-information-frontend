@@ -6,7 +6,6 @@ import {
   MdAttachMoney,
   MdCardGiftcard,
   MdLocalAtm,
-  MdMoney,
   MdPayments,
 } from 'react-icons/md';
 import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
@@ -53,8 +52,8 @@ export default function PayrollCards({
       value: formatCurrency(payrollSummary?.totalGrossPaymentAmount),
       trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalGrossPaymentAmount ?? 0)}%`,
       trendUp:
-        (payrollSummary?.differenceFromLastPayPeriod?.totalGrossPaymentAmount ?? 0) >=
-        0,
+        (payrollSummary?.differenceFromLastPayPeriod?.totalGrossPaymentAmount ??
+          0) >= 0,
       icon: <MdAttachMoney className="text-primary" size={16} />,
       iconBgClass: 'bg-[#E6F4FF]',
     },
@@ -64,7 +63,8 @@ export default function PayrollCards({
       value: formatCurrency(payrollSummary?.totalNetPayAmount),
       trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0)}%`,
       trendUp:
-        (payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0) >= 0,
+        (payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0) >=
+        0,
       icon: <MdLocalAtm className="text-purple" size={16} />,
       iconBgClass: 'bg-light_purple',
     },
@@ -74,8 +74,8 @@ export default function PayrollCards({
       value: formatCurrency(payrollSummary?.totalAllowanceAmount),
       trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalAllowanceAmount ?? 0)}%`,
       trendUp:
-        (payrollSummary?.differenceFromLastPayPeriod?.totalAllowanceAmount ?? 0) >=
-        0,
+        (payrollSummary?.differenceFromLastPayPeriod?.totalAllowanceAmount ??
+          0) >= 0,
       icon: <MdPayments className="text-greenbg" size={16} />,
       iconBgClass: 'bg-greenlight',
     },
@@ -85,7 +85,8 @@ export default function PayrollCards({
       value: formatCurrency(payrollSummary?.totalMeritAmount),
       trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalMeritAmount ?? 0)}%`,
       trendUp:
-        (payrollSummary?.differenceFromLastPayPeriod?.totalMeritAmount ?? 0) >= 0,
+        (payrollSummary?.differenceFromLastPayPeriod?.totalMeritAmount ?? 0) >=
+        0,
       icon: <MdCardGiftcard className="text-[#EA580C]" size={16} />,
       iconBgClass: 'bg-[#FFEDD5]',
     },
@@ -165,7 +166,13 @@ export default function PayrollCards({
                   />
                 )}
                 <span data-cy={`${dataCy}-trend-text-${card.key}`}>
-                  {card.trendLabel} <span className="text-black/45">Since Last Pay Period</span>
+                  {card.trendLabel}{' '}
+                  <span
+                    className="text-black/45"
+                    data-cy={`${dataCy}-trend-period-${card.key}`}
+                  >
+                    Since Last Pay Period
+                  </span>
                 </span>
               </div>
             </div>

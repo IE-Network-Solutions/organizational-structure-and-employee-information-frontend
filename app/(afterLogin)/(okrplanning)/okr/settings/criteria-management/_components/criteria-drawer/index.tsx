@@ -443,7 +443,7 @@ const ScoringModal: React.FC = () => {
             <Select
               mode="multiple"
               placeholder=""
-                className="w-full h-10 custom-modal-select always-show-placeholder"
+              className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               value={watchedDepartments}

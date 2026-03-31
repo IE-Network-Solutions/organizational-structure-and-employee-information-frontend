@@ -81,7 +81,6 @@ const SERIES = {
   incentive: { label: 'Incentive', color: '#9B8CFF' },
   netPay: { label: 'Net Pay', color: '#2563EB' },
   grossPay: { label: 'Gross Pay', color: '#60A5FA' },
- 
 } as const;
 
 const LEGEND_ORDER = [
@@ -117,7 +116,10 @@ export default function Graph({
     (s) => s.setSalaryChartView,
   );
   const { data: monthlyOverview } = useGetMonthlyOverview();
-  const { data: monthlyVariablePayOverview, isLoading: isLoadingMonthlyVariablePay } = useGetMonthlyVariablePayOverview();
+  const {
+    data: monthlyVariablePayOverview,
+    isLoading: isLoadingMonthlyVariablePay,
+  } = useGetMonthlyVariablePayOverview();
   const isLoadingGraph = !monthlyOverview || isLoadingMonthlyVariablePay;
 
   const chartLabels = useMemo(
@@ -136,12 +138,12 @@ export default function Graph({
       datasets: STACK_ORDER.map((key) => {
         const monthlyValues = monthlyOverview?.items?.map(
           (item: MonthlyOverviewItem) => {
-          if (key === 'basicSalary') return item.basicSalary;
-          if (key === 'allowance') return item.totalAllowance;
-          if (key === 'benefit') return item.totalBenefit;
-          if (key === 'incentive') return item.totalIncentive;
-          if (key === 'netPay') return item.netPay;
-          return item.grossSalary;
+            if (key === 'basicSalary') return item.basicSalary;
+            if (key === 'allowance') return item.totalAllowance;
+            if (key === 'benefit') return item.totalBenefit;
+            if (key === 'incentive') return item.totalIncentive;
+            if (key === 'netPay') return item.netPay;
+            return item.grossSalary;
           },
         );
 
@@ -243,12 +245,11 @@ export default function Graph({
       datasets: [
         {
           label: 'Total Variable Pay',
-          data:
-            monthlyVariablePayOverview?.items?.length
-              ? monthlyVariablePayOverview.items.map(
-                  (item: MonthlyVariablePayOverviewItem) => item.totalVariablePay,
-                )
-              : MONTHS.map(() => 0),
+          data: monthlyVariablePayOverview?.items?.length
+            ? monthlyVariablePayOverview.items.map(
+                (item: MonthlyVariablePayOverviewItem) => item.totalVariablePay,
+              )
+            : MONTHS.map(() => 0),
           borderColor: '#A78BFA',
           backgroundColor: 'transparent',
           borderWidth: 1.5,

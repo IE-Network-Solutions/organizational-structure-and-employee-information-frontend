@@ -70,10 +70,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
   }, [okrRule, form]);
 
   const footer = (
-    <div
-      className="flex justify-end gap-2"
-      data-cy="okr-rule-modal-footer"
-    >
+    <div className="flex justify-end gap-2" data-cy="okr-rule-modal-footer">
       <CustomButton
         type="default"
         title="Cancel"

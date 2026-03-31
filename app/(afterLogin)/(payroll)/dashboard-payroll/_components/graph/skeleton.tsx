@@ -4,7 +4,10 @@ import React from 'react';
 import { Card } from 'antd';
 
 const SkeletonBlock = ({ className }: { className: string }) => (
-  <div className={`animate-pulse rounded-md bg-gray-200 ${className}`} />
+  <div
+    className={`animate-pulse rounded-md bg-gray-200 ${className}`}
+    data-cy="dashboard-payroll-graph-skeleton-block"
+  />
 );
 
 export default function PayrollGraphSkeleton({
@@ -18,7 +21,10 @@ export default function PayrollGraphSkeleton({
       styles={{ body: { padding: '12px' } }}
       data-cy={dataCy}
     >
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div
+        className="mb-3 flex items-center justify-between gap-2"
+        data-cy={`${dataCy}-header`}
+      >
         <SkeletonBlock className="h-5 w-32" />
         <SkeletonBlock className="h-6 w-36" />
       </div>
