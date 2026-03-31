@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, Checkbox, Spin, Empty } from 'antd';
+import { Modal, Button, Checkbox, Spin } from 'antd';
 import {
   useUpdateCreateWeeklyPriorityBulk,
   useCreateWeeklyPriorityBulk,
@@ -146,38 +146,31 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
     <div data-cy="weekly-priority-modal-wrapper">
       <style data-cy="weekly-priority-modal-styles">{`
         .pixel-perfect-modal .ant-modal-content {
-          border-radius: 16px;
-          padding: 24px 16px 16px 16px;
+          border-radius: 8px;
+          padding: 0;
+          overflow: hidden;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        @media (min-width: 768px) {
-          .pixel-perfect-modal .ant-modal-content {
-            padding: 32px 24px 24px 24px;
-          }
-        }
-        .pixel-perfect-modal .ant-modal-header {
-          margin-bottom: 20px;
-          border-bottom: none;
+        .pixel-perfect-modal .ant-modal-body {
+          padding: 0;
         }
         .pixel-perfect-modal .ant-modal-close {
-          top: 16px;
-          right: 16px;
+          top: 20px;
+          right: 24px;
+          width: 16px;
+          height: 16px;
+          padding: 0;
         }
-        @media (min-width: 768px) {
-          .pixel-perfect-modal .ant-modal-close {
-            top: 24px;
-            right: 24px;
-          }
+        .pixel-perfect-modal .ant-modal-close:hover {
+          background: transparent;
         }
-        .pixel-perfect-modal .ant-modal-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-        }
-        @media (min-width: 768px) {
-          .pixel-perfect-modal .ant-modal-title {
-            font-size: 20px;
-          }
+        .pixel-perfect-modal .ant-modal-close .ant-modal-close-x {
+          display: block;
+          width: 16px;
+          height: 16px;
+          line-height: 16px;
+          font-size: 16px;
+          color: rgba(0, 0, 0, 0.7);
         }
         .pixel-perfect-modal .ant-checkbox-inner {
             border-radius: 4px;
@@ -201,103 +194,68 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
           background-color: #f9fafb;
         }
         .priority-item-row.selected {
-          background-color: #eff6ff;
+          background-color: #E6F4FF;
         }
         .priority-item-row.selected:hover {
-          background-color: #e0f2fe;
+          background-color: #E6F4FF;
         }
       `}</style>
       <Modal
         data-cy={dataCy}
         open={open}
         onCancel={handleClose}
-        width={780}
+        width={962}
         style={{ maxWidth: 'calc(100vw - 32px)' }}
-        footer={
-          <div
-            className="flex justify-end gap-2 md:gap-3 pt-2 md:pt-3 px-0 md:px-2"
-            data-cy="weekly-priority-modal-footer"
-          >
-            <Button
-              onClick={handleClose}
-              className="h-[40px] px-5 text-[#4b5563] font-medium border-gray-200 rounded-[12px] hover:text-[#111827] hover:border-gray-400 text-[15px]"
-              data-cy="weekly-priority-modal-cancel-button"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              disabled={checkedList.length === 0}
-              onClick={handleAdd}
-              loading={isLoadings}
-              className="bg-[#254ec2] hover:bg-[#1e40af] h-[40px] px-8 text-white font-medium rounded-[12px] border-none shadow-sm text-[15px]"
-              data-cy="weekly-priority-modal-submit-button"
-            >
-              {selectedTask == null ? 'Create' : 'Update'}
-            </Button>
-          </div>
-        }
+        footer={null}
         centered
         className="pixel-perfect-modal"
-        title={
-          <div className="text-left" data-cy="weekly-priority-modal-title">
+        title={null}
+      >
+        <div
+          className="w-full flex flex-col"
+          data-cy="weekly-priority-modal-sections"
+        >
+          <div
+            className="h-[77px] px-6 pt-5 pb-2 flex flex-col gap-2 text-left"
+            data-cy="weekly-priority-modal-header"
+          >
             <div
-              className="text-[18px] md:text-[20px] font-bold text-[#111827] leading-tight"
+              className="text-[16px] font-bold text-black/70 leading-tight"
               data-cy="weekly-priority-modal-title-text"
             >
               {selectedTask == null ? 'Create Priority' : 'Update Priority'}
             </div>
             <div
-              className="text-[#6b7280] text-[13.5px] md:text-[14.5px] font-normal mt-1 md:mt-1.5 leading-relaxed"
+              className="text-black/70 text-[14px] font-normal leading-relaxed"
               data-cy="weekly-priority-modal-subtitle"
             >
               Select from your weekly plans to add priority
             </div>
           </div>
-        }
-      >
-        <div className="mt-1" data-cy="weekly-priority-modal-body">
-          {isLoading ? (
-            <div
-              className="py-24 flex justify-center"
-              data-cy="weekly-priority-modal-loading"
-            >
-              <Spin size="large" data-cy="weekly-priority-modal-spin" />
-            </div>
-          ) : priorities?.length > 0 ? (
-            <div
-              className="max-h-[460px] overflow-y-auto scrollbar-none border border-gray-100"
-              data-cy="weekly-priority-modal-priorities-list"
-            >
-              {priorities?.map((priority) => {
-                const isChecked = checkedList.some(
-                  (i) => i.taskId === priority.id,
-                );
-                return (
-                  <div
-                    key={priority.id}
-                    className={`priority-item-row py-3.5 md:py-4.5 px-4 md:px-6 flex items-center gap-4 md:gap-5 cursor-pointer ${isChecked ? 'selected' : ''}`}
-                    onClick={() =>
-                      handleCheck(!isChecked, {
-                        taskId: priority.id,
-                        title: priority.task,
-                        planId: priority.planId || '',
-                        departmentId,
-                        userId,
-                        session,
-                        month,
-                        createdBy: userId,
-                        status: 'PENDING',
-                        failureReason: '',
-                      })
-                    }
-                    data-cy={`weekly-priority-modal-priority-item-${priority.id}`}
-                  >
-                    <Checkbox
-                      checked={isChecked}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        handleCheck(e.target.checked, {
+
+          <div className="px-6 py-3" data-cy="weekly-priority-modal-body">
+            {isLoading ? (
+              <div
+                className="py-24 flex justify-center"
+                data-cy="weekly-priority-modal-loading"
+              >
+                <Spin size="large" data-cy="weekly-priority-modal-spin" />
+              </div>
+            ) : priorities?.length > 0 ? (
+              <div
+                className="max-h-[460px] overflow-y-auto scrollbar-none border border-gray-100"
+                data-cy="weekly-priority-modal-priorities-list"
+              >
+                {priorities?.map((priority) => {
+                  const isChecked = checkedList.some(
+                    (i) => i.taskId === priority.id,
+                  );
+                  return (
+                    <div
+                      key={priority.id}
+                      className={`priority-item-row h-[54px] px-4 md:px-6 flex items-center gap-4 md:gap-5 cursor-pointer ${isChecked ? 'selected' : ''}`}
+                      onClick={() =>
+                        handleCheck(!isChecked, {
                           taskId: priority.id,
                           title: priority.task,
                           planId: priority.planId || '',
@@ -308,35 +266,77 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
                           createdBy: userId,
                           status: 'PENDING',
                           failureReason: '',
-                        });
-                      }}
-                      className="custom-pixel-checkbox flex-shrink-0"
-                      data-cy={`weekly-priority-modal-priority-checkbox-${priority.id}`}
-                    />
-                    <span
-                      className={`text-[15.5px] font-medium leading-normal transition-colors ${isChecked ? 'text-[#111827]' : 'text-[#374151]'}`}
-                      data-cy={`weekly-priority-modal-priority-text-${priority.id}`}
+                        })
+                      }
+                      data-cy={`weekly-priority-modal-priority-item-${priority.id}`}
                     >
-                      {priority.task}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="py-24" data-cy="weekly-priority-modal-empty">
-              <Empty
-                description={
-                  <span
-                    className="text-gray-400 font-medium"
-                    data-cy="weekly-priority-modal-empty-text"
-                  >
-                    Please add {planningType} plan first
-                  </span>
-                }
-              />
-            </div>
-          )}
+                      <Checkbox
+                        checked={isChecked}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleCheck(e.target.checked, {
+                            taskId: priority.id,
+                            title: priority.task,
+                            planId: priority.planId || '',
+                            departmentId,
+                            userId,
+                            session,
+                            month,
+                            createdBy: userId,
+                            status: 'PENDING',
+                            failureReason: '',
+                          });
+                        }}
+                        className="custom-pixel-checkbox flex-shrink-0"
+                        data-cy={`weekly-priority-modal-priority-checkbox-${priority.id}`}
+                      />
+                      <span
+                        className="text-[16px] font-normal leading-normal text-black/70 transition-colors"
+                        data-cy={`weekly-priority-modal-priority-text-${priority.id}`}
+                      >
+                        {priority.task}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div
+                className="py-24 text-center"
+                data-cy="weekly-priority-modal-empty"
+              >
+                <span
+                  className="text-[16px] text-gray-400 font-medium"
+                  data-cy="weekly-priority-modal-empty-text"
+                >
+                  Please add {planningType} plan first
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div
+            className="px-6 pt-0 pb-5 flex justify-end gap-2"
+            data-cy="weekly-priority-modal-footer"
+          >
+            <Button
+              onClick={handleClose}
+              className="h-[32px] w-[68px] p-0 text-[#4b5563] font-normal border-gray-200 rounded-[6px] hover:text-[#111827] hover:border-gray-400 text-[14px]"
+              data-cy="weekly-priority-modal-cancel-button"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              disabled={checkedList.length === 0}
+              onClick={handleAdd}
+              loading={isLoadings}
+              className="bg-[#1E40AF] hover:bg-[#1b376e] h-[32px] w-[68px] p-0 text-white font-normal rounded-[6px] border-none shadow-sm text-[14px]"
+              data-cy="weekly-priority-modal-submit-button"
+            >
+              {selectedTask == null ? 'Create' : 'Update'}
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

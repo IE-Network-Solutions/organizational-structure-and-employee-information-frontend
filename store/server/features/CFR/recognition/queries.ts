@@ -284,6 +284,32 @@ export const useGetRecognitionsByParentRecognitionType = (
   );
 };
 
+/** Same filters as the detail table, large page for select-all / bulk ids (refetch on demand). */
+export const useGetAllRecognitionIdsByParentType = (
+  params: ByParentRecognitionTypeParams | null,
+  enabled = false,
+) => {
+  const fetchParams: ByParentRecognitionTypeParams | null = params
+    ? {
+        ...params,
+        current: 1,
+        pageSize: 10000,
+      }
+    : null;
+
+  return useQuery<any>(
+    ['allRecognitionIdsByParentType', fetchParams],
+    () =>
+      getRecognitionsByParentRecognitionType(
+        fetchParams as ByParentRecognitionTypeParams,
+      ),
+    {
+      enabled: enabled && !!fetchParams?.parentRecognitionTypeId,
+      keepPreviousData: false,
+    },
+  );
+};
+
 export const useGetRecognitionTypeById = (id: string | null) => {
   return useQuery<any>(
     ['recognitionTypes', id],
@@ -374,42 +400,5 @@ export const useGetAllRecognition = ({
   return useQuery<any>(
     ['recognitions', searchValue, current, pageSize], // Unique query key based on params
     () => getAllRecognitions({ searchValue, current, pageSize }),
-  );
-};
-
-// Fetch all recognition IDs without pagination (for select all functionality)
-const getAllRecognitionIds = async (
-  searchValue: Record<string, string | undefined>,
-) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const queryString = [
-    `limit=10000`, // Large limit to get all records
-    `page=1`,
-    ...Object.entries(searchValue)
-      .filter(([, value]) => value)
-      .map(([key, value]) => `${key}=${value}`),
-  ].join('&');
-
-  return crudRequest({
-    url: `${ORG_DEV_URL}/recognition?${queryString}`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-};
-
-export const useGetAllRecognitionIds = (
-  searchValue: Record<string, string | undefined>,
-  enabled: boolean = false,
-) => {
-  return useQuery<any>(
-    ['allRecognitionIds', searchValue],
-    () => getAllRecognitionIds(searchValue),
-    {
-      enabled,
-    },
   );
 };
