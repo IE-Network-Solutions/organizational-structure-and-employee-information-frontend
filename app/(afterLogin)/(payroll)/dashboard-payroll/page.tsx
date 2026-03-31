@@ -8,11 +8,11 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import { useDashboardPayrollStore } from '@/store/uistate/features/payroll/dashboardPayroll';
-import Cards from './_components/cards';
 import Graph from './_components/graph';
 import PaymentCards from './_components/payment-cards';
 import ActionCards from './_components/action-cards';
 import PieChart from './_components/pie-chart';
+import PayrollCards from './_components/cards';
 
 const { Option } = Select;
 
@@ -100,7 +100,7 @@ const DashboardPayroll = () => {
         />
 
         <div className="px-3 py-4 sm:px-3" data-cy="dashboard-payroll-content">
-          <Cards data-cy="dashboard-payroll-cards" />
+            <PayrollCards data-cy="dashboard-payroll-cards" />
           <div
             className="grid grid-cols-12 gap-4"
             data-cy="dashboard-payroll-middle-row"

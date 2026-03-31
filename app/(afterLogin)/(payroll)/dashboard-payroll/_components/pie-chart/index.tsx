@@ -7,8 +7,12 @@ import { Chart as ChartJS, ArcElement, Tooltip } from 'chart.js';
 import type { ChartData, ChartOptions } from 'chart.js';
 import {
   useDashboardPayrollStore,
-  type AllowanceBenefitTab,
 } from '@/store/uistate/features/payroll/dashboardPayroll';
+import {
+  useGetAllowanceDetailsOverview,
+  useGetBenefitDetailsOverview,
+} from '@/store/server/features/financeDashboard/queries';
+import type { DetailsOverviewItem } from '@/store/server/features/financeDashboard/interface';
 
 ChartJS.register(ArcElement, Tooltip);
 
@@ -28,18 +32,24 @@ type BreakdownRow = {
   amount: number;
   count: number;
   color: string;
+  entitledEmployeeCount: number;
 };
 
-function buildMockRows(
-  prefix: string,
-  tab: AllowanceBenefitTab,
-): BreakdownRow[] {
-  const baseAmount = tab === 'allowance' ? 9_845_875 : 9_845_875;
-  return Array.from({ length: 8 }, (unused, i) => ({
-    label: `${prefix} ${i + 1}`,
-    amount: baseAmount + i * 12_000,
-    count: 200,
+function normalizeRows(items: DetailsOverviewItem[] | undefined): BreakdownRow[] {
+  if (!items?.length) return [];
+
+  return items.map((item, i) => ({
+    label:
+      item.label ??
+      item.name ??
+      item.typeName ??
+      item.allowanceName ??
+      item.benefitName ??
+      `Type ${i + 1}`,
+    amount: item.amount ?? item.totalAmount ?? item.value ?? 0,
+    count: item.count ?? item.entitledEmployeeCount ?? 0,
     color: SEGMENT_COLORS[i % SEGMENT_COLORS.length],
+    entitledEmployeeCount: item.entitledEmployeeCount ?? 0,
   }));
 }
 
@@ -58,15 +68,21 @@ export default function PieChart({
   const setAllowanceBenefitTab = useDashboardPayrollStore(
     (s) => s.setAllowanceBenefitTab,
   );
+  const { data: allowanceDetails } = useGetAllowanceDetailsOverview(
+  );
+  const { data: benefitDetails } = useGetBenefitDetailsOverview();
 
   const rows = useMemo(
-    () =>
-      allowanceBenefitTab === 'allowance'
-        ? buildMockRows('Allowance Type', 'allowance')
-        : buildMockRows('Benefit Type', 'benefit'),
-    [allowanceBenefitTab],
-  );
+    () => {
+      if (allowanceBenefitTab === 'allowance') {
+        return normalizeRows(allowanceDetails?.items);
+      }
 
+      return normalizeRows(benefitDetails?.items);
+    },
+    [allowanceBenefitTab, allowanceDetails, benefitDetails],
+  );
+ console.log(allowanceDetails,"allowanceDetails")
   const totalAmount = useMemo(
     () => rows.reduce((sum, r) => sum + r.amount, 0),
     [rows],
@@ -92,7 +108,7 @@ export default function PieChart({
     () => ({
       responsive: true,
       maintainAspectRatio: false,
-      cutout: '68%',
+      cutout: '75%',
       plugins: {
         legend: { display: false },
         tooltip: { enabled: true },
@@ -108,8 +124,8 @@ export default function PieChart({
 
   return (
     <Card
-      className="rounded-lg border border-gray-200 shadow-sm"
-      styles={{ body: { padding: '14px 16px 16px' } }}
+      className="rounded-lg border border-gray-200 shadow-noe h-[417px]"
+      bodyStyle={{ padding: '12px' }}
       data-cy={dataCy}
     >
       <div
@@ -179,11 +195,11 @@ export default function PieChart({
       </div>
 
       <div
-        className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-6"
+        className="flex flex-col gap-6 lg:flex-row lg:items-stretch lg:gap-6 items-center"
         data-cy={`${dataCy}-body`}
       >
         <div
-          className="relative mx-auto flex h-[220px] w-full max-w-[280px] items-center justify-center sm:h-[240px] sm:max-w-[300px] lg:mx-0 lg:w-[42%] lg:max-w-none lg:shrink-0"
+          className="relative mx-auto flex h-[285px]  w-[285px] items-center justify-center  lg:mx-0 lg:w-[42%] lg:max-w-none lg:shrink-0"
           data-cy={`${dataCy}-chart-wrap`}
         >
           <div className="absolute inset-0" data-cy={`${dataCy}-chart-canvas`}>
@@ -203,10 +219,11 @@ export default function PieChart({
         </div>
 
         <div
-          className="min-w-0 flex-1 space-y-3 lg:pt-1"
+          className="min-w-0 flex-1 space-y-3 lg:pt-1 h-[330px] overflow-y-auto scrollbar-none"
           data-cy={`${dataCy}-list`}
         >
           {rows.map((row) => {
+            console.log(row,"rowrowrow")
             const pct =
               totalAmount > 0
                 ? Math.min(100, Math.round((row.amount / totalAmount) * 100))
@@ -215,7 +232,7 @@ export default function PieChart({
             return (
               <div
                 key={row.label}
-                className="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+                className="last:border-0 last:pb-0"
                 data-cy={`${dataCy}-row-${rowKey}`}
               >
                 <div
@@ -223,32 +240,34 @@ export default function PieChart({
                   data-cy={`${dataCy}-row-header-${rowKey}`}
                 >
                   <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    className="h-3 w-3 shrink-0 rounded-full"
                     style={{ backgroundColor: row.color }}
                     data-cy={`${dataCy}-row-dot-${rowKey}`}
                   />
                   <span
-                    className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium text-gray-800 opacity-100"
+                    className="text-ellipsis whitespace-nowrap text-xs font-normal text-black/70 opacity-100"
                     title={row.label}
                     data-cy={`${dataCy}-row-label-${rowKey}`}
                   >
-                    {row.label}
+                    {row.label?.length > 20 ? row.label?.slice(0, 20) + '...' : row.label}
                   </span>
-                  <span
-                    className="shrink-0 text-xs text-gray-600"
-                    data-cy={`${dataCy}-row-count-${rowKey}`}
-                  >
-                    {row.count}
-                  </span>
-                  <span
-                    className="shrink-0 text-right text-xs font-semibold text-gray-900 sm:text-sm"
-                    data-cy={`${dataCy}-row-amount-${rowKey}`}
-                  >
-                    {formatInt(row.amount)}
-                  </span>
+                  <div className="flex items-center gap-6 w-full">
+                    <span
+                      className="flex-1 text-end text-xs text-black/70"
+                      data-cy={`${dataCy}-row-count-${rowKey}`}
+                    >
+                      {row.entitledEmployeeCount || 0}
+                    </span>
+                    <span
+                      className="shrink-0 text-end text-xs font-semibold text-black/70 sm:text-sm w-[70px]"
+                      data-cy={`${dataCy}-row-amount-${rowKey}`}
+                    >
+                      {formatInt(row.amount)}
+                    </span>
+                  </div>
                 </div>
                 <div
-                  className="ml-4 h-1.5 overflow-hidden rounded-full bg-gray-100"
+                  className="h-1 overflow-hidden rounded-full bg-gray-100"
                   data-cy={`${dataCy}-row-bar-track-${rowKey}`}
                 >
                   <div

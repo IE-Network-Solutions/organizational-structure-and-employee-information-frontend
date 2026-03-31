@@ -3,11 +3,13 @@
 import React from 'react';
 import { Card } from 'antd';
 import {
-  MdAccountBalanceWallet,
   MdAttachMoney,
   MdCardGiftcard,
+  MdMoney,
 } from 'react-icons/md';
 import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
+import { useDashboardPayrollStore } from '@/store/uistate/features/payroll/dashboardPayroll';
+import { useGetPayrollByPayPeriod } from '@/store/server/features/financeDashboard/queries';
 
 type StatCardItem = {
   key: string;
@@ -19,60 +21,80 @@ type StatCardItem = {
   iconBgClass: string;
 };
 
-const STAT_CARDS: StatCardItem[] = [
-  {
-    key: 'total-amount',
-    title: 'Total Amount',
-    value: '9,057,640.86',
-    trendLabel: '8% Since Last Pay Period',
-    trendUp: true,
-    icon: <MdAttachMoney className="text-[#2563EB]" size={16} />,
-    iconBgClass: 'bg-[#E6F4FF]',
-  },
-  {
-    key: 'net-paid-amount',
-    title: 'Net Paid Amount',
-    value: '5,617,593.69',
-    trendLabel: '8% Since Last Pay Period',
-    trendUp: false,
-    icon: <MdAttachMoney className="text-[#2563EB]" size={16} />,
-    iconBgClass: 'bg-[#E6F4FF]',
-  },
-  {
-    key: 'total-allowance',
-    title: 'Total Allowance',
-    value: '1,083,779.31',
-    trendLabel: '8% Since Last Pay Period',
-    trendUp: true,
-    icon: <MdAccountBalanceWallet className="text-[#16A34A]" size={16} />,
-    iconBgClass: 'bg-[#DCFCE7]',
-  },
-  {
-    key: 'total-benefit',
-    title: 'Total Benefit',
-    value: '95,346,231.00',
-    trendLabel: '8% Since Last Pay Period',
-    trendUp: true,
-    icon: <MdCardGiftcard className="text-[#EA580C]" size={16} />,
-    iconBgClass: 'bg-[#FFEDD5]',
-  },
-];
+const formatCurrency = (value: number | undefined) =>
+  new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value ?? 0);
 
-export default function Cards({
+export default function PayrollCards({
   'data-cy': dataCy = 'dashboard-payroll-cards',
 }: {
   'data-cy'?: string;
 }) {
+  const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
+  const { data: payrollSummary } = useGetPayrollByPayPeriod({
+    limit: 1,
+    page: 1,
+    payPeriodId: payPeriodId ?? '',
+  });
+  console.log(payrollSummary,"payrollSummary")
+
+  const statCards: StatCardItem[] = [
+    {
+      key: 'total-amount',
+      title: 'Total Amount',
+      value: formatCurrency(payrollSummary?.totalGrossPaymentAmount),
+      trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalGrossPaymentAmount ?? 0)}%`,
+      trendUp:
+        (payrollSummary?.differenceFromLastPayPeriod?.totalGrossPaymentAmount ?? 0) >=
+        0,
+      icon: <MdAttachMoney className="text-primary" size={16} />,
+      iconBgClass: 'bg-[#E6F4FF]',
+    },
+    {
+      key: 'net-paid-amount',
+      title: 'Net Paid Amount',
+      value: formatCurrency(payrollSummary?.totalNetPayAmount),
+      trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0)}%`,
+      trendUp:
+        (payrollSummary?.differenceFromLastPayPeriod?.totalNetPayAmount ?? 0) >= 0,
+      icon: <MdAttachMoney className="text-primary" size={16} />,
+      iconBgClass: 'bg-[#E6F4FF]',
+    },
+    {
+      key: 'total-allowance',
+      title: 'Total Allowance',
+      value: formatCurrency(payrollSummary?.totalAllowanceAmount),
+      trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalAllowanceAmount ?? 0)}%`,
+      trendUp:
+        (payrollSummary?.differenceFromLastPayPeriod?.totalAllowanceAmount ?? 0) >=
+        0,
+      icon: <MdMoney className="text-[#16A34A]" size={16} />,
+      iconBgClass: 'bg-[#DCFCE7]',
+    },
+    {
+      key: 'total-benefit',
+      title: 'Total Benefit',
+      value: formatCurrency(payrollSummary?.totalMeritAmount),
+      trendLabel: `${Math.abs(payrollSummary?.differenceFromLastPayPeriod?.totalMeritAmount ?? 0)}%`,
+      trendUp:
+        (payrollSummary?.differenceFromLastPayPeriod?.totalMeritAmount ?? 0) >= 0,
+      icon: <MdCardGiftcard className="text-[#EA580C]" size={16} />,
+      iconBgClass: 'bg-[#FFEDD5]',
+    },
+  ];
+
   return (
     <div
-      className="mx-auto mb-4 grid w-full max-w-[1130px] grid-cols-1 gap-[19px] opacity-100 sm:grid-cols-2 lg:grid-cols-4"
+      className="mb-4 grid w-full grid-cols-1 gap-[19px] opacity-100 sm:grid-cols-2 lg:grid-cols-4"
       style={{ minHeight: 130 }}
       data-cy={dataCy}
     >
-      {STAT_CARDS.map((card) => (
+      {statCards.map((card) => (
         <Card
           key={card.key}
-          className="h-[130px] rounded-lg border border-gray-200 shadow-sm"
+          className="h-[122px] rounded-lg border border-gray-200 shadow-sm"
           styles={{
             body: {
               padding: '12px 14px',
@@ -93,7 +115,7 @@ export default function Cards({
               data-cy={`${dataCy}-title-frame-${card.key}`}
             >
               <span
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${card.iconBgClass}`}
+                className={`flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md ${card.iconBgClass}`}
                 data-cy={`${dataCy}-icon-${card.key}`}
               >
                 {card.icon}
@@ -110,7 +132,7 @@ export default function Cards({
               data-cy={`${dataCy}-value-frame-${card.key}`}
             >
               <p
-                className="m-0 truncate text-lg font-bold leading-tight text-gray-900 sm:text-xl"
+                className="m-0 truncate text-lg font-bold leading-tight text-black/70 sm:text-xl"
                 data-cy={`${dataCy}-value-${card.key}`}
               >
                 {card.value}
@@ -137,7 +159,7 @@ export default function Cards({
                   />
                 )}
                 <span data-cy={`${dataCy}-trend-text-${card.key}`}>
-                  {card.trendLabel}
+                  {card.trendLabel} <span className="text-black/45">Since Last Pay Period</span>
                 </span>
               </div>
             </div>

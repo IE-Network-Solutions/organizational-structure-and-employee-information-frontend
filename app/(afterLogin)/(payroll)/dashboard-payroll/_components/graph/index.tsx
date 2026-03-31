@@ -17,6 +17,14 @@ import {
 import type { ChartOptions, Plugin } from 'chart.js';
 import { Card, Tag } from 'antd';
 import { useDashboardPayrollStore } from '@/store/uistate/features/payroll/dashboardPayroll';
+import {
+  useGetMonthlyOverview,
+  useGetMonthlyVariablePayOverview,
+} from '@/store/server/features/financeDashboard/queries';
+import type {
+  MonthlyOverviewItem,
+  MonthlyVariablePayOverviewItem,
+} from '@/store/server/features/financeDashboard/interface';
 
 const variablePayLineShadowPlugin: Plugin<'line'> = {
   id: 'variablePayLineShadow',
@@ -66,14 +74,17 @@ const MONTHS = [
 
 /** Stack bottom → top; Benefit / Allowance colors per design reference. */
 const SERIES = {
-  allowance: { label: 'Allowance', color: '#61dafb', value: 70 },
-  benefit: { label: 'Benefit', color: '#ffb761', value: 75 },
-  incentive: { label: 'Incentive', color: '#9B8CFF', value: 45 },
-  netPay: { label: 'Net Pay', color: '#2563EB', value: 25 },
-  grossPay: { label: 'Gross Pay', color: '#60A5FA', value: 25 },
+  basicSalary: { label: 'Basic Salary', color: '#1f2937' },
+  allowance: { label: 'Allowance', color: '#61dafb' },
+  benefit: { label: 'Benefit', color: '#ffb761' },
+  incentive: { label: 'Incentive', color: '#9B8CFF' },
+  netPay: { label: 'Net Pay', color: '#2563EB' },
+  grossPay: { label: 'Gross Pay', color: '#60A5FA' },
+ 
 } as const;
 
 const LEGEND_ORDER = [
+  SERIES.basicSalary.label,
   SERIES.allowance.label,
   SERIES.benefit.label,
   SERIES.incentive.label,
@@ -87,15 +98,13 @@ const LEGEND_ITEMS = LEGEND_ORDER.map((label) => {
 });
 
 const STACK_ORDER: (keyof typeof SERIES)[] = [
+  'basicSalary',
+  'allowance',
   'benefit',
   'incentive',
-  'allowance',
-  'netPay',
   'grossPay',
+  'netPay',
 ];
-
-/** Mock monthly variable pay (0–100 scale) — replace with API when available. */
-const VARIABLE_PAY_VALUES = [48, 88, 32, 100, 23, 51, 56, 68, 23, 76, 18, 29];
 
 export default function Graph({
   'data-cy': dataCy = 'payroll-dashboard-graph',
@@ -106,21 +115,64 @@ export default function Graph({
   const setSalaryChartView = useDashboardPayrollStore(
     (s) => s.setSalaryChartView,
   );
+  const { data: monthlyOverview } = useGetMonthlyOverview();
+  const { data: monthlyVariablePayOverview } = useGetMonthlyVariablePayOverview();
+
+  const chartLabels = useMemo(
+    () =>
+      monthlyOverview?.items?.length
+        ? monthlyOverview.items.map((item: MonthlyOverviewItem) =>
+            item.monthName.slice(0, 3),
+          )
+        : MONTHS,
+    [monthlyOverview],
+  );
 
   const barData = useMemo(
     () => ({
-      labels: MONTHS,
-      datasets: STACK_ORDER.map((key) => ({
-        label: SERIES[key].label,
-        data: MONTHS.map(() => SERIES[key].value),
-        backgroundColor: SERIES[key].color,
-        borderWidth: 0,
-        borderRadius: 0,
-      })),
+      labels: chartLabels,
+      datasets: STACK_ORDER.map((key) => {
+        const monthlyValues = monthlyOverview?.items?.map(
+          (item: MonthlyOverviewItem) => {
+          if (key === 'basicSalary') return item.basicSalary;
+          if (key === 'allowance') return item.totalAllowance;
+          if (key === 'benefit') return item.totalBenefit;
+          if (key === 'incentive') return item.totalIncentive;
+          if (key === 'netPay') return item.netPay;
+          return item.grossSalary;
+          },
+        );
+
+        return {
+          label: SERIES[key].label,
+          data: monthlyValues?.length ? monthlyValues : MONTHS.map(() => 0),
+          backgroundColor: SERIES[key].color,
+          borderWidth: 0,
+          borderRadius: 0,
+        };
+      }),
     }),
-    [],
+    [chartLabels, monthlyOverview],
   );
 
+  const maxStackTotal = useMemo(() => {
+    if (!monthlyOverview?.items?.length) return 300;
+
+    const maxValue = Math.max(
+      ...monthlyOverview.items.map(
+        (item: MonthlyOverviewItem) =>
+          item.basicSalary +
+          item.totalAllowance +
+          item.totalBenefit +
+          item.totalIncentive +
+          item.netPay +
+          item.grossSalary,
+      ),
+    );
+
+    if (!Number.isFinite(maxValue) || maxValue <= 0) return 300;
+    return Math.ceil(maxValue * 1.1);
+  }, [monthlyOverview]);
   const barOptions: ChartOptions<'bar'> = useMemo(
     () => ({
       responsive: true,
@@ -161,11 +213,17 @@ export default function Graph({
         y: {
           stacked: true,
           min: 0,
-          max: 300,
+          max: maxStackTotal,
           ticks: {
-            stepSize: 50,
             font: { size: 9 },
             padding: 4,
+            callback: (value) => {
+              if (typeof value !== 'number') return value;
+              return new Intl.NumberFormat('en', {
+                notation: 'compact',
+                maximumFractionDigits: 1,
+              }).format(value);
+            },
           },
           grid: {
             color: '#E5E7EB',
@@ -174,21 +232,26 @@ export default function Graph({
         },
       },
     }),
-    [],
+    [maxStackTotal],
   );
 
   const lineData = useMemo(
     () => ({
-      labels: MONTHS,
+      labels: chartLabels,
       datasets: [
         {
           label: 'Total Variable Pay',
-          data: VARIABLE_PAY_VALUES,
+          data:
+            monthlyVariablePayOverview?.items?.length
+              ? monthlyVariablePayOverview.items.map(
+                  (item: MonthlyVariablePayOverviewItem) => item.totalVariablePay,
+                )
+              : MONTHS.map(() => 0),
           borderColor: '#A78BFA',
-          backgroundColor: 'rgba(167, 139, 250, 0.12)',
+          backgroundColor: 'transparent',
           borderWidth: 2,
           tension: 0.4,
-          fill: true,
+          fill: false,
           pointRadius: 4,
           pointBackgroundColor: '#ffffff',
           pointBorderColor: '#8B5CF6',
@@ -197,8 +260,21 @@ export default function Graph({
         },
       ],
     }),
-    [],
+    [chartLabels, monthlyVariablePayOverview],
   );
+
+  const maxVariablePay = useMemo(() => {
+    if (!monthlyVariablePayOverview?.items?.length) return 100;
+
+    const maxValue = Math.max(
+      ...monthlyVariablePayOverview.items.map(
+        (item: MonthlyVariablePayOverviewItem) => item.totalVariablePay,
+      ),
+    );
+
+    if (!Number.isFinite(maxValue) || maxValue <= 0) return 100;
+    return Math.ceil(maxValue * 1.15);
+  }, [monthlyVariablePayOverview]);
 
   const lineOptions: ChartOptions<'line'> = useMemo(
     () => ({
@@ -224,6 +300,10 @@ export default function Graph({
             color: '#E5E7EB',
             borderDash: [3, 3],
           },
+          border: {
+            color: '#E5E7EB',
+            dash: [3, 3],
+          },
           ticks: {
             font: { size: 9 },
             maxRotation: 0,
@@ -231,20 +311,30 @@ export default function Graph({
         },
         y: {
           min: 0,
-          max: 100,
+          max: maxVariablePay,
           ticks: {
-            stepSize: 20,
             font: { size: 9 },
             padding: 4,
+            callback: (value) => {
+              if (typeof value !== 'number') return value;
+              return new Intl.NumberFormat('en', {
+                notation: 'compact',
+                maximumFractionDigits: 1,
+              }).format(value);
+            },
           },
           grid: {
             color: '#E5E7EB',
             borderDash: [3, 3],
           },
+          border: {
+            color: '#E5E7EB',
+            dash: [3, 3],
+          },
         },
       },
     }),
-    [],
+    [maxVariablePay],
   );
 
   const title =
@@ -252,8 +342,8 @@ export default function Graph({
 
   return (
     <Card
-      className="rounded-lg border border-gray-200 shadow-sm"
-      styles={{ body: { padding: '10px 12px 12px' } }}
+      className="rounded-lg border border-gray-200 shadow-sm  h-[333px]"
+      styles={{ body: { padding: '12px' } }}
       data-cy={dataCy}
     >
       <div
@@ -261,7 +351,7 @@ export default function Graph({
         data-cy={`${dataCy}-header`}
       >
         <h3
-          className="text-base font-semibold text-gray-900"
+          className="text-base font-bold text-gray-900"
           data-cy={`${dataCy}-title`}
         >
           {title}
@@ -329,11 +419,11 @@ export default function Graph({
           {LEGEND_ITEMS.map((item) => (
             <div
               key={item.label}
-              className="box-border flex h-[28px] w-[79px] shrink-0 items-center gap-1 p-1 opacity-100"
+              className="flex h-[28px] w-[79px] shrink-0 items-center gap-2 p-1 opacity-100"
               data-cy={`${dataCy}-legend-item-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
             >
               <span
-                className="inline-block shrink-0 border border-[#d9d9d9] opacity-100"
+                className="inline-block shrink-0  opacity-100"
                 style={{
                   width: 8,
                   height: 8,
@@ -343,7 +433,7 @@ export default function Graph({
                 data-cy={`${dataCy}-legend-swatch-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
               />
               <span
-                className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[10px] font-normal leading-5 text-[#595959] opacity-100"
+                className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-normal leading-5 text-black/70 opacity-100"
                 title={item.label}
                 data-cy={`${dataCy}-legend-label-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
               >
@@ -354,7 +444,7 @@ export default function Graph({
         </div>
       ) : null}
       <div
-        className="h-[168px] w-full min-w-0 sm:h-[200px]"
+        className="h-[255px] w-full min-w-0 sm:h-[250px]"
         data-cy={`${dataCy}-chart`}
       >
         {salaryChartView === 'salary-breakdown' ? (
