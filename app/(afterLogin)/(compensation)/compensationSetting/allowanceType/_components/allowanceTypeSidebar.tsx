@@ -470,26 +470,26 @@ const AllowanceTypeSideBar = ({
                       style={{ height: 40, padding: '8px 12px' }}
                     />
                   </Form.Item>
-
-                  <Form.Item
-                    name="isAllEmployee"
-                    label="All Employees are entitled"
-                    valuePropName="checked"
-                    className="form-item !mb-0"
-                    initialValue={true}
-                    id="compensation-settings-allowance-sidebar-all-item"
-                    data-cy="compensation-settings-allowance-sidebar-all-item"
-                  >
-                    <Switch
-                      onChange={handleAllEmployeeChange}
-                      checked={isAllEmployee}
-                      disabled={Boolean(selectedAllowanceRecord)}
-                      id="compensation-settings-allowance-sidebar-all-switch"
-                      data-cy="compensation-settings-allowance-sidebar-all-switch"
-                    />
-                  </Form.Item>
                 </div>
               )}
+
+              <Form.Item
+                name="isAllEmployee"
+                label="All Employees are entitled"
+                valuePropName="checked"
+                className="form-item !mb-0"
+                initialValue={true}
+                id="compensation-settings-allowance-sidebar-all-item"
+                data-cy="compensation-settings-allowance-sidebar-all-item"
+              >
+                <Switch
+                  onChange={handleAllEmployeeChange}
+                  checked={isAllEmployee}
+                  disabled={Boolean(selectedAllowanceRecord)}
+                  id="compensation-settings-allowance-sidebar-all-switch"
+                  data-cy="compensation-settings-allowance-sidebar-all-switch"
+                />
+              </Form.Item>
 
               {!isAllEmployee && !selectedAllowanceRecord && (
                 <Form.Item
