@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, Checkbox, Spin, Empty } from 'antd';
+import { Modal, Button, Checkbox, Spin } from 'antd';
 import {
   useUpdateCreateWeeklyPriorityBulk,
   useCreateWeeklyPriorityBulk,
@@ -146,7 +146,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
     <div data-cy="weekly-priority-modal-wrapper">
       <style data-cy="weekly-priority-modal-styles">{`
         .pixel-perfect-modal .ant-modal-content {
-          border-radius: 16px;
+          border-radius: 8px;
           padding: 0;
           overflow: hidden;
           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -301,17 +301,16 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
                 })}
               </div>
             ) : (
-              <div className="py-24" data-cy="weekly-priority-modal-empty">
-                <Empty
-                  description={
-                    <span
-                      className="text-gray-400 font-medium"
-                      data-cy="weekly-priority-modal-empty-text"
-                    >
-                      Please add {planningType} plan first
-                    </span>
-                  }
-                />
+              <div
+                className="py-24 text-center"
+                data-cy="weekly-priority-modal-empty"
+              >
+                <span
+                  className="text-[16px] text-gray-400 font-medium"
+                  data-cy="weekly-priority-modal-empty-text"
+                >
+                  Please add {planningType} plan first
+                </span>
               </div>
             )}
           </div>
