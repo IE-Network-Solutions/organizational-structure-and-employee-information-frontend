@@ -87,6 +87,12 @@ import {
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useRouter } from 'next/navigation';
+import {
+  MdAccountBalanceWallet,
+  MdAttachMoney,
+  MdCardGiftcard,
+  MdComputer,
+} from 'react-icons/md';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1604,21 +1610,48 @@ const Payroll = () => {
               title="Total Amount"
               data-cy="payroll-summary-card-total-amount-view-component"
               value={payrollForExport?.totalGrossPaymentAmount}
+              icon={<MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />}
+              iconBg="bg-[#E6F4FF]"
+              iconText="text-[#1E40AF]"
             />
             <PayrollCard
               title="Net Paid Amount"
               data-cy="payroll-summary-card-net-paid-view-component"
               value={payrollForExport?.totalNetPayAmount}
+              icon={
+                <MdAccountBalanceWallet
+                  data-cy="payroll-summary-card-net-paid-amount-icon"
+                  className="w-5 h-5"
+                />
+              }
+              iconBg="bg-[#F9F0FF]"
+              iconText="text-[#722ED1]"
             />
             <PayrollCard
               title="Total Allowance"
               data-cy="payroll-summary-card-total-allowance-view-component"
               value={payrollForExport?.totalAllowanceAmount}
+              icon={
+                <MdComputer
+                  data-cy="payroll-summary-card-total-allowance-icon"
+                  className="w-5 h-5"
+                />
+              }
+              iconBg="bg-white"
+              iconText="text-[#52C41A]"
             />
             <PayrollCard
               title="Total Benefit"
               data-cy="payroll-summary-card-total-benefit-view-component"
               value={payrollForExport?.totalMeritAmount}
+              icon={
+                <MdCardGiftcard
+                  data-cy="payroll-summary-card-total-benefit-icon"
+                  className="w-5 h-5"
+                />
+              }
+              iconBg="bg-[#FFFBE6]"
+              iconText="text-[#FBB221]"
             />
             <PayrollCard
               title="Total Deduction"

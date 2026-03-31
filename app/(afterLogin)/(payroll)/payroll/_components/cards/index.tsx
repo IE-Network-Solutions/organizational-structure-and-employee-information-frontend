@@ -6,16 +6,28 @@ interface PayrollCardProps {
   title?: string;
   value?: string;
   growth?: string;
+  icon?: React.ReactNode;
+  iconBg?: string;
+  iconText?: string;
+  'data-cy'?: string;
 }
 
-const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
+const PayrollCard: React.FC<PayrollCardProps> = ({
+  title,
+  value,
+  growth,
+  icon,
+  iconBg,
+  iconText,
+  'data-cy': dataCy,
+}) => {
   const growthNum = parseFloat(growth || '0');
   const isPositive = growthNum >= 0;
 
   return (
     <div
       id="payroll-summary-card-view-column"
-      data-cy="payroll-summary-card-view-column"
+      data-cy={dataCy || 'payroll-summary-card-view-column'}
       className="w-full min-w-0 lg:w-auto lg:min-w-[calc(25%-12px)] lg:flex-shrink-0"
     >
       <Card
@@ -29,13 +41,34 @@ const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
         }}
         styles={{ body: { padding: '20px' } }}
       >
-        <p
-          id="payroll-summary-card-title-view-text"
-          data-cy="payroll-summary-card-title-view-text"
-          className="text-gray-500 mb-2 text-sm"
+        <div
+          id="payroll-summary-card-title-row"
+          data-cy="payroll-summary-card-title-row"
+          className="flex items-center gap-2 mb-2"
         >
-          {title}
-        </p>
+          {icon && (
+            <span
+              id="payroll-summary-card-icon-badge"
+              data-cy="payroll-summary-card-icon-badge"
+              className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${iconBg || 'bg-gray-100'} ${iconText || 'text-gray-500'}`}
+            >
+              <span
+                id="payroll-summary-card-icon"
+                data-cy="payroll-summary-card-icon"
+                className="inline-flex items-center justify-center leading-none"
+              >
+                {icon}
+              </span>
+            </span>
+          )}
+          <p
+            id="payroll-summary-card-title-view-text"
+            data-cy="payroll-summary-card-title-view-text"
+            className="text-gray-500 m-0 text-sm"
+          >
+            {title}
+          </p>
+        </div>
         <h3
           id="payroll-summary-card-value-view-text"
           data-cy="payroll-summary-card-value-view-text"
