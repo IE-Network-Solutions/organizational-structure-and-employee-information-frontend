@@ -218,10 +218,7 @@ const GroupPermission = () => {
   const renderStepContent = () => {
     if (currentStep === 0) {
       return (
-        <div
-          data-cy="settings-group-permission-form-step-0"
-          className=""
-        >
+        <div data-cy="settings-group-permission-form-step-0" className="">
           <div
             className="grid gap-4 border border-[#d9d9d9] rounded-md p-4"
             id="settings-group-permission-form-div"
