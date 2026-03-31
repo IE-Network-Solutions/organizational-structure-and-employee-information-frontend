@@ -58,7 +58,10 @@ const FilterPopover: React.FC = () => {
         className="px-6 py-2"
         data-cy="filter-popover-header"
       >
-        <div className="flex justify-between items-center">
+        <div
+          className="flex justify-between items-center"
+          data-cy="filter-popover-header-row"
+        >
           <span
             className="font-bold text-[16px] text-black/70"
             data-cy="filter-popover-title"
@@ -70,6 +73,7 @@ const FilterPopover: React.FC = () => {
             icon={
               <HiX
                 className="text-gray-400 text-[16px] w-[16px] h-[16px] inline-block"
+                data-cy="filter-popover-close-icon"
               />
             }
             onClick={() => setOpen(false)}
