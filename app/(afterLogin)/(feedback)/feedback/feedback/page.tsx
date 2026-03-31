@@ -3,10 +3,12 @@ import {
   Avatar,
   Button,
   DatePicker,
+  Empty,
   Form,
   Modal,
   Popconfirm,
   Select,
+  Spin,
   Table,
   Tooltip,
 } from 'antd';
@@ -59,8 +61,6 @@ const Page = () => {
     setEmpId,
     givenDate,
     setGivenDate,
-    feedbackListPerspective,
-    setFeedbackListPerspective,
     feedbackListTypeId,
     setFeedbackListTypeId,
     pageSize,
@@ -76,7 +76,7 @@ const Page = () => {
     useFetchAllFeedbackRecord({
       variantType,
       feedbackTypeId: feedbackListTypeId,
-      feedbackPerspective: feedbackListPerspective,
+      feedbackPerspective: null,
       userId,
       pageSize,
       empId,
@@ -97,9 +97,6 @@ const Page = () => {
   const [filterDraftDate, setFilterDraftDate] = useState<
     [string, string] | null
   >(null);
-  const [filterDraftShowMode, setFilterDraftShowMode] = useState<
-    'givenBy' | 'issuedTo'
-  >('givenBy');
   const [filterDraftType, setFilterDraftType] = useState<string | undefined>(
     undefined,
   );
@@ -123,7 +120,7 @@ const Page = () => {
     useFetchAllFeedbackRecordForExport({
       variantType,
       feedbackTypeId: feedbackListTypeId,
-      feedbackPerspective: feedbackListPerspective,
+      feedbackPerspective: null,
       userId: 'all',
       empId,
       givenDate,
@@ -136,21 +133,6 @@ const Page = () => {
 
   const appliedFilterChips = useMemo(() => {
     const chips: { key: string; label: string; onRemove: () => void }[] = [];
-
-    const canSeePerspective = AccessGuard.checkAccess({
-      permissions: [Permissions.ViewAllEmployeeFeedback],
-    });
-
-    if (canSeePerspective && feedbackListPerspective) {
-      chips.push({
-        key: 'perspective',
-        label: feedbackListPerspective === 'givenBy' ? 'Given By' : 'Issued to',
-        onRemove: () => {
-          setFeedbackListPerspective(null);
-          setPage(1);
-        },
-      });
-    }
 
     if (
       Array.isArray(givenDate) &&
@@ -190,11 +172,9 @@ const Page = () => {
 
     return chips;
   }, [
-    feedbackListPerspective,
     feedbackListTypeId,
     givenDate,
     getAllFeedbackTypes?.items,
-    setFeedbackListPerspective,
     setFeedbackListTypeId,
     setGivenDate,
     setPage,
@@ -740,7 +720,6 @@ const Page = () => {
                     : null,
                 );
                 setFilterDraftType(feedbackListTypeId);
-                setFilterDraftShowMode(feedbackListPerspective ?? 'givenBy');
                 setFilterModalOpen(true);
               }}
               className="flex !h-8 shrink-0 items-center gap-2 !rounded-md !border !border-[#D9D9D9] !bg-white !px-3 !text-sm !font-normal !text-[#374151] shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#d1d5db] md:!border-[#e5e7eb] md:shadow-none"
@@ -761,9 +740,20 @@ const Page = () => {
             data-cy="feedback-page-table-scroll-container"
           >
             <Table
-              loading={getFeedbackRecordLoading}
               dataSource={getAllFeedbackRecord?.items}
               columns={columns}
+              locale={{
+                emptyText: getFeedbackRecordLoading ? (
+                  <div
+                    className="flex min-h-[220px] items-center justify-center"
+                    data-cy="feedback-page-table-loading"
+                  >
+                    <Spin size="large" />
+                  </div>
+                ) : (
+                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                ),
+              }}
               rowClassName={(row, index) =>
                 `feedback-table-row ${index % 2 === 1 ? 'feedback-table-row--alt' : 'feedback-table-row--base'}`
               }
@@ -898,103 +888,6 @@ const Page = () => {
               />
             </div>
 
-            <AccessGuard
-              permissions={[Permissions.ViewAllEmployeeFeedback]}
-              data-cy="feedback-filter-modal-perspective-guard"
-            >
-              <div
-                className="flex max-w-[461px] flex-row flex-wrap gap-3"
-                data-cy="feedback-filter-modal-show-mode-group"
-              >
-                <button
-                  type="button"
-                  onClick={() => setFilterDraftShowMode('givenBy')}
-                  className={`box-border flex min-h-[54px] w-[224px] shrink-0 cursor-pointer flex-col items-start justify-center gap-0 rounded-md border border-solid bg-white px-[14px] py-1.5 transition-colors ${
-                    filterDraftShowMode === 'givenBy'
-                      ? 'border-[#1E40AF]'
-                      : 'border-[#D9D9D9] hover:border-[#bfbfbf]'
-                  }`}
-                  data-cy="feedback-filter-modal-show-given-by"
-                >
-                  <div
-                    className="flex flex-row items-center gap-2"
-                    data-cy="feedback-filter-modal-show-given-by-row"
-                  >
-                    <span
-                      className={`relative box-border flex h-4 w-4 shrink-0 rounded-full border border-solid bg-white ${
-                        filterDraftShowMode === 'givenBy'
-                          ? 'border-[#1E40AF]'
-                          : 'border-[#D9D9D9]'
-                      }`}
-                      data-cy="feedback-filter-modal-show-given-by-icon"
-                    >
-                      {filterDraftShowMode === 'givenBy' ? (
-                        <span
-                          className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1E40AF]"
-                          data-cy="feedback-filter-modal-show-given-by-active-dot"
-                        />
-                      ) : null}
-                    </span>
-                    <span
-                      className="text-sm font-normal leading-[22px] text-black/[0.7]"
-                      data-cy="feedback-filter-modal-show-given-by-text"
-                    >
-                      Show Given By
-                    </span>
-                  </div>
-                  <span
-                    className="mt-0 text-xs font-normal leading-5 text-black/[0.45]"
-                    data-cy="feedback-filter-modal-show-given-by-subtext"
-                  >
-                    Only show received Appreciations
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFilterDraftShowMode('issuedTo')}
-                  className={`box-border flex min-h-[54px] w-[224px] shrink-0 cursor-pointer flex-col items-start justify-center gap-0 rounded-md border border-solid bg-white px-[14px] py-1.5 transition-colors ${
-                    filterDraftShowMode === 'issuedTo'
-                      ? 'border-[#1E40AF]'
-                      : 'border-[#D9D9D9] hover:border-[#bfbfbf]'
-                  }`}
-                  data-cy="feedback-filter-modal-show-issued-to"
-                >
-                  <div
-                    className="flex flex-row items-center gap-2"
-                    data-cy="feedback-filter-modal-show-issued-to-row"
-                  >
-                    <span
-                      className={`relative box-border flex h-4 w-4 shrink-0 rounded-full border border-solid bg-white ${
-                        filterDraftShowMode === 'issuedTo'
-                          ? 'border-[#1E40AF]'
-                          : 'border-[#D9D9D9]'
-                      }`}
-                      data-cy="feedback-filter-modal-show-issued-to-icon"
-                    >
-                      {filterDraftShowMode === 'issuedTo' ? (
-                        <span
-                          className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1E40AF]"
-                          data-cy="feedback-filter-modal-show-issued-to-active-dot"
-                        />
-                      ) : null}
-                    </span>
-                    <span
-                      className="text-sm font-normal leading-[22px] text-black/[0.7]"
-                      data-cy="feedback-filter-modal-show-issued-to-text"
-                    >
-                      Show Issued to
-                    </span>
-                  </div>
-                  <span
-                    className="mt-0 text-xs font-normal leading-5 text-black/[0.45]"
-                    data-cy="feedback-filter-modal-show-issued-to-subtext"
-                  >
-                    Only show issued Appreciations
-                  </span>
-                </button>
-              </div>
-            </AccessGuard>
-
             <div
               className="flex w-full max-w-[461px] flex-col"
               data-cy="feedback-filter-modal-type-section"
@@ -1036,10 +929,8 @@ const Page = () => {
               type="default"
               onClick={() => {
                 setFilterDraftDate(null);
-                setFilterDraftShowMode('givenBy');
                 setFilterDraftType(undefined);
                 setGivenDate([]);
-                setFeedbackListPerspective(null);
                 setFeedbackListTypeId(undefined);
                 setFilterModalOpen(false);
               }}
@@ -1055,15 +946,6 @@ const Page = () => {
                   setGivenDate(filterDraftDate);
                 } else {
                   setGivenDate([]);
-                }
-                if (
-                  AccessGuard.checkAccess({
-                    permissions: [Permissions.ViewAllEmployeeFeedback],
-                  })
-                ) {
-                  setFeedbackListPerspective(filterDraftShowMode);
-                } else {
-                  setFeedbackListPerspective(null);
                 }
                 setFeedbackListTypeId(
                   filterDraftType === null || filterDraftType === undefined
