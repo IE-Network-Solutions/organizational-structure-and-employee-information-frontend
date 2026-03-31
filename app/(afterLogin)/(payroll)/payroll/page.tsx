@@ -1192,8 +1192,8 @@ const Payroll = () => {
       data-cy="payroll-dashboard-view-container"
       className={
         isMobile
-          ? 'bg-white pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))]'
-          : 'min-h-screen bg-white p-6'
+          ? 'bg-white pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 -mx-2 w-[calc(100%+16px)] px-4'
+          : 'min-h-screen bg-white py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6'
       }
     >
       <style data-cy="payroll-dashboard-full-bleed-divider-styles">{`
@@ -1209,7 +1209,7 @@ const Payroll = () => {
       <div
         id="payroll-dashboard-inner-wrapper"
         data-cy="payroll-dashboard-inner-wrapper"
-        className={isMobile ? '' : 'max-w-[1536px] mx-auto'}
+        className="w-full"
       >
         {/* Header Section */}
         <div
