@@ -350,15 +350,15 @@ const EmployeeSurveyTable: React.FC = () => {
       id="employeeSurveyTablePage"
     >
       <div
-        className="flex flex-col gap-4 mb-6 p-3 md:flex-row md:justify-between"
+        className="mb-6 flex flex-wrap items-center gap-3 p-3"
         data-cy="employee-survey-table-filters"
         id="employeeSurveyTableFilters"
       >
-        <div className="flex items-center gap-3 w-full">
+        <div className="order-1 flex min-w-0 flex-1 items-center gap-3 md:w-[300px] md:flex-none">
           <Select
             showSearch
             placeholder="Search Employee"
-            className="h-8 rounded-lg border border-gray-400 p-0 m-0 w-full md:w-[300px]"
+            className="m-0 h-8 w-full rounded-lg border border-gray-400 p-0"
             allowClear
             loading={empLoading}
             suffixIcon={
@@ -381,7 +381,37 @@ const EmployeeSurveyTable: React.FC = () => {
             data-cy="employee-survey-table-employee-filter"
             id="employeeSurveyTableEmployeeFilter"
           />
+        </div>
 
+        <div
+          className="order-3 flex w-full flex-wrap items-center justify-center gap-2 md:order-2 md:w-auto md:flex-1"
+          id="employee-survey-table-active-filters"
+          data-cy="employee-survey-table-active-filters"
+        >
+          {getActiveFilters().map((filter) => (
+            <Tag
+              key={filter.key}
+              closable
+              onClose={() => removeFilter(filter.key)}
+              className="bg-white text-blue border-blue rounded-lg px-3 py-1 flex items-center text-sm font-medium"
+              id={`employee-survey-table-filter-tag-${filter.key}`}
+              data-cy={`employee-survey-table-filter-tag-${filter.key}`}
+              closeIcon={
+                <span
+                  className="text-blue hover:!text-[#FF8787] ml-2 text-base"
+                  id={`employee-survey-table-filter-tag-close-icon-${filter.key}`}
+                  data-cy={`employee-survey-table-filter-tag-close-icon-${filter.key}`}
+                >
+                  ×
+                </span>
+              }
+            >
+              {filter.label}
+            </Tag>
+          ))}
+        </div>
+
+        <div className="order-2 shrink-0 md:order-3 md:ml-auto">
           <Popover
             placement="bottomRight"
             trigger="click"
@@ -456,7 +486,7 @@ const EmployeeSurveyTable: React.FC = () => {
             <Button
               type="default"
               size="large"
-              className="h-8 px-6 rounded-lg bg-blue-600 border-gray-300 flex items-center gap-2 shrink-0"
+              className="h-8 shrink-0 rounded-lg border-gray-300 bg-blue-600 px-6 flex items-center gap-2"
               id="employee-survey-table-filter-toggle-btn"
               data-cy="employee-survey-table-filter-toggle-btn"
               icon={
@@ -472,41 +502,13 @@ const EmployeeSurveyTable: React.FC = () => {
                 <span
                   id="employee-survey-table-filter-toggle-btn-text"
                   data-cy="employee-survey-table-filter-toggle-btn-text"
-                  className="text-gray-600 text-sm"
+                  className="text-sm text-gray-600"
                 >
                   Filter
                 </span>
               )}
             </Button>
           </Popover>
-        </div>
-
-        <div
-          className="flex items-center gap-2 flex-wrap bg-blue-600 w-full"
-          id="employee-survey-table-active-filters"
-          data-cy="employee-survey-table-active-filters"
-        >
-          {getActiveFilters().map((filter) => (
-            <Tag
-              key={filter.key}
-              closable
-              onClose={() => removeFilter(filter.key)}
-              className="bg-white text-blue border-blue rounded-lg px-3 py-1 flex items-center text-sm font-medium"
-              id={`employee-survey-table-filter-tag-${filter.key}`}
-              data-cy={`employee-survey-table-filter-tag-${filter.key}`}
-              closeIcon={
-                <span
-                  className="text-blue hover:!text-[#FF8787] ml-2 text-base"
-                  id={`employee-survey-table-filter-tag-close-icon-${filter.key}`}
-                  data-cy={`employee-survey-table-filter-tag-close-icon-${filter.key}`}
-                >
-                  ×
-                </span>
-              }
-            >
-              {filter.label}
-            </Tag>
-          ))}
         </div>
       </div>
 
