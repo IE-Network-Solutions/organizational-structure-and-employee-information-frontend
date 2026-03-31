@@ -2,7 +2,13 @@
 
 import React from 'react';
 
-export type StatusBadgeVariant = 'active' | 'paid' | 'pending' | 'unpaid' | 'overdue' | 'neutral';
+export type StatusBadgeVariant =
+  | 'active'
+  | 'paid'
+  | 'pending'
+  | 'unpaid'
+  | 'overdue'
+  | 'neutral';
 
 const variantStyles: Record<StatusBadgeVariant, string> = {
   active: 'bg-green-100 text-green-700',
@@ -35,7 +41,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 );
 
 export function getInvoiceStatusVariant(
-  status: string | undefined
+  status: string | undefined,
 ): StatusBadgeVariant {
   if (!status) return 'neutral';
   switch (status.toLowerCase()) {

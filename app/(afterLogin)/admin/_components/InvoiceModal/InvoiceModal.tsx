@@ -42,6 +42,14 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   const currentPlan = invoiceData?.subscription?.planId
     ? plans.find((p) => p.id === invoiceData.subscription.planId)
     : null;
+  const billingCycleLabel =
+    invoiceData?.subscription?.planPeriod?.periodType?.code ??
+    // Fallback for APIs that return period only in payment metadata target state
+    (invoiceData?.paymentMetadata?.targetState?.plan?.periods ?? []).find(
+      (pp: any) =>
+        pp?.id === invoiceData?.paymentMetadata?.targetState?.planPeriodId,
+    )?.periodType?.code ??
+    '—';
 
   useEffect(() => {
     if (plansData?.items) setPlans(plansData.items);
@@ -113,7 +121,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   };
 
   const payableStatuses = new Set(['pending', 'issued', 'overdue', 'unpaid']);
-  const isPending = payableStatuses.has(invoiceData?.status?.toLowerCase() ?? '');
+  const isPending = payableStatuses.has(
+    invoiceData?.status?.toLowerCase() ?? '',
+  );
 
   return (
     <Modal
@@ -122,32 +132,50 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={null}
-      
       width={560}
       centered
       destroyOnClose
       className="invoice-modal"
       data-cy="invoice-modal"
-      styles={{  content: { padding: "8px 0px" } }}
+      styles={{ content: { padding: '8px 0px' } }}
     >
       {!invoiceId ? (
-        <div className="py-6 text-gray-500 mt-5">No invoice selected.</div>
+        <div
+          data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-143"
+          className="py-6 text-gray-500 mt-5"
+        >
+          No invoice selected.
+        </div>
       ) : isInvoiceLoading ? (
         <Skeleton active paragraph={{ rows: 8 }} />
       ) : !invoiceData ? (
-        <div className="py-6 text-gray-500 mt-5">Invoice not found.</div>
+        <div
+          data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-147"
+          className="py-6 text-gray-500 mt-5"
+        >
+          Invoice not found.
+        </div>
       ) : (
-        <div className="flex flex-col mt-5">
+        <div
+          data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-149"
+          className="flex flex-col mt-5"
+        >
           {/* Invoice summary: number, date, download */}
-          <div className="flex items-start justify-between gap-4 mx-5">
-            <div>
+          <div
+            data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-151"
+            className="flex items-start justify-between gap-4 mx-5"
+          >
+            <div data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-152">
               <h2
                 className="text-xl font-bold text-gray-900"
                 data-cy="invoice-modal-title"
               >
                 Invoice {invoiceData.invoiceNumber}
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p
+                data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-p-159"
+                className="text-sm text-gray-600 mt-1"
+              >
                 {formatDate(invoiceData.invoiceAt)}
               </p>
             </div>
@@ -164,12 +192,18 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
           <Divider className="my-2 border-gray-300" />
 
           {/* Payment Information */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 mb-3 mx-5">
+          <div data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-176">
+            <h3
+              data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-h3-177"
+              className="text-lg font-bold text-gray-900 mb-3 mx-5"
+            >
               Payment Information
             </h3>
             <Divider className="border-gray-300 my-2" />
-            <div className="flex flex-col gap-2 text-sm mx-5">
+            <div
+              data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-181"
+              className="flex flex-col gap-2 text-sm mx-5"
+            >
               {[
                 ['Invoice Number', `#${invoiceData.invoiceNumber}`],
                 ['Issue Date', formatDate(invoiceData.invoiceAt)],
@@ -200,11 +234,20 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 ],
               ].map(([label, value]) => (
                 <div
+                  data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-211"
                   key={String(label)}
                   className="flex justify-between gap-4 items-baseline"
                 >
-                  <span className="text-gray-600">{label}:</span>
-                  <span className="font-medium text-gray-900 text-right">
+                  <span
+                    data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-215"
+                    className="text-gray-600"
+                  >
+                    {label}:
+                  </span>
+                  <span
+                    data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-216"
+                    className="font-medium text-gray-900 text-right"
+                  >
                     {value}
                   </span>
                 </div>
@@ -214,32 +257,60 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
           <Divider className="border-gray-300 my-2" />
 
-
           {/* Plan Detail */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 mb-3 mx-5">
+          <div data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-227">
+            <h3
+              data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-h3-228"
+              className="text-lg font-bold text-gray-900 mb-3 mx-5"
+            >
               Plan Detail
             </h3>
             <Divider className="border-gray-300 my-2" />
 
-            <div className="flex flex-col gap-2 text-sm mx-5">
-              <div className="flex justify-between items-center gap-4">
-                <span className="text-gray-600">Plan Type</span>
+            <div
+              data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-233"
+              className="flex flex-col gap-2 text-sm mx-5"
+            >
+              <div
+                data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-234"
+                className="flex justify-between items-center gap-4"
+              >
+                <span
+                  data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-235"
+                  className="text-gray-600"
+                >
+                  Plan Type
+                </span>
                 <Tag color="blue" className="!rounded-full">
                   {currentPlan?.name ??
                     invoiceData.subscription?.plan?.name ??
                     'N/A'}
                 </Tag>
               </div>
-              <div className="flex justify-between items-center gap-4">
-                <span className="text-gray-600">Billing Cycle</span>
+              <div
+                data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-242"
+                className="flex justify-between items-center gap-4"
+              >
+                <span
+                  data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-243"
+                  className="text-gray-600"
+                >
+                  Billing Cycle
+                </span>
                 <Tag color="blue" className="!rounded-full">
-                  {invoiceData.subscription?.planPeriod?.periodType?.code ??
-                    '—'}
+                  {billingCycleLabel}
                 </Tag>
               </div>
-              <div className="flex justify-between items-center gap-4">
-                <span className="text-gray-600">Status</span>
+              <div
+                data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-248"
+                className="flex justify-between items-center gap-4"
+              >
+                <span
+                  data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-249"
+                  className="text-gray-600"
+                >
+                  Status
+                </span>
                 <Tag
                   color={
                     invoiceData.status?.toLowerCase() === 'paid'
@@ -258,22 +329,34 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
           </div>
           <Divider className="border-gray-300 my-2" />
 
-
           {/* Notes */}
-          <div className='mx-5'>
-            <h3 className="text-lg font-bold text-gray-900">Notes</h3>
-          
+          <div
+            data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-269"
+            className="mx-5"
+          >
+            <h3
+              data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-h3-270"
+              className="text-lg font-bold text-gray-900"
+            >
+              Notes
+            </h3>
           </div>
 
           <Divider className="border-gray-300 my-2" />
 
-          <p className="text-sm text-gray-600 leading-normal mx-5">
-              {invoiceData.notes || '—'}
-            </p>
+          <p
+            data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-p-275"
+            className="text-sm text-gray-600 leading-normal mx-5"
+          >
+            {invoiceData.notes || '—'}
+          </p>
           <Divider className="border-gray-300 my-2" />
 
           {/* Footer actions */}
-          <div className="flex justify-end gap-3 my-5 pt-2 mx-5">
+          <div
+            data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-281"
+            className="flex justify-end gap-3 my-5 pt-2 mx-5"
+          >
             <Button onClick={onClose} data-cy="invoice-modal-cancel">
               Cancel
             </Button>

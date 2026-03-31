@@ -1,15 +1,8 @@
 'use client';
 
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import {
-  AppstoreOutlined,
-  CalendarFilled,
-  CheckCircleFilled,
-  EditFilled,
-} from '@ant-design/icons';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
 import { useEffect, useState } from 'react';
-import { Card, Divider, Skeleton } from 'antd';
+import { Card, Skeleton } from 'antd';
 import React from 'react';
 import {
   Currency,
@@ -22,20 +15,32 @@ import { useGetCurrencies } from '@/store/server/features/tenant-management/curr
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
+import { MdOutlineCheckCircle, MdOutlineReceiptLong } from 'react-icons/md';
+import { TbMailForward } from 'react-icons/tb';
+import { IoWarningOutline } from 'react-icons/io5';
+import { InvoiceModal } from '../_components/InvoiceModal/InvoiceModal';
 
 const BillingPage = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [invoicePage, setInvoicePage] = useState(1);
+  const invoicePageSize = 10;
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
+    null,
+  );
 
   const { data: invoicesData, isLoading: isInvoicesLoading } = useGetInvoices(
     {
       filter: {
         tenantId: DEFAULT_TENANT_ID,
       },
+      page: invoicePage,
+      limit: invoicePageSize,
     },
-    'ASC',
+    'DESC',
     false,
     true,
   );
@@ -225,29 +230,38 @@ const BillingPage = () => {
   const dashboardData = [
     {
       overview: 'Total Invoice',
-      color: '#3636F0',
-      icon: <AppstoreOutlined />,
+      color: '#1E40AF',
+      icon: <MdOutlineReceiptLong size={24} />,
       id: 'totalInvoice',
     },
     {
       overview: 'Issued',
-      color: '#3636F0',
-      icon: <EditFilled />,
+      color: '#1E40AF',
+      icon: <TbMailForward size={24} />,
       id: 'issued',
     },
     {
       overview: 'Paid',
-      color: '#0BA259',
-      icon: <CheckCircleFilled />,
+      color: '#52C41A',
+      icon: <MdOutlineCheckCircle size={24} />,
       id: 'paid',
     },
     {
       overview: 'Overdue',
-      color: '#E03137',
-      icon: <CalendarFilled />,
+      color: '#FF4D4F',
+      icon: <IoWarningOutline size={24} />,
       id: 'overdue',
     },
   ];
+
+  const getTintedBg = (hexColor: string, alpha: number = 0.14) => {
+    const hex = hexColor.replace('#', '');
+    if (hex.length !== 6) return '#EEF4FF';
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
 
   const dashboardValues = [
     {
@@ -274,22 +288,17 @@ const BillingPage = () => {
     currenciesLoading ||
     subscriptionsLoading;
 
-  return (
-    <div
-      id="billing-page"
-      data-cy="billing-page"
-      className="h-auto w-auto px-6 py-6"
-    >
-      <CustomBreadcrumb
-        title="Billing & Invoices"
-        subtitle="Complete Billing Overview"
-        data-cy="billing-page-breadcrumb"
-      />
+  const openInvoiceModal = (invoiceId: string) => {
+    setSelectedInvoiceId(invoiceId);
+    setInvoiceModalOpen(true);
+  };
 
+  return (
+    <div id="billing-page" data-cy="billing-page" className="h-auto w-auto">
       <div
         id="billing-cards"
         data-cy="billing-cards"
-        className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5"
+        className="grid gap-4 mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-4"
       >
         {dashboardData.map((item, idx) => {
           const valueData = dashboardValues.find((v) => v.id === item.id);
@@ -307,10 +316,8 @@ const BillingPage = () => {
               style={{
                 boxShadow: isLoading
                   ? 'none'
-                  : '0px 5px 10px 0px rgba(0, 0, 0, 0.1)',
-                border: isLoading
-                  ? 'none'
-                  : '1px solid rgba(162, 161, 168, 0.2)',
+                  : '0px 2px 8px 0px rgba(0, 0, 0, 0.06)',
+                border: isLoading ? 'none' : '1px solid #E5E7EB',
                 padding: isLoading ? '20px' : '0px',
               }}
             >
@@ -325,22 +332,22 @@ const BillingPage = () => {
                   <div
                     id={`billing-card-${item.id}-header`}
                     data-cy={`billing-card-${item.id}-header`}
-                    className="flex flex-row items-center gap-2 pt-6 pl-4 pr-4 pb-4"
+                    className="flex flex-row items-center gap-2.5 pt-4 pl-4 pr-4 pb-3"
                   >
                     <div
                       id={`billing-card-${item.id}-icon`}
                       data-cy={`billing-card-${item.id}-icon`}
-                      className="bg-gray-100 rounded-md py-2 px-3 w-fit"
+                      className="h-8 w-8 rounded-md flex items-center justify-center"
+                      style={{ backgroundColor: getTintedBg(item.color) }}
                     >
                       {React.cloneElement(item.icon, {
-                        style: { color: item.color },
-                        size: 24,
+                        style: { color: item.color, fontSize: 16 },
                       })}
                     </div>
                     <div
                       id={`billing-card-${item.id}-label`}
                       data-cy={`billing-card-${item.id}-label`}
-                      className="text-sm text-gray-500"
+                      className="text-lg text-gray-700 font-medium leading-none"
                     >
                       {item.overview}
                     </div>
@@ -354,12 +361,15 @@ const BillingPage = () => {
                     <div
                       id={`billing-card-${item.id}-value-container`}
                       data-cy={`billing-card-${item.id}-value-container`}
-                      className="p-4 pt-0"
+                      className="pr-4 pb-4 pt-0 pl-[58px]"
                     >
                       <div
                         id={`billing-card-${item.id}-value`}
                         data-cy={`billing-card-${item.id}-value`}
-                        className={`text-3xl font-bold flex items-center justify-between ${item.id === 'overdue' ? 'text-error' : ''}`}
+                        className={`text-[32px] leading-none font-bold flex items-center justify-between ${item.id === 'overdue' ? 'text-error' : ''}`}
+                        style={
+                          item.id === 'paid' ? { color: item.color } : undefined
+                        }
                       >
                         {valueData?.value}
                       </div>
@@ -372,22 +382,41 @@ const BillingPage = () => {
         })}
       </div>
 
-      <Divider className="my-6" />
-
       <div
         id="billing-invoices-section"
         data-cy="billing-invoices-section"
         className="mb-[35px] mt-[25px] "
       >
+        <h2
+          data-cy="-afterlogin-admin-billing-page-tsx-page-h2-390"
+          className="text-base font-bold text-gray-900 mb-4"
+        >
+          Billing History
+        </h2>
         <InvoicesTable
           data={invoices}
           loading={isLoading}
           plans={plans}
           currencies={currencies}
           subscriptions={subscriptions}
+          totalItems={invoicesData?.meta?.totalItems ?? invoices.length}
+          totalPages={invoicesData?.meta?.totalPages}
+          currentPage={invoicePage}
+          pageSize={invoicePageSize}
+          onPageChange={(page) => setInvoicePage(page)}
+          onInvoiceClick={openInvoiceModal}
+          hideFilters
           data-cy="billing-invoices-table"
         />
       </div>
+      <InvoiceModal
+        open={invoiceModalOpen}
+        invoiceId={selectedInvoiceId}
+        onClose={() => {
+          setInvoiceModalOpen(false);
+          setSelectedInvoiceId(null);
+        }}
+      />
     </div>
   );
 };

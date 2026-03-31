@@ -1,6 +1,6 @@
 'use client';
 
-import { Table, Input, Select, DatePicker, notification } from 'antd';
+import { Table, Input, Select, DatePicker, notification, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   Invoice,
@@ -12,10 +12,12 @@ import {
 import { useState, useEffect } from 'react';
 import { LoadingOutlined } from '@ant-design/icons';
 import { MdOutlineFileDownload } from 'react-icons/md';
+import { RiDeleteBin6Line } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
+import { useDeleteInvoices } from '@/store/server/features/tenant-management/invoices/mutation';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -31,6 +33,11 @@ interface InvoicesTableProps {
   plans: Plan[];
   currencies: Currency[];
   subscriptions?: Subscription[];
+  totalItems?: number;
+  totalPages?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number, size: number) => void;
   /** When provided, row click opens this callback (e.g. open modal) instead of navigating to invoice page */
   onInvoiceClick?: (invoiceId: string) => void;
   /** Hide search and filters (e.g. for dashboard "Recent Billing History") */
@@ -42,6 +49,11 @@ const InvoicesTable = ({
   loading = false,
   currencies,
   subscriptions = [],
+  totalItems,
+  totalPages,
+  currentPage: controlledCurrentPage,
+  pageSize: controlledPageSize,
+  onPageChange,
   onInvoiceClick,
   hideFilters = false,
 }: InvoicesTableProps) => {
@@ -61,8 +73,18 @@ const InvoicesTable = ({
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<
     string | null
   >(null);
+  const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(
+    null,
+  );
   const router = useRouter();
   const { isMobile, isTablet } = useIsMobile();
+  const deleteInvoiceMutation = useDeleteInvoices();
+  const effectiveCurrentPage = controlledCurrentPage ?? currentPage;
+  const effectivePageSize = controlledPageSize ?? pageSize;
+  const isControlledPagination =
+    typeof controlledCurrentPage === 'number' &&
+    typeof controlledPageSize === 'number' &&
+    typeof onPageChange === 'function';
 
   const { data: invoiceDetail } = useGetInvoiceDetail(
     selectedInvoiceId || '',
@@ -93,6 +115,10 @@ const InvoicesTable = ({
   }, [invoiceDetail, selectedInvoiceId, data]);
 
   const handlePageChange = (page: number, size: number) => {
+    if (isControlledPagination) {
+      onPageChange?.(page, size);
+      return;
+    }
     setCurrentPage(page);
     setPageSize(size);
   };
@@ -171,6 +197,25 @@ const InvoicesTable = ({
     setDownloadingInvoiceId(invoiceId);
   };
 
+  const handleDeleteInvoice = async (
+    e: React.MouseEvent,
+    invoiceId: string,
+  ) => {
+    e.stopPropagation();
+    try {
+      setDeletingInvoiceId(invoiceId);
+      await deleteInvoiceMutation.mutateAsync([invoiceId]);
+    } catch (error) {
+      notification.error({
+        message: 'Delete Failed',
+        description:
+          error instanceof Error ? error.message : 'Failed to delete invoice.',
+      });
+    } finally {
+      setDeletingInvoiceId(null);
+    }
+  };
+
   const columns: ColumnsType<Invoice> = [
     {
       title: 'Invoice ID',
@@ -198,11 +243,6 @@ const InvoicesTable = ({
           data-cy={`invoice-plan-${subscriptionId}`}
           className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap"
         >
-          <span
-            id={`invoice-plan-indicator-${subscriptionId}`}
-            data-cy={`invoice-plan-indicator-${subscriptionId}`}
-            className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary"
-          />
           <span
             id={`invoice-plan-name-${subscriptionId}`}
             data-cy={`invoice-plan-name-${subscriptionId}`}
@@ -244,33 +284,25 @@ const InvoicesTable = ({
       title: 'Status',
       dataIndex: 'status',
       render: (status: InvoiceStatus) => {
-        let className = '';
-
-        switch (status) {
-          case InvoiceStatus.PENDING:
-            className = 'text-orange bg-orange/10';
-            break;
-          case InvoiceStatus.PAID:
-            className = 'text-green-600 bg-green-100';
-            break;
-          case InvoiceStatus.OVERDUE:
-            className = 'text-red-600 bg-red-100';
-            break;
-          case InvoiceStatus.CANCELLED:
-            className = 'text-gray-400 bg-gray-200';
-            break;
-          default:
-            className = 'text-orange-600 bg-orange-100';
-        }
+        const normalized = String(status).toLowerCase();
+        const tagColor =
+          normalized === InvoiceStatus.PAID
+            ? 'success'
+            : normalized === InvoiceStatus.OVERDUE
+              ? 'error'
+              : normalized === InvoiceStatus.CANCELLED
+                ? 'default'
+                : 'warning';
 
         return (
-          <span
+          <Tag
             id={`invoice-status-${status}`}
             data-cy={`invoice-status-${status}`}
-            className={`rounded-lg px-2 py-2 text-sm font-medium ${className}`}
+            className="rounded-md px-2 py-1 text-sm font-medium m-0"
+            color={tagColor}
           >
-            {status}
-          </span>
+            {String(status)}
+          </Tag>
         );
       },
     },
@@ -287,6 +319,9 @@ const InvoicesTable = ({
       render: (...args: [string, Invoice]) => {
         const record = args[1];
         const isDownloadingThis = downloadingInvoiceId === record.id;
+        const isDeletingThis = deletingInvoiceId === record.id;
+        const isPendingInvoice =
+          String(record.status).toLowerCase() === 'pending';
 
         return (
           <div
@@ -316,11 +351,52 @@ const InvoicesTable = ({
                 />
               )}
             </button>
+
+            {isPendingInvoice && (
+              <button
+                id={`invoice-delete-${record.id}`}
+                data-cy={`invoice-delete-${record.id}`}
+                onClick={(e) => handleDeleteInvoice(e, record.id)}
+                className="hover:opacity-75 transition-opacity"
+                disabled={isDeletingThis}
+                title="Delete invoice"
+              >
+                {isDeletingThis ? (
+                  <LoadingOutlined
+                    id={`invoice-delete-indicator-${record.id}`}
+                    data-cy={`invoice-delete-indicator-${record.id}`}
+                    className="w-5 h-5 text-red-500"
+                    spin
+                  />
+                ) : (
+                  <RiDeleteBin6Line
+                    id={`invoice-delete-icon-${record.id}`}
+                    data-cy={`invoice-delete-icon-${record.id}`}
+                    className="w-5 h-5 min-w-5 min-h-5 text-red-500"
+                  />
+                )}
+              </button>
+            )}
           </div>
         );
       },
     },
   ];
+
+  const paginatedData = isControlledPagination
+    ? filteredData
+    : filteredData.slice(
+        (effectiveCurrentPage - 1) * effectivePageSize,
+        effectiveCurrentPage * effectivePageSize,
+      );
+  const controlledTotal =
+    totalItems ??
+    (typeof totalPages === 'number' && totalPages > 0
+      ? totalPages * effectivePageSize
+      : undefined);
+  const paginationTotal = isControlledPagination
+    ? (controlledTotal ?? filteredData.length)
+    : filteredData.length;
 
   return (
     <div id="invoices-table-container" data-cy="invoices-table-container">
@@ -379,34 +455,35 @@ const InvoicesTable = ({
         id="invoices-table"
         data-cy="invoices-table"
         columns={columns}
-        dataSource={filteredData.slice(
-          (currentPage - 1) * pageSize,
-          currentPage * pageSize,
-        )}
+        dataSource={paginatedData}
         rowKey="id"
         scroll={{ x: true }}
         loading={loading}
         onRow={(record) => ({
           onClick: () => handleRowClick(record.id),
         })}
-        rowClassName={() => 'cursor-pointer'}
+        rowClassName={(record, index) =>
+          `${record.id ? 'cursor-pointer' : 'cursor-pointer'} ${
+            index % 2 === 1 ? '!bg-[#FAFAFA]' : '!bg-white'
+          }`
+        }
         pagination={false}
       />
-      {filteredData.length > 0 && (
+      {paginationTotal > 0 && (
         <>
           {isMobile || isTablet ? (
             <CustomMobilePagination
-              totalResults={filteredData.length}
-              pageSize={pageSize}
-              currentPage={currentPage}
+              totalResults={paginationTotal}
+              pageSize={effectivePageSize}
+              currentPage={effectiveCurrentPage}
               onChange={handlePageChange}
               onShowSizeChange={(page, size) => handlePageChange(page, size)}
             />
           ) : (
             <CustomPagination
-              current={currentPage}
-              total={filteredData.length}
-              pageSize={pageSize}
+              current={effectiveCurrentPage}
+              total={paginationTotal}
+              pageSize={effectivePageSize}
               onChange={handlePageChange}
               onShowSizeChange={(size) => handlePageChange(1, size)}
               hidePageSizeSelect

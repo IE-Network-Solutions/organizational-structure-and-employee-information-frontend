@@ -7,7 +7,6 @@ import {
   Input,
   InputNumber,
   Radio,
-  Checkbox,
   Tooltip,
   Tag,
   Divider,
@@ -15,7 +14,6 @@ import {
 } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { AiOutlineQuestionCircle } from 'react-icons/ai';
-import { useRouter } from 'next/navigation';
 import {
   Module,
   Plan,
@@ -26,10 +24,12 @@ import {
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import { useCalculateSubscriptionPrice } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import {
   useCreateSubscription,
   usePrepaySubscription,
+  useRenewSubscription,
   useUpgradeSubscription,
 } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
 import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
@@ -71,7 +71,6 @@ const orderModulesForPlanCard = (catalog: Module[], plan: Plan): Module[] => {
 export const ManageSubscriptionModal: React.FC<
   ManageSubscriptionModalProps
 > = ({ open, onClose, onContinueToInvoice }) => {
-  const router = useRouter();
   const { setTransactionType } = usePaymentStore();
   /** Select active plan once per modal open (after data is ready). */
   const defaultSelectionAppliedRef = useRef(false);
@@ -80,10 +79,11 @@ export const ManageSubscriptionModal: React.FC<
   const [plans, setPlans] = useState<Plan[]>([]);
   const [activeSubscription, setActiveSubscription] =
     useState<Subscription | null>(null);
+  const [latestSubscription, setLatestSubscription] =
+    useState<Subscription | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [seatCount, setSeatCount] = useState<number>(10);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [prepayNow, setPrepayNow] = useState(false);
   /** Which billing period (by period type id) is selected — must exist on the selected plan's `periods`. */
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
     string | null
@@ -95,6 +95,7 @@ export const ManageSubscriptionModal: React.FC<
     true,
     true,
   );
+  const { data: employeeStatus } = useGetEmployeeStatus('');
   const { data: modulesData, isLoading: modulesLoading } = useGetModules(
     { filter: { isActive: true } },
     true,
@@ -102,6 +103,7 @@ export const ManageSubscriptionModal: React.FC<
   );
   const createSubscriptionMutation = useCreateSubscription();
   const upgradeSubscriptionMutation = useUpgradeSubscription();
+  const renewSubscriptionMutation = useRenewSubscription();
   const prepaySubscriptionMutation = usePrepaySubscription();
 
   const allModulesSorted = useMemo(() => {
@@ -120,19 +122,35 @@ export const ManageSubscriptionModal: React.FC<
   }, [plansData]);
 
   useEffect(() => {
-    if (subscriptionsData?.items) {
-      const active = subscriptionsData.items.find(
-        (s: Subscription) => s.isActive === true,
-      );
-      setActiveSubscription(active ?? null);
-      if (active?.slotTotal) setSeatCount(active.slotTotal);
+    if (!subscriptionsData?.items?.length) {
+      setActiveSubscription(null);
+      setLatestSubscription(null);
+      return;
     }
+
+    const items = subscriptionsData.items as Subscription[];
+    const active = items.find((s: Subscription) => s.isActive === true) ?? null;
+    const sorted = [...items].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime(),
+    );
+    const latest = sorted[0] ?? null;
+
+    setActiveSubscription(active);
+    setLatestSubscription(latest);
+
+    const baselineSubscription = active ?? latest;
+    if (baselineSubscription?.slotTotal)
+      setSeatCount(baselineSubscription.slotTotal);
   }, [subscriptionsData]);
 
-  /** Currency of the tenant's active subscription plan (only show paid plans in this currency). */
+  /** Currency must follow the tenant's current/most-recent subscription plan. */
   const activePlanCurrencyId =
     activeSubscription?.plan?.currencyId ??
     activeSubscription?.currencyId ??
+    latestSubscription?.plan?.currencyId ??
+    latestSubscription?.currencyId ??
     null;
 
   const visiblePlans = useMemo(() => {
@@ -161,7 +179,6 @@ export const ManageSubscriptionModal: React.FC<
       defaultSelectionAppliedRef.current = false;
       periodManuallySelectedRef.current = false;
       planManuallySelectedRef.current = false;
-      setPrepayNow(false);
       return;
     }
     if (!visiblePlans.length) return;
@@ -287,9 +304,20 @@ export const ManageSubscriptionModal: React.FC<
     ? getPlanPeriodForSelection(selectedPlan, selectedPeriodTypeId)
     : undefined;
 
-  const currentSlotTotal = activeSubscription?.slotTotal ?? 0;
-  const isSeatDecreased = !!activeSubscription && seatCount < currentSlotTotal;
-  const isSeatIncreased = !!activeSubscription && seatCount > currentSlotTotal;
+  const hasExistingSubscription = !!activeSubscription || !!latestSubscription;
+  const currentSlotTotal =
+    activeSubscription?.slotTotal ?? latestSubscription?.slotTotal ?? 0;
+  const seatsUsed =
+    employeeStatus?.reduce((acc, s) => acc + Number(s.count), 0) ?? 0;
+  const minimumSeatCount =
+    seatsUsed > 0
+      ? Math.max(1, seatsUsed)
+      : currentSlotTotal > 0
+        ? currentSlotTotal
+        : 1;
+  const isSeatDecreased = seatCount < minimumSeatCount;
+  const isSeatIncreased =
+    hasExistingSubscription && seatCount > currentSlotTotal;
   const isPlanChanged =
     !!activeSubscription &&
     !!selectedPlan &&
@@ -326,13 +354,6 @@ export const ManageSubscriptionModal: React.FC<
       (typeof currentPeriodInMonths === 'number' &&
         typeof targetPeriodInMonths === 'number' &&
         targetPeriodInMonths < currentPeriodInMonths));
-
-  const shouldPrepayNow =
-    prepayNow && isScheduledDowngradeForPrepay && !!activeSubscription;
-
-  useEffect(() => {
-    if (!isScheduledDowngradeForPrepay) setPrepayNow(false);
-  }, [isScheduledDowngradeForPrepay]);
 
   const nextBillingDateLabel = activeSubscription?.endAt
     ? new Date(activeSubscription.endAt).toLocaleDateString()
@@ -391,7 +412,7 @@ export const ManageSubscriptionModal: React.FC<
       planId: selectedPlan.id,
       planPeriodId: selectedPlanPeriod.id,
       slotTotal: seatCount,
-      transactionType: shouldPrepayNow
+      transactionType: isScheduledDowngradeForPrepay
         ? TransactionType.PREPAY_SUBSCRIPTION
         : resolvedTransactionType,
       ...(resolvedTransactionType === TransactionType.PURCHASE_SLOTS
@@ -405,7 +426,7 @@ export const ManageSubscriptionModal: React.FC<
     selectedPlanPeriod,
     seatCount,
     resolvedTransactionType,
-    shouldPrepayNow,
+    isScheduledDowngradeForPrepay,
     currentSlotTotal,
     activeSubscription,
   ]);
@@ -454,21 +475,35 @@ export const ManageSubscriptionModal: React.FC<
 
     setIsSubmitting(true);
     setTransactionType(
-      shouldPrepayNow ? TransactionType.PREPAY_SUBSCRIPTION : resolvedTransactionType,
+      isScheduledDowngradeForPrepay
+        ? TransactionType.PREPAY_SUBSCRIPTION
+        : resolvedTransactionType,
     );
     try {
       let response: any;
       if (!activeSubscription) {
-        response = await createSubscriptionMutation.mutateAsync({
-          planId: selectedPlan.id,
-          planPeriodId: selectedPlanPeriod.id,
-          slotTotal: seatCount,
-          tenantId: DEFAULT_TENANT_ID,
-          currencyId: selectedPlan.currency?.id,
-          subscriptionPrice: Number(totalAmount ?? 0),
-          subscriptionStatus: 'pending' as any,
-          isActive: false,
-        } as any);
+        // If tenant already has a previous subscription (e.g. expired), renew it.
+        if (latestSubscription?.id) {
+          response = await renewSubscriptionMutation.mutateAsync({
+            subscriptionId: latestSubscription.id,
+            tenantId: DEFAULT_TENANT_ID,
+            planId: selectedPlan.id,
+            planPeriodId: selectedPlanPeriod.id,
+            slotTotal: seatCount,
+          });
+        } else {
+          // Brand new tenant with no subscription history.
+          response = await createSubscriptionMutation.mutateAsync({
+            planId: selectedPlan.id,
+            planPeriodId: selectedPlanPeriod.id,
+            slotTotal: seatCount,
+            tenantId: DEFAULT_TENANT_ID,
+            currencyId: selectedPlan.currency?.id,
+            subscriptionPrice: Number(totalAmount ?? 0),
+            subscriptionStatus: 'pending' as any,
+            isActive: false,
+          } as any);
+        }
       } else {
         if (resolvedTransactionType === TransactionType.PURCHASE_SLOTS) {
           // Keep slot-only increase routed through the legacy upgrade endpoint.
@@ -479,6 +514,14 @@ export const ManageSubscriptionModal: React.FC<
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
           });
+        } else if (isScheduledDowngradeForPrepay) {
+          response = await prepaySubscriptionMutation.mutateAsync({
+            subscriptionId: activeSubscription.id,
+            tenantId: DEFAULT_TENANT_ID,
+            planId: selectedPlan.id,
+            planPeriodId: selectedPlanPeriod.id,
+            slotTotal: seatCount,
+          });
         } else {
           response = await upgradeSubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
@@ -487,13 +530,6 @@ export const ManageSubscriptionModal: React.FC<
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
           });
-
-          if (shouldPrepayNow) {
-            response = await prepaySubscriptionMutation.mutateAsync({
-              subscriptionId: activeSubscription.id,
-              tenantId: DEFAULT_TENANT_ID,
-            });
-          }
         }
       }
 
@@ -536,12 +572,27 @@ export const ManageSubscriptionModal: React.FC<
       className="manage-subscription-modal"
       data-cy="manage-subscription-modal"
     >
-      <div className="flex flex-col gap-6 w-full min-w-0">
+      <div
+        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-577"
+        className="flex flex-col gap-6 w-full min-w-0"
+      >
         {/* Top controls — equal 3 columns on md+; billing centered in the middle */}
-        <div className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-3 md:items-center md:gap-6">
-          <div className="md:justify-self-start flex w-full min-w-0 flex-wrap items-center gap-2 md:max-w-none">
-            <div className="flex shrink-0 items-center gap-1">
-              <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+        <div
+          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-579"
+          className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-3 md:items-center md:gap-6"
+        >
+          <div
+            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-580"
+            className="md:justify-self-start flex w-full min-w-0 flex-wrap items-center gap-2 md:max-w-none"
+          >
+            <div
+              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-581"
+              className="flex shrink-0 items-center gap-1"
+            >
+              <span
+                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-582"
+                className="text-sm font-medium text-gray-700 whitespace-nowrap"
+              >
                 Number of Seats
               </span>
               <Tooltip title="Total number of user seats for this subscription">
@@ -552,28 +603,50 @@ export const ManageSubscriptionModal: React.FC<
               </Tooltip>
             </div>
             <InputNumber
-              min={activeSubscription?.slotTotal ?? 1}
+              min={minimumSeatCount}
               value={seatCount}
-              onChange={(v) => setSeatCount(v ?? 1)}
+              onChange={(v) =>
+                setSeatCount(
+                  Math.max(minimumSeatCount, Number(v ?? minimumSeatCount)),
+                )
+              }
               className="!w-[112px] max-w-[112px] shrink-0"
               controls={false}
               data-cy="manage-subscription-seats"
             />
             {isSeatDecreased ? (
-              <p className="w-full text-xs text-red-500">
-                Seats cannot be decreased in this flow.
+              <p
+                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-p-605"
+                className="w-full text-xs text-red-500"
+              >
+                Seats cannot be less than your current number of users (
+                {minimumSeatCount}).
               </p>
             ) : null}
           </div>
-          <div className="flex min-w-0 w-full flex-col items-center text-center">
-            <div className="text-sm font-medium mb-1 w-full">Billing</div>
+          <div
+            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-611"
+            className="flex min-w-0 w-full flex-col items-center text-center"
+          >
+            <div
+              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-612"
+              className="text-sm font-medium mb-1 w-full"
+            >
+              Billing
+            </div>
             {billingPeriodOptions.length === 0 ? (
-              <p className="text-xs text-gray-500">
+              <p
+                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-p-614"
+                className="text-xs text-gray-500"
+              >
                 No billing periods returned for this plan.
               </p>
             ) : (
               <>
-                <div className="flex flex-wrap justify-center gap-2 font-medium">
+                <div
+                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-619"
+                  className="flex flex-wrap justify-center gap-2 font-medium"
+                >
                   {displayedBillingPeriodOptions.map((pp) => {
                     const label = formatPeriodLabel(pp);
                     const isActive = selectedPeriodTypeId
@@ -596,28 +669,29 @@ export const ManageSubscriptionModal: React.FC<
                     );
                   })}
                 </div>
-                <p className="text-xs text-gray-400 mt-1 max-w-md">
+                <p
+                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-p-642"
+                  className="text-xs text-gray-400 mt-1 max-w-md"
+                >
                   {selectedPlanPeriod
                     ? `You will be billed ${formatPeriodLabel(selectedPlanPeriod)} for the plan you have chosen.`
                     : ''}
                 </p>
-                {isScheduledDowngradeForPrepay ? (
-                  <div className="w-full flex justify-center mt-2">
-                    <Checkbox
-                      checked={prepayNow}
-                      onChange={(e) => setPrepayNow(e.target.checked)}
-                      data-cy="manage-subscription-prepay"
-                    >
-                      Pay now for next billing cycle (prepay)
-                    </Checkbox>
-                  </div>
-                ) : null}
               </>
             )}
           </div>
-          <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 md:justify-self-end md:max-w-none">
-            <div className="flex shrink-0 items-center gap-1">
-              <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+          <div
+            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-650"
+            className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 md:justify-self-end md:max-w-none"
+          >
+            <div
+              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-651"
+              className="flex shrink-0 items-center gap-1"
+            >
+              <span
+                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-652"
+                className="text-sm font-medium text-gray-700 whitespace-nowrap"
+              >
                 Total Amount
               </span>
               <Tooltip title="Based on selected plan, seats, and billing cycle">
@@ -639,7 +713,10 @@ export const ManageSubscriptionModal: React.FC<
               }
               className="w-full max-w-[160px] shrink-0 font-semibold text-base min-w-0 md:w-[160px]"
               addonAfter={
-                <span className="inline-flex min-w-[40px] items-center justify-center font-semibold text-base text-gray-700">
+                <span
+                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-674"
+                  className="inline-flex min-w-[40px] items-center justify-center font-semibold text-base text-gray-700"
+                >
                   {isCalculating ? (
                     <LoadingOutlined spin className="text-primary" />
                   ) : (
@@ -653,9 +730,15 @@ export const ManageSubscriptionModal: React.FC<
         </div>
 
         {/* Plan cards — grouped by currency (filtered to active subscription plan currency when available) */}
-        <div className="flex flex-col gap-8">
+        <div
+          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-688"
+          className="flex flex-col gap-8"
+        >
           {plansByCurrency.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-6">
+            <p
+              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-p-690"
+              className="text-sm text-gray-500 text-center py-6"
+            >
               {activePlanCurrencyId
                 ? 'No paid plans are available in your subscription currency.'
                 : 'No paid plans available.'}
@@ -710,25 +793,48 @@ export const ManageSubscriptionModal: React.FC<
                       </Tag>
                     )}
                     {/* Radio row (Current tag is absolute top-right) */}
-                    <div className="relative flex min-h-[28px] items-center">
+                    <div
+                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
+                      className="relative flex min-h-[28px] items-center"
+                    >
                       <Radio checked={isSelected} />
                     </div>
                     {/* Centered plan title, price, description */}
-                    <div className=" px-1 pt-2 text-center">
-                      <div className="font-bold text-gray-900">{plan.name}</div>
-                      <div className=" text-gray-900 font-bold text-lg">
+                    <div
+                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
+                      className=" px-1 pt-2 text-center"
+                    >
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
+                        className="font-bold text-gray-900"
+                      >
+                        {plan.name}
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
+                        className=" text-gray-900 font-bold text-lg"
+                      >
                         {getPriceLabel(plan)}
                       </div>
                       {plan.description && (
-                        <div className="text-xs text-gray-500">
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
+                          className="text-xs text-gray-500"
+                        >
                           {plan.description}
                         </div>
                       )}
                     </div>
-                    <div className="flex justify-center px-2">
+                    <div
+                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
+                      className="flex justify-center px-2"
+                    >
                       <Divider className="!my-2 min-w-[96px] w-[65%] max-w-[200px] border-gray-200" />
                     </div>
-                    <div className="mt-3 flex flex-col items-center gap-1">
+                    <div
+                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
+                      className="mt-3 flex flex-col items-center gap-1"
+                    >
                       {modulesLoading && allModulesSorted.length === 0 ? (
                         <LoadingOutlined
                           spin
@@ -742,6 +848,7 @@ export const ManageSubscriptionModal: React.FC<
                             mod.name?.trim() || mod.code?.trim() || 'Module';
                           return (
                             <div
+                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
                               key={mod.id}
                               className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
                             >
@@ -750,6 +857,7 @@ export const ManageSubscriptionModal: React.FC<
                                 aria-hidden
                               />
                               <span
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
                                 className={
                                   included ? 'text-gray-700' : 'text-gray-400'
                                 }
@@ -762,6 +870,7 @@ export const ManageSubscriptionModal: React.FC<
                       ) : (
                         (plan.planDetails ?? []).map((detail, i) => (
                           <div
+                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
                             key={`${plan.id}-detail-${i}`}
                             className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
                           >
@@ -769,7 +878,12 @@ export const ManageSubscriptionModal: React.FC<
                               className="size-[18px] shrink-0 text-primary"
                               aria-hidden
                             />
-                            <span className="text-gray-700">{detail}</span>
+                            <span
+                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
+                              className="text-gray-700"
+                            >
+                              {detail}
+                            </span>
                           </div>
                         ))
                       )}
@@ -782,14 +896,22 @@ export const ManageSubscriptionModal: React.FC<
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 ">
+        <div
+          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-817"
+          className="flex justify-end gap-3 "
+        >
           <Button onClick={onClose} data-cy="manage-subscription-cancel">
             Cancel
           </Button>
           <Tooltip
-            title={isScheduledDowngradeForPrepay ? scheduledDowngradeTooltip : null}
+            title={
+              isScheduledDowngradeForPrepay ? scheduledDowngradeTooltip : null
+            }
           >
-            <span className="inline-block">
+            <span
+              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-826"
+              className="inline-block"
+            >
               <Button
                 type="primary"
                 onClick={handleContinue}

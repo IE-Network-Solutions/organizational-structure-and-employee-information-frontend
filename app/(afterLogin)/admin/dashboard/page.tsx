@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
 import { InvoiceModal } from '../_components/InvoiceModal/InvoiceModal';
 import { ManageSubscriptionModal } from '../_components/ManageSubscriptionModal/ManageSubscriptionModal';
-import { StatusBadge } from '../_components/ui/StatusBadge';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetInvoices } from '@/store/server/features/tenant-management/invoices/queries';
 import { useGetCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
@@ -36,6 +35,8 @@ const AdminDashboard = () => {
     null,
   );
   const [manageSubscriptionOpen, setManageSubscriptionOpen] = useState(false);
+  const [invoicePage, setInvoicePage] = useState(1);
+  const invoicePageSize = 10;
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -46,8 +47,12 @@ const AdminDashboard = () => {
     isLoading: isInvoicesLoading,
     refetch: refetchInvoices,
   } = useGetInvoices(
-    { filter: { tenantId: DEFAULT_TENANT_ID } },
-    'ASC',
+    {
+      filter: { tenantId: DEFAULT_TENANT_ID },
+      page: invoicePage,
+      limit: invoicePageSize,
+    },
+    'DESC',
     false,
     true,
   );
@@ -191,7 +196,10 @@ const AdminDashboard = () => {
           <Skeleton active paragraph={{ rows: 4 }} />
         </Card>
       ) : (
-        <div className="grid gap-4 mb-8 lg:grid-cols-2">
+        <div
+          data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-200"
+          className="grid gap-4 mb-8 lg:grid-cols-2"
+        >
           {/* Left: Current Subscription */}
           <Card
             id="current-subscription-card"
@@ -200,13 +208,25 @@ const AdminDashboard = () => {
             style={{ border: '2px solid #0C8CE9' }}
             styles={{ body: { padding: '16px' } }}
           >
-            <div className="flex-1 w-full">
-              <div className="flex items-center justify-between gap-2 mb-2 w-full">
-                <h2 className="text-sm font-medium text-gray-500">
+            <div
+              data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-209"
+              className="flex-1 w-full"
+            >
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-210"
+                className="flex items-center justify-between gap-2 mb-2 w-full"
+              >
+                <h2
+                  data-cy="-afterlogin-admin-dashboard-page-tsx-page-h2-211"
+                  className="text-sm font-medium text-gray-500"
+                >
                   Current Subscription plan
                 </h2>
                 {activeSubscription && (
-                  <div className="flex justify-end">
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-215"
+                    className="flex justify-end"
+                  >
                     <Tag
                       color="success"
                       data-cy="subscription-status-badge"
@@ -217,22 +237,43 @@ const AdminDashboard = () => {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 flex-wrap mt-2">
-                <span className="text-2xl font-bold text-gray-900">
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-226"
+                className="flex items-center gap-2 flex-wrap mt-2"
+              >
+                <span
+                  data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-227"
+                  className="text-2xl font-bold text-gray-900"
+                >
                   {currentPlan?.name ?? 'No Plan'}
                 </span>
               </div>
               {seatsTotal > 0 && (
-                <div className="mt-4">
-                  <div className="flex justify-end mb-1">
-                    <span className="text-sm text-gray-600">
-                      <span className="font-bold">
+                <div
+                  data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-232"
+                  className="mt-4"
+                >
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-233"
+                    className="flex justify-end mb-1"
+                  >
+                    <span
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-234"
+                      className="text-sm text-gray-600"
+                    >
+                      <span
+                        data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-235"
+                        className="font-bold"
+                      >
                         {seatsUsed} / {seatsTotal}
                       </span>{' '}
                       Seats Used
                     </span>
                   </div>
-                  <div className="w-[93%]">
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-241"
+                    className="w-[93%]"
+                  >
                     <Progress
                       percent={seatsPercent}
                       showInfo={false}
@@ -242,10 +283,16 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               )}
-              <p className="text-sm text-gray-600 mb-3">
+              <p
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-p-251"
+                className="text-sm text-gray-600 mb-3"
+              >
                 Need extra feature or want to update seats?
               </p>
-              <div className="flex justify-center">
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-254"
+                className="flex justify-center"
+              >
                 <Button
                   type="primary"
                   onClick={() => setManageSubscriptionOpen(true)}
@@ -266,16 +313,27 @@ const AdminDashboard = () => {
             style={{ border: '2px solid #e5e7eb' }}
             styles={{ body: { padding: '16px' } }}
           >
-            <div className="flex flex-col justify-between gap-4 h-full">
+            <div
+              data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-275"
+              className="flex flex-col justify-between gap-4 h-full"
+            >
               {lastInvoice && (
                 <>
-                  <div className="w-full">
-                    <div className="flex items-center justify-between gap-2 w-full mb-1">
-                      <span className="text-sm font-medium text-gray-500">
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-278"
+                    className="w-full"
+                  >
+                    <div
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-279"
+                      className="flex items-center justify-between gap-2 w-full mb-1"
+                    >
+                      <span
+                        data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-280"
+                        className="text-sm font-medium text-gray-500"
+                      >
                         Invoice
                       </span>
                       <Tag
-
                         color={
                           lastInvoice.status?.toLowerCase() === 'paid'
                             ? 'success'
@@ -289,14 +347,28 @@ const AdminDashboard = () => {
                         {lastInvoice.status}
                       </Tag>
                     </div>
-                    <div className="text-sm text-gray-700 font-bold">
+                    <div
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-297"
+                      className="text-sm text-gray-700 font-bold"
+                    >
                       #{lastInvoice.invoiceNumber}
                     </div>
                   </div>
                   <Divider className="my-3" />
-                  <div className="flex flex-col gap-1 w-full">
-                    <div className="flex items-baseline justify-between gap-2 w-full">
-                      <span className="text-sm text-gray-500">Due Date</span>
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-302"
+                    className="flex flex-col gap-1 w-full"
+                  >
+                    <div
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-303"
+                      className="flex items-baseline justify-between gap-2 w-full"
+                    >
+                      <span
+                        data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-304"
+                        className="text-sm text-gray-500"
+                      >
+                        Due Date
+                      </span>
 
                       {daysLeft !== null && (
                         <Tag
@@ -307,13 +379,19 @@ const AdminDashboard = () => {
                         </Tag>
                       )}
                     </div>{' '}
-                    <span className="text-sm text-gray-700 font-bold">
+                    <span
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-315"
+                      className="text-sm text-gray-700 font-bold"
+                    >
                       {dayjs(lastInvoice.dueAt).format('MMM D, YYYY')}
                     </span>
                   </div>
                 </>
               )}
-              <div className="flex justify-center">
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-321"
+                className="flex justify-center"
+              >
                 <Button
                   onClick={() => router.push('/admin/billing')}
                   data-cy="billing-and-invoice-button"
@@ -330,8 +408,14 @@ const AdminDashboard = () => {
       <Divider className="my-6" />
 
       {/* Recent Billing History */}
-      <div className="mb-4">
-        <h2 className="text-base font-bold text-gray-900">
+      <div
+        data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-338"
+        className="mb-4"
+      >
+        <h2
+          data-cy="-afterlogin-admin-dashboard-page-tsx-page-h2-339"
+          className="text-base font-bold text-gray-900"
+        >
           Recent Billing History
         </h2>
       </div>
@@ -341,6 +425,11 @@ const AdminDashboard = () => {
         plans={plans}
         currencies={currencies}
         subscriptions={subscriptions}
+        totalItems={invoicesData?.meta?.totalItems ?? invoices.length}
+        totalPages={invoicesData?.meta?.totalPages}
+        currentPage={invoicePage}
+        pageSize={invoicePageSize}
+        onPageChange={(page) => setInvoicePage(page)}
         onInvoiceClick={openInvoiceModal}
         hideFilters
       />

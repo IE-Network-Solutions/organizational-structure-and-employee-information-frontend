@@ -270,10 +270,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         )}
 
         {hidePageSizeSelect && !isMobile && totalPages > 0 && (
-          <div
-            className="flex items-center gap-2"
-            data-cy="pagination-goto"
-          >
+          <div className="flex items-center gap-2" data-cy="pagination-goto">
             <span
               className="text-xs text-[#718096]"
               data-cy="pagination-goto-label"
@@ -300,24 +297,24 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         )}
 
         {!hidePageSizeSelect && (
-        <Select
-          value={pageSize}
-          className={isMobile ? 'w-20' : 'w-24'}
-          size={isMobile ? 'small' : 'middle'}
-          onChange={(value) => handleSizeChange(value)}
-          data-cy="pagination-page-size-select"
-        >
-          {selectPageSizes.map((size) => (
-            <Option key={size} value={size}>
-              <span
-                className="text-xs text-[#111827]"
-                data-cy={`pagination-page-size-option-${size}`}
-              >
-                {isMobile ? String(size) : `Show ${size}`}
-              </span>
-            </Option>
-          ))}
-        </Select>
+          <Select
+            value={pageSize}
+            className={isMobile ? 'w-20' : 'w-24'}
+            size={isMobile ? 'small' : 'middle'}
+            onChange={(value) => handleSizeChange(value)}
+            data-cy="pagination-page-size-select"
+          >
+            {selectPageSizes.map((size) => (
+              <Option key={size} value={size}>
+                <span
+                  className="text-xs text-[#111827]"
+                  data-cy={`pagination-page-size-option-${size}`}
+                >
+                  {isMobile ? String(size) : `Show ${size}`}
+                </span>
+              </Option>
+            ))}
+          </Select>
         )}
       </div>
     </div>

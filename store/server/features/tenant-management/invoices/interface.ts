@@ -7,4 +7,6 @@ export interface InvoiceRequestBody {
     status?: 'draft' | 'pending' | 'paid' | 'overdue' | 'canceled' | 'refunded';
     dueAt?: string;
   };
+  page?: number;
+  limit?: number;
 }

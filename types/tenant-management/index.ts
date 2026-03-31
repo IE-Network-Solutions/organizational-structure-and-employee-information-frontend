@@ -416,11 +416,18 @@ export interface BuyAdditionalSlotsRequest {
 export interface RenewSubscriptionRequest {
   subscriptionId: string;
   tenantId: string;
+  planId?: string;
+  planPeriodId?: string;
+  slotTotal?: number;
 }
 
 export interface PrepaySubscriptionRequest {
   subscriptionId: string;
   tenantId: string;
+  /** Same optional shape as /renew; omitted fields fall back server-side. */
+  planId?: string;
+  planPeriodId?: string;
+  slotTotal?: number;
 }
 /**
  * Tenant
