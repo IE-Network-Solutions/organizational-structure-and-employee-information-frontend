@@ -50,7 +50,7 @@ const DeductionDetailHeader = ({ deductionId }: { deductionId: string }) => {
   return (
     <>
       <div
-        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 sm:border-b sm:border-gray-200"
+        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
         id="compensation-deduction-detail-header"
         data-cy="compensation-deduction-detail-header"
       >
@@ -133,7 +133,7 @@ const DeductionDetailHeader = ({ deductionId }: { deductionId: string }) => {
 const AllDeductionPageHeader = () => (
   <>
     <div
-      className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 sm:border-b sm:border-gray-200"
+      className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
       id="compensation-deduction-all-layout-header"
       data-cy="compensation-deduction-all-layout-header"
     >
@@ -218,13 +218,11 @@ const DeductionLayout: FC<DeductionLayoutProps> = ({ children }) => {
       >
         {isDetailPage && deductionId ? (
           <>
-            <BreadcrumbRule />
             <DeductionDetailHeader deductionId={deductionId as string} />
             <BreadcrumbRule />
           </>
         ) : isAllDeductionPage ? (
           <>
-            <BreadcrumbRule />
             <AllDeductionPageHeader />
             <BreadcrumbRule />
           </>
