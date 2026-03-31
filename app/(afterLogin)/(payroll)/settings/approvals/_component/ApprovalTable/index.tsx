@@ -74,6 +74,11 @@ const ApprovalTable = () => {
       setPageSize(pageSize);
     }
   };
+
+  const onPageSizeChange = (current: number, size: number) => {
+    setUserCurrentPage(current);
+    setPageSize(size);
+  };
   const handleDeleteConfirm = (id: string) => {
     setDeleteModal(false);
     deleteApproval(id);
@@ -283,7 +288,7 @@ const ApprovalTable = () => {
       <div
         id="settings-payroll-approvals-card-shell"
         data-cy="settings-payroll-approvals-card-shell"
-        className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm"
+        className="p-6"
       >
         <div
           id="settings-payroll-approvals-card-grid"
@@ -470,20 +475,21 @@ const ApprovalTable = () => {
         <div
           id="settings-payroll-approvals-pagination-container"
           data-cy="settings-payroll-approvals-pagination-container"
-          className="flex flex-col sm:flex-row justify-between items-center border-t border-gray-100 pt-6 gap-4 sm:gap-0 text-sm"
+          className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm"
         >
           {isMobile || isTablet ? (
             <CustomMobilePagination
+              currentPage={userCurrentPage}
               totalResults={allFilterData?.meta?.totalItems ?? 0}
               pageSize={pageSize}
               onChange={onPageChange}
-              onShowSizeChange={onPageChange}
+              onShowSizeChange={onPageSizeChange}
               id="settings-payroll-approvals-mobile-pagination"
               data-cy="settings-payroll-approvals-mobile-pagination"
             />
           ) : (
             <CustomPagination
-              current={allFilterData?.meta?.currentPage ?? 1}
+              current={userCurrentPage}
               total={allFilterData?.meta?.totalItems ?? 0}
               pageSize={pageSize}
               onChange={onPageChange}

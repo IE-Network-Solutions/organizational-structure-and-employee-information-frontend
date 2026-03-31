@@ -1,9 +1,9 @@
 'use client';
 
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Button, theme } from 'antd';
+import { usePathname, useRouter } from 'next/navigation';
+import { Breadcrumb, Button, Tabs, theme } from 'antd';
+import type { TabsProps } from 'antd';
 import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import usePensionRulesStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
@@ -16,6 +16,7 @@ type TabKey = 'tax-rule' | 'pension' | 'pay-period' | 'approvals';
 
 const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const [currentItem, setCurrentItem] = useState<TabKey>('tax-rule');
   const { isPensionAddDisabled } = usePensionRulesStore();
   const { isApprovalsAddDisabled } = useApprovalsSettingsStore();
@@ -45,6 +46,27 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => 
     if (lastKey && tabs.some((t) => t.key === lastKey)) setCurrentItem(lastKey);
   }, [pathname, tabs]);
 
+  const currentTabLabel = useMemo(() => {
+    return tabs.find((t) => t.key === currentItem)?.label ?? 'Settings';
+  }, [tabs, currentItem]);
+
+  const tabItems = useMemo<TabsProps['items']>(
+    () =>
+      tabs.map((tab) => ({
+        key: tab.key,
+        label: (
+          <div
+            id={`payroll-settings-tab-label-${tab.key}`}
+            data-cy={`payroll-settings-tab-label-${tab.key}`}
+            className={`text-base m-0 ${currentItem === tab.key ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          >
+            {tab.label}
+          </div>
+        ),
+      })),
+    [tabs, currentItem],
+  );
+
   const handlePrimaryActionClick = () => {
     const targetId =
       currentItem === 'tax-rule'
@@ -63,16 +85,67 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => 
     (currentItem === 'pension' && isPensionAddDisabled) ||
     (currentItem === 'approvals' && isApprovalsAddDisabled);
 
+  const handleTabChange = (key: string) => {
+    const next = tabs.find((t) => t.key === key);
+    if (next) router.push(next.href);
+  };
+
+  const primaryActionButton = (
+    <Button
+      id="payroll-settings-tabs-primary-action-button"
+      data-cy="payroll-settings-tabs-primary-action-button"
+      type="primary"
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm whitespace-nowrap ${
+        isHeaderPrimaryActionDisabled
+          ? 'cursor-not-allowed'
+          : 'bg-primary hover:!bg-primary/90 text-white'
+      }`}
+      icon={
+        currentItem === 'pay-period' ? (
+          <EditOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
+        ) : (
+          <PlusOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
+        )
+      }
+      disabled={isHeaderPrimaryActionDisabled}
+      style={
+        isHeaderPrimaryActionDisabled
+          ? {
+              backgroundColor: token.colorBgContainerDisabled,
+              borderColor: token.colorBorder,
+              color: token.colorTextDisabled,
+              boxShadow: 'none',
+            }
+          : undefined
+      }
+      onClick={handlePrimaryActionClick}
+    >
+      <span
+        id="payroll-settings-tabs-primary-action-button-text"
+        data-cy="payroll-settings-tabs-primary-action-button-text"
+        className="hidden sm:inline"
+      >
+        {currentItem === 'tax-rule'
+          ? 'Add Tax Rule'
+          : currentItem === 'pension'
+            ? 'Add Pension Rule'
+            : currentItem === 'pay-period'
+              ? 'Update Pay Period'
+              : 'Set Approval'}
+      </span>
+    </Button>
+  );
+
   return (
     <div
       id="payroll-settings-page-view-container"
       data-cy="payroll-settings-page-view-container"
-      className="min-h-screen bg-white text-gray-800 font-sans p-6 md:p-10"
+      className="min-h-screen bg-white text-gray-800 font-sans py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6"
     >
       <div
         id="payroll-settings-page-content-view-container"
         data-cy="payroll-settings-page-content-view-container"
-        className="max-w-7xl mx-auto"
+        className="w-full"
       >
         <div
           id="payroll-settings-header-view-container"
@@ -89,107 +162,71 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => 
           <div
             id="payroll-settings-breadcrumb-view-container"
             data-cy="payroll-settings-breadcrumb-view-container"
-            className="text-sm text-gray-400 flex items-center gap-2"
+            className="text-sm text-gray-400 flex flex-col items-start"
           >
-            <span
-              id="payroll-settings-breadcrumb-parent-view-text"
-              data-cy="payroll-settings-breadcrumb-parent-view-text"
-            >
-              Talent Acquisition
-            </span>
-            <span
-              id="payroll-settings-breadcrumb-separator-view-text"
-              data-cy="payroll-settings-breadcrumb-separator-view-text"
-            >
-              /
-            </span>
-            <span
-              id="payroll-settings-breadcrumb-current-view-text"
-              data-cy="payroll-settings-breadcrumb-current-view-text"
-              className="text-gray-600"
-            >
-              Settings
-            </span>
+            <Breadcrumb
+              className="mt-2 mb-0 whitespace-nowrap"
+              style={{ whiteSpace: 'nowrap' }}
+              items={[
+                {
+                  title: (
+                    <a
+                      href="/payroll/payroll"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        router.push('/payroll/payroll');
+                      }}
+                      data-cy="payroll-settings-breadcrumb-payroll-link"
+                      id="payroll-settings-breadcrumb-payroll-link"
+                      className="text-xs sm:text-sm"
+                    >
+                      Payroll
+                    </a>
+                  ),
+                },
+                {
+                  title: (
+                    <span
+                      data-cy="payroll-settings-breadcrumb-settings"
+                      id="payroll-settings-breadcrumb-settings"
+                      className="text-xs sm:text-sm"
+                    >
+                      Settings
+                    </span>
+                  ),
+                },
+              ]}
+              data-cy="payroll-settings-breadcrumb"
+              id="payroll-settings-breadcrumb"
+            />
           </div>
         </div>
         <div
           id="payroll-settings-tabs-row-view-container"
           data-cy="payroll-settings-tabs-row-view-container"
-          className="flex flex-row justify-between items-center flex-wrap border-b border-gray-200 pb-0 mb-6 gap-3"
+          className="mb-6"
         >
-          <div
-            id="payroll-settings-tabs-view-container"
-            data-cy="payroll-settings-tabs-view-container"
-            className="flex space-x-8 px-2 overflow-x-auto flex-1 min-w-0"
-          >
-            {tabs.map((tab) => {
-              const isActive = currentItem === tab.key;
-              return (
-                <Link
-                  key={tab.key}
-                  href={tab.href}
-                  id={`payroll-settings-tab-link-${tab.key}`}
-                  data-cy={`payroll-settings-tab-link-${tab.key}`}
-                  className={`pb-4 text-sm font-medium transition-colors whitespace-nowrap ${
-                    isActive
-                      ? 'text-primary border-b-2 border-primary'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {tab.label}
-                </Link>
-              );
-            })}
-          </div>
           <div
             id="payroll-settings-tabs-actions-slot-view-container"
             data-cy="payroll-settings-tabs-actions-slot-view-container"
-            className="flex-shrink-0 mb-3 sm:mb-2 flex justify-end"
+            className="w-full"
           >
-            <Button
-              id="payroll-settings-tabs-primary-action-button"
-              data-cy="payroll-settings-tabs-primary-action-button"
-              type="primary"
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm whitespace-nowrap ${
-                isHeaderPrimaryActionDisabled
-                  ? 'cursor-not-allowed'
-                  : 'bg-primary hover:!bg-primary/90 text-white'
-              }`}
-              icon={
-                currentItem === 'pay-period' ? (
-                  <EditOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
-                ) : (
-                  <PlusOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
-                )
-              }
-              disabled={isHeaderPrimaryActionDisabled}
-              style={
-                isHeaderPrimaryActionDisabled
-                  ? {
-                      backgroundColor: token.colorBgContainerDisabled,
-                      borderColor: token.colorBorder,
-                      color: token.colorTextDisabled,
-                      boxShadow: 'none',
-                    }
-                  : undefined
-              }
-              onClick={handlePrimaryActionClick}
-            >
-              <span
-                id="payroll-settings-tabs-primary-action-button-text"
-                data-cy="payroll-settings-tabs-primary-action-button-text"
-                className="hidden sm:inline"
-              >
-                {currentItem === 'tax-rule'
-                  ? 'Add Tax Rule'
-                  : currentItem === 'pension'
-                    ? 'Add Pension Rule'
-                    : currentItem === 'pay-period'
-                      ? 'Update Pay Period'
-                      : 'Set Approval'}
-              </span>
-            </Button>
+            <Tabs
+              id="payroll-settings-tabs"
+              data-cy="payroll-settings-tabs"
+              activeKey={currentItem}
+              onChange={handleTabChange}
+              items={tabItems}
+              tabBarGutter={24}
+              tabBarStyle={{
+                marginBottom: 0,
+                marginLeft: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+              }}
+              tabBarExtraContent={primaryActionButton}
+              className="text-base [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+            />
           </div>
         </div>
         <div
