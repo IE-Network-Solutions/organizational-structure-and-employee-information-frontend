@@ -10,11 +10,13 @@ import {
   Popover,
   Tag,
   Dropdown,
+  Input,
 } from 'antd';
 import {
   LoadingOutlined,
   UserOutlined,
   EllipsisOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import {
   useGetActiveEmployee,
@@ -33,6 +35,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import CustomPagination from '@/components/customPagination';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
@@ -172,6 +175,7 @@ const EmployeeSurveyTable: React.FC = () => {
     if (!m) return '';
     return `${m?.session?.name}-${m?.name}`;
   };
+  const { isMobile } = useIsMobile();
 
   const getActiveFilters = () => {
     const activeFilters: Array<{ key: string; label: string }> = [];
@@ -325,6 +329,7 @@ const EmployeeSurveyTable: React.FC = () => {
             <Button
               size="small"
               icon={<EllipsisOutlined />}
+              className="border-gray-400"
               data-cy="employee-survey-table-action-button"
               id="employeeSurveyTableActionButton"
             />
@@ -353,17 +358,11 @@ const EmployeeSurveyTable: React.FC = () => {
           <Select
             showSearch
             placeholder="Search Employee"
-            className="h-8 rounded-lg border border-gray-500 p-0 m-0 w-full md:w-[300px]"
+            className="h-8 rounded-lg border border-gray-400 p-0 m-0 w-full md:w-[300px]"
             allowClear
             loading={empLoading}
             suffixIcon={
-              userId ? (
-                ''
-              ) : (
-                <span className="ml-1 pl-2 border-l border-gray-500 flex items-center  ">
-                  <SearchIcon className="text-gray-900 " fontSize="small" />
-                </span>
-              )
+              <SearchOutlined className="text-gray-400 border-l border-gray-400 p-2" />
             }
             value={userId ?? undefined}
             onChange={(value) => {
@@ -467,13 +466,17 @@ const EmployeeSurveyTable: React.FC = () => {
                 />
               }
             >
-              <span
-                id="employee-survey-table-filter-toggle-btn-text"
-                data-cy="employee-survey-table-filter-toggle-btn-text"
-                className="text-gray-600 text-sm"
-              >
-                Filter
-              </span>
+              {isMobile ? (
+                ''
+              ) : (
+                <span
+                  id="employee-survey-table-filter-toggle-btn-text"
+                  data-cy="employee-survey-table-filter-toggle-btn-text"
+                  className="text-gray-600 text-sm"
+                >
+                  Filter
+                </span>
+              )}
             </Button>
           </Popover>
         </div>
@@ -512,7 +515,7 @@ const EmployeeSurveyTable: React.FC = () => {
         dataSource={employeeSurvey?.items}
         pagination={false}
         loading={employeeSurveyLoading}
-        className="overflow-x-auto"
+        className="overflow-x-auto scrollbar-none"
         data-cy="employee-survey-table"
         id="employeeSurveyTable"
       />

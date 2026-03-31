@@ -7,6 +7,7 @@ import { Edit2Icon } from 'lucide-react';
 import React from 'react';
 import { MdDeleteOutline } from 'react-icons/md';
 import { EllipsisOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 
 import styles from './feedbackTypeDetail.module.css';
 
@@ -58,10 +59,12 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
           data-cy={`feedback-type-detail-${variantType}-search-container`}
           id={`feedbackTypeDetail${variantType}SearchContainer`}
         >
-          <div className={isMobile ? styles.mobileSearch : undefined}>
-            <Input.Search
+          <div>
+            <Input
               placeholder={searchPlaceholder}
+              addonAfter={<SearchOutlined className="text-gray-400" />}
               allowClear
+              className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
               onChange={(e) =>
                 variantType === 'appreciation'
                   ? setSearchAppreciationQuery(e.target.value)
@@ -69,7 +72,6 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                     ? setSearchReprimandQuery(e.target.value)
                     : null
               }
-              className={`w-full rounded-md ${isMobile ? '' : 'sm:w-80 md:w-96 lg:w-72'}`}
               data-cy={`feedback-type-detail-${variantType}-search`}
               id={`feedbackTypeDetail${variantType}Search`}
             />
@@ -144,6 +146,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                   icon={<EllipsisOutlined />}
                   data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
                   id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
+                  className="bg-white border border-gray-200"
                 />
               </Dropdown>
             </p>
