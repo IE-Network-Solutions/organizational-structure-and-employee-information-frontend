@@ -180,10 +180,15 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: '16px 70px',
+          padding: '4px 4px',
         },
       }}
+      classNames={{
+        body: 'py-2 px-2 md:py-4 md:px-[70px]',
+      }}
+      className="gb-bg-white"
       zIndex={10002}
+     
     >
       <Form
         id="talent-acquisition-job-create-candidate-form"
@@ -312,22 +317,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     },
                   ]}
                 >
-                  <PhoneInput
-                    defaultCountry="et"
-                    placeholder="Input"
-                    className="!rounded-lg !bg-gray-100 !border-gray-300 w-full [&_.react-international-phone-input-container]:!rounded-lg [&_.react-international-phone-input-container]:!bg-gray-100 [&_.react-international-phone-input-container]:!border-gray-300 [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden"
-                    style={
-                      {
-                        '--react-international-phone-height': '40px',
-                        '--react-international-phone-background-color':
-                          '#f5f5f5',
-                        '--react-international-phone-border-radius': '8px',
-                        '--react-international-phone-border-color': '#d9d9d9',
-                      } as React.CSSProperties
-                    }
-                    inputClassName="!bg-transparent !border-0 text-sm placeholder:text-gray-400 focus:!shadow-none"
-                    data-cy="talent-acquisition-job-create-candidate-input-phone"
-                  />
+                 <PhoneInput
+                  defaultCountry="et"
+                  inputClassName="ant-input"
+                  className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
+                  data-cy={`talent-acquisition-job-create-candidate-input-phone`}
+                />
                 </Form.Item>
               </Col>
             </Row>
@@ -441,16 +436,18 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     },
                   ]}
                 >
-                  <InputNumber
-                    id="talent-acquisition-job-create-candidate-input-cgpa"
-                    data-cy="talent-acquisition-job-create-candidate-input-cgpa"
-                    min={0}
-                    max={4}
-                    step={0.01}
-                    controls={false}
-                    className="text-sm w-full h-10 "
-                    placeholder="0"
-                  />
+                  <div className="relative h-10 w-full flex items-center">
+                    <InputNumber
+                      id="talent-acquisition-job-create-candidate-input-cgpa"
+                      data-cy="talent-acquisition-job-create-candidate-input-cgpa"
+                      min={0}
+                      max={4}
+                      step={0.01}
+                      controls={false}
+                      className="text-sm w-full h-10 flex items-center" // preserve h-9, add flex alignment (redundancy okay for InputNumber container fix)
+                      placeholder="0"
+                    />
+                  </div>
                 </Form.Item>
               </Col>
             </Row>

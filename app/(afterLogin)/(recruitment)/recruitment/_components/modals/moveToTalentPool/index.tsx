@@ -251,8 +251,8 @@ const MoveToTalentPool: React.FC = () => {
                       size="large"
                       className="w-full always-show-placeholder"
                       placeholder=""
-                      popupClassName="org-structure-branch-select-dropdown"
                       loading={isCandidatesLoading}
+                      value={selectedCandidate.map((item: any) => item.id)}
                       showSearch
                       optionFilterProp="label"
                       maxTagCount={0}
