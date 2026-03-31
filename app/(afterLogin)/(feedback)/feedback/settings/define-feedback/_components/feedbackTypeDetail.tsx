@@ -9,8 +9,6 @@ import { MdDeleteOutline } from 'react-icons/md';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { SearchOutlined } from '@ant-design/icons';
 
-import styles from './feedbackTypeDetail.module.css';
-
 interface FeedbackTypeDetailProps {
   feedbackTypeDetail: any;
 }

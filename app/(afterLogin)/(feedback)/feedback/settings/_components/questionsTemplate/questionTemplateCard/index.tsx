@@ -51,10 +51,7 @@ const QuestionTemplateCard: React.FC<any> = () => {
 
   if (isTemplateLoading)
     return (
-      <div
-        className="h-64"
-        data-cy="question-template-card-loading"
-      >
+      <div className="h-64" data-cy="question-template-card-loading">
         <Skeleton active paragraph={{ rows: 6 }} className="px-2 py-4" />
       </div>
     );

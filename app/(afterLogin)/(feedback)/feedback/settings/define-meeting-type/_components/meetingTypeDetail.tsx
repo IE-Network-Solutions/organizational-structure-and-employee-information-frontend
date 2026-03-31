@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Form } from 'antd';
-import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { MeetingTemplateCard } from './meetingTemplateCard';
 import { MeetingTemplateDrawer } from './meetingTemplateDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
@@ -44,7 +44,6 @@ const MeetingTypeDetail: React.FC = () => {
     editingTemplate,
     setEditingTemplate,
     meetingTypeDetailData,
-    setMeetingTypeDetail,
   } = useMeetingStore();
 
   const handleOpen = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Card, Dropdown, List, Popconfirm, Skeleton } from 'antd';
+import { Button, Card, Dropdown, Popconfirm, Skeleton } from 'antd';
 import React from 'react';
 import { EllipsisOutlined } from '@ant-design/icons';
 import MeetingTypeDrawer from './_components/meetingTypeDrawer';

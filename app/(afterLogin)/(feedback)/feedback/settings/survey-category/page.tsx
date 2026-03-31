@@ -8,7 +8,7 @@ import CustomPagination from '@/components/customPagination';
 import EditCategoryModal from '../../categories/_components/categoriesCard/editCategory';
 import { Input } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-const page = () => {
+const Page = () => {
   const {
     pageSize,
     current,
@@ -17,14 +17,13 @@ const page = () => {
     searchParams,
     setSearchParams,
   } = EmployeeSurveyStore();
-  const { data: categories, isLoading: isCategoriesLoading } =
-    useFetchCategories(
-      pageSize,
-      searchParams?.category_name ? 1 : current,
-      searchParams?.category_name || '',
-      searchParams?.category_description || '',
-      searchParams?.createdBy || '',
-    );
+  const { data: categories } = useFetchCategories(
+    pageSize,
+    searchParams?.category_name ? 1 : current,
+    searchParams?.category_name || '',
+    searchParams?.category_description || '',
+    searchParams?.createdBy || '',
+  );
   return (
     <div
       data-cy="survey-category-page"
@@ -99,4 +98,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

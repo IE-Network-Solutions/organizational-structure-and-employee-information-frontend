@@ -13,7 +13,7 @@ interface CategoryFormValues {
   employeeAllowedToView: string[];
 }
 
-const createSurvayCategory = () => {
+const CreateSurvayCategory = () => {
   const [form] = Form.useForm();
   const { isMobile } = useIsMobile();
   const isMobileViewport =
@@ -86,6 +86,7 @@ const createSurvayCategory = () => {
         size="large"
         className="min-w-[100px] h-11 font-medium"
         onClick={handleSubmit}
+        loading={isCreatingCategory}
         data-cy="create-survey-category-button-submit"
         id="create-survey-category-button-submit"
       >
@@ -198,7 +199,8 @@ const createSurvayCategory = () => {
           name="employeeAllowedToView"
           rules={[
             {
-              validator: (_, value) => {
+              validator: (ruleObject, value) => {
+                void ruleObject;
                 if (!value?.length) {
                   return Promise.reject(
                     new Error('Please select at least one employee.'),
@@ -245,4 +247,4 @@ const createSurvayCategory = () => {
   );
 };
 
-export default createSurvayCategory;
+export default CreateSurvayCategory;

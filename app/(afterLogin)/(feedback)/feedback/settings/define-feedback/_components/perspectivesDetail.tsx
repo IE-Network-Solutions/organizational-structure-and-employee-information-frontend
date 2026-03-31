@@ -8,10 +8,7 @@ import { EllipsisOutlined } from '@ant-design/icons';
 import CustomPagination from '@/components/customPagination';
 import { Edit2Icon } from 'lucide-react';
 import { MdDeleteOutline } from 'react-icons/md';
-import {
-  useDeletePerspective,
-  useUpdatePerspective,
-} from '@/store/server/features/CFR/feedback/mutations';
+import { useDeletePerspective } from '@/store/server/features/CFR/feedback/mutations';
 
 interface PerspectivesDetailProps {
   perspectivesDetail: any;

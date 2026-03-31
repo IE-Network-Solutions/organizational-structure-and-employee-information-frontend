@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, Dropdown, Popconfirm, Tag } from 'antd';
+import { Avatar, Button, Dropdown, Popconfirm, Tag } from 'antd';
 import React from 'react';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -9,7 +9,7 @@ import { EllipsisOutlined } from '@ant-design/icons';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 
-const servayCategoryCard = ({ category }: { category: any }) => {
+const ServayCategoryCard = ({ category }: { category: any }) => {
   const { data: userData } = useGetEmployee(category?.createdBy);
   const deleteCategory = useDeleteFormCategory();
   const { pageSize, current } = EmployeeSurveyStore();
@@ -137,4 +137,4 @@ const servayCategoryCard = ({ category }: { category: any }) => {
   );
 };
 
-export default servayCategoryCard;
+export default ServayCategoryCard;

@@ -34,9 +34,6 @@ const toSlug = (value: string | number | null | undefined) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
-interface SettingsLayoutProps {
-  children: ReactNode;
-}
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }

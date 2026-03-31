@@ -10,7 +10,6 @@ import {
   Popover,
   Tag,
   Dropdown,
-  Input,
 } from 'antd';
 import {
   LoadingOutlined,
@@ -33,7 +32,6 @@ import EmployeeSurveyModal from './EmployeeSurveyModal';
 import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import CustomPagination from '@/components/customPagination';
-import SearchIcon from '@mui/icons-material/Search';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -307,6 +305,7 @@ const EmployeeSurveyTable: React.FC = () => {
                     <Popconfirm
                       title="Are you sure you want to remove survey score?"
                       onConfirm={() => handleSurveyScore(record?.id)}
+                      disabled={deleteLoading}
                       okText="Yes"
                       cancelText="No"
                       placement="top"
