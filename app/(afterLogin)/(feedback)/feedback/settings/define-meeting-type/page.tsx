@@ -74,8 +74,8 @@ const DefineMeetingType = () => {
                     {meetingTypes.items.map((item: any) => (
                       <Card
                         key={item?.id}
-                        className="rounded-xl border border-gray-200 shadow-none cursor-pointer hover:border-gray-300 transition-colors"
-                        styles={{ body: { padding: 16 } }}
+                        className="rounded-xl border border-gray-200 shadow-none cursor-pointer hover:border-gray-300 transition-colors  "
+                        styles={{ body: { padding: '0px' } }}
                         data-cy={`settings-define-meeting-type-card-${item?.id}`}
                         onClick={() => {
                           router.push(
@@ -83,23 +83,14 @@ const DefineMeetingType = () => {
                           );
                         }}
                       >
-                        <div
-                          className="flex items-start justify-between gap-3"
-                          data-cy={`settings-define-meeting-type-card-header-${item?.id}`}
-                        >
+                        <div className="flex items-center justify-between gap-3 h-12 w-full px-4">
                           <div
-                            className="min-w-0"
-                            data-cy={`settings-define-meeting-type-card-title-section-${item?.id}`}
+                            className="text-sm font-normal text-gray-900 truncate"
+                            title={item?.name}
+                            data-cy={`settings-define-meeting-type-card-title-${item?.id}`}
                           >
-                            <div
-                              className="text-sm font-normal text-gray-900 truncate"
-                              title={item?.name}
-                              data-cy={`settings-define-meeting-type-card-title-${item?.id}`}
-                            >
-                              {item?.name}
-                            </div>
+                            {item?.name}
                           </div>
-
                           <div
                             className="shrink-0"
                             data-cy={`settings-define-meeting-type-card-actions-wrap-${item?.id}`}

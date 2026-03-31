@@ -11,6 +11,8 @@ import {
 } from '@/store/server/features/CFR/meeting/agenda-template/mutations';
 import { useGetMeetingAgendaTemplate } from '@/store/server/features/CFR/meeting/agenda-template/queries';
 import { useRouter } from 'next/navigation';
+import { IoChevronBackSharp } from 'react-icons/io5';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface TemplateData {
   id: string;
@@ -23,7 +25,7 @@ interface TemplateData {
 const MeetingTypeDetail: React.FC = () => {
   const [form] = Form.useForm();
   const router = useRouter();
-
+  const { isMobile } = useIsMobile();
   const {
     mutate: createMeetingAgendaTemplate,
     isLoading: createMeetingAgendaTemplateLoading,
@@ -147,8 +149,8 @@ const MeetingTypeDetail: React.FC = () => {
           <Button
             type="default"
             size="small"
-            icon={<ArrowLeftOutlined />}
-            className="!h-8 !w-8 !p-0 flex items-center justify-center"
+            icon={<IoChevronBackSharp />}
+            className="!h-8 !w-8 !p-0 flex items-center justify-center border-gray-200"
             onClick={() => router.back()}
             data-cy="meeting-type-detail-back-button"
             aria-label="Back"
@@ -181,7 +183,7 @@ const MeetingTypeDetail: React.FC = () => {
           data-cy="meeting-type-detail-add-button"
           id="meetingTypeDetailAddButton"
         >
-          Add new Template
+          {isMobile ? '' : 'Add new Template'}
         </Button>
       </div>
 
