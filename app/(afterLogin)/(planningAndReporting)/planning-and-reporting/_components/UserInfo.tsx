@@ -104,15 +104,15 @@ export default function UserInfo({
           {owner.avatarInitials}
         </Avatar>
         <Avatar
-          size={48}
+          size={32}
           src={owner.avatar}
           className="hidden md:block"
           style={{
             backgroundColor: PR_PRIMARY_MUTED,
             color: PR_PRIMARY,
-            fontSize: '16px',
+            fontSize: '14px',
             fontWeight: 600,
-            lineHeight: '48px',
+            lineHeight: '32px',
           }}
         >
           {owner.avatarInitials}
@@ -127,7 +127,7 @@ export default function UserInfo({
           className="flex items-center gap-2"
         >
           <p
-            className="text-sm font-semibold leading-tight md:text-base truncate max-w-[200px] md:max-w-none whitespace-nowrap"
+            className="text-sm font-normal leading-tight md:text-sm truncate max-w-[200px] md:max-w-none whitespace-nowrap"
             style={{ color: PR_TEXT }}
             title={owner.name}
             data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
@@ -137,7 +137,7 @@ export default function UserInfo({
           {cadenceLabel ? (
             <span
               data-cy="planning-reporting-userinfo-cadence"
-              className="inline-flex shrink-0 items-center leading-none rounded-md border px-2 py-0.5 text-[10px] font-semibold md:text-xs"
+              className="inline-flex shrink-0 items-center leading-none rounded border px-2 py-0.5 text-[10px] font-normal md:text-xs"
               style={{
                 borderColor: PR_BORDER,
                 backgroundColor: '#F8FAFC',

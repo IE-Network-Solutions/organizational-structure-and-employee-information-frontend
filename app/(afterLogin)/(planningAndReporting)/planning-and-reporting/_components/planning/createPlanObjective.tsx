@@ -122,16 +122,18 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
     <div
       id="planning-objective-collapse"
       data-cy="planning-objective-collapse"
-      className="mt-4"
+      className="w-full"
     >
       <Collapse
         expandIconPosition="end"
         bordered={false}
-        className="[&_.ant-collapse-header]:!items-center [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-header]:!py-2.5 [&_.ant-collapse-header]:!gap-3 [&_.ant-collapse-header]:!pr-4 [&_.ant-collapse-header-text]:!min-w-0 [&_.ant-collapse-header-text]:!flex-1 [&_.ant-collapse-header-text]:overflow-hidden [&_.ant-collapse-expand-icon]:!flex-shrink-0 [&_.ant-collapse-expand-icon]:!ml-2 [&_.ant-collapse-content-box]:!pt-0 [&_.ant-collapse-content-box]:!pb-1"
+        className="[&_.ant-collapse-item]:!border-0 [&_.ant-collapse-item]:!bg-white [&_.ant-collapse-header]:!items-center [&_.ant-collapse-header]:!bg-white [&_.ant-collapse-header]:!px-4 [&_.ant-collapse-header]:!py-3 [&_.ant-collapse-header]:!gap-3 [&_.ant-collapse-header]:!pr-4 [&_.ant-collapse-header-text]:!min-w-0 [&_.ant-collapse-header-text]:!flex-1 [&_.ant-collapse-header-text]:overflow-hidden [&_.ant-collapse-expand-icon]:!flex-shrink-0 [&_.ant-collapse-content]:!bg-white [&_.ant-collapse-content-box]:!bg-white [&_.ant-collapse-content-box]:!pt-0 [&_.ant-collapse-content-box]:!pb-2"
         defaultActiveKey={0}
         expandIcon={() => (
-          <span className="grid h-7 w-7 place-items-center rounded-md border border-[#D9DDE7] bg-[#F7F8FC] text-[#8D94A8]">
-            <DownOutlined className="text-[10px]" />
+          <span className="box-border inline-flex h-6 w-6 items-center justify-center rounded border border-[#D9D9D9] bg-[#FFFFFF] p-0">
+            <span className="inline-flex h-6 w-6 flex-row items-center justify-center gap-2 px-1">
+              <DownOutlined className="text-[14px] text-[#374151]" />
+            </span>
           </span>
         )}
       >
@@ -141,10 +143,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
             data-cy={`planning-objective-panel-${panelIndex}`}
             forceRender={true}
             header={
-              <div className="flex w-full min-w-0 flex-col gap-1">
+              <div className="flex w-full min-w-0 flex-col items-start p-0">
                 <div
                   data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-83"
-                  className="flex items-center gap-2 min-w-0"
+                  className="flex min-h-6 w-full min-w-0 items-center gap-2 p-0"
                 >
                   <span
                     className="h-4 w-4 rounded-full border border-[#D0D5DD] bg-white flex-shrink-0 grid place-items-center"
@@ -154,7 +156,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                   </span>
                   <span
                     data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-84"
-                    className="min-w-0 flex-1 truncate text-sm font-bold text-[#161A2C] overflow-hidden text-ellipsis whitespace-nowrap"
+                    className="h-6 min-w-0 flex-1 truncate overflow-hidden text-ellipsis whitespace-nowrap text-base font-bold leading-6 text-[#111827]"
                     title={e.title}
                   >
                     {e.title}
@@ -176,8 +178,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
                     return (
                       <div
-                        className="text-xs font-medium"
-                        style={{ color: '#8F94A3' }}
+                        className="h-[22px] text-sm font-normal leading-[22px]"
+                        style={{ color: 'rgba(0, 0, 0, 0.7)' }}
                         data-cy="planning-tasks-planned-count"
                       >
                         {plannedCount} Tasks Planned
@@ -188,9 +190,10 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
               </div>
             }
             key={panelIndex}
-            className="mb-4 rounded-xl overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
+            className="mb-4 overflow-hidden rounded-[10px] bg-white [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-white"
             style={{
-              border: '1px solid #e5e7eb',
+              border: '1px solid #D9D9D9',
+              background: '#FFFFFF',
             }}
           >
             {e?.keyResults?.map((kr, resultIndex) => {
@@ -207,21 +210,21 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
               return (
                 <div
                   key={resultIndex}
-                  className="rounded-xl border border-[#E6E8F0] bg-white px-3 py-3 mb-4"
+                  className={`mb-0 flex w-full flex-col items-center gap-3 rounded-none border-0 bg-white px-0 py-0 ${resultIndex > 0 ? 'border-t border-[#F0F0F0] pt-3' : ''}`}
                   data-cy="planningandreporting-planning-and-reporting-components-planning-createplanobjective-tsx-div-116"
                 >
                   <div
                     data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-109"
-                    className="flex flex-col gap-2 mb-2.5"
+                    className="flex w-full flex-col gap-3 px-4"
                   >
                     {/* Row 1: Key Icon + Task Title + Actions */}
                     <div
                       data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-111"
-                      className="flex items-center justify-between w-full min-w-0 gap-3"
+                      className="flex min-h-7 w-full items-center justify-between gap-3"
                     >
                       <div
                         data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-112"
-                        className="flex items-center gap-3 flex-1 min-w-0"
+                        className="flex min-h-7 min-w-0 flex-1 items-center gap-2"
                       >
                         <PlanningVpnKeyIcon
                           size={18}
@@ -237,7 +240,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           >
                             <span
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-142"
-                              className="block flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-bold text-[#161A2C]"
+                              className="block h-[22px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-bold leading-[22px] text-[#111827]"
                               title={kr?.title}
                             >
                               {kr?.title}
@@ -266,71 +269,59 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {kr?.metricType?.name === NAME.MILESTONE &&
-                          kr?.weight !== undefined && (
-                            <div
-                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-141"
-                              className="flex items-center gap-2"
+                      <div className="flex flex-shrink-0 items-center gap-[6px]">
+                        {((kr?.metricType?.name === NAME.MILESTONE &&
+                          kr?.weight !== undefined) ||
+                          (!hasMilestone &&
+                            kr?.metricType?.name !== NAME.MILESTONE)) && (
+                          <div
+                            data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-141"
+                            className="hidden h-[22px] items-center gap-[6px] sm:flex"
+                          >
+                            <span
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-142"
+                              className="flex h-[22px] items-center gap-1 text-sm font-normal leading-[22px] text-[#687588]"
                             >
                               <span
-                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-142"
-                                className="flex items-center gap-1.5 text-xs text-gray-400"
-                              >
-                                <span
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-143"
-                                  className="inline-block h-1.5 w-1.5 rounded-full bg-[#574CFF]"
-                                />
-                                Weight
-                              </span>
-                              <div
-                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-146"
-                                className="flex min-w-[45px] items-center justify-center rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs font-bold text-[#574CFF]"
-                              >
-                                {kr.weight}%
-                              </div>
+                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-143"
+                                className="inline-block h-1 w-1 rounded-full bg-[#4E4EF1]"
+                              />
+                              Weight
+                            </span>
+                            <div
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-146"
+                              className="flex h-[22px] min-w-[29px] items-center justify-center rounded border border-[#91CAFF] bg-[#E6F4FF] px-2 py-[1px] text-xs font-normal leading-5 text-[#1677FF]"
+                            >
+                              {Math.round(
+                                Number(
+                                  kr?.metricType?.name === NAME.MILESTONE
+                                    ? kr.weight
+                                    : plannedKeyResultWeight,
+                                ) || 0,
+                              )}
                             </div>
-                          )}
+                          </div>
+                        )}
+
+                        {/* AI */}
+                        {kr?.metricType?.name !== NAME.ACHIEVE && !krDone && (
+                          <PlanningKrAISuggestions
+                            keyResult={kr}
+                            form={form}
+                            handleAddBoard={handleAddBoard}
+                            handleAddName={handleAddName}
+                            planTypeName={planTypeNameForAi || ''}
+                            hasParentPlan={hasParentPlanForAi ?? false}
+                            getWeeklyPlanTasks={getWeeklyPlanTasksForAi}
+                            userId={userId}
+                            planningPeriodId={planningPeriodId}
+                            planningUserId={planningUserId}
+                          />
+                        )}
 
                         {!hasMilestone &&
                           kr?.metricType?.name !== NAME.MILESTONE && (
                             <>
-                              <div className="hidden sm:flex items-center gap-2">
-                                <span className="text-xs text-gray-400 flex items-center gap-1.5">
-                                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#574CFF]" />
-                                  Weight
-                                </span>
-                                <InputNumber
-                                  id={`kr-weight-input-${kr?.id}`}
-                                  data-cy={`kr-weight-input-${kr?.id}`}
-                                  className="!h-7 !rounded-md !bg-[#EEF0FF] !border !border-[#D8DAFF] !text-[#2D5BFF] !font-bold !text-xs !w-[42px] flex-shrink-0 [&_.ant-input-number-input]:!px-1"
-                                  controls={false}
-                                  min={0}
-                                  max={100}
-                                  value={plannedKeyResultWeight}
-                                  onChange={(value) => {
-                                    const nextWeight = value ?? 0;
-                                    setWeight(krFormListKey, Number(nextWeight) || 0);
-                                  }}
-                                />
-                              </div>
-
-                              {/* AI */}
-                              {kr?.metricType?.name !== NAME.ACHIEVE && !krDone && (
-                                <PlanningKrAISuggestions
-                                  keyResult={kr}
-                                  form={form}
-                                  handleAddBoard={handleAddBoard}
-                                  handleAddName={handleAddName}
-                                  planTypeName={planTypeNameForAi || ''}
-                                  hasParentPlan={hasParentPlanForAi ?? false}
-                                  getWeeklyPlanTasks={getWeeklyPlanTasksForAi}
-                                  userId={userId}
-                                  planningPeriodId={planningPeriodId}
-                                  planningUserId={planningUserId}
-                                />
-                              )}
-
                               {/* Add Plan */}
                               {kr?.metricType?.name === NAME.ACHIEVE ? (
                                 <div
@@ -347,7 +338,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                       border: '1px solid #D9D9D9',
                                       color: '#8F94A3',
                                     }}
-                                    className="h-8 min-w-[112px] shrink-0 rounded-lg bg-white font-semibold !text-[#8F94A3] hover:bg-[#FFFFFF]"
+                                    className="h-7 w-[107px] shrink-0 rounded-lg bg-white font-normal !text-[rgba(0,0,0,0.7)] hover:!bg-[#FFFFFF]"
                                     disabled={krDone}
                                     menu={{
                                       items: [
@@ -471,7 +462,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     border: '1px solid #D9D9D9',
                                     color: '#8F94A3',
                                   }}
-                                  className="h-8 min-w-[112px] shrink-0 rounded-lg bg-white font-semibold !text-[#8F94A3] hover:bg-[#FFFFFF]"
+                                  className="h-7 w-[107px] shrink-0 rounded-lg bg-white font-normal !text-[rgba(0,0,0,0.7)] hover:!bg-[#FFFFFF]"
                                   disabled={krDone}
                                 >
                                   <span className="flex items-center justify-between gap-2">
@@ -482,82 +473,6 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               )}
                             </>
                           )}
-                      </div>
-                    </div>
-
-                    {/* Row 2: Progress (Left) */}
-                    <div
-                      data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-154"
-                      className="flex items-center gap-4 ml-1 min-w-0"
-                    >
-                      <div
-                        data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-155"
-                        className="flex items-center gap-6"
-                      >
-                        {/* Dynamic Progress Indicator */}
-                        {(kr?.metricType?.name === NAME.NUMERIC ||
-                          kr?.metricType?.name === NAME.CURRENCY ||
-                          kr?.metricType?.name === NAME.PERCENTAGE ||
-                          kr?.metricType?.name === NAME.KPI) && (
-                          <div
-                            data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-161"
-                            className="flex items-center gap-2"
-                          >
-                            <span
-                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-162"
-                              className="text-xs flex items-center gap-1.5 text-gray-400"
-                            >
-                              <span
-                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-163"
-                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
-                              ></span>
-                              Progress
-                            </span>
-                            <div
-                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-166"
-                              className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
-                            >
-                              {kr?.metricType?.name === NAME.PERCENTAGE ? (
-                                <span
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-168"
-                                  className="text-[#574CFF] font-bold"
-                                >
-                                  {kr?.progress}%
-                                </span>
-                              ) : (
-                                <div
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-172"
-                                  className="flex items-center gap-1"
-                                >
-                                  <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-173"
-                                    className="text-[#574CFF] font-bold"
-                                  >
-                                    {kr?.metricType?.name === NAME.CURRENCY
-                                      ? '$'
-                                      : ''}
-                                    {(kr?.currentValue ?? 0).toLocaleString()}
-                                  </span>
-                                  <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-179"
-                                    className="text-gray-500"
-                                  >
-                                    from
-                                  </span>
-                                  <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-180"
-                                    className="text-[#574CFF] font-bold"
-                                  >
-                                    {kr?.metricType?.name === NAME.CURRENCY
-                                      ? '$'
-                                      : ''}
-                                    {(kr?.targetValue ?? 0).toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -571,11 +486,11 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         >
                           <div
                             data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-293"
-                            className="ml-3 mt-1"
+                            className="mx-auto mt-0 w-full px-4"
                           >
                             <div
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-294"
-                              className="flex items-center justify-between py-1.5 px-0 border-0 rounded-md bg-transparent gap-3"
+                              className="flex h-7 w-full items-center justify-between gap-3 border-0 bg-transparent px-0 py-0"
                             >
                               <div
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-295"
@@ -610,7 +525,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                       border: '1px solid #D9D9D9',
                                       color: '#8F94A3',
                                     }}
-                                    className="h-8 rounded-lg bg-white font-semibold !text-[#8F94A3] hover:bg-[#FFFFFF]"
+                                    className="h-7 w-[107px] rounded-lg bg-white font-normal !text-[rgba(0,0,0,0.7)] hover:bg-[#FFFFFF]"
                                     disabled={ml?.status === 'Completed' || krDone}
                                     menu={{
                                       items: [
@@ -674,7 +589,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
 
                           <div
                             data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-366"
-                            className="ml-3"
+                            className="mx-auto w-full px-4"
                           >
                             {/* Forms for Key Result and Milestone */}
                             {planningPeriodId && planningUserId && (
@@ -693,6 +608,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                       planningUserId={planningUserId}
                                       isMKAsTask={!!mkAsATask}
                                       keyResult={kr}
+                                      compactLayout={true}
                                     />
                                   </div>
                                   <Form.Item noStyle shouldUpdate>
@@ -701,12 +617,12 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                       const rows = form.getFieldValue(listName) || [];
                                       if (!Array.isArray(rows) || rows.length === 0) return null;
                                       return (
-                                        <div className="w-[100px] shrink-0 flex flex-col gap-2 py-2">
+                                        <div className="flex w-[107px] shrink-0 flex-col gap-[10px] py-[5px]">
                                           {rows.map((_: any, idx: number) => (
                                             <Button
                                               key={`${listName}-add-plan-${idx}`}
                                               type="default"
-                                              className="h-8 rounded-lg bg-white font-semibold !text-[#8F94A3] hover:!text-[#6B7280] px-2"
+                                              className="h-7 w-[107px] rounded-lg bg-white px-2 font-normal !text-[rgba(0,0,0,0.7)] hover:!text-[#6B7280] hover:!bg-white"
                                               style={{ border: '1px solid #D9D9D9' }}
                                               disabled={ml?.status === 'Completed' || krDone}
                                               onClick={() => {
@@ -744,7 +660,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                   {!hasMilestone && (
                     <div
                       data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-393"
-                      className="ml-3 mt-1.5"
+                      className="mx-auto mt-1.5 w-full px-4"
                     >
                       {planningPeriodId && planningUserId && (
                         <div className="flex gap-3">
@@ -761,6 +677,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               planningUserId={planningUserId}
                               isMKAsTask={!!mkAsATask}
                               keyResult={kr}
+                              compactLayout={true}
                             />
                           </div>
                           <Form.Item noStyle shouldUpdate>
@@ -769,12 +686,12 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               const rows = form.getFieldValue(listName) || [];
                               if (!Array.isArray(rows) || rows.length === 0) return null;
                               return (
-                                <div className="w-[100px] shrink-0 flex flex-col gap-2 py-2">
+                                <div className="flex w-[107px] shrink-0 flex-col gap-[10px] py-[5px]">
                                   {rows.map((_: any, idx: number) => (
                                     <Button
                                       key={`${listName}-add-plan-${idx}`}
                                       type="default"
-                                      className="h-8 rounded-lg bg-white font-semibold !text-[#8F94A3] hover:!text-[#6B7280] px-2"
+                                      className="h-7 w-[107px] rounded-lg bg-white px-2 font-normal !text-[rgba(0,0,0,0.7)] hover:!text-[#6B7280] hover:!bg-white"
                                       style={{ border: '1px solid #D9D9D9' }}
                                       disabled={krDone}
                                       onClick={() => {

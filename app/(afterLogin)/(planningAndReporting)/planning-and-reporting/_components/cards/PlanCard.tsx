@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button, Dropdown, MenuProps, Modal, Tooltip } from 'antd';
-import { DeleteOutlined, MoreOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EllipsisOutlined } from '@ant-design/icons';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
-import { AiOutlineEdit } from 'react-icons/ai';
+import EditIcon from '@mui/icons-material/Edit';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import { PlanSummary, ViewMode, Cadence, KeyResult, PlanTask } from '../types';
 import { formatPlanningReportDate } from '../utils';
@@ -11,12 +11,7 @@ import StatusBadge from '../StatusBadge';
 import KRSummaryBar from '../KRSummaryBar';
 import TaskRow from '../TaskRow';
 import CommentsSection from '../comments/CommentsSection';
-import {
-  PR_BORDER,
-  PR_PRIMARY,
-  PR_TEXT,
-  PR_TREE_LINE,
-} from '../planningUiTokens';
+import { PR_PRIMARY } from '../planningUiTokens';
 import { PlanningVpnKeyIcon } from '../PlanningVpnKeyIcon';
 
 /** Two concentric blue rings + center dot (objective / bullseye). */
@@ -136,6 +131,8 @@ export default function PlanCard({
   onDelete,
   canApprove = false,
   canEdit = false,
+  // Parent may pass for menu parity with canEdit; not read here (delete uses onDelete).
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- API surface
   canDelete = false,
   isApprovalLoading = false,
   dateLabel,
@@ -193,11 +190,11 @@ export default function PlanCard({
       key: 'edit',
       id: `plan-card-edit-menu-item-${plan.id}`,
       'data-cy': `plan-card-edit-menu-item-${plan.id}`,
-      icon: <AiOutlineEdit size={16} style={{ color: PR_TEXT }} />,
+      icon: <EditIcon sx={{ width: 16, height: 16, color: '#323232' }} />,
       label: (
         <Tooltip title="Edit Plan">
           <span
-            className="text-[#161A2C]"
+            className="font-normal text-[rgba(0,0,0,0.7)]"
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-90"
           >
             Edit
@@ -213,8 +210,15 @@ export default function PlanCard({
       key: 'delete',
       id: `plan-card-delete-menu-item-${plan.id}`,
       'data-cy': `plan-card-delete-menu-item-${plan.id}`,
-      icon: <DeleteOutlined className="text-[14px] text-[#DC2626]" />,
-      label: <span className="text-[#161A2C]">Delete</span>,
+      icon: <DeleteOutlined style={{ fontSize: 16, color: '#323232' }} />,
+      label: (
+        <span
+          data-cy="plan-card-delete-menu-label"
+          className="font-normal text-[rgba(0,0,0,0.7)]"
+        >
+          Delete
+        </span>
+      ),
       onClick: () => {
         Modal.confirm({
           title: 'Delete plan?',
@@ -328,13 +332,12 @@ export default function PlanCard({
     <article
       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
       className="mb-4 rounded-lg border bg-white p-4 shadow-none md:p-6"
-      style={{ borderColor: PR_BORDER }}
+      style={{ borderColor: '#D9D9D9' }}
       data-active-cadence={activeCadence}
     >
       <div
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-184"
-        className="mb-5 flex min-w-0 flex-col gap-4 border-b pb-5 sm:flex-row sm:items-start sm:justify-between"
-        style={{ borderColor: PR_BORDER }}
+        className="mb-4 flex min-w-0 flex-col gap-4 pb-1 sm:flex-row sm:items-start sm:justify-between"
       >
         <div
           data-cy="planning-reporting-plancard-user-col"
@@ -392,14 +395,14 @@ export default function PlanCard({
         >
           <div
             data-cy="planning-reporting-plancard-status-row"
-            className="flex min-w-0 flex-1 items-start gap-3 sm:flex-initial sm:items-center"
+            className="flex h-11 w-full min-w-0 items-start justify-between sm:w-[256px] sm:min-w-[256px]"
           >
             {plan.status && (
               <StatusBadge status={plan.status} timeLabel={getDateLabel()} />
             )}
             <div
               data-cy="planning-reporting-plancard-actions"
-              className="flex flex-row flex-nowrap items-center gap-1"
+              className="flex h-6 w-6 shrink-0 flex-row flex-nowrap items-center justify-end gap-1"
             >
               {canApprove && plan.status?.label === 'Open' && (
                 <Dropdown
@@ -412,17 +415,13 @@ export default function PlanCard({
                     id={`plan-card-approve-dropdown-button-${plan.id}`}
                     data-cy={`plan-card-approve-dropdown-button-${plan.id}`}
                     loading={isApprovalLoading}
-                    type="text"
+                    type="default"
                     icon={
-                      <MoreOutlined
-                        className={
-                          viewMode === 'planning'
-                            ? 'text-lg !rotate-90'
-                            : 'text-lg'
-                        }
+                      <EllipsisOutlined
+                        style={{ fontSize: 14, color: '#374151' }}
                       />
                     }
-                    className="!flex !h-9 !w-9 !items-center !justify-center !rounded-lg !p-0 text-lg text-[#6B7280] hover:!bg-[#F5F6FA]"
+                    className="planning-reporting-ellipsis-button"
                     style={{ minWidth: 'auto' }}
                   />
                 </Dropdown>
@@ -437,17 +436,13 @@ export default function PlanCard({
                   <Button
                     id={`plan-card-edit-dropdown-button-${plan.id}`}
                     data-cy={`plan-card-edit-dropdown-button-${plan.id}`}
-                    type="text"
+                    type="default"
                     icon={
-                      <MoreOutlined
-                        className={
-                          viewMode === 'planning'
-                            ? 'text-lg !rotate-90'
-                            : 'text-lg'
-                        }
+                      <EllipsisOutlined
+                        style={{ fontSize: 14, color: '#374151' }}
                       />
                     }
-                    className="!flex !h-9 !w-9 !items-center !justify-center !rounded-lg !p-0 text-lg text-[#6B7280] hover:!bg-[#F5F6FA]"
+                    className="planning-reporting-ellipsis-button"
                     style={{ minWidth: 'auto' }}
                   />
                 </Dropdown>
@@ -462,17 +457,13 @@ export default function PlanCard({
                   <Button
                     id={`plan-card-edit-delete-dropdown-button-${plan.id}`}
                     data-cy={`plan-card-edit-delete-dropdown-button-${plan.id}`}
-                    type="text"
+                    type="default"
                     icon={
-                      <MoreOutlined
-                        className={
-                          viewMode === 'planning'
-                            ? 'text-lg !rotate-90'
-                            : 'text-lg'
-                        }
+                      <EllipsisOutlined
+                        style={{ fontSize: 14, color: '#374151' }}
                       />
                     }
-                    className="!flex !h-9 !w-9 !items-center !justify-center !rounded-lg !p-0 text-lg text-[#6B7280] hover:!bg-[#F5F6FA]"
+                    className="planning-reporting-ellipsis-button"
                     style={{ minWidth: 'auto' }}
                   />
                 </Dropdown>
@@ -482,22 +473,26 @@ export default function PlanCard({
         </div>
       </div>
 
-      {/* Key results: one metrics + objective per objective; KR rows listed below */}
+      {/* Vertical order (each objective group): Header (above) → Metrics → Objective → KR title(s) → task tree */}
       {keyResultDisplayGroups.length > 0 ? (
         keyResultDisplayGroups.map((krGroup, gi) => (
           <div
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-222"
             key={`plancard-kr-group-${gi}-${krGroup[0]?.id ?? gi}`}
-            className={gi > 0 ? 'mt-6 pt-6' : ''}
+            className={gi > 0 ? 'mt-6 border-t border-[#F0F1F3] pt-6' : ''}
           >
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-224"
               className="pl-0 md:pl-2"
             >
-              {krGroup.length === 1 ? (
+              <div
+                data-cy="planning-reporting-kr-frame-1000004174"
+                className="flex w-full max-w-[1089px] flex-col items-stretch p-0"
+              >
+                {/* 1) Metrics — always first in this block (below card header / above titles); first KR drives pills when multiple KRs */}
                 <div
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-226"
-                  className="mb-5 px-0 py-1 md:py-2"
+                  data-cy="planning-reporting-plancard-metrics-row"
+                  className="my-3 flex w-full max-w-[1089px] min-h-[22px] flex-row items-center p-0"
                 >
                   <KRSummaryBar
                     plan={plan}
@@ -505,147 +500,129 @@ export default function PlanCard({
                     keyResult={krGroup[0]}
                   />
                 </div>
-              ) : null}
 
-              {objectiveTitle(krGroup[0].objective) ? (
-                <div
-                  data-cy="planning-reporting-plancard-objective-row"
-                  className="relative z-[2] mb-4 flex items-start gap-3"
-                >
+                {objectiveTitle(krGroup[0].objective) ? (
                   <div
-                    className="flex w-8 shrink-0 flex-col items-center"
-                    data-cy="planning-reporting-plancard-objective-icon-col"
+                    data-cy="planning-reporting-plancard-objective-row"
+                    className="relative z-[2] w-full flex items-start gap-3"
                   >
-                    <ObjectiveBullseyeIcon dataCy="planning-reporting-plancard-objective-icon" />
                     <div
-                      className="mt-2 h-4 w-px shrink-0 rounded-full md:h-5"
-                      style={{ backgroundColor: PR_TREE_LINE }}
-                      aria-hidden
-                      data-cy="planning-reporting-plancard-objective-connector"
-                    />
+                      className="flex h-8 w-8 shrink-0 flex-col items-center justify-center"
+                      data-cy="planning-reporting-plancard-objective-icon-col"
+                    >
+                      <ObjectiveBullseyeIcon dataCy="planning-reporting-plancard-objective-icon" />
+                    </div>
+                    <p
+                      data-cy="planning-reporting-plancard-objective-text"
+                      className="text-sm font-bold leading-snug text-[#161A2C] md:text-base"
+                    >
+                      {objectiveTitle(krGroup[0].objective)}
+                      {krGroup[0].objective?.deletedAt != null ? (
+                        <span
+                          data-cy="planning-reporting-plancard-deleted-okr"
+                          className="ml-2 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
+                        >
+                          Deleted OKR
+                        </span>
+                      ) : null}
+                    </p>
                   </div>
-                  <p
-                    data-cy="planning-reporting-plancard-objective-text"
-                    className="text-sm font-bold leading-snug text-[#161A2C] md:text-base"
-                  >
-                    {objectiveTitle(krGroup[0].objective)}
-                    {krGroup[0].objective?.deletedAt != null ? (
-                      <span
-                        data-cy="planning-reporting-plancard-deleted-okr"
-                        className="ml-2 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
-                      >
-                        Deleted OKR
-                      </span>
-                    ) : null}
-                  </p>
-                </div>
-              ) : null}
+                ) : null}
 
-              <div
-                data-cy="planning-reporting-plancard-kr-group-body"
-                className={objectiveTitle(krGroup[0].objective) ? 'pl-11' : ''}
-              >
-                {krGroup.map((keyResult, kri) => {
-                  const tasksUnderKr = collectTasksUnderKeyResult(keyResult);
-                  const hasTasks = tasksUnderKr.length > 0;
-                  const krStableKey = keyResult.id
-                    ? String(keyResult.id)
-                    : `kr-${gi}-${kri}-${(keyResult.title || keyResult.name || '').slice(0, 24)}`;
+                <div
+                  data-cy="planning-reporting-plancard-kr-group-body"
+                  className="w-full"
+                >
+                  {krGroup.map((keyResult, kri) => {
+                    const tasksUnderKr = collectTasksUnderKeyResult(keyResult);
+                    const hasTasks = tasksUnderKr.length > 0;
+                    const krStableKey = keyResult.id
+                      ? String(keyResult.id)
+                      : `kr-${gi}-${kri}-${(keyResult.title || keyResult.name || '').slice(0, 24)}`;
 
-                  return (
-                    <React.Fragment key={krStableKey}>
-                      {kri > 0 ? (
-                        <div
-                          data-cy="planning-reporting-plancard-kr-separator"
-                          className="mt-5 pt-5"
-                        />
-                      ) : null}
-                      {krGroup.length > 1 ? (
-                        <div
-                          data-cy="planning-reporting-plancard-kr-metrics"
-                          className="mb-5 px-0 py-1 md:py-2"
-                        >
-                          <KRSummaryBar
-                            plan={plan}
-                            viewMode={viewMode}
-                            keyResult={keyResult}
+                    return (
+                      <React.Fragment key={krStableKey}>
+                        {kri > 0 ? (
+                          <div
+                            data-cy="planning-reporting-plancard-kr-separator"
+                            className="mt-3 border-t border-[#F0F1F3] pt-3"
                           />
-                        </div>
-                      ) : null}
-                      <div
-                        data-cy="planning-reporting-plancard-kr-tree"
-                        className="relative mb-2"
-                      >
-                        {/* Key result — VPN key row */}
+                        ) : null}
                         <div
-                          data-cy="planning-reporting-plancard-kr-vpn-row"
-                          className="relative z-[2] mb-2 flex items-start gap-3"
+                          data-cy="planning-reporting-plancard-kr-tree"
+                          className="relative mb-1 w-full"
                         >
+                          {/* Key result — VPN key row */}
                           <div
-                            className="relative mt-0.5 flex w-8 shrink-0 items-center justify-center"
-                            data-cy="planning-reporting-plancard-kr-icon-wrap"
-                          >
-                            <PlanningVpnKeyIcon
-                              data-cy="planning-reporting-plancard-kr-icon"
-                              className="relative z-10 shrink-0"
-                              size={18}
-                              color={PR_PRIMARY}
-                            />
-                          </div>
-                          <div
-                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-240"
-                            className="min-w-0 flex-1"
-                          >
-                            <p
-                              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-241"
-                              className="line-clamp-3 text-sm font-bold leading-snug text-[#161A2C] md:text-base"
-                            >
-                              {keyResult.title ||
-                                keyResult.name ||
-                                plan.summary}
-                              {keyResult.deletedAt !== null &&
-                                keyResult.deletedAt !== undefined && (
-                                  <span
-                                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-246"
-                                    className="ml-2 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
-                                  >
-                                    Deleted KR
-                                  </span>
-                                )}
-                            </p>
-                          </div>
-                        </div>
-
-                        {hasTasks ? (
-                          <div
-                            data-cy="planning-reporting-plancard-kr-tree-content"
-                            className="relative z-[1] pl-11"
+                            data-cy="planning-reporting-plancard-kr-vpn-row"
+                            className="relative z-[2] mb-0 flex items-start gap-3"
                           >
                             <div
-                              className="pointer-events-none absolute bottom-0 left-[7px] top-[-8px] z-0 w-px bg-[#D1D5DB]"
-                              aria-hidden
-                              data-cy="planning-reporting-plancard-kr-task-trunk"
-                            />
-                            <div
-                              data-cy="planning-reporting-plancard-kr-task-list"
-                              className="relative flex flex-col gap-0 pt-0"
+                              className="flex h-8 w-8 shrink-0 flex-col items-center justify-center"
+                              data-cy="planning-reporting-plancard-kr-icon-wrap"
                             >
-                              {tasksUnderKr.map((task, index) => (
-                                <TaskRow
-                                  key={task.id}
-                                  task={task}
-                                  viewMode={viewMode}
-                                  isLast={index === tasksUnderKr.length - 1}
-                                  metricType={keyResult.metricType?.name}
-                                />
-                              ))}
+                              <PlanningVpnKeyIcon
+                                data-cy="planning-reporting-plancard-kr-icon"
+                                className="relative z-10 shrink-0"
+                                size={18}
+                                color={PR_PRIMARY}
+                              />
+                            </div>
+                            <div
+                              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-240"
+                              className="min-w-0 flex-1"
+                            >
+                              <p
+                                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-241"
+                                className="line-clamp-3 text-sm font-bold leading-snug text-[#161A2C] md:text-base"
+                              >
+                                {keyResult.title ||
+                                  keyResult.name ||
+                                  plan.summary}
+                                {keyResult.deletedAt !== null &&
+                                  keyResult.deletedAt !== undefined && (
+                                    <span
+                                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-246"
+                                      className="ml-2 inline-block rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600"
+                                    >
+                                      Deleted KR
+                                    </span>
+                                  )}
+                              </p>
                             </div>
                           </div>
-                        ) : null}
-                      </div>
-                    </React.Fragment>
-                  );
-                })}
+
+                          {hasTasks ? (
+                            <div
+                              data-cy="planning-reporting-plancard-kr-tree-content"
+                              className="relative z-[1] pt-0"
+                            >
+                              {/* Single 1px spine behind full task list; ml-8 aligns with w-8 icon column */}
+                              <div
+                                className="ml-8 min-w-0 border-l border-solid border-[#E5E7EB]"
+                                data-cy="planning-reporting-plancard-kr-task-trunk"
+                              >
+                                <div
+                                  data-cy="planning-reporting-plancard-kr-task-list"
+                                  className="flex w-full flex-col gap-1"
+                                >
+                                  {tasksUnderKr.map((task) => (
+                                    <TaskRow
+                                      key={task.id}
+                                      task={task}
+                                      viewMode={viewMode}
+                                      metricType={keyResult.metricType?.name}
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
+                        </div>
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>
@@ -661,22 +638,22 @@ export default function PlanCard({
             className="pl-0 md:pl-2"
           >
             <div
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-446"
-              className="mb-5 px-0 py-1 md:py-2"
-            >
-              <KRSummaryBar plan={plan} viewMode={viewMode} />
-            </div>
-
-            <div
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-450"
-              className="relative"
+              data-cy="planning-reporting-plancard-fallback-stack"
+              className="flex w-full max-w-[1089px] flex-col items-stretch"
             >
               <div
+                data-cy="planning-reporting-plancard-fallback-metrics-row"
+                className="my-3 flex w-full max-w-[1089px] min-h-[22px] flex-row items-center p-0"
+              >
+                <KRSummaryBar plan={plan} viewMode={viewMode} />
+              </div>
+
+              <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-451"
-                className="mb-6 flex items-start gap-3"
+                className="flex w-full items-start gap-3"
               >
                 <div
-                  className="flex w-8 shrink-0 justify-center"
+                  className="flex h-8 w-8 shrink-0 flex-col items-center justify-center"
                   data-cy="planning-reporting-plancard-fallback-objective-wrap"
                 >
                   <ObjectiveBullseyeIcon dataCy="planning-reporting-plancard-fallback-objective-icon" />
@@ -691,17 +668,21 @@ export default function PlanCard({
 
               <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-461"
-                className="flex flex-col gap-0"
+                className="mt-4 min-w-0 border-l border-solid border-[#E5E7EB] pl-0"
               >
-                {plan.tasks.map((task, index) => (
-                  <TaskRow
-                    key={task.id}
-                    task={task}
-                    viewMode={viewMode}
-                    isLast={index === plan.tasks.length - 1}
-                    metricType={plan.milestoneLabel}
-                  />
-                ))}
+                <div
+                  data-cy="planning-reporting-plancard-fallback-task-list-inner"
+                  className="flex flex-col gap-1"
+                >
+                  {plan.tasks.map((task) => (
+                    <TaskRow
+                      key={task.id}
+                      task={task}
+                      viewMode={viewMode}
+                      metricType={plan.milestoneLabel}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>

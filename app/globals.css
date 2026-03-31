@@ -1555,20 +1555,57 @@ h6 {
 
 /* Planning & Reporting: card overflow menu (Edit / Approve) */
 .planning-reporting-context-dropdown.ant-dropdown .ant-dropdown-menu {
+  box-sizing: border-box;
+  width: 145px;
+  min-width: 145px;
+  padding: 4px !important;
+  background: #ffffff;
   border-radius: 8px;
-  padding: 6px 0;
-  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.1);
-  border: 1px solid #e0e0e0;
+  border: 0;
+  box-shadow:
+    0px 9px 28px 8px rgba(0, 0, 0, 0.05),
+    0px 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0px 6px 16px 0px rgba(0, 0, 0, 0.08);
 }
 
 .planning-reporting-context-dropdown.ant-dropdown .ant-dropdown-menu-item {
-  border-radius: 6px;
-  margin: 0 6px;
-  padding: 10px 12px !important;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 5px 12px !important;
+  margin: 0 !important;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-family: Calibri, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.7) !important;
 }
 
 .planning-reporting-context-dropdown.ant-dropdown
   .ant-dropdown-menu-item-icon {
+  width: 16px;
+  min-width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 16px;
+  line-height: 16px;
+  color: #323232 !important;
+}
+
+.planning-reporting-context-dropdown.ant-dropdown
+  .ant-dropdown-menu-title-content {
+  font-family: Calibri, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: rgba(0, 0, 0, 0.7) !important;
 }
 

@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useMemo } from 'react';
 import { Button } from 'antd';
-import { FilterOutlined } from '@ant-design/icons';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import Planning from './_components/planning';
 import PlanningReportingFilterModal from './_components/filters/PlanningReportingFilterModal';
@@ -19,6 +19,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
   PR_BORDER,
+  PR_METRIC_TAG_BORDER,
   PR_PAGE_BG,
   PR_PRIMARY,
   PR_TEXT,
@@ -154,34 +155,34 @@ function PlanningReportingPageInner() {
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
-      className="pr-ant-tag-scope min-h-screen w-full px-4 pb-10 md:px-8"
+      className="pr-ant-tag-scope min-h-screen w-full bg-white px-4 pb-10 md:px-8"
       style={{ backgroundColor: PR_PAGE_BG }}
     >
       <div
         data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-131"
-        className="mx-auto h-full w-full max-w-[1200px]"
+        className="mx-auto h-full w-full max-w-[1130px]"
       >
         <div
           data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132"
-          className="flex flex-col gap-6 pt-2"
+          className="flex flex-col gap-4 pt-6"
         >
           <div
             data-cy="planning-reporting-title-row"
-            className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between"
+            className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
           >
             <header
               data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-header"
-              className="flex min-w-0 flex-1 flex-col gap-1"
+              className="flex min-w-0 flex-1 flex-col gap-0.5"
             >
               <h1
-                className="text-2xl font-bold leading-tight tracking-tight md:text-[28px]"
+                className="text-2xl font-bold leading-tight tracking-tight md:text-[36px]"
                 style={{ color: PR_TEXT }}
                 data-cy="breadcrumb-title"
               >
                 Planning and Reporting
               </h1>
               <p
-                className="text-xs font-medium md:text-sm"
+                className="text-xs font-normal md:text-sm"
                 style={{ color: PR_TEXT_MUTED }}
                 data-cy="planning-reporting-breadcrumb"
               >
@@ -191,7 +192,7 @@ function PlanningReportingPageInner() {
             <div
               id="pr-primary-action-slot"
               data-cy="planning-reporting-primary-action-slot"
-              className="flex w-full shrink-0 justify-stretch md:w-auto md:justify-end"
+              className="flex w-full shrink-0 justify-stretch pt-1 md:w-auto md:justify-end md:pt-0"
             />
           </div>
 
@@ -225,7 +226,7 @@ function PlanningReportingPageInner() {
               <button
                 type="button"
                 onClick={() => setActiveTab(2)}
-                className={`relative -mb-px ml-8 px-0.5 pb-3 text-sm font-semibold transition-colors md:ml-10 md:text-base ${
+                className={`relative -mb-px ml-6 px-0.5 pb-3 text-sm font-normal transition-colors md:ml-8 md:text-base ${
                   activeTab === 2
                     ? 'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[3px] after:rounded-t after:bg-[#2D5BFF]'
                     : 'hover:text-[#161A2C]'
@@ -246,14 +247,24 @@ function PlanningReportingPageInner() {
             >
               <Button
                 type="default"
-                icon={<FilterOutlined style={{ color: PR_TEXT_MUTED }} />}
+                icon={
+                  <FilterAltOutlinedIcon
+                    sx={{
+                      fontSize: 16,
+                      width: 16,
+                      height: 16,
+                      color: '#374151',
+                    }}
+                    aria-hidden
+                  />
+                }
                 onClick={handleFilterClick}
-                className="flex h-10 items-center gap-2 rounded-lg bg-white px-4 font-semibold shadow-sm hover:text-[#161A2C]"
+                className="planning-reporting-filter-button !m-0 !inline-flex !h-8 !min-h-[32px] !w-[84px] !min-w-[84px] !flex-row !items-center !justify-center !gap-2 !rounded-[6px] !border !border-solid !bg-white !px-[15px] !py-0 !text-sm !font-normal !leading-[22px] !shadow-none hover:!bg-white hover:!text-[rgba(0,0,0,0.85)]"
                 style={{
-                  borderColor: PR_BORDER,
-                  color: PR_TEXT,
-                  borderWidth: 1,
-                  borderStyle: 'solid',
+                  borderColor: PR_METRIC_TAG_BORDER,
+                  color: 'rgba(0, 0, 0, 0.7)',
+                  boxShadow: '0px 2px 0px rgba(0, 0, 0, 0.02)',
+                  borderRadius: 6,
                 }}
                 data-cy="planning-reporting-filter-button"
               >

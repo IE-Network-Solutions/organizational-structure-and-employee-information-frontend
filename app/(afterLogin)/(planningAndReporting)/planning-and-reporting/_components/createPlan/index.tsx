@@ -498,6 +498,9 @@ function CreatePlan() {
     () => cadencePeriodOptions.find((o) => o.value === modalPlanningPeriodId),
     [cadencePeriodOptions, modalPlanningPeriodId],
   );
+  const isWeeklySelected = (selectedPeriodMeta?.label || '')
+    .toLowerCase()
+    .includes('week');
 
   const periodHint = useMemo(() => {
     const name = (selectedPeriodMeta?.label || '').toLowerCase();
@@ -574,7 +577,7 @@ function CreatePlan() {
       footer={null}
       closable={false}
       centered
-      width={isMobile ? 'calc(100vw - 16px)' : 920}
+      width={isMobile ? 'calc(100vw - 16px)' : 962}
       maskClosable={!isLoading}
       destroyOnClose={false}
       classNames={{ wrapper: 'planning-create-plan-modal-wrapper' }}
@@ -582,9 +585,12 @@ function CreatePlan() {
       styles={{
         content: {
           padding: 0,
-          borderRadius: 12,
+          borderRadius: 8,
           overflow: 'hidden',
-          border: `1px solid ${PR_BORDER}`,
+          background:
+            'var(--Components-Modal-Component-contentBg, #FFFFFF)',
+          boxShadow:
+            '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
         },
         body: { padding: 0 },
       }}
@@ -592,14 +598,15 @@ function CreatePlan() {
     >
       <div
         data-cy="create-plan-modal-shell"
-        className="pr-ant-tag-scope flex max-h-[min(88vh,calc(100dvh-32px))] flex-col bg-white"
+        className={`pr-ant-tag-scope flex max-h-[min(88vh,calc(100dvh-32px))] flex-col bg-white ${isWeeklySelected ? 'md:h-[615px]' : 'md:h-[433px]'}`}
       >
         <header
           data-cy="create-plan-modal-header"
-          className="flex shrink-0 items-start justify-between"
+          className="flex shrink-0 items-center justify-between"
           style={{
             height: 45,
             paddingTop: 13,
+            paddingBottom: 8,
             paddingLeft: 24,
             paddingRight: 24,
             opacity: 1,
@@ -607,8 +614,8 @@ function CreatePlan() {
           }}
         >
           <h2
-            className="text-sm font-bold"
-            style={{ color: PR_TEXT }}
+            className="text-sm font-bold md:text-base"
+            style={{ color: 'rgba(0, 0, 0, 0.7)', lineHeight: '24px' }}
             data-cy="create-plan-modal-header-title"
           >
             Planning
@@ -622,11 +629,11 @@ function CreatePlan() {
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-[#6B7280] transition hover:bg-[#F5F6FA] hover:text-[#161A2C] disabled:opacity-50"
+              className="flex h-[22px] w-[22px] items-center justify-center rounded text-[rgba(0,0,0,0.45)] transition hover:bg-[#F5F6FA] disabled:opacity-50"
               aria-label="Close planning"
               data-cy="create-plan-modal-close"
             >
-              <CloseOutlined className="text-lg" />
+              <CloseOutlined className="text-base" />
             </button>
           </div>
         </header>
@@ -634,44 +641,86 @@ function CreatePlan() {
         {cadencePeriodOptions.length > 1 ? (
           <section
             data-cy="create-plan-cadence-section"
-            className="shrink-0 px-5 py-4 text-center md:px-6"
+            className="shrink-0 flex flex-col items-center gap-1 px-6 py-0 md:h-[84px]"
           >
             <p
-              className="mb-3 text-sm font-medium"
-              style={{ color: PR_TEXT }}
+              className="h-[22px] w-[127px] text-center text-sm font-normal leading-[22px]"
+              style={{ color: 'rgba(0, 0, 0, 0.7)', fontFamily: 'Calibri' }}
               data-cy="create-plan-select-period-label"
             >
               Select Planning Period
             </p>
             <div
-              className="mx-auto flex max-w-md rounded-lg border p-0.5"
-              style={{ borderColor: PR_BORDER }}
-              data-cy="create-plan-cadence-toggle"
+              className="mx-auto flex h-8 w-[202px] items-center gap-3 p-0"
+              style={{ borderColor: 'transparent' }}
               role="group"
               aria-label="Planning period"
+              data-cy="create-plan-cadence-toggle"
             >
               {cadencePeriodOptions.map((o) => {
                 const active = modalPlanningPeriodId === o.value;
+                const buttonLabel = formatPlanPeriodToggleLabel(o.label);
+                const isWeeklyButton = buttonLabel.includes('Weekly');
                 return (
                   <button
                     key={o.value}
                     type="button"
                     data-cy={`create-plan-period-${o.value}`}
-                    className="flex-1 rounded-md py-2.5 text-sm font-semibold transition"
+                    className="box-border inline-flex h-8 flex-col items-center justify-center gap-2 rounded-lg border px-4 text-sm font-normal leading-[22px]"
                     style={{
-                      backgroundColor: active ? PR_PRIMARY : 'transparent',
-                      color: active ? '#FFFFFF' : PR_TEXT,
+                      width: isWeeklyButton ? 102 : 88,
+                      background: active
+                        ? '#1E40AF'
+                        : 'var(--Components-Button-Component-defaultBg, #FFFFFF)',
+                      color: active ? '#FFFFFF' : 'rgba(0, 0, 0, 0.7)',
+                      borderColor: active
+                        ? '#1E40AF'
+                        : 'var(--Components-Button-Component-defaultBorderColor, #D9D9D9)',
+                      borderWidth: 1,
+                      borderStyle: 'solid',
+                      borderTopColor: active
+                        ? '#1E40AF'
+                        : 'var(--Components-Button-Component-defaultBorderColor, #D9D9D9)',
+                      paddingLeft: 16,
+                      paddingRight: 16,
+                      fontFamily: 'Calibri',
+                      fontWeight: 400,
+                      fontSize: 14,
+                      lineHeight: '22px',
+                      rowGap: 8,
+                      boxShadow: active
+                        ? '0px var(--ComponentsButtonGlobalcontrolOutlineWidth, 2px) 0px 0px var(--ComponentsButtonGlobalcontrolOutline, rgba(5, 145, 255, 0.1))'
+                        : '0px var(--ComponentsButtonGlobalcontrolOutlineWidth, 2px) 0px 0px var(--ColorsBrandControlcontrolTmpOutline, rgba(0, 0, 0, 0.02))',
+                      transitionDuration: '0ms',
                     }}
                     onClick={() => setModalPlanningPeriodId(o.value)}
                   >
-                    {formatPlanPeriodToggleLabel(o.label)}
+                    <span
+                      className="inline-flex h-[22px] items-center justify-center"
+                      style={{
+                        width: isWeeklyButton ? 70 : 56,
+                        fontFamily: 'Calibri',
+                        fontStyle: 'normal',
+                        fontWeight: 400,
+                        fontSize: 14,
+                        lineHeight: '22px',
+                        color: active
+                          ? 'var(--Components-Button-Component-primaryColor, #FFFFFF)'
+                          : 'rgba(0, 0, 0, 0.7)',
+                      }}
+                    >
+                      {buttonLabel}
+                    </span>
                   </button>
                 );
               })}
             </div>
             <p
-              className="mt-3 px-2 text-xs leading-relaxed"
-              style={{ color: PR_TEXT_MUTED }}
+              className={`inline-flex h-[22px] items-center justify-center whitespace-nowrap text-center text-sm font-normal leading-[22px] ${isWeeklySelected ? 'w-[454px]' : 'w-[292px]'}`}
+              style={{
+                color: 'var(--Components-Modal-Component-titleColor, #000000B2)',
+                fontFamily: 'Calibri',
+              }}
               data-cy="create-plan-period-hint"
             >
               {periodHint}
@@ -679,12 +728,15 @@ function CreatePlan() {
           </section>
         ) : (
           <section
-            className="shrink-0 px-5 py-3 text-center md:px-6"
+            className="shrink-0 flex items-center justify-center px-6 py-0 md:h-[84px]"
             data-cy="create-plan-period-hint-only"
           >
             <p
-              className="text-xs leading-relaxed"
-              style={{ color: PR_TEXT_MUTED }}
+              className={`inline-flex h-[22px] items-center justify-center whitespace-nowrap text-center text-sm font-normal leading-[22px] ${isWeeklySelected ? 'w-[454px]' : 'w-[292px]'}`}
+              style={{
+                color: 'var(--Components-Modal-Component-titleColor, #000000B2)',
+                fontFamily: 'Calibri',
+              }}
               data-cy="create-plan-period-hint-single"
             >
               {periodHint}
@@ -694,7 +746,8 @@ function CreatePlan() {
 
         <div
           data-cy="create-plan-modal-body"
-          className="min-h-0 flex-1 overflow-y-auto px-4 py-4 md:px-6"
+          className={`min-h-0 flex-1 overflow-y-auto px-6 py-3 ${isWeeklySelected ? 'md:h-[434px]' : ''}`}
+          style={{ maxHeight: isMobile ? undefined : isWeeklySelected ? 434 : 252 }}
         >
           {loadingPlanningPeriodHierarchy ? (
             <div
@@ -709,6 +762,7 @@ function CreatePlan() {
               form={form}
               name="dynamic_form_item"
               onFinish={handleOnFinish}
+              className={isWeeklySelected ? 'flex flex-col gap-3' : undefined}
             >
               {planningPeriodHierarchy?.parentPlan == null ? (
                 <PlanningObjectiveComponent
@@ -751,7 +805,7 @@ function CreatePlan() {
 
         <footer
           data-cy="planning-and-reporting-components-createplan-index-tsx-index-div-493"
-          className="flex shrink-0 flex-col gap-4 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-6"
+          className="flex h-[52px] shrink-0 items-center justify-between px-6 pb-5"
         >
           <div
             className="flex items-center gap-3"
@@ -783,14 +837,14 @@ function CreatePlan() {
             )}
           </div>
           <div
-            className="flex justify-end gap-3"
+            className="flex items-center justify-end gap-2"
             data-cy="create-plan-footer-actions"
           >
             <Button
               id="cancel-plan-button-for-planning-and-reporting"
               data-cy="cancel-plan-button-for-planning-and-reporting"
-              className="h-10 min-w-[100px] rounded-lg border bg-white font-semibold"
-              style={{ borderColor: PR_BORDER, color: PR_TEXT }}
+              className="h-8 min-w-[68px] rounded-md border bg-white px-[15px] font-normal"
+              style={{ borderColor: PR_BORDER, color: 'rgba(0, 0, 0, 0.7)' }}
               onClick={onClose}
               disabled={isLoading}
             >
@@ -807,7 +861,8 @@ function CreatePlan() {
                 id="submit-plan-button-for-planning-and-reporting"
                 data-cy="submit-plan-button-for-planning-and-reporting"
                 type="primary"
-                className="h-10 min-w-[100px] rounded-lg border-0 font-semibold !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4]"
+                className="h-8 min-w-[70px] rounded-lg border px-4 font-normal !bg-[#1E40AF] !text-white hover:!bg-[#1D4ED8]"
+                style={{ borderColor: '#1E40AF' }}
                 onClick={() => form.submit()}
                 loading={isLoading}
                 disabled={totalWeight !== 100}

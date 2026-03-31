@@ -1,51 +1,83 @@
 import React from 'react';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { PlanTask, ViewMode } from './types';
-import PriorityTag from './PriorityTag';
-import { PR_BORDER, PR_TREE_LINE } from './planningUiTokens';
+import { Tag } from 'antd';
+import { PlanTask, ViewMode, Priority } from './types';
+import { PR_BORDER } from './planningUiTokens';
+
+/** Horizontal branch — matches spine (#E5E7EB) on parent border-l */
+const TREE_LINE = '#E5E7EB';
 
 interface TaskRowProps {
   task: PlanTask;
   viewMode: ViewMode;
   /** Passed from parent for future metric-specific row rules; optional. */
   metricType?: string;
+  /** Rendered after Weight/Target chips (e.g. compact +AI). */
+  trailingSlot?: React.ReactNode;
 }
 
-/** Grey-bordered attribute chip (Weight / Target) — reporting list model. */
-function GreyAttrPill({
-  label,
-  value,
-  dataCyWrap,
-  dataCyLabel,
-  dataCyValue,
-}: {
-  label: string;
-  value: string;
-  dataCyWrap: string;
-  dataCyLabel: string;
-  dataCyValue: string;
-}) {
+/**
+ * antd 5 Tag has no `size` in typings; these classes match `size="small"` density.
+ */
+const tagChipClass =
+  '!m-0 !inline-flex !h-[22px] !min-h-[22px] !max-h-[22px] !items-center !border !px-2 !py-0 !text-xs !font-normal !leading-[22px]';
+
+const priorityStyles: Record<
+  Priority,
+  { bg: string; text: string; border: string }
+> = {
+  Low: { bg: '#F6FFED', text: '#52C41A', border: '#B7EB8F' },
+  Medium: { bg: '#FFF7E6', text: '#FA8C16', border: '#FFD591' },
+  High: { bg: '#FFF1F0', text: '#F5222D', border: '#FFA39E' },
+  Priority: { bg: '#E8EDFF', text: '#1E40AF', border: '#C7D2FE' },
+};
+
+function PriorityTagAnt({ priority }: { priority: Priority }) {
+  const safePriority: Priority =
+    priority && priorityStyles[priority] ? priority : 'Low';
+  const colors = priorityStyles[safePriority];
+  const level = priority || 'Low';
+  const displayText =
+    safePriority === 'Priority' ? level : `Priority: ${level}`;
+
   return (
-    <span
-      data-cy={dataCyWrap}
-      className="inline-flex items-center rounded border px-2.5 py-0.5 text-[10px] font-semibold md:px-3 md:text-xs"
-      style={{ borderColor: PR_BORDER, backgroundColor: '#F8FAFC' }}
+    <Tag
+      bordered
+      className={tagChipClass}
+      style={{
+        backgroundColor: colors.bg,
+        borderColor: colors.border,
+        color: colors.text,
+      }}
+      data-cy="planning-reporting-priority-tag"
     >
-      <span data-cy={dataCyLabel} className="font-medium text-[#6B7280]">
-        {label}{' '}
-      </span>
-      <span data-cy={dataCyValue} className="font-bold text-[#161A2C]">
-        {value}
-      </span>
-    </span>
+      {displayText}
+    </Tag>
+  );
+}
+
+/** Column 1: fixed w-8; L-branch centered on row height */
+function TreeGutter() {
+  return (
+    <div
+      className="relative h-9 w-8 shrink-0"
+      aria-hidden
+      data-cy="planning-reporting-taskrow-tree-gutter"
+    >
+      <div
+        className="pointer-events-none absolute left-0 top-1/2 z-0 h-px w-full -translate-y-1/2"
+        style={{ backgroundColor: TREE_LINE }}
+        data-cy="planning-reporting-taskrow-branch"
+      />
+    </div>
   );
 }
 
 export default function TaskRow({
   task,
   viewMode,
-  isLast,
-}: TaskRowProps & { isLast?: boolean }) {
+  trailingSlot,
+}: TaskRowProps) {
   const formatNumber = (value: number | string | undefined | null): string => {
     if (value === undefined || value === null) return '0';
     const num = typeof value === 'string' ? parseFloat(value) : Number(value);
@@ -69,7 +101,6 @@ export default function TaskRow({
     );
   };
 
-  /** Filled circle + white icon — matches reporting mock (pass / fail). */
   const isFailedReporting =
     viewMode === 'reporting' &&
     (task.status === 'failed' || (task as any).isAchieved === false);
@@ -86,7 +117,7 @@ export default function TaskRow({
         return (
           <span
             data-cy="planning-reporting-taskrow-status-pass"
-            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#16A34A] text-[10px] text-white md:h-5 md:w-5 md:text-xs"
+            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#16A34A] text-[10px] text-white"
             aria-label="Completed"
           >
             <CheckOutlined />
@@ -97,7 +128,7 @@ export default function TaskRow({
         return (
           <span
             data-cy="planning-reporting-taskrow-status-fail"
-            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#DC2626] text-[10px] text-white md:h-5 md:w-5 md:text-xs"
+            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-[#DC2626] text-[10px] text-white"
             aria-label="Not achieved"
           >
             <CloseOutlined />
@@ -107,7 +138,7 @@ export default function TaskRow({
       return (
         <div
           data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-55"
-          className="h-[18px] w-[18px] shrink-0 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] md:h-5 md:w-5"
+          className="h-[18px] w-[18px] shrink-0 rounded-full border border-[#E5E7EB] bg-[#F9FAFB]"
           aria-hidden
         />
       );
@@ -115,103 +146,149 @@ export default function TaskRow({
     return null;
   };
 
+  const showTree = viewMode === 'planning' || viewMode === 'reporting';
+  const title = getTaskName();
+
   return (
     <div
       data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-62"
-      className="group relative flex items-center gap-2 py-2 pl-1 md:gap-3 md:pl-2"
+      className="flex h-9 min-h-9 w-full min-w-0 shrink-0 items-center gap-3"
     >
-      {viewMode === 'planning' || viewMode === 'reporting' ? (
-        <>
-          {/* Left horizontal connector branch for the "tree" layout */}
-          <div
-            data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-64"
-            className="pointer-events-none absolute left-[-16px] top-1/2 z-0 h-px w-4 -translate-y-1/2 md:w-4"
-            style={{ backgroundColor: PR_TREE_LINE }}
-            aria-hidden
-          />
-
-          {/* Intersection node (L-shaped tree look) */}
-          <div
-            data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-68"
-            className="pointer-events-none absolute left-[-16px] top-1/2 z-[2] h-1.5 w-1.5 -translate-y-1/2 rounded-full border border-white bg-[#D1D5DB]"
-            aria-hidden
-          />
-
-          {/* Stop the vertical trunk at the last row */}
-          {isLast ? (
-            <div
-              data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-68"
-              className="pointer-events-none absolute bottom-0 left-[-16px] top-1/2 z-[1] w-px bg-white"
-              aria-hidden
-            />
-          ) : null}
-        </>
-      ) : null}
-
-      {viewMode === 'reporting' ? (
+      {/* Column 1 — tree gutter */}
+      {showTree ? (
+        <TreeGutter />
+      ) : (
         <div
-          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-71"
-          className="mt-0.5 flex w-5 shrink-0 justify-center"
-        >
-          {getStatusIcon()}
-        </div>
-      ) : null}
+          className="h-9 w-8 shrink-0"
+          aria-hidden
+          data-cy="planning-reporting-taskrow-tree-placeholder"
+        />
+      )}
 
+      {/* Column 2 — title + reporting status (fixed-width status zone) */}
       <div
-        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-73"
-        className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:gap-4"
+        data-cy="planning-reporting-taskrow-title-status"
+        className="flex min-w-0 flex-1 items-center gap-2"
       >
         <p
-          className={`min-w-0 flex-1 truncate whitespace-nowrap overflow-hidden text-ellipsis text-[10px] font-normal leading-relaxed sm:max-w-[min(100%,52%)] md:text-sm ${viewMode === 'planning' ? 'text-[#64748B]' : 'text-[#94A3B8]'} ${
+          className={`min-w-0 flex-1 truncate text-sm font-normal leading-none ${
+            viewMode === 'reporting' ? 'text-[#64748B]' : 'text-[#111827]'
+          } ${
             isFailedReporting
               ? 'line-through decoration-[#DC2626] decoration-[1.5px] opacity-80'
               : isCompletedReporting
                 ? 'line-through decoration-[#16A34A] decoration-[1.5px] opacity-80'
                 : ''
           }`}
-          title={getTaskName()}
+          title={title}
           data-cy="planningandreporting-planning-and-reporting-components-taskrow-tsx-p-96"
         >
-          {getTaskName()}
+          {title}
         </p>
+        {viewMode === 'reporting' ? (
+          <div
+            data-cy="planning-reporting-taskrow-status-slot"
+            className="flex h-9 w-8 shrink-0 items-center justify-center"
+          >
+            {getStatusIcon()}
+          </div>
+        ) : null}
+      </div>
 
-        <div
-          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-81"
-          className="flex shrink-0 items-center justify-end gap-2"
+      {/* Column 3 — chips + optional AI */}
+      <div
+        data-cy="planning-reporting-taskrow-chip-group"
+        className="flex shrink-0 items-center justify-end gap-2"
+      >
+        <PriorityTagAnt priority={task.priority} />
+
+        <Tag
+          bordered
+          className={tagChipClass}
+          style={{
+            borderColor: PR_BORDER,
+            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+            color: 'rgba(0, 0, 0, 0.7)',
+          }}
+          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-86"
         >
-          <PriorityTag priority={task.priority} />
+          <span
+            data-cy="planning-reporting-taskrow-weight-label"
+            className="text-[rgba(0,0,0,0.45)]"
+          >
+            Weight:{' '}
+          </span>
+          <span
+            data-cy="planning-reporting-taskrow-weight-value"
+            className="text-[#111827]"
+          >
+            {formatNumber(task.weight)}
+          </span>
+        </Tag>
 
-          <GreyAttrPill
-            label="Weight:"
-            value={formatNumber(task.weight)}
-            dataCyWrap="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-86"
-            dataCyLabel="planning-reporting-taskrow-weight-label"
-            dataCyValue="planning-reporting-taskrow-weight-value"
-          />
+        {viewMode === 'planning' && (
+          <Tag
+            bordered
+            className={tagChipClass}
+            style={{
+              borderColor: PR_BORDER,
+              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+              color: 'rgba(0, 0, 0, 0.7)',
+            }}
+            data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-105"
+          >
+            <span
+              data-cy="planning-reporting-taskrow-target-label-planning"
+              className="text-[rgba(0,0,0,0.45)]"
+            >
+              Target:{' '}
+            </span>
+            <span
+              data-cy="planning-reporting-taskrow-target-value-planning"
+              className="text-[#111827]"
+            >
+              {formatNumber(task.target)}
+            </span>
+          </Tag>
+        )}
 
-          {viewMode === 'planning' && (
-            <GreyAttrPill
-              label="Target:"
-              value={formatNumber(task.target)}
-              dataCyWrap="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-105"
-              dataCyLabel="planning-reporting-taskrow-target-label-planning"
-              dataCyValue="planning-reporting-taskrow-target-value-planning"
-            />
+        {viewMode === 'reporting' &&
+          task.target !== undefined &&
+          task.target !== null &&
+          Number(task.target) !== 0 && (
+            <Tag
+              bordered
+              className={tagChipClass}
+              style={{
+                borderColor: PR_BORDER,
+                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                color: 'rgba(0, 0, 0, 0.7)',
+              }}
+              data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-target-reporting"
+            >
+              <span
+                data-cy="planning-reporting-taskrow-target-label-reporting"
+                className="text-[rgba(0,0,0,0.45)]"
+              >
+                Target:{' '}
+              </span>
+              <span
+                data-cy="planning-reporting-taskrow-target-value-reporting"
+                className="text-[#111827]"
+              >
+                {formatNumber(task.target)}
+              </span>
+            </Tag>
           )}
 
-          {viewMode === 'reporting' &&
-            task.target !== undefined &&
-            task.target !== null &&
-            Number(task.target) !== 0 && (
-              <GreyAttrPill
-                label="Target:"
-                value={formatNumber(task.target)}
-                dataCyWrap="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-target-reporting"
-                dataCyLabel="planning-reporting-taskrow-target-label-reporting"
-                dataCyValue="planning-reporting-taskrow-target-value-reporting"
-              />
-            )}
-        </div>
+        {trailingSlot ? (
+          <span
+            data-cy="planning-reporting-taskrow-trailing-slot"
+            className="inline-flex shrink-0 items-center"
+          >
+            {trailingSlot}
+          </span>
+        ) : null}
       </div>
     </div>
   );

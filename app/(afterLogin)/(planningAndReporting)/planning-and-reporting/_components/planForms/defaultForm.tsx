@@ -20,6 +20,7 @@ interface DefaultCardInterface {
   isMKAsTask?: boolean;
   keyResult?: any;
   targetValue?: number;
+  compactLayout?: boolean;
 }
 
 function DefaultCardForm({
@@ -36,6 +37,7 @@ function DefaultCardForm({
   keyResult,
   targetValue,
   planId,
+  compactLayout = false,
 }: DefaultCardInterface) {
   const { setWeight } = PlanningAndReportingStore();
   const { setClickStatus } = useClickStatus();
@@ -58,7 +60,7 @@ function DefaultCardForm({
           <div
             className="[&_.ant-form-list]:!mb-0 [&_.ant-form-list]:!pb-0 [&_.ant-form-item]:!mb-0"
             style={{
-              marginBottom: '-32px',
+              marginBottom: compactLayout ? '0px' : '-32px',
               paddingBottom: 0,
               marginTop: 0,
               paddingTop: 0,
@@ -69,7 +71,7 @@ function DefaultCardForm({
               {fields.map((field) => (
                 <Form.Item
                   required={false}
-                  className="py-2"
+                  className={compactLayout ? 'py-[5px]' : 'py-2'}
                   key={field.key}
                   style={{ marginBottom: 0 }}
                 >
@@ -151,7 +153,11 @@ function DefaultCardForm({
                       alignItems: 'center',
                       gap: '12px',
                       width: '100%',
+                      height: compactLayout ? '38px' : 'auto',
                       marginBottom: '0',
+                      border: compactLayout ? '1px solid #D9D9D9' : 'none',
+                      borderRadius: compactLayout ? '8px' : '0px',
+                      padding: compactLayout ? '5px 12px' : '0px',
                     }}
                     data-cy="planningandreporting-planning-and-reporting-components-planforms-defaultform-tsx-div-143"
                   >
@@ -174,7 +180,7 @@ function DefaultCardForm({
                       <Input
                         id={`default-form-task-input-${name}-${field.name}`}
                         data-cy={`default-form-task-input-${name}-${field.name}`}
-                        className={`text-[12px] h-10 ${form.getFieldValue(name)[field.name].achieveMK} border-gray-200 rounded-lg`}
+                        className={`text-[12px] ${compactLayout ? 'h-7 rounded-md border-0 bg-transparent px-0 shadow-none' : 'h-10 border-gray-200 rounded-lg'} ${form.getFieldValue(name)[field.name].achieveMK}`}
                         disabled={
                           form.getFieldValue(name)[field.name].achieveMK
                         } // Disable if milestoneId exists
@@ -182,30 +188,33 @@ function DefaultCardForm({
                         style={{ width: '100%' }}
                       />
                     </Form.Item>
-                    <CloseCircleFilled
-                      id={`default-form-remove-button-${name}-${field.name}`}
-                      data-cy={`default-form-remove-button-${name}-${field.name}`}
-                      className="text-[#3D41FF] cursor-pointer hover:text-[#3236e6] transition-colors"
-                      style={{ fontSize: '20px' }}
-                      onClick={() => {
-                        setClickStatus(milestoneId + '', false);
-                        remove(field.name);
-                        const fieldValue = form.getFieldValue(name) || [];
-                        const totalWeight = fieldValue.reduce(
-                          (sum: number, field: any) =>
-                            Number(sum) + Number(field?.weight || 0),
-                          0,
-                        );
-                        setWeight(name, totalWeight);
-                      }}
-                    />
+                    {!compactLayout && (
+                      <CloseCircleFilled
+                        id={`default-form-remove-button-${name}-${field.name}`}
+                        data-cy={`default-form-remove-button-${name}-${field.name}`}
+                        className="text-[#3D41FF] cursor-pointer hover:text-[#3236e6] transition-colors"
+                        style={{ fontSize: '20px' }}
+                        onClick={() => {
+                          setClickStatus(milestoneId + '', false);
+                          remove(field.name);
+                          const fieldValue = form.getFieldValue(name) || [];
+                          const totalWeight = fieldValue.reduce(
+                            (sum: number, field: any) =>
+                              Number(sum) + Number(field?.weight || 0),
+                            0,
+                          );
+                          setWeight(name, totalWeight);
+                        }}
+                      />
+                    )}
                   </div>
-                  <div
-                    data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-195"
-                    className="mt-2"
-                    style={{ marginTop: '8px' }}
-                  >
-                    <Row gutter={[12, 12]} align="bottom">
+                  {!compactLayout && (
+                    <div
+                      data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-div-195"
+                      className="mt-2"
+                      style={{ marginTop: '8px' }}
+                    >
+                      <Row gutter={[12, 12]} align="bottom">
                       <Col flex="none">
                         <Row align="middle" gutter={8} wrap={false}>
                           <Col flex="none">
@@ -484,8 +493,9 @@ function DefaultCardForm({
                             </Row>
                           </Col>
                         )}
-                    </Row>
-                  </div>
+                      </Row>
+                    </div>
+                  )}
 
                   {/* {planningPeriodId && planningUserId && (
                 <Form.Item

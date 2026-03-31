@@ -11,7 +11,7 @@ import {
 import type { Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { PR_BORDER, PR_TEXT, PR_TEXT_MUTED } from '../planningUiTokens';
+import { PR_TEXT } from '../planningUiTokens';
 
 const { Option } = Select;
 
@@ -351,22 +351,22 @@ export default function PlanningReportingFilterModal({
       open={open}
       onCancel={handleModalClose}
       footer={null}
-      width={640}
+      width={493}
       centered
       destroyOnClose={false}
       className="planning-reporting-filter-modal"
       title={
         <div data-cy="planning-reporting-filter-modal-header">
           <div
-            className="text-lg font-bold md:text-xl"
-            style={{ color: PR_TEXT }}
+            className="text-base font-bold leading-6"
+            style={{ color: 'rgba(0, 0, 0, 0.7)' }}
             data-cy="planning-reporting-filter-modal-title"
           >
             Filter
           </div>
           <div
-            className="mt-1 text-sm font-normal"
-            style={{ color: PR_TEXT_MUTED }}
+            className="mt-0.5 text-sm font-normal leading-[22px]"
+            style={{ color: 'rgba(0, 0, 0, 0.45)' }}
             data-cy="planning-reporting-filter-modal-subtitle"
           >
             Select All filters that apply
@@ -374,146 +374,148 @@ export default function PlanningReportingFilterModal({
         </div>
       }
     >
-      <div className="pt-2" data-cy="planning-reporting-filter-modal-body">
-        <Row gutter={[16, 16]}>
-          {showEmployeeAndDepartment ? (
-            <Col xs={24} md={12}>
-              <ReqLabel data-cy="planning-reporting-filter-label-employee">
-                Employee
+      <div data-cy="planning-reporting-filter-modal-body">
+        <div
+          className="planning-reporting-filter-modal-content"
+          data-cy="planning-reporting-filter-modal-content-wrapper"
+        >
+          <Row gutter={[16, 16]}>
+            {showEmployeeAndDepartment ? (
+              <Col xs={24} md={12}>
+                <ReqLabel data-cy="planning-reporting-filter-label-employee">
+                  Employee
+                </ReqLabel>
+                <Select
+                  data-cy="planning-reporting-filter-employee"
+                  className={selectClassName}
+                  placeholder="Select employee"
+                  options={employeeSelectOptions}
+                  value={
+                    employeeSelectOptions.some((o) => o.value === draftEmployee)
+                      ? draftEmployee
+                      : undefined
+                  }
+                  onChange={(v) => setDraftEmployee(v)}
+                  loading={!employeeData}
+                  size="large"
+                  showSearch
+                  optionFilterProp="label"
+                />
+              </Col>
+            ) : null}
+            <Col xs={24} md={showEmployeeAndDepartment ? 12 : 12}>
+              <ReqLabel data-cy="planning-reporting-filter-label-plan-period">
+                Plan period
               </ReqLabel>
               <Select
-                data-cy="planning-reporting-filter-employee"
+                data-cy="planning-reporting-filter-cadence"
                 className={selectClassName}
-                placeholder="Select employee"
-                options={employeeSelectOptions}
-                value={
-                  employeeSelectOptions.some((o) => o.value === draftEmployee)
-                    ? draftEmployee
-                    : undefined
-                }
-                onChange={(v) => setDraftEmployee(v)}
-                loading={!employeeData}
+                placeholder="Select plan period"
+                options={cadenceOptions.map((c) => ({
+                  label: c.label,
+                  value: c.periodId,
+                }))}
+                value={draftCadenceId || undefined}
+                onChange={(v) => setDraftCadenceId(v)}
                 size="large"
-                showSearch
-                optionFilterProp="label"
               />
             </Col>
-          ) : null}
-          <Col xs={24} md={showEmployeeAndDepartment ? 12 : 12}>
-            <ReqLabel data-cy="planning-reporting-filter-label-plan-period">
-              Plan period
-            </ReqLabel>
-            <Select
-              data-cy="planning-reporting-filter-cadence"
-              className={selectClassName}
-              placeholder="Select plan period"
-              options={cadenceOptions.map((c) => ({
-                label: c.label,
-                value: c.periodId,
-              }))}
-              value={draftCadenceId || undefined}
-              onChange={(v) => setDraftCadenceId(v)}
-              size="large"
-            />
-          </Col>
-          {showEmployeeAndDepartment ? (
-            <Col xs={24} md={12}>
-              <ReqLabel data-cy="planning-reporting-filter-label-department">
-                Department
+            {showEmployeeAndDepartment ? (
+              <Col xs={24} md={12}>
+                <ReqLabel data-cy="planning-reporting-filter-label-department">
+                  Department
+                </ReqLabel>
+                <Select
+                  data-cy="planning-reporting-filter-department"
+                  className={selectClassName}
+                  placeholder="Department"
+                  options={departmentSelectOptions}
+                  value={draftDepartment}
+                  onChange={handleDepartmentDraftChange}
+                  size="large"
+                  showSearch
+                  optionFilterProp="label"
+                />
+              </Col>
+            ) : null}
+            {showEmployeeAndDepartment && showReportingPlanType ? (
+              <Col span={24}>
+                <ReqLabel data-cy="planning-reporting-filter-label-plan-type">
+                  Plan type
+                </ReqLabel>
+                <Select
+                  data-cy="planning-reporting-filter-plan-type"
+                  className={selectClassName}
+                  placeholder="Plan type"
+                  options={REPORTING_PLAN_TYPE_OPTIONS}
+                  value={draftReportingPlanType}
+                  onChange={(v) =>
+                    setDraftReportingPlanType(v as ReportingFilterPlanType)
+                  }
+                  size="large"
+                />
+              </Col>
+            ) : null}
+            <Col xs={24} md={showEmployeeAndDepartment ? 12 : 12}>
+              <ReqLabel data-cy="planning-reporting-filter-label-fiscal">
+                Fiscal Year
               </ReqLabel>
               <Select
-                data-cy="planning-reporting-filter-department"
+                data-cy="planning-reporting-filter-fiscal-year"
+                allowClear
+                placeholder="Fiscal year"
                 className={selectClassName}
-                placeholder="Department"
-                options={departmentSelectOptions}
-                value={draftDepartment}
-                onChange={handleDepartmentDraftChange}
+                value={draftFiscalId}
+                onChange={handleFiscalChange}
+                loading={loadingYears}
                 size="large"
                 showSearch
-                optionFilterProp="label"
-              />
+                optionFilterProp="children"
+              >
+                {allFiscalYears?.items?.map((year) => (
+                  <Option key={year.id} value={year.id}>
+                    {year.name}
+                  </Option>
+                ))}
+              </Select>
             </Col>
-          ) : null}
-          {showEmployeeAndDepartment && showReportingPlanType ? (
             <Col span={24}>
-              <ReqLabel data-cy="planning-reporting-filter-label-plan-type">
-                Plan type
+              <ReqLabel data-cy="planning-reporting-filter-label-session">
+                Session
               </ReqLabel>
               <Select
-                data-cy="planning-reporting-filter-plan-type"
+                data-cy="planning-reporting-filter-session"
+                mode="multiple"
+                allowClear
+                placeholder="Session"
                 className={selectClassName}
-                placeholder="Plan type"
-                options={REPORTING_PLAN_TYPE_OPTIONS}
-                value={draftReportingPlanType}
-                onChange={(v) =>
-                  setDraftReportingPlanType(v as ReportingFilterPlanType)
-                }
+                value={draftSessionIds}
+                onChange={(ids) => setDraftSessionIds(ids)}
+                disabled={!draftFiscalId}
+                loading={loadingSessions}
+                maxTagCount={2}
                 size="large"
-              />
+                showSearch
+                optionFilterProp="children"
+              >
+                {draftFiscalData?.sessions?.map((session: Session) => (
+                  <Option key={session.id} value={session.id}>
+                    {session.name}
+                  </Option>
+                ))}
+              </Select>
             </Col>
-          ) : null}
-          <Col xs={24} md={showEmployeeAndDepartment ? 12 : 12}>
-            <ReqLabel data-cy="planning-reporting-filter-label-fiscal">
-              Fiscal Year
-            </ReqLabel>
-            <Select
-              data-cy="planning-reporting-filter-fiscal-year"
-              allowClear
-              placeholder="Fiscal year"
-              className={selectClassName}
-              value={draftFiscalId}
-              onChange={handleFiscalChange}
-              loading={loadingYears}
-              size="large"
-              showSearch
-              optionFilterProp="children"
-            >
-              {allFiscalYears?.items?.map((year) => (
-                <Option key={year.id} value={year.id}>
-                  {year.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-          <Col span={24}>
-            <ReqLabel data-cy="planning-reporting-filter-label-session">
-              Session
-            </ReqLabel>
-            <Select
-              data-cy="planning-reporting-filter-session"
-              mode="multiple"
-              allowClear
-              placeholder="Session"
-              className={selectClassName}
-              value={draftSessionIds}
-              onChange={(ids) => setDraftSessionIds(ids)}
-              disabled={!draftFiscalId}
-              loading={loadingSessions}
-              maxTagCount={2}
-              size="large"
-              showSearch
-              optionFilterProp="children"
-            >
-              {draftFiscalData?.sessions?.map((session: Session) => (
-                <Option key={session.id} value={session.id}>
-                  {session.name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-        </Row>
+          </Row>
+        </div>
 
         <div
-          className="mt-8 flex items-center justify-end gap-4 border-t pt-6"
-          style={{ borderColor: PR_BORDER }}
+          className="planning-reporting-filter-modal-footer"
           data-cy="planning-reporting-filter-modal-footer"
         >
           <Button
             data-cy="planning-reporting-filter-reset"
-            type="link"
-            size="large"
-            className="!px-1 font-semibold"
-            style={{ color: PR_TEXT_MUTED }}
+            type="default"
+            className="planning-reporting-filter-modal-reset"
             onClick={handleReset}
           >
             Reset
@@ -521,9 +523,8 @@ export default function PlanningReportingFilterModal({
           <Button
             data-cy="planning-reporting-filter-save"
             type="primary"
-            size="large"
             disabled={!!draftFiscalId && loadingSessions}
-            className="min-w-[120px] rounded-lg border-0 font-semibold shadow-none !bg-[#2D5BFF] hover:!bg-[#2447D4]"
+            className="planning-reporting-filter-modal-save"
             onClick={handleSave}
           >
             Save Filter

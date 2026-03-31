@@ -1,7 +1,7 @@
 import CustomButton from '@/components/common/buttons/customButton';
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { FaPlus } from 'react-icons/fa';
+import AddIcon from '@mui/icons-material/Add';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -210,9 +210,20 @@ function Planning() {
                   loading={isLoading}
                   title="Create Plan"
                   id="createActiveTabName"
-                  icon={<FaPlus className="text-sm" aria-hidden />}
+                  icon={
+                    <AddIcon
+                      sx={{
+                        fontSize: 18,
+                        width: 18,
+                        height: 18,
+                        color: '#FFFFFF',
+                      }}
+                      aria-hidden
+                    />
+                  }
                   onClick={() => setOpen(true)}
-                  className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-11 !min-h-[44px] w-full border-0 !bg-[#2D5BFF] !text-white hover:!bg-[#2447D4] md:w-auto md:min-w-[160px]`}
+                  textClassName="!font-normal !text-base !leading-6 !text-white"
+                  className={`planning-reporting-create-plan-button ${!userPlanningPeriodId ? 'hidden' : ''} !m-0 !h-10 !min-h-[40px] !w-full !min-w-0 !justify-center !gap-2 !border-0 !rounded-lg !bg-[#1E40AF] !px-[15px] !py-0 !text-white !shadow-none hover:!bg-[#1D4ED8] md:!w-[131px] md:!min-w-[131px] md:!max-w-[131px]`}
                 />
               )}
             </div>
@@ -230,7 +241,7 @@ function Planning() {
 
       <section
         data-cy="planning-and-reporting-components-planning-index-tsx-index-section-484"
-        className="mt-2"
+        className="mt-0"
       >
         <div
           data-cy="planning-and-reporting-components-planning-index-tsx-index-div-485"

@@ -1,12 +1,11 @@
 import React from 'react';
 import {
-  PR_BORDER,
-  PR_METRIC_PILL_BG,
-  PR_METRIC_PILL_LABEL,
-  PR_METRIC_PILL_VALUE,
-  PR_PROGRESS_BORDER,
-  PR_SURFACE,
-  PR_TEXT,
+  PR_METRIC_TAG_BG_GREEN,
+  PR_METRIC_TAG_BG_NEUTRAL,
+  PR_METRIC_TAG_BORDER,
+  PR_METRIC_TAG_BORDER_GREEN,
+  PR_METRIC_TAG_TEXT,
+  PR_METRIC_TAG_TEXT_GREEN,
 } from './planningUiTokens';
 
 interface StatPillProps {
@@ -22,34 +21,38 @@ interface StatPillProps {
     | 'progress';
 }
 
+/** Figma Frame 1000004213 — Tag / Basic & Tag / Colorful (22px row, 1px 8px padding, 4px radius) */
 export default function StatPill({
   label,
   value,
   variant = 'default',
 }: StatPillProps) {
   const labelDisplay = label;
+  const green = variant === 'achieved' || variant === 'progress';
 
-  if (variant === 'achieved' || variant === 'progress') {
+  const baseClass =
+    'inline-flex h-[22px] shrink-0 items-center gap-1 rounded-[4px] border border-solid px-2 py-px text-xs font-normal leading-5 shadow-none';
+
+  if (green) {
     return (
       <span
         data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-35"
-        className="inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold shadow-none"
+        className={baseClass}
         style={{
-          backgroundColor: PR_METRIC_PILL_BG,
-          borderColor: PR_BORDER,
-          color: PR_METRIC_PILL_VALUE,
+          backgroundColor: PR_METRIC_TAG_BG_GREEN,
+          borderColor: PR_METRIC_TAG_BORDER_GREEN,
+          color: PR_METRIC_TAG_TEXT_GREEN,
         }}
       >
         <span
-          className="font-medium"
-          style={{ color: PR_METRIC_PILL_LABEL }}
+          className="font-normal"
           data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-40"
         >
           {labelDisplay}
           {': '}
         </span>
         <span
-          className="ml-0.5 font-bold"
+          className="font-normal"
           data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-58"
         >
           {value}
@@ -61,22 +64,22 @@ export default function StatPill({
   return (
     <span
       data-cy="-planningandreporting-planning-and-reporting-components-statpill-tsx-statpill-span-35"
-      className="inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold shadow-none"
+      className={baseClass}
       style={{
-        backgroundColor: PR_SURFACE,
-        borderColor: PR_BORDER,
-        color: PR_TEXT,
+        backgroundColor: PR_METRIC_TAG_BG_NEUTRAL,
+        borderColor: PR_METRIC_TAG_BORDER,
+        color: PR_METRIC_TAG_TEXT,
       }}
     >
       <span
-        className="font-medium text-[#6B7280]"
+        className="font-normal"
         data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-40"
       >
         {labelDisplay}
         {': '}
       </span>
       <span
-        className="ml-0.5 font-bold"
+        className="font-normal"
         data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-58"
       >
         {value}
