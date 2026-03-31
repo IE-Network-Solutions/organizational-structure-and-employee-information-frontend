@@ -33,6 +33,8 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useState, useEffect } from 'react';
 import { DATE_FORMAT } from '@/utils/constants';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 // Type definitions
 interface Department {
@@ -125,6 +127,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     null,
   );
   const [mobileEndDate, setMobileEndDate] = useState<dayjs.Dayjs | null>(null);
+  const [actionOpenId, setActionOpenId] = useState<string | null>(null);
+  const [deleteConfirmOpenId, setDeleteConfirmOpenId] = useState<string | null>(
+    null,
+  );
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -149,6 +155,12 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         setItemToDelete(null);
       },
     });
+  };
+
+  const handleConfirmDelete = (item: InternRecord) => {
+    handleDelete(item);
+    setDeleteConfirmOpenId(null);
+    setActionOpenId(null);
   };
 
   const columns: TableColumnsType<InternTableData> = [
@@ -337,28 +349,79 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           <Dropdown
             trigger={['click']}
             getPopupContainer={() => document.body}
-            menu={{
-              items: [
-                {
-                  label: 'Edit',
-                  key: 'edit',
-                  onClick: (e: any) => {
-                    e?.domEvent?.stopPropagation?.();
-                    e?.stopPropagation?.();
-                    handleEdit(item);
-                  },
-                },
-                {
-                  label: 'Delete',
-                  key: 'delete',
-                  onClick: (e: any) => {
-                    e?.domEvent?.stopPropagation?.();
-                    e?.stopPropagation?.();
-                    handleDelete(item);
-                  },
-                },
-              ],
+            open={actionOpenId === item.id}
+            onOpenChange={(open) => {
+              if (open) {
+                setActionOpenId(item.id);
+              } else if (actionOpenId === item.id) {
+                setActionOpenId(null);
+                setDeleteConfirmOpenId(null);
+              }
             }}
+            dropdownRender={() => (
+              <div className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md">
+                {deleteConfirmOpenId === item.id ? (
+                  <div className="p-2">
+                    <p className="text-sm font-semibold text-[#1f1f1f] mb-2">
+                      Delete Candidate
+                    </p>
+                    <p className="text-xs text-[#4D4D4D] mb-3">
+                      Are you Sure you want to delete{' '}
+                      {item?.fullName ?? 'this candidate'} from Intern ?
+                    </p>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="small"
+                        className="border border-[#D9D9D9] text-[#4D4D4D]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmOpenId(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        danger
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleConfirmDelete(item);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(item);
+                        setActionOpenId(null);
+                      }}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm  hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirmOpenId(item.id);
+                      }}
+                    >
+                      <DeleteOutlineOutlinedIcon fontSize="small" />
+                      Delete
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           >
             <Button
               onClick={(e: any) => e.stopPropagation()}
@@ -372,7 +435,6 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       };
     },
   );
-
   const handleSearchCandidate = async (
     value: string | boolean,
     keyValue: keyof typeof searchParams,

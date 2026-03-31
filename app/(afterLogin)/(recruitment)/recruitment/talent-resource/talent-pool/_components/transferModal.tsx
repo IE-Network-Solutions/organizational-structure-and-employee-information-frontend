@@ -149,6 +149,8 @@ const TransferTalentPoolToCandidateModal: React.FC<
                       value={item?.id}
                       id={`talent-acquisition-talent-pool-option-department-reonboard-${item?.id}`}
                       data-cy={`talent-acquisition-talent-pool-option-department-reonboard-${item?.id}`}
+                      className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
+
                     >
                       {item?.name}
                     </Select.Option>
@@ -203,7 +205,8 @@ const TransferTalentPoolToCandidateModal: React.FC<
                     value={jobInformation.id}
                     id={`talent-acquisition-talent-pool-option-job-${jobInformation.id}`}
                     data-cy={`talent-acquisition-talent-pool-option-job-${jobInformation.id}`}
-                  >
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
+                    >
                     {jobInformation.jobTitle}
                   </Select.Option>
                 ))}

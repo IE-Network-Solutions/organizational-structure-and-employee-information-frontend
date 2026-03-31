@@ -76,7 +76,7 @@ const TalentPoolTable: React.FC<any> = () => {
           </span>
 
           <span
-            className="text-xs font-normal text-[#4b4b4b]"
+            className="text-xs font-normal text-black opacity-45"
             data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
           >
             {record?.jobCandidateInformation?.email ?? '-'}
@@ -101,7 +101,7 @@ const TalentPoolTable: React.FC<any> = () => {
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b] text-nowrap"
           id="talent-acquisition-talent-pool-table-column-talent-pool-category"
           data-cy="talent-acquisition-talent-pool-table-column-talent-pool-category"
         >
@@ -111,7 +111,7 @@ const TalentPoolTable: React.FC<any> = () => {
       dataIndex: ['talentPoolCategory', 'title'],
       key: 'title',
       className: 'text-sm text-[#4b4b4b]',
-      width: 200,
+      width: 250,
     },
     {
       title: (
@@ -167,7 +167,7 @@ const TalentPoolTable: React.FC<any> = () => {
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-sm text-[#4b4b4b] text-nowrap"
           id="talent-acquisition-talent-pool-table-column-moved-in-date"
           data-cy="talent-acquisition-talent-pool-table-column-moved-in-date"
         >
@@ -185,7 +185,7 @@ const TalentPoolTable: React.FC<any> = () => {
           {dayjs(text).format('DD/MMM/YYYY')}
         </div>
       ),
-      width: 150,
+      width: 170,
     },
     {
       title: (

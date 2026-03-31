@@ -13,7 +13,6 @@ import {
 import { UploadChangeParam } from 'antd/es/upload/interface';
 import { useEffect } from 'react';
 import TextArea from 'antd/es/input/TextArea';
-import { FaInfoCircle } from 'react-icons/fa';
 import {
   useCreateTalentRoaster,
   useUpdateTalentRoaster,
@@ -365,52 +364,7 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             </Row>
 
             <Row gutter={16}>
-              <Col xs={12} sm={12} lg={12} md={12} xl={12}>
-                <Form.Item
-                  data-cy="talent-acquisition-talent-roaster-form-item-cgpa"
-                  id="cgpaId"
-                  name="CGPA"
-                  label={
-                    <span
-                      data-cy="talent-roaster-components-drawer-index-tsx-index-span-312"
-                      className="text-sm font-normal text-black"
-                    >
-                      CGPA{' '}
-                      <span
-                        className="text-error"
-                        data-cy="custom-label-required"
-                      >
-                        *
-                      </span>
-                    </span>
-                  }
-                  rules={[{ required: true, message: 'Please input CGPA' }]}
-                >
-                  <InputNumber
-                    id="talent-acquisition-talent-roaster-input-cgpa"
-                    data-cy="talent-acquisition-talent-roaster-input-cgpa"
-                    type="number"
-                    min={0}
-                    max={4}
-                    step={0.01}
-                    className="text-sm w-full h-10"
-                    placeholder="CGPA"
-                  />
-                </Form.Item>
-                <div
-                  id="talent-acquisition-talent-roaster-drawer-div-cgpa-info"
-                  data-cy="talent-acquisition-talent-roaster-drawer-div-cgpa-info"
-                  className="flex items-center justify-start gap-1 ml-1"
-                >
-                  <FaInfoCircle />
-                  <div
-                    data-cy="talent-roaster-components-drawer-index-tsx-index-div-335"
-                    className="text-xs font-md"
-                  >
-                    Put your point 4.0 scale
-                  </div>
-                </div>
-              </Col>
+              
               <Col xs={12} sm={12} lg={12} md={12} xl={12}>
                 <Form.Item
                   id="yearOfGraduationId"
@@ -448,11 +402,52 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   />
                 </Form.Item>
               </Col>
+              <Col xs={12} sm={12} lg={12} md={12} xl={12}>
+                <Form.Item
+                  data-cy="talent-acquisition-talent-roaster-form-item-cgpa"
+                  id="cgpaId"
+                  name="CGPA"
+                  label={
+                    <span
+                      data-cy="talent-roaster-components-drawer-index-tsx-index-span-312"
+                      className="text-sm font-normal text-black"
+                    >
+                      CGPA{' '}
+                      <span
+                        className="text-error"
+                        data-cy="custom-label-required"
+                      >
+                        *
+                      </span>
+                    </span>
+                  }
+                  rules={[{ required: true, message: 'Please input CGPA' }]}
+                >
+                  <InputNumber
+                    id="talent-acquisition-talent-roaster-input-cgpa"
+                    data-cy="talent-acquisition-talent-roaster-input-cgpa"
+                    type="number"
+                    min={0}
+                    max={4}
+                    step={0.01}
+                    className="text-sm w-full h-10"
+                    placeholder="CGPA"
+                  />
+                </Form.Item>
+                
+                  <div
+                    data-cy="talent-roaster-components-drawer-index-tsx-index-div-335"
+                    className="text-xs font-normal text-black opacity-45"
+                  >
+                    Put your point 4.0 scale
+                  </div>
+              </Col>
             </Row>
 
             <Form.Item
               id="departmentId"
               name="department"
+              className='mt-2'
               label={
                 <span
                   data-cy="talent-roaster-components-drawer-index-tsx-index-span-368"
@@ -560,9 +555,9 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
 
                 <div
                   data-cy="talent-roaster-components-drawer-index-tsx-index-div-456"
-                  className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+                  className="flex flex-col justify-center items-center text-md font-normal"
                 >
-                  <p data-cy="talent-roaster-components-drawer-index-tsx-index-p-457">
+                  <p className='font-normal text-black opacity-70' data-cy="talent-roaster-components-drawer-index-tsx-index-p-457">
                     Upload your CV
                   </p>
                   <p
@@ -574,12 +569,6 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                 </div>
               </Dragger>
             </Form.Item>
-            <div
-              data-cy="talent-roaster-components-drawer-index-tsx-index-div-464"
-              className="text-xs text-gray-500 mb-0"
-            >
-              Max file size: 5MB. File formats: .pdf, .doc, .docx
-            </div>
           </Form>
         </div>
       </div>

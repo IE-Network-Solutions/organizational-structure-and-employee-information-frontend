@@ -397,24 +397,19 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                     placeholder="CGPA"
                   />
                 </Form.Item>
-                <div
-                  data-cy="talent-acquisition-intern-drawer-div-cgpa-info"
-                  className="flex items-center justify-start gap-1 ml-1"
-                >
-                  <FaInfoCircle />
                   <div
                     data-cy="intern-components-drawer-index-tsx-index-div-329"
-                    className="text-xs font-md"
+                    className="text-xs font-normal text-black opacity-45"
                   >
                     Put your point 4.0 scale
                   </div>
-                </div>
               </Col>
             </Row>
 
             <Form.Item
               id="yearOfGraduationId"
               name="yearOfGraduation"
+              className='mt-2'
               label={
                 <span
                   data-cy="intern-components-drawer-index-tsx-index-span-338"
@@ -551,9 +546,9 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 </div>
                 <div
                   data-cy="intern-components-drawer-index-tsx-index-div-449"
-                  className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+                  className="flex flex-col justify-center items-center text-md font-normal"
                 >
-                  <p data-cy="intern-components-drawer-index-tsx-index-p-450">
+                  <p className='font-normal text-black opacity-70' data-cy="intern-components-drawer-index-tsx-index-p-450">
                     Upload your CV
                   </p>
                   <p
@@ -565,12 +560,6 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 </div>
               </Dragger>
             </Form.Item>
-            <div
-              data-cy="intern-components-drawer-index-tsx-index-div-457"
-              className="text-sm font-md mb-8"
-            >
-              Max file size: 5MB. File formats: .pdf, .doc, .docx
-            </div>
           </Form>
         </div>
       </div>

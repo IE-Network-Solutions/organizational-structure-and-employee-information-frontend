@@ -178,7 +178,7 @@ const TalentResourcePage = () => {
               <span
                 id="talent-acquisition-talent-resource-tab-talent-pool"
                 data-cy="talent-acquisition-talent-resource-tab-talent-pool"
-                className="text-base font-normal"
+                className="text-base"
               >
                 Talent Pool
               </span>
@@ -199,7 +199,7 @@ const TalentResourcePage = () => {
               <span
                 id="talent-acquisition-talent-resource-page-tab-talent-roster-label"
                 data-cy="talent-acquisition-talent-resource-tab-talent-roster"
-                className="text-base font-normal"
+                className="text-base"
               >
                 Talent Roster
               </span>
@@ -219,7 +219,7 @@ const TalentResourcePage = () => {
             label: (
               <span
                 data-cy="talent-acquisition-talent-resource-tab-intern"
-                className="text-base font-normal"
+                className="text-base"
               >
                 Intern
               </span>
@@ -330,7 +330,7 @@ const TalentResourcePage = () => {
             </div>
           ) : null
         }
-        className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+        className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
       />
     </div>
   );

@@ -137,6 +137,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                     value={candidate.id}
                     id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
                     data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
                   >
                     {candidate?.fullName}
                   </Select.Option>
@@ -174,6 +175,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                     value={item?.id}
                     id={`talent-acquisition-talent-pool-option-category-${item.id}`}
                     data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
                   >
                     {item?.title}
                   </Select.Option>

@@ -67,7 +67,7 @@ const Filters = () => {
   };
 
   const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
-  const inputClassName = 'w-full h-10 rounded-md border-gray-300';
+  const inputClassName = 'w-full h-10 rounded-md border-gray-300 scrollbar-none';
 
   const handleResetFilters = () => {
     setSearchParams('date_range', '');
@@ -165,6 +165,7 @@ const Filters = () => {
                     value={category?.id}
                     id={`talent-acquisition-talent-pool-filter-option-category-${category?.id}`}
                     data-cy={`talent-acquisition-talent-pool-filter-option-category-${category?.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF] scrollbar-none"
                   >
                     {category?.title}
                   </Option>
@@ -193,14 +194,15 @@ const Filters = () => {
             >
               {stageList &&
                 stageList?.items?.map((item: any) => (
-                  <Option
+                  <Select.Option
                     key={item?.id}
                     value={item?.id}
                     id={`talent-acquisition-talent-pool-filter-option-stage-${item?.id}`}
                     data-cy={`talent-acquisition-talent-pool-filter-option-stage-${item?.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
                   >
                     {item?.title}
-                  </Option>
+                  </Select.Option>
                 ))}
             </Select>
           </Col>
