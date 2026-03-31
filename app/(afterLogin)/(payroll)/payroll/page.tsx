@@ -1192,8 +1192,8 @@ const Payroll = () => {
       data-cy="payroll-dashboard-view-container"
       className={
         isMobile
-          ? 'bg-white pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 -mx-2 w-[calc(100%+16px)] px-4'
-          : 'min-h-screen bg-white py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6'
+          ? 'bg-white overflow-x-hidden pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 -mx-2 w-[calc(100%+16px)] px-4'
+          : 'min-h-screen bg-white overflow-x-hidden py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6'
       }
     >
       <style data-cy="payroll-dashboard-full-bleed-divider-styles">{`
@@ -1420,122 +1420,57 @@ const Payroll = () => {
         {/* Send Payslip Modal */}
         <Modal
           data-cy="payroll-send-payslip-modal-view-modal"
+          title="Email Payslips"
           open={open}
           onCancel={() => setOpen(false)}
-          footer={null}
           centered
-          width={600}
-          className="p-6"
+          width={470}
+          footer={[
+            <Button
+              id="payroll-send-payslip-cancel-click-button"
+              data-cy="payroll-send-payslip-cancel-click-button"
+              key="cancel"
+              type="default"
+              htmlType="button"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>,
+            <Button
+              id="payroll-send-payslip-send-click-button"
+              data-cy="payroll-send-payslip-send-click-button"
+              key="send"
+              type="primary"
+              htmlType="button"
+              onClick={() => {
+                if (mergedPayrollForExport?.length > 0) {
+                  sendingPaySlipHandler(mergedPayrollForExport);
+                  setOpen(false);
+                }
+              }}
+              disabled={mergedPayrollForExport?.length === 0}
+            >
+              Send
+            </Button>,
+          ]}
         >
           <div
             id="payroll-send-payslip-modal-content-view-container"
             data-cy="payroll-send-payslip-modal-content-view-container"
-            className="flex flex-col items-center justify-center gap-4"
+            className="text-gray-600"
           >
-            <h2
-              id="payroll-send-payslip-modal-title-view-text"
-              data-cy="payroll-send-payslip-modal-title-view-text"
-              className="text-2xl font-bold"
-            >
-              Send Payslip
-            </h2>
             <p
               id="payroll-send-payslip-modal-description-view-text"
               data-cy="payroll-send-payslip-modal-description-view-text"
-              className="text-lg text-gray-600"
+              className="text-base leading-6 m-0 max-w-[360px]"
             >
-              Do you wish to send payslip
+              You are about to send payslips to{' '}
+              {mergedPayrollForExport?.length ?? 0} selected employees out of{' '}
+              {(searchValue?.divisionId
+                ? payrollForExport?.divisionUsers?.length
+                : allEmployees?.items?.length) ?? 0}{' '}
+              total employees.
             </p>
-            <div
-              id="payroll-send-payslip-description-view-container"
-              data-cy="payroll-send-payslip-description-view-container"
-              className="text-center"
-            >
-              {mergedPayrollForExport?.length > 0 ? (
-                mergedPayrollForExport?.length <
-                (searchValue?.divisionId
-                  ? payrollForExport?.divisionUsers?.length
-                  : allEmployees?.items?.length) ? (
-                  <p
-                    id="payroll-send-payslip-filtered-warning-view-text"
-                    data-cy="payroll-send-payslip-filtered-warning-view-text"
-                  >
-                    This will send payslips to {mergedPayrollForExport?.length}{' '}
-                    selected employees (filtered from{' '}
-                    {searchValue?.divisionId
-                      ? payrollForExport?.divisionUsers?.length
-                      : allEmployees?.items?.length}{' '}
-                    total).
-                  </p>
-                ) : (
-                  <p
-                    id="payroll-send-payslip-all-warning-view-text"
-                    data-cy="payroll-send-payslip-all-warning-view-text"
-                  >
-                    This will send payslips to ALL{' '}
-                    {searchValue?.divisionId
-                      ? payrollForExport?.divisionUsers?.length
-                      : allEmployees?.items?.length}{' '}
-                    employees.
-                  </p>
-                )
-              ) : (
-                <p
-                  id="payroll-send-payslip-empty-warning-view-text"
-                  data-cy="payroll-send-payslip-empty-warning-view-text"
-                  style={{ color: 'red', marginTop: '8px' }}
-                >
-                  No employees selected. Please adjust your filters.
-                </p>
-              )}
-              {mergedPayrollForExport?.length > 0 &&
-                mergedPayrollForExport?.length <
-                  (searchValue?.divisionId
-                    ? payrollForExport?.divisionUsers?.length
-                    : allEmployees?.items?.length) &&
-                (searchValue?.divisionId ||
-                  searchValue?.employeeId ||
-                  searchValue?.monthId ||
-                  searchValue?.departmentId) && (
-                  <p
-                    id="payroll-send-payslip-subset-warning-view-text"
-                    data-cy="payroll-send-payslip-subset-warning-view-text"
-                    style={{ color: 'orange', marginTop: '8px' }}
-                  >
-                    Note: You&apos;re sending to a filtered subset. Clear
-                    filters to send to everyone.
-                  </p>
-                )}
-            </div>
-            <div
-              id="payroll-send-payslip-footer-view-container"
-              data-cy="payroll-send-payslip-footer-view-container"
-              className="flex gap-4 w-full justify-center mt-4"
-            >
-              <Button
-                id="payroll-send-payslip-cancel-click-button"
-                data-cy="payroll-send-payslip-cancel-click-button"
-                className="w-full h-12 text-lg font-semibold"
-                onClick={() => setOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                id="payroll-send-payslip-send-click-button"
-                data-cy="payroll-send-payslip-send-click-button"
-                type="primary"
-                className="w-full h-12 text-lg font-semibold bg-primary"
-                onClick={() => {
-                  if (mergedPayrollForExport?.length > 0) {
-                    sendingPaySlipHandler(mergedPayrollForExport);
-                    setOpen(false);
-                  }
-                }}
-                disabled={mergedPayrollForExport?.length === 0}
-              >
-                Send Payslip
-              </Button>
-            </div>
           </div>
         </Modal>
 
@@ -1596,18 +1531,16 @@ const Payroll = () => {
         </Modal>
       </div>
 
-      {/* Divider between header and content card (desktop only, full width within padded main) */}
-      {!isMobile && (
-        <div
-          id="payroll-header-divider-view-container"
-          data-cy="payroll-header-divider-view-container"
-        >
-          <Divider
-            className="payroll-dashboard-full-bleed-header-divider"
-            style={{ margin: '16px 0 24px 0', borderColor: '#f0f0f0' }}
-          />
-        </div>
-      )}
+      {/* Divider between header and content card */}
+      <div
+        id="payroll-header-divider-view-container"
+        data-cy="payroll-header-divider-view-container"
+      >
+        <Divider
+          className="payroll-dashboard-full-bleed-header-divider"
+          style={{ margin: '16px 0 24px 0', borderColor: '#f0f0f0' }}
+        />
+      </div>
 
       <div
         id="payroll-dashboard-content-wrapper"
@@ -1620,7 +1553,7 @@ const Payroll = () => {
           data-cy="payroll-content-card-view-container"
           className={
             isMobile
-              ? ''
+              ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
               : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
           }
         >
@@ -1628,14 +1561,14 @@ const Payroll = () => {
           <div
             id="payroll-filters-wrapper-view-container"
             data-cy="payroll-filters-wrapper-view-container"
-            className="flex justify-between items-center mb-8"
+            className="flex justify-between items-center gap-2 sm:gap-0 mb-8"
           >
             <Select
               id="payroll-search-employee-interact-select"
               data-cy="payroll-search-employee-interact-select"
               showSearch
               allowClear
-              className="max-w-xs min-h-[40px] min-w-[280px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
+              className="max-w-xs min-h-[40px] min-w-[240px] sm:min-w-[280px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
               placeholder="Search Employee"
               value={searchValue?.employeeId}
               onChange={(value) => handleEmployeeSelect(value)}
