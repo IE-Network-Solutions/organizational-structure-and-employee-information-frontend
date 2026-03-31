@@ -220,7 +220,7 @@ const GroupPermission = () => {
       return (
         <div
           data-cy="settings-group-permission-form-step-0"
-          className="sm:px-10"
+          className=""
         >
           <div
             className="grid gap-4 border border-[#d9d9d9] rounded-md p-4"
@@ -520,7 +520,7 @@ const GroupPermission = () => {
 
     return (
       <div
-        className="flex justify-end gap-3  border-gray-100 mt-4 sm:px-10"
+        className="flex justify-end gap-3  border-gray-100 mt-4"
         id="settings-group-permission-actions"
         data-cy="settings-group-permission-actions"
       >
@@ -583,6 +583,7 @@ const GroupPermission = () => {
       onCancel={handleCancel}
       data-cy="settings-group-permission-modal"
       zIndex={10002}
+      centered
     >
       <style data-cy="user-sidebar-steps-style">{`
               /* Keep step labels on a single line */

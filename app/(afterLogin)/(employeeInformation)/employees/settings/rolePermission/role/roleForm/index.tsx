@@ -340,7 +340,7 @@ const ListOfRoles = () => {
   const renderStepContent = () => {
     if (currentStep === 0) {
       return (
-        <div data-cy="settings-role-form-step-0" className="sm:px-10">
+        <div data-cy="settings-role-form-step-0">
           <div
             className="grid gap-4 p-4 border border-[#d9d9d9] rounded-md"
             id="settings-role-form-wrapper"
@@ -793,7 +793,7 @@ const ListOfRoles = () => {
         {isStep0 && (
           <Button
             id="cancelButtonForRole"
-            className="px-6 py-3 text-sm font-normal border border-[#d9d9d9]"
+            className="h-8 font-normal border border-[#d9d9d9]"
             onClick={handleCancel}
             data-cy="settings-role-cancel-btn"
           >
@@ -802,7 +802,7 @@ const ListOfRoles = () => {
         )}
         {(isStep1 || isStep2) && (
           <Button
-            className="px-6 py-3 text-sm font-normal border border-[#d9d9d9]"
+            className="h-8 font-normal border border-[#d9d9d9]"
             onClick={handleBack}
             data-cy="settings-role-back-btn"
           >
@@ -812,7 +812,7 @@ const ListOfRoles = () => {
         {isStep0 || isStep1 ? (
           <Button
             type="primary"
-            className="px-6 py-3 text-sm font-normal"
+            className="h-8 font-normal"
             onClick={handleContinue}
             data-cy="settings-role-continue-btn"
           >
@@ -821,7 +821,7 @@ const ListOfRoles = () => {
         ) : (
           <Button
             id="roleAction"
-            className="px-6 py-3 text-xs font-bold"
+            className="h-8 font-normal"
             type="primary"
             loading={
               createRoleMutation.isLoading || updateRoleMutation.isLoading
@@ -857,6 +857,7 @@ const ListOfRoles = () => {
         data-cy="settings-role-modal"
         zIndex={10002}
         styles={{ body: { padding: 0 } }}
+        centered
       >
         <style data-cy="user-sidebar-steps-style">{`
               /* Keep step labels on a single line */
