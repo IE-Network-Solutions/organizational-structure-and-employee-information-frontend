@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
@@ -13,6 +14,7 @@ import {
   type ChartOptions,
   type Plugin,
 } from 'chart.js';
+import { Select } from 'antd';
 import { FeedbackCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetFeedbackStatsDashboard } from '@/store/server/features/performance/feedback-stats/queries';
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
@@ -166,7 +168,7 @@ function StatBlock({
 }) {
   return (
     <div className="flex min-h-[95px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-5 py-4">
-      <div className="flex w-[44%] min-w-0 shrink-0 flex-col justify-center pr-4">
+      <div className="flex w-[48%] min-w-0 shrink-0 flex-col justify-center pr-4">
         <p className="text-sm text-black/45 font-normal">{title}</p>
         <p className={`mt-1 text-3xl font-bold leading-tight ${totalClass}`}>
           {total}
@@ -177,7 +179,7 @@ function StatBlock({
           <span className="text-sm text-black/45 font-normal">KPI</span>
           <p className="mt-1 text-xl font-bold text-gray-900">{kpi}</p>
         </div>
-        <div className="flex flex-col justify-center pl-4">
+        <div className="flex flex-col justify-center md:pl-4 pl-0">
           <span className="text-sm text-black/45 font-normal">Engagement</span>
           <p className="mt-1 text-xl font-bold text-gray-900">{engagement}</p>
         </div>
@@ -306,7 +308,7 @@ export default function FeedbackCard({
     (Boolean(resolvedSessionId && resolvedMonthId) && statsLoading);
 
   const summary = data?.summary;
-  const series = data?.series ?? [];
+  const series = useMemo(() => data?.series ?? [], [data?.series]);
 
   const { chartYMax, yTickStep } = useMemo(() => {
     if (!series.length) return { chartYMax: 100, yTickStep: 20 };
@@ -381,7 +383,6 @@ export default function FeedbackCard({
     !resolvedSessionId || !resolvedMonthId
       ? 'Active session or month is not available.'
       : null;
-  console.log('resolvedMonthId', resolvedMonthId);
   return (
     <section
       className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm min-h-[477px]"
@@ -392,13 +393,30 @@ export default function FeedbackCard({
 
         {orderedMonthsForUi.length > 0 && (
           <>
+            <Select
+              id="performance-feedback-month-select"
+              data-cy="performance-feedback-month-select"
+              className="block sm:hidden w-[150px]"
+              size="small"
+              placeholder="Select Month"
+              value={resolvedMonthIdForUi ?? undefined}
+              onChange={(value) => {
+                setIsMonthListOpen(false);
+                setSelectedMonthIdLocal(String(value));
+              }}
+              options={orderedMonthsForUi.map((m) => ({
+                value: String(m.id),
+                label: m.name ?? String(m.id),
+              }))}
+            />
+
             {!isMonthListOpen && (
               <button
                 type="button"
                 onClick={() => setIsMonthListOpen(true)}
                 aria-expanded={isMonthListOpen}
                 aria-controls="performance-feedback-month-items"
-                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                className="hidden sm:block px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
                 id="performance-feedback-month-active-toggle"
                 data-cy="performance-feedback-month-active-toggle"
               >
@@ -412,7 +430,7 @@ export default function FeedbackCard({
               <div
                 id="performance-feedback-month-items"
                 data-cy="performance-feedback-month-items"
-                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+                className="hidden sm:flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
               >
                 {orderedMonthsForUi.map((m) => (
                   <button

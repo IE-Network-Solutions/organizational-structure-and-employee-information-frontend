@@ -17,16 +17,22 @@ import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-man
 export default function EmployeeDashboardPage() {
   const { data: combinedHrData, isLoading: combinedHrLoading } =
     useGetCombinedHrDashboard();
-  const modules = ['OrgAndEmpAuditLog', 'RecruitmentAuditLog', 'TimesheetAuditLog'];
-  const { data: auditLogs, isLoading: isLoadingAuditLogs } = useGetAggregateAuditPostLogs({
-    modules: modules,
-      page: 1,
-      limit: 5,
-      orderBy: 'performedAt',
-      orderDirection: 'DESC',
-    },
-    true,
-  );
+  const modules = [
+    'OrgAndEmpAuditLog',
+    'RecruitmentAuditLog',
+    'TimesheetAuditLog',
+  ];
+  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
+    useGetAggregateAuditPostLogs(
+      {
+        modules: modules,
+        page: 1,
+        limit: 5,
+        orderBy: 'performedAt',
+        orderDirection: 'DESC',
+      },
+      true,
+    );
   const auditLogsData = useMemo(() => {
     return auditLogs?.items ?? [];
   }, [auditLogs]);
@@ -116,7 +122,12 @@ export default function EmployeeDashboardPage() {
               className="md:mt-6 mt-2 md:col-span-4 col-span-12"
               data-cy="employee-dashboard-recent-hr-actions-section"
             >
-              <RecentHrActions auditLogs={auditLogsData} isLoading={isLoadingAuditLogs} auditLogModules={modules} height="490px"/>
+              <RecentHrActions
+                auditLogs={auditLogsData}
+                isLoading={isLoadingAuditLogs}
+                auditLogModules={modules}
+                height="490px"
+              />
             </div>
           </div>
         </div>

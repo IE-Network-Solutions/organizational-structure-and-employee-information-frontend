@@ -8,12 +8,14 @@ import type { ActionPlansDashboard } from './interface';
 const getActionPlansDashboard = async (
   sessionId: string,
   monthId: string,
+  type: string | null | undefined,
 ): Promise<ActionPlansDashboard> => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const params = new URLSearchParams({
     sessionId,
     monthId,
+    ...(type != null ? { type } : {}),
   });
   const res = await crudRequest({
     url: `${ORG_DEV_URL}/action-plans/dashboard?${params.toString()}`,
@@ -29,10 +31,16 @@ const getActionPlansDashboard = async (
 export const useGetActionPlansDashboard = (
   sessionId: string | null | undefined,
   monthId: string | null | undefined,
+  type: string | null | undefined,
 ) => {
   return useQuery<ActionPlansDashboard>(
-    ['actionPlansDashboard', sessionId, monthId],
-    () => getActionPlansDashboard(sessionId as string, monthId as string),
+    ['actionPlansDashboard', sessionId, monthId, type],
+    () =>
+      getActionPlansDashboard(
+        sessionId as string,
+        monthId as string,
+        type as string,
+      ),
     {
       enabled: Boolean(sessionId && monthId),
     },

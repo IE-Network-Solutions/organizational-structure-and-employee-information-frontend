@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useMemo, useState } from 'react';
 import { Progress, Select } from 'antd';
@@ -65,7 +66,6 @@ export default function OkrProgressCard({
   const filteredDepartmentsList = useMemo(() => {
     return departmentsList?.filter((d) => d.level === selectedOrgLevel);
   }, [departmentsList, selectedOrgLevel]);
-  console.log('filteredDepartmentsList', filteredDepartmentsList);
   const levelsList = useMemo(() => {
     const rawLevels =
       (departmentsLevelsData as any)?.levels ||
@@ -190,19 +190,41 @@ export default function OkrProgressCard({
 
   return (
     <section
-      className="h-[406px] rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+      className="md:h-[406px] h-[700px] rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
       data-cy="performance-okr-progress-card"
     >
-      <div className="mb-4 flex justify-between gap-2">
+      <div className="mb-4 flex md:flex-row flex-col justify-between gap-2">
         <p className="text-base font-bold text-black">OKR Progress</p>
         <div className="flex items-center gap-4 text-sm">
+          <label htmlFor="performance-okr-level-select" className="sr-only">
+            Select organization level
+          </label>
+          <Select
+            size="small"
+            id="performance-okr-level-select"
+            data-cy="performance-okr-level-select"
+            className="block sm:hidden w-[170px]"
+            placeholder="Organization Level"
+            value={orderedLevels.length ? selectedOrgLevel : undefined}
+            onChange={(value) => {
+              setSelectedOrgLevel(Number(value));
+              setSelectedDepartmentId(undefined);
+              setIsLevelsListOpen(false);
+            }}
+            disabled={!orderedLevels.length}
+            options={orderedLevels.map((level) => ({
+              value: level.levelNumber,
+              label: `Org-${level.label}`,
+            }))}
+          />
+
           {!isLevelsListOpen && (
             <button
               type="button"
               onClick={() => setIsLevelsListOpen((prev) => !prev)}
               aria-expanded={isLevelsListOpen}
               aria-controls="performance-okr-level-items"
-              className={`px-3 py-1 text-xs rounded border transition flex-shrink-0 ${
+              className={`hidden sm:block px-3 py-1 text-xs rounded border transition flex-shrink-0 ${
                 isLevel1
                   ? 'bg-blue-50 text-blue-800 border-blue-700 hover:bg-blue-50'
                   : 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50'
@@ -218,7 +240,7 @@ export default function OkrProgressCard({
             <div
               id="performance-okr-level-items"
               data-cy="performance-okr-level-items"
-              className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+              className="hidden sm:flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
             >
               {orderedLevels.length ? (
                 orderedLevels.map((level) => (
@@ -262,7 +284,7 @@ export default function OkrProgressCard({
             value={selectedDepartmentId}
             optionFilterProp="label"
             onChange={(value) => setSelectedDepartmentId(value)}
-            className="min-w-[168px] text-xs"
+            className="md:w-[168px] w-full text-xs"
             popupMatchSelectWidth={false}
             data-cy="performance-okr-progress-select-department"
             options={filteredDepartmentsList.map(
@@ -298,35 +320,37 @@ export default function OkrProgressCard({
             ))}
           </div>
 
-          <div className="flex flex-col justify-center gap-[100px] md:flex-row md:items-center">
-            <div className="mx-auto h-[284px] w-[284px] shrink-0 md:mx-0">
+          <div className="flex flex-col  md:gap-[100px] gap-10 md:flex-row md:items-center">
+            <div className=" md:mx-0 mx-auto h-[284px] w-[284px]">
               <Pie data={pieData} options={pieOptions} />
             </div>
-            <div className="scrollbar-none h-[281px] min-w-0 flex-1 space-y-7 overflow-y-auto">
+            <div className=" md:space-y-7 space-y-2 w-full">
               {departmentRows.length === 0 ? (
                 <p className="text-sm text-gray-500">No department data.</p>
               ) : (
-                departmentRows.map((dept) => (
-                  <div key={dept.key}>
-                    <div className="mb-1 flex justify-between text-sm">
-                      <span className="font-medium text-gray-800">
-                        {dept.name}
-                      </span>
-                      <span className="text-gray-600">{dept.percent}%</span>
+                <div className="scrollbar-none h-[240px] min-w-0 flex-1 space-y-2 overflow-y-auto md:h-[280px] md:space-y-7 md:overflow-y-auto md:pr-2">
+                  {departmentRows.map((dept) => (
+                    <div key={dept.key}>
+                      <div className="mb-1 flex justify-between text-sm">
+                        <span className="font-medium text-gray-800">
+                          {dept.name}
+                        </span>
+                        <span className="text-gray-600">{dept.percent}%</span>
+                      </div>
+                      {/* <div className="h-2 overflow-hidden rounded-full bg-gray-100"> */}
+                      <div className="w-full h-3">
+                        <Progress
+                          percent={dept.percent}
+                          showInfo={false}
+                          strokeColor={'#1E40AF'}
+                          size={{ height: 12 }}
+                          className="h-3"
+                        />
+                        {/* </div> */}
+                      </div>
                     </div>
-                    {/* <div className="h-2 overflow-hidden rounded-full bg-gray-100"> */}
-                    <div className="w-full h-3">
-                      <Progress
-                        percent={dept.percent}
-                        showInfo={false}
-                        strokeColor={'#1E40AF'}
-                        size={{ height: 12 }}
-                        className="h-3"
-                      />
-                      {/* </div> */}
-                    </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
           </div>

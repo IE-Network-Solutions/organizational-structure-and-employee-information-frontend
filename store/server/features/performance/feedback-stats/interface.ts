@@ -32,6 +32,8 @@ export interface FeedbackStatsPerformer {
   kpiCount: number;
   engagementCount: number;
   total: number;
+  kpiScore: number;
+  engagementScore: number;
 }
 
 export interface FeedbackStatsPerformers {

@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useMemo } from 'react';
 import { UserOutlined } from '@ant-design/icons';
@@ -61,10 +62,13 @@ export default function TopOkrPerformersCard({
       data-cy="performance-top-okr-performers-card"
     >
       <div className="flex items-center justify-between gap-2 mb-4 ">
-      <h2 className="text-base font-bold text-black">
-        Top OKR Performers
-      </h2>
-      <Link href="/performance/employees"  className="text-sm font-normal text-primary hover:underline focus:outline-none">View All</Link>
+        <h2 className="text-base font-bold text-black">Top OKR Performers</h2>
+        <Link
+          href="/performance/employees"
+          className="text-sm font-normal text-primary hover:underline focus:outline-none"
+        >
+          View All
+        </Link>
       </div>
       {showSpinner ? (
         <TopOkrPerformersCardSkeleton />

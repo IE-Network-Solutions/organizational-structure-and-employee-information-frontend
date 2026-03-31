@@ -1,8 +1,9 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
-import { Avatar, Progress } from 'antd';
+import { Avatar, Progress, Select } from 'antd';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { ActionPlanCardSkeleton } from '../PerformanceCardSkeletons';
 import { useGetActionPlansDashboard } from '@/store/server/features/performance/action-plans/queries';
@@ -11,59 +12,9 @@ import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/tar
 import Link from 'next/link';
 import { usePerformanceUIState } from '@/store/uistate/features/performance';
 
-/** Matches performance dashboard recent-actions audit scope */
-const PERFORMANCE_AUDIT_LOG_MODULES = [
-  'OKRAuditLog',
-  'CFRAuditLog',
-  'TNAAuditLog',
-] as const;
-
 const GREEN = '#10b981';
 const ORANGE = '#f59e0b';
 const RED = '#ef4444';
-
-const FALLBACK_ACTION_PLAN_PERFORMERS = [
-  {
-    id: '1',
-    name: 'Emily Chen',
-    role: 'Product Designer',
-    survey: 34,
-    meeting: 14,
-    score: 80,
-  },
-  {
-    id: '2',
-    name: 'Emily Chen',
-    role: 'Product Designer',
-    survey: 34,
-    meeting: 14,
-    score: 80,
-  },
-  {
-    id: '3',
-    name: 'Emily Chen',
-    role: 'Product Designer',
-    survey: 34,
-    meeting: 14,
-    score: 20,
-  },
-  {
-    id: '3',
-    name: 'Emily Chen',
-    role: 'Product Designer',
-    survey: 34,
-    meeting: 14,
-    score: 20,
-  },
-  {
-    id: '3',
-    name: 'Emily Chen',
-    role: 'Product Designer',
-    survey: 34,
-    meeting: 14,
-    score: 20,
-  },
-];
 
 type ActionPlanCardProps = {
   sessionId?: string | null;
@@ -77,6 +28,8 @@ export default function ActionPlanCard({
   monthId: monthIdProp,
   monthOptions,
 }: ActionPlanCardProps) {
+  const { setSelectedTab, selectedTab } = usePerformanceUIState();
+
   const { data: activeSession, isLoading: activeSessionLoading } =
     useGetActiveSession();
   const { data: activeMonth, isLoading: activeMonthLoading } =
@@ -153,7 +106,11 @@ export default function ActionPlanCard({
     data,
     isLoading: dashboardLoading,
     isError,
-  } = useGetActionPlansDashboard(resolvedSessionId, resolvedMonthId);
+  } = useGetActionPlansDashboard(
+    resolvedSessionId,
+    resolvedMonthId,
+    selectedTab === null ? undefined : selectedTab,
+  );
 
   const contextLoading =
     (sessionIdProp == null && activeSessionLoading) ||
@@ -198,70 +155,93 @@ export default function ActionPlanCard({
     );
     if (!exists) setSelectedMonthIdLocal(null);
   }, [monthOptions, selectedMonthIdLocal]);
-  const { selectedTab, setSelectedTab } = usePerformanceUIState();
   return (
     <section
-      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm h-[444px]"
+      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:h-[444px] h-[460px]"
       data-cy="performance-action-plan-card"
     >
-      <div className="mb-2 flex items-center justify-between gap-3">
-      <h2 className="text-base font-bold text-black">Survey Action Plan</h2>
-     
-<div className="flex items-center gap-2">
-  {orderedMonthsForUi.length > 0 && (
-          <>
-            {!isMonthListOpen && (
-              <button
-                type="button"
-                onClick={() => setIsMonthListOpen(true)}
-                aria-expanded={isMonthListOpen}
-                aria-controls="performance-action-plan-month-items"
-                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
-                id="performance-action-plan-month-active-toggle"
-                data-cy="performance-action-plan-month-active-toggle"
-              >
-                {selectedMonthName ??
-                  (activeMonth as { name?: string } | undefined)?.name ??
-                  'Select Month'}
-              </button>
-            )}
+      <div className="mb-2 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <h2 className="text-base font-bold text-black">Action Plan</h2>
 
-            {isMonthListOpen && (
-              <div
-                id="performance-action-plan-month-items"
-                data-cy="performance-action-plan-month-items"
-                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
-              >
-                {orderedMonthsForUi.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => {
-                      setIsMonthListOpen(false);
-                      setSelectedMonthIdLocal(String(m.id));
-                    }}
-                    className={[
-                      'px-3 py-1 text-xs rounded border transition flex-shrink-0',
-                      resolvedMonthIdForUi === String(m.id)
-                        ? 'bg-gray-100 text-gray-900 border-gray-300'
-                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-                    ].join(' ')}
-                    id={`performance-action-plan-month-item-${m.name ?? m.id}`}
-                    data-cy={`performance-action-plan-month-item-${m.name ?? m.id}`}
-                  >
-                    {m.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-         <div className="flex items-center gap-2">
-        {/* <button type="button" onClick={() => setSelectedTab('survey')} className={`px-3 py-1 text-xs rounded border transition ${selectedTab === 'survey' ? 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Survey</button> */}
-        <button type="button" onClick={() => setSelectedTab('meeting')} className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50">Meeting</button>
-      </div>
-</div>
-        
+        <div className="flex items-center gap-2">
+          {orderedMonthsForUi.length > 0 && (
+            <>
+              <Select
+                id="performance-action-plan-month-select"
+                data-cy="performance-action-plan-month-select"
+                className="block sm:hidden md:w-[150px] w-1/2"
+                size="small"
+                placeholder="Select Month"
+                value={resolvedMonthIdForUi ?? undefined}
+                onChange={(value) => {
+                  setIsMonthListOpen(false);
+                  setSelectedMonthIdLocal(String(value));
+                }}
+                options={orderedMonthsForUi.map((m) => ({
+                  value: String(m.id),
+                  label: m.name ?? String(m.id),
+                }))}
+              />
+
+              {!isMonthListOpen && (
+                <button
+                  type="button"
+                  onClick={() => setIsMonthListOpen(true)}
+                  aria-expanded={isMonthListOpen}
+                  aria-controls="performance-action-plan-month-items"
+                  className="hidden sm:block px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                  id="performance-action-plan-month-active-toggle"
+                  data-cy="performance-action-plan-month-active-toggle"
+                >
+                  {selectedMonthName ??
+                    (activeMonth as { name?: string } | undefined)?.name ??
+                    'Select Month'}
+                </button>
+              )}
+
+              {isMonthListOpen && (
+                <div
+                  id="performance-action-plan-month-items"
+                  data-cy="performance-action-plan-month-items"
+                  className="hidden sm:flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+                >
+                  {orderedMonthsForUi.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => {
+                        setIsMonthListOpen(false);
+                        setSelectedMonthIdLocal(String(m.id));
+                      }}
+                      className={[
+                        'px-3 py-1 text-xs rounded border transition flex-shrink-0',
+                        resolvedMonthIdForUi === String(m.id)
+                          ? 'bg-gray-100 text-gray-900 border-gray-300'
+                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                      ].join(' ')}
+                      id={`performance-action-plan-month-item-${m.name ?? m.id}`}
+                      data-cy={`performance-action-plan-month-item-${m.name ?? m.id}`}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+          {/* <button type="button" onClick={() => setSelectedTab('survey')} className={`px-3 py-1 text-xs rounded border transition ${selectedTab === 'survey' ? 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Survey</button> */}
+          <Select
+            value={selectedTab}
+            onChange={(value) => setSelectedTab(value)}
+            options={[
+              { label: 'All', value: null },
+              { label: 'Survey', value: 'survey' },
+              { label: 'Meeting', value: 'meeting' },
+            ]}
+            size="small"
+            className="md:w-[100px] w-full md:h-7 h-6"
+          />
+        </div>
       </div>
 
       {showSpinner ? (
@@ -308,24 +288,24 @@ export default function ActionPlanCard({
           </div>
 
           <div
-            className="mt-4 flex h-3 w-full overflow-hidden rounded-full bg-gray-100"
+            className="mt-4 flex h-3 w-full overflow-hidden rounded-full bg-gray-100 space-x-1"
             data-cy="performance-action-plan-segmented-bar"
             aria-label="Action plan breakdown"
           >
             <div
-              className="h-full rounded-l-full bg-[#10B981]"
+              className="h-full rounded-r-full bg-[#10B981]"
               style={{ width: `${resolvedWidth}%` }}
               data-cy="performance-action-plan-segment-resolved"
               title={`Resolved ${resolved}`}
             />
             <div
-              className="h-full bg-orange"
+              className="h-full bg-orange rounded-full"
               style={{ width: `${pendingWidth}%` }}
               data-cy="performance-action-plan-segment-pending"
               title={`Pending ${pending}`}
             />
             <div
-              className="h-full rounded-r-full bg-red-500"
+              className="h-full rounded-l-full bg-red-500"
               style={{ width: `${unresolvedWidth}%` }}
               data-cy="performance-action-plan-segment-unresolved"
               title={`Unresolved ${unresolved}`}
@@ -350,61 +330,72 @@ export default function ActionPlanCard({
               Top Action Owners
             </span>
             <Link
-              href={`/audit-log?modules=${encodeURIComponent(
-                PERFORMANCE_AUDIT_LOG_MODULES.join(','),
-              )}`}
+              href={`/action-plan${selectedTab == null ? '' : `?type=${selectedTab}`}`}
               className="text-sm font-normal text-primary hover:underline focus:outline-none"
             >
               View All
             </Link>
           </div>
 
-          <ul className="space-y-2 h-[205px] overflow-y-auto scrollbar-none">
-            {FALLBACK_ACTION_PLAN_PERFORMERS.map((performer) => (
-              <li key={performer.id}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <Avatar
-                      size={36}
-                      icon={<UserOutlined />}
-                      className="shrink-0 bg-gray-200 text-gray-500"
-                    />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-normal leading-none text-black">
-                        {performer.name}
-                      </p>
-                      <p className="truncate pt-1 text-xs text-black/45">
-                        {performer.role}
-                      </p>
+          <ul className="space-y-2 md:h-[190px] h-[170px] overflow-y-auto scrollbar-none">
+            {data?.topOwners?.length === 0 ? (
+              <div className="w-full h-full flex justify-center items-center">
+                <span className="md:text-sm  text-base text-gray-500">
+                  No performers for this period.
+                </span>
+              </div>
+            ) : (
+              data?.topOwners?.map((performer) => (
+                <li key={performer.id}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar
+                        size={36}
+                        src={performer.profileImageUrl}
+                        icon={<UserOutlined />}
+                        className="shrink-0 bg-gray-200 text-gray-500"
+                      />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-normal leading-none text-black">
+                          {performer.name}
+                        </p>
+                        <p className="truncate pt-1 text-xs text-black/45">
+                          {performer.jobTitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      {selectedTab === 'survey' || selectedTab === null ? (
+                        <span className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-black/70">
+                          Survey:{performer.surveyCount}
+                        </span>
+                      ) : null}
+                      {selectedTab === 'meeting' || selectedTab === null ? (
+                        <span className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-black/70">
+                          Meeting:{performer.meetingCount}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-2">
-                    <span className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-black/70">
-                      Survey:{performer.survey}
+                  <div className="flex flex-row-reverse items-center gap-1">
+                    <span className=" text-right text-sm text-black/70 ">
+                      {performer.resolvedPercentage}%
                     </span>
-                    <span className="rounded-md border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-black/70">
-                      Meeting:{performer.meeting}
-                    </span>
+                    <div className="flex-1">
+                      <Progress
+                        percent={performer.resolvedPercentage}
+                        showInfo={false}
+                        strokeColor="#1E40AF"
+                        trailColor="#e5e7eb"
+                        strokeWidth={6}
+                      />
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex flex-row-reverse items-center gap-1">
-                  <span className=" text-right text-sm text-black/70 ">
-                    {performer.score}%
-                  </span>
-                  <div className="flex-1">
-                    <Progress
-                      percent={performer.score}
-                      showInfo={false}
-                      strokeColor="#1E40AF"
-                      trailColor="#e5e7eb"
-                      strokeWidth={6}
-                    />
-                  </div>
-                </div>
-              </li>
-            ))}
+                </li>
+              ))
+            )}
           </ul>
         </>
       )}

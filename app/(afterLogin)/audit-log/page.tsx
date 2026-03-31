@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetAggregateAuditLogs, useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
+import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
 import { AuditLog } from '@/types/tenant-management';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -203,8 +203,7 @@ const AuditLogPage = () => {
       key: 'module',
       render: (unusedValue: any, record: any) => {
         // If a specific module is selected, show that module's display name
-        const displayName = 
-         getModuleDisplayName(record?.module);
+        const displayName = getModuleDisplayName(record?.module);
 
         return (
           <span
@@ -421,7 +420,6 @@ const AuditLogPage = () => {
             className="w-full h-10"
             data-cy="audit-log-action-select-popover"
             id="audit-log-action-select-popover"
-
           >
             {actions.map((action) => (
               <Option

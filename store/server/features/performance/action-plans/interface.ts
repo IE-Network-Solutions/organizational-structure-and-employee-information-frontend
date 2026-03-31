@@ -1,3 +1,14 @@
+export interface ActionPlanTopOwner {
+  id: string;
+  name: string;
+  surveyCount: number;
+  meetingCount: number;
+  resolvedPercentage: number;
+  jobTitle: string;
+  profileImageUrl: string | null;
+  total: number;
+}
+
 export interface ActionPlansDashboard {
   sessionId: string;
   monthId: string | null;
@@ -7,4 +18,5 @@ export interface ActionPlansDashboard {
   unresolved: number;
   resolvedPercentage: number;
   resolvedPercentagePointDifferenceFromPreviousMonth: number | null;
+  topOwners?: ActionPlanTopOwner[];
 }

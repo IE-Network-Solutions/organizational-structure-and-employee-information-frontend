@@ -47,9 +47,6 @@ const formatTime = (date?: string) => {
   return dateObject.toLocaleString();
 };
 
-const normalizeText = (value?: string) =>
-  (value || '').toLowerCase().replace(/[\s_-]+/g, '');
-
 const getActionTitle = (action?: string) => {
   const actionLower = action?.toLowerCase();
   if (
@@ -130,7 +127,7 @@ const getIconDataByAction = (action?: string, module?: string) => {
     }
     if (moduleKey === 'TimesheetAuditLog') {
       return {
-        icon: <MdOutlineAccessTimeFilled  className="w-4 h-4" />,
+        icon: <MdOutlineAccessTimeFilled className="w-4 h-4" />,
         iconBgClassName: 'bg-[#4096FF]/15',
         iconClassName: 'text-[#4096FF]',
       };
@@ -243,7 +240,7 @@ export default function RecentHrActions({
             Recent HR Actions
           </h3>
         </div>
-        
+
         <Link
           href={`/audit-log?modules=${encodeURIComponent(auditLogModules?.join(',') ?? '')}`}
           className="text-sm font-medium text-blue hover:underline whitespace-nowrap"
@@ -261,19 +258,40 @@ export default function RecentHrActions({
             className="space-y-4"
             data-cy="recent-hr-actions-loading-skeleton"
           >
-            {Array.from({ length: SKELETON_ITEMS_COUNT }).map((_, index) => (
-              <div
-                key={`recent-hr-actions-skeleton-${index}`}
-                className="flex items-start gap-3"
-              >
-                <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
-                <div className="flex-1 min-w-0 space-y-2 pt-1">
-                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-3 w-11/12 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
-                </div>
-              </div>
-            ))}
+            {Array.from({ length: SKELETON_ITEMS_COUNT }).map(
+              (unusedItem, index) => {
+                void unusedItem;
+                return (
+                  <div
+                    key={`recent-hr-actions-skeleton-${index}`}
+                    className="flex items-start gap-3"
+                    data-cy={`recent-hr-actions-skeleton-row-${index}`}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-full bg-gray-200 animate-pulse flex-shrink-0"
+                      data-cy={`recent-hr-actions-skeleton-icon-${index}`}
+                    />
+                    <div
+                      className="flex-1 min-w-0 space-y-2 pt-1"
+                      data-cy={`recent-hr-actions-skeleton-content-${index}`}
+                    >
+                      <div
+                        className="h-4 w-32 bg-gray-200 rounded animate-pulse"
+                        data-cy={`recent-hr-actions-skeleton-title-${index}`}
+                      />
+                      <div
+                        className="h-3 w-11/12 bg-gray-200 rounded animate-pulse"
+                        data-cy={`recent-hr-actions-skeleton-desc-${index}`}
+                      />
+                      <div
+                        className="h-3 w-24 bg-gray-200 rounded animate-pulse"
+                        data-cy={`recent-hr-actions-skeleton-time-${index}`}
+                      />
+                    </div>
+                  </div>
+                );
+              },
+            )}
           </div>
         ) : (
           <Steps

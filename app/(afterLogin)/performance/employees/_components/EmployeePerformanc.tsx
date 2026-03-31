@@ -40,6 +40,7 @@ const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
     </span>
   );
 });
+ScoreTag.displayName = 'ScoreTag';
 
 // Memoized employee details component to prevent unnecessary re-renders
 const EmployeeDetails = React.memo(
@@ -91,6 +92,7 @@ const EmployeeDetails = React.memo(
     );
   },
 );
+EmployeeDetails.displayName = 'EmployeeDetails';
 
 // Memoized session detail component to prevent unnecessary re-renders
 const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
@@ -113,6 +115,7 @@ const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
     </span>
   );
 });
+SessionDetail.displayName = 'SessionDetail';
 
 export default function EmployeePerformanceTable() {
   const {
@@ -246,4 +249,4 @@ export default function EmployeePerformanceTable() {
       )}
     </div>
   );
-};
+}

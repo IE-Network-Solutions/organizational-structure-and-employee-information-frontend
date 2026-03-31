@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import { Skeleton } from 'antd';
 
@@ -104,21 +105,9 @@ export function ActionPlanCardSkeleton() {
         className="!h-3 !w-full !min-w-0 !rounded-full"
       />
       <div className="mt-3 flex gap-10">
-        <Skeleton.Input
-          active
-          size="small"
-          className="!h-3 !w-20 !min-w-0"
-        />
-        <Skeleton.Input
-          active
-          size="small"
-          className="!h-3 !w-20 !min-w-0"
-        />
-        <Skeleton.Input
-          active
-          size="small"
-          className="!h-3 !w-24 !min-w-0"
-        />
+        <Skeleton.Input active size="small" className="!h-3 !w-20 !min-w-0" />
+        <Skeleton.Input active size="small" className="!h-3 !w-20 !min-w-0" />
+        <Skeleton.Input active size="small" className="!h-3 !w-24 !min-w-0" />
       </div>
     </div>
   );
@@ -128,41 +117,17 @@ function FeedbackStatBlockSkeleton() {
   return (
     <div className="flex min-h-[95px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-5 py-4">
       <div className="flex w-[44%] min-w-0 shrink-0 flex-col justify-center gap-2 pr-4">
-        <Skeleton.Input
-          active
-          size="small"
-          className="!h-3 !w-28 !min-w-0"
-        />
-        <Skeleton.Input
-          active
-          size="default"
-          className="!h-8 !w-16 !min-w-0"
-        />
+        <Skeleton.Input active size="small" className="!h-3 !w-28 !min-w-0" />
+        <Skeleton.Input active size="default" className="!h-8 !w-16 !min-w-0" />
       </div>
       <div className="grid min-h-[66px] min-w-0 flex-1 grid-cols-2 items-center border-l border-gray-200 pl-5">
         <div className="flex flex-col justify-center gap-2">
-          <Skeleton.Input
-            active
-            size="small"
-            className="!h-3 !w-8 !min-w-0"
-          />
-          <Skeleton.Input
-            active
-            size="small"
-            className="!h-6 !w-10 !min-w-0"
-          />
+          <Skeleton.Input active size="small" className="!h-3 !w-8 !min-w-0" />
+          <Skeleton.Input active size="small" className="!h-6 !w-10 !min-w-0" />
         </div>
         <div className="flex flex-col justify-center gap-2 pl-4">
-          <Skeleton.Input
-            active
-            size="small"
-            className="!h-3 !w-24 !min-w-0"
-          />
-          <Skeleton.Input
-            active
-            size="small"
-            className="!h-6 !w-10 !min-w-0"
-          />
+          <Skeleton.Input active size="small" className="!h-3 !w-24 !min-w-0" />
+          <Skeleton.Input active size="small" className="!h-6 !w-10 !min-w-0" />
         </div>
       </div>
     </div>

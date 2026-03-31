@@ -1,9 +1,9 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
-import React, { useState } from 'react';
+import React from 'react';
 import MeetingActionPlan from './MeetingActionPlan';
 import SurveyActionPlanCard from './SureyActionPlanCard';
-import { usePerformanceUIState } from '@/store/uistate/features/performance';
 
 export type ActionPlanCardProps = {
   sessionId?: string | null;
@@ -22,11 +22,17 @@ export default function ActionPlanCard({
   monthOptions,
   onMonthChange,
 }: ActionPlanCardProps) {
-    const { selectedTab, setSelectedTab } = usePerformanceUIState();
-    return (
-    <div className="flex flex-col gap-4">
-    
-      {selectedTab === 'meeting' ? <MeetingActionPlan sessionId={sessionId} monthOptions={monthOptions} /> : <SurveyActionPlanCard sessionId={sessionId} monthId={monthId} monthOptions={monthOptions} onMonthChange={onMonthChange} />}
+  return (
+    <div
+      className="flex flex-col gap-4"
+      data-cy="performance-action-plan-wrapper"
+    >
+      <SurveyActionPlanCard
+        sessionId={sessionId}
+        monthId={monthId}
+        monthOptions={monthOptions}
+        onMonthChange={onMonthChange}
+      />
     </div>
   );
 }

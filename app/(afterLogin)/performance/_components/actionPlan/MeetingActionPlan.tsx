@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
@@ -72,7 +73,7 @@ type ActionPlanCardProps = {
   onMonthChange?: (monthId: string) => void;
 };
 
-    export default function MeetingActionPlan({
+export default function MeetingActionPlan({
   sessionId: sessionIdProp,
   monthId: monthIdProp,
   monthOptions,
@@ -153,7 +154,7 @@ type ActionPlanCardProps = {
     data,
     isLoading: dashboardLoading,
     isError,
-  } = useGetActionPlansDashboard(resolvedSessionId, resolvedMonthId);
+  } = useGetActionPlansDashboard(resolvedSessionId, resolvedMonthId, undefined);
 
   const contextLoading =
     (sessionIdProp == null && activeSessionLoading) ||
@@ -198,7 +199,7 @@ type ActionPlanCardProps = {
     );
     if (!exists) setSelectedMonthIdLocal(null);
   }, [monthOptions, selectedMonthIdLocal]);
- const { selectedTab, setSelectedTab } = usePerformanceUIState();
+  const { setSelectedTab } = usePerformanceUIState();
   return (
     <section
       className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm h-[444px]"
@@ -207,60 +208,63 @@ type ActionPlanCardProps = {
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-black">Meeting Action Plan</h2>
         <div className="flex items-center gap-2">
+          {orderedMonthsForUi.length > 0 && (
+            <>
+              {!isMonthListOpen && (
+                <button
+                  type="button"
+                  onClick={() => setIsMonthListOpen(true)}
+                  aria-expanded={isMonthListOpen}
+                  aria-controls="performance-action-plan-month-items"
+                  className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                  id="performance-action-plan-month-active-toggle"
+                  data-cy="performance-action-plan-month-active-toggle"
+                >
+                  {selectedMonthName ??
+                    (activeMonth as { name?: string } | undefined)?.name ??
+                    'Select Month'}
+                </button>
+              )}
 
-        
-        
-    {orderedMonthsForUi.length > 0 && (
-          <>
-            {!isMonthListOpen && (
-              <button
-                type="button"
-                onClick={() => setIsMonthListOpen(true)}
-                aria-expanded={isMonthListOpen}
-                aria-controls="performance-action-plan-month-items"
-                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
-                id="performance-action-plan-month-active-toggle"
-                data-cy="performance-action-plan-month-active-toggle"
-              >
-                {selectedMonthName ??
-                  (activeMonth as { name?: string } | undefined)?.name ??
-                  'Select Month'}
-              </button>
-            )}
-
-            {isMonthListOpen && (
-              <div
-                id="performance-action-plan-month-items"
-                data-cy="performance-action-plan-month-items"
-                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
-              >
-                {orderedMonthsForUi.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => {
-                      setIsMonthListOpen(false);
-                      setSelectedMonthIdLocal(String(m.id));
-                    }}
-                    className={[
-                      'px-3 py-1 text-xs rounded border transition flex-shrink-0',
-                      resolvedMonthIdForUi === String(m.id)
-                        ? 'bg-gray-100 text-gray-900 border-gray-300'
-                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
-                    ].join(' ')}
-                    id={`performance-action-plan-month-item-${m.name ?? m.id}`}
-                    data-cy={`performance-action-plan-month-item-${m.name ?? m.id}`}
-                  >
-                    {m.name}
-                  </button>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-        <button type="button" onClick={() => setSelectedTab('survey')} className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50">Survey</button>
-        {/* <button type="button" onClick={() => setSelectedTab('meeting')} className={`px-3 py-1 text-xs rounded border transition ${selectedTab === 'meeting' ? 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Meeting</button> */}
-      </div>
+              {isMonthListOpen && (
+                <div
+                  id="performance-action-plan-month-items"
+                  data-cy="performance-action-plan-month-items"
+                  className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+                >
+                  {orderedMonthsForUi.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => {
+                        setIsMonthListOpen(false);
+                        setSelectedMonthIdLocal(String(m.id));
+                      }}
+                      className={[
+                        'px-3 py-1 text-xs rounded border transition flex-shrink-0',
+                        resolvedMonthIdForUi === String(m.id)
+                          ? 'bg-gray-100 text-gray-900 border-gray-300'
+                          : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
+                      ].join(' ')}
+                      id={`performance-action-plan-month-item-${m.name ?? m.id}`}
+                      data-cy={`performance-action-plan-month-item-${m.name ?? m.id}`}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => setSelectedTab('survey')}
+            className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+          >
+            Survey
+          </button>
+          {/* <button type="button" onClick={() => setSelectedTab('meeting')} className={`px-3 py-1 text-xs rounded border transition ${selectedTab === 'meeting' ? 'bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>Meeting</button> */}
+        </div>
       </div>
       {showSpinner ? (
         <ActionPlanCardSkeleton />

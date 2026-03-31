@@ -5,4 +5,3 @@ export interface DepartmentsLevelsResponse {
    */
   [key: string]: any;
 }
-

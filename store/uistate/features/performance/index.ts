@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type PerformanceTab = 'meeting' | 'survey';
+type PerformanceTab = 'meeting' | 'survey' | null;
 
 interface PerformanceUIState {
   selectedTab: PerformanceTab;
@@ -8,6 +8,6 @@ interface PerformanceUIState {
 }
 
 export const usePerformanceUIState = create<PerformanceUIState>((set) => ({
-  selectedTab: 'meeting',
+  selectedTab: null,
   setSelectedTab: (tab) => set({ selectedTab: tab }),
 }));

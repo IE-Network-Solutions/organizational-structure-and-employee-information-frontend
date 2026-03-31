@@ -18,9 +18,7 @@ export type OkrSearchProps = {
   allEmployeeLayout?: boolean;
 };
 
-const OkrSearch: React.FC<OkrSearchProps> = ({
-  allEmployeeLayout = false,
-}) => {
+const OkrSearch: React.FC<OkrSearchProps> = ({ allEmployeeLayout = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     searchObjParams,
@@ -157,7 +155,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
     allEmployeeLayout,
     fiscalYearId,
     setFiscalYearId,
-      setSessionIds,
+    setSessionIds,
   ]);
 
   const DepartmentWithUsers = Departments?.filter(

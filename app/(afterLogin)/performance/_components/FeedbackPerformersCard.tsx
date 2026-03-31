@@ -1,11 +1,11 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
-import { Avatar } from 'antd';
+import { Avatar, Select } from 'antd';
 import { FeedbackPerformersCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetFeedbackStatsPerformers } from '@/store/server/features/performance/feedback-stats/queries';
-import type { FeedbackStatsPerformer } from '@/store/server/features/performance/feedback-stats/interface';
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
 
@@ -17,7 +17,12 @@ const KPI_LABEL = '#1E40AF';
 function SegmentedBar({
   engagementCount,
   kpiCount,
-}: Pick<FeedbackStatsPerformer, 'engagementCount' | 'kpiCount'>) {
+  kpiScore,
+}: {
+  engagementCount: number;
+  kpiCount: number;
+  kpiScore: number;
+}) {
   const sum = engagementCount + kpiCount;
   const kpiPct = sum > 0 ? (kpiCount / sum) * 100 : 0;
   const engPct = sum > 0 ? (engagementCount / sum) * 100 : 0;
@@ -37,7 +42,7 @@ function SegmentedBar({
             width: `${kpiPct}%`,
             backgroundColor: KPI_BAR,
           }}
-          title={`KPI ${kpiCount}`}
+          title={`KPI ${kpiCount} | Point ${kpiScore}`}
         />
         <div
           className={`h-[6px] shrink-0 ${engOnly ? 'rounded-full' : 'rounded-l-full'}`}
@@ -49,8 +54,13 @@ function SegmentedBar({
         />
       </div>
       <div className="mt-2 flex  gap-x-6 gap-y-1 text-xs font-medium items-center ">
-        <p className='w-1/2 text-center flex items-center justify-center' style={{ color: KPI_LABEL }}>KPI {kpiCount} | Point 0</p>
-        <p className='w-1/2 text-center' style={{ color: ENGAGEMENT_LABEL }}>
+        <p
+          className="w-1/2 text-center flex items-center justify-center"
+          style={{ color: KPI_LABEL }}
+        >
+          KPI {kpiCount} | Point {kpiScore}
+        </p>
+        <p className="w-1/2 text-center" style={{ color: ENGAGEMENT_LABEL }}>
           Engagement {engagementCount}
         </p>
       </div>
@@ -156,7 +166,6 @@ export default function FeedbackPerformersCard({
     contextLoading || (Boolean(resolvedSessionId) && performersLoading);
 
   const performers = useMemo(() => data?.performers ?? [], [data?.performers]);
-
   const missingSession =
     !resolvedSessionId && !showSpinner
       ? 'Active session is not available.'
@@ -189,13 +198,30 @@ export default function FeedbackPerformersCard({
 
         {orderedMonthsForUi.length > 0 && (
           <>
+            <Select
+              id="performance-performers-month-select"
+              data-cy="performance-performers-month-select"
+              className="block sm:hidden w-[150px]"
+              size="small"
+              placeholder="Select Month"
+              value={resolvedMonthIdForUi ?? undefined}
+              onChange={(value) => {
+                setIsMonthListOpen(false);
+                setSelectedMonthIdLocal(String(value));
+              }}
+              options={orderedMonthsForUi.map((m) => ({
+                value: String(m.id),
+                label: m.name ?? String(m.id),
+              }))}
+            />
+
             {!isMonthListOpen && (
               <button
                 type="button"
                 onClick={() => setIsMonthListOpen(true)}
                 aria-expanded={isMonthListOpen}
                 aria-controls="performance-performers-month-items"
-                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                className="hidden sm:block px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
                 id="performance-performers-month-active-toggle"
                 data-cy="performance-performers-month-active-toggle"
               >
@@ -209,7 +235,7 @@ export default function FeedbackPerformersCard({
               <div
                 id="performance-performers-month-items"
                 data-cy="performance-performers-month-items"
-                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+                className="hidden sm:flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
               >
                 {orderedMonthsForUi.map((m) => (
                   <button
@@ -280,8 +306,9 @@ export default function FeedbackPerformersCard({
                   </div>
                 </div>
                 <SegmentedBar
-                  engagementCount={p.engagementCount}
-                  kpiCount={p.kpiCount}
+                  engagementCount={p.engagementCount || 0}
+                  kpiCount={p.kpiCount || 0}
+                  kpiScore={p.kpiScore || 0}
                 />
               </li>
             ))

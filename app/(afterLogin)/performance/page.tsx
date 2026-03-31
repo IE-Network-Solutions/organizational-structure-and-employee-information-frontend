@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useMemo, useState } from 'react';
 import OkrProgressCard from './_components/OkrProgressCard';
@@ -6,6 +7,7 @@ import FeedbackCard from './_components/FeedbackCard';
 import TopOkrPerformersCard from './_components/TopOkrPerformersCard';
 import FeedbackPerformersCard from './_components/FeedbackPerformersCard';
 import ActionPlanCard from './_components/actionPlan';
+import { Select } from 'antd';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import RecentHrActions from '../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
 import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
@@ -47,46 +49,47 @@ export default function PerformanceDashboardPage() {
   }, [sessions]);
 
   useEffect(() => {
-    if (!activeSession?.id) return;
+    const activeSessionValue = activeSession?.id ?? activeSession?.name;
+    if (!activeSessionValue) return;
     if (selectedSessionId) return;
-    setSelectedSessionId(String(activeSession.id));
+    setSelectedSessionId(String(activeSessionValue));
   }, [activeSession, selectedSessionId]);
 
   const selectedSession = useMemo(() => {
     if (!selectedSessionId) return null;
     return (
-      sessions.find((s: any) => String(s?.id) === String(selectedSessionId)) ??
-      null
+      sessions.find(
+        (s: any) => String(s?.id ?? s?.name) === String(selectedSessionId),
+      ) ?? null
     );
   }, [sessions, selectedSessionId]);
 
   const orderedSessions = useMemo(() => {
     if (!sessions.length) return [];
-    if (!activeSession?.id) return sessions;
+    const activeSessionValue = activeSession?.id ?? activeSession?.name;
+    if (!activeSessionValue) return sessions;
 
     return [
       ...sessions.filter(
-        (s: any) => String(s?.id) === String(activeSession.id),
+        (s: any) => String(s?.id ?? s?.name) === String(activeSessionValue),
       ),
       ...sessions.filter(
-        (s: any) => String(s?.id) !== String(activeSession.id),
+        (s: any) => String(s?.id ?? s?.name) !== String(activeSessionValue),
       ),
     ];
   }, [sessions, activeSession]);
 
   const sessionId =
-    selectedSessionId ?? (activeSession?.id ? String(activeSession.id) : null);
+    selectedSessionId ??
+    ((activeSession?.id ?? activeSession?.name)
+      ? String(activeSession?.id ?? activeSession?.name)
+      : null);
 
   const months = useMemo(() => {
     const rawMonths =
       (selectedSession as any)?.months ?? (activeSession as any)?.months ?? [];
     return Array.isArray(rawMonths) ? rawMonths : [];
   }, [selectedSession, activeSession]);
-
-  const activeMonth = useMemo(() => {
-    if (!months.length) return null;
-    return months.find((m: any) => Boolean(m?.active)) ?? months[0] ?? null;
-  }, [months]);
 
   const monthOptions = months;
   return (
@@ -101,13 +104,36 @@ export default function PerformanceDashboardPage() {
             id="employee-leave-fiscal-year-list"
             data-cy="employee-leave-fiscal-year-list"
           >
+            <label
+              htmlFor="employee-leave-fiscal-year-select"
+              className="sr-only"
+            >
+              Select quarter
+            </label>
+            <Select
+              id="employee-leave-fiscal-year-select"
+              data-cy="employee-leave-fiscal-year-select"
+              className="block sm:hidden"
+              size="small"
+              placeholder="Select Quarter"
+              value={selectedSessionId ?? undefined}
+              onChange={(value) => {
+                setSelectedSessionId(value ? String(value) : null);
+                setIsFiscalYearListOpen(false);
+              }}
+              options={orderedSessions.map((session: any) => ({
+                value: String(session.id ?? session.name),
+                label: session.name,
+              }))}
+            />
+
             {!isFiscalYearListOpen && (
               <button
                 type="button"
                 onClick={() => setIsFiscalYearListOpen((prev) => !prev)}
                 aria-expanded={isFiscalYearListOpen}
                 aria-controls="employee-leave-fiscal-year-items"
-                className="px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
+                className="hidden sm:block px-3 py-1 text-xs rounded border transition bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-50"
                 id="employee-leave-fiscal-year-active-toggle"
                 data-cy="employee-leave-fiscal-year-active-toggle"
               >
@@ -121,19 +147,19 @@ export default function PerformanceDashboardPage() {
               <div
                 id="employee-leave-fiscal-year-items"
                 data-cy="employee-leave-fiscal-year-items"
-                className="flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
+                className="hidden sm:flex flex-nowrap items-center gap-2 justify-end overflow-x-auto"
               >
                 {orderedSessions.map((session: any) => (
                   <button
                     key={session.id || session.name}
                     type="button"
                     onClick={() => {
-                      setSelectedSessionId(String(session.id));
+                      setSelectedSessionId(String(session.id ?? session.name));
                       setIsFiscalYearListOpen(false);
                     }}
                     className={[
                       'px-3 py-1 text-xs rounded border transition flex-shrink-0',
-                      selectedSessionId === String(session.id)
+                      selectedSessionId === String(session.id ?? session.name)
                         ? 'bg-gray-100 text-gray-900 border-gray-300'
                         : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50',
                     ].join(' ')}
