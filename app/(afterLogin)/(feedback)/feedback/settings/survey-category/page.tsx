@@ -7,7 +7,7 @@ import ServayCategoryCard from '../_components/surveyCategory/servayCategoryCard
 import CustomPagination from '@/components/customPagination';
 import EditCategoryModal from '../../categories/_components/categoriesCard/editCategory';
 import { Input } from 'antd';
-
+import { SearchOutlined } from '@ant-design/icons';
 const page = () => {
   const {
     pageSize,
@@ -41,13 +41,14 @@ const page = () => {
           data-cy={`survey-category-page-search-container`}
           id={`surveyCategoryPageSearchContainer`}
         >
-          <Input.Search
+          <Input
             placeholder="Search categories..."
+            addonAfter={<SearchOutlined className="text-gray-400" />}
             allowClear
+            className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
             onChange={(e) => {
               setSearchParams('category_name', e.target.value);
             }}
-            className="w-full sm:w-80 md:w-96 lg:w-[300px]"
             data-cy={`survey-category-page-search`}
             id={`surveyCategoryPageSearch`}
           />
