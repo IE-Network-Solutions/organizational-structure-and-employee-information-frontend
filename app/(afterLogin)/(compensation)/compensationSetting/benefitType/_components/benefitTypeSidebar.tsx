@@ -33,7 +33,6 @@ const BenefitypeSideBar = () => {
     isBenefitOpen,
     setBenefitMode,
     benefitMode,
-    isRateBenefit,
     setIsAllEmployee,
     isAllEmployee,
     setIsRateBenefit,
@@ -51,6 +50,9 @@ const BenefitypeSideBar = () => {
   const isSubmitting = isCreating || isEditing;
   const [form] = Form.useForm();
   const { data: departments } = useGetDepartmentsWithUsers();
+  const selectedBenefitRateMode = Form.useWatch('isRate', form);
+  const hasSelectedBenefitRateMode =
+    typeof selectedBenefitRateMode === 'boolean';
 
   useEffect(() => {
     if (selectedBenefitRecord) {
@@ -346,11 +348,16 @@ const BenefitypeSideBar = () => {
                     data-cy="compensation-settings-benefit-sidebar-fixed-rate-item"
                     name="isRate"
                     className="form-item !mb-0"
-                    initialValue={!selectedBenefitRecord ? false : undefined}
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select Fixed or Rate',
+                      },
+                    ]}
                   >
                     <Radio.Group
                       className={FIXED_RATE_RADIO_GROUP_CLASS}
-                      value={isRateBenefit}
+                      value={selectedBenefitRateMode}
                       onChange={onFixedRateChange}
                       id="compensation-settings-benefit-sidebar-fixed-rate-group"
                       data-cy="compensation-settings-benefit-sidebar-fixed-rate-group"
@@ -371,45 +378,49 @@ const BenefitypeSideBar = () => {
                       </Radio>
                     </Radio.Group>
                   </Form.Item>
-                  <div
-                    id="compensation-settings-benefit-sidebar-amount-container"
-                    data-cy="compensation-settings-benefit-sidebar-amount-container"
-                    className="w-full"
-                  >
-                    <Form.Item
-                      id="compensation-settings-benefit-sidebar-amount-item"
-                      data-cy="compensation-settings-benefit-sidebar-amount-item"
-                      name="defaultAmount"
-                      label={isRateBenefit ? 'Rate' : 'Fixed Amount'}
-                      className="form-item !mb-0 w-full"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Amount is required!',
-                        },
-                        {
-                          validator: (notused, value) => {
-                            if (value && value < 0) {
-                              return Promise.reject(
-                                new Error('Amount cannot be negative'),
-                              );
-                            }
-                            return Promise.resolve();
-                          },
-                        },
-                      ]}
+                  {hasSelectedBenefitRateMode && (
+                    <div
+                      id="compensation-settings-benefit-sidebar-amount-container"
+                      data-cy="compensation-settings-benefit-sidebar-amount-container"
+                      className="w-full"
                     >
-                      <Input
-                        className="control font-normal placeholder:font-normal"
-                        type="number"
-                        placeholder="Benefit Amount"
-                        style={{ height: 40, padding: '8px 12px' }}
-                        min={0}
-                        id="compensation-settings-benefit-sidebar-amount-input"
-                        data-cy="compensation-settings-benefit-sidebar-amount-input"
-                      />
-                    </Form.Item>
-                  </div>
+                      <Form.Item
+                        id="compensation-settings-benefit-sidebar-amount-item"
+                        data-cy="compensation-settings-benefit-sidebar-amount-item"
+                        name="defaultAmount"
+                        label={
+                          selectedBenefitRateMode ? 'Rate' : 'Fixed Amount'
+                        }
+                        className="form-item !mb-0 w-full"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Amount is required!',
+                          },
+                          {
+                            validator: (notused, value) => {
+                              if (value && value < 0) {
+                                return Promise.reject(
+                                  new Error('Amount cannot be negative'),
+                                );
+                              }
+                              return Promise.resolve();
+                            },
+                          },
+                        ]}
+                      >
+                        <Input
+                          className="control font-normal placeholder:font-normal"
+                          type="number"
+                          placeholder="Benefit Amount"
+                          style={{ height: 40, padding: '8px 12px' }}
+                          min={0}
+                          id="compensation-settings-benefit-sidebar-amount-input"
+                          data-cy="compensation-settings-benefit-sidebar-amount-input"
+                        />
+                      </Form.Item>
+                    </div>
+                  )}
                   {!isAllEmployee && !selectedBenefitRecord && (
                     <Form.Item
                       id="compensation-settings-benefit-sidebar-payperiod-item"
