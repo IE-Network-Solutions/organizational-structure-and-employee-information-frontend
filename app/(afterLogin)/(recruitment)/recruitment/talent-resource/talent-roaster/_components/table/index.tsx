@@ -354,17 +354,32 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
               }
             }}
             dropdownRender={() => (
-              <div className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md">
+              <div
+                data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-dropdown"
+                className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md"
+              >
                 {deleteConfirmOpenId === item.id ? (
-                  <div className="p-2">
-                    <p className="text-sm font-semibold text-[#1f1f1f] mb-2">
+                  <div
+                    data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-container"
+                    className="p-2"
+                  >
+                    <p
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-title"
+                      className="text-sm font-semibold text-[#1f1f1f] mb-2"
+                    >
                       Delete Candidate
                     </p>
-                    <p className="text-xs text-[#4D4D4D] mb-3">
+                    <p
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-text"
+                      className="text-xs text-[#4D4D4D] mb-3"
+                    >
                       Are you Sure you want to delete{' '}
                       {item?.fullName ?? 'this candidate'} from Talent Roaster ?
                     </p>
-                    <div className="flex justify-end gap-2">
+                    <div
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm"
+                      className="flex justify-end gap-2"
+                    >
                       <Button
                         size="small"
                         className="border border-[#D9D9D9] text-[#4D4D4D]"
@@ -398,6 +413,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                         handleEdit(item);
                         setActionOpenId(null);
                       }}
+                      data-cy="talent-acquisition-talent-roaster-table-button-edit"
                     >
                       <EditOutlinedIcon fontSize="small" />
                       Edit
@@ -409,6 +425,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                         e.stopPropagation();
                         setDeleteConfirmOpenId(item.id);
                       }}
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete"
                     >
                       <DeleteOutlineOutlinedIcon fontSize="small" />
                       Delete

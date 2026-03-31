@@ -364,7 +364,6 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
             </Row>
 
             <Row gutter={16}>
-              
               <Col xs={12} sm={12} lg={12} md={12} xl={12}>
                 <Form.Item
                   id="yearOfGraduationId"
@@ -434,20 +433,20 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                     placeholder="CGPA"
                   />
                 </Form.Item>
-                
-                  <div
-                    data-cy="talent-roaster-components-drawer-index-tsx-index-div-335"
-                    className="text-xs font-normal text-black opacity-45"
-                  >
-                    Put your point 4.0 scale
-                  </div>
+
+                <div
+                  data-cy="talent-roaster-components-drawer-index-tsx-index-div-335"
+                  className="text-xs font-normal text-black opacity-45"
+                >
+                  Put your point 4.0 scale
+                </div>
               </Col>
             </Row>
 
             <Form.Item
               id="departmentId"
               name="department"
-              className='mt-2'
+              className="mt-2"
               label={
                 <span
                   data-cy="talent-roaster-components-drawer-index-tsx-index-span-368"
@@ -557,7 +556,10 @@ const CreateTalentRoaster: React.FC<CreateTalentRoasterProps> = ({
                   data-cy="talent-roaster-components-drawer-index-tsx-index-div-456"
                   className="flex flex-col justify-center items-center text-md font-normal"
                 >
-                  <p className='font-normal text-black opacity-70' data-cy="talent-roaster-components-drawer-index-tsx-index-p-457">
+                  <p
+                    className="font-normal text-black opacity-70"
+                    data-cy="talent-roaster-components-drawer-index-tsx-index-p-457"
+                  >
                     Upload your CV
                   </p>
                   <p

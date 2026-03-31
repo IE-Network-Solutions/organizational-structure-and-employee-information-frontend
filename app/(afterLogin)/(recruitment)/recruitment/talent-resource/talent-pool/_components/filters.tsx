@@ -67,7 +67,8 @@ const Filters = () => {
   };
 
   const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
-  const inputClassName = 'w-full h-10 rounded-md border-gray-300 scrollbar-none';
+  const inputClassName =
+    'w-full h-10 rounded-md border-gray-300 scrollbar-none';
 
   const handleResetFilters = () => {
     setSearchParams('date_range', '');

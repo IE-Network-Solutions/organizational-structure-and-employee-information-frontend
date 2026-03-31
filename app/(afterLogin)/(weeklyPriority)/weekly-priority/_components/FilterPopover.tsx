@@ -54,10 +54,7 @@ const FilterPopover: React.FC = () => {
       className="w-[572px] max-w-[calc(100vw-48px)] min-h-[250px] flex flex-col gap-3"
       data-cy="filter-popover-content"
     >
-      <div
-        className="px-6 py-2"
-        data-cy="filter-popover-header"
-      >
+      <div className="px-6 py-2" data-cy="filter-popover-header">
         <div
           className="flex justify-between items-center"
           data-cy="filter-popover-header-row"
@@ -89,13 +86,10 @@ const FilterPopover: React.FC = () => {
         </p>
       </div>
 
-      <div
-        className="px-6 pt-0 pb-3"
-        data-cy="filter-popover-mid-section"
-      >
+      <div className="px-6 pt-0 pb-3" data-cy="filter-popover-mid-section">
         <div
           className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
-        data-cy="filter-popover-filters"
+          data-cy="filter-popover-filters"
         >
           <div className="text-left" data-cy="filter-popover-department">
             <label
@@ -145,10 +139,7 @@ const FilterPopover: React.FC = () => {
                 *
               </span>
             </label>
-            <div
-              className="relative"
-              data-cy="filter-popover-week-select-wrap"
-            >
+            <div className="relative" data-cy="filter-popover-week-select-wrap">
               <Select
                 placeholder=""
                 className="w-full filter-form-select filter-week-select"
@@ -185,7 +176,9 @@ const FilterPopover: React.FC = () => {
                 data-cy="filter-popover-week-tags"
               >
                 {localWeekIds.map((id) => {
-                  const selectedWeek = weeks?.find((item: any) => item?.id === id);
+                  const selectedWeek = weeks?.find(
+                    (item: any) => item?.id === id,
+                  );
                   return (
                     <Tag
                       key={id}
