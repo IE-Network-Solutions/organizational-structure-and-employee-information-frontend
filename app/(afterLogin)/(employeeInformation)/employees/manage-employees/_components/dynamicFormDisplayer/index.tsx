@@ -180,7 +180,9 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
             id={`${formTitle}-${field.fieldName}-radio-group-form-item`}
             data-cy={`${formTitle}-${field.fieldName}-radio-group-form-item`}
           >
-            <Radio.Group data-cy={`${formTitle}-${field.fieldName}-radio-group`}>
+            <Radio.Group
+              data-cy={`${formTitle}-${field.fieldName}-radio-group`}
+            >
               {field.options?.map((option) => (
                 <Radio
                   key={option}

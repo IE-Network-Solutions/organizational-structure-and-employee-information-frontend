@@ -10,7 +10,6 @@ import {
   message,
   Col,
   Row,
-  Radio,
   Checkbox,
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
@@ -106,7 +105,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       fieldName: baseField.fieldName ?? '',
       fieldValidation: isOptionBasedField
         ? 'any'
-        : baseField.fieldValidation ?? undefined,
+        : (baseField.fieldValidation ?? undefined),
       options: isOptionBasedField ? (options.length ? options : ['', '']) : [],
       isActive: baseField.isActive ?? true,
       isRequired: baseField.isRequired ?? false,
@@ -231,15 +230,20 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              label={<span className="text-sm font-normal text-black mb-1">
-                Field Name{' '}
+              label={
                 <span
-                  style={{ color: 'red' }}
-                  data-cy={`basic-info-first-name-required`}
+                  data-cy="settings-custom-field-name-label"
+                  className="text-sm font-normal text-black mb-1"
                 >
-                  *
+                  Field Name{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`basic-info-first-name-required`}
+                  >
+                    *
+                  </span>
                 </span>
-                </span>}
+              }
               name="fieldName"
               rules={[{ required: true, message: 'Field Name is required' }]}
               id="settings-custom-field-name"
@@ -255,15 +259,20 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           </Col>
           <Col span={12}>
             <Form.Item
-              label={<span className="text-sm font-normal text-black mb-1">
-                Field Validation{' '}
+              label={
                 <span
-                  style={{ color: 'red' }}
-                  data-cy={`basic-info-first-name-required`}
+                  data-cy="settings-custom-field-validation-label"
+                  className="text-sm font-normal text-black mb-1"
                 >
-                  *
+                  Field Validation{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`basic-info-first-name-required`}
+                  >
+                    *
+                  </span>
                 </span>
-                </span>}
+              }
               name="fieldValidation"
               rules={
                 isOptionBasedField
@@ -313,7 +322,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             name="options"
             rules={[
               {
-                validator: async (_, options) => {
+                validator: async (notUsed, options) => {
                   const cleanedOptions = (options || [])
                     .map((option: string) => option?.trim())
                     .filter(Boolean);
@@ -328,15 +337,26 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
             ]}
           >
             {(fields, { add, remove }, { errors }) => (
-              <div className="mb-2">
-                <p className="text-sm font-medium mb-2">Options</p>
+              <div
+                data-cy="settings-custom-field-options-container"
+                className="mb-2"
+              >
+                <p
+                  data-cy="settings-custom-field-options-label"
+                  className="text-sm font-medium mb-2"
+                >
+                  Options
+                </p>
                 {fields.map((field, index) => (
                   <Form.Item
                     required={false}
                     key={field.key}
                     className={index === fields.length - 1 ? 'mb-2' : 'mb-3'}
                   >
-                    <div className="flex items-center gap-2">
+                    <div
+                      data-cy={`settings-custom-field-option-input-${index}`}
+                      className="flex items-center gap-2"
+                    >
                       <Form.Item
                         {...field}
                         validateTrigger={['onChange', 'onBlur']}
@@ -384,39 +404,38 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
 
         <Row gutter={16} className="mt-2">
           <Col span={12}>
-          <div
-  id="settings-custom-field-active"
-  data-cy="settings-custom-field-active"
-  className="border border-[#D9D9D9] rounded-md p-2 h-14"
->
-  <Form.Item name="isActive" valuePropName="checked" noStyle>
-    <Checkbox 
-    id="settings-custom-field-active-switch" 
-    data-cy="settings-custom-field-active-switch"
-    >
-    Active
-  </Checkbox>
-  </Form.Item>
-  <p
-    data-cy="settings-custom-field-active-description"
-    className="text-xs text-gray-500 px-6"
-  >
-    If the field is active it will show.
-  </p>
-</div>
-
+            <div
+              id="settings-custom-field-active"
+              data-cy="settings-custom-field-active"
+              className="border border-[#D9D9D9] rounded-md p-2 h-14"
+            >
+              <Form.Item name="isActive" valuePropName="checked" noStyle>
+                <Checkbox
+                  id="settings-custom-field-active-switch"
+                  data-cy="settings-custom-field-active-switch"
+                >
+                  Active
+                </Checkbox>
+              </Form.Item>
+              <p
+                data-cy="settings-custom-field-active-description"
+                className="text-xs text-gray-500 px-6"
+              >
+                If the field is active it will show.
+              </p>
+            </div>
           </Col>
           <Col span={12}>
-              <div
-                className="border border-[#D9D9D9] rounded-md p-2 h-14"
-                data-cy="settings-custom-field-required-switch-wrapper"
-              >
-                 <Form.Item
-              name="isRequired"
-              valuePropName="checked"
-              id="settings-custom-field-required"
-              data-cy="settings-custom-field-required"
+            <div
+              className="border border-[#D9D9D9] rounded-md p-2 h-14"
+              data-cy="settings-custom-field-required-switch-wrapper"
             >
+              <Form.Item
+                name="isRequired"
+                valuePropName="checked"
+                id="settings-custom-field-required"
+                data-cy="settings-custom-field-required"
+              >
                 <Checkbox
                   id="settings-custom-field-required-switch"
                   data-cy="settings-custom-field-required-switch"
@@ -429,8 +448,8 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
                 >
                   If Selected it must be filled.
                 </p>
-                </Form.Item>
-              </div>
+              </Form.Item>
+            </div>
           </Col>
         </Row>
 

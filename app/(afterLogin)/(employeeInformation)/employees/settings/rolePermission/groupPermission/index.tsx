@@ -1,7 +1,6 @@
-import { Card, Empty, Skeleton, Spin } from 'antd';
+import { Card, Skeleton, Spin } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
 import CustomPagination from '@/components/customPagination';

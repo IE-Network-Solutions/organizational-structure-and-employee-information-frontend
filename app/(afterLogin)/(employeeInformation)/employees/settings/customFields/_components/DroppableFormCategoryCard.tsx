@@ -153,16 +153,16 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
         </div>
       </div>
       {expanded && displayFields.length > 0 && (
-        <div
-          data-cy="settings-category-fields-container"
-          className="pb-4 pt-0"
-        >
+        <div data-cy="settings-category-fields-container" className="pb-4 pt-0">
           <ul
             data-cy="settings-category-fields-list"
             className="mt-3 space-y-3"
           >
             {displayFields.map((f, i) => (
-              <li key={f.id} data-cy={`settings-category-field-${formTitle}-${i}`}>
+              <li
+                key={f.id}
+                data-cy={`settings-category-field-${formTitle}-${i}`}
+              >
                 <Card
                   bordered
                   className="rounded-lg border-[1px] border-[#d9d9d9]"
@@ -191,7 +191,12 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
                                 data-cy={`settings-category-field-edit-menu-item-${formTitle}-${i}`}
                               >
                                 <EditOutlinedIcon className="text-xs" />
-                                <span className="text-sm font-normal">Edit</span>
+                                <span
+                                  data-cy={`settings-category-field-edit-menu-item-label-${formTitle}-${i}`}
+                                  className="text-sm font-normal"
+                                >
+                                  Edit
+                                </span>
                               </div>
                             ),
                           },

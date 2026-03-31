@@ -256,15 +256,17 @@ const GroupPermission = () => {
                 data-cy="settings-group-permission-name-input"
               />
             </Form.Item>
-            <Form.Item name="description"
-             label={
-              <span
-                data-cy="settings-group-permission-description-label"
-                className="text-sm font-normal text-black mb-1"
-              >
-                Description
-              </span>
-             }>
+            <Form.Item
+              name="description"
+              label={
+                <span
+                  data-cy="settings-group-permission-description-label"
+                  className="text-sm font-normal text-black mb-1"
+                >
+                  Description
+                </span>
+              }
+            >
               <Input.TextArea
                 placeholder="Add Description"
                 rows={3}
@@ -543,9 +545,11 @@ const GroupPermission = () => {
           </Button>
         )}
         {isStep0 || isStep1 ? (
-          <Button 
-          className="h-8 font-normal"
-          type="primary" onClick={handleContinue}>
+          <Button
+            className="h-8 font-normal"
+            type="primary"
+            onClick={handleContinue}
+          >
             Continue
           </Button>
         ) : (

@@ -137,9 +137,8 @@ const CustomFieldsPage: React.FC = () => {
   const [selectedFormTitle, setSelectedFormTitle] = useState<string | null>(
     null,
   );
-  const [selectedFieldType, setSelectedFieldType] = useState<
-    FieldTypeValue
-  >('input');
+  const [selectedFieldType, setSelectedFieldType] =
+    useState<FieldTypeValue>('input');
   const [highlightedFormTitle, setHighlightedFormTitle] = useState<
     string | null
   >(null);
