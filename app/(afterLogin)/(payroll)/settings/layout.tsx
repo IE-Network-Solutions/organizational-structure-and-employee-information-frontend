@@ -14,7 +14,9 @@ interface PayrollSettingsLayoutProps {
 
 type TabKey = 'tax-rule' | 'pension' | 'pay-period' | 'approvals';
 
-const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => {
+const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
+  children,
+}) => {
   const pathname = usePathname();
   const router = useRouter();
   const [currentItem, setCurrentItem] = useState<TabKey>('tax-rule');
@@ -24,7 +26,11 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({ children }) => 
 
   const tabs = useMemo(
     () => [
-      { key: 'tax-rule' as const, label: 'Tax Rule', href: '/settings/tax-rule' },
+      {
+        key: 'tax-rule' as const,
+        label: 'Tax Rule',
+        href: '/settings/tax-rule',
+      },
       { key: 'pension' as const, label: 'Pension', href: '/settings/pension' },
       {
         key: 'pay-period' as const,

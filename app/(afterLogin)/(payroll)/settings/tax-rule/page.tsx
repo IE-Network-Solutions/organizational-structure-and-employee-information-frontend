@@ -44,22 +44,36 @@ const TaxRules = () => {
   }, [currentPage, pageSize, dataSource]);
 
   const columns: Array<{
-    title: string;
+    title: React.ReactNode;
     dataIndex?: keyof TaxRule;
     key: string;
     sorter?: (a: TaxRule, b: TaxRule) => number;
     render?: (text: any, record: TaxRule) => React.ReactNode;
   }> = [
     {
-      title: 'Name',
+      title: (
+        <span
+          id="payroll-tax-rule-name-title"
+          data-cy="payroll-tax-rule-name-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Name
+        </span>
+      ),
       dataIndex: 'name',
       key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: 'Range',
+      title: (
+        <span
+          id="payroll-tax-rule-range-title"
+          data-cy="payroll-tax-rule-range-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Range
+        </span>
+      ),
       key: 'range',
-      sorter: (a, b) => a.minIncome - b.minIncome,
 
       render: (notused: any, record: TaxRule) => {
         const { minIncome, maxIncome } = record;
@@ -74,19 +88,41 @@ const TaxRules = () => {
       },
     },
     {
-      title: 'Tax Rate',
+      title: (
+        <span
+          id="payroll-tax-rule-tax-rate-title"
+          data-cy="payroll-tax-rule-tax-rate-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Tax Rate
+        </span>
+      ),
       dataIndex: 'rate',
       key: 'rate',
-      sorter: (a, b) => a.rate - b.rate,
     },
     {
-      title: 'Deduction',
+      title: (
+        <span
+          id="payroll-tax-rule-deduction-title"
+          data-cy="payroll-tax-rule-deduction-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Deduction
+        </span>
+      ),
       dataIndex: 'deduction',
       key: 'deduction',
-      sorter: (a, b) => a.deduction - b.deduction,
     },
     {
-      title: 'Action',
+      title: (
+        <span
+          id="payroll-tax-rule-action-title"
+          data-cy="payroll-tax-rule-action-title"
+          className="text-sm font-bold text-[#4b4b4b]"
+        >
+          Action
+        </span>
+      ),
       key: 'action',
       render: (text: any, record: any) => {
         const menuItems: MenuProps['items'] = [
@@ -200,21 +236,8 @@ const TaxRules = () => {
       <div
         id="payroll-tax-rule-header-view-container"
         data-cy="payroll-tax-rule-header-view-container"
-        className="flex justify-between items-center px-6 py-5"
-      >
-        <h1
-          id="payroll-tax-rule-title-view-text"
-          data-cy="payroll-tax-rule-title-view-text"
-          className="text-lg font-semibold text-gray-900"
-        >
-          Tax Rule
-        </h1>
-        <div
-          id="payroll-tax-rule-header-action-spacer"
-          data-cy="payroll-tax-rule-header-action-spacer"
-          className="hidden sm:block"
-        />
-      </div>
+        className="hidden"
+      />
       <div
         id="payroll-tax-rule-hidden-primary-action-target"
         data-cy="payroll-tax-rule-hidden-primary-action-target"
@@ -237,7 +260,7 @@ const TaxRules = () => {
       <div
         id="payroll-tax-rule-table-wrapper-view-container"
         data-cy="payroll-tax-rule-table-wrapper-view-container"
-        className="overflow-x-auto"
+        className="w-full overflow-x-auto scrollbar-hide"
       >
         <div
           id="payroll-tax-rule-table-inner-view-container"
@@ -252,6 +275,10 @@ const TaxRules = () => {
             pagination={false}
             bordered={false}
             loading={isLoading}
+            rowHoverable={false}
+            rowClassName={(notUsed, index) =>
+              index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+            }
           />
         </div>
       </div>
@@ -266,9 +293,10 @@ const TaxRules = () => {
             totalResults={dataSource.length}
             pageSize={pageSize}
             currentPage={currentPage}
-            onChange={onPageChange}
-            // eslint-disable-next-line 
-            onShowSizeChange={(_current, size) => onPageSizeChange(size)}
+            onShowSizeChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
           />
         ) : (
           <CustomPagination

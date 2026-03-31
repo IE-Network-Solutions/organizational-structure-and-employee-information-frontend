@@ -12,4 +12,3 @@ const useApprovalsSettingsStore = create<ApprovalsSettingsStore>((set) => ({
 }));
 
 export default useApprovalsSettingsStore;
-

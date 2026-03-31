@@ -115,134 +115,134 @@ const Drawer: React.FC = () => {
           data-cy="payroll-pension-modal-card-view-container"
           className="border border-gray-200 rounded-lg p-6"
         >
-      <Form
-        id="pension-rule-form"
-        data-cy="payroll-pension-modal-form-submit-form"
-        layout="vertical"
-        form={form}
-        className="px-1"
-        onFinish={onFinish}
-      >
-        <Form.Item
-          id="payroll-pension-modal-name-view-formitem"
-          data-cy="payroll-pension-modal-name-view-formitem"
-          label="Name"
-          name="name"
-          rules={[{ required: true, message: 'Please input the name!' }]}
-        >
-          <Input
-            id="payroll-pension-modal-name-view-input"
-            data-cy="payroll-pension-modal-name-view-input"
-            placeholder="Rule name"
-            className="h-12 mt-2"
-          />
-        </Form.Item>
+          <Form
+            id="pension-rule-form"
+            data-cy="payroll-pension-modal-form-submit-form"
+            layout="vertical"
+            form={form}
+            className="px-1"
+            onFinish={onFinish}
+          >
+            <Form.Item
+              id="payroll-pension-modal-name-view-formitem"
+              data-cy="payroll-pension-modal-name-view-formitem"
+              label="Name"
+              name="name"
+              rules={[{ required: true, message: 'Please input the name!' }]}
+            >
+              <Input
+                id="payroll-pension-modal-name-view-input"
+                data-cy="payroll-pension-modal-name-view-input"
+                placeholder="Rule name"
+                className="h-12 mt-2"
+              />
+            </Form.Item>
 
-        <Form.Item
-          id="payroll-pension-modal-description-view-formitem"
-          data-cy="payroll-pension-modal-description-view-formitem"
-          label="Description"
-          name="description"
-        >
-          <Input.TextArea
-            id="payroll-pension-modal-description-view-textarea"
-            data-cy="payroll-pension-modal-description-view-textarea"
-            rows={3}
-            placeholder="Enter description (optional)"
-            className="mt-2"
-          />
-        </Form.Item>
+            <Form.Item
+              id="payroll-pension-modal-description-view-formitem"
+              data-cy="payroll-pension-modal-description-view-formitem"
+              label="Description"
+              name="description"
+            >
+              <Input.TextArea
+                id="payroll-pension-modal-description-view-textarea"
+                data-cy="payroll-pension-modal-description-view-textarea"
+                rows={3}
+                placeholder="Enter description (optional)"
+                className="mt-2"
+              />
+            </Form.Item>
 
-        <Form.Item
-          id="payroll-pension-modal-employee-view-formitem"
-          data-cy="payroll-pension-modal-employee-view-formitem"
-          label="Employee Contribution (%)"
-          name="employee"
-          rules={[
-            {
-              type: 'number',
-              required: true,
-              message: 'Please input the employee contribution!',
-            },
-            {
-              type: 'number',
-              min: 0,
-              max: 100,
-              message: 'Employee contribution must be between 0 and 100!',
-            },
-          ]}
-          valuePropName="value"
-          getValueFromEvent={(value) =>
-            value === null || value === undefined || value === ''
-              ? undefined
-              : value
-          }
-        >
-          <InputNumber
-            id="payroll-pension-modal-employee-view-input"
-            data-cy="payroll-pension-modal-employee-view-input"
-            className="h-12 mt-2 w-full input-number-mobile"
-            placeholder="Input employee contribution"
-            min={0}
-            max={100}
-            step={0.01}
-            controls={true}
-            addonAfter={
-              <span
-                data-cy="pension-components-drawer-index-tsx-index-span-158"
-                style={{ color: '#bdbdbd', fontWeight: 600 }}
-              >
-                %
-              </span>
-            }
-          />
-        </Form.Item>
+            <Form.Item
+              id="payroll-pension-modal-employee-view-formitem"
+              data-cy="payroll-pension-modal-employee-view-formitem"
+              label="Employee Contribution (%)"
+              name="employee"
+              rules={[
+                {
+                  type: 'number',
+                  required: true,
+                  message: 'Please input the employee contribution!',
+                },
+                {
+                  type: 'number',
+                  min: 0,
+                  max: 100,
+                  message: 'Employee contribution must be between 0 and 100!',
+                },
+              ]}
+              valuePropName="value"
+              getValueFromEvent={(value) =>
+                value === null || value === undefined || value === ''
+                  ? undefined
+                  : value
+              }
+            >
+              <InputNumber
+                id="payroll-pension-modal-employee-view-input"
+                data-cy="payroll-pension-modal-employee-view-input"
+                className="h-12 mt-2 w-full input-number-mobile"
+                placeholder="Input employee contribution"
+                min={0}
+                max={100}
+                step={0.01}
+                controls={true}
+                addonAfter={
+                  <span
+                    data-cy="pension-components-drawer-index-tsx-index-span-158"
+                    style={{ color: '#bdbdbd', fontWeight: 600 }}
+                  >
+                    %
+                  </span>
+                }
+              />
+            </Form.Item>
 
-        <Form.Item
-          id="payroll-pension-modal-employer-view-formitem"
-          data-cy="payroll-pension-modal-employer-view-formitem"
-          label="Employer Contribution (%)"
-          name="employer"
-          rules={[
-            {
-              type: 'number',
-              required: true,
-              message: 'Please input the employer contribution!',
-            },
-            {
-              type: 'number',
-              min: 0,
-              max: 100,
-              message: 'Employer contribution must be between 0 and 100!',
-            },
-          ]}
-          valuePropName="value"
-          getValueFromEvent={(value) =>
-            value === null || value === undefined || value === ''
-              ? undefined
-              : value
-          }
-        >
-          <InputNumber
-            id="payroll-pension-modal-employer-view-input"
-            data-cy="payroll-pension-modal-employer-view-input"
-            className="w-full h-12 mt-2 input-number-mobile"
-            placeholder="Input employer contribution"
-            min={0}
-            max={100}
-            step={0.01}
-            controls={true}
-            addonAfter={
-              <span
-                data-cy="pension-components-drawer-index-tsx-index-span-194"
-                style={{ color: '#bdbdbd', fontWeight: 600 }}
-              >
-                %
-              </span>
-            }
-          />
-        </Form.Item>
-      </Form>
+            <Form.Item
+              id="payroll-pension-modal-employer-view-formitem"
+              data-cy="payroll-pension-modal-employer-view-formitem"
+              label="Employer Contribution (%)"
+              name="employer"
+              rules={[
+                {
+                  type: 'number',
+                  required: true,
+                  message: 'Please input the employer contribution!',
+                },
+                {
+                  type: 'number',
+                  min: 0,
+                  max: 100,
+                  message: 'Employer contribution must be between 0 and 100!',
+                },
+              ]}
+              valuePropName="value"
+              getValueFromEvent={(value) =>
+                value === null || value === undefined || value === ''
+                  ? undefined
+                  : value
+              }
+            >
+              <InputNumber
+                id="payroll-pension-modal-employer-view-input"
+                data-cy="payroll-pension-modal-employer-view-input"
+                className="w-full h-12 mt-2 input-number-mobile"
+                placeholder="Input employer contribution"
+                min={0}
+                max={100}
+                step={0.01}
+                controls={true}
+                addonAfter={
+                  <span
+                    data-cy="pension-components-drawer-index-tsx-index-span-194"
+                    style={{ color: '#bdbdbd', fontWeight: 600 }}
+                  >
+                    %
+                  </span>
+                }
+              />
+            </Form.Item>
+          </Form>
         </div>
       </div>
 

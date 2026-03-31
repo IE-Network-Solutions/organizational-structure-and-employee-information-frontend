@@ -3,7 +3,7 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import {  Dropdown, Skeleton, Tooltip } from 'antd';
+import { Dropdown, Skeleton, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -165,14 +165,18 @@ const ApprovalTable = () => {
     setSelectedItem(item);
     setLevel(item?.approvers ? item?.approvers?.length : '-');
     setWorkflowApplies(item?.entityType ? item?.entityType : '-');
-    setApproverType(item?.approvalWorkflowType ? item?.approvalWorkflowType : '-');
+    setApproverType(
+      item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
+    );
   };
 
   const handleOpenAdd = (item: any) => {
     setAddModal(true);
     setSelectedItem(item);
     setLevel(1);
-    setApproverType(item?.approvalWorkflowType ? item?.approvalWorkflowType : '-');
+    setApproverType(
+      item?.approvalWorkflowType ? item?.approvalWorkflowType : '-',
+    );
   };
 
   const renderAssignees = (approvers: any[], itemSlug: string) => {
@@ -297,7 +301,9 @@ const ApprovalTable = () => {
         >
           {(allFilterData?.items ?? []).flatMap((item: any, index: number) => {
             const baseSlug = toSlug(item?.id ?? index);
-            const approvers = Array.isArray(item?.approvers) ? item.approvers : [];
+            const approvers = Array.isArray(item?.approvers)
+              ? item.approvers
+              : [];
 
             // Group assignees by stepOrder so we render one card per level
             const grouped = new Map<number, any[]>();
@@ -308,7 +314,9 @@ const ApprovalTable = () => {
               grouped.set(level, next);
             }
 
-            const levels = Array.from(grouped.keys()).filter((l) => l > 0).sort((a, b) => a - b);
+            const levels = Array.from(grouped.keys())
+              .filter((l) => l > 0)
+              .sort((a, b) => a - b);
             const effectiveLevels = levels.length > 0 ? levels : [1];
 
             return effectiveLevels.map((level) => {

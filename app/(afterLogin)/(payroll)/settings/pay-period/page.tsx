@@ -33,8 +33,15 @@ const PayPeriod = () => {
     setCurrentPage,
     setPageSize,
   } = usePayPeriodStore();
-  const { setId, setStartDate, setEndDate, setStatus, setVisible, visible, reset } =
-    useEditDrawerStore();
+  const {
+    setId,
+    setStartDate,
+    setEndDate,
+    setStatus,
+    setVisible,
+    visible,
+    reset,
+  } = useEditDrawerStore();
 
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   //const { mutate: changePayPeriodStatus } = useChangePayPeriodStatus();

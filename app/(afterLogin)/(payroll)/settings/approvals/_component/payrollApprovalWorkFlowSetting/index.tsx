@@ -2,7 +2,7 @@
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import React, { useEffect } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Select, Button, Form,  Input } from 'antd';
+import { Select, Button, Form, Input } from 'antd';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { IoArrowBack } from 'react-icons/io5';
 

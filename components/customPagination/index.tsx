@@ -196,9 +196,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           disabled={current === 1}
           data-cy="pagination-prev-button"
           className={`p-1 text-gray-400 hover:text-gray-600 transition-colors mr-2 ${
-            current === 1
-              ? 'opacity-50 cursor-not-allowed'
-              : ''
+            current === 1 ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           <LeftOutlined className="text-base" />
@@ -209,9 +207,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           disabled={current === totalPages}
           data-cy="pagination-next-button"
           className={`p-1 text-gray-500 hover:text-gray-700 transition-colors ml-2 ${
-            current === totalPages
-              ? 'opacity-50 cursor-not-allowed'
-              : ''
+            current === totalPages ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           <RightOutlined className="text-base" />

@@ -167,7 +167,9 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
               data-cy="payroll-payperiod-edit-drawer-start-formitem"
               label="Start Date"
               name="startDate"
-              rules={[{ required: true, message: 'Please select a start date' }]}
+              rules={[
+                { required: true, message: 'Please select a start date' },
+              ]}
             >
               <DatePicker
                 id="payroll-payperiod-edit-drawer-start-date-picker"

@@ -115,7 +115,10 @@ const Approvals = () => {
       id={`settings-${pageSlug}-container`}
       data-cy={`settings-${pageSlug}-container`}
     >
-      <div id={`settings-${pageSlug}-list`} data-cy={`settings-${pageSlug}-list`}>
+      <div
+        id={`settings-${pageSlug}-list`}
+        data-cy={`settings-${pageSlug}-list`}
+      >
         <div
           className="flex justify-between items-center px-6 py-5"
           id={`settings-${pageSlug}-list-header`}
@@ -135,7 +138,7 @@ const Approvals = () => {
           >
             <Button
               type="primary"
-                className="hidden h-10 w-10 sm:w-auto bg-primary hover:!bg-primary/90"
+              className="hidden h-10 w-10 sm:w-auto bg-primary hover:!bg-primary/90"
               onClick={() => setAddDepartmentApproval(true)}
               icon={<FaPlus />}
               id={`settings-${pageSlug}-add-approval-btn`}

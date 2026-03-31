@@ -216,7 +216,6 @@ const PayrollApprovalCreator = ({
               </div>
             ),
           )}
-
         </Form>
       </div>
 

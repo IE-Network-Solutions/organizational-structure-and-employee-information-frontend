@@ -11,7 +11,9 @@ interface PayrollApprovalWorkFlowProps {
   primaryDisabled?: boolean;
 }
 
-export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = ({
+export const PayrollApprovalWorkFlow: React.FC<
+  PayrollApprovalWorkFlowProps
+> = ({
   onChange,
   children,
   currentStep = 1,
@@ -108,7 +110,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   id="approval-payroll-workflow-step-1-indicator"
                   data-cy="approval-payroll-workflow-step-1-indicator"
                   className={`w-3 h-3 rounded-full ring-4 ring-white shadow-sm ${
-                    getStepState(1) === 'completed' || getStepState(1) === 'active'
+                    getStepState(1) === 'completed' ||
+                    getStepState(1) === 'active'
                       ? 'bg-primary'
                       : 'bg-gray-300'
                   }`}
@@ -117,7 +120,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   id="approval-payroll-workflow-step-1-label"
                   data-cy="approval-payroll-workflow-step-1-label"
                   className={`ml-2 text-sm font-medium ${
-                    getStepState(1) === 'active' || getStepState(1) === 'completed'
+                    getStepState(1) === 'active' ||
+                    getStepState(1) === 'completed'
                       ? 'text-primary'
                       : 'text-gray-400'
                   }`}
@@ -145,7 +149,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   id="approval-payroll-workflow-step-2-indicator"
                   data-cy="approval-payroll-workflow-step-2-indicator"
                   className={`w-3 h-3 rounded-full ring-4 ring-white shadow-sm ${
-                    getStepState(2) === 'completed' || getStepState(2) === 'active'
+                    getStepState(2) === 'completed' ||
+                    getStepState(2) === 'active'
                       ? 'bg-primary'
                       : 'bg-gray-300'
                   }`}
@@ -154,7 +159,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   id="approval-payroll-workflow-step-2-label"
                   data-cy="approval-payroll-workflow-step-2-label"
                   className={`ml-2 text-sm font-medium ${
-                    getStepState(2) === 'active' || getStepState(2) === 'completed'
+                    getStepState(2) === 'active' ||
+                    getStepState(2) === 'completed'
                       ? 'text-primary'
                       : 'text-gray-400'
                   }`}
@@ -182,7 +188,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   id="approval-payroll-workflow-step-3-indicator"
                   data-cy="approval-payroll-workflow-step-3-indicator"
                   className={`w-3 h-3 rounded-full ring-4 ring-white shadow-sm ${
-                    getStepState(3) === 'completed' || getStepState(3) === 'active'
+                    getStepState(3) === 'completed' ||
+                    getStepState(3) === 'active'
                       ? 'bg-primary'
                       : 'bg-gray-300'
                   }`}
@@ -191,7 +198,8 @@ export const PayrollApprovalWorkFlow: React.FC<PayrollApprovalWorkFlowProps> = (
                   id="approval-payroll-workflow-step-3-label"
                   data-cy="approval-payroll-workflow-step-3-label"
                   className={`ml-2 text-sm font-medium ${
-                    getStepState(3) === 'active' || getStepState(3) === 'completed'
+                    getStepState(3) === 'active' ||
+                    getStepState(3) === 'completed'
                       ? 'text-primary'
                       : 'text-gray-400'
                   }`}
