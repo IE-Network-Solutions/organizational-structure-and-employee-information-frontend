@@ -1358,7 +1358,10 @@ const Payroll = () => {
                         : undefined
                     }
                     icon={
-                      <span className="inline-flex items-center justify-center leading-none">
+                      <span
+                        className="inline-flex items-center justify-center leading-none"
+                        data-cy="payroll-generate-button-icon-wrapper"
+                      >
                         {payroll?.items?.length > 0 ? (
                           <FileSyncOutlined
                             data-cy="payroll-generate-icon"
@@ -1383,11 +1386,17 @@ const Payroll = () => {
                   >
                     {!(isMobile || isTablet) &&
                       (payroll?.items?.length > 0 ? (
-                        <span className="inline-flex items-center leading-none">
+                        <span
+                          className="inline-flex items-center leading-none"
+                          data-cy="payroll-regenerate-button-label"
+                        >
                           Regenerate
                         </span>
                       ) : (
-                        <span className="inline-flex items-center leading-none">
+                        <span
+                          className="inline-flex items-center leading-none"
+                          data-cy="payroll-generate-button-label"
+                        >
                           Generate
                         </span>
                       ))}
