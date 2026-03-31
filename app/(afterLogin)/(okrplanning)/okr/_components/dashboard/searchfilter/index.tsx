@@ -13,7 +13,12 @@ import { LuSettings2 } from 'react-icons/lu';
 
 const { Option } = Select;
 
-const OkrSearch: React.FC = () => {
+export type OkrSearchProps = {
+  /** When true, filter layout matches "All Employee OKR" (multi-session, user & department; no metric). */
+  allEmployeeLayout?: boolean;
+};
+
+const OkrSearch: React.FC<OkrSearchProps> = ({ allEmployeeLayout = false }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     searchObjParams,
@@ -25,6 +30,10 @@ const OkrSearch: React.FC = () => {
     sessionIds,
   } = useOKRStore();
 
+  const treatAsAllEmployeeTab = allEmployeeLayout || okrTab == 4;
+  const showUserAndDepartmentFilters = allEmployeeLayout || okrTab != 1;
+  const showMetricTypeFilter = !allEmployeeLayout && okrTab != 4;
+
   const { data: getAllFiscalYears, isLoading: fyLoading } =
     useGetAllFiscalYears();
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
@@ -35,6 +44,8 @@ const OkrSearch: React.FC = () => {
   // Use refs to track previous values and prevent infinite loops
   const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
   const prevOkrTabRef = useRef<number | string>(okrTab);
+  /** `false` initial value so mounting with `allEmployeeLayout` true is treated as a layout change (e.g. Performance employees after visiting OKR). */
+  const prevAllEmployeeLayoutRef = useRef<boolean>(false);
   const initializedRef = useRef<boolean>(false);
 
   // Only sync fiscal year and sessions on mount or when okrTab/fiscalYearId changes
@@ -49,6 +60,8 @@ const OkrSearch: React.FC = () => {
     const fiscalYearChangedExternally =
       prevFiscalYearIdRef.current !== fiscalYearId;
     const okrTabChanged = prevOkrTabRef.current !== okrTab;
+    const allEmployeeLayoutChanged =
+      prevAllEmployeeLayoutRef.current !== allEmployeeLayout;
 
     // If fiscal year was changed externally, update sessions for that fiscal year
     if (fiscalYearChangedExternally && fiscalYearId) {
@@ -57,7 +70,7 @@ const OkrSearch: React.FC = () => {
       );
 
       if (selectedFiscalYear) {
-        if (okrTab == 4) {
+        if (allEmployeeLayout || okrTab == 4) {
           const allSessionIds =
             selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
           setSessionIds(allSessionIds);
@@ -73,6 +86,7 @@ const OkrSearch: React.FC = () => {
       // Update refs after handling the change
       prevFiscalYearIdRef.current = fiscalYearId;
       prevOkrTabRef.current = okrTab;
+      prevAllEmployeeLayoutRef.current = allEmployeeLayout;
       return;
     }
 
@@ -87,7 +101,7 @@ const OkrSearch: React.FC = () => {
 
       const newFiscalYearId = selectedFiscalYear?.id || '';
 
-      if (okrTab == 4) {
+      if (allEmployeeLayout || okrTab == 4) {
         const allSessionIds =
           selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
         setSessionIds(allSessionIds);
@@ -103,18 +117,19 @@ const OkrSearch: React.FC = () => {
       setFiscalYearId(newFiscalYearId);
       prevFiscalYearIdRef.current = newFiscalYearId;
       prevOkrTabRef.current = okrTab;
+      prevAllEmployeeLayoutRef.current = allEmployeeLayout;
       initializedRef.current = true;
       return;
     }
 
-    // If okrTab changed, update sessions for current fiscal year
-    if (okrTabChanged && fiscalYearId) {
+    // If okrTab or employee-perf layout changed, update sessions for current fiscal year
+    if ((okrTabChanged || allEmployeeLayoutChanged) && fiscalYearId) {
       const selectedFiscalYear = getAllFiscalYears?.items?.find(
         (i) => i?.id == fiscalYearId,
       );
 
       if (selectedFiscalYear) {
-        if (okrTab == 4) {
+        if (allEmployeeLayout || okrTab == 4) {
           const allSessionIds =
             selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
           setSessionIds(allSessionIds);
@@ -129,11 +144,15 @@ const OkrSearch: React.FC = () => {
       }
       // Update ref after handling the change
       prevOkrTabRef.current = okrTab;
+      prevAllEmployeeLayoutRef.current = allEmployeeLayout;
     }
+
+    prevAllEmployeeLayoutRef.current = allEmployeeLayout;
   }, [
     getAllFiscalYears?.items,
     getActiveFisicalYear,
     okrTab,
+    allEmployeeLayout,
     fiscalYearId,
     setFiscalYearId,
     setSessionIds,
@@ -218,7 +237,7 @@ const OkrSearch: React.FC = () => {
         </label>
         <Select
           loading={fyLoading}
-          value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
+          value={treatAsAllEmployeeTab ? sessionIds : sessionIds?.[0]}
           id="mobile-session-select"
           data-cy="okr-mobile-session-select"
           placeholder="Filter by Session"
@@ -226,7 +245,7 @@ const OkrSearch: React.FC = () => {
           allowClear
           showSearch
           onChange={(value: any) => {
-            if (okrTab == 4) {
+            if (treatAsAllEmployeeTab) {
               setSessionIds(
                 Array.isArray(value) ? value : value ? [value] : [],
               );
@@ -234,7 +253,7 @@ const OkrSearch: React.FC = () => {
               setSessionIds(value ? [value] : []);
             }
           }}
-          mode={okrTab == 4 ? 'multiple' : undefined}
+          mode={treatAsAllEmployeeTab ? 'multiple' : undefined}
           filterOption={(input, option) =>
             (option?.children as any)
               .toLowerCase()
@@ -256,7 +275,7 @@ const OkrSearch: React.FC = () => {
       </div>
 
       {/* Department */}
-      {okrTab != 1 && (
+      {showUserAndDepartmentFilters && (
         <div
           id="mobile-department-field"
           data-cy="okr-mobile-department-field"
@@ -298,7 +317,7 @@ const OkrSearch: React.FC = () => {
       )}
 
       {/* Metric Type */}
-      {okrTab != 4 && (
+      {showMetricTypeFilter && (
         <div
           id="mobile-metric-type-field"
           data-cy="okr-mobile-metric-type-field"
@@ -352,7 +371,7 @@ const OkrSearch: React.FC = () => {
           className="grid grid-cols-12 gap-4"
         >
           {/* User Filter */}
-          {okrTab != 1 && (
+          {showUserAndDepartmentFilters && (
             <div
               className="col-span-12 lg:col-span-4"
               data-cy="okr-desktop-user-filter-container"
@@ -386,7 +405,7 @@ const OkrSearch: React.FC = () => {
 
           {/* Fiscal Year */}
           <div
-            className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}
+            className={`${treatAsAllEmployeeTab ? 'col-span-3' : 'col-span-2'}`}
             data-cy="okr-desktop-fiscal-year-container"
           >
             <Select
@@ -420,12 +439,12 @@ const OkrSearch: React.FC = () => {
 
           {/* Session */}
           <div
-            className={`${okrTab == 4 ? 'col-span-3' : 'col-span-2'}`}
+            className={`${treatAsAllEmployeeTab ? 'col-span-3' : 'col-span-2'}`}
             data-cy="okr-desktop-session-container"
           >
             <Select
               loading={fyLoading}
-              value={okrTab == 4 ? sessionIds : sessionIds?.[0]}
+              value={treatAsAllEmployeeTab ? sessionIds : sessionIds?.[0]}
               id="desktop-session-select"
               data-cy="okr-desktop-session-select"
               placeholder="Filter by Session"
@@ -433,7 +452,7 @@ const OkrSearch: React.FC = () => {
               allowClear
               showSearch
               onChange={(value: any) => {
-                if (okrTab == 4) {
+                if (treatAsAllEmployeeTab) {
                   setSessionIds(
                     Array.isArray(value) ? value : value ? [value] : [],
                   );
@@ -441,7 +460,7 @@ const OkrSearch: React.FC = () => {
                   setSessionIds(value ? [value] : []);
                 }
               }}
-              mode={okrTab == 4 ? 'multiple' : undefined}
+              mode={treatAsAllEmployeeTab ? 'multiple' : undefined}
               filterOption={(input, option) =>
                 (option?.children as any)
                   .toLowerCase()
@@ -463,9 +482,9 @@ const OkrSearch: React.FC = () => {
           </div>
 
           {/* Department */}
-          {okrTab != 1 && (
+          {showUserAndDepartmentFilters && (
             <div
-              className={`${okrTab == 4 ? 'col-span-2' : 'col-span-2'}`}
+              className={`${treatAsAllEmployeeTab ? 'col-span-2' : 'col-span-2'}`}
               data-cy="okr-desktop-department-container"
             >
               <Select
@@ -496,7 +515,7 @@ const OkrSearch: React.FC = () => {
           )}
 
           {/* Metric Type */}
-          {okrTab != 4 && (
+          {showMetricTypeFilter && (
             <div
               className="col-span-12 lg:col-span-2"
               data-cy="okr-desktop-metric-type-container"
@@ -541,7 +560,7 @@ const OkrSearch: React.FC = () => {
           data-cy="okr-mobile-search-controls"
           className="flex justify-between gap-4 w-full"
         >
-          {okrTab != 1 && (
+          {showUserAndDepartmentFilters && (
             <div className="flex-1" data-cy="okr-mobile-user-select-container">
               <Select
                 id="mobile-user-select"
@@ -570,7 +589,7 @@ const OkrSearch: React.FC = () => {
             </div>
           )}
           <div
-            className={`${okrTab == 1 ? 'ml-auto' : ''}`}
+            className={`${okrTab == 1 && !allEmployeeLayout ? 'ml-auto' : ''}`}
             data-cy="okr-mobile-filter-button-container"
           >
             <CustomButton
