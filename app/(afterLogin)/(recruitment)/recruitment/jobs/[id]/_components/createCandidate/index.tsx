@@ -188,7 +188,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       }}
       className="gb-bg-white"
       zIndex={10002}
-     
     >
       <Form
         id="talent-acquisition-job-create-candidate-form"
@@ -317,12 +316,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     },
                   ]}
                 >
-                 <PhoneInput
-                  defaultCountry="et"
-                  inputClassName="ant-input"
-                  className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
-                  data-cy={`talent-acquisition-job-create-candidate-input-phone`}
-                />
+                  <PhoneInput
+                    defaultCountry="et"
+                    inputClassName="ant-input"
+                    className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
+                    data-cy={`talent-acquisition-job-create-candidate-input-phone`}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -436,7 +435,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     },
                   ]}
                 >
-                  <div className="relative h-10 w-full flex items-center">
+                  <div data-cy="talent-acquisition-job-create-candidate-input-cgpa-contanier"className="relative h-10 w-full flex items-center">
                     <InputNumber
                       id="talent-acquisition-job-create-candidate-input-cgpa"
                       data-cy="talent-acquisition-job-create-candidate-input-cgpa"

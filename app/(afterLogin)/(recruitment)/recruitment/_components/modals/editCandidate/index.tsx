@@ -14,7 +14,6 @@ import {
 
 import React, { useEffect } from 'react';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import { FaInfoCircle } from 'react-icons/fa';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { InboxOutlined } from '@ant-design/icons';
 import { PhoneInput } from 'react-international-phone';
@@ -347,12 +346,12 @@ const EditCandidate: React.FC = () => {
                     },
                   ]}
                 >
-                 <PhoneInput
-                  defaultCountry="et"
-                  inputClassName="ant-input"
-                  className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
-                  data-cy={`talent-acquisition-job-edit-candidate-input-phone`}
-                />
+                  <PhoneInput
+                    defaultCountry="et"
+                    inputClassName="ant-input"
+                    className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
+                    data-cy={`talent-acquisition-job-edit-candidate-input-phone`}
+                  />
                 </Form.Item>
               </Col>
             </Row>
@@ -407,7 +406,7 @@ const EditCandidate: React.FC = () => {
                 </Form.Item>
               </Col>
               <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-              <Form.Item
+                <Form.Item
                   id="cgpaId"
                   name="CGPA"
                   label={
@@ -460,7 +459,7 @@ const EditCandidate: React.FC = () => {
                     },
                   ]}
                 >
-                  <div className="relative h-10 w-full flex items-center">
+                  <div data-cy="talent-acquisition-job-edit-candidate-input-cgpa-container" className="relative h-10 w-full flex items-center">
                     <InputNumber
                       id="talent-acquisition-job-edit-candidate-input-cgpa"
                       data-cy="talent-acquisition-job-edit-candidate-input-cgpa"
@@ -473,7 +472,6 @@ const EditCandidate: React.FC = () => {
                     />
                   </div>
                 </Form.Item>
-                
               </Col>
             </Row>
 
