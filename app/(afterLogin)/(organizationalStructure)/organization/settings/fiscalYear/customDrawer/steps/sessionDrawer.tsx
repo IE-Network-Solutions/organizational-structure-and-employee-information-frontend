@@ -3,6 +3,7 @@ import { Button, Col, DatePicker, Form, Input, Row, Spin, Popover } from 'antd';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { RangePicker } = DatePicker;
 
@@ -25,6 +26,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   isCreateLoading,
   isUpdateLoading,
 }) => {
+  const { isMobile } = useIsMobile();
   // Ref to track last processed fiscal year dates to avoid infinite loops
   const lastProcessedFiscalYearRef = useRef<{
     start: string | null;
@@ -375,7 +377,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         id={`org-settings-fiscal-year-session-${index}`}
       >
         <Row gutter={8} align="middle">
-          <Col span={12}>
+          <Col
+            span={isMobile ? undefined : 12}
+            flex={isMobile ? 'auto' : undefined}
+            style={isMobile ? { minWidth: 0 } : undefined}
+          >
             <Form.Item
               name={['sessionData', index, 'sessionName']}
               rules={[
@@ -387,14 +393,17 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             >
               <Input
                 size="middle"
-                className="w-full font-normal text-sm h-10"
+                className="w-full font-normal text-sm h-8"
                 placeholder="Enter session name"
                 data-cy={`org-settings-fiscal-year-session-name-input-${index}`}
                 id={`org-settings-fiscal-year-session-name-input-${index}`}
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col
+            span={isMobile ? undefined : 12}
+            flex={isMobile ? 'none' : undefined}
+          >
             <Form.Item
               name={['sessionData', index, 'sessionDateRange']}
               getValueFromEvent={(dates) => {
@@ -457,7 +466,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
               <RangePicker
                 size="middle"
                 format="YYYY-MM-DD"
-                className="w-full h-10 [&_.ant-picker-input]:h-8"
+                className={
+                  isMobile
+                    ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
+                    : 'w-full h-8 [&_.ant-picker-input]:h-8'
+                }
                 data-cy={`org-settings-fiscal-year-session-date-range-input-${index}`}
                 id={`org-settings-fiscal-year-session-date-range-input-${index}`}
               />
@@ -480,7 +493,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         data-cy="org-settings-fiscal-year-session-drawer-description-container"
       >
         <p
-          className="text-sm text-gray-600 mb-4"
+          className="text-sm text-[rgba(0,0,0,0.45)] mb-4"
           data-cy="org-settings-fiscal-year-session-drawer-description"
         >
           {calendarType === 'Semester' &&
@@ -546,7 +559,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
             <Button
               type="default"
               onClick={handlePrevious}
-              className="flex justify-center text-sm font-normal h-10 px-6 border-gray-300 bg-transparent hover:bg-gray-50"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-session-previous-btn"
               id="org-settings-fiscal-year-session-previous-btn"
             >
@@ -566,7 +579,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 <Button
                   type="primary"
                   onClick={handleNext}
-                  className="flex justify-center text-sm font-normal h-10 px-6 min-w-[100px]"
+                  className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 min-w-[100px]"
                   disabled={hasErrors}
                   data-cy="org-settings-fiscal-year-session-next-btn"
                   id="org-settings-fiscal-year-session-next-btn"

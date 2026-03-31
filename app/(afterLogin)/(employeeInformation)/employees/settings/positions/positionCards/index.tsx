@@ -155,12 +155,13 @@ const PositionCards: React.FC = () => {
                   placement="bottomRight"
                 >
                   <Button
-                    type="text"
-                    icon={<MoreHorizIcon />}
-                    className="w-8 h-8 flex items-center justify-center border border-[#D9D9D9] rounded-md"
+                    type="default"
+                    className="w-8 h-8 border border-[#D9D9D9]"
                     id={`settings-position-menu-btn-${positionSlug}`}
                     data-cy={`settings-position-menu-btn-${positionSlug}`}
-                  />
+                  >
+                    <MoreHorizIcon />
+                  </Button>
                 </Dropdown>
               </div>
             </div>

@@ -13,6 +13,7 @@ import PaymentCards from './_components/payment-cards';
 import ActionCards from './_components/action-cards';
 import PieChart from './_components/pie-chart';
 import PayrollCards from './_components/cards';
+import RecentHrActions from '../../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
 
 const { Option } = Select;
 
@@ -136,7 +137,7 @@ const DashboardPayroll = () => {
                 className="w-full min-w-0"
                 data-cy="dashboard-payroll-action-cards-inner"
               >
-                <ActionCards data-cy="dashboard-payroll-action-cards" />
+                <RecentHrActions  />
               </div>
             </div>
           </div>

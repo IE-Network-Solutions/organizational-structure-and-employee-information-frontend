@@ -85,20 +85,6 @@ const MergeDragDrop: React.FC = () => {
     );
   }, [departments, searchQuery]);
 
-  // Exclude already selected teams from the list
-  const availableDepartments = useMemo(() => {
-    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(Boolean);
-
-    return filteredDepartments
-      .filter((dept: any) => !selectedIds.includes(dept.id))
-      .map((dept: any) => ({
-        id: dept.id,
-        name: dept.name,
-        branchId: dept.branchId,
-        description: dept.description,
-      }));
-  }, [filteredDepartments, sourceTeam, destinationTeam]);
-
   // Department cache for finding departments with children
   const departmentCache: Record<string, any> = {};
 
@@ -146,6 +132,50 @@ const MergeDragDrop: React.FC = () => {
     },
     [],
   );
+
+  // Exclude already selected teams from the list
+  const availableDepartments = useMemo(() => {
+    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(
+      (id): id is string => Boolean(id),
+    );
+    const excludedDescendantIds = new Set<string>();
+
+    const collectDescendantIds = (nodes: any[] = []) => {
+      nodes.forEach((node) => {
+        if (!node?.id) return;
+        excludedDescendantIds.add(node.id);
+        if (Array.isArray(node.department) && node.department.length > 0) {
+          collectDescendantIds(node.department);
+        }
+      });
+    };
+
+    // When a team is selected in either box, hide all of its descendants.
+    selectedIds.forEach((id) => {
+      const selectedDept = findDepartmentWithChildren(orgStructureData, id);
+      if (selectedDept?.children?.length) {
+        collectDescendantIds(selectedDept.children);
+      }
+    });
+
+    return filteredDepartments
+      .filter(
+        (dept: any) =>
+          !selectedIds.includes(dept.id) && !excludedDescendantIds.has(dept.id),
+      )
+      .map((dept: any) => ({
+        id: dept.id,
+        name: dept.name,
+        branchId: dept.branchId,
+        description: dept.description,
+      }));
+  }, [
+    filteredDepartments,
+    sourceTeam,
+    destinationTeam,
+    orgStructureData,
+    findDepartmentWithChildren,
+  ]);
 
   // Build merge data
   useEffect(() => {

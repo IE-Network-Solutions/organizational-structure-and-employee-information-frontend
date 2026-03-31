@@ -58,7 +58,7 @@ const SourceDestinationView: React.FC<SourceDestinationViewProps> = ({
 }) => {
   return (
     <div
-      className="flex-1 flex flex-col items-center pt-4 lg:pt-0 relative w-full"
+      className="flex-1 flex flex-col items-center pt-4 lg:pt-14 relative w-full"
       data-cy="merge-source-destination-container"
     >
       {/* Mobile: Stacked vertically with button after boxes */}

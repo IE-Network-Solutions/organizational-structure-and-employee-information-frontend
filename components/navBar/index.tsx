@@ -236,9 +236,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const isPayrollDashboard =
-    pathname === '/dashboard-payroll' ||
-    pathname.startsWith('/dashboard-payroll/');
   const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
@@ -642,12 +639,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'PAYROLL',
         children: [
           {
-            title: <span data-cy="nav-tree-payroll-dashboard">Dashboard</span>,
-            key: '/dashboard-payroll',
-            className: 'font-bold',
-            permissions: ['view_payroll_dashboard'],
-          },
-          {
             title: (
               <span data-cy="nav-tree-employee-information">
                 Employee Information
@@ -657,7 +648,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_employee_information'],
           },
-
           {
             title: <span data-cy="nav-tree-payroll">Payroll</span>,
             key: '/payroll',
@@ -1589,7 +1579,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             padding: 0,
             background: '#fff',
-            display: isPayrollDashboard && !isMobile ? 'none' : 'flex',
+            display: 'flex',
             alignItems: 'center',
             position: 'fixed',
             width: isMobile
@@ -1632,10 +1622,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
 
-          <NavBar
-            handleLogout={handleLogout}
-            hideSearchAndProfile={isPayrollDashboard}
-          />
+          <NavBar handleLogout={handleLogout} />
         </Header>
         <Content
           className="overflow-y-hidden min-h-screen"
@@ -1643,7 +1630,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: isMobile ? 0 : 24,
-            paddingTop: isPayrollDashboard && !isMobile ? 0 : '74px',
+            paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
           }}
@@ -1658,7 +1645,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ) : (
             <div
               data-cy="nav-content-inner"
-              className="overflow-auto"
+              className="overflow-auto scrollbar-hide"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,

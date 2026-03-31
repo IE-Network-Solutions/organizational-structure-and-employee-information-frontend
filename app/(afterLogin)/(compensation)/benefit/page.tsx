@@ -1,9 +1,15 @@
 'use client';
-import { redirect } from 'next/navigation';
+
+import React from 'react';
+import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+import BenefitTypeCardGrid from '../compensationSetting/benefitType/_components/benefitTypeCardGrid';
 
 const BenefitPage = () => {
-  redirect('/benefit/variablePay');
-  return null;
+  return (
+    <BlockWrapper className="h-auto w-full bg-white px-3 pb-6 pt-4 sm:px-4">
+      <BenefitTypeCardGrid data-cy="compensation-benefit-type-card-grid" />
+    </BlockWrapper>
+  );
 };
 
 export default BenefitPage;
