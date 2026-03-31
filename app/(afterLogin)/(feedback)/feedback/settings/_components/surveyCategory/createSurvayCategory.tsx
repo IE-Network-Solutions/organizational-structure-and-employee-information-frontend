@@ -3,6 +3,7 @@
 import { useAddCategory } from '@/store/server/features/conversation/mutation';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import React, { useEffect } from 'react';
 
@@ -14,6 +15,10 @@ interface CategoryFormValues {
 
 const createSurvayCategory = () => {
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
   const {
     openSurveyCategoryModal,
@@ -99,10 +104,36 @@ const createSurvayCategory = () => {
       open={openSurveyCategoryModal}
       onCancel={handleCloseDrawer}
       footer={footer}
-      width={520}
-      centered
+      width={isMobileViewport ? '100%' : 520}
+      centered={!isMobileViewport}
+      style={
+        isMobileViewport
+          ? {
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              transform: 'none',
+              maxWidth: '100%',
+            }
+          : undefined
+      }
       destroyOnClose
       maskClosable={false}
+      styles={{
+        body: {
+          maxHeight: isMobileViewport ? 'calc(100vh - 220px)' : undefined,
+          overflowY: isMobileViewport ? 'auto' : undefined,
+        },
+        content: {
+          ...(isMobileViewport
+            ? { borderRadius: 12, width: '100%', maxWidth: '100%' }
+            : {}),
+        },
+      }}
       classNames={{
         content: 'rounded-xl overflow-hidden',
         header: 'pb-2 border-b border-gray-100',

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Form, Input, Select, Spin, Button } from 'antd';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { useFetchUsers } from '@/store/server/features/feedback/category/queries';
 import { useUpdateFormCategory } from '@/store/server/features/conversation/mutation';
@@ -11,6 +12,10 @@ interface EditCategoryModalProps {
 const { Option } = Select;
 
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
+  const { isMobile } = useIsMobile();
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const [form] = Form.useForm();
   const {
     editModal,
@@ -77,6 +82,35 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
       open={editModal}
       footer={null}
       onCancel={handleCancel}
+      width={isMobileViewport ? '100%' : undefined}
+      centered={!isMobileViewport}
+      style={
+        isMobileViewport
+          ? {
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              transform: 'none',
+              maxWidth: '100%',
+              width: '100%',
+            }
+          : undefined
+      }
+      styles={{
+        body: {
+          maxHeight: isMobileViewport ? 'calc(100vh - 220px)' : undefined,
+          overflowY: isMobileViewport ? 'auto' : undefined,
+        },
+        content: {
+          ...(isMobileViewport
+            ? { borderRadius: 12, width: '100%', maxWidth: '100%' }
+            : {}),
+        },
+      }}
       data-cy="feedback-categories-components-categoriescard-editcategory-modal"
     >
       <Form
