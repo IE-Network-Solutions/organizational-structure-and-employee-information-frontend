@@ -361,19 +361,21 @@ const HistoryTable = () => {
             data-cy="time-attendance-history-table-pagination-wrapper"
           >
             {isMobile || isTablet ? (
-              <CustomMobilePagination
-                currentPage={page}
-                totalResults={data?.meta?.totalItems ?? 0}
-                totalPages={data?.meta?.totalPages}
-                pageSize={limit}
-                stackPagerAndGoTo={historyWrapPaginationManyPages}
-                onChange={(newPage, newPageSize) => {
-                  setPage(newPage);
-                  setLimit(newPageSize);
-                }}
-                id="time-attendance-leave-requests-mobile-pagination"
-                data-cy="time-attendance-leave-requests-mobile-pagination"
-              />
+              <div className="[&>div]:border-0 [&>div]:bg-transparent [&>div]:px-0 [&>div]:py-0">
+                <CustomMobilePagination
+                  currentPage={page}
+                  totalResults={data?.meta?.totalItems ?? 0}
+                  totalPages={data?.meta?.totalPages}
+                  pageSize={limit}
+                  stackPagerAndGoTo={historyWrapPaginationManyPages}
+                  onChange={(newPage, newPageSize) => {
+                    setPage(newPage);
+                    setLimit(newPageSize);
+                  }}
+                  id="time-attendance-leave-requests-mobile-pagination"
+                  data-cy="time-attendance-leave-requests-mobile-pagination"
+                />
+              </div>
             ) : (
               <MyTimesheetAttendancePagination
                 current={page}

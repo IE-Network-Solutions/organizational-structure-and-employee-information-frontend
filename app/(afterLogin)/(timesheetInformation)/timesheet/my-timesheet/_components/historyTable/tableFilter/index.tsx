@@ -69,7 +69,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
     >
       {/* Mobile */}
       <Row
-        gutter={[12, 12]}
+        gutter={[0, 24]}
         className="w-full sm:hidden"
         id="time-attendance-history-table-filter-row-mobile"
         data-cy="time-attendance-history-table-filter-row-mobile"
