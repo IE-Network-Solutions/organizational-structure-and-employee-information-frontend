@@ -129,6 +129,18 @@ export interface CategoriesUseState {
 
   feedbackModalType: 'Engagement' | 'KPI';
   setFeedbackModalType: (type: 'Engagement' | 'KPI') => void;
+
+  perspectiveOpenDropdownId: string | null;
+  setPerspectiveOpenDropdownId: (value: string | null) => void;
+
+  perspectiveOpenDeleteConfirmId: string | null;
+  setPerspectiveOpenDeleteConfirmId: (value: string | null) => void;
+
+  feedbackOpenDropdownId: string | null;
+  setFeedbackOpenDropdownId: (value: string | null) => void;
+
+  recognitionOpenDropdownId: string | null;
+  setRecognitionOpenDropdownId: (value: string | null) => void;
 }
 const initialSearchField: SearchField[] = [
   {
@@ -275,4 +287,21 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
   feedbackModalType: 'Engagement',
   setFeedbackModalType: (feedbackModalType: 'Engagement' | 'KPI') =>
     set({ feedbackModalType }),
+
+  perspectiveOpenDropdownId: null,
+  setPerspectiveOpenDropdownId: (perspectiveOpenDropdownId: string | null) =>
+    set({ perspectiveOpenDropdownId }),
+
+  perspectiveOpenDeleteConfirmId: null,
+  setPerspectiveOpenDeleteConfirmId: (
+    perspectiveOpenDeleteConfirmId: string | null,
+  ) => set({ perspectiveOpenDeleteConfirmId }),
+
+  feedbackOpenDropdownId: null,
+  setFeedbackOpenDropdownId: (feedbackOpenDropdownId: string | null) =>
+    set({ feedbackOpenDropdownId }),
+
+  recognitionOpenDropdownId: null,
+  setRecognitionOpenDropdownId: (recognitionOpenDropdownId: string | null) =>
+    set({ recognitionOpenDropdownId }),
 }));

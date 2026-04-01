@@ -2,16 +2,17 @@
 
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 import { Button, Card, Dropdown, Popconfirm, Skeleton, Tag } from 'antd';
-import { EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdDeleteOutline, MdOutlineEdit } from 'react-icons/md';
 import { useMemo, useState } from 'react';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import RecognitionForm from '../../_components/recognition/createRecognition';
 import { AiOutlineTrophy } from 'react-icons/ai';
 import { LuSuperscript } from 'react-icons/lu';
 import { IoChevronBackSharp } from 'react-icons/io5';
+import { BsThreeDots } from 'react-icons/bs';
+import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 
 type RecognitionCriterion = {
   id?: string;
@@ -55,6 +56,7 @@ export default function RecognitionDetailPage() {
   const selectedRecognition = recognitionType?.items?.find(
     (r: any) => String(r?.id) === String(recognitionId),
   );
+  const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
 
   const children: RecognitionChild[] = selectedRecognition?.children ?? [];
   const selectedTitle = useMemo(
@@ -76,7 +78,9 @@ export default function RecognitionDetailPage() {
     );
     setOpenRecognitionType(true);
   };
-
+  const handleDeleteRecognitionType = (id: string) => {
+    deleteRecognitionType(id);
+  };
   return (
     <div
       className="p-5 rounded-2xl bg-white h-full"
@@ -188,16 +192,17 @@ export default function RecognitionDetailPage() {
                                 {child?.frequency}
                               </Tag>
                             )}
-
-                            <Tag
-                              className="text-xs"
-                              data-cy="recognition-detail-item-department-tag"
-                            >
-                              {
-                                selectedRecognition?.children?.department
-                                  ?.createdAt
-                              }
-                            </Tag>
+                            {selectedRecognition?.children?.department && (
+                              <Tag
+                                className="text-xs"
+                                data-cy="recognition-detail-item-department-tag"
+                              >
+                                {
+                                  selectedRecognition?.children?.department
+                                    ?.createdAt
+                                }
+                              </Tag>
+                            )}
 
                             <Tag
                               className="text-xs"
@@ -240,12 +245,15 @@ export default function RecognitionDetailPage() {
 
                         <Dropdown
                           trigger={['click']}
+                          placement="bottomRight"
+                          arrow
                           menu={{
                             items: [
                               {
                                 key: 'editRecognitionType',
                                 label: 'Edit Recognition Type',
-                                icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                                icon: <MdOutlineEdit className="w-4 h-4 " />,
+                                className: 'text-xs text-gray-600',
                                 onClick: () => {
                                   openEditRecognitionModal(
                                     child?.id,
@@ -256,9 +264,8 @@ export default function RecognitionDetailPage() {
                               {
                                 key: 'editFormula',
                                 label: 'Edit Formula',
-                                icon: (
-                                  <LuSuperscript className="w-4 h-4 text-xs" />
-                                ),
+                                icon: <LuSuperscript className="w-4 h-4 " />,
+                                className: 'text-xs text-gray-600',
                                 onClick: () => {
                                   openEditRecognitionModal(
                                     child?.id,
@@ -268,12 +275,13 @@ export default function RecognitionDetailPage() {
                               },
                               {
                                 key: 'delete',
+                                className: 'text-xs text-gray-600',
+
                                 label: (
                                   <Popconfirm
                                     title="Are you sure you want to delete?"
                                     onConfirm={() => {
-                                      // TODO: wire delete action later
-                                      // deleteRecognitionType(item?.id);
+                                      handleDeleteRecognitionType(child?.id);
                                     }}
                                     okText="Yes"
                                     cancelText="No"
@@ -293,18 +301,18 @@ export default function RecognitionDetailPage() {
                             ],
                           }}
                         >
-                          <Button
-                            type="text"
-                            size="small"
-                            aria-label="Recognition actions"
-                            icon={<EllipsisOutlined />}
-                            className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+                          <button
+                            type="button"
+                            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
                             data-cy={`settings-recognition-card-actions-${child?.id}`}
                             id={`settingsRecognitionCardActions${child?.id}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          />
+                          >
+                            <BsThreeDots
+                              data-cy={`settings-recognition-card-actions-icon-${child?.id}`}
+                              id={`settingsRecognitionCardActionsIcon${child?.id}`}
+                              className="text-lg"
+                            />
+                          </button>
                         </Dropdown>
                       </div>
                     </div>
@@ -431,6 +439,8 @@ export default function RecognitionDetailPage() {
                                     >
                                       <Dropdown
                                         trigger={['click']}
+                                        placement="bottomRight"
+                                        arrow
                                         menu={{
                                           items: [
                                             {
@@ -438,8 +448,10 @@ export default function RecognitionDetailPage() {
                                               label:
                                                 'Edit Recognition Criterion',
                                               icon: (
-                                                <Edit2Icon className="w-4 h-4 text-xs" />
+                                                <LuSuperscript className="w-4 h-4 " />
                                               ),
+                                              className:
+                                                'text-xs text-gray-600',
                                               onClick: () => {
                                                 openEditRecognitionModal(
                                                   child?.id,
@@ -451,18 +463,18 @@ export default function RecognitionDetailPage() {
                                           ],
                                         }}
                                       >
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          aria-label="Recognition actions"
-                                          icon={<EllipsisOutlined />}
-                                          className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+                                        <button
+                                          type="button"
+                                          className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
                                           data-cy={`recognition-detail-criteria-actions-${criterion?.id}`}
                                           id={`recognitionDetailCriteriaActions${criterion?.id}`}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                          }}
-                                        />
+                                        >
+                                          <BsThreeDots
+                                            data-cy={`recognition-detail-criteria-actions-${criterion?.id}`}
+                                            id={`recognitionDetailCriteriaActions${criterion?.id}`}
+                                            className="text-lg"
+                                          />
+                                        </button>
                                       </Dropdown>
                                     </div>
                                   </div>

@@ -2,12 +2,11 @@ import CustomPagination from '@/components/customPagination';
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { Button, Card, Input, Dropdown, Modal } from 'antd';
-import { Edit2Icon } from 'lucide-react';
+import { Card, Input, Dropdown, Popconfirm } from 'antd';
 import React from 'react';
-import { MdDeleteOutline } from 'react-icons/md';
-import { EllipsisOutlined } from '@ant-design/icons';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { SearchOutlined } from '@ant-design/icons';
+import { BsThreeDots } from 'react-icons/bs';
 
 interface FeedbackTypeDetailProps {
   feedbackTypeDetail: any;
@@ -25,6 +24,8 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
     pageSize,
     setSearchAppreciationQuery,
     setSearchReprimandQuery,
+    feedbackOpenDropdownId,
+    setFeedbackOpenDropdownId,
   } = ConversationStore();
 
   const handleDelete = (id: string) => {
@@ -115,37 +116,84 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             >
               <Dropdown
                 trigger={['click']}
+                placement="bottomRight"
+                arrow
+                open={feedbackOpenDropdownId === item.id}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setFeedbackOpenDropdownId(item.id);
+                  } else {
+                    setFeedbackOpenDropdownId(null);
+                  }
+                }}
                 menu={{
+                  onClick: ({ key, domEvent }) => {
+                    if (key === 'delete') {
+                      domEvent.preventDefault();
+                      domEvent.stopPropagation();
+                      setFeedbackOpenDropdownId(item.id);
+                      return;
+                    }
+                    setFeedbackOpenDropdownId(null);
+                  },
                   items: [
                     {
                       key: 'edit',
                       label: 'Edit',
-                      icon: <Edit2Icon className="w-4 h-4 text-xs" />,
-                      onClick: () => handleEdit(item),
+                      icon: <MdOutlineEdit className="w-4 h-4 " />,
+                      className: 'text-xs text-gray-600',
+                      onClick: () => {
+                        handleEdit(item);
+                        setFeedbackOpenDropdownId(null);
+                      },
                     },
                     {
                       key: 'delete',
-                      label: 'Delete',
-                      icon: <MdDeleteOutline className="w-4 h-4" />,
-                      onClick: () =>
-                        Modal.confirm({
-                          title: 'Are you sure you want to delete?',
-                          okText: 'Yes',
-                          cancelText: 'No',
-                          onOk: () => handleDelete(item?.id),
-                        }),
+                      className: 'text-xs text-gray-600',
+                      label: (
+                        <Popconfirm
+                          title="Are you sure you want to delete?"
+                          onConfirm={() => {
+                            handleDelete(item?.id);
+                            setFeedbackOpenDropdownId(null);
+                          }}
+                          onCancel={() => {
+                            setFeedbackOpenDropdownId(null);
+                          }}
+                          okText="Yes"
+                          cancelText="No"
+                          data-cy={`Feedback-type-detail-card-delete-confirm-${item.id}`}
+                          id={`FeedbackTypeDetailCardDeleteConfirm${item.id}`}
+                        >
+                          <span
+                            className="flex items-center gap-2"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setFeedbackOpenDropdownId(item.id);
+                            }}
+                          >
+                            <MdOutlineDelete className="w-4 h-4" />
+                            Delete
+                          </span>
+                        </Popconfirm>
+                      ),
                     },
                   ],
                 }}
               >
-                <Button
-                  size="small"
-                  shape="default"
-                  icon={<EllipsisOutlined />}
+                <button
+                  type="button"
+                  className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
                   data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
                   id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
-                  className="bg-white border-[2px] border-gray-300 h-6 w-6"
-                />
+                >
+                  <BsThreeDots
+                    id={`settingsDefineFeedbackPerspectiveActions${item.id}`}
+                    data-cy={`settingsDefineFeedbackPerspectiveActions${item.id}`}
+                    className="text-lg"
+                  />
+                </button>
               </Dropdown>
             </p>
           </div>

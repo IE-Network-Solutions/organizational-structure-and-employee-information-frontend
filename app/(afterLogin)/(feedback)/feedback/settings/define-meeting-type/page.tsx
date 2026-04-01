@@ -1,16 +1,15 @@
 'use client';
 
-import { Button, Card, Dropdown, Popconfirm, Skeleton } from 'antd';
+import { Card, Dropdown, Popconfirm, Skeleton } from 'antd';
 import React from 'react';
-import { EllipsisOutlined } from '@ant-design/icons';
 import MeetingTypeDrawer from './_components/meetingTypeDrawer';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
 import { useDeleteMeetingType } from '@/store/server/features/CFR/meeting/type/mutations';
 import CustomPagination from '@/components/customPagination';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
+import { BsThreeDots } from 'react-icons/bs';
 
 const DefineMeetingType = () => {
   const {
@@ -22,6 +21,8 @@ const DefineMeetingType = () => {
     setPagesizeType,
     currentType,
     setCurrentType,
+    meetingTypeOpenDropdownId,
+    setMeetingTypeOpenDropdownId,
   } = useMeetingStore();
   const router = useRouter();
 
@@ -99,25 +100,57 @@ const DefineMeetingType = () => {
                           >
                             <Dropdown
                               trigger={['click']}
+                              placement="bottomRight"
+                              arrow
+                              open={
+                                meetingTypeOpenDropdownId === String(item?.id)
+                              }
+                              onOpenChange={(open) => {
+                                if (open) {
+                                  setMeetingTypeOpenDropdownId(
+                                    String(item?.id),
+                                  );
+                                } else {
+                                  setMeetingTypeOpenDropdownId(null);
+                                }
+                              }}
                               menu={{
+                                onClick: ({ key, domEvent }) => {
+                                  if (key === 'delete') {
+                                    domEvent.preventDefault();
+                                    domEvent.stopPropagation();
+                                    setMeetingTypeOpenDropdownId(
+                                      String(item?.id),
+                                    );
+                                    return;
+                                  }
+                                  setMeetingTypeOpenDropdownId(null);
+                                },
                                 items: [
                                   {
                                     key: 'edit',
                                     label: 'Edit',
                                     icon: (
-                                      <Edit2Icon className="w-4 h-4 text-xs" />
+                                      <MdOutlineEdit className="w-4 h-4 " />
                                     ),
+                                    className: 'text-xs text-gray-600',
                                     onClick: () => {
                                       handleEditModal(item);
+                                      setMeetingTypeOpenDropdownId(null);
                                     },
                                   },
                                   {
                                     key: 'delete',
+                                    className: 'text-xs text-gray-600',
                                     label: (
                                       <Popconfirm
                                         title="Are you sure you want to delete this meeting type?"
                                         onConfirm={() => {
                                           handleDeleteMeetingType(item?.id);
+                                          setMeetingTypeOpenDropdownId(null);
+                                        }}
+                                        onCancel={() => {
+                                          setMeetingTypeOpenDropdownId(null);
                                         }}
                                         okText="Yes"
                                         cancelText="No"
@@ -129,9 +162,16 @@ const DefineMeetingType = () => {
                                       >
                                         <span
                                           className="flex items-center gap-2"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setMeetingTypeOpenDropdownId(
+                                              String(item?.id),
+                                            );
+                                          }}
                                           data-cy={`settings-define-meeting-type-card-delete-${item?.id}`}
                                         >
-                                          <MdDeleteOutline className="w-4 h-4" />
+                                          <MdOutlineDelete className="w-4 h-4" />
                                           Delete
                                         </span>
                                       </Popconfirm>
@@ -140,15 +180,18 @@ const DefineMeetingType = () => {
                                 ],
                               }}
                             >
-                              <Button
-                                type="text"
-                                size="small"
-                                aria-label="DefineMeetingType actions"
-                                icon={<EllipsisOutlined />}
-                                className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+                              <button
+                                type="button"
+                                className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
                                 data-cy={`settings-define-meeting-type-card-actions-${item?.id}`}
                                 id={`settingsDefineMeetingTypeCardActions${item?.id}`}
-                              />
+                              >
+                                <BsThreeDots
+                                  data-cy={`settings-define-meeting-type-card-actions-icon-${item?.id}`}
+                                  id={`settingsDefineMeetingTypeCardActionsIcon${item?.id}`}
+                                  className="text-lg"
+                                />
+                              </button>
                             </Dropdown>
                           </div>
                         </div>

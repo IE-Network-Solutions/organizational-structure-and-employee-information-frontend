@@ -26,7 +26,11 @@ import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboar
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useGetEmployeeSurvey } from '@/store/server/features/conversation/survey/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
-import { MdDeleteOutline } from 'react-icons/md';
+import {
+  MdDeleteOutline,
+  MdOutlineDelete,
+  MdOutlineEdit,
+} from 'react-icons/md';
 import { Edit2Icon } from 'lucide-react';
 import EmployeeSurveyModal from './EmployeeSurveyModal';
 import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
@@ -34,6 +38,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import CustomPagination from '@/components/customPagination';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { BsThreeDots } from 'react-icons/bs';
 
 const { Option } = Select;
 const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
@@ -291,16 +296,20 @@ const EmployeeSurveyTable: React.FC = () => {
         record?.monthId == activeMonth?.id ? (
           <Dropdown
             trigger={['click']}
+            placement="bottomRight"
+            arrow
             menu={{
               items: [
                 {
                   key: 'edit',
                   label: 'Edit',
-                  icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                  icon: <MdOutlineEdit className="w-4 h-4 " />,
+                  className: 'text-xs text-gray-600',
                   onClick: () => handleVisibilityEdit(record),
                 },
                 {
                   key: 'delete',
+                  className: 'text-xs text-gray-600',
                   label: (
                     <Popconfirm
                       title="Are you sure you want to remove survey score?"
@@ -316,7 +325,7 @@ const EmployeeSurveyTable: React.FC = () => {
                         className="flex items-center gap-2"
                         data-cy="employee-survey-table-delete-menu-item"
                       >
-                        <MdDeleteOutline className="w-4 h-4" />
+                        <MdOutlineDelete className="w-4 h-4" />
                         Delete
                       </span>
                     </Popconfirm>
@@ -329,9 +338,20 @@ const EmployeeSurveyTable: React.FC = () => {
               size="small"
               icon={<EllipsisOutlined />}
               className="border-gray-400"
-              data-cy="employee-survey-table-action-button"
               id="employeeSurveyTableActionButton"
             />
+            <button
+              type="button"
+              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+              data-cy="employee-survey-table-action-button"
+              id="employeeSurveyTableActionButton"
+            >
+              <BsThreeDots
+                id="employeeSurveyTableActionButtonIcon"
+                data-cy="employee-survey-table-action-button-icon"
+                className="text-lg"
+              />
+            </button>
           </Dropdown>
         ) : null,
     },

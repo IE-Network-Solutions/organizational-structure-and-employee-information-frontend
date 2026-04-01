@@ -2,13 +2,12 @@ import React from 'react';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { Button, Card, Dropdown, Popconfirm } from 'antd';
+import { Card, Dropdown, Popconfirm } from 'antd';
 import { Department } from '@/types/dashboard/organization';
-import { EllipsisOutlined } from '@ant-design/icons';
 import CustomPagination from '@/components/customPagination';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { useDeletePerspective } from '@/store/server/features/CFR/feedback/mutations';
+import { BsThreeDots } from 'react-icons/bs';
 
 interface PerspectivesDetailProps {
   perspectivesDetail: any;
@@ -18,8 +17,16 @@ const PerspectivesDetail = ({
 }: PerspectivesDetailProps) => {
   const { isMobile } = useIsMobile();
   const { data: departments } = useGetDepartments();
-  const { pageSize, setPageSize, page, setPage, setOpen, setSelectedFeedback } =
-    ConversationStore();
+  const {
+    pageSize,
+    setPageSize,
+    page,
+    setPage,
+    setOpen,
+    setSelectedFeedback,
+    perspectiveOpenDropdownId,
+    setPerspectiveOpenDropdownId,
+  } = ConversationStore();
   const { mutate: deletePerspective } = useDeletePerspective();
   const paginatedData = perspectivesDetail?.slice(
     (page - 1) * pageSize,
@@ -91,30 +98,65 @@ const PerspectivesDetail = ({
             </div>
             <Dropdown
               trigger={['click']}
+              placement="bottomRight"
+              arrow
+              open={perspectiveOpenDropdownId === item.id}
+              onOpenChange={(open) => {
+                if (open) {
+                  setPerspectiveOpenDropdownId(item.id);
+                } else {
+                  setPerspectiveOpenDropdownId(null);
+                }
+              }}
               menu={{
+                onClick: ({ key, domEvent }) => {
+                  if (key === 'delete') {
+                    domEvent.preventDefault();
+                    domEvent.stopPropagation();
+                    setPerspectiveOpenDropdownId(item.id);
+                    return;
+                  }
+                  setPerspectiveOpenDropdownId(null);
+                },
                 items: [
                   {
                     key: 'edit',
                     label: 'Edit',
-                    icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                    icon: <MdOutlineEdit className="w-4 h-4 " />,
+                    className: 'text-xs text-gray-600',
                     onClick: () => {
                       setSelectedFeedback(item);
                       setOpen(true);
+                      setPerspectiveOpenDropdownId(null);
                     },
                   },
                   {
                     key: 'delete',
+                    className: 'text-xs text-gray-600',
                     label: (
                       <Popconfirm
                         title="Are you sure you want to delete?"
-                        onConfirm={() => deletePerspective(item?.id)}
+                        onConfirm={() => {
+                          deletePerspective(item?.id);
+                          setPerspectiveOpenDropdownId(null);
+                        }}
+                        onCancel={() => {
+                          setPerspectiveOpenDropdownId(null);
+                        }}
                         okText="Yes"
                         cancelText="No"
                         data-cy={`perspective-type-detail-card-delete-confirm-${item.id}`}
                         id={`perspectiveTypeDetailCardDeleteConfirm${item.id}`}
                       >
-                        <span className="flex items-center gap-2">
-                          <MdDeleteOutline className="w-4 h-4" />
+                        <span
+                          className="flex items-center gap-2"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setPerspectiveOpenDropdownId(item.id);
+                          }}
+                        >
+                          <MdOutlineDelete className="w-4 h-4" />
                           Delete
                         </span>
                       </Popconfirm>
@@ -123,14 +165,18 @@ const PerspectivesDetail = ({
                 ],
               }}
             >
-              <Button
-                size="small"
-                shape="default"
-                icon={<EllipsisOutlined />}
-                className="bg-white border-[2px] border-gray-300 h-6 w-6"
+              <button
+                type="button"
+                className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
                 data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
                 id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
-              />
+              >
+                <BsThreeDots
+                  id={`settingsDefineFeedbackPerspectiveActions${item.id}`}
+                  data-cy={`settingsDefineFeedbackPerspectiveActions${item.id}`}
+                  className="text-lg"
+                />
+              </button>
             </Dropdown>
           </div>
         </Card>

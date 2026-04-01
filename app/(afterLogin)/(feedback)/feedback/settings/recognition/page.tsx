@@ -1,16 +1,19 @@
 'use client';
-import { Button, Card, Dropdown, Popconfirm, Skeleton } from 'antd';
-import { EllipsisOutlined } from '@ant-design/icons';
+import { Card, Dropdown, Popconfirm, Skeleton } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
+import { BsThreeDots } from 'react-icons/bs';
 
 const Page = () => {
-  const { setOpenRecognitionCategoryModal, setRecognitionCategoryEditId } =
-    ConversationStore();
+  const {
+    setOpenRecognitionCategoryModal,
+    setRecognitionCategoryEditId,
+    recognitionOpenDropdownId,
+    setRecognitionOpenDropdownId,
+  } = ConversationStore();
   const router = useRouter();
   const { mutate: deleteRecognitionType, isLoading: isDeleting } =
     useDeleteRecognitionType();
@@ -84,26 +87,52 @@ const Page = () => {
                       >
                         <Dropdown
                           trigger={['click']}
+                          placement="bottomRight"
+                          arrow
+                          open={recognitionOpenDropdownId === String(item?.id)}
+                          onOpenChange={(open) => {
+                            if (open) {
+                              setRecognitionOpenDropdownId(String(item?.id));
+                            } else {
+                              setRecognitionOpenDropdownId(null);
+                            }
+                          }}
                           menu={{
+                            onClick: ({ key, domEvent }) => {
+                              if (key === 'delete') {
+                                domEvent.preventDefault();
+                                domEvent.stopPropagation();
+                                setRecognitionOpenDropdownId(String(item?.id));
+                                return;
+                              }
+                              setRecognitionOpenDropdownId(null);
+                            },
                             items: [
                               {
                                 key: 'edit',
                                 label: 'Edit',
-                                icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                                icon: <MdOutlineEdit className="w-4 h-4 " />,
+                                className: 'text-xs text-gray-600',
                                 onClick: () => {
                                   setRecognitionCategoryEditId(
                                     String(item?.id),
                                   );
                                   setOpenRecognitionCategoryModal(true);
+                                  setRecognitionOpenDropdownId(null);
                                 },
                               },
                               {
                                 key: 'delete',
+                                className: 'text-xs text-gray-600',
                                 label: (
                                   <Popconfirm
                                     title="Are you sure you want to delete?"
                                     onConfirm={() => {
                                       deleteRecognitionType(String(item?.id));
+                                      setRecognitionOpenDropdownId(null);
+                                    }}
+                                    onCancel={() => {
+                                      setRecognitionOpenDropdownId(null);
                                     }}
                                     okText="Yes"
                                     cancelText="No"
@@ -113,9 +142,16 @@ const Page = () => {
                                   >
                                     <span
                                       className="flex items-center gap-2"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setRecognitionOpenDropdownId(
+                                          String(item?.id),
+                                        );
+                                      }}
                                       data-cy={`settings-recognition-card-delete-${item?.id}`}
                                     >
-                                      <MdDeleteOutline className="w-4 h-4" />
+                                      <MdOutlineDelete className="w-4 h-4" />
                                       Delete
                                     </span>
                                   </Popconfirm>
@@ -124,15 +160,18 @@ const Page = () => {
                             ],
                           }}
                         >
-                          <Button
-                            type="text"
-                            size="small"
-                            aria-label="Recognition actions"
-                            icon={<EllipsisOutlined />}
-                            className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+                          <button
+                            type="button"
+                            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
                             data-cy={`settings-recognition-card-actions-${item?.id}`}
                             id={`settingsRecognitionCardActions${item?.id}`}
-                          />
+                          >
+                            <BsThreeDots
+                              data-cy={`settings-recognition-card-actions-icon-${item?.id}`}
+                              id={`settingsRecognitionCardActionsIcon${item?.id}`}
+                              className="text-lg"
+                            />
+                          </button>
                         </Dropdown>
                       </div>
                     </div>

@@ -2,16 +2,16 @@ import { Avatar, Button, Dropdown, Popconfirm, Tag } from 'antd';
 import React from 'react';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { useDeleteFormCategory } from '@/store/server/features/conversation/mutation';
-import { EllipsisOutlined } from '@ant-design/icons';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
+import { BsThreeDots } from 'react-icons/bs';
 
 const ServayCategoryCard = ({ category }: { category: any }) => {
   const { data: userData } = useGetEmployee(category?.createdBy);
   const deleteCategory = useDeleteFormCategory();
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const { pageSize, current } = EmployeeSurveyStore();
   const {
     setEditModal,
@@ -56,22 +56,44 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
           <div className="text-sm font-bold">{category.name}</div>{' '}
           <Dropdown
             trigger={['click']}
+            placement="bottomRight"
+            arrow
+            open={menuOpen}
+            onOpenChange={(open) => setMenuOpen(open)}
             menu={{
+              onClick: ({ key, domEvent }) => {
+                if (key === 'delete') {
+                  domEvent.preventDefault();
+                  domEvent.stopPropagation();
+                  setMenuOpen(true);
+                  return;
+                }
+                setMenuOpen(false);
+              },
               items: [
                 {
                   key: 'edit',
                   label: 'Edit',
-                  icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+                  icon: <MdOutlineEdit className="w-4 h-4 " />,
+                  className: 'text-xs text-gray-600',
                   onClick: () => {
                     handleEdit();
+                    setMenuOpen(false);
                   },
                 },
                 {
                   key: 'delete',
+                  className: 'text-xs text-gray-600',
                   label: (
                     <Popconfirm
                       title="Are you sure you want to delete this category?"
-                      onConfirm={handleDelete}
+                      onConfirm={() => {
+                        handleDelete();
+                        setMenuOpen(false);
+                      }}
+                      onCancel={() => {
+                        setMenuOpen(false);
+                      }}
                       okText="Yes"
                       cancelText="No"
                       okButtonProps={{ loading: deleteCategory.isLoading }}
@@ -80,9 +102,13 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
                     >
                       <span
                         className="flex items-center gap-2"
-                        data-cy={`settings-define-meeting-type-card-delete-${category?.id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setMenuOpen(true);
+                        }}
                       >
-                        <MdDeleteOutline className="w-4 h-4" />
+                        <MdOutlineDelete className="w-4 h-4" />
                         Delete
                       </span>
                     </Popconfirm>
@@ -91,15 +117,18 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
               ],
             }}
           >
-            <Button
-              type="text"
-              size="small"
-              aria-label="DefineMeetingType actions"
-              icon={<EllipsisOutlined />}
-              className="shrink-0 !h-7 !w-7 !p-0 border border-gray-200 rounded-md flex items-center justify-center"
+            <button
+              type="button"
+              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
               data-cy={`settings-define-meeting-type-card-actions-${category?.id}`}
               id={`settingsDefineMeetingTypeCardActions${category?.id}`}
-            ></Button>
+            >
+              <BsThreeDots
+                id={`settingsDefineMeetingTypeCardActionsIcon${category?.id}`}
+                data-cy={`settings-define-meeting-type-card-actions-icon-${category?.id}`}
+                className="text-lg"
+              />
+            </button>
           </Dropdown>
         </div>
 

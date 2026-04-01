@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { Dropdown, MenuProps, Popconfirm } from 'antd';
-import { EllipsisOutlined } from '@ant-design/icons';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
+import { BsThreeDots } from 'react-icons/bs';
 
 interface MeetingTemplateCardProps {
   title: string;
@@ -26,24 +25,36 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
   const items: MenuProps['items'] = [
     {
       key: 'edit',
-      icon: <Edit2Icon className="w-4 h-4 text-xs" />,
+      icon: <MdOutlineEdit className="w-4 h-4 " />,
+      className: 'text-xs text-gray-600',
       label: 'Edit',
-      onClick: onClick,
+      onClick: () => {
+        onClick();
+        setMenuOpen(false);
+      },
     },
     {
       key: 'delete',
+      className: 'text-xs text-gray-600',
       label: (
         <span
           data-cy="meeting-template-card-delete-menu-item"
           id="meetingTemplateCardDeleteMenuItem"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
-            setMenuOpen(false);
+            setMenuOpen(true);
           }}
         >
           <Popconfirm
             title="Are you sure you want to delete?"
-            onConfirm={onDelete}
+            onConfirm={() => {
+              onDelete();
+              setMenuOpen(false);
+            }}
+            onCancel={() => {
+              setMenuOpen(false);
+            }}
             okText="Yes"
             icon={null}
             okButtonProps={{ loading }}
@@ -52,7 +63,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
             id="meetingTemplateCardDeleteConfirm"
           >
             <span className="flex items-center gap-2">
-              <MdDeleteOutline className="w-4 h-4" />
+              <MdOutlineDelete className="w-4 h-4" />
               Delete
             </span>
           </Popconfirm>
@@ -80,17 +91,36 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
           {title}
         </h3>
         <Dropdown
-          menu={{ items }}
+          placement="bottomRight"
+          arrow
+          menu={{
+            items,
+            onClick: ({ key, domEvent }) => {
+              if (key === 'delete') {
+                domEvent.preventDefault();
+                domEvent.stopPropagation();
+                setMenuOpen(true);
+                return;
+              }
+              setMenuOpen(false);
+            },
+          }}
           trigger={['click']}
           open={menuOpen}
           onOpenChange={(open) => setMenuOpen(open)}
         >
-          <EllipsisOutlined
-            className=" text-lg"
-            onClick={(e) => e.stopPropagation()}
-            data-cy="meeting-template-card-more-icon"
-            id="meetingTemplateCardMoreIcon"
-          />
+          <button
+            type="button"
+            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+            data-cy={`meeting-template-card-more-buttom`}
+            id={`meetingTemplateCardMorebutton`}
+          >
+            <BsThreeDots
+              id={`meetingTemplateCardMoreIcon`}
+              data-cy={`meeting-template-card-more-icon`}
+              className="text-lg"
+            />
+          </button>
         </Dropdown>
       </div>
       <p
