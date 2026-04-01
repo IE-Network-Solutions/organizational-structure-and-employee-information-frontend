@@ -54,6 +54,8 @@ export interface AllowanceEntitlementTypes {
 
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
+  searchText: string;
+  setSearchText: (searchText: string) => void;
 }
 
 const initialState = {
@@ -121,6 +123,8 @@ export const useAllowanceEntitlementStore = create<AllowanceEntitlementTypes>(
 
     searchQuery: '',
     setSearchQuery: (searchQuery: string) => set({ searchQuery }),
+    searchText: '',
+    setSearchText: (searchText: string) => set({ searchText }),
   }),
 );
 

@@ -382,13 +382,13 @@ const Header = () => {
                     data-cy={`okr-card-appreciation-trend-slide-${stat.id}`}
                   >
                     <span
-                      className="text-gray-500"
+                      className="text-gray-500 text-sm"
                       data-cy="okr-card-appreciation-dimension"
                     >
                       {stat.label}
                     </span>
                     <div
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 text-sm"
                       data-cy="okr-card-appreciation-trend-meta"
                     >
                       <span
@@ -512,13 +512,13 @@ const Header = () => {
                     data-cy={`okr-card-reprimand-trend-slide-${stat.id}`}
                   >
                     <span
-                      className="text-gray-500"
+                      className="text-gray-500 text-sm"
                       data-cy="okr-card-reprimand-dimension"
                     >
                       {stat.label}
                     </span>
                     <div
-                      className="flex items-center gap-1"
+                      className="flex items-center gap-1 text-sm"
                       data-cy="okr-card-reprimand-trend-meta"
                     >
                       <span

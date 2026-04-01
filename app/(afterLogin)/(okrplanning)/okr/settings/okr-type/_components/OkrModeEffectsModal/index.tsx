@@ -40,12 +40,25 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
       onCancel={onClose}
       footer={null}
       centered
-      width={600}
+      width="min(600px, calc(100vw - 32px))"
+      wrapClassName="okr-settings-modal-responsive-wrap"
+      styles={{
+        content: {
+          padding: '32px',
+          borderRadius: 12,
+          minWidth: 0,
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+        },
+      }}
       closable={true}
       closeIcon={<CloseOutlined className="text-[#8c8c8c]" />}
       data-cy="okr-mode-effects-modal"
     >
-      <div className="py-2" data-cy="okr-mode-effects-modal-content">
+      <div
+        className="py-2 min-w-0 max-w-full"
+        data-cy="okr-mode-effects-modal-content"
+      >
         {/* Header Section */}
         <div
           className="flex items-center gap-3 mb-6"
@@ -110,13 +123,22 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
       </div>
 
       <style jsx global data-cy="okr-mode-effects-modal-styles">{`
-        .ant-modal-content {
-          border-radius: 12px !important;
-          padding: 32px !important;
+        .okr-settings-modal-responsive-wrap .ant-modal {
+          max-width: calc(100vw - 32px) !important;
+          padding: 0 !important;
         }
         .ant-modal-close {
           top: 24px !important;
           right: 24px !important;
+        }
+        @media (max-width: 480px) {
+          .okr-settings-modal-responsive-wrap .ant-modal-content {
+            padding: 16px !important;
+          }
+          .okr-settings-modal-responsive-wrap .ant-modal-close {
+            top: 16px !important;
+            right: 16px !important;
+          }
         }
       `}</style>
     </Modal>

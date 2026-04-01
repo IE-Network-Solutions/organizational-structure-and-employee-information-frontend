@@ -24,6 +24,24 @@
   display: none;
 }
 
+/* Timesheet employee attendance table: hide scrollbars (keep scrolling) */
+#time-attendance-employee-attendance-table-scroll-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content,
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
 /* Org Structure chart: smooth layout transitions on collapse/expand */
 .org-structure-flow .react-flow__node,
 .org-structure-flow .xyflow__node {
@@ -161,6 +179,20 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
   /* Safari and Chrome */
+}
+
+/* Stronger hide on small viewports (Ant Design modal body, iOS) */
+@media (max-width: 639px) {
+  .hide-scrollbar-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar-mobile::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
 }
 
 /* Leaflet Map Styles */
@@ -1009,6 +1041,36 @@ h6 {
   }
 }
 
+/* Galaxy Fold / very narrow screens: prevent tabs + extra button overlap */
+@media (max-width: 320px) {
+  .org-settings-tabs-foldfix .ant-tabs-nav {
+    flex-wrap: wrap !important;
+    row-gap: 8px;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-nav-wrap {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-nav-list {
+    max-width: 100% !important;
+    overflow-x: auto;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-extra-content {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-left: 0 !important;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-extra-content .ant-btn {
+    margin-left: 0 !important;
+  }
+}
+
 /* Offline indicator styles */
 .offline-indicator {
   position: fixed;
@@ -1533,4 +1595,15 @@ h6 {
     left: auto !important;
     right: 12px !important;
   }
+}
+
+/* OKR settings dropdown menu (Edit OKR / Delete OKR) */
+.okr-settings-menu-dropdown .ant-dropdown-menu-item {
+  padding: 0 !important;
+  height: 32px !important;
+  width: 145px !important;
+}
+.okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
+  padding: 0 !important;
+  margin: 0 !important;
 }

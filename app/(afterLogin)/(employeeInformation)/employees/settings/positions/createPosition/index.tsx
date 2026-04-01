@@ -1,9 +1,13 @@
-import { useCreatePosition } from '@/store/server/features/employees/positions/mutation';
+import {
+  useCreatePosition,
+  useUpdatePosition,
+} from '@/store/server/features/employees/positions/mutation';
 import { usePositionState } from '@/store/uistate/features/employees/positions';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useDebounce } from '@/utils/useDebounce';
 import { Button, Form, Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -13,8 +17,17 @@ const toSlug = (value: string | number | null | undefined) =>
 
 const CreatePosition: React.FC = () => {
   const [form] = Form.useForm();
-  const { setOpenPositionDrawer, setFormValues } = usePositionState();
+  const {
+    setOpenPositionDrawer,
+    setFormValues,
+    selectedPosition,
+    selectedPositionId,
+    setSelectedPosition,
+    setSelectedPositionId,
+  } = usePositionState();
   const { mutate: handleCreatePosition } = useCreatePosition();
+  const { mutate: handleUpdatePosition } = useUpdatePosition();
+  const updatedBy = useAuthenticationStore.getState().userId;
   const handleCloseDrawer = () => {
     setOpenPositionDrawer(false);
   };
@@ -23,11 +36,34 @@ const CreatePosition: React.FC = () => {
 
   const handleAddJobStateUpdate = useDebounce(setFormValues, 1500);
 
+  useEffect(() => {
+    if (selectedPositionId && selectedPosition) {
+      form.setFieldsValue({
+        name: selectedPosition.name,
+        description: selectedPosition.description,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [selectedPositionId, selectedPosition, form]);
+
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
-    handleCreatePosition(formValues);
+    if (selectedPositionId) {
+      const updatedFormValues = {
+        id: selectedPositionId,
+        updatedBy,
+        name: formValues?.name,
+        description: formValues?.description,
+      };
+      handleUpdatePosition({ data: updatedFormValues, id: selectedPositionId });
+    } else {
+      handleCreatePosition(formValues);
+    }
     handleCloseDrawer();
     form.resetFields();
+    setSelectedPosition(null);
+    setSelectedPositionId('');
   };
 
   return (
@@ -47,16 +83,23 @@ const CreatePosition: React.FC = () => {
         id={`settings-position-create-form-${drawerSlug}`}
         data-cy={`settings-position-create-form-${drawerSlug}`}
         className="p-4"
+        requiredMark={false}
       >
         <Form.Item
           id="positionTitle"
           name="name"
           label={
             <span
-              className="text-md my-2 font-semibold text-gray-700"
+              className="text-sm my-2 font-normal text-black"
               data-cy="create-position-name-label"
             >
-              Position Name
+              Position Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`settings-position-create-name-required-${drawerSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -81,11 +124,17 @@ const CreatePosition: React.FC = () => {
           name="description"
           label={
             <span
-              className="text-lg my-2 font-semibold text-gray-700"
+              className="text-sm my-2 font-normal text-black"
               id="settings-position-create-description-label"
               data-cy="settings-position-create-description-label"
             >
-              Position Description
+              Position Description{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`settings-position-create-description-required-${drawerSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -111,13 +160,13 @@ const CreatePosition: React.FC = () => {
           data-cy={`settings-position-create-footer-${drawerSlug}`}
         >
           <Button
-            className="h-8 text-base"
+            className="h-8 font-normal"
             type="primary"
             onClick={() => form.submit()}
             id={`settings-position-create-submit-${drawerSlug}`}
             data-cy={`settings-position-create-submit-${drawerSlug}`}
           >
-            Submit
+            {selectedPositionId ? 'Update' : 'Submit'}
           </Button>
         </div>
       </Form>

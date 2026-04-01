@@ -74,15 +74,17 @@ const PersonSlide: FC<{ person: CardPerson; slideIndex: number }> = ({
   >
     {person.user?.profileImage ? (
       <Avatar
+        size={48}
         src={person.user.profileImage}
         alt={`${person.user.firstName || ''}`}
-        className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
+        className="w-12 2xl:w-12 h-10 2xl:h-12 rounded-full"
         data-cy="dashboard-card-list-card-avatar"
       />
     ) : (
       <Avatar
+        size={48}
         icon={<UserOutlined data-cy="dashboard-card-list-card-avatar-icon" />}
-        className="w-10 2xl:w-12 h-10 2xl:h-12 rounded-full"
+        className="w-12 2xl:w-12 h-10 2xl:h-12 rounded-full"
         data-cy="dashboard-card-list-card-avatar-default"
       />
     )}
@@ -172,7 +174,7 @@ const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
     <Card
       bordered={false}
       bodyStyle={{ padding: 0 }}
-      className="p-3 bg-white rounded-lg border border-[#E5E7EB] shadow-none min-h-[150px] h-auto sm:h-[150px] flex flex-col"
+      className="p-3 bg-white rounded-lg border border-[#E5E7EB] shadow-none min-h-[160px] h-auto sm:h-[160px] flex flex-col"
       data-cy="dashboard-card-list-container"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

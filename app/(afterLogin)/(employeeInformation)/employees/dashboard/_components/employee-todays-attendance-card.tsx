@@ -1,13 +1,15 @@
 'use client';
 
+import type { Dayjs } from 'dayjs';
 import React, { useMemo, useRef, useState } from 'react';
-import { Card, Spin } from 'antd';
+import { Card, DatePicker, Spin } from 'antd';
 import { MdFiberManualRecord } from 'react-icons/md';
 
 import {
   TodayStatusSummaryParams,
   useGetTodayStatusSummary,
 } from '@/store/server/features/employees/approval/queries';
+import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 
 type Period = 'Day' | 'Month' | 'Year' | 'Custom';
 
@@ -54,13 +56,16 @@ function statusDisplayPercentage(
   return Math.round((count / total) * 100);
 }
 
-function buildTodayStatusParams(
+function buildStandardTodayStatusParams(
   displayPeriod: Period | null,
   selectedChip: string | null,
   period: Period | null,
-): TodayStatusSummaryParams {
+): Extract<TodayStatusSummaryParams, { filterType: 'Day' | 'Month' | 'Year' }> {
   const now = new Date();
-  const eff: Period = displayPeriod ?? period ?? 'Day';
+  const eff: Exclude<Period, 'Custom'> =
+    (displayPeriod ?? period ?? 'Day') === 'Custom'
+      ? 'Day'
+      : ((displayPeriod ?? period ?? 'Day') as Exclude<Period, 'Custom'>);
 
   const monthName =
     eff === 'Month' && selectedChip ? selectedChip : MONTH_ABBR[now.getMonth()];
@@ -73,22 +78,39 @@ function buildTodayStatusParams(
       ? String(selectedChip)
       : String(now.getFullYear());
 
-  const filterType = eff;
-
-  return { monthName, dayOfWeek, year, filterType };
+  return { monthName, dayOfWeek, year, filterType: eff };
 }
 
 export default function EmployeeTodaysAttendanceCard() {
-  const [period, setPeriod] = useState<Period | null>(null);
-  const [selectedChip, setSelectedChip] = useState<string | null>(null);
-  const [displayPeriod, setDisplayPeriod] = useState<Period | null>(null);
-  const [chipsAnim, setChipsAnim] = useState<'in' | 'out'>('in');
+  const {
+    todaysAttendancePeriod: period,
+    setTodaysAttendancePeriod: setPeriod,
+    todaysAttendanceSelectedChip: selectedChip,
+    setTodaysAttendanceSelectedChip: setSelectedChip,
+    todaysAttendanceDisplayPeriod: displayPeriod,
+    setTodaysAttendanceDisplayPeriod: setDisplayPeriod,
+    todaysAttendanceChipsAnim: chipsAnim,
+    setTodaysAttendanceChipsAnim: setChipsAnim,
+  } = TimeAndAttendaceDashboardStore();
   const animTimerRef = useRef<number | null>(null);
+  const [customDateRange, setCustomDateRange] = useState<
+    [Dayjs | null, Dayjs | null] | null
+  >(null);
 
-  const apiParams = useMemo(
-    () => buildTodayStatusParams(displayPeriod, selectedChip, period),
-    [displayPeriod, selectedChip, period],
-  );
+  const apiParams = useMemo((): TodayStatusSummaryParams | null => {
+    const eff: Period = displayPeriod ?? period ?? 'Day';
+    if (eff === 'Custom') {
+      const start = customDateRange?.[0];
+      const end = customDateRange?.[1];
+      if (!start || !end) return null;
+      return {
+        filterType: 'Custom',
+        startDate: start.format('YYYY-MM-DD'),
+        endDate: end.format('YYYY-MM-DD'),
+      };
+    }
+    return buildStandardTodayStatusParams(displayPeriod, selectedChip, period);
+  }, [displayPeriod, selectedChip, period, customDateRange]);
 
   const { data: todayStatusData, isLoading } =
     useGetTodayStatusSummary(apiParams);
@@ -125,9 +147,10 @@ export default function EmployeeTodaysAttendanceCard() {
     'Nov',
     'Dec',
   ];
-  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (unusedValue, i) =>
-    String(2016 + i),
-  );
+  const yearChips = Array.from({ length: 2026 - 2016 + 1 }, (yearSlot, i) => {
+    void yearSlot;
+    return String(2016 + i);
+  });
 
   // Animate chip list transitions when user switches Day/Month/Year/Custom.
   React.useEffect(() => {
@@ -145,11 +168,14 @@ export default function EmployeeTodaysAttendanceCard() {
       if (animTimerRef.current) window.clearTimeout(animTimerRef.current);
       animTimerRef.current = null;
     };
-  }, [period, displayPeriod]);
+  }, [period, displayPeriod, setChipsAnim, setDisplayPeriod]);
 
   const handlePeriodPillClick = (p: Period) => {
     setPeriod(p);
     setSelectedChip(null);
+    if (p !== 'Custom') {
+      setCustomDateRange(null);
+    }
     if (displayPeriod === null) {
       // If list is closed, open it immediately (no fade delay).
       setDisplayPeriod(p);
@@ -172,14 +198,14 @@ export default function EmployeeTodaysAttendanceCard() {
         >
           <div
             className="flex min-w-0 items-center gap-2"
-            data-cy="employee-todays-attendance-title-wrapper"
+            data-cy="employee-todays-attendance-title-wrap"
           >
             <div
-              className="w-2 h-2 bg-green-500 rounded-full"
+              className="w-2 h-2 bg-orange rounded-full"
               data-cy="employee-todays-attendance-title-dot"
             ></div>
             <h3
-              className="truncate font-normal text-sm sm:text-base text-black/50 leading-6 tracking-normal"
+              className="truncate font-normal text-sm sm:text-base text-black/65 leading-6 tracking-normal"
               id="employee-todays-attendance-title"
               data-cy="employee-todays-attendance-title"
             >
@@ -204,10 +230,10 @@ export default function EmployeeTodaysAttendanceCard() {
                       handlePeriodPillClick(p);
                     }}
                     className={[
-                      'px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition',
+                      'px-1 sm:px-3 py-1 text-[12px] sm:text-xs font-normal transition border border-gray-200 rounded-[6px] ml-2',
                       isActive
                         ? 'bg-gray-100 text-gray-900'
-                        : 'bg-white text-gray-500 hover:bg-gray-50',
+                        : 'bg-gray-100/50 text-gray-500 hover:bg-gray-50',
                     ].join(' ')}
                     id={`employee-todays-attendance-period-${p}`}
                     data-cy={`employee-todays-attendance-period-${p}`}
@@ -309,13 +335,31 @@ export default function EmployeeTodaysAttendanceCard() {
               )}
 
               {displayPeriod === 'Custom' && (
-                <div
-                  className="text-xs text-gray-500"
-                  id="employee-todays-attendance-custom-placeholder"
-                  data-cy="employee-todays-attendance-custom-placeholder"
-                >
-                  Custom range
-                </div>
+                <>
+                  <DatePicker.RangePicker
+                    size="small"
+                    className="w-[220px] h-7"
+                    id="employee-todays-attendance-custom-datepicker"
+                    data-cy="employee-todays-attendance-custom-datepicker"
+                    placeholder={['Start date', 'End date']}
+                    value={customDateRange}
+                    onChange={(dates) => setCustomDateRange(dates)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedChip(null);
+                      setCustomDateRange(null);
+                      setDisplayPeriod(null);
+                      setChipsAnim('in');
+                    }}
+                    className="px-2 py-1 text-xs rounded border transition bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                    id="employee-todays-attendance-custom-clear"
+                    data-cy="employee-todays-attendance-custom-clear"
+                  >
+                    X
+                  </button>
+                </>
               )}
             </div>
           )}
@@ -349,7 +393,7 @@ export default function EmployeeTodaysAttendanceCard() {
           aria-label="Attendance breakdown"
         >
           <div
-            className="h-full bg-green-500 rounded-r-full"
+            className="h-full bg-[#10B981] rounded-r-full"
             style={{ width: `${onTimeWidth}%` }}
             id="employee-todays-attendance-segment-on-time"
             data-cy="employee-todays-attendance-segment-on-time"
@@ -378,12 +422,15 @@ export default function EmployeeTodaysAttendanceCard() {
             id="legend-on-time"
             data-cy="legend-on-time"
           >
-            <MdFiberManualRecord size={12} className="text-green-500" />
+            <MdFiberManualRecord size={12} className="text-[#10B981]" />
             <span
               className="text-black/50 font-medium"
               data-cy="legend-on-time-text"
             >
-              On Time {onTimeCount}
+              On Time{' '}
+              <strong className="text-gray-900" data-cy="legend-on-time-count">
+                {onTimeCount}
+              </strong>
             </span>
           </div>
           <div
@@ -396,7 +443,10 @@ export default function EmployeeTodaysAttendanceCard() {
               className="text-black/50 font-medium"
               data-cy="legend-late-text"
             >
-              Late {lateCount}
+              Late{' '}
+              <strong className="text-gray-900" data-cy="legend-late-count">
+                {lateCount}
+              </strong>
             </span>
           </div>
           <div
@@ -409,7 +459,10 @@ export default function EmployeeTodaysAttendanceCard() {
               className="text-black/50 font-medium"
               data-cy="legend-absent-text"
             >
-              Absent {absentCount}
+              Absent{' '}
+              <strong className="text-gray-900" data-cy="legend-absent-count">
+                {absentCount}
+              </strong>
             </span>
           </div>
         </div>

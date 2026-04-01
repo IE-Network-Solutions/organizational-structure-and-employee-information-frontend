@@ -61,27 +61,18 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
     }
   };
 
-  // Calculate which pages to show (show up to 5 pages)
-  const getVisiblePages = () => {
-    const pages: number[] = [];
-    const maxVisible = Math.min(5, totalPages);
-
-    if (totalPages <= maxVisible) {
-      // Show all pages if total is 5 or less
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Show first 5 pages
-      for (let i = 1; i <= maxVisible; i++) {
-        pages.push(i);
-      }
+  // Show first 5 pages, ellipsis, and last page (e.g. 1 2 3 4 5 ... 50)
+  const getVisiblePageItems = (): (number | 'ellipsis')[] => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (unused, i) => {
+        void unused;
+        return i + 1;
+      });
     }
-
-    return pages;
+    return [1, 2, 3, 4, 5, 'ellipsis', totalPages];
   };
 
-  const visiblePages = getVisiblePages();
+  const visiblePageItems = getVisiblePageItems();
 
   return (
     <div id={id} data-cy={dataCy} className="flex w-full px-2 py-2 rounded-lg">
@@ -105,24 +96,36 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
 
         <div
           data-cy="components-custompagination-mobilepagination-index-tsx-index-div-71"
-          className="flex items-center gap-4"
+          className="flex items-center gap-2 sm:gap-4 flex-wrap justify-center"
         >
-          {visiblePages.map((page) => {
-            const isActive = page === activeCurrentPage;
+          {visiblePageItems.map((item) => {
+            if (item === 'ellipsis') {
+              return (
+                <span
+                  key="ellipsis"
+                  className="w-8 h-8 flex items-center justify-center text-gray-400"
+                  aria-hidden
+                  data-cy="components-custompagination-mobilepagination-ellipsis"
+                >
+                  …
+                </span>
+              );
+            }
+            const isActive = item === activeCurrentPage;
             return (
               <button
-                key={page}
-                onClick={() => handlePageClick(page)}
+                key={item}
+                onClick={() => handlePageClick(item)}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg font-medium transition-colors ${
                   isActive
-                    ? 'text-[#1e40af] border border-[#1e40af] bg-white'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'text-[#1e40af] border border-[#1e40af] bg-white font-semibold '
+                    : 'text-[#4d4d4d] font-normal hover:bg-gray-100'
                 }`}
-                data-cy={`mobile-pagination-page-${page}`}
-                aria-label={`Go to page ${page}`}
+                data-cy={`mobile-pagination-page-${item}`}
+                aria-label={`Go to page ${item}`}
                 aria-current={isActive ? 'page' : undefined}
               >
-                {page}
+                {item}
               </button>
             );
           })}

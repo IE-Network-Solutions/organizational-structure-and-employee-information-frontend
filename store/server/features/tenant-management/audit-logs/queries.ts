@@ -81,6 +81,12 @@ const getAggregateAuditLogs = async (
   if (params.entityType) {
     queryParams.entityType = params.entityType;
   }
+  if (params.startDate) {
+    queryParams.startDate = params.startDate;
+  }
+  if (params.endDate) {
+    queryParams.endDate = params.endDate;
+  }
 
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
@@ -104,6 +110,88 @@ export const useGetAggregateAuditLogs = (
   return useQuery<ApiResponse<AuditLog>>(
     ['aggregate-audit-logs', params],
     () => getAggregateAuditLogs(params),
+    {
+      enabled: isEnabled,
+      keepPreviousData: shouldKeepPreviousData,
+    },
+  );
+};
+const getAggregateAuditPostLogs = async (
+  params: AggregateAuditLogParams,
+): Promise<ApiResponse<AuditLog>> => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const modulesFromParam = ((): string[] => {
+    if (Array.isArray(params.modules) && params.modules.length) {
+      return params.modules;
+    }
+    if (typeof params.modules === 'string' && params.modules !== 'all') {
+      const parts = params.modules
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (parts.length) return parts;
+    }
+    if (params.module && params.module !== 'all') {
+      return [params.module];
+    }
+    return ['RecruitmentAuditLog', 'OKRAuditLog'];
+  })();
+
+  // Build query parameters
+  const queryParams: Record<string, any> = {
+    page: params.page || 1,
+    limit: params.limit || 5,
+    orderBy: params.orderBy || 'performedAt',
+    orderDirection: params.orderDirection || 'DESC',
+  };
+
+  // Add optional filters
+  if (params.action) {
+    queryParams.action = params.action;
+  }
+  if (params.performedBy) {
+    queryParams.performedBy = params.performedBy;
+  }
+  if (params.entityType) {
+    queryParams.entityType = params.entityType;
+  }
+  if (params.startDate) {
+    queryParams.startDate = params.startDate;
+  }
+  if (params.endDate) {
+    queryParams.endDate = params.endDate;
+  }
+
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    params: queryParams,
+    data: {
+      modules: modulesFromParam,
+    },
+  });
+};
+
+export const useGetAggregateAuditPostLogs = (
+  params: AggregateAuditLogParams = {},
+  isEnabled: boolean = true,
+) => {
+  const shouldKeepPreviousData =
+    (params.module !== null && params.module !== undefined) ||
+    (Array.isArray(params.modules) && params.modules.length > 0) ||
+    (typeof params.modules === 'string' &&
+      params.modules.length > 0 &&
+      params.modules !== 'all');
+
+  return useQuery<ApiResponse<AuditLog>>(
+    ['aggregate-audit-post-logs', params],
+    () => getAggregateAuditPostLogs(params),
     {
       enabled: isEnabled,
       keepPreviousData: shouldKeepPreviousData,

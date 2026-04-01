@@ -16,7 +16,7 @@ const STAGE_BAR_COLORS = [
 type FunnelStageRow = {
   label: string;
   value: number;
-  percentOfMax: number;
+  percentage: number;
   color: string;
   badge?: string;
 };
@@ -42,7 +42,7 @@ const StageRow: React.FC<StageRowProps> = ({ stage }) => {
         </span>
         <div
           className="flex items-center gap-3"
-          data-cy={`employee-hiring-funnel-stage-${stage.label}-value-wrapper`}
+          data-cy={`employee-hiring-funnel-stage-${stage.label}-value-wrap`}
         >
           <span
             className="text-sm font-semibold text-gray-900"
@@ -50,13 +50,13 @@ const StageRow: React.FC<StageRowProps> = ({ stage }) => {
           >
             {stage.value}
           </span>
-          {stage.badge ? (
+          {stage.percentage ? (
             <span
-              className="text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-md px-2 py-1"
+              className="text-xs font-medium text-black/65 bg-gray-100/50 border border-gray-200 rounded-md px-2 py-1"
               id={`employee-hiring-funnel-stage-${stage.label}-badge`}
               data-cy={`employee-hiring-funnel-stage-${stage.label}-badge`}
             >
-              {stage.badge}
+              {Number(stage.percentage).toFixed(1)}%
             </span>
           ) : null}
         </div>
@@ -64,12 +64,12 @@ const StageRow: React.FC<StageRowProps> = ({ stage }) => {
 
       <div
         className="h-4 rounded-full bg-[#EEF2F6] overflow-hidden"
-        data-cy={`employee-hiring-funnel-stage-${stage.label}-bar-track`}
+        data-cy={`employee-hiring-funnel-stage-${stage.label}-bar-bg`}
       >
         <div
           className="h-full rounded-full"
           style={{
-            width: `${stage.percentOfMax}%`,
+            width: `${stage.percentage}%`,
             backgroundColor: stage.color,
           }}
           id={`employee-hiring-funnel-stage-${stage.label}-bar`}
@@ -91,41 +91,46 @@ export default function EmployeeHiringFunnelCard() {
       (s: { name: string; count: number }, i: number): FunnelStageRow => ({
         label: s.name,
         value: s.count,
-        percentOfMax: max > 0 ? (s.count / max) * 100 : 0,
+        percentage: max > 0 ? (s.count / max) * 100 : 0,
         color: STAGE_BAR_COLORS[i % STAGE_BAR_COLORS.length],
       }),
     );
   }, [stagesData]);
 
   const subtitle = useMemo(() => {
-    const total = stages.reduce(
-      (sum: number, s: FunnelStageRow) => sum + s.value,
-      0,
-    );
-    return total > 0
-      ? `${total.toLocaleString()} candidates across stages`
+    const averagePercentage =
+      stages.length > 0
+        ? stages.reduce(
+            (sum: number, s: FunnelStageRow) => sum + s.percentage,
+            0,
+          ) / stages.length
+        : 0;
+    return averagePercentage > 0
+      ? `${Number(averagePercentage).toFixed(1)}% overall conversion · Avg 5 days to hire`
       : 'Hiring pipeline overview';
   }, [stages]);
 
   return (
     <Card
-      className="shadow-sm border border-gray-200 rounded-lg w-full min-h-[355px]"
+      className="shadow-sm border border-gray-200 rounded-lg w-full min-h-[418px]"
       bodyStyle={{ padding: 21 }}
       id="employee-hiring-funnel-card"
       data-cy="employee-hiring-funnel-card"
     >
       <h3
-        className="text-lg font-semibold text-gray-900"
+        className="text-[16px] font-bold text-gray-900"
         data-cy="hiring-funnel-title"
       >
         Hiring Funnel
       </h3>
       <p
-        className="mt-1 text-sm text-gray-500"
+        className="mt-1 text-xs text-black/45 font-normal"
         data-cy="hiring-funnel-subtitle"
       >
         {loading ? (
-          <Skeleton.Button active size="small" className="!w-48" />
+          <div className="mt-5" data-cy="hiring-funnel-subtitle-skeleton-wrap">
+            <Skeleton.Button active size="small" className="!w-48" />
+          </div>
         ) : (
           subtitle
         )}
@@ -133,11 +138,13 @@ export default function EmployeeHiringFunnelCard() {
 
       <div className="mt-2 flex flex-col gap-2" data-cy="hiring-funnel-stages">
         {loading ? (
-          <Skeleton active paragraph={{ rows: 5 }} />
+          <div className="mt-5" data-cy="hiring-funnel-stages-skeleton-wrap">
+            <Skeleton active paragraph={{ rows: 5 }} />
+          </div>
         ) : stages.length === 0 ? (
           <p
             className="text-sm text-gray-500 py-6 text-center"
-            data-cy="employee-hiring-funnel-empty"
+            data-cy="hiring-funnel-empty-state"
           >
             No hiring funnel data for this period.
           </p>
