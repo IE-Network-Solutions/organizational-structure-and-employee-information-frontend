@@ -7,13 +7,19 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { Button, Card, Tag } from 'antd';
+import { Button, Card, Dropdown, Tag } from 'antd';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import type { MenuProps } from 'antd';
 interface FieldItem {
   id?: string;
   fieldName?: string;
+  fieldType?: string;
   fieldValidation?: string;
-  field?: { fieldName?: string; fieldValidation?: string };
+  options?: string[];
+  isActive?: boolean;
+  isRequired?: boolean;
+  field?: { fieldName?: string; fieldType?: string; fieldValidation?: string };
 }
 
 interface DroppableFormCategoryCardProps {
@@ -22,38 +28,43 @@ interface DroppableFormCategoryCardProps {
   icon: string;
   fieldCount: number;
   fields: FieldItem[] | any[];
+  onEditField?: (payload: {
+    formTitle: string;
+    field: FieldItem;
+    fieldIndex: number;
+  }) => void;
   isHighlighted?: boolean;
 }
 
 const iconMap: Record<string, React.ReactNode> = {
   location: (
-    <Button
-      type="default"
-      className="border border-[#71abfd]"
-      icon={<LocationOnIcon className="text-lg text-[#71abfd]" />}
-    />
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+      <LocationOnIcon className="text-lg text-[#71abfd]" />
+    </Button>
   ),
   contact: (
-    <Button
-      type="default"
-      className="border border-[#71abfd]"
-      icon={<ContactsIcon className="text-lg text-[#71abfd]" />}
-    />
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+      <ContactsIcon className="text-lg text-[#71abfd]" />
+    </Button>
   ),
   bank: (
-    <Button
-      type="default"
-      className="border border-[#71abfd]"
-      icon={<AccountBalanceIcon className="text-lg text-[#71abfd]" />}
-    />
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+      <AccountBalanceIcon className="text-lg text-[#71abfd]" />
+    </Button>
   ),
   document: (
-    <Button
-      type="default"
-      className="border border-[#71abfd]"
-      icon={<AttachFileIcon className="text-lg text-[#71abfd]" />}
-    />
+    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+      <AttachFileIcon className="text-lg text-[#71abfd]" />
+    </Button>
   ),
+};
+
+const FIELD_TYPE_LABELS: Record<string, string> = {
+  input: 'Text Field',
+  textArea: 'Text Area',
+  checkbox: 'Checkbox',
+  radio: 'Radio',
+  dropdown: 'Dropdown',
 };
 
 const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
@@ -62,14 +73,21 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
   icon,
   fieldCount,
   fields,
+  onEditField,
+  isHighlighted,
 }) => {
   const [expanded, setExpanded] = useState(false);
-  const { setNodeRef } = useDroppable({ id: formTitle });
+  const { setNodeRef, isOver } = useDroppable({ id: formTitle });
+  const isActiveCategory = isOver || !!isHighlighted;
 
   const normalizedFields = Array.isArray(fields) ? fields : [];
-  const displayFields = normalizedFields.map((f: FieldItem) => ({
+  const displayFields = normalizedFields.map((f: FieldItem, idx: number) => ({
+    id: f.id ?? `${formTitle}-${idx}`,
     name: f.fieldName ?? f.field?.fieldName ?? '—',
+    type: f.fieldType ?? f.field?.fieldType ?? 'input',
     validation: f.fieldValidation ?? f.field?.fieldValidation ?? '—',
+    raw: f,
+    index: idx,
   }));
 
   return (
@@ -77,6 +95,9 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
       ref={setNodeRef}
       id={`settings-droppable-category-${formTitle}`}
       data-cy={`settings-droppable-category-${formTitle}`}
+      className={`rounded-lg border-2 transition-colors ${
+        isActiveCategory ? 'border-primary' : 'border-transparent'
+      }`}
     >
       <div
         data-cy="settings-category-header-container"
@@ -132,16 +153,16 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
         </div>
       </div>
       {expanded && displayFields.length > 0 && (
-        <div
-          data-cy="settings-category-fields-container"
-          className=" pb-4 pt-0"
-        >
+        <div data-cy="settings-category-fields-container" className="pb-4 pt-0">
           <ul
             data-cy="settings-category-fields-list"
             className="mt-3 space-y-3"
           >
             {displayFields.map((f, i) => (
-              <li key={i} data-cy={`settings-category-field-${formTitle}-${i}`}>
+              <li
+                key={f.id}
+                data-cy={`settings-category-field-${formTitle}-${i}`}
+              >
                 <Card
                   bordered
                   className="rounded-lg border-[1px] border-[#d9d9d9]"
@@ -157,18 +178,55 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
                     >
                       {f.name}
                     </span>
-                    <Button
-                      type="default"
-                      className="border border-[#d9d9d9] !h-8"
-                      icon={<MoreHorizIcon />}
-                    />
+                    <Dropdown
+                      trigger={['click']}
+                      placement="bottomRight"
+                      menu={{
+                        items: [
+                          {
+                            key: 'edit',
+                            label: (
+                              <div
+                                className="flex items-center gap-2"
+                                data-cy={`settings-category-field-edit-menu-item-${formTitle}-${i}`}
+                              >
+                                <EditOutlinedIcon className="text-xs" />
+                                <span
+                                  data-cy={`settings-category-field-edit-menu-item-label-${formTitle}-${i}`}
+                                  className="text-sm font-normal"
+                                >
+                                  Edit
+                                </span>
+                              </div>
+                            ),
+                          },
+                        ] as MenuProps['items'],
+                        onClick: ({ key }) => {
+                          if (key === 'edit') {
+                            onEditField?.({
+                              formTitle,
+                              field: f.raw,
+                              fieldIndex: f.index,
+                            });
+                          }
+                        },
+                      }}
+                    >
+                      <Button
+                        type="default"
+                        className="border border-[#d9d9d9] !h-8 w-8"
+                        data-cy={`settings-category-field-menu-btn-${formTitle}-${i}`}
+                      >
+                        <MoreHorizIcon />
+                      </Button>
+                    </Dropdown>
                   </div>
                   <div
                     data-cy="settings-category-field-validation-container"
                     className="mt-3 flex items-center justify-between"
                   >
                     <Tag className="bg-white border border-[#9ca3af] text-xs font-normal text-[#9ca3af] px-3 rounded-[3px]">
-                      Textfield
+                      {FIELD_TYPE_LABELS[f.type] ?? f.type}
                     </Tag>
                     <Tag className="bg-white border border-[#9ca3af] text-xs font-normal text-[#9ca3af] px-3 rounded-[3px]">
                       {f.validation} Validation

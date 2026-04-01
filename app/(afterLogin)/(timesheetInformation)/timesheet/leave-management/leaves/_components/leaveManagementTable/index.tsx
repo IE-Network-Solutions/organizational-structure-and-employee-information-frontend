@@ -276,8 +276,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base"
-          style={{ fontWeight: 600 }}
+          className="text-base font-bold text-black/70"
           data-cy="time-attendance-leave-management-column-title-requested-at"
         >
           Requested At
@@ -288,7 +287,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       className: 'text-base',
       render: (date: string) => (
         <div
-          className="text-base font-bold text-black/70"
+          className="text-sm font-normal text-black/70"
           data-cy="time-attendance-leave-management-cell-requested-at"
         >
           {date ? dayjs(date).format(DATE_FORMAT) : '-'}

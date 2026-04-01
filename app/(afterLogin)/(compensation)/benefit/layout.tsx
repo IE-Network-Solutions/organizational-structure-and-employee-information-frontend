@@ -19,10 +19,10 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-/** Full-bleed horizontal rule so the line always spans the header block edge-to-edge */
+/** Breaks out of Nav content padding (navBar `px-2` / `sm:px-6`) for a full-width rule. */
 const BreadcrumbRule = () => (
   <div
-    className="w-full min-w-0 shrink-0 border-0 border-t border-solid border-gray-200"
+    className="pointer-events-none box-border max-w-none shrink-0 border-0 border-t border-solid border-gray-200 -mx-2 w-[calc(100%+1rem)] sm:-mx-6 sm:w-[calc(100%+3rem)]"
     aria-hidden
     data-cy="compensation-benefit-breadcrumb-rule"
   />
@@ -42,7 +42,7 @@ const BenefitDetailHeader = () => {
   return (
     <>
       <div
-        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4 sm:border-b sm:border-gray-200"
+        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
         id="compensation-benefit-detail-header"
         data-cy="compensation-benefit-detail-header"
       >
@@ -154,7 +154,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       >
         {isDetailPage ? (
           <>
-            <BreadcrumbRule />
             <BenefitDetailHeader />
             <BreadcrumbRule />
           </>
