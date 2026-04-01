@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Button,
   Form,
@@ -24,6 +24,24 @@ import {
 import { useUpdateCompanyProfileWithStamp } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 
 const { Dragger } = Upload;
+
+/**
+ * Input with addonBefore: 40px row + no clipped prefix.
+ * Addon must not shrink in flex layout; affix/main field flexes with min-w-0.
+ */
+const profilePhoneInputGroupClassName =
+  '[&_.ant-input-group]:!flex [&_.ant-input-group]:!items-stretch [&_.ant-input-group]:!w-full ' +
+  '[&_.ant-input-group-addon]:!flex [&_.ant-input-group-addon]:!shrink-0 [&_.ant-input-group-addon]:!grow-0 ' +
+  '[&_.ant-input-group-addon]:!items-center [&_.ant-input-group-addon]:!justify-center ' +
+  '[&_.ant-input-group-addon]:!h-10 [&_.ant-input-group-addon]:!min-h-10 [&_.ant-input-group-addon]:!min-w-[3.5rem] ' +
+  '[&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!box-border [&_.ant-input-group-addon]:!overflow-visible ' +
+  '[&_.ant-input-affix-wrapper]:!min-h-10 [&_.ant-input-affix-wrapper]:!h-10 ' +
+  '[&_.ant-input-affix-wrapper]:!min-w-0 [&_.ant-input-affix-wrapper]:!flex-1 ' +
+  '[&_.ant-input-group_.ant-input]:!h-10 [&_.ant-input-group_.ant-input]:!min-w-0 [&_.ant-input-group_.ant-input]:!box-border';
+
+const profileSelect40ClassName =
+  '[&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selection-search-input]:!h-10 ' +
+  '[&_.ant-select-selection-item]:!leading-10 [&_.ant-select-selection-placeholder]:!leading-10';
 
 const AdminProfile = () => {
   const [form] = Form.useForm();
@@ -173,7 +191,7 @@ const AdminProfile = () => {
           <>
             <div
               data-cy="-afterlogin-admin-profile-page-tsx-page-div-161"
-              className="px-4 py-3 border-b border-gray-200 flex items-center justify-between"
+              className="px-4 py-3 flex items-center justify-between"
             >
               <div
                 data-cy="-afterlogin-admin-profile-page-tsx-page-div-162"
@@ -209,14 +227,23 @@ const AdminProfile = () => {
                 </div>
               </div>
             </div>
+            <div
+              data-cy="company-profile-header-divider"
+              className="mx-4 border-b border-gray-200"
+              aria-hidden
+            />
 
             <Form
               form={form}
               layout="vertical"
-              className="[&_.ant-form-item-label]:!pb-1"
+              className={
+                isEditing
+                  ? '[&_.ant-form-item-label]:!pb-3'
+                  : '[&_.ant-form-item-label]:!pb-1'
+              }
               requiredMark={
                 isEditing
-                  ? (label: React.ReactNode, info: { required: boolean }) => (
+                  ? (label: ReactNode, info: { required: boolean }) => (
                       <span
                         data-cy="-afterlogin-admin-profile-page-tsx-page-span-192"
                         className="inline-flex items-center gap-1"
@@ -253,7 +280,7 @@ const AdminProfile = () => {
                       className="flex items-center gap-2"
                     >
                       <Button
-                        icon={<CloseOutlined />}
+                        icon={<CloseOutlined className="text-[#FF4D4F]" />}
                         size="small"
                         onClick={() => {
                           form.setFieldsValue({
@@ -293,7 +320,7 @@ const AdminProfile = () => {
                     label={
                       <span
                         data-cy="-afterlogin-admin-profile-page-tsx-page-span-245"
-                        className="text-sm font-medium text-[#A8A8A8]"
+                        className="text-sm font-medium text-[#030712]"
                       >
                         Country
                       </span>
@@ -304,8 +331,14 @@ const AdminProfile = () => {
                   >
                     {isEditing ? (
                       <Select
-                        className="-mt-3"
+                        className={profileSelect40ClassName}
                         placeholder="Select"
+                        classNames={{
+                          popup: {
+                            root:
+                              '[&_.ant-select-item-option-selected:not(.ant-select-item-option-disabled)]:!bg-[#E6F4FF]',
+                          },
+                        }}
                         options={countries.map((c) => ({
                           label: c.name,
                           value: c.name,
@@ -314,7 +347,7 @@ const AdminProfile = () => {
                     ) : (
                       <div
                         data-cy="-afterlogin-admin-profile-page-tsx-page-div-263"
-                        className="text-base text-gray-800 -mt-3"
+                        className="text-base text-gray-800"
                       >
                         {profile.country || '—'}
                       </div>
@@ -325,7 +358,7 @@ const AdminProfile = () => {
                     label={
                       <span
                         data-cy="-afterlogin-admin-profile-page-tsx-page-span-271"
-                        className="text-sm font-medium text-[#A8A8A8]"
+                        className="text-sm font-medium text-[#030712]"
                       >
                         Industry
                       </span>
@@ -337,11 +370,15 @@ const AdminProfile = () => {
                     className="mb-0"
                   >
                     {isEditing ? (
-                      <Input className="-mt-3" placeholder="Select" />
+                      <Input
+                        placeholder="Select"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName="!min-h-10"
+                      />
                     ) : (
                       <div
                         data-cy="-afterlogin-admin-profile-page-tsx-page-div-284"
-                        className="text-base text-gray-800 -mt-3"
+                        className="text-base text-gray-800"
                       >
                         {profile.industry || '—'}
                       </div>
@@ -354,7 +391,7 @@ const AdminProfile = () => {
                     label={
                       <span
                         data-cy="-afterlogin-admin-profile-page-tsx-page-span-294"
-                        className="text-sm font-medium text-[#A8A8A8]"
+                        className="text-sm font-medium text-[#030712]"
                       >
                         Full Name
                       </span>
@@ -366,11 +403,15 @@ const AdminProfile = () => {
                     className="mb-0"
                   >
                     {isEditing ? (
-                      <Input className="-mt-3" placeholder="Name" />
+                      <Input
+                        placeholder="Name"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName="!min-h-10"
+                      />
                     ) : (
                       <div
                         data-cy="-afterlogin-admin-profile-page-tsx-page-div-307"
-                        className="text-base text-gray-800 -mt-3"
+                        className="text-base text-gray-800"
                       >
                         {profile.fullName || '—'}
                       </div>
@@ -381,7 +422,7 @@ const AdminProfile = () => {
                     label={
                       <span
                         data-cy="-afterlogin-admin-profile-page-tsx-page-span-315"
-                        className="text-sm font-medium text-[#A8A8A8]"
+                        className="text-sm font-medium text-[#030712]"
                       >
                         Phone Number
                       </span>
@@ -390,18 +431,19 @@ const AdminProfile = () => {
                     rules={[
                       { required: true, message: 'Phone number is required' },
                     ]}
-                    className="mb-0"
+                    className="mb-0 [&_.ant-form-item-control-input-content]:!overflow-visible"
                   >
                     {isEditing ? (
                       <Input
-                        className="-mt-3"
                         addonBefore="+251"
                         placeholder="9876543"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName={profilePhoneInputGroupClassName}
                       />
                     ) : (
                       <div
                         data-cy="-afterlogin-admin-profile-page-tsx-page-div-332"
-                        className="text-base text-gray-800 -mt-3"
+                        className="text-base text-gray-800"
                       >
                         {profile.phone || '—'}
                       </div>
@@ -412,7 +454,7 @@ const AdminProfile = () => {
                     label={
                       <span
                         data-cy="-afterlogin-admin-profile-page-tsx-page-span-340"
-                        className="text-sm font-medium text-[#A8A8A8]"
+                        className="text-sm font-medium text-[#030712]"
                       >
                         Email
                       </span>
@@ -425,11 +467,15 @@ const AdminProfile = () => {
                     className="mb-0"
                   >
                     {isEditing ? (
-                      <Input className="-mt-3" placeholder="example.mail.com" />
+                      <Input
+                        placeholder="example.mail.com"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName="!min-h-10"
+                      />
                     ) : (
                       <div
                         data-cy="-afterlogin-admin-profile-page-tsx-page-div-354"
-                        className="text-base text-gray-800 -mt-3"
+                        className="text-base text-gray-800"
                       >
                         {profile.email || '—'}
                       </div>
@@ -494,26 +540,60 @@ const AdminProfile = () => {
             </p>
           </Dragger>
 
-          <Form form={logoForm} layout="vertical" className="mt-4">
+          <Form
+            form={logoForm}
+            layout="vertical"
+            className="mt-4 [&_.ant-form-item-label]:!pb-3"
+            requiredMark={(label: ReactNode, info: { required: boolean }) => (
+              <span
+                data-cy="-afterlogin-admin-profile-logo-modal-required-wrap"
+                className="inline-flex items-center gap-1"
+              >
+                <span data-cy="-afterlogin-admin-profile-logo-modal-label">
+                  {label}
+                </span>
+                {info.required ? (
+                  <span
+                    data-cy="-afterlogin-admin-profile-logo-modal-asterisk"
+                    className="text-[#FF4D4F]"
+                    aria-hidden
+                  >
+                    *
+                  </span>
+                ) : null}
+              </span>
+            )}
+          >
             <Form.Item
               label="Company Name"
               name="companyName"
               rules={[{ required: true, message: 'Company name is required' }]}
+              className="mb-0"
             >
-              <Input placeholder="Name" />
+              <Input
+                placeholder="Name"
+                rootClassName="[&_.ant-input-affix-wrapper]:!min-h-10"
+                styles={{ input: { height: 40 } }}
+              />
             </Form.Item>
           </Form>
 
           <div
             data-cy="-afterlogin-admin-profile-page-tsx-page-div-418"
-            className="flex justify-end gap-2"
+            className="flex justify-end gap-2 font-normal mt-3"
           >
-            <Button onClick={closeLogoModal}>Cancel</Button>
+            <Button
+              onClick={closeLogoModal}
+              className="font-normal text-[#4d4d4d]"
+            >
+              Cancel
+            </Button>
             <Button
               type="primary"
               loading={updateCompanyProfileMutation.isLoading}
               onClick={handleUpdateLogo}
               data-cy="company-profile-update-logo-submit"
+              className="font-normal"
             >
               Update
             </Button>

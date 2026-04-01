@@ -236,7 +236,7 @@ const BillingPage = () => {
     },
     {
       overview: 'Issued',
-      color: '#1E40AF',
+      color: '#FAAD14',
       icon: <TbMailForward size={24} />,
       id: 'issued',
     },
@@ -308,16 +308,15 @@ const BillingPage = () => {
               id={`billing-card-${item.id}`}
               data-cy={`billing-card-${item.id}`}
               loading={isLoading}
-              className="rounded-lg bg-white relative"
+              className="rounded-lg relative"
               bordered={false}
               styles={{
                 body: { padding: '0px' },
               }}
               style={{
-                boxShadow: isLoading
-                  ? 'none'
-                  : '0px 2px 8px 0px rgba(0, 0, 0, 0.06)',
-                border: isLoading ? 'none' : '1px solid #E5E7EB',
+                boxShadow: 'none',
+                backgroundColor: isLoading ? undefined : '#FFFFFF',
+                border: isLoading ? 'none' : '1px solid #D9D9D9',
                 padding: isLoading ? '20px' : '0px',
               }}
             >
@@ -368,7 +367,9 @@ const BillingPage = () => {
                         data-cy={`billing-card-${item.id}-value`}
                         className={`text-[32px] leading-none font-bold flex items-center justify-between ${item.id === 'overdue' ? 'text-error' : ''}`}
                         style={
-                          item.id === 'paid' ? { color: item.color } : undefined
+                          item.id === 'paid' || item.id === 'issued'
+                            ? { color: item.color }
+                            : undefined
                         }
                       >
                         {valueData?.value}

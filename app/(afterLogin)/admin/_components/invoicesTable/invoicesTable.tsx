@@ -1,6 +1,14 @@
 'use client';
 
-import { Table, Input, Select, DatePicker, notification, Tag } from 'antd';
+import {
+  Table,
+  Input,
+  Select,
+  DatePicker,
+  notification,
+  Tag,
+  Popconfirm,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   Invoice,
@@ -10,14 +18,13 @@ import {
   Subscription,
 } from '@/types/tenant-management';
 import { useState, useEffect } from 'react';
-import { LoadingOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
 import { MdOutlineFileDownload } from 'react-icons/md';
-import { RiDeleteBin6Line } from 'react-icons/ri';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
-import { useDeleteInvoices } from '@/store/server/features/tenant-management/invoices/mutation';
+import { useDeleteManageInvoice } from '@/store/server/features/tenant-management/manage-invoices/mutation';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -76,9 +83,12 @@ const InvoicesTable = ({
   const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(
     null,
   );
+  const [openDeleteConfirmInvoiceId, setOpenDeleteConfirmInvoiceId] = useState<
+    string | null
+  >(null);
   const router = useRouter();
   const { isMobile, isTablet } = useIsMobile();
-  const deleteInvoiceMutation = useDeleteInvoices();
+  const deleteInvoiceMutation = useDeleteManageInvoice();
   const effectiveCurrentPage = controlledCurrentPage ?? currentPage;
   const effectivePageSize = controlledPageSize ?? pageSize;
   const isControlledPagination =
@@ -197,14 +207,10 @@ const InvoicesTable = ({
     setDownloadingInvoiceId(invoiceId);
   };
 
-  const handleDeleteInvoice = async (
-    e: React.MouseEvent,
-    invoiceId: string,
-  ) => {
-    e.stopPropagation();
+  const deleteInvoiceById = async (invoiceId: string) => {
     try {
       setDeletingInvoiceId(invoiceId);
-      await deleteInvoiceMutation.mutateAsync([invoiceId]);
+      await deleteInvoiceMutation.mutateAsync(invoiceId);
     } catch (error) {
       notification.error({
         message: 'Delete Failed',
@@ -241,7 +247,7 @@ const InvoicesTable = ({
         <div
           id={`invoice-plan-${subscriptionId}`}
           data-cy={`invoice-plan-${subscriptionId}`}
-          className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap"
+          className="flex items-center gap-2 rounded-[4px] border border-gray-300 bg-[rgba(0,0,0,0.02)] px-2 w-fit whitespace-nowrap"
         >
           <span
             id={`invoice-plan-name-${subscriptionId}`}
@@ -330,52 +336,127 @@ const InvoicesTable = ({
             className="flex items-center gap-4"
           >
             <button
+              type="button"
               id={`invoice-download-${record.id}`}
               data-cy={`invoice-download-${record.id}`}
               onClick={(e) => handlePdfDownload(e, record.id)}
-              className="hover:opacity-75 transition-opacity"
+              className="inline-flex items-center justify-center p-0 m-0 bg-transparent border-0 cursor-pointer hover:opacity-75 transition-opacity leading-none"
               disabled={isDownloadingThis}
             >
               {isDownloadingThis ? (
                 <LoadingOutlined
                   id={`invoice-download-indicator-${record.id}`}
                   data-cy={`invoice-download-indicator-${record.id}`}
-                  className="w-5 h-5 text-primary"
+                  className="!flex !items-center !justify-center w-5 h-5 min-w-5 min-h-5 shrink-0 text-base text-primary"
                   spin
                 />
               ) : (
                 <MdOutlineFileDownload
                   id={`invoice-download-icon-${record.id}`}
                   data-cy={`invoice-download-icon-${record.id}`}
-                  className="w-5 h-5 min-w-5 min-h-5 text-primary"
+                  className="w-5 h-5 min-w-5 min-h-5 text-primary shrink-0"
                 />
               )}
             </button>
 
             {isPendingInvoice && (
-              <button
-                id={`invoice-delete-${record.id}`}
-                data-cy={`invoice-delete-${record.id}`}
-                onClick={(e) => handleDeleteInvoice(e, record.id)}
-                className="hover:opacity-75 transition-opacity"
+              <Popconfirm
+                icon={<></>}
+                open={openDeleteConfirmInvoiceId === record.id}
+                onOpenChange={(visible) =>
+                  setOpenDeleteConfirmInvoiceId(visible ? record.id : null)
+                }
+                onCancel={(e) => {
+                  e?.stopPropagation();
+                  setOpenDeleteConfirmInvoiceId(null);
+                }}
+                title={
+                  <div
+                    className="flex items-center justify-between mb-3 mx-4"
+                    data-cy={`invoice-delete-popconfirm-title-${record.id}`}
+                  >
+                    <p
+                      className="text-lg font-bold text-gray-700 m-0"
+                      data-cy={`invoice-delete-popconfirm-title-text-${record.id}`}
+                    >
+                      Delete Invoice
+                    </p>
+                    <CloseOutlined
+                      className="text-gray-400 m-0 cursor-pointer hover:text-gray-600"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenDeleteConfirmInvoiceId(null);
+                      }}
+                    />
+                  </div>
+                }
+                description={
+                  <p
+                    className="text-sm text-gray-500 m-0 my-1 mb-4 mx-4"
+                    data-cy={`invoice-delete-popconfirm-description-${record.id}`}
+                  >
+                    Are you sure you want to delete invoice #
+                    {record.invoiceNumber}?
+                  </p>
+                }
+                onConfirm={(e) => {
+                  e?.stopPropagation();
+                  setOpenDeleteConfirmInvoiceId(null);
+                  void deleteInvoiceById(record.id);
+                }}
+                okText="Delete"
+                okButtonProps={{
+                  danger: true,
+                  className: 'font-normal p-2 mr-4 mb-2 rounded-md',
+                  'data-cy': `invoice-delete-popconfirm-ok-${record.id}`,
+                }}
+                cancelButtonProps={{
+                  'data-cy': `invoice-delete-popconfirm-dismiss-${record.id}`,
+                  className:
+                    'font-normal m-0 p-2 mb-2 rounded-md border-gray-300',
+                }}
+                cancelText={
+                  <div
+                    className="font-normal m-0 border-gray-400"
+                    data-cy={`invoice-delete-popconfirm-dismiss-text-${record.id}`}
+                  >
+                    Cancel
+                  </div>
+                }
                 disabled={isDeletingThis}
-                title="Delete invoice"
+                data-cy={`invoice-delete-popconfirm-${record.id}`}
+                className="inline-flex items-center justify-center leading-none"
               >
-                {isDeletingThis ? (
-                  <LoadingOutlined
-                    id={`invoice-delete-indicator-${record.id}`}
-                    data-cy={`invoice-delete-indicator-${record.id}`}
-                    className="w-5 h-5 text-red-500"
-                    spin
-                  />
-                ) : (
-                  <RiDeleteBin6Line
-                    id={`invoice-delete-icon-${record.id}`}
-                    data-cy={`invoice-delete-icon-${record.id}`}
-                    className="w-5 h-5 min-w-5 min-h-5 text-red-500"
-                  />
-                )}
-              </button>
+                <button
+                  type="button"
+                  id={`invoice-delete-${record.id}`}
+                  data-cy={`invoice-delete-${record.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpenDeleteConfirmInvoiceId(record.id);
+                  }}
+                  className="inline-flex items-center justify-center p-0 m-0 bg-transparent border-0 cursor-pointer hover:opacity-75 transition-opacity leading-none"
+                  disabled={isDeletingThis}
+                  title="Delete invoice"
+                >
+                  {isDeletingThis ? (
+                    <LoadingOutlined
+                      id={`invoice-delete-indicator-${record.id}`}
+                      data-cy={`invoice-delete-indicator-${record.id}`}
+                      className="!flex !items-center !justify-center w-5 h-5 min-w-5 min-h-5 shrink-0 text-base text-[#FF4D4F]"
+                      spin
+                    />
+                  ) : (
+                    <DeleteOutlined
+                      id={`invoice-delete-icon-${record.id}`}
+                      data-cy={`invoice-delete-icon-${record.id}`}
+                      className="!flex !items-center !justify-center w-5 h-5 min-w-5 min-h-5 shrink-0 text-base text-[#FF4D4F] leading-none"
+                    />
+                  )}
+                </button>
+              </Popconfirm>
             )}
           </div>
         );
@@ -451,24 +532,48 @@ const InvoicesTable = ({
         </div>
       )}
 
-      <Table
-        id="invoices-table"
-        data-cy="invoices-table"
-        columns={columns}
-        dataSource={paginatedData}
-        rowKey="id"
-        scroll={{ x: true }}
-        loading={loading}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.id),
-        })}
-        rowClassName={(record, index) =>
-          `${record.id ? 'cursor-pointer' : 'cursor-pointer'} ${
-            index % 2 === 1 ? '!bg-[#FAFAFA]' : '!bg-white'
-          }`
+      <div
+        id="invoices-table-scroll-boundary"
+        data-cy="invoices-table-scroll-boundary"
+        className={
+          isMobile || isTablet ? 'w-full min-w-0 max-w-full' : undefined
         }
-        pagination={false}
-      />
+      >
+        <Table
+          id="invoices-table"
+          data-cy="invoices-table"
+          className={[
+            '[&_.ant-table-tbody_.ant-table-cell]:!text-[#000000]/[0.7]',
+            isMobile || isTablet
+              ? [
+                  '[&_.ant-table-thead_.ant-table-cell]:!whitespace-nowrap',
+                  '[&_.ant-table-tbody_.ant-table-cell]:!whitespace-nowrap',
+                  '[&_.ant-table-wrapper]:!w-full [&_.ant-table-wrapper]:!max-w-full',
+                  '[&_.ant-table]:!w-full [&_.ant-table]:!min-w-0 [&_.ant-table]:!max-w-full',
+                  '[&_.ant-table-container]:!w-full [&_.ant-table-container]:!max-w-full',
+                  '[&_.ant-table-content]:!w-full [&_.ant-table-content]:!max-w-full',
+                ].join(' ')
+              : '',
+          ]
+            .filter(Boolean)
+            .join(' ')
+          }
+          columns={columns}
+          dataSource={paginatedData}
+          rowKey="id"
+          scroll={{ x: 'max-content' }}
+          loading={loading}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record.id),
+          })}
+          rowClassName={(record, index) =>
+            `${record.id ? 'cursor-pointer' : 'cursor-pointer'} ${
+              index % 2 === 1 ? '!bg-[#FAFAFA]' : '!bg-white'
+            }`
+          }
+          pagination={false}
+        />
+      </div>
       {paginationTotal > 0 && (
         <>
           {isMobile || isTablet ? (

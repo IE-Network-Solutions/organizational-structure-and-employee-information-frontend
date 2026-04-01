@@ -372,10 +372,6 @@ export interface PayInvoiceRequest {
   amount?: number;
 }
 
-export interface CancelInvoiceRequest {
-  reason?: string;
-}
-
 export interface InitiatePaymentRequest {
   paymentMethod: string;
   paymentProvider: string;

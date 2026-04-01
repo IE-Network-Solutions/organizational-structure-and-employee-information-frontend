@@ -142,17 +142,18 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           className="flex items-start gap-3 min-w-0 flex-1"
         >
           {!isDashboardPage && (
-            <Button
-              type="default"
-              icon={<LeftOutlined className="text-base" />}
-              onClick={() => router.back()}
+            <span
+              className="mt-[22px] border border-gray-300 rounded-lg p-2 cursor-pointer flex items-center justify-center"
               data-cy="admin-layout-back-button"
-              className="!h-8 !w-9 !rounded-lg !border-gray-300 !text-gray-600 !bg-white mt-[10px]"
-            />
+              onClick={() => router.back()}
+            >
+              <LeftOutlined className="text-base" size={16}/>
+            </span>
           )}
           <CustomBreadcrumb
             title={title}
             rootClassName="!w-auto min-w-0"
+            titleClassName="!text-[#000000]/[0.7]"
             subtitle={
               <>
                 <Link
@@ -162,7 +163,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   Admin Console
                 </Link>
                 {' / '}
-                <span data-cy="app-afterlogin-admin-layout-tsx-layout-span-159">
+                <span
+                  data-cy="app-afterlogin-admin-layout-tsx-layout-span-159"
+                  className="text-[#000000]/[0.7]"
+                >
                   {String(subtitle).replace(/^Admin Console\s*\/\s*/, '')}
                 </span>
               </>
@@ -175,7 +179,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             onClick={handlePayNextBill}
             loading={prepaySubscriptionMutation.isLoading}
             data-cy="admin-layout-pay-next-bill"
-            className="!inline-flex !items-center !shrink-0 !mt-[10px]"
+            className="!inline-flex !items-center !shrink-0 !mt-[10px] !h-10 !font-normal"
           >
             <span
               data-cy="app-afterlogin-admin-layout-tsx-layout-span-174"
@@ -196,11 +200,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               type="primary"
               icon={<TbUserSquare />}
               data-cy="admin-layout-update-profile"
-              className="!mt-[10px]"
+              className="!mt-[10px] !h-10"
             >
               <span
                 data-cy="app-afterlogin-admin-layout-tsx-layout-span-187"
-                className="hidden sm:inline"
+                className="hidden sm:inline font-normal"
               >
                 Update Profile
               </span>
@@ -220,7 +224,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       />
       <div
         data-cy="app-afterlogin-admin-layout-tsx-layout-div-202"
-        className="px-6 pt-4 pb-6"
+        className="px-6 pt-[24px] pb-6"
       >
         {children}
       </div>

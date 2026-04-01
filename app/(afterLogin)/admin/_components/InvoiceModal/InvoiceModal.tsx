@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Divider, Skeleton, Tag, notification } from 'antd';
-import { CreditCardOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  CreditCardOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import { MdOutlineFileDownload } from 'react-icons/md';
 import dayjs from 'dayjs';
 import { Invoice, Plan } from '@/types/tenant-management';
@@ -127,8 +131,13 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
   return (
     <Modal
-      title=""
-      closeIcon={null}
+      title={null}
+      closeIcon={
+        <CloseOutlined
+          className="text-gray-600 hover:text-gray-900"
+          data-cy="invoice-modal-close"
+        />
+      }
       open={open}
       onCancel={onClose}
       footer={null}
@@ -158,7 +167,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
       ) : (
         <div
           data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-149"
-          className="flex flex-col mt-5"
+          className="flex flex-col mt-5 pt-6"
         >
           {/* Invoice summary: number, date, download */}
           <div
@@ -357,7 +366,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-281"
             className="flex justify-end gap-3 my-5 pt-2 mx-5"
           >
-            <Button onClick={onClose} data-cy="invoice-modal-cancel">
+            <Button
+              onClick={onClose}
+              data-cy="invoice-modal-cancel"
+              className="!font-normal !text-[#000000]/[0.7]"
+            >
               Cancel
             </Button>
             {isPending && (
@@ -373,6 +386,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 onClick={handlePay}
                 loading={initiatePaymentMutation.isLoading}
                 data-cy="invoice-modal-pay"
+                className="!font-normal"
               >
                 Pay
               </Button>

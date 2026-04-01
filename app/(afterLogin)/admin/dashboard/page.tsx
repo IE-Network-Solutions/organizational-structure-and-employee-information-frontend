@@ -205,7 +205,9 @@ const AdminDashboard = () => {
             id="current-subscription-card"
             data-cy="current-subscription-card"
             className="rounded-lg shadow-sm h-full"
-            style={{ border: '2px solid #0C8CE9' }}
+            style={{
+              border: '2px solid rgba(9, 88, 217, 0.3)',
+            }}
             styles={{ body: { padding: '16px' } }}
           >
             <div
@@ -218,7 +220,7 @@ const AdminDashboard = () => {
               >
                 <h2
                   data-cy="-afterlogin-admin-dashboard-page-tsx-page-h2-211"
-                  className="text-sm font-medium text-gray-500"
+                  className="text-[16px] font-medium text-gray-500"
                 >
                   Current Subscription plan
                 </h2>
@@ -285,7 +287,7 @@ const AdminDashboard = () => {
               )}
               <p
                 data-cy="-afterlogin-admin-dashboard-page-tsx-page-p-251"
-                className="text-sm text-gray-600 mb-3"
+                className="text-[16px] text-gray-600 mb-3"
               >
                 Need extra feature or want to update seats?
               </p>
@@ -297,7 +299,7 @@ const AdminDashboard = () => {
                   type="primary"
                   onClick={() => setManageSubscriptionOpen(true)}
                   data-cy="manage-subscription-button"
-                  className="w-[265px] font-normal"
+                  className="w-[265px] font-normal h-10"
                 >
                   Manage Subscription
                 </Button>
@@ -329,7 +331,7 @@ const AdminDashboard = () => {
                     >
                       <span
                         data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-280"
-                        className="text-sm font-medium text-gray-500"
+                        className="text-[16px] font-medium text-gray-500"
                       >
                         Invoice
                       </span>
@@ -349,12 +351,12 @@ const AdminDashboard = () => {
                     </div>
                     <div
                       data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-297"
-                      className="text-sm text-gray-700 font-bold"
+                      className="text-[16px] text-gray-700 font-bold"
                     >
                       #{lastInvoice.invoiceNumber}
                     </div>
                   </div>
-                  <Divider className="my-3" />
+                  <Divider className="my-0" />
                   <div
                     data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-302"
                     className="flex flex-col gap-1 w-full"
@@ -365,7 +367,7 @@ const AdminDashboard = () => {
                     >
                       <span
                         data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-304"
-                        className="text-sm text-gray-500"
+                        className="text-[16px] text-gray-500"
                       >
                         Due Date
                       </span>
@@ -381,7 +383,7 @@ const AdminDashboard = () => {
                     </div>{' '}
                     <span
                       data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-315"
-                      className="text-sm text-gray-700 font-bold"
+                      className="text-[16px] text-gray-700 font-bold"
                     >
                       {dayjs(lastInvoice.dueAt).format('MMM D, YYYY')}
                     </span>
@@ -390,12 +392,12 @@ const AdminDashboard = () => {
               )}
               <div
                 data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-321"
-                className="flex justify-center"
+                className="flex justify-center mt-6"
               >
                 <Button
                   onClick={() => router.push('/admin/billing')}
                   data-cy="billing-and-invoice-button"
-                  className="w-[265px] font-normal border-gray-300"
+                  className="w-[265px] font-normal border-gray-300 h-10"
                 >
                   Billing and Invoice
                 </Button>
@@ -405,7 +407,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      <Divider className="my-6" />
 
       {/* Recent Billing History */}
       <div

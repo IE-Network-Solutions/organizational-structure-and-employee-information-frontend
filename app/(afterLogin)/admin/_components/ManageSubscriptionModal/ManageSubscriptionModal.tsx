@@ -559,7 +559,7 @@ export const ManageSubscriptionModal: React.FC<
   };
 
   // Width: fluid from viewport; max ~1100px on large screens.
-  // Height: not full-viewport by default — body scrolls so the shell stays a comfortable size.
+  // Below lg: modal body is height-capped; only the plan cards scroll so seats / billing / total stay visible.
   return (
     <Modal
       title="Manage Subscription"
@@ -571,15 +571,23 @@ export const ManageSubscriptionModal: React.FC<
       destroyOnClose
       className="manage-subscription-modal"
       data-cy="manage-subscription-modal"
+      classNames={{
+        body: [
+          'manage-subscription-modal__body',
+          // Narrow viewports: column flex + height cap so only the cards region scrolls inside the modal.
+          'max-lg:!flex max-lg:!flex-col max-lg:!min-h-0',
+          'max-lg:!max-h-[min(86dvh,calc(100dvh-5.5rem))] max-lg:!overflow-hidden max-lg:!pb-4',
+        ].join(' '),
+      }}
     >
       <div
         data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-577"
-        className="flex flex-col gap-6 w-full min-w-0"
+        className="flex w-full min-w-0 flex-col gap-6 max-lg:min-h-0 max-lg:flex-1"
       >
         {/* Top controls — equal 3 columns on md+; billing centered in the middle */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-579"
-          className="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-3 md:items-center md:gap-6"
+          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-1 gap-4 md:grid-cols-3 md:items-center md:gap-6"
         >
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-580"
@@ -732,7 +740,7 @@ export const ManageSubscriptionModal: React.FC<
         {/* Plan cards — grouped by currency (filtered to active subscription plan currency when available) */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-688"
-          className="flex flex-col gap-8"
+          className="scrollbar-none flex flex-col gap-8 max-lg:min-h-0 max-lg:flex-1 max-lg:overflow-y-auto max-lg:overscroll-y-contain"
         >
           {plansByCurrency.length === 0 ? (
             <p
@@ -852,10 +860,16 @@ export const ManageSubscriptionModal: React.FC<
                               key={mod.id}
                               className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
                             >
-                              <IoCheckbox
-                                className={`size-[18px] shrink-0 ${included ? 'text-[#69B1FF]' : 'text-gray-400'}`}
+                              <span
+                                className="inline-flex size-[18px] shrink-0 items-center justify-center"
                                 aria-hidden
-                              />
+                              >
+                                {included ? (
+                                  <IoCheckbox className="size-full text-[#69B1FF]" />
+                                ) : (
+                                  <span className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]" />
+                                )}
+                              </span>
                               <span
                                 data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
                                 className={
@@ -898,9 +912,13 @@ export const ManageSubscriptionModal: React.FC<
         {/* Footer */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-817"
-          className="flex justify-end gap-3 "
+          className="flex justify-end gap-3 max-lg:shrink-0 max-lg:border-t max-lg:border-gray-100 max-lg:pt-3 lg:pt-0 lg:border-t-0"
         >
-          <Button onClick={onClose} data-cy="manage-subscription-cancel">
+          <Button
+            onClick={onClose}
+            data-cy="manage-subscription-cancel"
+            className="!font-normal !text-[#000000]/[0.7]"
+          >
             Cancel
           </Button>
           <Tooltip
@@ -923,6 +941,7 @@ export const ManageSubscriptionModal: React.FC<
                   isSubmitting
                 }
                 data-cy="manage-subscription-continue"
+                className="!font-normal"
               >
                 Continue
               </Button>
