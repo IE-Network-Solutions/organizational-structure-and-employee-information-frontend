@@ -15,6 +15,7 @@ import {
   MdWidgets,
   MdHowToReg,
   MdAdminPanelSettings,
+  MdSpeed,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -519,6 +520,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['manage_recruitment_settings'],
           },
         ],
+      },
+      {
+        icon: <MdSpeed style={{ fontSize: 20 }} />,
+        title: 'Dashboard',
+        key: '/performance-menu',
+        className: 'font-bold',
+        permissions: ['view_okr'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
       },
       {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
@@ -1302,6 +1312,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 { key: 'skeleton-performance-item-1' },
                 { key: 'skeleton-performance-item-2' },
                 { key: 'skeleton-performance-item-3' },
+                { key: 'skeleton-performance-item-4' },
               ],
             },
             {
