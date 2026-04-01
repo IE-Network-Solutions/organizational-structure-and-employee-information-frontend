@@ -18,6 +18,7 @@ import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { MdClose } from 'react-icons/md';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -214,7 +215,7 @@ const AllCandidates: React.FC = () => {
           onClick={() => setShowFilters(false)}
           data-cy="talent-acquisition-candidate-page-filter-modal-close"
         >
-          ×
+          <MdClose size={22} />
         </button>
         <h3
           className="text-lg font-semibold text-gray-900 m-0"
@@ -391,14 +392,14 @@ const AllCandidates: React.FC = () => {
     <div
       id="talent-acquisition-candidate-page-div-container"
       data-cy="talent-acquisition-candidate-page-div-container"
-      className="h-auto w-full py-4 sm:py-6"
+      className="h-auto w-full"
     >
       <Card
         data-cy="talent-acquisition-candidate-card"
         className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
         title={
           <div
-            className="px-4 sm:px-6 py-0.5"
+            className="py-0.5"
             data-cy="talent-acquisition-candidate-breadcrumb-container"
           >
             <CustomBreadcrumb
@@ -435,7 +436,7 @@ const AllCandidates: React.FC = () => {
           <div
             id="talent-acquisition-candidate-page-div-buttons"
             data-cy="talent-acquisition-candidate-page-div-buttons"
-            className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 my-2 sm:my-4 px-4 sm:px-6"
+            className="flex flex-wrap items-center justify-end gap-2 sm:gap-4"
           >
             {selectedCandidate?.length > 0 && (
               <div
@@ -605,7 +606,7 @@ const AllCandidates: React.FC = () => {
                       className="text-gray-600"
                     />
                   }
-                  className="h-8 sm:h-10 flex items-center gap-2 rounded-lg border text-gray-700 bg-white text-xs sm:text-sm transition-colors shrink-0"
+                  className="h-8 flex items-center gap-2 rounded-lg border text-gray-700 bg-white text-xs sm:text-sm transition-colors shrink-0"
                   id="talent-acquisition-candidate-page-filter-button"
                   data-cy="talent-acquisition-candidate-page-filter-button"
                   style={{

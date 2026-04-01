@@ -261,11 +261,11 @@ const ScoringModal: React.FC = () => {
   };
 
   const footer = (
-    <div className="flex justify-end gap-3" data-cy="okr-criteria-modal-footer">
+    <div className="flex justify-end gap-2" data-cy="okr-criteria-modal-footer">
       <Button
         type="default"
         onClick={handleModalClose}
-        className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
+        className="h-[32px] w-[68px] rounded-[8px] border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-normal text-[14px] p-0 flex items-center justify-center"
         id="okr-criteria-modal-cancel-button"
         data-cy="okr-criteria-modal-cancel-button"
       >
@@ -275,7 +275,7 @@ const ScoringModal: React.FC = () => {
         type="primary"
         onClick={() => form.submit()}
         loading={isCreateLoading || isUpdatingLoading}
-        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
+        className="h-[32px] w-[68px] rounded-[8px] bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-normal text-[14px] p-0 flex items-center justify-center"
         id="okr-criteria-modal-submit-button"
         data-cy="okr-criteria-modal-submit-button"
       >
@@ -313,6 +313,7 @@ const ScoringModal: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
+        requiredMark={false}
         onFinish={onFinish}
         className=""
         id="okr-criteria-modal-form"
@@ -327,10 +328,17 @@ const ScoringModal: React.FC = () => {
                   data-cy="okr-criteria-modal-name-label"
                 >
                   <span
-                    className="text-[14px] font-medium text-[#262626]"
+                    className="text-[14px] font-normal text-[#030712]"
                     data-cy="okr-criteria-modal-name-label-text"
                   >
                     Name configuration
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                    data-cy="okr-criteria-modal-name-required-indicator"
+                  >
+                    *
                   </span>
                   <Tooltip title="Enter a name for this scoring configuration.">
                     <QuestionCircleOutlined
@@ -347,7 +355,7 @@ const ScoringModal: React.FC = () => {
             >
               <Input
                 placeholder="Update all UI screens"
-                className="h-11"
+                className="h-10"
                 data-cy="okr-criteria-modal-name-input"
               />
             </Form.Item>
@@ -360,11 +368,18 @@ const ScoringModal: React.FC = () => {
                   data-cy="okr-criteria-modal-percentage-label"
                 >
                   <span
-                    className="text-[14px] font-medium text-[#262626] truncate block"
+                    className="text-[14px] font-normal text-[#030712] truncate block"
                     title="Total Percentage"
                     data-cy="okr-criteria-modal-percentage-label-text"
                   >
                     Total Percentage
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                    data-cy="okr-criteria-modal-percentage-required-indicator"
+                  >
+                    *
                   </span>
                   <Tooltip title="Enter the total percentage (0-100).">
                     <QuestionCircleOutlined
@@ -382,7 +397,7 @@ const ScoringModal: React.FC = () => {
               <Input
                 type="number"
                 placeholder="Input"
-                className="h-11"
+                className="h-10"
                 data-cy="okr-criteria-modal-percentage-input"
               />
             </Form.Item>
@@ -396,10 +411,17 @@ const ScoringModal: React.FC = () => {
               data-cy="okr-criteria-modal-department-label"
             >
               <span
-                className="text-[14px] font-medium text-[#262626]"
+                className="text-[14px] font-normal text-[#030712]"
                 data-cy="okr-criteria-modal-department-label-text"
               >
                 Department
+              </span>
+              <span
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
+                data-cy="okr-criteria-modal-department-required-indicator"
+              >
+                *
               </span>
               <Tooltip title="Select departments to filter employees.">
                 <QuestionCircleOutlined
@@ -410,7 +432,7 @@ const ScoringModal: React.FC = () => {
             </div>
           }
           name="department"
-          className="mb-2"
+          className=""
           required
           data-cy="okr-criteria-modal-department-field"
         >
@@ -421,7 +443,7 @@ const ScoringModal: React.FC = () => {
             <Select
               mode="multiple"
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               value={watchedDepartments}
@@ -452,7 +474,7 @@ const ScoringModal: React.FC = () => {
             {/* Always visible placeholder overlay */}
             <span
               className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
+              style={{ lineHeight: '40px' }}
               data-cy="okr-criteria-modal-department-placeholder"
             >
               Select Department
@@ -461,7 +483,7 @@ const ScoringModal: React.FC = () => {
         </Form.Item>
 
         <div
-          className="flex flex-wrap gap-2 mb-6"
+          className="flex flex-wrap gap-2"
           data-cy="okr-criteria-modal-department-tags-container"
         >
           {watchedDepartments?.map((id: string) => {
@@ -470,7 +492,7 @@ const ScoringModal: React.FC = () => {
             return (
               <div
                 key={id}
-                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                className="flex items-center gap-2 bg-[rgba(0,0,0,0.02)] border border-[#d9d9d9] px-2 py-[1px] rounded-[6px]"
                 data-cy={`okr-criteria-modal-department-tag-${id}`}
               >
                 <span
@@ -504,10 +526,17 @@ const ScoringModal: React.FC = () => {
                   data-cy="okr-criteria-modal-users-label"
                 >
                   <span
-                    className="text-[14px] font-medium text-[#262626]"
+                    className="text-[14px] font-normal text-[#030712]"
                     data-cy="okr-criteria-modal-users-label-text"
                   >
                     Users
+                  </span>
+                  <span
+                    className="text-[#ff4d4f] text-[14px] leading-none"
+                    aria-hidden
+                    data-cy="okr-criteria-modal-users-required-indicator"
+                  >
+                    *
                   </span>
                   <Tooltip title="Select specific users for this configuration.">
                     <QuestionCircleOutlined
@@ -518,7 +547,7 @@ const ScoringModal: React.FC = () => {
                 </div>
               }
               name="users"
-              className="mb-2"
+              className=""
               required
               rules={[{ required: true, message: 'Please select users' }]}
               data-cy="okr-criteria-modal-users-field"
@@ -530,7 +559,7 @@ const ScoringModal: React.FC = () => {
                 <Select
                   mode="multiple"
                   placeholder=""
-                  className="w-full h-11 custom-modal-select always-show-placeholder"
+                  className="w-full h-10 custom-modal-select always-show-placeholder"
                   maxTagCount={0}
                   maxTagPlaceholder={() => null}
                   value={watchedUsers}
@@ -561,7 +590,7 @@ const ScoringModal: React.FC = () => {
                 {/* Always visible placeholder overlay */}
                 <span
                   className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                  style={{ lineHeight: '44px' }}
+                  style={{ lineHeight: '40px' }}
                   data-cy="okr-criteria-modal-users-placeholder"
                 >
                   Select Users
@@ -577,7 +606,7 @@ const ScoringModal: React.FC = () => {
                   data-cy="okr-criteria-modal-filter-label"
                 >
                   <span
-                    className="text-[14px] font-medium text-[#262626]"
+                    className="text-[14px] font-normal text-[#030712]"
                     data-cy="okr-criteria-modal-filter-label-text"
                   >
                     Filter
@@ -595,7 +624,7 @@ const ScoringModal: React.FC = () => {
               <Select
                 value={userTypeFilter}
                 onChange={setUserTypeFilter}
-                className="h-11"
+                className="h-10"
                 placeholder="Select"
                 data-cy="okr-criteria-modal-filter-select"
               >
@@ -623,7 +652,7 @@ const ScoringModal: React.FC = () => {
         </Row>
 
         <div
-          className="flex flex-wrap gap-2 mb-6"
+          className="flex flex-wrap gap-2"
           data-cy="okr-criteria-modal-users-tags-container"
         >
           {watchedUsers?.map((id: string) => {
@@ -632,7 +661,7 @@ const ScoringModal: React.FC = () => {
             return (
               <div
                 key={id}
-                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                className="flex items-center gap-2 bg-[rgba(0,0,0,0.02)] border border-[#d9d9d9] px-2 py-[1px] rounded-[6px]"
                 data-cy={`okr-criteria-modal-users-tag-${id}`}
               >
                 <span
@@ -662,10 +691,17 @@ const ScoringModal: React.FC = () => {
               data-cy="okr-criteria-modal-criteria-label"
             >
               <span
-                className="text-[14px] font-medium text-[#262626]"
+                className="text-[14px] font-normal text-[#030712]"
                 data-cy="okr-criteria-modal-criteria-label-text"
               >
                 Chritaria
+              </span>
+              <span
+                className="text-[#ff4d4f] text-[14px] leading-none"
+                aria-hidden
+                data-cy="okr-criteria-modal-criteria-required-indicator"
+              >
+                *
               </span>
               <Tooltip title="Select the criteria items.">
                 <QuestionCircleOutlined
@@ -676,7 +712,7 @@ const ScoringModal: React.FC = () => {
             </div>
           }
           name="criteria"
-          className="mb-2"
+          className=""
           required
           rules={[{ required: true, message: 'Please select criteria' }]}
           data-cy="okr-criteria-modal-criteria-field"
@@ -688,7 +724,7 @@ const ScoringModal: React.FC = () => {
             <Select
               mode="multiple"
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-10 custom-modal-select always-show-placeholder"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
               value={watchedCriteria}
@@ -722,7 +758,7 @@ const ScoringModal: React.FC = () => {
             {/* Always visible placeholder overlay */}
             <span
               className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
+              style={{ lineHeight: '40px' }}
               data-cy="okr-criteria-modal-criteria-placeholder"
             >
               Select Criteria
@@ -731,13 +767,13 @@ const ScoringModal: React.FC = () => {
         </Form.Item>
 
         <div
-          className="flex flex-wrap gap-2 mb-6"
+          className="flex flex-wrap gap-2"
           data-cy="okr-criteria-modal-criteria-tags-container"
         >
           {watchedCriteria?.map((name: string) => (
             <div
               key={name}
-              className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+              className="flex items-center gap-2 bg-[rgba(0,0,0,0.02)] border border-[#d9d9d9] px-2 py-[1px] rounded-[6px]"
               data-cy={`okr-criteria-modal-criteria-tag-${name}`}
             >
               <span
@@ -763,7 +799,7 @@ const ScoringModal: React.FC = () => {
 
         {selectedCriteria.length > 0 && (
           <div
-            className="mt-6 border-t pt-4"
+            className="border-t pt-2"
             data-cy="okr-criteria-modal-weights-section"
           >
             <div
@@ -792,13 +828,13 @@ const ScoringModal: React.FC = () => {
                 <Input
                   value={criteria.name}
                   disabled
-                  className="flex-1 h-11"
+                  className="flex-1 h-10"
                   data-cy={`okr-criteria-modal-weight-name-input-${criteria.vpCriteriaId}`}
                 />
                 <Input
                   type="number"
                   value={weights[criteria.vpCriteriaId] || ''}
-                  className="flex-1 h-11"
+                  className="flex-1 h-10"
                   onChange={(e) =>
                     setWeights({
                       ...weights,
@@ -816,7 +852,7 @@ const ScoringModal: React.FC = () => {
           .custom-centered-select-wrapper .ant-select-selector {
             display: flex !important;
             align-items: center !important;
-            height: 44px !important;
+            height: 40px !important;
             padding-top: 0 !important;
             padding-bottom: 0 !important;
             position: relative !important;
@@ -850,21 +886,37 @@ const ScoringModal: React.FC = () => {
             .ant-select-item-option-state {
             color: #1890ff;
           }
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+          }
           .okr-settings-modal .ant-modal-header {
-            padding: 20px 24px 16px 24px !important;
+            padding: 20px 24px 8px 24px !important;
             border-bottom: none !important;
+            margin-bottom: 0 !important;
           }
           .okr-settings-modal .ant-modal-body {
-            padding: 0px 24px 24px 24px !important;
+            padding: 12px 24px !important;
           }
           .okr-settings-modal .ant-modal-footer {
-            padding: 8px 24px 24px 24px !important;
+            padding: 1px 24px 20px 24px !important;
             border-top: none !important;
+            margin-top: 0 !important;
           }
           .okr-settings-modal .ant-form-item-label > label {
             height: auto !important;
             line-height: 1.5 !important;
             padding-bottom: 4px !important;
+          }
+          .okr-settings-modal .ant-modal-body .ant-form-item,
+          .okr-settings-modal .ant-modal-body .ant-row,
+          .okr-settings-modal .ant-modal-body .flex-wrap {
+            margin-bottom: 12px !important;
+          }
+          .okr-settings-modal .ant-modal-body .ant-form-item + .flex-wrap {
+            margin-top: -8px !important;
+          }
+          .okr-settings-modal .ant-modal-body > *:last-child {
+            margin-bottom: 0 !important;
           }
         `}</style>
       </Form>

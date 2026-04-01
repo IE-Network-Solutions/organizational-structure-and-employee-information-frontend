@@ -39,13 +39,18 @@ interface EmployeeEvaluation {
 
 type EmployeeEvaluations = EmployeeEvaluation[];
 
+type SetStateFn<T> = T | ((prev: T) => T);
+
 export interface CategoriesUseState {
   open: boolean;
   current: number;
   pageSize: number;
   setCurrent: (current: number) => void;
-  setPageSize: (current: number) => void;
+  setPageSize: (pageSize: number) => void;
   totalPages: number;
+
+  searchCategory: string | null;
+  setSearchCategory: (searchCategory: string | null) => void;
   dateRange: DateRange;
   setDateRange: (dateRange: DateRange) => void;
   searchField: SearchField[];
@@ -86,6 +91,28 @@ export interface CategoriesUseState {
   resetSelection: () => void;
   showBulkDeleteModal: boolean;
   setShowBulkDeleteModal: (show: boolean) => void;
+
+  deleteModalOpen: Record<string, boolean>;
+  setDeleteModalOpen: (update: SetStateFn<Record<string, boolean>>) => void;
+  filterPopoverOpen: boolean;
+  setFilterPopoverOpen: (open: boolean) => void;
+  draftFilters: Record<string, unknown>;
+  setDraftFilters: (update: SetStateFn<Record<string, unknown>>) => void;
+  detailModalOpen: boolean;
+  setDetailModalOpen: (open: boolean) => void;
+  selectedRecognitionId: string | null;
+  setSelectedRecognitionId: (id: string | null) => void;
+
+  /** Expand/collapse rows on recognition type criteria list */
+  typesCriteriaExpanded: Record<string, boolean>;
+  setTypesCriteriaExpanded: (
+    update: SetStateFn<Record<string, boolean>>,
+  ) => void;
+
+  currentType: number;
+  setCurrentType: (currentType: number) => void;
+  pageSizeType: number;
+  setPageSizeType: (pageSizeType: number) => void;
 }
 
 const initialSearchField: SearchField[] = [
@@ -118,7 +145,7 @@ const initialSearchField: SearchField[] = [
 export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   open: false,
   current: 1,
-  pageSize: 10,
+  pageSize: 12,
   totalPages: 1,
   visible: false,
   visibleEmployee: false,
@@ -180,4 +207,51 @@ export const useRecongnitionStore = create<CategoriesUseState>((set) => ({
   resetSelection: () => set({ selectedRowKeys: [], selectedEmployees: [] }),
   showBulkDeleteModal: false,
   setShowBulkDeleteModal: (show: boolean) => set({ showBulkDeleteModal: show }),
+
+  searchCategory: null,
+  setSearchCategory: (searchCategory) => set({ searchCategory }),
+
+  deleteModalOpen: {},
+  setDeleteModalOpen: (update) =>
+    set((state) => ({
+      deleteModalOpen:
+        typeof update === 'function'
+          ? (update as (p: Record<string, boolean>) => Record<string, boolean>)(
+              state.deleteModalOpen,
+            )
+          : update,
+    })),
+  filterPopoverOpen: false,
+  setFilterPopoverOpen: (filterPopoverOpen) => set({ filterPopoverOpen }),
+  draftFilters: {},
+  setDraftFilters: (update) =>
+    set((state) => ({
+      draftFilters:
+        typeof update === 'function'
+          ? (update as (p: Record<string, unknown>) => Record<string, unknown>)(
+              state.draftFilters,
+            )
+          : update,
+    })),
+  detailModalOpen: false,
+  setDetailModalOpen: (detailModalOpen) => set({ detailModalOpen }),
+  selectedRecognitionId: null,
+  setSelectedRecognitionId: (selectedRecognitionId) =>
+    set({ selectedRecognitionId }),
+
+  typesCriteriaExpanded: {},
+  setTypesCriteriaExpanded: (update) =>
+    set((state) => ({
+      typesCriteriaExpanded:
+        typeof update === 'function'
+          ? (update as (p: Record<string, boolean>) => Record<string, boolean>)(
+              state.typesCriteriaExpanded,
+            )
+          : update,
+    })),
+
+  currentType: 1,
+  setCurrentType: (currentType: number) => set({ currentType }),
+  pageSizeType: 10,
+  setPageSizeType: (pageSizeType: number) => set({ pageSizeType }),
 }));

@@ -8,14 +8,14 @@ import {
   Button,
   Steps,
   Checkbox,
-  Input as AntInput,
   Tag,
   Collapse,
   Switch,
   message,
+  Row,
+  Col,
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import { MdOutlineGrid4X4 } from 'react-icons/md';
 import { Role } from '@/types/dashboard/adminManagement';
 import { useGetRole } from '@/store/server/features/employees/settings/role/queries';
 import { useGetPermissionsWithOutPagination } from '@/store/server/features/employees/settings/permission/queries';
@@ -26,9 +26,12 @@ import {
   useUpdateRole,
 } from '@/store/server/features/employees/settings/role/mutations';
 import type { Permission as PermissionType } from '@/store/server/features/employees/settings/permission/interface';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import AppsIcon from '@mui/icons-material/Apps';
-
+import { AppstoreOutlined, FileTextOutlined } from '@ant-design/icons';
+import { CiCalendar, CiSettings, CiStar, CiBookmark } from 'react-icons/ci';
+import { TbMessage2 } from 'react-icons/tb';
+import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { PiMoneyLight, PiSuitcaseSimpleThin } from 'react-icons/pi';
+import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 const ROLE_STEP_TITLES = [
   {
     title: <span data-cy="settings-role-name-role-step-title">Name Role</span>,
@@ -81,14 +84,6 @@ const ListOfRoles = () => {
     ),
   );
 
-  const groupIdToName = useMemo(() => {
-    const map: Record<string, string> = {};
-    groupsList.forEach((g: { id: string; name: string }) => {
-      map[g.id] = g.name ?? 'Other';
-    });
-    return map;
-  }, [groupsList]);
-
   const filteredGroupPermissions = useMemo(() => {
     if (!groupsList) return [];
     if (selectedGroupFilter === 'all' || !selectedGroupFilter)
@@ -116,12 +111,85 @@ const ListOfRoles = () => {
     );
   };
 
+  // Get group icon
   const getGroupIcon = (groupName: string) => {
-    const name = (groupName ?? '').toLowerCase();
-    if (name.includes('payroll') || name.includes('salary')) {
-      return <AccountBalanceWalletIcon className="text-gray-600" />;
+    const name = groupName.toLowerCase();
+
+    if (name.includes('dashboard')) {
+      return <AppstoreOutlined style={{ fontSize: 18 }} />;
     }
-    return <AppsIcon className="text-gray-600" />;
+
+    if (name.includes('organization') || name.includes('org ')) {
+      return <CiSettings size={18} />;
+    }
+
+    if (name.includes('employee')) {
+      return <LuUsers size={18} />;
+    }
+
+    if (
+      name.includes('recruit') ||
+      name.includes('talent') ||
+      name.includes('job')
+    ) {
+      return <PiSuitcaseSimpleThin size={18} />;
+    }
+
+    if (name.includes('okr')) {
+      return <CiStar size={18} />;
+    }
+
+    if (
+      name.includes('feedback') ||
+      name.includes('cfr') ||
+      name.includes('conversation') ||
+      name.includes('recognition')
+    ) {
+      return <TbMessage2 size={18} />;
+    }
+
+    if (
+      name.includes('learning') ||
+      name.includes('training') ||
+      name.includes('tna')
+    ) {
+      return <CiBookmark size={18} />;
+    }
+
+    if (name.includes('payroll') || name.includes('salary')) {
+      return <AiOutlineDollarCircle size={18} />;
+    }
+
+    if (
+      name.includes('timesheet') ||
+      name.includes('attendance') ||
+      name.includes('leave')
+    ) {
+      return <CiCalendar size={18} />;
+    }
+
+    if (
+      name.includes('compensation') ||
+      name.includes('benefit') ||
+      name.includes('allowance') ||
+      name.includes('deduction')
+    ) {
+      return <PiMoneyLight size={18} />;
+    }
+
+    if (name.includes('incentive') || name.includes('variable pay')) {
+      return <LuCircleDollarSign size={18} />;
+    }
+
+    if (name.includes('audit')) {
+      return <FileTextOutlined style={{ fontSize: 18 }} />;
+    }
+
+    if (name.includes('admin') || name.includes('configuration')) {
+      return <CiSettings size={18} />;
+    }
+
+    return <AppstoreOutlined style={{ fontSize: 18 }} />;
   };
 
   const handleGroupToggle = (group: any, checked: boolean) => {
@@ -261,7 +329,7 @@ const ListOfRoles = () => {
 
   const modalTitle = (
     <div
-      className="flex w-full justify-center items-center text-md font-extrabold"
+      className="flex w-full justify-start items-center text-base font-bold"
       id="settings-role-modal-title"
       data-cy="settings-role-modal-title"
     >
@@ -272,71 +340,82 @@ const ListOfRoles = () => {
   const renderStepContent = () => {
     if (currentStep === 0) {
       return (
-        <div
-          className="grid gap-4 pt-2 p-4"
-          id="settings-role-form-wrapper"
-          data-cy="settings-role-form-wrapper"
-        >
-          {currentModal === 'editRoleModal' && (
-            <Form.Item name="id" hidden>
-              <Input type="hidden" data-cy="settings-role-id-input" />
+        <div data-cy="settings-role-form-step-0">
+          <div
+            className="grid gap-4 p-4 border border-[#d9d9d9] rounded-md"
+            id="settings-role-form-wrapper"
+            data-cy="settings-role-form-wrapper"
+          >
+            {currentModal === 'editRoleModal' && (
+              <Form.Item name="id" hidden>
+                <Input type="hidden" data-cy="settings-role-id-input" />
+              </Form.Item>
+            )}
+            <Form.Item
+              name="name"
+              label={
+                <p
+                  className="text-sm font-normal text-black mb-1"
+                  id="settings-role-name-label"
+                  data-cy="settings-role-name-label"
+                >
+                  Name{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`settings-role-name-required`}
+                  >
+                    *
+                  </span>
+                </p>
+              }
+              rules={[{ required: true, message: 'Enter role name!' }]}
+              id="settings-role-name-item"
+              data-cy="settings-role-name-item"
+            >
+              <Input
+                id="roleNameId"
+                className="h-10 text-gray-600"
+                placeholder="Enter role name"
+                data-cy="settings-role-name-input"
+              />
             </Form.Item>
-          )}
-          <Form.Item
-            name="name"
-            label={
-              <p
-                className="text-xs font-bold text-gray-600"
-                id="settings-role-name-label"
-                data-cy="settings-role-name-label"
-              >
-                Name
-              </p>
-            }
-            rules={[{ required: true, message: 'Enter group name!' }]}
-            id="settings-role-name-item"
-            data-cy="settings-role-name-item"
-          >
-            <Input
-              id="roleNameId"
-              className="h-10 text-xs text-gray-600"
-              placeholder="Input"
-              data-cy="settings-role-name-input"
-            />
-          </Form.Item>
-          <Form.Item
-            name="description"
-            label={
-              <p
-                className="text-xs font-bold text-gray-600"
-                id="settings-role-description-label"
-                data-cy="settings-role-description-label"
-              >
-                Description
-              </p>
-            }
-            rules={[{ required: true, message: 'Enter role description!' }]}
-            id="settings-role-description-item"
-            data-cy="settings-role-description-item"
-          >
-            <Input.TextArea
-              id="roleDescriptionId"
-              className="text-xs text-gray-600 resize-y"
-              placeholder="Textarea"
-              rows={3}
-              data-cy="settings-role-description-input"
-            />
-          </Form.Item>
+            <Form.Item
+              name="description"
+              label={
+                <p
+                  className="text-sm font-normal text-black mb-1"
+                  id="settings-role-description-label"
+                  data-cy="settings-role-description-label"
+                >
+                  Description{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy={`settings-role-description-required`}
+                  >
+                    *
+                  </span>
+                </p>
+              }
+              rules={[{ required: true, message: 'Enter role description!' }]}
+              id="settings-role-description-item"
+              data-cy="settings-role-description-item"
+            >
+              <Input.TextArea
+                id="roleDescriptionId"
+                className=" text-gray-600 resize-y"
+                placeholder="Enter role description"
+                rows={3}
+                data-cy="settings-role-description-input"
+              />
+            </Form.Item>
+          </div>
         </div>
       );
     }
 
     if (currentStep === 1) {
       return (
-        <div
-          className="pt-2 p-4"
-          data-cy="settings-role-select-permissions-step"
-        >
+        <div className="pt-2" data-cy="settings-role-select-permissions-step">
           <div
             data-cy="settings-role-selected-permissions-container"
             className="mb-3"
@@ -367,12 +446,19 @@ const ListOfRoles = () => {
                 )}
               </div>
             )}
-            <AntInput
+            <Input
               placeholder="Search Permission"
-              suffix={<SearchOutlined className="text-gray-400" />}
+              className="w-full pr-0 py-0 mb-4"
+              suffix={
+                <div
+                  data-cy="settings-role-permission-search-icon"
+                  className="text-gray-400 border-l border-gray-300 px-2 py-1"
+                >
+                  <SearchOutlined />
+                </div>
+              }
               value={permissionSearch}
               onChange={(e) => setPermissionSearch(e.target.value)}
-              className="rounded-lg mb-3"
               data-cy="settings-role-permission-search"
             />
             <div
@@ -433,7 +519,7 @@ const ListOfRoles = () => {
             </div>
           </div>
           <div
-            className="max-h-96 overflow-y-auto"
+            className="max-h-96 overflow-y-auto scrollbar-hide"
             id="settings-role-permission-collapse"
             data-cy="settings-role-permission-collapse"
           >
@@ -470,7 +556,7 @@ const ListOfRoles = () => {
                       >
                         <div
                           data-cy="settings-role-permission-group-icon-container"
-                          className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0"
+                          className="w-8 h-8 rounded flex items-center justify-center bg-gray-100 shrink-0 font-normal"
                         >
                           {getGroupIcon(group.name)}
                         </div>
@@ -480,7 +566,7 @@ const ListOfRoles = () => {
                         >
                           <p
                             data-cy="settings-role-permission-group-name"
-                            className="text-sm font-semibold text-gray-900 m-0"
+                            className="text-sm font-normal text-black m-0"
                           >
                             {group.name}
                           </p>
@@ -573,13 +659,18 @@ const ListOfRoles = () => {
 
     // Step 2: Finalize
     return (
-      <div
+      <Row
         data-cy="settings-role-finalize-content"
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 p-4"
+        gutter={[16, 16]}
+        justify="space-between"
       >
-        <div
+        <Col
+          lg={11}
+          xs={24}
+          sm={24}
+          md={11}
           data-cy="settings-role-finalize-form-content"
-          className="space-y-4"
+          className="border border-[#d9d9d9] rounded-md p-4 h-56"
         >
           <Form.Item
             name="name"
@@ -591,26 +682,30 @@ const ListOfRoles = () => {
                 Name
               </span>
             }
-            rules={[{ required: true, message: 'Enter group name!' }]}
+            rules={[{ required: true, message: 'Enter role name!' }]}
           >
             <Input
-              placeholder="Input"
+              placeholder="Enter role name"
               className="h-10"
               data-cy="settings-role-name-input-finalize"
             />
           </Form.Item>
           <Form.Item name="description" label="Description">
             <Input.TextArea
-              placeholder="Textarea"
+              placeholder="Enter role description"
               rows={3}
               className="resize-y"
               data-cy="settings-role-description-input-finalize"
             />
           </Form.Item>
-        </div>
-        <div
+        </Col>
+        <Col
+          lg={12}
+          xs={24}
+          sm={24}
+          md={12}
           data-cy="settings-role-selected-permissions-content"
-          className="border border-gray-200 rounded-lg p-4 bg-gray-50/50"
+          className="border border-[#d9d9d9] rounded-md px-2 py-1"
         >
           <div
             data-cy="settings-role-selected-permissions-header-container"
@@ -618,54 +713,36 @@ const ListOfRoles = () => {
           >
             <span
               data-cy="settings-role-selected-permissions-label"
-              className="font-semibold text-gray-800"
+              className="font-normal text-[#4d4d4d] text-sm"
             >
               Selected Permissions
             </span>
-            <span
-              className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700"
+            <Tag
+              className="px-2.5 py-0.5 rounded-sm text-xs font-normal text-[#818181] border border-[#e4e4e4]"
               data-cy="settings-role-selected-count"
             >
               {selectedPermissionIds.length} Selected
-            </span>
+            </Tag>
           </div>
           <div
             data-cy="settings-role-selected-permissions-list-container"
-            className="max-h-[220px] overflow-y-auto space-y-3"
+            className="space-y-2 max-h-72 overflow-y-auto pr-1 scrollbar-hide"
           >
             {Object.entries(selectedPermissionsGrouped).map(
               ([groupId, perms]) => (
                 <div
                   data-cy="settings-role-selected-permission-group-item"
                   key={groupId}
-                  className="border border-gray-200 rounded-lg bg-white px-3 py-3"
                 >
-                  <div
-                    data-cy="settings-role-selected-permission-group-header-container"
-                    className="flex items-center gap-3 mb-3"
-                  >
-                    <span
-                      data-cy="settings-role-selected-permission-group-icon-container"
-                      className="flex h-7 w-7 items-center justify-center rounded bg-gray-100"
-                    >
-                      <MdOutlineGrid4X4 className="w-4 h-4 text-gray-600" />
-                    </span>
-                    <span
-                      data-cy="settings-role-selected-permission-group-name"
-                      className="text-sm font-semibold text-gray-800"
-                    >
-                      {groupIdToName[groupId] ?? 'Other'}
-                    </span>
-                  </div>
                   <ul
                     data-cy="settings-role-selected-permission-group-list"
                     className="space-y-2"
                   >
                     {perms.map((p) => (
-                      <li
+                      <Tag
                         data-cy="settings-role-selected-permission-item"
                         key={p.id}
-                        className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5"
+                        className="flex items-center justify-between text-sm py-1 px-2 rounded border border-[#e4e4e4] text-[#818181] font-normal"
                       >
                         <span
                           data-cy="settings-role-selected-permission-name"
@@ -682,7 +759,7 @@ const ListOfRoles = () => {
                         >
                           ×
                         </button>
-                      </li>
+                      </Tag>
                     ))}
                   </ul>
                 </div>
@@ -697,8 +774,8 @@ const ListOfRoles = () => {
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </Col>
+      </Row>
     );
   };
 
@@ -709,14 +786,14 @@ const ListOfRoles = () => {
 
     return (
       <div
-        className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6 border-t border-gray-100 mt-4"
+        className="flex justify-end w-full bg-[#fff] gap-3  mt-4"
         id="settings-role-form-actions"
         data-cy="settings-role-form-actions"
       >
         {isStep0 && (
           <Button
             id="cancelButtonForRole"
-            className="px-6 py-3 text-xs font-bold"
+            className="h-8 font-normal border border-[#d9d9d9]"
             onClick={handleCancel}
             data-cy="settings-role-cancel-btn"
           >
@@ -725,7 +802,7 @@ const ListOfRoles = () => {
         )}
         {(isStep1 || isStep2) && (
           <Button
-            className="px-6 py-3 text-xs font-bold"
+            className="h-8 font-normal border border-[#d9d9d9]"
             onClick={handleBack}
             data-cy="settings-role-back-btn"
           >
@@ -735,7 +812,7 @@ const ListOfRoles = () => {
         {isStep0 || isStep1 ? (
           <Button
             type="primary"
-            className="px-6 py-3 text-xs font-bold"
+            className="h-8 font-normal"
             onClick={handleContinue}
             data-cy="settings-role-continue-btn"
           >
@@ -744,7 +821,7 @@ const ListOfRoles = () => {
         ) : (
           <Button
             id="roleAction"
-            className="px-6 py-3 text-xs font-bold"
+            className="h-8 font-normal"
             type="primary"
             loading={
               createRoleMutation.isLoading || updateRoleMutation.isLoading
@@ -780,13 +857,31 @@ const ListOfRoles = () => {
         data-cy="settings-role-modal"
         zIndex={10002}
         styles={{ body: { padding: 0 } }}
+        centered
       >
+        <style data-cy="user-sidebar-steps-style">{`
+              /* Keep step labels on a single line */
+              .user-sidebar-steps .ant-steps-item-title {
+                white-space: nowrap !important;
+              }
+
+              /* Active and completed steps: primary blue (match screenshot) */
+              .user-sidebar-steps .ant-steps-item-process .ant-steps-item-title,
+              .user-sidebar-steps .ant-steps-item-finish .ant-steps-item-title {
+                color: #1e40af !important;
+              }
+
+              /* Upcoming steps: light gray */
+              .user-sidebar-steps .ant-steps-item-wait .ant-steps-item-title {
+                color: #d9d9d9 !important;
+              }
+            `}</style>
         <Steps
           responsive={false}
           labelPlacement="vertical"
           current={currentStep}
-          size="small"
-          className="mb-6"
+          progressDot
+          className="user-sidebar-steps max-w-6xl hidden sm:flex my-5"
           items={ROLE_STEP_TITLES}
           data-cy="settings-role-steps"
         />
@@ -796,13 +891,9 @@ const ListOfRoles = () => {
           name="basic"
           layout="vertical"
           data-cy="settings-role-form"
+          requiredMark={false}
         >
-          <div
-            data-cy="settings-role-form-content"
-            className="border border-gray-200 rounded-md"
-          >
-            {renderStepContent()}
-          </div>
+          <div data-cy="settings-role-form-content">{renderStepContent()}</div>
           {renderFooter()}
         </Form>
       </Modal>

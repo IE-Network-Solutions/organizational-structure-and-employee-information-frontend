@@ -126,7 +126,7 @@ const OkrTypePage = () => {
 
       {/* Description */}
       <p
-        className="text-[14px] text-[#595959] text-center mb-10 max-w-2xl mx-auto"
+        className="text-[14px] text-[rgba(0,0,0,0.7)] text-center mb-10 max-w-2xl mx-auto"
         data-cy="okr-type-description"
         id="okr-type-description"
       >
@@ -137,7 +137,7 @@ const OkrTypePage = () => {
 
       {/* Radio Button Cards */}
       <div
-        className="flex flex-col lg:flex-row items-center justify-center gap-6 mb-12 px-4"
+        className="flex flex-col lg:flex-row items-center justify-center gap-6 mb-2 px-4"
         data-cy="okr-type-cards-container"
         id="okr-type-cards-container"
       >
@@ -146,10 +146,10 @@ const OkrTypePage = () => {
           onClick={() =>
             !(isUpdating || isSwitching) && handleRadioChange('Advanced')
           }
-          className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
+          className={`relative cursor-pointer border rounded-[8px] py-3 px-4 flex flex-col gap-2 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isAdvancedActive
-              ? 'border-[#2b54ad] bg-white shadow-md'
-              : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
+              ? 'border-[#1E40AF] bg-white'
+              : 'border-[#D9D9D9] bg-white'
           } ${isUpdating || isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
           data-cy="okr-type-advanced-card"
           id="okr-type-advanced-card"
@@ -173,7 +173,7 @@ const OkrTypePage = () => {
             </h3>
           </div>
           <p
-            className="text-[14px] text-[#595959] leading-relaxed m-0"
+            className="text-[14px] text-[rgba(0,0,0,0.45)] leading-relaxed m-0"
             data-cy="okr-type-advanced-card-description"
           >
             Advanced OKR allows employees to define Objectives and Key Results
@@ -187,10 +187,10 @@ const OkrTypePage = () => {
           onClick={() =>
             !(isUpdating || isSwitching) && handleRadioChange('Basic')
           }
-          className={`relative cursor-pointer border-2 rounded-[8px] p-8 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
+          className={`relative cursor-pointer border rounded-[8px] py-3 px-4 flex flex-col gap-2 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
             isBasicActive
-              ? 'border-[#2b54ad] bg-white shadow-md'
-              : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
+              ? 'border-[#1E40AF] bg-white'
+              : 'border-[#D9D9D9] bg-white'
           } ${isUpdating || isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
           data-cy="okr-type-basic-card"
           id="okr-type-basic-card"
@@ -214,7 +214,7 @@ const OkrTypePage = () => {
             </h3>
           </div>
           <p
-            className="text-[14px] text-[#595959] leading-relaxed m-0"
+            className="text-[14px] text-[rgba(0,0,0,0.45)] leading-relaxed m-0"
             data-cy="okr-type-basic-card-description"
           >
             Basic OKR allows employees to define Objectives and Key Results for
