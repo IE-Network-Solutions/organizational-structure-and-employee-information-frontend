@@ -5,7 +5,6 @@ import {
   Card,
   Divider,
   Dropdown,
-  Modal,
   notification,
   Select,
   Table,
@@ -59,7 +58,7 @@ const PayrollReconcilation = () => {
   const { pageSize: employeePageSize, currentPage: employeeCurrentPage } =
     useEmployeeStore();
   const [activeTab, setActiveTab] = useState('1');
-  const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
+  const [isApproveDropdownOpen, setIsApproveDropdownOpen] = useState(false);
   const [isShowMobileFilters, setIsShowMobileFilters] = useState(false);
 
   const authStore = useAuthenticationStore.getState();
@@ -531,7 +530,7 @@ const PayrollReconcilation = () => {
     };
 
     const handleSuccess = () => {
-      setIsApproveModalOpen(false);
+      setIsApproveDropdownOpen(false);
       refetchPendingApprovals();
       refetchPayrollApprovalByPayPeriod();
       refetch();
@@ -692,19 +691,73 @@ const PayrollReconcilation = () => {
                 {!isMobile && 'Export'}
               </span>
             </Button>
-            {true && (
-              <Button
-                id="payroll-approve-button"
-                data-cy="payroll-approve-button"
-                type="primary"
-                icon={<DoneOutlineIcon className="text-[10px]" />}
-                className="h-8 w-8 sm:w-auto sm:px-4"
-                onClick={() => setIsApproveModalOpen(true)}
-                loading={isApproving || isLastApproving}
-                size="small"
+
+            {pendingApprovals && (
+              <Dropdown
+                trigger={['click']}
+                open={isApproveDropdownOpen}
+                onOpenChange={setIsApproveDropdownOpen}
+                placement="bottomRight"
+                getPopupContainer={(triggerNode) =>
+                  triggerNode.parentElement || document.body
+                }
+                dropdownRender={() => (
+                  <div
+                    data-cy="payroll-approve-dropdown"
+                    className="w-[260px] rounded-lg border border-[#f0f0f0] bg-white p-3 shadow-lg"
+                  >
+                    <div
+                      data-cy="payroll-approve-dropdown-title"
+                      className="text-base font-semibold text-[#262626]"
+                    >
+                      Approve Payroll
+                    </div>
+                    <div
+                      data-cy="payroll-approve-dropdown-description"
+                      className="mt-1 text-xs text-[#595959]"
+                    >
+                      Do you wish to approve this payroll?
+                    </div>
+                    <div
+                      data-cy="payroll-approve-dropdown-actions"
+                      className="mt-3 flex justify-end gap-2"
+                    >
+                      <Button
+                        id="payroll-approve-dropdown-cancel"
+                        data-cy="payroll-approve-dropdown-cancel"
+                        size="small"
+                        onClick={() => setIsApproveDropdownOpen(false)}
+                        className="h-8 border-[1px] border-[#d9d9d9] font-normal"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        id="payroll-approve-dropdown-approve"
+                        data-cy="payroll-approve-dropdown-approve"
+                        type="primary"
+                        size="small"
+                        onClick={handleApprovePayroll}
+                        loading={isApproving || isLastApproving}
+                        className="h-8 font-normal"
+                      >
+                        Approve
+                      </Button>
+                    </div>
+                  </div>
+                )}
               >
-                {!isMobile && 'Approve Payroll'}
-              </Button>
+                <Button
+                  id="payroll-approve-button"
+                  data-cy="payroll-approve-button"
+                  type="primary"
+                  icon={<DoneOutlineIcon className="text-[10px]" />}
+                  className="h-8 w-8 sm:w-auto sm:px-4"
+                  loading={isApproving || isLastApproving}
+                  size="small"
+                >
+                  {!isMobile && 'Approve Payroll'}
+                </Button>
+              </Dropdown>
             )}
           </div>
         </div>
@@ -901,60 +954,6 @@ const PayrollReconcilation = () => {
         tabBarStyle={{ textAlign: 'center' }}
         data-cy="employee-detail-tabs"
       />
-      <Modal
-        data-cy="payroll-approve-modal"
-        open={isApproveModalOpen}
-        onCancel={() => setIsApproveModalOpen(false)}
-        footer={null}
-        centered
-        width={600}
-        className="p-6"
-      >
-        <div
-          id="payroll-approve-modal-content"
-          data-cy="payroll-approve-modal-content"
-          className="flex flex-col items-center justify-center gap-4"
-        >
-          <h2
-            id="payroll-approve-modal-title"
-            data-cy="payroll-approve-modal-title"
-            className="text-2xl font-bold"
-          >
-            Approve Payroll
-          </h2>
-          <p
-            id="payroll-approve-modal-description"
-            data-cy="payroll-approve-modal-description"
-            className="text-lg text-gray-600"
-          >
-            Do you wish to Approve this payroll
-          </p>
-          <div
-            id="payroll-approve-modal-footer"
-            data-cy="payroll-approve-modal-footer"
-            className="flex gap-4 w-full justify-center mt-4"
-          >
-            <Button
-              id="payroll-approve-modal-cancel"
-              data-cy="payroll-approve-modal-cancel"
-              className="w-full h-12 text-lg font-semibold"
-              onClick={() => setIsApproveModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              id="payroll-approve-modal-approve"
-              data-cy="payroll-approve-modal-approve"
-              type="primary"
-              className="w-full h-12 text-lg font-semibold bg-primary"
-              onClick={handleApprovePayroll}
-              loading={isApproving || isLastApproving}
-            >
-              Approve
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

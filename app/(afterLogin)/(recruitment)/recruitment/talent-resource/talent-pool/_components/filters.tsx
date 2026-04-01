@@ -9,7 +9,7 @@ import {
   Row,
   Select,
 } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import {
   useGetStages,
@@ -17,7 +17,7 @@ import {
 } from '@/store/server/features/recruitment/candidate/queries';
 import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { DATE_FORMAT } from '@/utils/constants';
 
 const { RangePicker } = DatePicker;
@@ -67,7 +67,8 @@ const Filters = () => {
   };
 
   const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
-  const inputClassName = 'w-full h-10 rounded-md border-gray-300';
+  const inputClassName =
+    'w-full h-10 rounded-md border-gray-300 scrollbar-none';
 
   const handleResetFilters = () => {
     setSearchParams('date_range', '');
@@ -165,6 +166,7 @@ const Filters = () => {
                     value={category?.id}
                     id={`talent-acquisition-talent-pool-filter-option-category-${category?.id}`}
                     data-cy={`talent-acquisition-talent-pool-filter-option-category-${category?.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF] scrollbar-none"
                   >
                     {category?.title}
                   </Option>
@@ -193,14 +195,15 @@ const Filters = () => {
             >
               {stageList &&
                 stageList?.items?.map((item: any) => (
-                  <Option
+                  <Select.Option
                     key={item?.id}
                     value={item?.id}
                     id={`talent-acquisition-talent-pool-filter-option-stage-${item?.id}`}
                     data-cy={`talent-acquisition-talent-pool-filter-option-stage-${item?.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
                   >
                     {item?.title}
-                  </Option>
+                  </Select.Option>
                 ))}
             </Select>
           </Col>
@@ -305,18 +308,19 @@ const Filters = () => {
       {/* Footer */}
       <div
         data-cy="talent-acquisition-talent-pool-filter-footer"
-        className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2"
+        className="px-6 py-4 flex justify-end gap-2"
       >
         <Button
+          type="default"
           onClick={handleResetFilters}
-          className="h-10 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
+          className="h-8 border-[1px] border-[#d9d9d9] font-normal"
           data-cy="talent-acquisition-talent-pool-filter-reset"
         >
           Reset
         </Button>
         <Button
           type="primary"
-          className="h-10 px-4 rounded-md"
+          className="h-8 font-normal"
           onClick={() => setFilterDropdownOpen(false)}
           data-cy="talent-acquisition-talent-pool-filter-save"
         >
@@ -332,21 +336,26 @@ const Filters = () => {
       data-cy="talent-acquisition-talent-pool-filter-div-container"
       className="flex items-center justify-between py-2"
     >
-      <div
-        data-cy="talent-acquisition-talent-pool-filter-input-search-container"
-        className="w-1/2"
-      >
+      <div data-cy="talent-acquisition-talent-pool-filter-input-search-container">
         <Input
           id={`inputSearchByNameTop${searchParams?.search || ''}`}
           data-cy="talent-acquisition-talent-pool-filter-input-search"
           placeholder="Search by name"
           allowClear
-          className="h-10 text-md placeholder:text-gray-400"
+          className="h-8 max-w-[300px]"
           value={searchParams?.search || ''}
           onChange={(e) => {
             handleSearchCandidate(e.target.value.trim(), 'search');
             setCurrentPage(1);
           }}
+          suffix={
+            <div
+              data-cy="talent-acquisition-talent-pool-filter-input-search-suffix-icon-div"
+              className="text-gray-400 border-l p-2"
+            >
+              <SearchOutlined />
+            </div>
+          }
         />
       </div>
 
@@ -358,8 +367,8 @@ const Filters = () => {
         dropdownRender={() => filterDropdownContent}
       >
         <Button
-          className="border border-[#d9d9d9] text-gray-600 text-sm"
-          icon={<FilterAltIcon fontSize="small" className="text-gray-600" />}
+          className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
+          icon={<FilterAltOutlinedIcon className="text-[#374151] text-base" />}
         >
           {!isMobile && 'Filter'}
         </Button>

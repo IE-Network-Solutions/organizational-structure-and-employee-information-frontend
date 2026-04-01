@@ -11,8 +11,7 @@ import {
 import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { EllipsisOutlined } from '@ant-design/icons';
-import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 
 function Page() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,12 +68,12 @@ function Page() {
             data-cy={`okr-criteria-card-edit-access-guard-${item.key}`}
           >
             <div
-              className="flex items-center gap-3 py-1"
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
               onClick={() => handleEditClick(item.key)}
               id={`okr-criteria-card-edit-menu-item-${item.key}`}
               data-cy={`okr-criteria-card-edit-menu-item-${item.key}`}
             >
-              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <MdOutlineEdit className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-criteria-card-edit-text-${item.key}`}
@@ -96,12 +95,12 @@ function Page() {
             data-cy={`okr-criteria-card-delete-access-guard-${item.key}`}
           >
             <div
-              className="flex items-center gap-3 py-1 text-red-600"
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
               onClick={() => handleDelete(item.key)}
               id={`okr-criteria-card-delete-menu-item-${item.key}`}
               data-cy={`okr-criteria-card-delete-menu-item-${item.key}`}
             >
-              <MdDeleteForever className="text-xl" />
+              <MdDeleteOutline className="text-xl" />
               <span
                 className="text-[15px]"
                 data-cy={`okr-criteria-card-delete-text-${item.key}`}
@@ -147,17 +146,17 @@ function Page() {
             {assignedCriteriaData?.map((item: any) => (
               <div
                 key={item.key}
-                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                className="bg-white border border-[#d9d9d9] rounded-[8px] py-3 px-4 min-h-[78px] hover:shadow-sm transition-shadow relative flex flex-col justify-between"
                 id={`okr-criteria-card-${item.key}`}
                 data-cy={`okr-criteria-card-${item.key}`}
               >
                 {/* Top Row: Name and Menu */}
                 <div
-                  className="flex justify-between items-start mb-6"
+                  className="flex justify-between items-start"
                   data-cy={`okr-criteria-card-header-${item.key}`}
                 >
                   <p
-                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    className="text-[14px] font-normal text-black flex-1 mr-2 leading-tight"
                     id={`okr-criteria-card-name-${item.key}`}
                     data-cy={`okr-criteria-card-name-${item.key}`}
                   >
@@ -171,13 +170,43 @@ function Page() {
                       menu={{ items: getMenuItems(item) }}
                       trigger={['click']}
                       placement="bottomRight"
+                      overlayClassName="okr-settings-menu-dropdown"
                     >
                       <button
-                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-criteria-card-menu-button-${item.key}`}
                       >
-                        <EllipsisOutlined className="text-lg" />
+                        <svg
+                          width="14"
+                          height="4"
+                          viewBox="0 0 14 4"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          data-cy={`okr-criteria-card-menu-svg-${item.key}`}
+                        >
+                          <circle
+                            cx="2.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-1-${item.key}`}
+                          />
+                          <circle
+                            cx="7"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-2-${item.key}`}
+                          />
+                          <circle
+                            cx="11.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-3-${item.key}`}
+                          />
+                        </svg>
                       </button>
                     </Dropdown>
                   </div>
@@ -189,14 +218,14 @@ function Page() {
                   data-cy={`okr-criteria-card-footer-${item.key}`}
                 >
                   <Tag
-                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
+                    className="h-[22px] px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0 inline-flex items-center"
                     id={`okr-criteria-card-percentage-${item.key}`}
                     data-cy={`okr-criteria-card-percentage-${item.key}`}
                   >
                     Total %: {item.totalPercentage.replace('%', '')}
                   </Tag>
                   <Tag
-                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
+                    className="h-[22px] px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0 inline-flex items-center"
                     id={`okr-criteria-card-count-${item.key}`}
                     data-cy={`okr-criteria-card-count-${item.key}`}
                   >

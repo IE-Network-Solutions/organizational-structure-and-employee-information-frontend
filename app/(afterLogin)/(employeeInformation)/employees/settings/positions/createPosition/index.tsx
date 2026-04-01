@@ -83,6 +83,7 @@ const CreatePosition: React.FC = () => {
         id={`settings-position-create-form-${drawerSlug}`}
         data-cy={`settings-position-create-form-${drawerSlug}`}
         className="p-4"
+        requiredMark={false}
       >
         <Form.Item
           id="positionTitle"
@@ -92,7 +93,13 @@ const CreatePosition: React.FC = () => {
               className="text-sm my-2 font-normal text-black"
               data-cy="create-position-name-label"
             >
-              Position Name
+              Position Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`settings-position-create-name-required-${drawerSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -121,7 +128,13 @@ const CreatePosition: React.FC = () => {
               id="settings-position-create-description-label"
               data-cy="settings-position-create-description-label"
             >
-              Position Description
+              Position Description{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`settings-position-create-description-required-${drawerSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           rules={[
@@ -147,7 +160,7 @@ const CreatePosition: React.FC = () => {
           data-cy={`settings-position-create-footer-${drawerSlug}`}
         >
           <Button
-            className="h-8 text-base"
+            className="h-8 font-normal"
             type="primary"
             onClick={() => form.submit()}
             id={`settings-position-create-submit-${drawerSlug}`}

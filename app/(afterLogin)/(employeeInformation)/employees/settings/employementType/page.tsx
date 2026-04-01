@@ -1,7 +1,8 @@
 'use client';
 import { Button, Card, Row, Col, Dropdown, MenuProps, Typography } from 'antd';
 import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
@@ -127,9 +128,9 @@ const EmploymentType = () => {
                         id={`employment-type-edit-menu-item-${record.__slug}`}
                         data-cy={`employment-type-edit-menu-item-${record.__slug}`}
                       >
-                        <Pencil size={14} className="text-gray-600" />
+                        <EditOutlinedIcon />
                         <span data-cy="settings-employment-type-edit-menu-item-label">
-                          Edit
+                          Edit Employment Type
                         </span>
                       </div>
                     </AccessGuard>
@@ -149,14 +150,13 @@ const EmploymentType = () => {
                         id={`employment-type-delete-menu-item-${record.__slug}`}
                         data-cy={`employment-type-delete-menu-item-${record.__slug}`}
                       >
-                        <Trash2 size={14} />
+                        <DeleteOutlineOutlinedIcon />
                         <span data-cy="settings-employment-type-delete-menu-item-label">
-                          Delete
+                          Delete Employment Type
                         </span>
                       </div>
                     </AccessGuard>
                   ),
-                  danger: true,
                 },
               ];
 
@@ -195,12 +195,13 @@ const EmploymentType = () => {
                           placement="bottomRight"
                         >
                           <Button
-                            type="text"
-                            icon={<MoreHorizIcon />}
-                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
+                            type="default"
+                            className="w-8 h-8 border border-[#D9D9D9]"
                             id={`employment-type-menu-btn-${record.__slug}`}
                             data-cy={`employment-type-menu-btn-${record.__slug}`}
-                          />
+                          >
+                            <MoreHorizIcon />
+                          </Button>
                         </Dropdown>
                       </div>
                     }
