@@ -22,8 +22,8 @@ interface HistoryTableFilterProps {
 const selectFieldClassName =
   'w-full [&_.ant-select-selector]:min-h-[44px] [&_.ant-select-selector]:rounded-lg [&_.ant-select-selector]:border-gray-200 [&_.ant-select-selector]:bg-white [&_.ant-select-selection-placeholder]:text-gray-500 [&_.ant-select-selection-item]:text-gray-700';
 
-const rangePickerClassName =
-  'w-full min-h-[44px] rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+// const rangePickerClassName =
+//   'w-full min-h-[44px] rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
 
 const compositeSegmentPickerClassName =
   'w-full min-h-[44px] border-0 bg-transparent shadow-none rounded-none [&_.ant-picker]:border-0 [&_.ant-picker]:shadow-none [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
