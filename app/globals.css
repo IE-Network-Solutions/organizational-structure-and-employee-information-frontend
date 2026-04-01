@@ -435,7 +435,7 @@ h6 {
 }
 
 .page-wrap {
-  @apply h-auto w-auto pr-6 pb-6 pl-3;
+  @apply h-auto w-auto pb-6;
 }
 
 .lesson-card .ant-collapse-content {

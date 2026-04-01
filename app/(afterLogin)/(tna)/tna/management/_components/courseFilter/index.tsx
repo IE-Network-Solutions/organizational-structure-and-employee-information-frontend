@@ -1,11 +1,8 @@
-import { Flex, Form, Input, Select, Tooltip } from 'antd';
+import { Form, Input } from 'antd';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
-import { formatToOptions } from '@/helpers/formatTo';
 import { IoSearch } from 'react-icons/io5';
 import { CommonObject } from '@/types/commons/commonObject';
 import { FC } from 'react';
-import { IoMdSwitch } from 'react-icons/io';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface CourseFilterProps {
   onChange: (value: CommonObject) => void;
@@ -14,118 +11,102 @@ interface CourseFilterProps {
 const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
   const { courseCategory } = useTnaManagementStore();
   const [form] = Form.useForm();
-  const { isMobile } = useIsMobile();
+
+  const selectedCategory = Form.useWatch('courseCategoryId', form);
 
   return (
     <Form
       form={form}
-      onFieldsChange={() => {
+      onValuesChange={() => {
         onChange(form.getFieldsValue());
       }}
       id="tnaCourseFilterFormId"
       data-cy="tna-course-filter-form"
+      className="w-full"
     >
-      <Flex
-        gap={16}
-        vertical={isMobile}
-        style={{ width: '100%' }}
-        id="tnaCourseFilterFlexId"
-        data-cy="tna-course-filter-flex"
+      <div
+        className="flex flex-col xl:flex-row justify-between xl:items-center gap-4 w-full"
+        data-cy="tna-course-filter-toolbar"
       >
-        {isMobile ? (
+        <Form.Item
+          name="search"
+          className="mb-0"
+          id="tnaCourseFilterSearchItemId"
+          data-cy="tna-course-filter-search-item"
+        >
           <div
-            className="flex gap-2"
-            id="tnaCourseFilterMobileId"
-            data-cy="tna-course-filter-mobile"
+            className="w-full xl:w-[319px] h-[32px] rounded-[8px] border border-[#D9D9D9] bg-[#ffffff] overflow-hidden flex items-center"
+            id="searchCourseFieldId"
+            data-cy="search-course-field"
           >
-            {/* Search input first on mobile */}
-            <Form.Item
-              name="search"
-              style={{ width: '100%' }}
-              id="tnaCourseFilterSearchItemMobileId"
-              data-cy="tna-course-filter-search-item-mobile"
+            <Input
+              bordered={false}
+              placeholder="Search"
+              className="h-full bg-transparent px-3 text-[16px] font-semibold text-[#262626] placeholder:text-[#BFBFBF] placeholder:font-semibold"
+              data-cy="tna-course-filter-search-input"
+            />
+            <div
+              className="w-[38px] h-full border-l border-[#D9D9D9] flex items-center justify-center shrink-0"
+              data-cy="tna-course-filter-search-icon-wrap"
             >
-              <Input
-                id="searchCourseFieldId"
-                data-cy="search-course-field"
-                className="control w-full m-0"
-                placeholder="Search Course"
-                allowClear
-                suffix={<IoSearch size={18} />}
+              <IoSearch
+                className="text-[#595959]"
+                size={18}
+                data-cy="tna-course-filter-search-icon"
               />
-            </Form.Item>
-
-            <Form.Item
-              name="courseCategoryId"
-              id="tnaCourseFilterCategoryItemMobileId"
-              data-cy="tna-course-filter-category-item-mobile"
-            >
-              <Tooltip
-                title="Filter by Category"
-                id="tnaCourseFilterCategoryTooltipMobileId"
-                data-cy="tna-course-filter-category-tooltip-mobile"
-              >
-                <Select
-                  className="control m-0 h-[54px] w-[48px] mx-auto p-0"
-                  placeholder=""
-                  dropdownMatchSelectWidth={false}
-                  id="tnaCourseFilterCategorySelectMobileId"
-                  data-cy="tna-course-filter-category-select-mobile"
-                  suffixIcon={
-                    <div
-                      className="flex items-center justify-center w-full h-full"
-                      id="tnaCourseFilterCategoryIconMobileId"
-                      data-cy="tna-course-filter-category-icon-mobile"
-                    >
-                      <IoMdSwitch
-                        size={20}
-                        data-cy="tna-course-filter-category-icon-mobile-icon"
-                        id="tnaCourseFilterCategoryIconMobileIconId"
-                      />
-                    </div>
-                  }
-                  allowClear
-                  options={formatToOptions(courseCategory, 'title', 'id')}
-                />
-              </Tooltip>
-            </Form.Item>
+            </div>
           </div>
-        ) : (
-          <>
-            {/* Normal order on desktop */}
-            <Form.Item
-              name="courseCategoryId"
-              id="tnaCourseFilterCategoryItemId"
-              data-cy="tna-course-filter-category-item"
-            >
-              <Select
-                className="control w-full m-0"
-                allowClear
-                placeholder="By Category"
-                id="courseCategoryDropDownOptionId"
-                data-cy="course-category-dropdown-option"
-                options={formatToOptions(courseCategory, 'title', 'id')}
-              />
-            </Form.Item>
+        </Form.Item>
 
-            <Form.Item
-              name="search"
-              style={{ width: '100%' }}
-              id="tnaCourseFilterSearchItemId"
-              data-cy="tna-course-filter-search-item"
+        <Form.Item name="courseCategoryId" className="mb-0 hidden">
+          <Input />
+        </Form.Item>
+
+        <div
+          className="w-full xl:w-[430px] overflow-x-auto pb-1 xl:pb-0 scrollbar-hide"
+          id="tnaCourseFilterCategoriesId"
+          data-cy="tna-course-filter-categories-scroll"
+        >
+          <div
+            className="flex gap-2 items-center flex-nowrap min-w-max"
+            data-cy="tna-course-filter-categories-row"
+          >
+            <div
+              onClick={() => {
+                form.setFieldValue('courseCategoryId', undefined);
+                onChange(form.getFieldsValue());
+              }}
+              className={`cursor-pointer h-[30px] px-4 rounded-[6px] border text-[12px] leading-[28px] transition-colors whitespace-nowrap shrink-0 ${
+                !selectedCategory
+                  ? 'bg-[#ECECEC] border-[#D9D9D9] text-[#595959]'
+                  : 'bg-[#F5F5F5] border-[#D9D9D9] text-[#595959] hover:bg-[#F0F0F0]'
+              }`}
+              id="tnaCourseFilterCategoryAllId"
+              data-cy="tna-course-filter-category-all"
             >
-              <Input
-                id="searchCourseFieldId"
-                data-cy="search-course-field"
-                className="control w-full m-0"
-                placeholder="Search Course"
-                allowClear
-                suffix={<IoSearch size={18} />}
-              />
-            </Form.Item>
-          </>
-        )}
-      </Flex>
+              All
+            </div>
+            {courseCategory.map((cat) => (
+              <div
+                key={cat.id}
+                onClick={() => {
+                  form.setFieldValue('courseCategoryId', cat.id);
+                  onChange(form.getFieldsValue());
+                }}
+                className={`cursor-pointer h-[30px] px-4 rounded-[6px] border text-[12px] leading-[28px] transition-colors whitespace-nowrap shrink-0 ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#ECECEC] border-[#D9D9D9] text-[#595959]'
+                    : 'bg-[#F5F5F5] border-[#D9D9D9] text-[#595959] hover:bg-[#F0F0F0]'
+                }`}
+                id={`tnaCourseFilterCategory${cat.id}Id`}
+                data-cy={`tna-course-filter-category-${cat.id}`}
+              >
+                {cat.title}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </Form>
   );
 };
