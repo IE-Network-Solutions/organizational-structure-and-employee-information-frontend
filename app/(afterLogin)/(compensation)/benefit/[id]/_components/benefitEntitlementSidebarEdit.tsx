@@ -31,9 +31,13 @@ const payPeriodOptionFormat = (start: string, end: string) =>
   `${dayjs(start).format('MMM DD,YYYY')} - ${dayjs(end).format('MMM DD,YYYY')}`;
 type BenefitEntitlementProps = {
   title: string;
+  /** Deduction type detail (fixed deduction): labels use "deduction" instead of "benefit". */
+  forDeductionDetail?: boolean;
 };
 
-const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
+const BenefitEntitlementSideBarEdit = ({
+  forDeductionDetail = false,
+}: BenefitEntitlementProps) => {
   const {
     isBenefitEntitlementSidebarUpdateOpen,
     benefitData,
@@ -141,15 +145,9 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
             id="compensation-benefit-sidebar-edit-title"
             data-cy="compensation-benefit-sidebar-edit-title"
           >
-            Edit Benefit Entitlement
-            {title ? (
-              <span
-                className="ml-1 font-normal text-gray-600"
-                data-cy="compensation-benefit-sidebar-edit-title-benefit-name"
-              >
-                ({title})
-              </span>
-            ) : null}
+            {forDeductionDetail
+              ? 'Edit Deduction Entitlement'
+              : 'Edit Benefit Entitlement'}
           </span>
           <button
             type="button"
@@ -173,7 +171,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
         >
           <Button
             type="default"
-            className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
+            className="h-8 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
             loading={updateBenefitLoading}
             onClick={onClose}
             id="compensation-benefit-sidebar-edit-cancel-button"
@@ -183,7 +181,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
           </Button>
           <Button
             type="primary"
-            className="h-10 px-4 rounded-md text-sm font-normal"
+            className="h-8 px-4 rounded-md text-sm font-normal"
             loading={updateBenefitLoading}
             onClick={() => form.submit()}
             id="compensation-benefit-sidebar-edit-update-button"
@@ -199,7 +197,7 @@ const BenefitEntitlementSideBarEdit = ({ title }: BenefitEntitlementProps) => {
       mask={true}
       maskClosable={false}
       zIndex={10002}
-      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626]"
+      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
       classNames={{
         header:
           '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',

@@ -48,9 +48,9 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
       title={
         <span
           data-cy="talent-acquisition-talent-pool-drawer-title"
-          className=""
+          className="text-xl font-bold text-black"
         >
-          Add New Candidate
+          Add Candidate
         </span>
       }
       open={open}
@@ -59,24 +59,25 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         <div
           id="talent-acquisition-talent-pool-drawer-footer"
           data-cy="talent-acquisition-talent-pool-drawer-footer"
-          className="flex justify-end items-center space-x-5 p-2"
+          className="flex justify-end items-center gap-2 pb-6 sm:px-6"
         >
           <Button
+            type="default"
             id="talent-acquisition-talent-pool-button-cancel"
             data-cy="talent-acquisition-talent-pool-button-cancel"
             onClick={() => {
               form.resetFields();
               onClose();
             }}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white  h-8 hover:border-gray-500 border-gray-300 "
+            className="h-8 border-[1px] border-[#d9d9d9] font-normal"
           >
             Cancel
           </Button>
           <Button
+            type="primary"
             id="talent-acquisition-talent-pool-button-submit"
             data-cy="talent-acquisition-talent-pool-button-submit"
-            className="h-8"
-            type="primary"
+            className="h-8 font-normal"
             onClick={onSubmit}
           >
             Submit
@@ -84,14 +85,15 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
         </div>
       }
       zIndex={10002}
+      width={620}
     >
       <div
         data-cy="talent-acquisition-talent-pool-drawer-body"
-        className="py-10 px-6"
+        className="pt-10 sm:px-6"
       >
         <div
           data-cy="talent-acquisition-talent-pool-drawer-body-form"
-          className="border-2 border-[#d9d9d9] rounded-md py-4 px-2"
+          className="border-[1px] border-[#d9d9d9] rounded-lg py-4 px-4"
         >
           <Form
             id="talent-acquisition-talent-pool-form-add-candidate"
@@ -106,7 +108,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                 <span
                   id="talent-acquisition-talent-pool-form-label-candidate"
                   data-cy="talent-acquisition-talent-pool-form-label-candidate"
-                  className="text-md my-2 font-semibold text-gray-700"
+                  className="text-sm my-2 font-normal text-black"
                 >
                   Candidate
                 </span>
@@ -120,7 +122,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                 id="talent-acquisition-talent-pool-select-candidate"
                 data-cy="talent-acquisition-talent-pool-select-candidate"
                 placeholder="Select a candidate"
-                className="h-10"
+                className="h-8"
                 showSearch
                 allowClear
                 filterOption={(input, option) =>
@@ -135,6 +137,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                     value={candidate.id}
                     id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
                     data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
                   >
                     {candidate?.fullName}
                   </Select.Option>
@@ -145,7 +148,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
               label={
                 <span
                   data-cy="talent-acquisition-talent-pool-form-label-category"
-                  className="text-md my-2 font-semibold text-gray-700"
+                  className="text-sm my-2 font-normal text-black"
                 >
                   Category
                 </span>
@@ -157,7 +160,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                 id="talent-acquisition-talent-pool-select-category"
                 data-cy="talent-acquisition-talent-pool-select-category"
                 placeholder="Select a talent pool category"
-                className="h-10"
+                className="h-8"
                 showSearch
                 allowClear
                 filterOption={(input, option) =>
@@ -172,6 +175,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                     value={item?.id}
                     id={`talent-acquisition-talent-pool-option-category-${item.id}`}
                     data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
                   >
                     {item?.title}
                   </Select.Option>
@@ -182,7 +186,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
               label={
                 <span
                   data-cy="talent-acquisition-talent-pool-form-label-reason"
-                  className="text-md my-2 font-semibold text-gray-700"
+                  className="text-sm my-2 font-normal text-black"
                 >
                   Reason
                 </span>
@@ -194,6 +198,7 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
                 id="talent-acquisition-talent-pool-textarea-reason"
                 data-cy="talent-acquisition-talent-pool-textarea-reason"
                 placeholder="Reason for selecting candidate"
+                className="h-14"
               />
             </Form.Item>
           </Form>

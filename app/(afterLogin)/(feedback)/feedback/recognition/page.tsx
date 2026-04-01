@@ -10,10 +10,10 @@ import RecognitionStatsCards from './_components/RecognitionStatsCards';
 import { Breadcrumb, Card, Empty, Input, Skeleton } from 'antd';
 import React from 'react';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
-import { IoSearchOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MdOutlineEmojiEvents } from 'react-icons/md';
+import { SearchOutlined } from '@ant-design/icons';
 
 function Page() {
   const navigate = useRouter();
@@ -29,7 +29,6 @@ function Page() {
     useGetRecognitionTypeParentWithChildren(searchCategory, pageSize, current);
   const { data: recognitionTypeDashboardStats, isLoading: isStatsLoading } =
     useGetRecognitionTypeDashboardStats();
-
   return (
     <div className="s" data-cy="recognition-page" id="recognitionPage">
       <div data-cy="recognition-page-header-block">
@@ -92,9 +91,15 @@ function Page() {
             allowClear
             size="large"
             suffix={
-              // <div className="border-l border-gray-200 flex items-center justify-center h-8">
-              <IoSearchOutline />
-              // </div>
+              <div
+                data-cy="recognition-search-category-input-suffix"
+                className="border-l border-gray-200 flex items-center justify-center h-8"
+              >
+                <SearchOutlined
+                  data-cy="recognition-search-category-input-suffix-icon"
+                  className="text-gray-400 ml-3"
+                />
+              </div>
             }
             className="w-full rounded-md h-8 md:w-[300px]"
             data-cy="recognition-search-category-input"

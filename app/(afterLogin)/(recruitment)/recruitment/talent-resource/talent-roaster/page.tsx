@@ -109,7 +109,6 @@ const TalentRoasterPage = () => {
     <div
       id="talent-acquisition-talent-roaster-page-div-container"
       data-cy="talent-acquisition-talent-roaster-page-div-container"
-      className="h-auto w-full bg-white"
     >
       <div
         id="talent-acquisition-talent-roaster-page-div-content"

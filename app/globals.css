@@ -181,6 +181,20 @@
   /* Safari and Chrome */
 }
 
+/* Stronger hide on small viewports (Ant Design modal body, iOS) */
+@media (max-width: 639px) {
+  .hide-scrollbar-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar-mobile::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
+}
+
 /* Leaflet Map Styles */
 .leaflet-container {
   z-index: 1;
@@ -1709,4 +1723,15 @@ h6 {
     left: auto !important;
     right: 12px !important;
   }
+}
+
+/* OKR settings dropdown menu (Edit OKR / Delete OKR) */
+.okr-settings-menu-dropdown .ant-dropdown-menu-item {
+  padding: 0 !important;
+  height: 32px !important;
+  width: 145px !important;
+}
+.okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
+  padding: 0 !important;
+  margin: 0 !important;
 }
