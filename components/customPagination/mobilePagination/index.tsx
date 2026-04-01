@@ -11,6 +11,7 @@ interface CustomPaginationProps {
   onShowSizeChange?: (current: number, size: number) => void;
   id?: string;
   'data-cy'?: string;
+  className?: string;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
@@ -75,7 +76,11 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   const visiblePageItems = getVisiblePageItems();
 
   return (
-    <div id={id} data-cy={dataCy} className="flex w-full px-2 py-2 rounded-lg">
+    <div
+      id={id}
+      data-cy={dataCy}
+      className={`flex w-full shrink-0 px-2 py-2 rounded-lg ${className ?? ''}`}
+    >
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
         className="flex items-center justify-between gap-2 w-full"

@@ -31,6 +31,16 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
   // Exact match
   if (routePattern === pathname) return true;
 
+  // Conversation: surveys and category list live under /feedback/categories — keep nav item active
+  if (routePattern === '/feedback/conversation') {
+    if (
+      pathname === '/feedback/categories' ||
+      pathname.startsWith('/feedback/categories/')
+    ) {
+      return true;
+    }
+  }
+
   // Match [id] to UUIDs (or any non-slash segment)
   if (routePattern.includes('[id]')) {
     const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
@@ -1001,12 +1011,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         if (item.children) {
           const matchesChild = item.children.some((child) => {
             const childKey = String(child.key);
-            return (
-              pathname === childKey ||
-              pathname.startsWith(childKey + '/') ||
-              (childKey.includes('[id]') &&
-                pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
-            );
+            return isRouteMatch(childKey, pathname);
           });
 
           if (matchesChild) {

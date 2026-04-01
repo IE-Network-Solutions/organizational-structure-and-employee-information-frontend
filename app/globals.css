@@ -39,6 +39,43 @@
 }
 #time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
 #time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+/* Survey action plans: full width + hide Ant Table scrollbars (keep scroll) */
+.survey-action-plans-table.ant-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+}
+.survey-action-plans-table .ant-spin-nested-loading,
+.survey-action-plans-table .ant-spin-container,
+.survey-action-plans-table .ant-table,
+.survey-action-plans-table .ant-table-container,
+.survey-action-plans-table .ant-table-content,
+.survey-action-plans-table .ant-table-body,
+.survey-action-plans-table table {
+  width: 100%;
+}
+.survey-action-plans-table .ant-table-container,
+.survey-action-plans-table .ant-table-content,
+.survey-action-plans-table .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.survey-action-plans-table .ant-table-container::-webkit-scrollbar,
+.survey-action-plans-table .ant-table-content::-webkit-scrollbar,
+.survey-action-plans-table .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ant Design: hide internal measure row under header (empty td row for scroll sync) */
+.survey-action-plans-table .ant-table-measure-row {
+  display: none !important;
+}
+
+/* Action plan create modal: hide body scrollbar, keep scroll */
+.action-plan-create-modal .ant-modal-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.action-plan-create-modal .ant-modal-body::-webkit-scrollbar {
   display: none;
 }
 
@@ -1606,4 +1643,5 @@ h6 {
 .okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
   padding: 0 !important;
   margin: 0 !important;
+}
 }

@@ -17,7 +17,13 @@ interface CustomPaginationProps {
   pageSizeOptions?: number[];
   id?: string;
   'data-cy'?: string;
+  className?: string;
   grayBackground?: boolean; // Only for planning and reporting page
+  showPageSizeChanger?: boolean;
+  /** When true, renders "Go to" section on the right side */
+  goToOnRight?: boolean;
+  /** Placeholder for the go-to page input (e.g. "Input") */
+  goToInputPlaceholder?: string;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -29,7 +35,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   pageSizeOptions,
   id,
   'data-cy': dataCy,
+  className,
   grayBackground = false,
+  showPageSizeChanger = true,
+  goToOnRight = false,
+  goToInputPlaceholder,
 }) => {
   const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
   const selectPageSizes = [...new Set([...basePageSizes, pageSize])].sort(
@@ -179,7 +189,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex justify-between items-center py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
+      className={`flex justify-between items-center py-6 ${
+        grayBackground ? 'bg-gray-100' : ''
+      } ${className ?? ''}`}
     >
       <div
         data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
@@ -210,6 +222,37 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
+
+        {!goToOnRight && !isMobile && totalPages > 0 && (
+          <div
+            className="flex items-center gap-2 ml-4"
+            data-cy="pagination-goto"
+          >
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              placeholder={goToInputPlaceholder}
+              className="w-12 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Info and Page Size Selector */}
@@ -219,7 +262,34 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {!isMobile && (
+        {goToOnRight && !isMobile && totalPages > 0 && (
+          <div className="flex items-center gap-2" data-cy="pagination-goto">
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              placeholder={goToInputPlaceholder}
+              className="w-20 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
+        {/* {!isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
@@ -241,54 +311,62 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           </span>
         )}
 
-        <Select
-          value={pageSize}
-          className="w-[108px] h-10 text-center text-sm px-1 border-gray-100"
-          size={isMobile ? 'small' : 'middle'}
-          onChange={(value) => handleSizeChange(value)}
-          data-cy="pagination-page-size-select"
-        >
-          {selectPageSizes.map((size) => (
-            <Option key={size} value={size}>
+        {showPageSizeChanger && (
+          <Select
+            value={pageSize}
+            className={isMobile ? 'w-20' : 'w-24'}
+            size={isMobile ? 'small' : 'middle'}
+            onChange={(value) => handleSizeChange(value)}
+          >
+            <Option value={5}>
               <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-228"
                 className="text-xs text-[#111827]"
-                data-cy={`pagination-page-size-option-${size}`}
               >
-                {isMobile ? String(size) : `Show ${size}`}
+                {isMobile ? '5' : 'Show 5'}
               </span>
             </Option>
-          ))}
-        </Select>
-
-        {!isMobile && totalPages > 0 && (
-          <div
-            className="flex items-center gap-2 ml-4"
-            data-cy="pagination-goto"
-          >
-            <span
-              className="text-sm text-[#718096]"
-              data-cy="pagination-goto-label"
-            >
-              Go to
-            </span>
-            <Input
-              type="number"
-              placeholder="Input"
-              min={1}
-              max={totalPages}
-              value={goToPageValue}
-              onChange={(e) => setGoToPageValue(e.target.value)}
-              onPressEnter={handleGoToPage}
-              className="w-[75px] h-10 text-center text-sm px-1 border-gray-100"
-              data-cy="pagination-goto-input"
-            />
-            <span
-              className="text-sm text-[#718096]"
-              data-cy="pagination-goto-page-label-number-of-page"
-            >
-              Page
-            </span>
-          </div>
+            <Option value={10}>
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-233"
+                className="text-xs text-[#111827]"
+              >
+                {isMobile ? '10' : 'Show 10'}
+              </span>
+            </Option>
+            <Option value={25}>
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-238"
+                className="text-xs text-[#111827]"
+              >
+                {isMobile ? '25' : 'Show 25'}
+              </span>
+            </Option>
+            <Option value={50}>
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-243"
+                className="text-xs text-[#111827]"
+              >
+                {isMobile ? '50' : 'Show 50'}
+              </span>
+            </Option>
+            <Option value={75}>
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-248"
+                className="text-xs text-[#111827]"
+              >
+                {isMobile ? '75' : 'Show 75'}
+              </span>
+            </Option>
+            <Option value={100}>
+              <span
+                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-253"
+                className="text-xs text-[#111827]"
+              >
+                {isMobile ? '100' : 'Show 100'}
+              </span>
+            </Option>
+          </Select>
         )}
       </div>
     </div>

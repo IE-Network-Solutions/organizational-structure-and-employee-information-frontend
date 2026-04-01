@@ -1,5 +1,5 @@
 'use client';
-import { Col, Input, Row } from 'antd';
+import { Input } from 'antd';
 import React from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import { useDebounce } from '@/utils/useDebounce';
@@ -27,41 +27,32 @@ const CategorySearch = () => {
 
   return (
     <div
-      className="my-2"
+      className="w-[299px] h-8"
       data-cy="feedback-categories-components-categorysearch-div"
       id="feedback-categories-components-categorysearch-div"
     >
-      <Row
-        gutter={[16, 24]}
-        justify="space-between"
-        className="py-4"
-        data-cy="feedback-categories-components-categorysearch-row"
-        id="feedback-categories-components-categorysearch-row"
-      >
-        <Col
-          lg={12}
-          md={10}
-          xs={24}
-          data-cy="feedback-categories-components-categorysearch-col"
-          id="feedback-categories-components-categorysearch-col"
-        >
-          <Input
-            allowClear
-            placeholder="Search Categories"
-            onChange={(e) => handleSearchInput(e.target.value, 'category_name')}
-            prefix={
-              <SearchOutlined
-                className="text-gray-400"
-                data-cy="feedback-categories-components-categorysearch-icon-search"
-                id="feedback-categories-components-categorysearch-icon-search"
-              />
-            }
-            className="w-full h-12"
-            data-cy="feedback-categories-components-categorysearch-input"
-            id="feedback-categories-components-categorysearch-input"
-          />
-        </Col>
-      </Row>
+      <Input
+        allowClear
+        placeholder="Search Category..."
+        onChange={(e) => handleSearchInput(e.target.value, 'category_name')}
+        className="h-8 rounded-md [&_.ant-input]:h-8 [&_.ant-input]:text-[12px] [&_.ant-input-group-addon]:p-0 [&_.ant-input-group-addon]:bg-white [&_.ant-input-group-addon]:border-l-0"
+        addonAfter={
+          <button
+            type="button"
+            className="h-8 w-8 flex items-center justify-center border-l border-[#E5E7EB] text-gray-500 hover:text-gray-700"
+            aria-label="Search"
+            data-cy="feedback-categories-components-categorysearch-btn-search"
+            id="feedback-categories-components-categorysearch-btn-search"
+          >
+            <SearchOutlined
+              data-cy="feedback-categories-components-categorysearch-icon-search"
+              id="feedback-categories-components-categorysearch-icon-search"
+            />
+          </button>
+        }
+        data-cy="feedback-categories-components-categorysearch-input"
+        id="feedback-categories-components-categorysearch-input"
+      />
     </div>
   );
 };
