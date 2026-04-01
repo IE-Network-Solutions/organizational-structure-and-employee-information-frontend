@@ -193,11 +193,12 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
             data-cy="payroll-settings-breadcrumb-tabs-divider-bleed"
             className="-mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]"
           >
-            <Divider
+            <div
               id="payroll-settings-breadcrumb-tabs-divider"
               data-cy="payroll-settings-breadcrumb-tabs-divider"
-              className="!my-0 !mt-4 !border-gray-200"
-            />
+            >
+              <Divider className="!my-0 !mt-4 !border-gray-200" />
+            </div>
           </div>
         </div>
         <div
