@@ -78,7 +78,7 @@ const Page = () => {
           >
             <div className="flex items-center gap-2">
               <div
-                className={`ml-2 flex h-fit min-w-10 items-center justify-center rounded-lg border-[1px] p-2 ${
+                className={`ml-2 flex h-8 w-8 items-center justify-center rounded-lg border-[2px] ${
                   settingActiveTab === 'appreciation'
                     ? 'border-primary text-primary'
                     : 'border-gray-300 text-gray-700'
@@ -86,9 +86,9 @@ const Page = () => {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
+                  height="18px"
                   viewBox="0 -960 960 960"
-                  width="24px"
+                  width="18px"
                   fill={
                     settingActiveTab === 'appreciation' ? '#1E40AF' : '#6b7280'
                   }
@@ -154,7 +154,7 @@ const Page = () => {
           >
             <div className="flex items-center gap-2">
               <div
-                className={`ml-2 flex h-fit min-w-10 items-center justify-center rounded-lg border-[1px] p-2 ${
+                className={`h-8 w-8 ml-2 flex items-center justify-center rounded-lg border-[2px]  ${
                   settingActiveTab === 'reprimand'
                     ? 'border-primary text-primary'
                     : 'border-gray-300 text-gray-700'
@@ -162,9 +162,9 @@ const Page = () => {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
+                  height="18px"
                   viewBox="0 -960 960 960"
-                  width="24px"
+                  width="18px"
                   fill={
                     settingActiveTab === 'reprimand' ? '#1E40AF' : '#6b7280'
                   }
@@ -231,7 +231,7 @@ const Page = () => {
             <div className="flex items-center gap-2">
               {' '}
               <div
-                className={`ml-2 flex h-fit min-w-10 items-center justify-center rounded-lg border-[1px] p-2 ${
+                className={`ml-2 flex h-8 w-8 items-center justify-center rounded-lg border-[2px] ${
                   settingActiveTab === 'perspective'
                     ? 'border-primary text-primary'
                     : 'border-gray-300 text-gray-700'
@@ -239,9 +239,9 @@ const Page = () => {
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  height="24px"
+                  height="18px"
                   viewBox="0 -960 960 960"
-                  width="24px"
+                  width="18px"
                   fill={
                     settingActiveTab === 'perspective' ? '#1E40AF' : '#6b7280'
                   }

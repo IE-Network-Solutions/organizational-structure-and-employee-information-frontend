@@ -123,7 +123,14 @@ const PerspectivesDetail = ({
                 ],
               }}
             >
-              <Button size="small" icon={<EllipsisOutlined />} />
+              <Button
+                size="small"
+                shape="default"
+                icon={<EllipsisOutlined />}
+                className="bg-white border-[2px] border-gray-300 h-6 w-6"
+                data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
+                id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
+              />
             </Dropdown>
           </div>
         </Card>

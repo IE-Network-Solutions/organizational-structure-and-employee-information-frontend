@@ -25,7 +25,6 @@ const CreateFeedback: React.FC = () => {
 
   const {
     selectedFeedback,
-    variantType,
     open,
     setOpen,
     setSelectedFeedback,
@@ -77,7 +76,7 @@ const CreateFeedback: React.FC = () => {
 
     const updatedValues = {
       ...values,
-      variant: variantType,
+      variant: settingActiveTab,
       feedbackTypeId: getAllFeedbackTypes?.items?.find(
         (item: any) => item.category === feedbackModalType,
       )?.id,
@@ -137,16 +136,11 @@ const CreateFeedback: React.FC = () => {
             ? 'Add New Perspective'
             : 'Edit Perspective'
           : selectedFeedback === null
-            ? `Add New ${variantType} Type`
-            : `Edit ${variantType}`}
+            ? `New ${feedbackModalType} ${settingActiveTab} Type`
+            : `Edit ${settingActiveTab}`}
       </div>
     </div>
   );
-  // const handleCancel = () => {
-  //   form.resetFields();
-  //   setEditingItem(null);
-  //   setAddPerspectiveModal(false);
-  // };
 
   return (
     <Modal
@@ -154,7 +148,7 @@ const CreateFeedback: React.FC = () => {
       onCancel={onCloseHandler}
       footer={
         <div
-          className="w-full flex justify-end space-x-5"
+          className="w-full flex justify-end space-x-2"
           data-cy="create-feedback-form-actions"
           id="createFeedbackFormActions"
         >
@@ -192,7 +186,7 @@ const CreateFeedback: React.FC = () => {
               data-cy="create-feedback-form-submit-button"
               id="createFeedbackFormSubmitButton"
             >
-              Submit
+              Create
             </Button>
           )}
         </div>
@@ -254,17 +248,20 @@ const CreateFeedback: React.FC = () => {
             >
               Select Type
             </span>
-            <div className="" data-cy="create-feedback-select-type-buttons">
+            <div
+              className="flex flex-wrap gap-2"
+              data-cy="create-feedback-select-type-buttons"
+            >
               {getAllFeedbackTypes?.items?.map((item: any) => (
                 <button
                   key={item.category}
                   type="button"
                   onClick={() => setFeedbackModalType(item.category)}
                   data-cy={`create-feedback-select-type-${item.category}`}
-                  className={`px-5 py-1.5 text-sm rounded-lg transition-colors ${
+                  className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     feedbackModalType === item.category
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-transparent'
+                      : 'bg-transparent border-[2px] border-gray-300'
                   }`}
                 >
                   {item.category}
@@ -275,7 +272,7 @@ const CreateFeedback: React.FC = () => {
               className="text-sm  mt-1 text-center max-w-xs"
               data-cy="create-feedback-select-type-description"
             >
-              Content about what {feedbackModalType} {variantType} is
+              Content about what {feedbackModalType} {settingActiveTab} is
             </p>
           </div>
         )}
@@ -311,7 +308,7 @@ const CreateFeedback: React.FC = () => {
                 message:
                   settingActiveTab === 'perspective'
                     ? 'Please enter the perspective name!'
-                    : `Please enter the ${variantType} objective name!`,
+                    : `Please enter the ${settingActiveTab} objective name!`,
               },
               { max: 250, message: 'Name cannot exceed 250 characters.' },
             ]}
@@ -353,7 +350,7 @@ const CreateFeedback: React.FC = () => {
           >
             <Input.TextArea
               className={commonClass}
-              rows={4}
+              rows={2}
               placeholder="Enter description"
               data-cy="create-feedback-form-description-textarea"
               id="createFeedbackFormDescriptionTextarea"

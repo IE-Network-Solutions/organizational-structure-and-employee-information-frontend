@@ -144,7 +144,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                   icon={<EllipsisOutlined />}
                   data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
                   id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
-                  className="bg-white border border-gray-200"
+                  className="bg-white border-[2px] border-gray-300 h-6 w-6"
                 />
               </Dropdown>
             </p>

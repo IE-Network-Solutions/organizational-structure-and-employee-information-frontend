@@ -55,7 +55,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     setRecognitionCategoryEditId,
   } = ConversationStore();
   const { setOpenEmployeeSurvey } = EmployeeSurveyStore();
-  const { variantType } = ConversationStore();
+  const { settingActiveTab } = ConversationStore();
   const { setOpenSurveyCategoryModal, setSurveyCategoryEditId } =
     EmployeeSurveyStore();
   const { setOpen: setMeetingTypeDrawerOpen, setMeetingType } =
@@ -223,7 +223,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     data-cy="org-settings-branches-add-btn"
                     id="org-settings-branches-add-btn"
                   >
-                    {!isMobile && `Add ${variantType}`}
+                    {!isMobile && `Add ${settingActiveTab}`}
                   </Button>
                 ) : getActiveKey() === 'recognition' ? (
                   <AccessGuard
