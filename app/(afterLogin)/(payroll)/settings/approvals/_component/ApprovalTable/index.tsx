@@ -7,7 +7,7 @@ import { Button, Tooltip, Skeleton } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+const Avatar = '/gender_neutral_avatar.jpg';
 import { FaPlus } from 'react-icons/fa';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { APPROVALTYPES } from '@/types/enumTypes';

@@ -4,7 +4,7 @@ import { FaEllipsisVertical, FaCircle } from 'react-icons/fa6';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useGetUsersById } from '@/store/server/features/feedback/category/queries';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+const Avatar = '/gender_neutral_avatar.jpg';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';

@@ -115,7 +115,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     try {
       setSelectedRowKeys?.([] as any);
     } catch {}
-  }, [pathname]);
+  }, [pathname, setSelectedCandidate, setSelectedRowKeys]);
 
   const handleDownloadExcel = () => {
     setIsDownloading(true);

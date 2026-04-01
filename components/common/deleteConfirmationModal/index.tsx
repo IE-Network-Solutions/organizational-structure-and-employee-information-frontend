@@ -17,6 +17,13 @@ interface DeleteModalProps {
   loading?: boolean;
   id?: string;
   'data-cy'?: string;
+  /** When set, the modal is positioned just below this rect (e.g. under the trigger button) instead of centered */
+  triggerRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -31,7 +38,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   loading,
   id,
   'data-cy': dataCy,
+  triggerRect,
 }) => {
+  void triggerRect;
   const simpleLayout = Boolean(title);
 
   const deleteModalFooter = (
@@ -50,6 +59,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         id="confirmDeleteId"
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold !bg-red-600 hover:!bg-red-700 !border-0"
         type="primary"
+        danger
         loading={loading ?? false}
         onClick={onConfirm}
       >
@@ -78,6 +88,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {modal}
         </div>
       )}
+      data-cy="delete-confirmation-modal"
     >
       {simpleLayout ? (
         <>

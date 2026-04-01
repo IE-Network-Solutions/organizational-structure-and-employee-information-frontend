@@ -692,7 +692,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             ) : (
               <Dropdown
                 data-cy="okr-drawer-desktop-add-keyresult-button-dropdown"
-                dropdownRender={() => keyResultMenu}
+                popupRender={() => keyResultMenu}
                 trigger={['click']}
               >
                 <Button

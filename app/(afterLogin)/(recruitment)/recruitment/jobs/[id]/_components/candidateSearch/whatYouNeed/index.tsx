@@ -8,11 +8,17 @@ interface WhatYouNeedProps {
   placeholder?: string;
   /** When true, removes right border and right radius for use in a combined search+filter bar */
   embeddedInBar?: boolean;
+  /** Backward-compatible styling flag used by candidate page */
+  pill?: boolean;
+  /** Optional wrapper className used by parent layouts */
+  className?: string;
 }
 
 const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
   placeholder = 'Search what you need',
   embeddedInBar = false,
+  pill = false,
+  className = '',
 }) => {
   const { searchParams, setSearchParams } = useCandidateState();
 
@@ -33,18 +39,24 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
     onSearchChange(trimmedValue, keyValue);
   };
 
+  const containerClassName = embeddedInBar
+    ? 'w-full flex-1'
+    : 'w-full sm:w-[360px]';
+  const wrapperClassName = `${containerClassName} ${className}`.trim();
+  const inputShapeClass = pill ? 'rounded-md' : 'rounded-lg border-gray-300';
+
   return (
     <div
       id="talent-acquisition-what-you-need-div-container"
       data-cy="talent-acquisition-what-you-need-div-container"
-      className="w-full"
+      className={wrapperClassName}
     >
-      <Input
+      <Input.Search
         id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
         data-cy="talent-acquisition-job-candidate-search-input"
         placeholder={placeholder}
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className={`w-full h-11 ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : 'rounded-lg border-gray-300'}`}
+        className={`w-full h-11 ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : inputShapeClass}`}
         allowClear
         suffix={
           <span

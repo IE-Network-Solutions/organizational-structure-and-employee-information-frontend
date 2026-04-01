@@ -378,7 +378,12 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
             className="mb-4"
             data-cy="talent-acquisition-create-job-custom-field-options"
           >
-            <p className="text-sm font-medium text-gray-700 mb-2">Options</p>
+            <p
+              className="text-sm font-medium text-gray-700 mb-2"
+              data-cy="talent-acquisition-create-job-custom-field-options-label"
+            >
+              Options
+            </p>
             <Form.Item
               className="mb-2"
               style={{ marginBottom: errors.length ? undefined : 0 }}
@@ -386,8 +391,16 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               <Form.ErrorList errors={errors} />
             </Form.Item>
             {fields.map((field) => (
-              <Form.Item key={field.key} required={false} className="mb-2">
-                <div className="flex items-center gap-3">
+              <Form.Item
+                key={field.key}
+                required={false}
+                className="mb-2"
+                data-cy="talent-acquisition-create-job-custom-field-option-row"
+              >
+                <div
+                  className="flex items-center gap-3"
+                  data-cy="talent-acquisition-create-job-custom-field-option-row-inner"
+                >
                   {renderOptionInput(fieldType)}
                   <Form.Item
                     {...field}
@@ -411,8 +424,14 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 </div>
               </Form.Item>
             ))}
-            <Form.Item className="mb-0">
-              <div className="flex flex-col items-center justify-center py-2">
+            <Form.Item
+              className="mb-0"
+              data-cy="talent-acquisition-create-job-custom-field-option-add-wrap"
+            >
+              <div
+                className="flex flex-col items-center justify-center py-2"
+                data-cy="talent-acquisition-create-job-custom-field-option-add-inner"
+              >
                 <div
                   role="button"
                   tabIndex={0}
@@ -421,10 +440,14 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                     ev.key === 'Enter' && (ev.preventDefault(), add())
                   }
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-primary cursor-pointer hover:opacity-90"
+                  data-cy="talent-acquisition-create-job-custom-field-option-add-button"
                 >
                   <PlusOutlined className="text-white text-lg" />
                 </div>
-                <p className="text-xs font-light text-gray-400 mt-1">
+                <p
+                  className="text-xs font-light text-gray-400 mt-1"
+                  data-cy="talent-acquisition-create-job-custom-field-option-add-label"
+                >
                   + Add options
                 </p>
               </div>
@@ -469,8 +492,17 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
             <Form.Item
               name="fieldName"
               label={
-                <span className="text-sm font-semibold text-gray-700">
-                  Field Name <span className="text-red-500">*</span>
+                <span
+                  className="text-sm font-semibold text-gray-700"
+                  data-cy="talent-acquisition-create-job-custom-field-name-label"
+                >
+                  Field Name{' '}
+                  <span
+                    className="text-red-500"
+                    data-cy="talent-acquisition-create-job-custom-field-name-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[
@@ -484,9 +516,15 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               />
             </Form.Item>
 
-            <p className="text-sm text-gray-600 -mt-2 mb-4">
+            <p
+              className="text-sm text-gray-600 -mt-2 mb-4"
+              data-cy="talent-acquisition-create-job-custom-field-type-label"
+            >
               Type:{' '}
-              <span className="font-medium text-gray-900">
+              <span
+                className="font-medium text-gray-900"
+                data-cy="talent-acquisition-create-job-custom-field-type-value"
+              >
                 {pendingDrop.label}
               </span>
             </p>
@@ -496,8 +534,17 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 <Form.Item
                   name="fieldValidation"
                   label={
-                    <span className="text-sm font-semibold text-gray-700">
-                      Field Validation <span className="text-red-500">*</span>
+                    <span
+                      className="text-sm font-semibold text-gray-700"
+                      data-cy="talent-acquisition-create-job-custom-field-validation-label"
+                    >
+                      Field Validation{' '}
+                      <span
+                        className="text-red-500"
+                        data-cy="talent-acquisition-create-job-custom-field-validation-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   rules={[
@@ -514,7 +561,10 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                     data-cy="talent-acquisition-create-job-custom-field-validation"
                   />
                 </Form.Item>
-                <p className="text-sm text-gray-500 -mt-2 mb-4">
+                <p
+                  className="text-sm text-gray-500 -mt-2 mb-4"
+                  data-cy="talent-acquisition-create-job-custom-field-validation-help"
+                >
                   Select how this field should validate input.
                 </p>
               </>
@@ -523,27 +573,52 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
             {renderModalOptions(pendingDrop.type)}
 
             <Form.Item name="fieldMode" label={null}>
-              <Radio.Group className="w-full">
-                <div className="mb-3">
+              <Radio.Group
+                className="w-full"
+                data-cy="talent-acquisition-create-job-custom-field-mode-group"
+              >
+                <div
+                  className="mb-3"
+                  data-cy="talent-acquisition-create-job-custom-field-mode-active"
+                >
                   <Radio value="active">
-                    <span className="font-medium text-gray-900">Active</span>
+                    <span
+                      className="font-medium text-gray-900"
+                      data-cy="talent-acquisition-create-job-custom-field-mode-active-label"
+                    >
+                      Active
+                    </span>
                   </Radio>
-                  <p className="text-sm text-gray-500 ml-6 mt-0.5">
+                  <p
+                    className="text-sm text-gray-500 ml-6 mt-0.5"
+                    data-cy="talent-acquisition-create-job-custom-field-mode-active-help"
+                  >
                     If the field is active will show.
                   </p>
                 </div>
-                <div>
+                <div data-cy="talent-acquisition-create-job-custom-field-mode-required">
                   <Radio value="required">
-                    <span className="font-medium text-gray-900">Required</span>
+                    <span
+                      className="font-medium text-gray-900"
+                      data-cy="talent-acquisition-create-job-custom-field-mode-required-label"
+                    >
+                      Required
+                    </span>
                   </Radio>
-                  <p className="text-sm text-gray-500 ml-6 mt-0.5">
+                  <p
+                    className="text-sm text-gray-500 ml-6 mt-0.5"
+                    data-cy="talent-acquisition-create-job-custom-field-mode-required-help"
+                  >
                     If selected it must be filled.
                   </p>
                 </div>
               </Radio.Group>
             </Form.Item>
 
-            <div className="flex justify-end gap-3 pt-2 border-t border-gray-100 mt-4">
+            <div
+              className="flex justify-end gap-3 pt-2 border-t border-gray-100 mt-4"
+              data-cy="talent-acquisition-create-job-custom-field-footer"
+            >
               <Button
                 onClick={handleCustomFieldCancel}
                 className="h-10 rounded-lg border-gray-300 text-gray-700"
@@ -564,8 +639,14 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
         )}
       </Modal>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 space-y-3">
+      <div
+        className="grid grid-cols-1 gap-4 lg:grid-cols-2"
+        data-cy="talent-acquisition-create-job-custom-fields-layout"
+      >
+        <div
+          className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 space-y-3"
+          data-cy="talent-acquisition-create-job-custom-fields-palette"
+        >
           {FIELD_TYPES.map((item) => (
             <div
               key={item.id}
@@ -605,13 +686,25 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               }
               data-cy={`talent-acquisition-create-job-field-type-${item.id}`}
             >
-              <div className="flex items-center gap-2">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-gray-400" />
-                <p className="text-sm font-medium text-gray-900">
+              <div
+                className="flex items-center gap-2"
+                data-cy={`talent-acquisition-create-job-field-type-header-${item.id}`}
+              >
+                <span
+                  className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-gray-400"
+                  data-cy={`talent-acquisition-create-job-field-type-dot-${item.id}`}
+                />
+                <p
+                  className="text-sm font-medium text-gray-900"
+                  data-cy={`talent-acquisition-create-job-field-type-label-${item.id}`}
+                >
                   {item.label}
                 </p>
               </div>
-              <p className="text-xs text-gray-500 mt-1 pl-7">
+              <p
+                className="text-xs text-gray-500 mt-1 pl-7"
+                data-cy={`talent-acquisition-create-job-field-type-description-${item.id}`}
+              >
                 {item.description}
               </p>
             </div>
@@ -640,13 +733,18 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 : 'Drag field types here to add them to this job application.'}
             </div>
           ) : (
-            <div className="space-y-2">
+            <div
+              className="space-y-2"
+              data-cy="talent-acquisition-create-job-question-list"
+            >
               {questions.map((q, index) => (
                 <div
                   key={q.id}
                   draggable={!isMobile}
                   onDragStart={
-                    isMobile ? undefined : (e) => handleQuestionDragStart(e, q.id)
+                    isMobile
+                      ? undefined
+                      : (e) => handleQuestionDragStart(e, q.id)
                   }
                   onDragEnd={isMobile ? undefined : handleQuestionDragEnd}
                   onDragOver={isMobile ? undefined : handleQuestionDragOver}
@@ -663,6 +761,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                   <span
                     className="inline-flex shrink-0"
                     onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+                    data-cy={`talent-acquisition-create-job-question-required-wrap-${q.id}`}
                   >
                     <Checkbox
                       checked={q.required}

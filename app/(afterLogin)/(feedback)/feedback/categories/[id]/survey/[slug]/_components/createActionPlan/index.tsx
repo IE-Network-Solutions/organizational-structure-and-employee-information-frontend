@@ -14,7 +14,7 @@ import {
   useGetActionPlanById,
   useGetAllActionPlan,
 } from '@/store/server/features/organization-development/categories/queries';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+const Avatar = '/gender_neutral_avatar.jpg';
 
 const { Option } = Select;
 

@@ -213,21 +213,34 @@ const RecruitmentPage: React.FC = () => {
                 className="w-full h-11 rounded-lg border-gray-300"
                 allowClear
                 suffix={
-                  <span className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0">
+                  <span
+                    className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0"
+                    data-cy="talent-acquisition-jobs-search-suffix"
+                  >
                     <AiOutlineSearch className="text-gray-400 w-4 h-4 shrink-0" />
                   </span>
                 }
               />
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="hidden sm:flex items-center gap-2 flex-wrap justify-end">
+            <div
+              className="flex items-center gap-2 shrink-0"
+              data-cy="talent-acquisition-jobs-toolbar-actions"
+            >
+              <div
+                className="hidden sm:flex items-center gap-2 flex-wrap justify-end"
+                data-cy="talent-acquisition-jobs-filter-chip-list"
+              >
                 {activeFilterChips.map((chip) => (
                   <span
                     key={chip.key}
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-gray-200 bg-white text-xs text-gray-600"
                     data-cy={`talent-acquisition-jobs-filter-chip-${chip.key}`}
                   >
-                    <span>{chip.label}</span>
+                    <span
+                      data-cy={`talent-acquisition-jobs-filter-chip-label-${chip.key}`}
+                    >
+                      {chip.label}
+                    </span>
                     <button
                       type="button"
                       onClick={() =>
@@ -253,8 +266,12 @@ const RecruitmentPage: React.FC = () => {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        data-cy={`talent-acquisition-jobs-filter-chip-remove-icon-${chip.key}`}
                       >
-                        <path d="M18 6L6 18M6 6l12 12" />
+                        <path
+                          d="M18 6L6 18M6 6l12 12"
+                          data-cy={`talent-acquisition-jobs-filter-chip-remove-path-${chip.key}`}
+                        />
                       </svg>
                     </button>
                   </span>

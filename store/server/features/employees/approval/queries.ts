@@ -1,8 +1,82 @@
+import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
+
+/** Query params for GET /attendance-dashboard/admin/today-status-summary */
+export type TodayStatusSummaryParams = {
+  monthName: string;
+  dayOfWeek: string;
+  year: string | number;
+  filterType: string;
+};
+
+export const getTodayStatusSummary = async (
+  params: TodayStatusSummaryParams,
+) => {
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-dashboard/admin/today-status-summary`,
+    method: 'GET',
+    headers: requestHeaders,
+    params: {
+      monthName: params.monthName,
+      dayOfWeek: params.dayOfWeek,
+      year: String(params.year),
+      filterType: params.filterType,
+    },
+  });
+};
+
+export const useGetTodayStatusSummary = (params: TodayStatusSummaryParams) => {
+  return useQuery(['todayStatusSummary', params], () =>
+    getTodayStatusSummary(params),
+  );
+};
+
+export const getCombinedHrDashboard = async () => {
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-dashboard/admin/combined-hr-dashboard`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+};
+
+export const useGetCombinedHrDashboard = () => {
+  return useQuery(['combinedHrDashboard'], () => getCombinedHrDashboard());
+};
+
+export const getHireResignationTrendWithTenant = async (params: {
+  startDate: string;
+  endDate: string;
+}) => {
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/hire-resignation-trend/with-tenant`,
+    method: 'GET',
+    headers: requestHeaders,
+    params: {
+      startDate: params.startDate,
+      endDate: params.endDate,
+    },
+  });
+};
+
+export const useGetHireResignationTrendWithTenant = (params: {
+  startDate: string;
+  endDate: string;
+}) => {
+  const enabled = !!params.startDate && !!params.endDate;
+
+  return useQuery(
+    ['hireResignationTrendWithTenant', params.startDate, params.endDate],
+    () => getHireResignationTrendWithTenant(params),
+    { enabled },
+  );
+};
 
 const getAllBranchTransferRequest = async (
   pageSize: number,

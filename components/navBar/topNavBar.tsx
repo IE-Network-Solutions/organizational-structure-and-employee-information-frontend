@@ -10,7 +10,7 @@ import { usePWA } from '@/hooks/usePWA';
 import { DownloadOutlined } from '@ant-design/icons';
 import { FiSearch, FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
-import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
+const DefaultAvatar = '/gender_neutral_avatar.jpg';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {

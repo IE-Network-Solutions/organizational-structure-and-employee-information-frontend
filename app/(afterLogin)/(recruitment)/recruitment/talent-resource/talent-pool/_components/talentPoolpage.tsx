@@ -1,21 +1,12 @@
 'use client';
-import React, { useState } from 'react';
 import Filters from './filters';
 import CandidateTable from './talentPoolTable';
 import AddCandidate from './addDrawer';
-import { FaPlus } from 'react-icons/fa';
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import { Button } from 'antd';
+import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 // import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 const TalentPoolPage = () => {
-  const [isAddCandidateVisible, setIsAddCandidateVisible] = useState(false);
-
-  const handleAdd = () => {
-    setIsAddCandidateVisible(true);
-  };
+  const { isAddCandidateVisible, setIsAddCandidateVisible } = useInternStore();
 
   const handleClose = () => {
     setIsAddCandidateVisible(false);
@@ -26,43 +17,8 @@ const TalentPoolPage = () => {
     <div
       id="talent-acquisition-talent-pool-page-div-container"
       data-cy="talent-acquisition-talent-pool-page-div-container"
-      className="h-auto w-full bg-white"
+      className="px-2 sm:px-4 py-3"
     >
-      <div
-        id="talent-acquisition-talent-pool-page-div-header"
-        data-cy="talent-acquisition-talent-pool-page-div-header"
-        className="flex justify-between items-center"
-      >
-        <CustomBreadcrumb
-          data-cy="talent-acquisition-talent-pool-page-breadcrumb"
-          title="Talent Pool"
-          subtitle="This is the talent pool data of the candidates"
-        />
-        <div
-          id="talent-acquisition-talent-pool-page-div-actions"
-          data-cy="talent-acquisition-talent-pool-page-div-actions"
-          className="flex items-center my-4 gap-4 md:gap-8"
-        >
-          <AccessGuard permissions={[Permissions.TransferCandidate]}>
-            <Button
-              type="primary"
-              id="createUserButton"
-              data-cy="talent-acquisition-talent-pool-page-button-add"
-              className="h-10 w-10 sm:w-auto"
-              icon={<FaPlus />}
-              onClick={handleAdd}
-            >
-              <span
-                data-cy="talent-resource-talent-pool-components-talentpoolpage-tsx-talentpoolpage-span-55"
-                className="hidden sm:inline"
-              >
-                Add Candidate to Talent Pool
-              </span>
-            </Button>
-          </AccessGuard>
-        </div>
-      </div>
-
       <Filters />
       <CandidateTable />
       <AddCandidate open={isAddCandidateVisible} onClose={handleClose} />

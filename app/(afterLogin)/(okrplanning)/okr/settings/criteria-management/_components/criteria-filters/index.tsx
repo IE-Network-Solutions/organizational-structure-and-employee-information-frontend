@@ -1,7 +1,7 @@
-import { Col, Input, Row, Select } from 'antd';
+import { Input, Select } from 'antd';
 import React from 'react';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { VscSettings } from 'react-icons/vsc';
+import { LuFilter } from 'react-icons/lu';
+import { SearchOutlined } from '@ant-design/icons';
 
 interface CriteriaFiltersProps {
   onSearch: (value: string) => void;
@@ -15,7 +15,6 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
   criteriaNames,
 }) => {
   const { Option } = Select;
-  const { isMobile } = useIsMobile();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearch(e.target.value);
@@ -27,128 +26,155 @@ const CriteriaFilters: React.FC<CriteriaFiltersProps> = ({
 
   return (
     <div
-      className="mb-6"
+      className="mb-5 w-full"
       id="okr-criteria-filters-container"
       data-cy="okr-criteria-filters-container"
     >
-      {isMobile ? (
-        <Row
-          id="okr-criteria-filters-mobile-row"
-          data-cy="okr-criteria-filters-mobile-row"
+      <div
+        className="flex items-center justify-between w-full gap-3"
+        data-cy="okr-criteria-filters-row"
+      >
+        {/* Search Input on the Left */}
+        <div
+          className="w-full max-w-md"
+          data-cy="okr-criteria-filters-search-wrapper"
         >
-          <Col
-            xs={20}
-            sm={20}
-            md={18}
-            id="okr-criteria-filters-mobile-search-col"
-            data-cy="okr-criteria-filters-mobile-search-col"
-          >
-            <Input
-              placeholder="Search by Name"
-              onChange={handleSearch}
-              allowClear
-              className="w-full h-10"
-              id="okr-criteria-filters-mobile-search-input"
-              data-cy="okr-criteria-filters-mobile-search-input"
-            />
-          </Col>
+          <Input
+            placeholder="Search Name"
+            onChange={handleSearch}
+            allowClear
+            addonAfter={<SearchOutlined />}
+            className="w-full h-11 custom-search-input-v2"
+            id="okr-criteria-filters-search-input"
+            data-cy="okr-criteria-filters-search-input"
+          />
+        </div>
 
-          <Col
-            xs={4}
-            sm={4}
-            md={6}
-            lg={6}
-            id="okr-criteria-filters-mobile-select-col"
-            data-cy="okr-criteria-filters-mobile-select-col"
-          >
-            <Select
-              placeholder=""
-              onChange={handleTypeChange}
-              allowClear
-              dropdownMatchSelectWidth={false}
-              className=" control m-0 w-[48px] h-10 mx-auto p-0 pl-2"
-              dropdownStyle={{ left: '50%', transform: 'translateX(-50%)' }}
-              suffixIcon={
-                <div
-                  className="flex items-center justify-center w-full h-full text-black"
-                  data-cy="criteria-filters-suffix-icon-wrapper"
-                >
-                  <VscSettings
-                    size={20}
-                    data-cy="okr-criteria-filters-mobile-select-icon-display-icon"
-                  />
-                </div>
-              }
-              id="okr-criteria-filters-mobile-select"
-              data-cy="okr-criteria-filters-mobile-select"
-            >
-              {criteriaNames?.map((name) => (
-                <Option
-                  key={name}
-                  value={name}
-                  id={`okr-criteria-filters-mobile-select-option-${name}`}
-                  data-cy={`okr-criteria-filters-mobile-select-option-${name}`}
-                >
-                  {name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-        </Row>
-      ) : (
-        <Row
-          gutter={16}
-          id="okr-criteria-filters-desktop-row"
-          data-cy="okr-criteria-filters-desktop-row"
+        {/* Filter Select on the Right */}
+        <div
+          className="flex-shrink-0"
+          data-cy="okr-criteria-filters-select-wrapper"
         >
-          <Col
-            xs={24}
-            sm={24}
-            md={18}
-            lg={18}
-            id="okr-criteria-filters-desktop-search-col"
-            data-cy="okr-criteria-filters-desktop-search-col"
-          >
-            <Input
-              placeholder="Search by Name"
-              onChange={handleSearch}
-              allowClear
-              className="w-full h-10"
-              id="okr-criteria-filters-desktop-search-input"
-              data-cy="okr-criteria-filters-desktop-search-input"
-            />
-          </Col>
-
-          <Col
-            xs={24}
-            sm={24}
-            md={6}
-            lg={6}
-            id="okr-criteria-filters-desktop-select-col"
-            data-cy="okr-criteria-filters-desktop-select-col"
-          >
-            <Select
-              placeholder="All Types"
-              onChange={handleTypeChange}
-              allowClear
-              className="w-full h-10"
-              id="okr-criteria-filters-desktop-select"
-              data-cy="okr-criteria-filters-desktop-select"
-            >
-              {criteriaNames?.map((name) => (
-                <Option
-                  key={name}
-                  value={name}
-                  id={`okr-criteria-filters-desktop-select-option-${name}`}
-                  data-cy={`okr-criteria-filters-desktop-select-option-${name}`}
+          <Select
+            placeholder={
+              <div
+                className="flex items-center gap-2 text-[#595959]"
+                data-cy="okr-criteria-filters-select-placeholder"
+              >
+                <LuFilter
+                  className="text-[16px]"
+                  data-cy="okr-criteria-filters-select-placeholder-icon"
+                />
+                <span
+                  className="text-[14px] hidden sm:inline"
+                  data-cy="okr-criteria-filters-select-placeholder-text"
                 >
-                  {name}
-                </Option>
-              ))}
-            </Select>
-          </Col>
-        </Row>
-      )}
+                  Filter
+                </span>
+              </div>
+            }
+            onChange={handleTypeChange}
+            allowClear
+            className="h-11 min-w-fit custom-filter-select-v3"
+            suffixIcon={null}
+            id="okr-criteria-filters-select"
+            data-cy="okr-criteria-filters-select"
+            dropdownMatchSelectWidth={false}
+          >
+            {criteriaNames?.map((name) => (
+              <Option
+                key={name}
+                value={name}
+                id={`okr-criteria-filters-select-option-${name}`}
+                data-cy={`okr-criteria-filters-select-option-${name}`}
+              >
+                {name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      </div>
+      <style jsx global data-cy="okr-criteria-filters-styles">{`
+        /* Filter v3 - Wrap Around Design */
+        .custom-filter-select-v3.ant-select {
+          width: auto !important;
+          min-width: 44px !important;
+        }
+        @media (min-width: 640px) {
+          .custom-filter-select-v3.ant-select {
+            min-width: 90px !important;
+          }
+        }
+        .custom-filter-select-v3 .ant-select-selector {
+          height: 44px !important;
+          border-radius: 8px !important;
+          border-color: #d9d9d9 !important;
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+          background-color: white !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        .custom-filter-select-v3 .ant-select-selection-placeholder {
+          inset-inline-start: 12px !important;
+          inset-inline-end: 12px !important;
+          position: static !important;
+          transform: none !important;
+          opacity: 1 !important;
+        }
+        .custom-filter-select-v3 .ant-select-selection-search {
+          display: none !important;
+        }
+        .custom-filter-select-v3:hover .ant-select-selector {
+          border-color: #bfbfbf !important;
+        }
+
+        /* Search v2 - Matching Filter Height and Icon Box */
+        .custom-search-input-v2.ant-input-group-wrapper {
+          height: 44px !important;
+        }
+        .custom-search-input-v2.ant-input-group-wrapper .ant-input-wrapper {
+          display: flex !important;
+          align-items: center !important;
+          border: 1px solid #d9d9d9 !important;
+          border-radius: 8px !important;
+          overflow: hidden !important;
+          background-color: white !important;
+          height: 44px !important;
+        }
+        .custom-search-input-v2.ant-input-group-wrapper .ant-input {
+          border: none !important;
+          box-shadow: none !important;
+          height: 44px !important;
+          padding-left: 12px !important;
+          font-size: 14px !important;
+          color: #262626 !important;
+        }
+        .custom-search-input-v2.ant-input-group-wrapper
+          .ant-input::placeholder {
+          color: #bfbfbf !important;
+        }
+        .custom-search-input-v2.ant-input-group-wrapper .ant-input-group-addon {
+          background-color: white !important;
+          border: none !important;
+          border-left: 1px solid #f0f0f0 !important;
+          padding: 0 24px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 44px !important;
+        }
+        .custom-search-input-v2.ant-input-group-wrapper
+          .ant-input-group-addon
+          .anticon {
+          font-size: 18px !important;
+          color: #595959 !important;
+        }
+        .custom-search-input-v2.ant-input-group-wrapper:hover {
+          border-color: #bfbfbf !important;
+        }
+      `}</style>
     </div>
   );
 };

@@ -183,8 +183,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           data-cy="pagination-prev-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-md ${
             current === 1
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+              ? 'text-[#111827] opacity-50'
+              : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
           }`}
         >
           <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
@@ -197,12 +197,42 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           data-cy="pagination-next-button"
           className={`w-8 h-8 flex items-center justify-center border rounded-md ${
             current === totalPages
-              ? 'text-[#111827] border-gray-200 opacity-50'
-              : 'text-[#111827] border-gray-300 hover:bg-gray-100 active:bg-gray-200'
+              ? 'text-[#111827] opacity-50'
+              : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
           }`}
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
+
+        {!isMobile && totalPages > 0 && (
+          <div
+            className="flex items-center gap-2 ml-4"
+            data-cy="pagination-goto"
+          >
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              className="w-12 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
       </div>
 
       <div

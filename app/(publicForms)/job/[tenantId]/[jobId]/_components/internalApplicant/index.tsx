@@ -3,7 +3,7 @@ import { Button, Form, Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import Image from 'next/image';
 import Dragger from 'antd/es/upload/Dragger';
-import cvUpload from '@/public/image/cvUpload.png';
+const cvUpload = '/image/cvUpload.png';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 
@@ -102,7 +102,7 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
           >
             <Image
               className="flex items-center justify-center"
-              src={cvUpload.src}
+              src={cvUpload}
               alt="Loading"
               width={30}
               height={30}

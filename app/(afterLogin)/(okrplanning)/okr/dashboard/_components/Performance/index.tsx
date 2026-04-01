@@ -4,7 +4,7 @@ import { Select, Spin, DatePicker, Button, Pagination } from 'antd';
 import type React from 'react';
 import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+const Avatar = '/gender_neutral_avatar.jpg';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKRDashboardStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/dashboard';
 import { CalendarOutlined, DownOutlined } from '@ant-design/icons';

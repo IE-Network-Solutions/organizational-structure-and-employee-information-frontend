@@ -11,56 +11,65 @@ const OrgChartSkeleton: React.FC<OrgChartSkeletonProps> = ({ loading }) => {
   /* eslint-disable @typescript-eslint/naming-convention */
   return (
     <div
-      className="w-full flex justify-center items-center py-7 overflow-x-auto"
+      className="w-full flex justify-center items-center py-7 overflow-hidden"
       data-cy="org-structure-loading-container"
       id="org-structure-loading-container"
     >
       <div
-        className="p-4 sm:p-2 md:p-6 lg:p-8"
+        className="w-full max-w-full sm:max-w-4xl px-2 sm:px-6 md:px-8 lg:px-10 flex justify-center"
         data-cy="org-org-structure-components-loading-orgstructureloading-div-1"
         id="org-org-structure-components-loading-orgstructureloading-div-1"
       >
-        <Tree
-          label={
-            <div
-              className="bg-gray-200 h-12 w-32 text-center rounded-md inline-block border animate-pulse"
-              data-cy="org-structure-loading-label"
-              id="org-structure-loading-label"
-            />
-          }
-          lineWidth={'2px'}
-          lineColor={'#e5e7eb'}
-          lineBorderRadius={'10px'}
-          data-cy="org-org-structure-components-loading-orgstructureloading-tree-1"
+        <div
+          className="origin-top scale-60 sm:scale-90 md:scale-95"
+          data-cy="org-structure-loading-tree-wrapper"
         >
-          {[...Array(3)].map((_, index) => (
-            <TreeNode
-              key={index}
-              label={
-                <div
-                  className="bg-gray-200 h-10 w-24 rounded-md animate-pulse inline-block border"
-                  data-cy="org-structure-loading-label"
-                  id="org-structure-loading-label"
-                />
-              }
-              data-cy="org-org-structure-components-loading-orgstructureloading-treenode-1"
-            >
-              {[...Array(2)].map((_, grandchildIndex) => (
-                <TreeNode
-                  key={grandchildIndex}
-                  label={
-                    <div
-                      className="bg-gray-200 h-8 w-20 rounded-md animate-pulse"
-                      data-cy="org-structure-loading-label"
-                      id="org-structure-loading-label"
+          <Tree
+            label={
+              <div
+                className="bg-gray-200 h-12 w-40 sm:h-14 sm:w-48 text-center rounded-md inline-block border animate-pulse"
+                data-cy="org-structure-loading-label"
+                id="org-structure-loading-label"
+              />
+            }
+            lineWidth={'2px'}
+            lineColor={'#e5e7eb'}
+            lineBorderRadius={'10px'}
+            data-cy="org-org-structure-components-loading-orgstructureloading-tree-1"
+          >
+            {/* Level 1 branches – 5 siblings like main org chart */}
+            {[...Array(5)].map((_, index) => (
+              <TreeNode
+                key={index}
+                label={
+                  <div
+                    className="bg-gray-200 h-9 w-28 sm:h-10 sm:w-32 rounded-md animate-pulse inline-block border"
+                    data-cy="org-structure-loading-label"
+                    id="org-structure-loading-label"
+                  />
+                }
+                data-cy="org-org-structure-components-loading-orgstructureloading-treenode-1"
+              >
+                {/* Level 2 branches – more leaves for the two middle nodes */}
+                {[...Array(index === 2 || index === 3 ? 4 : 2)].map(
+                  (_, grandchildIndex) => (
+                    <TreeNode
+                      key={grandchildIndex}
+                      label={
+                        <div
+                          className="bg-gray-200 h-7 w-20 sm:h-8 sm:w-24 rounded-md animate-pulse inline-block border"
+                          data-cy="org-structure-loading-label"
+                          id="org-structure-loading-label"
+                        />
+                      }
+                      data-cy="org-org-structure-components-loading-orgstructureloading-treenode-2"
                     />
-                  }
-                  data-cy="org-org-structure-components-loading-orgstructureloading-treenode-2"
-                />
-              ))}
-            </TreeNode>
-          ))}
-        </Tree>
+                  ),
+                )}
+              </TreeNode>
+            ))}
+          </Tree>
+        </div>
       </div>
     </div>
   );

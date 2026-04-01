@@ -198,7 +198,8 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             rules={[
               { required: true, message: 'Please select the date!' },
               {
-                validator: (_, value) => {
+                validator: (validationRule, value) => {
+                  void validationRule;
                   const today = dayjs().startOf('day');
                   if (!value) return Promise.resolve();
                   const picked = dayjs(value).startOf('day');
