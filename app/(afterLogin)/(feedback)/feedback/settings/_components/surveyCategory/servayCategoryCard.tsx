@@ -43,7 +43,7 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
   };
   return (
     <div
-      className="border border-gray-200 rounded-md py-2 px-4"
+      className="border border-[#D9D9D9] rounded-md py-2 px-4"
       data-cy={`survey-category-card-${category?.id}`}
       id={`survey-category-card-${category?.id}`}
     >
@@ -119,7 +119,7 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
           >
             <button
               type="button"
-              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
               data-cy={`settings-define-meeting-type-card-actions-${category?.id}`}
               id={`settingsDefineMeetingTypeCardActions${category?.id}`}
             >

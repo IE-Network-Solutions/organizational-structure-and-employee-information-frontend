@@ -389,7 +389,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   >
                     <Button
                       onClick={() => setIsOpen(false)}
-                      className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                      className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-[#D9D9D9] border-[#D9D9D9]"
                       data-cy="question-template-drawer-cancel-button"
                       id="questionTemplateDrawerCancelButton"
                     >

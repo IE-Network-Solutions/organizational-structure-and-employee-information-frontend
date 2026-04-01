@@ -74,7 +74,7 @@ const CreateSurvayCategory = () => {
     <div className="flex justify-end gap-3 pt-1">
       <Button
         size="large"
-        className="min-w-[100px] h-11 border-gray-300 text-gray-800 font-medium"
+        className="min-w-[100px] h-11 border-[#D9D9D9] text-gray-800 font-medium"
         onClick={handleCloseDrawer}
         data-cy="create-survey-category-button-cancel"
         id="create-survey-category-button-cancel"
@@ -137,7 +137,7 @@ const CreateSurvayCategory = () => {
       }}
       classNames={{
         content: 'rounded-xl overflow-hidden',
-        header: 'pb-2 border-b border-gray-100',
+        header: 'pb-2 border-b border-[#D9D9D9]',
         body: 'pt-4 pb-2',
       }}
       data-cy="create-survey-category-modal"

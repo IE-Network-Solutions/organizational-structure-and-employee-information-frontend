@@ -57,7 +57,7 @@ const DefineMeetingType = () => {
       <div className="rounded-2xl bg-white h-full">
         <Skeleton active loading={isLoading} paragraph={{ rows: 6 }}>
           {meetingTypes?.items && meetingTypes.items.length > 0 ? (
-            <div className="border-[1px] border-gray-200 rounded-lg p-4">
+            <div className="border-[1px] border-[#D9D9D9] rounded-lg p-4">
               <div
                 className="grid grid-cols-12 flex-col-reverse justify-between"
                 data-cy="settings-define-meeting-type-content"
@@ -75,7 +75,7 @@ const DefineMeetingType = () => {
                     {meetingTypes.items.map((item: any) => (
                       <Card
                         key={item?.id}
-                        className="rounded-xl border border-gray-200 shadow-none cursor-pointer hover:border-gray-300 transition-colors  "
+                        className="rounded-xl border border-[#D9D9D9] shadow-none cursor-pointer hover:border-[#D9D9D9] transition-colors  "
                         styles={{ body: { padding: '0px' } }}
                         data-cy={`settings-define-meeting-type-card-${item?.id}`}
                         onClick={() => {
@@ -182,7 +182,7 @@ const DefineMeetingType = () => {
                             >
                               <button
                                 type="button"
-                                className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+                                className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
                                 data-cy={`settings-define-meeting-type-card-actions-${item?.id}`}
                                 id={`settingsDefineMeetingTypeCardActions${item?.id}`}
                               >

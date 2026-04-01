@@ -74,7 +74,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
 
   return (
     <div
-      className="relative cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md transition w-full"
+      className="relative cursor-pointer p-4 border border-[#D9D9D9] rounded-lg shadow-sm hover:shadow-md transition w-full"
       data-cy="meeting-template-card"
       id="meetingTemplateCard"
     >
@@ -111,7 +111,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         >
           <button
             type="button"
-            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
             data-cy={`meeting-template-card-more-buttom`}
             id={`meetingTemplateCardMorebutton`}
           >

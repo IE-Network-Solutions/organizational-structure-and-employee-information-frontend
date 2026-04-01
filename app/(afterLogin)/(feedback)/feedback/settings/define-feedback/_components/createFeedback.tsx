@@ -269,7 +269,7 @@ const CreateFeedback: React.FC = () => {
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     feedbackModalType === item.category
                       ? 'bg-primary text-white shadow-sm'
-                      : 'bg-transparent border-[2px] border-gray-300'
+                      : 'bg-transparent border-[2px] border-[#D9D9D9]'
                   }`}
                 >
                   {item.category}

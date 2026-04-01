@@ -337,12 +337,12 @@ const EmployeeSurveyTable: React.FC = () => {
             <Button
               size="small"
               icon={<EllipsisOutlined />}
-              className="border-gray-400"
+              className="border-[#D9D9D9]"
               id="employeeSurveyTableActionButton"
             />
             <button
               type="button"
-              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
               data-cy="employee-survey-table-action-button"
               id="employeeSurveyTableActionButton"
             >
@@ -364,7 +364,7 @@ const EmployeeSurveyTable: React.FC = () => {
   };
   return (
     <div
-      className="py-2 rounded-lg border-[1px]"
+      className="py-2 rounded-lg border-[1px] border-[#D9D9D9]"
       data-cy="employee-survey-table-page"
       id="employeeSurveyTablePage"
     >
@@ -377,11 +377,11 @@ const EmployeeSurveyTable: React.FC = () => {
           <Select
             showSearch
             placeholder="Search Employee"
-            className="m-0 h-8 w-full rounded-lg border border-gray-400 p-0"
+            className="m-0 h-8 w-full rounded-lg border border-[#D9D9D9] p-0"
             allowClear
             loading={empLoading}
             suffixIcon={
-              <SearchOutlined className="text-gray-400 border-l border-gray-400 p-2" />
+              <SearchOutlined className="text-gray-400 border-l border-[#D9D9D9] p-2" />
             }
             value={userId ?? undefined}
             onChange={(value) => {
@@ -441,7 +441,7 @@ const EmployeeSurveyTable: React.FC = () => {
                 <Select
                   loading={depLoading}
                   placeholder="Filter by Department"
-                  className="w-full h-10 rounded-lg border-gray-200"
+                  className="w-full h-10 rounded-lg border-[#D9D9D9]"
                   allowClear
                   showSearch
                   value={departmentId ?? undefined}
@@ -470,7 +470,7 @@ const EmployeeSurveyTable: React.FC = () => {
 
                 <Select
                   placeholder="Filter by Month"
-                  className="w-full h-10 rounded-lg border-gray-200"
+                  className="w-full h-10 rounded-lg border-[#D9D9D9]"
                   allowClear
                   showSearch
                   value={monthId ?? undefined}

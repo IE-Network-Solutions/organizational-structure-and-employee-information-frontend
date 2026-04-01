@@ -183,7 +183,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               },
             ]}
           />
-          <Divider className="!my-0 !mt-4 !border-gray-200" />
+          <Divider className="!my-0 !mt-4 !border-[#D9D9D9]" />
         </div>
 
         <div

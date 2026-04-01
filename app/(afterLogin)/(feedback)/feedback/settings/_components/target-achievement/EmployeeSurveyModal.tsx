@@ -344,7 +344,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                 disabled
                 showSearch
                 placeholder="Select"
-                className="w-full rounded-lg border-gray-300"
+                className="w-full rounded-lg border-[#D9D9D9]"
                 allowClear
                 loading={isLoading}
                 filterOption={(input: any, option: any) =>
@@ -382,7 +382,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
               <InputNumber
                 min={0}
                 max={10}
-                className="w-full rounded-lg border-gray-300"
+                className="w-full rounded-lg border-[#D9D9D9]"
                 placeholder="Input"
                 data-cy="employee-survey-modal-score-input"
                 id="employeeSurveyModalScoreInput"
@@ -407,7 +407,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                     value={draft.userId ?? undefined}
                     showSearch
                     placeholder="Select"
-                    className="w-full rounded-lg border-gray-300 h-10"
+                    className="w-full rounded-lg border-[#D9D9D9] h-10"
                     allowClear
                     loading={isLoading}
                     onChange={(value) =>
@@ -445,7 +445,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                     value={draft.score ?? undefined}
                     min={0}
                     max={10}
-                    className="w-full rounded-lg border-gray-300 h-10"
+                    className="w-full rounded-lg border-[#D9D9D9] h-10"
                     placeholder="Input"
                     onChange={(value) =>
                       setDraftField(
@@ -490,7 +490,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                 return (
                   <div
                     key={`${row.userId}-${index}`}
-                    className="flex items-center justify-between border rounded-lg px-3 py-2"
+                    className="flex items-center justify-between border border-[#D9D9D9] rounded-lg px-3 py-2"
                     data-cy={`employee-survey-modal-list-row-${index}`}
                     id={`employeeSurveyModalListRow${index}`}
                   >
@@ -508,7 +508,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                       <Button
                         onClick={() => editRow(index)}
                         icon={<EditOutlined />}
-                        className="border border-gray-200"
+                        className="border border-[#D9D9D9]"
                         data-cy={`employee-survey-modal-list-edit-${index}`}
                         id={`employeeSurveyModalListEdit${index}`}
                       />

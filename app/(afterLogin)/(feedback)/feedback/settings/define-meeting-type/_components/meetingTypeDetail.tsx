@@ -149,7 +149,7 @@ const MeetingTypeDetail: React.FC = () => {
             type="default"
             size="small"
             icon={<IoChevronBackSharp />}
-            className="!h-8 !w-8 !p-0 flex items-center justify-center border-gray-200"
+            className="!h-8 !w-8 !p-0 flex items-center justify-center border-[#D9D9D9]"
             onClick={() => router.back()}
             data-cy="meeting-type-detail-back-button"
             aria-label="Back"
@@ -207,7 +207,7 @@ const MeetingTypeDetail: React.FC = () => {
           </div>
         ) : (
           <div
-            className="flex flex-col items-center justify-center h-full py-10 text-gray-500 border border-dashed border-gray-200 rounded-xl"
+            className="flex flex-col items-center justify-center h-full py-10 text-gray-500 border border-dashed border-[#D9D9D9] rounded-xl"
             data-cy="meeting-type-detail-empty"
             id="meetingTypeDetailEmpty"
           >

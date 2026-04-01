@@ -62,7 +62,7 @@ const QuestionTemplateCard: React.FC<any> = () => {
         questionTemplate?.items?.map((questions: any, index: number) => (
           <div
             key={index}
-            className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+            className="flex items-center justify-between gap-3 my-5 mx-2 border-[#D9D9D9] border-[1px] rounded-md px-2 py-4"
             data-cy={`question-template-card-${questions?.id}`}
             id={`questionTemplateCard${questions?.id}`}
           >

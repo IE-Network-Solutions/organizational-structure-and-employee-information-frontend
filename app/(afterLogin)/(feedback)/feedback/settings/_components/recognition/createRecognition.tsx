@@ -1652,12 +1652,12 @@ const RecognitionForm: React.FC<PropsData> = ({
                     'flex items-start gap-3 w-full rounded-lg border px-4 py-3 cursor-pointer transition-colors';
                   const optionSelected = 'border-primary bg-[#F5F8FF]';
                   const optionUnselected =
-                    'border-gray-200 bg-white hover:bg-gray-50';
+                    'border-[#D9D9D9] bg-white hover:bg-gray-50';
 
                   const circleBase =
                     'mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center';
                   const circleSelected = 'border-primary';
-                  const circleUnselected = 'border-gray-300';
+                  const circleUnselected = 'border-[#D9D9D9]';
 
                   const dot = 'h-2 w-2 rounded-full bg-primary';
 
@@ -2010,7 +2010,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                           className={
                             t === 'Fixed'
                               ? 'rounded-lg px-6'
-                              : 'rounded-lg px-6 border-gray-300'
+                              : 'rounded-lg px-6 border-[#D9D9D9]'
                           }
                           onClick={() => {
                             setFormulaError('');
@@ -2027,7 +2027,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                           className={
                             t === 'Formula'
                               ? 'rounded-lg px-6'
-                              : 'rounded-lg px-6 border-gray-300'
+                              : 'rounded-lg px-6 border-[#D9D9D9]'
                           }
                           onClick={() => {
                             setFormulaError('');
@@ -2164,7 +2164,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                                         'operand',
                                       )
                                     }
-                                    className="  border-[1px] border-gray-300 hover:border-primary text-sm font-normal m-1 rounded-lg"
+                                    className="  border-[1px] border-[#D9D9D9] hover:border-primary text-sm font-normal m-1 rounded-lg"
                                     data-cy={`create-recognition-formula-op-${option.name}`}
                                   >
                                     {option.name}

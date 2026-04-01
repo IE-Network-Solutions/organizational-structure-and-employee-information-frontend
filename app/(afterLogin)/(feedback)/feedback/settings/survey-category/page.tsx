@@ -28,7 +28,7 @@ const Page = () => {
     <div
       data-cy="survey-category-page"
       id="surveyCategoryPage"
-      className="rounded-lg border border-gray-200 p-4"
+      className="rounded-lg border border-[#D9D9D9] p-4"
     >
       <div
         className="flex justify-between text-xs mx-2 overflow-x-auto "

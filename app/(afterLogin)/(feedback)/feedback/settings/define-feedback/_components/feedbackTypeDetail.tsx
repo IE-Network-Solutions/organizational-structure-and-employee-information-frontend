@@ -42,7 +42,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
   return (
     <div
-      className={`rounded-lg border-[1px] border-gray-200 bg-white shadow-sm ${
+      className={`rounded-lg border-[1px] border-[#D9D9D9] bg-white shadow-sm ${
         isMobile ? ' p-3 ' : 'p-2'
       }`}
       data-cy={`feedback-type-detail-${variantType}-panel`}
@@ -79,7 +79,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
       </div>
       {feedbackTypeDetail?.items?.map((item: any) => (
         <Card
-          className={`mb-2 border-gray-200 ${isMobile ? 'mx-0 rounded-lg shadow-none' : 'mx-2'}`}
+          className={`mb-2 border-[#D9D9D9] ${isMobile ? 'mx-0 rounded-lg shadow-none' : 'mx-2'}`}
           key={item.id}
           data-cy={`feedback-type-detail-${variantType}-card-${item.id}`}
           id={`feedbackTypeDetail${variantType}Card${item.id}`}
@@ -184,7 +184,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
               >
                 <button
                   type="button"
-                  className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+                  className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
                   data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
                   id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
                 >

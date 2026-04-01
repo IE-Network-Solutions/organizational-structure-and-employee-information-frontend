@@ -98,7 +98,7 @@ export default function RecognitionDetailPage() {
             type="default"
             size="small"
             icon={<IoChevronBackSharp />}
-            className="!h-8 !w-8 !p-0 flex items-center justify-center border-[1px] border-gray-200 rounded-lg"
+            className="!h-8 !w-8 !p-0 flex items-center justify-center border-[1px] border-[#D9D9D9] rounded-lg"
             onClick={() => router.back()}
             data-cy="recognition-detail-back"
             aria-label="Back"
@@ -150,7 +150,7 @@ export default function RecognitionDetailPage() {
                 return (
                   <Card
                     key={child?.id ?? child?.name}
-                    className="rounded-lg border border-gray-200 shadow-none"
+                    className="rounded-lg border border-[#D9D9D9] shadow-none"
                     styles={{ body: { padding: 16 } }}
                     data-cy={`recognition-detail-item-${child?.id ?? child?.name ?? 'unknown'}`}
                   >
@@ -303,7 +303,7 @@ export default function RecognitionDetailPage() {
                         >
                           <button
                             type="button"
-                            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+                            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
                             data-cy={`settings-recognition-card-actions-${child?.id}`}
                             id={`settingsRecognitionCardActions${child?.id}`}
                           >
@@ -319,7 +319,7 @@ export default function RecognitionDetailPage() {
 
                     {isExpanded && (
                       <div
-                        className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4"
+                        className="mt-4 rounded-lg border border-[#D9D9D9] bg-gray-50 p-4"
                         data-cy={`recognition-detail-criteria-accordion-${child?.id}`}
                       >
                         <div
@@ -331,7 +331,7 @@ export default function RecognitionDetailPage() {
                             data-cy="recognition-detail-criteria-table-inner"
                           >
                             <div
-                              className="grid grid-cols-12 gap-2 border-b border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700"
+                              className="grid grid-cols-12 gap-2 border-b border-[#D9D9D9] px-3 py-2 text-xs font-semibold text-gray-700"
                               data-cy="recognition-detail-criteria-table-header"
                             >
                               <div
@@ -389,14 +389,14 @@ export default function RecognitionDetailPage() {
                                       criterion?.id ??
                                       `${child?.id}-${criterion?.criteria?.criteriaName}`
                                     }
-                                    className="grid grid-cols-12 gap-2 border-b border-gray-100 px-3 py-2 text-xs text-gray-700 last:border-b-0"
+                                    className="grid grid-cols-12 gap-2 border-b border-[#D9D9D9] px-3 py-2 text-xs text-gray-700 last:border-b-0"
                                     data-cy={`recognition-detail-criteria-row-${criterion?.id}`}
                                   >
                                     <div
                                       className="col-span-4"
                                       data-cy="recognition-detail-criteria-name"
                                     >
-                                      <span className="inline-flex max-w-full truncate rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] text-gray-700">
+                                      <span className="inline-flex max-w-full truncate rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-1 text-[11px] text-gray-700">
                                         {criterion?.criteria?.criteriaName ??
                                           '-'}
                                       </span>
@@ -423,7 +423,7 @@ export default function RecognitionDetailPage() {
                                       className="col-span-1"
                                       data-cy="recognition-detail-criteria-status"
                                     >
-                                      <span className="inline-flex rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
+                                      <span className="inline-flex rounded border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
                                         {statusLabel}
                                       </span>
                                     </div>
@@ -465,7 +465,7 @@ export default function RecognitionDetailPage() {
                                       >
                                         <button
                                           type="button"
-                                          className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-gray-300 rounded-md bg-transparent flex items-center justify-center hover:border-gray-400"
+                                          className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
                                           data-cy={`recognition-detail-criteria-actions-${criterion?.id}`}
                                           id={`recognitionDetailCriteriaActions${criterion?.id}`}
                                         >
@@ -500,7 +500,7 @@ export default function RecognitionDetailPage() {
 
               {!isLoading && children?.length === 0 && (
                 <div
-                  className="text-sm text-gray-500 py-10 text-center border border-dashed border-gray-200 rounded-xl"
+                  className="text-sm text-gray-500 py-10 text-center border border-dashed border-[#D9D9D9] rounded-xl"
                   data-cy="recognition-detail-empty"
                 >
                   No recognitions found.
