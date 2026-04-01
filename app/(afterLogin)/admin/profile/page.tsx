@@ -335,8 +335,7 @@ const AdminProfile = () => {
                         placeholder="Select"
                         classNames={{
                           popup: {
-                            root:
-                              '[&_.ant-select-item-option-selected:not(.ant-select-item-option-disabled)]:!bg-[#E6F4FF]',
+                            root: '[&_.ant-select-item-option-selected:not(.ant-select-item-option-disabled)]:!bg-[#E6F4FF]',
                           },
                         }}
                         options={countries.map((c) => ({

@@ -861,13 +861,17 @@ export const ManageSubscriptionModal: React.FC<
                               className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
                             >
                               <span
+                                data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
                                 className="inline-flex size-[18px] shrink-0 items-center justify-center"
                                 aria-hidden
                               >
                                 {included ? (
                                   <IoCheckbox className="size-full text-[#69B1FF]" />
                                 ) : (
-                                  <span className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]" />
+                                  <span
+                                    data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
+                                    className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
+                                  />
                                 )}
                               </span>
                               <span

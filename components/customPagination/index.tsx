@@ -32,7 +32,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   id,
   'data-cy': dataCy,
   grayBackground = false,
-  hidePageSizeSelect = false,
+  // hidePageSizeSelect = false,
 }) => {
   const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
   const selectPageSizes = [...new Set([...basePageSizes, pageSize])].sort(

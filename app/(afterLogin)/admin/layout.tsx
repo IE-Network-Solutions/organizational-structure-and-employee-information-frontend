@@ -147,7 +147,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               data-cy="admin-layout-back-button"
               onClick={() => router.back()}
             >
-              <LeftOutlined className="text-base" size={16}/>
+              <LeftOutlined className="text-base" size={16} />
             </span>
           )}
           <CustomBreadcrumb

@@ -407,7 +407,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-
       {/* Recent Billing History */}
       <div
         data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-338"

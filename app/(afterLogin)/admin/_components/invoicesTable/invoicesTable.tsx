@@ -18,7 +18,11 @@ import {
   Subscription,
 } from '@/types/tenant-management';
 import { useState, useEffect } from 'react';
-import { CloseOutlined, DeleteOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
 import { MdOutlineFileDownload } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
@@ -556,8 +560,7 @@ const InvoicesTable = ({
               : '',
           ]
             .filter(Boolean)
-            .join(' ')
-          }
+            .join(' ')}
           columns={columns}
           dataSource={paginatedData}
           rowKey="id"
