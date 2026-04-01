@@ -1,14 +1,19 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import { Button } from 'antd';
+import { IoArrowBack } from 'react-icons/io5';
 
 interface PayrollApprovalWorkFlowProps {
   onChange: (a: string) => void;
   children?: ReactNode;
+  finalizeContent?: ReactNode;
   currentStep?: 1 | 2 | 3;
   onClose?: () => void;
-  onPrimaryClick?: () => void;
-  primaryLabel?: string;
-  primaryDisabled?: boolean;
+  onBack?: () => void;
+  /** Selected approval type from parent store (step 1). */
+  approverType?: string | null;
+  onContinueFromStep1?: () => void;
+  onContinueFromStep2?: () => void;
+  onCreate?: () => void;
 }
 
 export const PayrollApprovalWorkFlow: React.FC<
@@ -16,19 +21,16 @@ export const PayrollApprovalWorkFlow: React.FC<
 > = ({
   onChange,
   children,
+  finalizeContent,
   currentStep = 1,
   onClose,
-  onPrimaryClick,
-  primaryLabel,
-  primaryDisabled,
+  onBack,
+  approverType = null,
+  onContinueFromStep1,
+  onContinueFromStep2,
+  onCreate,
 }) => {
-  // NOTE: This component is purely presentational; it keeps the same onChange
-  // contract so existing approval logic continues to work unchanged.
-
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-
   const handleSelect = (type: string) => {
-    setSelectedType(type);
     onChange(type);
   };
 
@@ -56,31 +58,52 @@ export const PayrollApprovalWorkFlow: React.FC<
         <div
           id="approval-payroll-workflow-modal-header"
           data-cy="approval-payroll-workflow-modal-header"
-          className="flex items-center justify-between px-6 py-4 border-b border-gray-100"
+          className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 px-6 py-4 border-b border-gray-100"
         >
+          <div className="flex justify-start">
+            {currentStep > 1 && onBack ? (
+              <button
+                id="approval-payroll-workflow-modal-back-click-button"
+                data-cy="approval-payroll-workflow-modal-back-click-button"
+                type="button"
+                onClick={onBack}
+                className="inline-flex items-center justify-center text-gray-600 hover:text-gray-900 transition-colors p-2 rounded-md hover:bg-gray-100"
+                aria-label="Go back"
+              >
+                <IoArrowBack
+                  className="text-lg"
+                  data-cy="approval-payroll-workflow-modal-back-icon"
+                />
+              </button>
+            ) : (
+              <span aria-hidden className="w-10" />
+            )}
+          </div>
           <h2
             id="approval-payroll-workflow-modal-title"
             data-cy="approval-payroll-workflow-modal-title"
-            className="text-lg font-semibold text-gray-900"
+            className="text-lg font-semibold text-gray-900 text-center"
           >
             Approval Workflow
           </h2>
-          <button
-            id="approval-payroll-workflow-modal-close-click-button"
-            data-cy="approval-payroll-workflow-modal-close-click-button"
-            type="button"
-            onClick={onClose}
-            className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
-            aria-label="Close modal"
-          >
-            <span
-              id="approval-payroll-workflow-modal-close-icon"
-              data-cy="approval-payroll-workflow-modal-close-icon"
-              className="text-lg leading-none"
+          <div className="flex justify-end">
+            <button
+              id="approval-payroll-workflow-modal-close-click-button"
+              data-cy="approval-payroll-workflow-modal-close-click-button"
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
+              aria-label="Close modal"
             >
-              ✕
-            </span>
-          </button>
+              <span
+                id="approval-payroll-workflow-modal-close-icon"
+                data-cy="approval-payroll-workflow-modal-close-icon"
+                className="text-lg leading-none"
+              >
+                ✕
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Body */}
@@ -210,7 +233,8 @@ export const PayrollApprovalWorkFlow: React.FC<
             </div>
           </div>
 
-          {/* Options */}
+          {/* Step 1: approval type options */}
+          {currentStep === 1 && (
           <div
             id="approval-payroll-workflow-options"
             data-cy="approval-payroll-workflow-options"
@@ -223,7 +247,7 @@ export const PayrollApprovalWorkFlow: React.FC<
               type="button"
               onClick={() => handleSelect('Sequential')}
               className={`flex w-full items-start rounded-lg border px-4 py-4 text-left transition-colors ${
-                selectedType === 'Sequential'
+                approverType === 'Sequential'
                   ? 'border-primary bg-primary/5'
                   : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
               }`}
@@ -235,13 +259,13 @@ export const PayrollApprovalWorkFlow: React.FC<
               >
                 <span
                   className={`mt-1 mr-3 inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
-                    selectedType === 'Sequential'
+                    approverType === 'Sequential'
                       ? 'border-primary'
                       : 'border-gray-300'
                   }`}
                   data-cy="approval-workflow-sequential-radio"
                 >
-                  {selectedType === 'Sequential' && (
+                  {approverType === 'Sequential' && (
                     <span
                       className="h-[10px] w-[10px] rounded-full bg-primary"
                       data-cy="approval-workflow-sequential-radio-selected-indicator"
@@ -257,7 +281,7 @@ export const PayrollApprovalWorkFlow: React.FC<
                     id="approval-payroll-workflow-sequential-title"
                     data-cy="approval-payroll-workflow-sequential-title"
                     className={`text-sm font-medium ${
-                      selectedType === 'Sequential'
+                      approverType === 'Sequential'
                         ? 'text-primary'
                         : 'text-gray-900'
                     }`}
@@ -283,7 +307,7 @@ export const PayrollApprovalWorkFlow: React.FC<
               type="button"
               onClick={() => handleSelect('Parallel')}
               className={`flex w-full items-start rounded-lg border px-4 py-4 text-left transition-colors ${
-                selectedType === 'Parallel'
+                approverType === 'Parallel'
                   ? 'border-primary bg-primary/5'
                   : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
               }`}
@@ -295,13 +319,13 @@ export const PayrollApprovalWorkFlow: React.FC<
               >
                 <span
                   className={`mt-1 mr-3 inline-flex h-[18px] w-[18px] items-center justify-center rounded-full border ${
-                    selectedType === 'Parallel'
+                    approverType === 'Parallel'
                       ? 'border-primary'
                       : 'border-gray-300'
                   }`}
                   data-cy="approval-workflow-parallel-radio"
                 >
-                  {selectedType === 'Parallel' && (
+                  {approverType === 'Parallel' && (
                     <span
                       className="h-[10px] w-[10px] rounded-full bg-primary"
                       data-cy="approval-workflow-parallel-radio-selected-indicator"
@@ -317,7 +341,7 @@ export const PayrollApprovalWorkFlow: React.FC<
                     id="approval-payroll-workflow-parallel-title"
                     data-cy="approval-payroll-workflow-parallel-title"
                     className={`text-sm font-medium ${
-                      selectedType === 'Parallel'
+                      approverType === 'Parallel'
                         ? 'text-primary'
                         : 'text-gray-900'
                     }`}
@@ -377,18 +401,28 @@ export const PayrollApprovalWorkFlow: React.FC<
               </div>
             </button>
           </div>
-
-          {children && (
-            <>
-              <div
-                id="approval-payroll-workflow-step-two-container"
-                data-cy="approval-payroll-workflow-step-two-container"
-                className="mt-8 border-t border-gray-100 pt-6 pb-4"
-              >
-                {children}
-              </div>
-            </>
           )}
+
+          {(currentStep === 2 || currentStep === 3) && children ? (
+            <div
+              id="approval-payroll-workflow-step-two-container"
+              data-cy="approval-payroll-workflow-step-two-container"
+              className={currentStep === 3 ? 'hidden' : 'pt-2 pb-2'}
+              aria-hidden={currentStep === 3}
+            >
+              {children}
+            </div>
+          ) : null}
+
+          {currentStep === 3 && finalizeContent ? (
+            <div
+              id="approval-payroll-workflow-step-three-container"
+              data-cy="approval-payroll-workflow-step-three-container"
+              className="pt-2 pb-2"
+            >
+              {finalizeContent}
+            </div>
+          ) : null}
         </div>
       </div>
       {onClose && (
@@ -406,18 +440,40 @@ export const PayrollApprovalWorkFlow: React.FC<
           >
             Cancel
           </Button>
-          {onPrimaryClick && (
+          {currentStep === 1 && onContinueFromStep1 ? (
+            <Button
+              id="approval-payroll-workflow-modal-continue-step1-click-button"
+              data-cy="approval-payroll-workflow-modal-continue-step1-click-button"
+              type="primary"
+              className="ml-3 h-10 px-8"
+              onClick={onContinueFromStep1}
+              disabled={!approverType}
+            >
+              Continue
+            </Button>
+          ) : null}
+          {currentStep === 2 && onContinueFromStep2 ? (
+            <Button
+              id="approval-payroll-workflow-modal-continue-step2-click-button"
+              data-cy="approval-payroll-workflow-modal-continue-step2-click-button"
+              type="primary"
+              className="ml-3 h-10 px-8"
+              onClick={onContinueFromStep2}
+            >
+              Continue
+            </Button>
+          ) : null}
+          {currentStep === 3 && onCreate ? (
             <Button
               id="approval-payroll-workflow-modal-primary-click-button"
               data-cy="approval-payroll-workflow-modal-primary-click-button"
               type="primary"
               className="ml-3 h-10 px-8"
-              onClick={onPrimaryClick}
-              disabled={primaryDisabled}
+              onClick={onCreate}
             >
-              {primaryLabel ?? 'Create'}
+              Create
             </Button>
-          )}
+          ) : null}
         </div>
       )}
     </div>

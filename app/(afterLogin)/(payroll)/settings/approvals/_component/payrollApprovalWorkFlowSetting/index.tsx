@@ -18,11 +18,14 @@ const PayrollApprovalWorkFlowSetting = ({
   isSuccess,
   form,
   title,
+  wizardMode = false,
 }: {
   handleSubmit: (a: string) => void;
   isSuccess: boolean;
   form: any;
   title?: string;
+  /** Hide inner back/header when embedded in multi-step modal. */
+  wizardMode?: boolean;
 }) => {
   useEffect(() => {
     isSuccess && form.resetFields();
@@ -65,39 +68,41 @@ const PayrollApprovalWorkFlowSetting = ({
       id="approval-payroll-workflow-setting-container"
       data-cy="approval-payroll-workflow-setting-container"
     >
+      {!wizardMode && (
+        <div
+          className="mb-10 flex "
+          id="approval-payroll-workflow-setting-header"
+          data-cy="approval-payroll-workflow-setting-header"
+        >
+          <Button
+            className="flex items-center justify-center font-bold text-black border-none"
+            onClick={() => setDepartmentApproval(false)}
+            id={`settings-${pageSlug}-payroll-workflow-setting-back-btn`}
+            data-cy={`settings-${pageSlug}-payroll-workflow-setting-back-btn`}
+            icon={
+              <IoArrowBack data-cy="settings-payroll-workflow-setting-back-btn-icon" />
+            }
+          />
+          <PageHeader
+            size="small"
+            data-cy="payroll-settings-page-header-title-view-text"
+            title="Approval Setting "
+            description={
+              title
+                ? title
+                : approverType === 'Sequential'
+                  ? 'Sequential '
+                  : approverType === 'Parallel'
+                    ? 'Parallel '
+                    : approverType === 'Conditional'
+                      ? 'Conditional '
+                      : ' '
+            }
+          />
+        </div>
+      )}
       <div
-        className="mb-10 flex "
-        id="approval-payroll-workflow-setting-header"
-        data-cy="approval-payroll-workflow-setting-header"
-      >
-        <Button
-          className="flex items-center justify-center font-bold text-black border-none"
-          onClick={() => setDepartmentApproval(false)}
-          id={`settings-${pageSlug}-payroll-workflow-setting-back-btn`}
-          data-cy={`settings-${pageSlug}-payroll-workflow-setting-back-btn`}
-          icon={
-            <IoArrowBack data-cy="settings-payroll-workflow-setting-back-btn-icon" />
-          }
-        />
-        <PageHeader
-          size="small"
-          data-cy="payroll-settings-page-header-title-view-text"
-          title="Approval Setting "
-          description={
-            title
-              ? title
-              : approverType === 'Sequential'
-                ? 'Sequential '
-                : approverType === 'Parallel'
-                  ? 'Parallel '
-                  : approverType === 'Conditional'
-                    ? 'Conditional '
-                    : ' '
-          }
-        />
-      </div>
-      <div
-        className="px-8"
+        className={wizardMode ? 'px-0' : 'px-8'}
         id="approval-payroll-workflow-setting-form"
         data-cy="approval-payroll-workflow-setting-form"
       >

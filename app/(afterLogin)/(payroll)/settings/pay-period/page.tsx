@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 import { Button, Spin, Tooltip } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import { useFetchActiveFiscalYearPayPeriods } from '@/store/server/features/payroll/setting/tax-rule/queries';
@@ -13,6 +12,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomDrawer from './_components/customDrawer';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import { FaPlus } from 'react-icons/fa';
+import { FaPencil } from 'react-icons/fa6';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -102,26 +102,8 @@ const PayPeriod = () => {
     <div
       id="payroll-payperiod-page-view-container"
       data-cy="payroll-payperiod-page-view-container"
-      className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden"
+      className="rounded-xl bg-white overflow-hidden"
     >
-      <div
-        id="payroll-payperiod-header-view-container"
-        data-cy="payroll-payperiod-header-view-container"
-        className="flex justify-between items-center px-6 py-5"
-      >
-        <h1
-          id="payroll-payperiod-title-view-text"
-          data-cy="payroll-payperiod-title-view-text"
-          className="text-lg font-semibold text-gray-900"
-        >
-          Pay Period
-        </h1>
-        <div
-          id="payroll-payperiod-header-action-spacer"
-          data-cy="payroll-payperiod-header-action-spacer"
-          className="hidden sm:block"
-        />
-      </div>
       <div
         id="payroll-payperiod-hidden-primary-action-target"
         data-cy="payroll-payperiod-hidden-primary-action-target"
@@ -151,7 +133,7 @@ const PayPeriod = () => {
         <div
           id="payroll-payperiod-grid-wrapper-view-container"
           data-cy="payroll-payperiod-grid-wrapper-view-container"
-          className="px-6 pb-5"
+          className="pt-5 pb-5"
         >
           <div
             id="payroll-payperiod-grid-view-container"
@@ -195,7 +177,8 @@ const PayPeriod = () => {
                           aria-label={`Edit ${period.month} pay period`}
                           onClick={() => handleEdit(period)}
                         >
-                          <EditOutlined
+                          <FaPencil
+                            className="text-sm"
                             data-cy={`payroll-payperiod-card-edit-icon-${period.id}`}
                           />
                         </button>
@@ -220,7 +203,7 @@ const PayPeriod = () => {
                       data-cy={`payroll-payperiod-card-status-${period.id}`}
                       className={`inline-flex items-center rounded border px-2.5 py-1 text-[11px] font-medium ${
                         isOpen
-                          ? 'border-green-200 bg-green-50 text-green-600'
+                          ? 'border-green-200 bg-[#F6FFED] text-[#52C41A]'
                           : 'border-gray-200 bg-gray-50 text-gray-500'
                       }`}
                     >

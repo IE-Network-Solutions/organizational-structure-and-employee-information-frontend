@@ -15,7 +15,7 @@ import {
   Modal,
   Radio,
 } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { CloseOutlined, DeleteOutlined } from '@ant-design/icons';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import {
@@ -287,7 +287,8 @@ const PayPeriodSideBar = () => {
       label: 'Cancel',
       key: 'cancel',
       dataCy: 'payroll-payperiod-sidebar-cancel-button',
-      className: 'h-12',
+      className:
+        'h-8 rounded-md border border-gray-300 bg-white px-4 text-sm font-normal text-gray-700 hover:bg-gray-50',
       loading: false,
       onClick: () => onClose(),
     },
@@ -299,7 +300,7 @@ const PayPeriodSideBar = () => {
       ),
       key: 'create',
       dataCy: 'payroll-payperiod-sidebar-create-button',
-      className: 'h-12',
+      className: 'h-8 rounded-md px-4 text-sm font-normal',
       type: 'primary' as const,
       loading: createPayPeriodsLoading,
       onClick: () => form.submit(),
@@ -343,50 +344,58 @@ const PayPeriodSideBar = () => {
       centered
       width={640}
       destroyOnClose
+      mask
       maskClosable={false}
       closable={false}
-      className="!p-0"
+      zIndex={10002}
+      style={{ maxWidth: 'calc(100vw - 32px)' }}
+      rootClassName="[&_.ant-modal-content]:!rounded-xl [&_.ant-modal-content]:!overflow-hidden [&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
+      classNames={{
+        body: '!p-0 hide-scrollbar',
+      }}
+      styles={{
+        content: { borderRadius: 12, padding: 0 },
+        body: { borderBottom: 'none' },
+      }}
     >
       {/* Header */}
       <div
         id="payroll-payperiod-sidebar-modal-header"
         data-cy="payroll-payperiod-sidebar-modal-header"
-        className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+        className="flex items-center justify-between gap-4 px-6 py-4"
       >
         <span
           id="payroll-payperiod-sidebar-header-title"
           data-cy="payroll-payperiod-sidebar-header-title"
-          className="text-[22px] font-bold text-gray-900 tracking-tight"
+          className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-gray-900"
         >
-          Add Pay Periods
+          Edit Pay Periods
         </span>
         <button
           id="payroll-payperiod-sidebar-modal-close-click-button"
           data-cy="payroll-payperiod-sidebar-modal-close-click-button"
           type="button"
           onClick={onClose}
-          className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
           aria-label="Close modal"
         >
-          <span
+          <CloseOutlined
             id="payroll-payperiod-sidebar-modal-close-icon"
             data-cy="payroll-payperiod-sidebar-modal-close-icon"
-            className="text-lg leading-none"
-          >
-            ✕
-          </span>
+            style={{ fontSize: 16, color: '#262626' }}
+          />
         </button>
       </div>
       {/* Body */}
       <div
         id="payroll-payperiod-sidebar-modal-body-view-container"
         data-cy="payroll-payperiod-sidebar-modal-body-view-container"
-        className="px-6 pt-4 pb-2 bg-gray-50/60"
+        className="bg-white px-6 pb-2 pt-0"
       >
         <div
           id="payroll-payperiod-sidebar-modal-card-view-container"
           data-cy="payroll-payperiod-sidebar-modal-card-view-container"
-          className="bg-white border border-gray-200 rounded-xl shadow-sm p-6"
+          className="mt-4 px-6 py-5"
         >
           <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
             <Form
@@ -423,15 +432,19 @@ const PayPeriodSideBar = () => {
                 id="payroll-payperiod-sidebar-mode-formitem"
                 data-cy="payroll-payperiod-sidebar-mode-formitem"
                 name="payPeriodMode"
-                label="Pay Period mode"
+                label="Pay Period Breakdown"
+                required={false}
                 rules={[
-                  { required: true, message: 'Please select pay period mode' },
+                  {
+                    required: true,
+                    message: 'Please select a pay period breakdown',
+                  },
                 ]}
               >
                 <Radio.Group
                   id="payroll-payperiod-sidebar-mode-radio-group"
                   data-cy="payroll-payperiod-sidebar-mode-radio-group"
-                  className="mt-2 space-y-3"
+                  className="mt-2 space-y-3 w-full"
                   value={payPeriodMode}
                   onChange={(e) => setPayPeriodMode(e.target.value)}
                 >
@@ -899,7 +912,7 @@ const PayPeriodSideBar = () => {
       <div
         id="payroll-payperiod-sidebar-modal-footer"
         data-cy="payroll-payperiod-sidebar-modal-footer"
-        className="w-full flex justify-end items-center gap-4 px-2 pb-2 pt-6"
+        className="flex w-full items-center justify-end gap-3 bg-white px-6 pb-6 pt-4"
       >
         {footerModalItems.map((item) => (
           <Button

@@ -1,12 +1,15 @@
 import React, { useEffect } from 'react';
 //import CustomDrawerLayout from '@/components/common/customDrawer';
+import { CloseOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Modal, Select } from 'antd';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import dayjs from 'dayjs';
 import { useEditPayPeriod } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import { useChangePayPeriodStatus } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import utc from 'dayjs/plugin/utc';
+import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { FaPencil } from 'react-icons/fa6';
 
 dayjs.extend(utc);
 
@@ -28,7 +31,7 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
 
   const [form] = Form.useForm();
   const { isMobile, isTablet } = useIsMobile();
-  const modalWidth = width || (isMobile ? '100%' : isTablet ? '480px' : '30%');
+  const modalWidth = width || (isMobile ? '100%' : isTablet ? '600px' : '720px');
 
   useEffect(() => {
     form.setFieldsValue({
@@ -90,20 +93,30 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       centered
       width={modalWidth}
       destroyOnClose
+      mask
       maskClosable={false}
       closable={false}
-      className="!p-0"
+      zIndex={10002}
+      style={{ maxWidth: 'calc(100vw - 32px)' }}
+      rootClassName="[&_.ant-modal-content]:!rounded-xl [&_.ant-modal-content]:!overflow-hidden [&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
+      classNames={{
+        body: '!p-0 hide-scrollbar',
+      }}
+      styles={{
+        content: { borderRadius: 12, padding: 0 },
+        body: { borderBottom: 'none' },
+      }}
     >
       {/* Header */}
       <div
         id="payroll-payperiod-edit-modal-header"
         data-cy="payroll-payperiod-edit-modal-header"
-        className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100"
+        className="flex items-center justify-between gap-4 px-6 py-4"
       >
         <h2
           id="payroll-payperiod-edit-modal-title"
           data-cy="payroll-payperiod-edit-modal-title"
-          className="text-[22px] font-bold text-gray-900 tracking-tight"
+          className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-gray-900"
         >
           Edit Pay Period
         </h2>
@@ -113,16 +126,14 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           data-cy="payroll-payperiod-edit-modal-close-click-button"
           type="button"
           onClick={onClose}
-          className="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors p-2 rounded-md hover:bg-gray-100"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
           aria-label="Close modal"
         >
-          <span
+          <CloseOutlined
             id="payroll-payperiod-edit-modal-close-icon"
             data-cy="payroll-payperiod-edit-modal-close-icon"
-            className="text-lg leading-none"
-          >
-            ✕
-          </span>
+            style={{ fontSize: 16, color: '#262626' }}
+          />
         </button>
       </div>
 
@@ -130,12 +141,12 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       <div
         id="payroll-payperiod-edit-modal-body-view-container"
         data-cy="payroll-payperiod-edit-modal-body-view-container"
-        className="px-6 pt-4 pb-2 bg-gray-50/60"
+        className="bg-white px-6 pb-2 pt-0"
       >
         <div
           id="payroll-payperiod-edit-modal-card-view-container"
           data-cy="payroll-payperiod-edit-modal-card-view-container"
-          className="bg-white border border-gray-200 rounded-xl shadow-sm p-6"
+          className="mt-4 rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5"
         >
           <Form
             id="payroll-payperiod-edit-drawer-form"
@@ -143,7 +154,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
             form={form}
             layout="vertical"
             onFinish={onFinish}
-            className="flex flex-col gap-5"
+            requiredMark={CustomLabel}
+            className="flex flex-col gap-4 [&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-normal [&_.ant-form-item-label>label]:text-[#262626]"
           >
             {/* Month */}
             <Form.Item
@@ -222,13 +234,13 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
       <div
         id="payroll-payperiod-edit-modal-footer"
         data-cy="payroll-payperiod-edit-modal-footer"
-        className="w-full flex justify-end items-center gap-3 px-6 py-4 border-t border-gray-100 bg-white"
+        className="flex w-full items-center justify-end gap-3 bg-white px-6 pb-6 pt-4"
       >
         <Button
           id="payroll-payperiod-edit-drawer-cancel"
           data-cy="payroll-payperiod-edit-drawer-cancel"
           type="default"
-          className="h-10"
+          className="h-8 rounded-md border border-gray-300 bg-white px-4 text-sm font-normal text-gray-700 hover:bg-gray-50"
           onClick={onClose}
           disabled={isChangingStatus}
         >
@@ -238,7 +250,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           id="payroll-payperiod-edit-drawer-submit"
           data-cy="payroll-payperiod-edit-drawer-submit"
           type="primary"
-          className="h-10"
+          className="h-8 rounded-md px-4 text-sm font-normal"
+          icon={<FaPencil className="text-sm" />}
           onClick={() => form.submit()}
           loading={isLoading}
           disabled={isChangingStatus}

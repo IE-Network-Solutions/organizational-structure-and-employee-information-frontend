@@ -2,9 +2,10 @@
 
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Breadcrumb, Button, Tabs, theme } from 'antd';
+import { Breadcrumb, Button, Divider, Tabs, theme } from 'antd';
 import type { TabsProps } from 'antd';
-import { EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
+import { FaPencil } from 'react-icons/fa6';
 import usePensionRulesStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
 
@@ -108,7 +109,10 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       }`}
       icon={
         currentItem === 'pay-period' ? (
-          <EditOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
+          <FaPencil
+            className="text-sm"
+            data-cy="payroll-settings-tabs-primary-action-button-icon"
+          />
         ) : (
           <PlusOutlined data-cy="payroll-settings-tabs-primary-action-button-icon" />
         )
@@ -204,6 +208,17 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
               ]}
               data-cy="payroll-settings-breadcrumb"
               id="payroll-settings-breadcrumb"
+            />
+          </div>
+          <div
+            id="payroll-settings-breadcrumb-tabs-divider-bleed"
+            data-cy="payroll-settings-breadcrumb-tabs-divider-bleed"
+            className="-mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]"
+          >
+            <Divider
+              id="payroll-settings-breadcrumb-tabs-divider"
+              data-cy="payroll-settings-breadcrumb-tabs-divider"
+              className="!my-0 !mt-4 !border-gray-200"
             />
           </div>
         </div>
