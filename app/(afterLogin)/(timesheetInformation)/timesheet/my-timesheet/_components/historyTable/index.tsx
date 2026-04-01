@@ -289,7 +289,7 @@ const HistoryTable = () => {
       >
         {/* Filters + New Request: one filter form; desktop matches attendance (left group / right action + gap). */}
         <div
-          className="pl-4 pr-0 py-3 sm:p-0"
+          className="px-4 py-3 sm:p-0"
           id="time-attendance-history-table-toolbar"
           data-cy="time-attendance-history-table-toolbar"
         >
