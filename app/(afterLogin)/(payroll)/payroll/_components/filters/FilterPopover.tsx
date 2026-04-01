@@ -530,7 +530,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
         }
       >
-        <span className="hidden sm:inline">Filter</span>
+        <span className="hidden sm:inline" data-cy="payroll-filter-popover-button-text">Filter</span>
       </Button>
     </Popover>
   );
