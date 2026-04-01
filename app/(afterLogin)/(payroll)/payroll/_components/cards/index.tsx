@@ -28,7 +28,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
     <div
       id="payroll-summary-card-view-column"
       data-cy={dataCy || 'payroll-summary-card-view-column'}
-      className="w-full min-w-0 lg:w-auto lg:min-w-[calc(25%-12px)] lg:flex-shrink-0"
+      className="w-full min-w-0"
     >
       <Card
         id="payroll-summary-card-view-card"
@@ -39,7 +39,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
           borderRadius: '10px',
           border: '2px solid #A8AEB9',
         }}
-        styles={{ body: { padding: '20px' } }}
+        styles={{ body: { padding: '16px' } }}
       >
         <div
           id="payroll-summary-card-title-row"
@@ -72,7 +72,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
         <h3
           id="payroll-summary-card-value-view-text"
           data-cy="payroll-summary-card-value-view-text"
-          className="text-2xl font-bold mb-4 text-gray-800"
+          className="text-xl font-semibold mb-4 text-gray-800"
         >
           {value
             ? Number(value).toLocaleString('en-US', {

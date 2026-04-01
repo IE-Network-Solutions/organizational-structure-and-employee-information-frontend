@@ -39,7 +39,6 @@ import {
 const { Text } = Typography;
 import {
   SearchOutlined,
-  EllipsisOutlined,
   FileSyncOutlined,
 } from '@ant-design/icons';
 
@@ -87,11 +86,13 @@ import {
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useRouter } from 'next/navigation';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {
-  MdAccountBalanceWallet,
   MdAttachMoney,
   MdCardGiftcard,
-  MdComputer,
 } from 'react-icons/md';
 
 const Payroll = () => {
@@ -1322,7 +1323,7 @@ const Payroll = () => {
                 className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
                 aria-label="More actions"
               >
-                <EllipsisOutlined
+                <MoreHorizIcon
                   className="text-gray-600 text-lg leading-none"
                   data-cy="payroll-more-actions-dots-view-text"
                 />
@@ -1604,7 +1605,7 @@ const Payroll = () => {
           <div
             id="payroll-summary-cards-view-row"
             data-cy="payroll-summary-cards-view-row"
-            className="mb-8 flex flex-col gap-4 lg:flex-row lg:flex-nowrap lg:overflow-x-auto scrollbar-none pb-2"
+            className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
           >
             <PayrollCard
               title="Total Amount"
@@ -1619,7 +1620,7 @@ const Payroll = () => {
               data-cy="payroll-summary-card-net-paid-view-component"
               value={payrollForExport?.totalNetPayAmount}
               icon={
-                <MdAccountBalanceWallet
+                <LocalAtmIcon
                   data-cy="payroll-summary-card-net-paid-amount-icon"
                   className="w-5 h-5"
                 />
@@ -1632,7 +1633,7 @@ const Payroll = () => {
               data-cy="payroll-summary-card-total-allowance-view-component"
               value={payrollForExport?.totalAllowanceAmount}
               icon={
-                <MdComputer
+                <PaymentsIcon
                   data-cy="payroll-summary-card-total-allowance-icon"
                   className="w-5 h-5"
                 />
@@ -1657,6 +1658,14 @@ const Payroll = () => {
               title="Total Deduction"
               data-cy="payroll-summary-card-total-deduction-view-component"
               value={payrollForExport?.totalDeductionsAmount}
+              icon={
+                <MoneyOffIcon
+                  data-cy="payroll-summary-card-total-deduction-icon"
+                  className="w-5 h-5"
+                />
+              }
+              iconBg="bg-[#FFF2F0]"
+              iconText="text-[#FF4D4F]"
             />
           </div>
           <div
