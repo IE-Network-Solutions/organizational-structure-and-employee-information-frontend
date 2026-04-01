@@ -220,7 +220,7 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
               data-cy="payroll-settings-tabs"
               className="w-full"
             >
-              <div className="flex w-full items-end justify-between gap-2 border-b border-gray-200">
+              <div className="flex w-full items-end justify-between gap-2 border-b border-gray-200" data-cy="payroll-settings-tabs-container">
                 <div
                   className="scrollbar-hide flex min-w-0 flex-1 items-end gap-8 overflow-x-auto [-webkit-overflow-scrolling:touch]"
                   data-cy="payroll-settings-tabs-scroll"
