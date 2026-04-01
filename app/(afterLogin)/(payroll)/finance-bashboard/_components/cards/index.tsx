@@ -128,7 +128,7 @@ export default function PayrollCards({
                 {card.icon}
               </span>
               <span
-                className="min-w-0 truncate text-xs font-medium text-gray-600"
+                className="min-w-0 truncate text-baase font-medium text-black/70"
                 data-cy={`${dataCy}-title-${card.key}`}
               >
                 {card.title}
