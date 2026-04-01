@@ -2,7 +2,15 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import LeaveManagementTable from './_components/leaveManagementTable';
-import { Breadcrumb, Button, Modal, Popover, Space, Tooltip } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  Divider,
+  Modal,
+  Popover,
+  Space,
+  Tooltip,
+} from 'antd';
 import Link from 'next/link';
 import { CloseOutlined } from '@ant-design/icons';
 import LeaveRequestDetailModal from './_components/leaveRequestDetailModal';
@@ -91,6 +99,23 @@ const LeaveManagement = () => {
 
   return (
     <>
+      <style data-cy="time-attendance-leave-management-leaves-page-styles">{`
+        @media (min-width: 640px) {
+     .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+          }
+        }
+      `}</style>
       <div
         className="h-auto w-auto pb-6 bg-white rounded-lg"
         id="time-attendance-leave-management-page-container"
@@ -255,6 +280,12 @@ const LeaveManagement = () => {
               </Popover>
             </Space>
           </div>
+
+          <Divider
+            className="full-bleed-header-divider"
+            style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+            data-cy="time-attendance-leave-management-leaves-header-divider"
+          />
 
           <LeaveManagementTable
             data-cy="time-attendance-leave-management-table"
