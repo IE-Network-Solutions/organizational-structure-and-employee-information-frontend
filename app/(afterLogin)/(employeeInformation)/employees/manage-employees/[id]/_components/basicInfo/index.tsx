@@ -15,10 +15,6 @@ import { useDeleteProfileImage } from '@/store/server/features/employees/employe
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-<<<<<<< HEAD
-const DefaultAvatar = '/gender_neutral_avatar.jpg';
-=======
->>>>>>> origin/develop-redesign-branch
 import dayjs from 'dayjs';
 import { LuPencil } from 'react-icons/lu';
 import { UserOutlined } from '@ant-design/icons';

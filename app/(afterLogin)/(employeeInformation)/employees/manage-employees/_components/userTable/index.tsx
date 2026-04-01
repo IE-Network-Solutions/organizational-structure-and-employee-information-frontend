@@ -5,11 +5,7 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
 import userTypeButton from '../userTypeButton';
 import Image from 'next/image';
-<<<<<<< HEAD
-const Avatar = '/gender_neutral_avatar.jpg';
-=======
 import { UserOutlined } from '@ant-design/icons';
->>>>>>> origin/develop-redesign-branch
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useRouter } from 'next/navigation';

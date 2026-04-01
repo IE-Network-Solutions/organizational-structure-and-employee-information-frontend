@@ -444,7 +444,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     },
                   ]}
                 >
-                  <div data-cy="talent-acquisition-job-create-candidate-input-cgpa-contanier"className="relative h-10 w-full flex items-center">
+                  <div
+                    data-cy="talent-acquisition-job-create-candidate-input-cgpa-contanier"
+                    className="relative h-10 w-full flex items-center"
+                  >
                     <InputNumber
                       id="talent-acquisition-job-create-candidate-input-cgpa"
                       data-cy="talent-acquisition-job-create-candidate-input-cgpa"

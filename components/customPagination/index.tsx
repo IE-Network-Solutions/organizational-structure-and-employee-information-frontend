@@ -33,20 +33,16 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   grayBackground = false,
   showGoToPage = false,
 }) => {
-<<<<<<< HEAD
   const [goToPageValue, setGoToPageValue] = useState<string>(String(current));
   const { isMobile } = useIsMobile();
 
   useEffect(() => {
     setGoToPageValue(String(current));
   }, [current]);
-
-=======
   const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
   const selectPageSizes = [...new Set([...basePageSizes, pageSize])].sort(
     (a, b) => a - b,
   );
->>>>>>> origin/develop-redesign-branch
   const handlePageChange = (page: number) => {
     onChange(page, pageSize);
     setGoToPageValue(String(page));
@@ -80,17 +76,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-<<<<<<< HEAD
             className={`${
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
             } flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
               current === i ? activeButtonClass : inactiveButtonClass
-=======
-            className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
-              current === i
-                ? ' border border-[#1e40af] text-[#1e40af] font-semibold '
-                : ' text-[#111827] font-normal hover:bg-gray-100'
->>>>>>> origin/develop-redesign-branch
             }`}
             data-cy="pagination-page-button"
           >
@@ -105,17 +94,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-<<<<<<< HEAD
           className={`${
             isMobile ? 'w-10 h-10' : 'w-8 h-8'
           } flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
             current === 1 ? activeButtonClass : inactiveButtonClass
-=======
-          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
-            current === 1
-              ? 'border border-[#1e40af] text-[#1e40af] font-semibold '
-              : 'text-[#111827] font-normal hover:bg-gray-100'
->>>>>>> origin/develop-redesign-branch
           }`}
           data-cy="pagination-page-button"
         >
@@ -150,17 +132,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-<<<<<<< HEAD
             className={`${
               isMobile ? 'w-10 h-10' : 'w-8 h-8'
             } flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
               current === i ? activeButtonClass : inactiveButtonClass
-=======
-            className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors  ${
-              current === i
-                ? ' border border-[#1e40af] text-[#1e40af] font-semibold '
-                : ' text-[#111827] font-normal hover:bg-gray-100'
->>>>>>> origin/develop-redesign-branch
             }`}
             data-cy="pagination-page-button"
           >
@@ -185,15 +160,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-<<<<<<< HEAD
           className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${
             current === totalPages ? activeButtonClass : inactiveButtonClass
-=======
-          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
-            current === totalPages
-              ? ' border-[1px] border-[#1e40af] text-[#1e40af] font-semibold '
-              : ' text-[#111827] font-normal  hover:bg-gray-100'
->>>>>>> origin/develop-redesign-branch
           }`}
           data-cy="pagination-page-button"
         >
@@ -221,11 +189,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           data-cy="pagination-prev-button"
-<<<<<<< HEAD
           className={`w-8 h-8 flex items-center justify-center border rounded-md ${
-=======
-          className={`w-8 h-8 flex items-center justify-center  ${
->>>>>>> origin/develop-redesign-branch
             current === 1
               ? 'text-[#111827] opacity-50'
               : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
@@ -239,11 +203,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           data-cy="pagination-next-button"
-<<<<<<< HEAD
           className={`w-8 h-8 flex items-center justify-center border rounded-md ${
-=======
-          className={`w-8 h-8 flex items-center justify-center ${
->>>>>>> origin/develop-redesign-branch
             current === totalPages
               ? 'text-[#111827] opacity-50'
               : 'text-[#111827] hover:bg-gray-50 hover:border-gray-200 active:bg-gray-100'
@@ -257,11 +217,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         className={`flex items-center gap-2 ${isMobile ? 'order-2 w-full justify-between' : 'justify-end'}`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-<<<<<<< HEAD
         {!isMobile && !showGoToPage && (
-=======
-        {!isMobile && (
->>>>>>> origin/develop-redesign-branch
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
@@ -285,71 +241,17 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <Select
           id="pagination-page-size"
           value={pageSize}
-          className="w-[108px] h-10 text-center text-sm px-1 border-gray-100"
+          className={isMobile ? 'w-20' : 'w-24'}
           size={isMobile ? 'small' : 'middle'}
           onChange={(value) => handleSizeChange(value)}
-<<<<<<< HEAD
-          data-cy="pagination-page-size"
-        >
-          <Option value={5} data-cy="pagination-option-5">
-            <span
-              className="text-xs text-[#111827]"
-              data-cy="pagination-option-5-label"
-            >
-              {isMobile ? '5' : 'Show 5'}
-            </span>
-          </Option>
-          <Option value={10} data-cy="pagination-option-10">
-            <span
-              className="text-xs text-[#111827]"
-              data-cy="pagination-option-10-label"
-            >
-              {isMobile ? '10' : 'Show 10'}
-            </span>
-          </Option>
-          <Option value={25} data-cy="pagination-option-25">
-            <span
-              className="text-xs text-[#111827]"
-              data-cy="pagination-option-25-label"
-            >
-              {isMobile ? '25' : 'Show 25'}
-            </span>
-          </Option>
-          <Option value={50} data-cy="pagination-option-50">
-            <span
-              className="text-xs text-[#111827]"
-              data-cy="pagination-option-50-label"
-            >
-              {isMobile ? '50' : 'Show 50'}
-            </span>
-          </Option>
-          <Option value={75} data-cy="pagination-option-75">
-            <span
-              className="text-xs text-[#111827]"
-              data-cy="pagination-option-75-label"
-            >
-              {isMobile ? '75' : 'Show 75'}
-            </span>
-          </Option>
-          <Option value={100} data-cy="pagination-option-100">
-            <span
-              className="text-xs text-[#111827]"
-              data-cy="pagination-option-100-label"
-            >
-              {isMobile ? '100' : 'Show 100'}
-            </span>
-          </Option>
-        </Select>
-
-        {showGoToPage && !isMobile && (
-          <>
-            <span
-              className="text-sm text-gray-600 whitespace-nowrap"
-=======
           data-cy="pagination-page-size-select"
         >
           {selectPageSizes.map((size) => (
-            <Option key={size} value={size}>
+            <Option
+              key={size}
+              value={size}
+              data-cy={`pagination-option-${size}`}
+            >
               <span
                 className="text-xs text-[#111827]"
                 data-cy={`pagination-page-size-option-${size}`}
@@ -360,20 +262,15 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           ))}
         </Select>
 
-        {!isMobile && totalPages > 0 && (
-          <div
-            className="flex items-center gap-2 ml-4"
-            data-cy="pagination-goto"
-          >
+        {showGoToPage && !isMobile && (
+          <>
             <span
-              className="text-sm text-[#718096]"
->>>>>>> origin/develop-redesign-branch
+              className="text-sm text-gray-600 whitespace-nowrap"
               data-cy="pagination-goto-label"
             >
               Go to
             </span>
             <Input
-<<<<<<< HEAD
               id="pagination-goto-input"
               value={goToPageValue}
               onChange={(e) =>
@@ -391,25 +288,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               Page
             </span>
           </>
-=======
-              type="number"
-              placeholder="Input"
-              min={1}
-              max={totalPages}
-              value={goToPageValue}
-              onChange={(e) => setGoToPageValue(e.target.value)}
-              onPressEnter={handleGoToPage}
-              className="w-[75px] h-10 text-center text-sm px-1 border-gray-100"
-              data-cy="pagination-goto-input"
-            />
-            <span
-              className="text-sm text-[#718096]"
-              data-cy="pagination-goto-page-label-number-of-page"
-            >
-              Page
-            </span>
-          </div>
->>>>>>> origin/develop-redesign-branch
         )}
       </div>
     </div>
