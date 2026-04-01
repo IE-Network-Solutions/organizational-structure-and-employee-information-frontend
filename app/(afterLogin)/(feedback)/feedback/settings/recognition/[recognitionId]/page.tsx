@@ -192,15 +192,12 @@ export default function RecognitionDetailPage() {
                                 {child?.frequency}
                               </Tag>
                             )}
-                            {selectedRecognition?.children?.department && (
+                            {child?.department && (
                               <Tag
                                 className="text-xs"
                                 data-cy="recognition-detail-item-department-tag"
                               >
-                                {
-                                  selectedRecognition?.children?.department
-                                    ?.createdAt
-                                }
+                                {child?.department?.name}
                               </Tag>
                             )}
 
