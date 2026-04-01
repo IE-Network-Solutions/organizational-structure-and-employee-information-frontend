@@ -5,8 +5,8 @@ import {
   DatePicker,
   Empty,
   Form,
-  Modal,
   Popconfirm,
+  Popover,
   Select,
   Spin,
   Table,
@@ -264,7 +264,7 @@ const Page = () => {
               size={36}
               src={user.avatar}
               icon={<UserOutlined />}
-              className="flex-shrink-0 border border-[#e5e7eb] bg-gray-50"
+              className="flex-shrink-0 border border-[#d1d5db] bg-[#e5e7eb] [&_.anticon]:text-[#4b5563]"
             />
             <span
               data-cy={`feedback-table-issued-to-name-${record?.id}`}
@@ -311,7 +311,7 @@ const Page = () => {
               size={36}
               src={user.avatar}
               icon={<UserOutlined />}
-              className="flex-shrink-0 border border-[#e5e7eb] bg-gray-50"
+              className="flex-shrink-0 border border-[#d1d5db] bg-[#e5e7eb] [&_.anticon]:text-[#4b5563]"
             />
             <span
               data-cy={`feedback-table-given-by-name-${record?.id}`}
@@ -427,7 +427,7 @@ const Page = () => {
 
   return (
     <div
-      className="feedback-page-mobile-root min-h-screen h-auto w-full bg-white px-3 py-1 md:px-1 md:py-4"
+      className="feedback-page-mobile-root min-h-screen h-auto w-full bg-white py-1 md:py-4"
       data-cy="feedback-page"
     >
       {/*
@@ -698,35 +698,207 @@ const Page = () => {
                 </button>
               </div>
             ))}
-            <Button
-              type="default"
-              icon={
-                <MdOutlineFilterAlt
-                  className="text-base text-[#374151]"
-                  aria-hidden
-                />
-              }
-              onClick={() => {
-                if (filterModalOpen) {
-                  setFilterModalOpen(false);
-                  return;
+            <Popover
+              open={filterModalOpen}
+              onOpenChange={(open) => {
+                if (open) {
+                  setFilterDraftDate(
+                    Array.isArray(givenDate) &&
+                      givenDate.length === 2 &&
+                      givenDate[0] &&
+                      givenDate[1]
+                      ? [givenDate[0], givenDate[1]]
+                      : null,
+                  );
+                  setFilterDraftType(feedbackListTypeId);
                 }
-                setFilterDraftDate(
-                  Array.isArray(givenDate) &&
-                    givenDate.length === 2 &&
-                    givenDate[0] &&
-                    givenDate[1]
-                    ? [givenDate[0], givenDate[1]]
-                    : null,
-                );
-                setFilterDraftType(feedbackListTypeId);
-                setFilterModalOpen(true);
+                setFilterModalOpen(open);
               }}
-              className="flex !h-8 shrink-0 items-center gap-2 !rounded-md !border !border-[#D9D9D9] !bg-white !px-3 !text-sm !font-normal !text-[#374151] shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#d1d5db] md:!border-[#e5e7eb] md:shadow-none"
-              data-cy="feedback-page-date-filter-btn"
+              placement="bottomRight"
+              trigger="click"
+              arrow={false}
+              destroyTooltipOnHide
+              overlayClassName="feedback-filter-popover"
+              overlayInnerStyle={{
+                padding: 0,
+                width: 509,
+                maxWidth: 'min(509px, calc(100vw - 24px))',
+                borderRadius: 8,
+                boxShadow:
+                  '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
+                overflow: 'hidden',
+              }}
+              data-cy="feedback-filter-popover"
+              content={
+                <div
+                  className="feedback-filter-modal-root flex max-h-[min(346px,90vh)] flex-col items-stretch bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif]"
+                  data-cy="feedback-filter-modal-root"
+                >
+                  <div
+                    className="relative flex shrink-0 flex-row items-center gap-[10px] px-6 pb-2 pt-5"
+                    data-cy="feedback-filter-modal-header"
+                  >
+                    <h3
+                      className="m-0 flex-1 text-base font-bold leading-6 text-black/[0.7]"
+                      data-cy="feedback-filter-modal-title"
+                    >
+                      Filter
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setFilterModalOpen(false)}
+                      className="absolute right-5 top-4 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-black/[0.45] transition-colors hover:bg-black/[0.04]"
+                      aria-label="Close"
+                      data-cy="feedback-filter-modal-close"
+                    >
+                      <IoCloseOutline className="text-base" />
+                    </button>
+                  </div>
+
+                  <div
+                    className="feedback-filter-modal-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-3"
+                    data-cy="feedback-filter-modal-scroll"
+                  >
+                    <div
+                      className="flex w-full max-w-[461px] flex-col"
+                      data-cy="feedback-filter-modal-issue-date-section"
+                    >
+                      <div
+                        className="flex flex-row items-center pb-2"
+                        data-cy="feedback-filter-modal-issue-date-label-row"
+                      >
+                        <span
+                          className="text-sm font-normal leading-[22px] text-[#030712]"
+                          data-cy="feedback-filter-modal-issue-date-label"
+                        >
+                          Issue Date
+                        </span>
+                      </div>
+                      <RangePicker
+                        allowClear
+                        placeholder={['Start date', 'End date']}
+                        suffixIcon={
+                          <CalendarOutlined className="text-[18px] text-black/[0.25]" />
+                        }
+                        separator={
+                          <SwapRightOutlined className="text-[18px] text-black/[0.25]" />
+                        }
+                        value={
+                          filterDraftDate
+                            ? [
+                                dayjs(filterDraftDate[0]),
+                                dayjs(filterDraftDate[1]),
+                              ]
+                            : null
+                        }
+                        onChange={(dates, dateStrings) => {
+                          if (!dates) {
+                            setFilterDraftDate(null);
+                            return;
+                          }
+                          if (dates[0] && dates[1]) {
+                            setFilterDraftDate([
+                              dateStrings[0],
+                              dateStrings[1],
+                            ]);
+                          }
+                        }}
+                        className="feedback-modal-range-picker w-full max-w-[461px]"
+                        data-cy="feedback-filter-modal-date-range"
+                      />
+                    </div>
+
+                    <div
+                      className="flex w-full max-w-[461px] flex-col"
+                      data-cy="feedback-filter-modal-type-section"
+                    >
+                      <div
+                        className="flex flex-row items-center pb-2"
+                        data-cy="feedback-filter-modal-type-label-row"
+                      >
+                        <span
+                          className="text-sm font-normal leading-[22px] text-[#030712]"
+                          data-cy="feedback-filter-modal-type-label"
+                        >
+                          Type
+                        </span>
+                      </div>
+                      <Select
+                        allowClear
+                        placeholder="Select"
+                        value={filterDraftType}
+                        onChange={(val) => setFilterDraftType(val)}
+                        options={(getAllFeedbackTypes?.items ?? []).map(
+                          (item: any) => ({
+                            value: item.id,
+                            label: item.category,
+                          }),
+                        )}
+                        className="feedback-modal-type-select w-full max-w-[461px]"
+                        popupClassName="feedback-modal-type-dropdown"
+                        data-cy="feedback-filter-modal-type"
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    className="mt-1 flex shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5 pt-0"
+                    data-cy="feedback-filter-modal-footer"
+                  >
+                    <Button
+                      type="default"
+                      onClick={() => {
+                        setFilterDraftDate(null);
+                        setFilterDraftType(undefined);
+                        setGivenDate([]);
+                        setFeedbackListTypeId(undefined);
+                        setFilterModalOpen(false);
+                      }}
+                      className="feedback-filter-modal-btn-cancel !m-0 !h-8 !min-w-[68px] !rounded-md !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] !text-sm !font-normal !leading-[22px] !text-black/[0.7] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#D9D9D9] hover:!text-black/[0.7]"
+                      data-cy="feedback-filter-modal-cancel"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={() => {
+                        if (filterDraftDate) {
+                          setGivenDate(filterDraftDate);
+                        } else {
+                          setGivenDate([]);
+                        }
+                        setFeedbackListTypeId(
+                          filterDraftType === null ||
+                            filterDraftType === undefined
+                            ? undefined
+                            : filterDraftType,
+                        );
+                        setPage(1);
+                        setFilterModalOpen(false);
+                      }}
+                      className="feedback-filter-modal-btn-primary !m-0 !h-8 !min-w-[62px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1E40AF]"
+                      data-cy="feedback-filter-modal-apply"
+                    >
+                      Filter
+                    </Button>
+                  </div>
+                </div>
+              }
             >
-              Filter
-            </Button>
+              <Button
+                type="default"
+                icon={
+                  <MdOutlineFilterAlt
+                    className="text-base text-[#374151]"
+                    aria-hidden
+                  />
+                }
+                className="flex !h-8 shrink-0 items-center gap-2 !rounded-md !border !border-[#D9D9D9] !bg-white !px-3 !text-sm !font-normal !text-[#374151] shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#d1d5db] md:!border-[#e5e7eb] md:shadow-none"
+                data-cy="feedback-page-date-filter-btn"
+              >
+                Filter
+              </Button>
+            </Popover>
           </div>
         </div>
 
@@ -795,180 +967,8 @@ const Page = () => {
       {/* Create Feedback Drawer */}
       <CreateFeedbackForm form={form} data-cy="feedback-page-create-form" />
 
-      {/* Filter Modal — layout & tokens from design spec */}
-      <Modal
-        open={filterModalOpen}
-        onCancel={() => setFilterModalOpen(false)}
-        footer={null}
-        closable={false}
-        maskClosable
-        centered
-        width={509}
-        className="feedback-filter-modal"
-        data-cy="feedback-filter-modal"
-        styles={{
-          content: {
-            padding: 0,
-            borderRadius: 8,
-            boxShadow:
-              '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
-            overflow: 'hidden',
-          },
-        }}
-      >
-        <div
-          className="feedback-filter-modal-root flex max-h-[min(346px,90vh)] flex-col items-stretch bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif]"
-          data-cy="feedback-filter-modal-root"
-        >
-          <div
-            className="relative flex shrink-0 flex-row items-center gap-[10px] px-6 pb-2 pt-5"
-            data-cy="feedback-filter-modal-header"
-          >
-            <h3
-              className="m-0 flex-1 text-base font-bold leading-6 text-black/[0.7]"
-              data-cy="feedback-filter-modal-title"
-            >
-              Filter
-            </h3>
-            <button
-              type="button"
-              onClick={() => setFilterModalOpen(false)}
-              className="absolute right-5 top-4 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-black/[0.45] transition-colors hover:bg-black/[0.04]"
-              aria-label="Close"
-              data-cy="feedback-filter-modal-close"
-            >
-              <IoCloseOutline className="text-base" />
-            </button>
-          </div>
-
-          <div
-            className="feedback-filter-modal-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-3"
-            data-cy="feedback-filter-modal-scroll"
-          >
-            <div
-              className="flex w-full max-w-[461px] flex-col"
-              data-cy="feedback-filter-modal-issue-date-section"
-            >
-              <div
-                className="flex flex-row items-center pb-2"
-                data-cy="feedback-filter-modal-issue-date-label-row"
-              >
-                <span
-                  className="text-sm font-normal leading-[22px] text-[#030712]"
-                  data-cy="feedback-filter-modal-issue-date-label"
-                >
-                  Issue Date
-                </span>
-              </div>
-              <RangePicker
-                allowClear
-                placeholder={['Start date', 'End date']}
-                suffixIcon={
-                  <CalendarOutlined className="text-[18px] text-black/[0.25]" />
-                }
-                separator={
-                  <SwapRightOutlined className="text-[18px] text-black/[0.25]" />
-                }
-                value={
-                  filterDraftDate
-                    ? [dayjs(filterDraftDate[0]), dayjs(filterDraftDate[1])]
-                    : null
-                }
-                onChange={(dates, dateStrings) => {
-                  if (!dates) {
-                    setFilterDraftDate(null);
-                    return;
-                  }
-                  if (dates[0] && dates[1]) {
-                    setFilterDraftDate([dateStrings[0], dateStrings[1]]);
-                  }
-                }}
-                className="feedback-modal-range-picker w-full max-w-[461px]"
-                data-cy="feedback-filter-modal-date-range"
-              />
-            </div>
-
-            <div
-              className="flex w-full max-w-[461px] flex-col"
-              data-cy="feedback-filter-modal-type-section"
-            >
-              <div
-                className="flex flex-row items-center pb-2"
-                data-cy="feedback-filter-modal-type-label-row"
-              >
-                <span
-                  className="text-sm font-normal leading-[22px] text-[#030712]"
-                  data-cy="feedback-filter-modal-type-label"
-                >
-                  Type
-                </span>
-              </div>
-              <Select
-                allowClear
-                placeholder="Select"
-                value={filterDraftType}
-                onChange={(val) => setFilterDraftType(val)}
-                options={(getAllFeedbackTypes?.items ?? []).map(
-                  (item: any) => ({
-                    value: item.id,
-                    label: item.category,
-                  }),
-                )}
-                className="feedback-modal-type-select w-full max-w-[461px]"
-                popupClassName="feedback-modal-type-dropdown"
-                data-cy="feedback-filter-modal-type"
-              />
-            </div>
-          </div>
-
-          <div
-            className="flex shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5 pt-0 mt-1"
-            data-cy="feedback-filter-modal-footer"
-          >
-            <Button
-              type="default"
-              onClick={() => {
-                setFilterDraftDate(null);
-                setFilterDraftType(undefined);
-                setGivenDate([]);
-                setFeedbackListTypeId(undefined);
-                setFilterModalOpen(false);
-              }}
-              className="feedback-filter-modal-btn-cancel !m-0 !h-8 !min-w-[68px] !rounded-md !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] !text-sm !font-normal !leading-[22px] !text-black/[0.7] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#D9D9D9] hover:!text-black/[0.7]"
-              data-cy="feedback-filter-modal-cancel"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                if (filterDraftDate) {
-                  setGivenDate(filterDraftDate);
-                } else {
-                  setGivenDate([]);
-                }
-                setFeedbackListTypeId(
-                  filterDraftType === null || filterDraftType === undefined
-                    ? undefined
-                    : filterDraftType,
-                );
-                setPage(1);
-                setFilterModalOpen(false);
-              }}
-              className="feedback-filter-modal-btn-primary !m-0 !h-8 !min-w-[62px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1E40AF]"
-              data-cy="feedback-filter-modal-apply"
-            >
-              Filter
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
       <style jsx global data-cy="feedback-page-style">{`
-        .feedback-filter-modal .ant-modal-content {
-          padding: 0 !important;
-        }
-        .feedback-filter-modal .ant-modal-body {
+        .feedback-filter-popover.ant-popover .ant-popover-inner {
           padding: 0 !important;
         }
         /* DatePicker / Outlined — spec */
