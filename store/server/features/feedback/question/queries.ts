@@ -36,7 +36,7 @@ const fetchQuestions = async (formId: string) => {
     method: 'GET',
     headers,
     skipEncryption: false,
-  });
+  } as any);
   return response.data;
 };
 

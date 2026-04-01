@@ -34,6 +34,7 @@ import {
   useGetActionPlanById,
   useGetAllActionPlan,
 } from '@/store/server/features/organization-development/categories/queries';
+import type { DataItem } from '@/store/server/features/organization-development/categories/interface';
 import AvatarImg from '@/public/gender_neutral_avatar.jpg';
 
 const { Option } = Select;
@@ -319,7 +320,9 @@ function normalizePriorityForApi(raw: unknown): string | undefined {
 }
 
 /** Send only fields the org-dev API expects (avoid stray form keys / bad serialization). */
-function toActionPlanApiPayload(v: Record<string, any>) {
+function toActionPlanApiPayload(
+  v: Record<string, any>,
+): DataItem & Record<string, any> {
   const long = String(v?.issue ?? v?.description ?? '').trim();
   const deadline = formatDeadlineForApi(v?.deadline);
   const priority = normalizePriorityForApi(v?.priority);
@@ -330,7 +333,7 @@ function toActionPlanApiPayload(v: Record<string, any>) {
       ? [String(rp)]
       : [];
 
-  const payload: Record<string, unknown> = {
+  const payload: DataItem & Record<string, unknown> = {
     issue: long,
     description: long,
     actionToBeTaken: String(v?.actionToBeTaken ?? '').trim(),
@@ -339,6 +342,7 @@ function toActionPlanApiPayload(v: Record<string, any>) {
       v?.status != null && String(v.status).trim() !== ''
         ? String(v.status)
         : 'pending',
+    priority: priority != null && priority !== '' ? priority : '',
   };
   if (priority != null && priority !== '') {
     payload.priority = priority;
@@ -349,7 +353,7 @@ function toActionPlanApiPayload(v: Record<string, any>) {
     payload.due_date = deadline;
     payload.dueDate = deadline;
   }
-  return payload as Record<string, any>;
+  return payload;
 }
 
 function planRowHasContent(row: Record<string, unknown> | undefined): boolean {

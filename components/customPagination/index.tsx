@@ -3,8 +3,6 @@ import { Input, Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const { Option } = Select;
-
 const DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 75, 100];
 
 interface CustomPaginationProps {
@@ -318,54 +316,16 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             size={isMobile ? 'small' : 'middle'}
             onChange={(value) => handleSizeChange(value)}
           >
-            <Option value={5}>
-              <span
-                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-228"
-                className="text-xs text-[#111827]"
-              >
-                {isMobile ? '5' : 'Show 5'}
-              </span>
-            </Option>
-            <Option value={10}>
-              <span
-                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-233"
-                className="text-xs text-[#111827]"
-              >
-                {isMobile ? '10' : 'Show 10'}
-              </span>
-            </Option>
-            <Option value={25}>
-              <span
-                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-238"
-                className="text-xs text-[#111827]"
-              >
-                {isMobile ? '25' : 'Show 25'}
-              </span>
-            </Option>
-            <Option value={50}>
-              <span
-                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-243"
-                className="text-xs text-[#111827]"
-              >
-                {isMobile ? '50' : 'Show 50'}
-              </span>
-            </Option>
-            <Option value={75}>
-              <span
-                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-248"
-                className="text-xs text-[#111827]"
-              >
-                {isMobile ? '75' : 'Show 75'}
-              </span>
-            </Option>
-            <Option value={100}>
-              <span
-                data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-253"
-                className="text-xs text-[#111827]"
-              >
-                {isMobile ? '100' : 'Show 100'}
-              </span>
-            </Option>
+            {selectPageSizes.map((size) => (
+              <Select.Option key={size} value={size}>
+                <span
+                  className="text-xs text-[#111827]"
+                  data-cy={`pagination-size-option-${size}`}
+                >
+                  {isMobile ? String(size) : `Show ${size}`}
+                </span>
+              </Select.Option>
+            ))}
           </Select>
         )}
       </div>

@@ -22,6 +22,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   onShowSizeChange,
   id,
   'data-cy': dataCy,
+  className,
 }) => {
   const { currentPage: globalCurrentPage, setCurrentPage } =
     usePaginationStore();
