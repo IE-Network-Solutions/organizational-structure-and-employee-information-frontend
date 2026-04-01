@@ -39,9 +39,14 @@ const SELECT_40H =
 
 type BenefitEntitlementProps = {
   title: string;
+  /** Deduction type detail (fixed deduction): labels use "deduction" instead of "benefit". */
+  forDeductionDetail?: boolean;
 };
 
-const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
+const BenefitEntitlementSideBar = ({
+  title,
+  forDeductionDetail = false,
+}: BenefitEntitlementProps) => {
   const {
     setDepartmentUsers,
     isBenefitEntitlementSidebarOpen,
@@ -393,14 +398,14 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
               id="compensation-benefit-sidebar-title"
               data-cy="compensation-benefit-sidebar-title"
             >
-              Add Benefit Entitlement
-              {title ? (
+              {forDeductionDetail
+                ? 'Add Deduction Entitlement'
+                : 'Add Benefit Entitlement'}
+              {forDeductionDetail && title ? (
                 <span
                   className="ml-1 font-normal text-gray-600"
-                  data-cy="compensation-benefit-sidebar-title-benefit-name"
-                >
-                  ({title})
-                </span>
+                  data-cy="compensation-benefit-sidebar-title-type-name"
+                ></span>
               ) : null}
             </span>
             <button
@@ -452,11 +457,11 @@ const BenefitEntitlementSideBar = ({ title }: BenefitEntitlementProps) => {
         mask={true}
         maskClosable={false}
         zIndex={10002}
-        rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626]"
+        rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
         classNames={{
           header:
             '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
-          body: '!px-6 !pb-0 !pt-0',
+          body: '!px-6 !pb-0 !pt-0 hide-scrollbar hide-scrollbar-mobile',
           footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
         }}
         styles={{

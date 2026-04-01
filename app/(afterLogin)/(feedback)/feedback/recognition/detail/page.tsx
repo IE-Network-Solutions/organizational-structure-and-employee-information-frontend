@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useGetAllRecognitionIds,
+  useGetAllRecognitionIdsByParentType,
   useGetRecognitionById,
   useGetRecognitionsByParentRecognitionType,
   useGetRecognitionTypeParentChildById,
@@ -86,13 +86,8 @@ function DetailPage() {
 
   const searchParams = useSearchParams();
 
-  const { refetch: fetchAllIds } = useGetAllRecognitionIds(searchValue, false);
-  const { data: allUserData } = useGetAllUsers();
-  const { data: recognitionTypes } = useGetRecognitionTypeParentChildById(
-    searchValue?.recognitionTypeId ?? '',
-  );
-  const { data: getAllRecognition, isLoading } =
-    useGetRecognitionsByParentRecognitionType({
+  const parentRecognitionQueryParams = useMemo(
+    () => ({
       parentRecognitionTypeId: searchValue?.recognitionTypeId ?? '',
       calendarId: searchValue?.calendarId ?? '',
       sessionId: searchValue?.sessionId ?? '',
@@ -101,7 +96,31 @@ function DetailPage() {
       userId: searchValue?.userId ?? '',
       current,
       pageSize,
-    });
+    }),
+    [
+      searchValue?.recognitionTypeId,
+      searchValue?.calendarId,
+      searchValue?.sessionId,
+      searchValue?.monthId,
+      searchValue?.childRecognitionTypeId,
+      searchValue?.userId,
+      current,
+      pageSize,
+    ],
+  );
+
+  const { refetch: fetchAllIds } = useGetAllRecognitionIdsByParentType(
+    parentRecognitionQueryParams.parentRecognitionTypeId
+      ? parentRecognitionQueryParams
+      : null,
+    false,
+  );
+  const { data: allUserData } = useGetAllUsers();
+  const { data: recognitionTypes } = useGetRecognitionTypeParentChildById(
+    searchValue?.recognitionTypeId ?? '',
+  );
+  const { data: getAllRecognition, isLoading } =
+    useGetRecognitionsByParentRecognitionType(parentRecognitionQueryParams);
   const { data: selectedRecognition, isLoading: isSelectedRecognitionLoading } =
     useGetRecognitionById(selectedRecognitionId ?? '');
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
@@ -388,24 +407,27 @@ function DetailPage() {
     onSelectAll: (selected: boolean) => {
       isSelectingAllRef.current = true;
 
+      const resetSelectingFlag = () => {
+        setTimeout(() => {
+          isSelectingAllRef.current = false;
+        }, 100);
+      };
+
       if (selected) {
         fetchAllIds()
-          .then((response) => {
-            if (response.data?.items) {
-              const allIds = response.data.items.map((item: any) =>
-                String(item.id),
-              );
+          .then((result) => {
+            const items = result.data?.items;
+            if (Array.isArray(items) && items.length > 0) {
+              const allIds = items.map((item: any) => String(item.id));
               const existingSelected = (selectedRowKeys || []).map(String);
               const allSelected =
-                allIds.length > 0 &&
                 allIds.every((id: string) => existingSelected.includes(id)) &&
                 existingSelected.length === allIds.length;
 
               setSelectedRowKeys(allSelected ? [] : allIds);
+            } else if (Array.isArray(items) && items.length === 0) {
+              setSelectedRowKeys([]);
             }
-            setTimeout(() => {
-              isSelectingAllRef.current = false;
-            }, 100);
           })
           .catch(() => {
             const existingSelected = (selectedRowKeys || []).map(String);
@@ -423,15 +445,11 @@ function DetailPage() {
                 ? otherPagesSelected
                 : [...otherPagesSelected, ...currentPageIds],
             );
-            setTimeout(() => {
-              isSelectingAllRef.current = false;
-            }, 100);
-          });
+          })
+          .finally(resetSelectingFlag);
       } else {
         setSelectedRowKeys([]);
-        setTimeout(() => {
-          isSelectingAllRef.current = false;
-        }, 100);
+        resetSelectingFlag();
       }
     },
   };

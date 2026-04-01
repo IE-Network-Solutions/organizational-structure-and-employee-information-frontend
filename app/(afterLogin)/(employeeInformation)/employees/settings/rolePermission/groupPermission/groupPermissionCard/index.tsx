@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card } from 'antd';
+import { Card, Tag } from 'antd';
 import { GroupPermissionkey } from '@/types/dashboard/adminManagement';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import KebabMenu from '@/components/common/kebabMenu';
@@ -60,13 +60,13 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
           >
             {props?.item?.name}
           </p>
-          <span
-            className="inline-flex items-center p-2 rounded-md text-xs font-medium bg-[#f9fafb] text-gray-600 border border-[#d9d9d9]"
+          <Tag
+            className="inline-flex items-center py-1 px-2 rounded-md text-xs font-medium bg-[#f9fafb] text-gray-600 border border-[#d9d9d9]"
             id={`settings-group-permission-card-count-${props?.item?.id}`}
             data-cy={`settings-group-permission-card-count-${props?.item?.id}`}
           >
             {permissionsCount} Permission{permissionsCount !== 1 ? 's' : ''}
-          </span>
+          </Tag>
         </div>
 
         {props?.item?.tenantId && (

@@ -38,7 +38,7 @@ const ApproverListTableComponent = ({
           {data.map((item, index) => (
             <div
               key={item.key ?? index}
-              className="rounded-xl border border-gray-200 bg-white p-3"
+              className="rounded-lg border border-[#D9D9D9] bg-white p-3"
               data-cy={`approval-list-card-${index}`}
             >
               <div
