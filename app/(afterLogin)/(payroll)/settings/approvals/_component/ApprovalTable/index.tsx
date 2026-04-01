@@ -21,7 +21,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { MoreOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -68,15 +68,20 @@ const ApprovalTable = () => {
       searchParams?.name || '',
       APPROVALTYPES.PAYROLL,
     );
-  const onPageChange = (page: number, pageSize?: number) => {
+  const onPageChange = (page: number, newPageSize?: number) => {
     setUserCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
+    if (newPageSize) {
+      setPageSize(newPageSize);
     }
   };
 
-  const onPageSizeChange = (current: number, size: number) => {
-    setUserCurrentPage(current);
+  const onDesktopPageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setUserCurrentPage(1);
+  };
+
+  const onMobilePaginationChange = (page: number, size: number) => {
+    setUserCurrentPage(page);
     setPageSize(size);
   };
   const handleDeleteConfirm = (id: string) => {
@@ -421,15 +426,14 @@ const ApprovalTable = () => {
                         <button
                           id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
                           data-cy={`settings-payroll-approvals-card-more-button-${itemSlug}`}
-                          className="text-gray-400 border border-gray-200 rounded px-2 py-1 hover:bg-gray-50 transition-colors flex items-center justify-center"
+                          className="text-gray-800 border border-gray-200 rounded px-2 py-1 hover:bg-gray-100 transition-colors flex items-center justify-center"
                           type="button"
                           aria-label="More actions"
                         >
-                          <MoreOutlined
+                          <MoreHorizIcon
                             id={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
                             data-cy={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
-                            rotate={90}
-                            style={{ fontSize: 18 }}
+                            className="text-[20px] text-gray-800"
                           />
                         </button>
                       </Dropdown>
@@ -483,15 +487,15 @@ const ApprovalTable = () => {
         <div
           id="settings-payroll-approvals-pagination-container"
           data-cy="settings-payroll-approvals-pagination-container"
-          className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm"
+          className="border-t border-gray-100 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm"
         >
           {isMobile || isTablet ? (
             <CustomMobilePagination
               currentPage={userCurrentPage}
               totalResults={allFilterData?.meta?.totalItems ?? 0}
               pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={onPageSizeChange}
+              onChange={onMobilePaginationChange}
+              onShowSizeChange={onMobilePaginationChange}
               id="settings-payroll-approvals-mobile-pagination"
               data-cy="settings-payroll-approvals-mobile-pagination"
             />
@@ -501,7 +505,7 @@ const ApprovalTable = () => {
               total={allFilterData?.meta?.totalItems ?? 0}
               pageSize={pageSize}
               onChange={onPageChange}
-              onShowSizeChange={(newPageSize) => onPageChange(1, newPageSize)}
+              onShowSizeChange={onDesktopPageSizeChange}
               id="settings-payroll-approvals-desktop-pagination"
               data-cy="settings-payroll-approvals-desktop-pagination"
             />

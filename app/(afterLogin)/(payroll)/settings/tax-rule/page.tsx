@@ -2,7 +2,8 @@
 import React, { useMemo, useState } from 'react';
 import { Dropdown, Table, Button } from 'antd';
 import type { MenuProps } from 'antd';
-import { EditOutlined, DeleteOutlined, MoreOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Drawer from './_components/drawer';
 import { useGetTaxRule } from '@/store/server/features/payroll/setting/tax-rule/queries';
 import { useDeleteTaxRule } from '@/store/server/features/payroll/setting/tax-rule/mutation';
@@ -176,14 +177,13 @@ const TaxRules = () => {
               <button
                 id={`payroll-tax-rule-actions-more-button-${record.id}`}
                 data-cy={`payroll-tax-rule-actions-more-button-${record.id}`}
-                className="px-2 py-1 border border-gray-200 rounded text-gray-500 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                className="px-2 py-1 border border-gray-200 rounded text-gray-800 hover:bg-gray-100 transition-colors flex items-center justify-center"
                 type="button"
                 aria-label="More actions"
               >
-                <MoreOutlined
+                <MoreHorizIcon
                   data-cy={`payroll-tax-rule-actions-more-icon-${record.id}`}
-                  rotate={90}
-                  style={{ fontSize: 18 }}
+                  className="text-[20px] text-gray-800"
                 />
               </button>
             </Dropdown>
@@ -225,6 +225,11 @@ const TaxRules = () => {
   const onPageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
     setCurrentPage(1);
+  };
+
+  const onMobilePaginationChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
   };
 
   return (
@@ -273,6 +278,7 @@ const TaxRules = () => {
             dataSource={paginatedData}
             columns={columns}
             pagination={false}
+            scroll={{ x: 'max-content' }}
             bordered={false}
             loading={isLoading}
             rowHoverable={false}
@@ -289,17 +295,17 @@ const TaxRules = () => {
       >
         {isMobile || isTablet ? (
           <CustomMobilePagination
+            id="payroll-tax-rule-table-mobile-pagination"
             data-cy="payroll-tax-rule-mobile-pagination-view-component"
             totalResults={dataSource.length}
             pageSize={pageSize}
             currentPage={currentPage}
-            onShowSizeChange={(page, size) => {
-              setCurrentPage(page);
-              setPageSize(size);
-            }}
+            onChange={onMobilePaginationChange}
+            onShowSizeChange={onMobilePaginationChange}
           />
         ) : (
           <CustomPagination
+            id="payroll-tax-rule-table-pagination"
             data-cy="payroll-tax-rule-desktop-pagination-view-component"
             current={currentPage}
             total={dataSource.length}

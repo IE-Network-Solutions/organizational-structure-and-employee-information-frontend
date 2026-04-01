@@ -1,6 +1,7 @@
 'use client';
 import { Button, Input, Tooltip } from 'antd';
-import { EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import {  CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import EditIcon from '@mui/icons-material/Edit';
 import React, { useEffect, useState } from 'react';
 import { useGetAllPensionRule } from '@/store/server/features/payroll/payroll/queries';
 import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mutation';
@@ -85,27 +86,28 @@ const Pension = () => {
       data-cy="payroll-pension-page-view-container"
       className="bg-white"
     >
-      <div
-        id="payroll-pension-hidden-primary-action-target"
-        data-cy="payroll-pension-hidden-primary-action-target"
-        className="hidden"
-      >
-        <Button
-          id="payroll-pension-add-click-button"
-          data-cy="payroll-pension-add-click-button"
-          type="primary"
-          onClick={handleAddRule}
-          disabled={isPensionAddDisabled}
-          icon={<FaPlus data-cy="payroll-pension-add-click-button-icon" />}
+      {!isPensionAddDisabled && (
+        <div
+          id="payroll-pension-hidden-primary-action-target"
+          data-cy="payroll-pension-hidden-primary-action-target"
+          className="hidden"
         >
-          <span
-            id="payroll-pension-add-click-button-text"
-            data-cy="payroll-pension-add-click-button-text"
+          <Button
+            id="payroll-pension-add-click-button"
+            data-cy="payroll-pension-add-click-button"
+            type="primary"
+            onClick={handleAddRule}
+            icon={<FaPlus data-cy="payroll-pension-add-click-button-icon" />}
           >
-            Pension Rule
-          </span>
-        </Button>
-      </div>
+            <span
+              id="payroll-pension-add-click-button-text"
+              data-cy="payroll-pension-add-click-button-text"
+            >
+              Pension Rule
+            </span>
+          </Button>
+        </div>
+      )}
       <div
         id="payroll-pension-list-view-container"
         data-cy="payroll-pension-list-view-container"
@@ -132,7 +134,7 @@ const Pension = () => {
                 <div
                   id={`payroll-pension-card-header-${record.id ?? record.key}`}
                   data-cy={`payroll-pension-card-header-${record.id ?? record.key}`}
-                  className="flex justify-between items-start mb-4"
+                  className="flex justify-between items-center mb-4"
                 >
                   {editable ? (
                     <div
@@ -273,7 +275,7 @@ const Pension = () => {
                       <h2
                         id={`payroll-pension-card-title-${record.id ?? record.key}`}
                         data-cy={`payroll-pension-card-title-${record.id ?? record.key}`}
-                        className="text-[15px] font-semibold text-gray-900"
+                        className="min-w-0 flex-1 pr-2 text-[15px] font-semibold text-gray-900"
                       >
                         {record.name}
                       </h2>
@@ -282,18 +284,21 @@ const Pension = () => {
                         id={`payroll-pension-card-edit-tooltip-${record.id}`}
                         data-cy={`payroll-pension-card-edit-tooltip-${record.id}`}
                       >
-                        <button
-                          id={`payroll-pension-edit-click-button-${record.id}`}
-                          data-cy={`payroll-pension-edit-click-button-${record.id}`}
-                          className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 border border-transparent hover:border-primary/20 rounded-lg transition-all"
-                          type="button"
-                          aria-label="Edit Rule"
-                          onClick={() => handleEdit(record)}
-                        >
-                          <EditOutlined
-                            data-cy={`payroll-pension-edit-click-button-icon-${record.id}`}
-                          />
-                        </button>
+                        <span className="inline-flex shrink-0">
+                          <button
+                            id={`payroll-pension-edit-click-button-${record.id}`}
+                            data-cy={`payroll-pension-edit-click-button-${record.id}`}
+                            className="flex items-center justify-center p-2 rounded-lg border border-gray-200 text-gray-800 hover:text-primary hover:bg-gray-100 hover:border-primary/30 transition-colors"
+                            type="button"
+                            aria-label="Edit Rule"
+                            onClick={() => handleEdit(record)}
+                          >
+                            <EditIcon
+                              data-cy={`payroll-pension-edit-click-button-icon-${record.id}`}
+                              className="text-[18px]"
+                            />
+                          </button>
+                        </span>
                       </Tooltip>
                     </>
                   )}

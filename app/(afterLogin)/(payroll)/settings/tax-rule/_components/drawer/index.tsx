@@ -67,22 +67,6 @@ const Drawer: React.FC = () => {
   return (
     <>
       <style jsx global data-cy="payroll-tax-rule-drawer-style">{`
-        @media (max-width: 767px) {
-          .input-number-mobile .ant-input-number,
-          .input-number-mobile .ant-input-number-input {
-            height: 48px !important;
-            font-size: 20px !important;
-            padding: 12px 16px !important;
-          }
-          .input-number-mobile .ant-input-number-handler-wrap {
-            width: 32px !important;
-          }
-          .input-number-mobile .ant-input-number-handler {
-            height: 24px !important;
-            font-size: 20px !important;
-          }
-        }
-
         .payroll-tax-rule-modal .ant-form-item-label > label {
           font-size: 12px;
         }
@@ -96,6 +80,7 @@ const Drawer: React.FC = () => {
         footer={null}
         centered
         width={560}
+        style={{ maxWidth: 'calc(100vw - 32px)' }}
         destroyOnClose
         maskClosable={false}
         closable={false}
@@ -329,13 +314,13 @@ const Drawer: React.FC = () => {
         <div
           id="payroll-tax-rule-drawer-footer-view-container"
           data-cy="payroll-tax-rule-drawer-footer-view-container"
-          className="px-2 pb-2 pt-4 flex justify-end space-x-3"
+          className="px-2 pb-2 pt-4 flex justify-end gap-3"
         >
           <Button
             id="payroll-tax-rule-drawer-cancel-click-button"
             data-cy="payroll-tax-rule-drawer-cancel-click-button"
             type="default"
-            className="h-10 px-10"
+            className="h-10 px-4"
             onClick={handleClose}
           >
             Cancel
@@ -345,7 +330,7 @@ const Drawer: React.FC = () => {
             id="payroll-tax-rule-drawer-submit-click-button"
             data-cy="payroll-tax-rule-drawer-submit-click-button"
             type="primary"
-            className="h-10 px-10"
+            className="h-10 px-4"
             onClick={() => form.submit()}
             loading={currentTaxRule ? isUpdateLoading : isCreateLoading}
           >

@@ -12,7 +12,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomDrawer from './_components/customDrawer';
 import useEditDrawerStore from '@/store/uistate/features/payroll/settings/drawer';
 import { FaPlus } from 'react-icons/fa';
-import { FaPencil } from 'react-icons/fa6';
+// import { FaPencil } from 'react-icons/fa6';
+import EditIcon from '@mui/icons-material/Edit';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -152,12 +153,12 @@ const PayPeriod = () => {
                   <div
                     id={`payroll-payperiod-card-header-${period.id}`}
                     data-cy={`payroll-payperiod-card-header-${period.id}`}
-                    className="mb-4 flex items-start justify-between"
+                    className="mb-4 flex items-center justify-between"
                   >
                     <h3
                       id={`payroll-payperiod-card-title-${period.id}`}
                       data-cy={`payroll-payperiod-card-title-${period.id}`}
-                      className="text-base font-medium text-gray-900"
+                      className="min-w-0 flex-1 pr-2 text-base font-medium text-gray-900"
                     >
                       {period.month}
                     </h3>
@@ -169,19 +170,21 @@ const PayPeriod = () => {
                         data-cy={`payroll-payperiod-card-edit-tooltip-${period.id}`}
                         title="Edit"
                       >
-                        <button
-                          id={`payroll-payperiod-card-edit-button-${period.id}`}
-                          data-cy={`payroll-payperiod-card-edit-button-${period.id}`}
-                          className="rounded border border-gray-200 p-1 text-gray-400 transition hover:bg-gray-50 hover:text-gray-600"
-                          type="button"
-                          aria-label={`Edit ${period.month} pay period`}
-                          onClick={() => handleEdit(period)}
-                        >
-                          <FaPencil
-                            className="text-sm"
-                            data-cy={`payroll-payperiod-card-edit-icon-${period.id}`}
-                          />
-                        </button>
+                        <span className="inline-flex shrink-0">
+                          <button
+                            id={`payroll-payperiod-card-edit-button-${period.id}`}
+                            data-cy={`payroll-payperiod-card-edit-button-${period.id}`}
+                            className="flex items-center justify-center rounded border border-gray-200 p-1 text-gray-600 transition hover:bg-gray-50 hover:text-gray-600"
+                            type="button"
+                            aria-label={`Edit ${period.month} pay period`}
+                            onClick={() => handleEdit(period)}
+                          >
+                            <EditIcon
+                              className="text-[18px]"
+                              data-cy={`payroll-payperiod-card-edit-icon-${period.id}`}
+                            />
+                          </button>
+                        </span>
                       </Tooltip>
                     </AccessGuard>
                   </div>

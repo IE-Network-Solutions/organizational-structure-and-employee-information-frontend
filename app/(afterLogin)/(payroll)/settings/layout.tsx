@@ -152,6 +152,22 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       data-cy="payroll-settings-page-view-container"
       className="min-h-screen bg-white text-gray-800 font-sans py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6"
     >
+      <style jsx global>{`
+        /* On mobile, AntD Tabs can render "fade" overlays that look like white blocks */
+        @media (max-width: 640px) {
+          #payroll-settings-tabs .ant-tabs-nav-operations,
+          #payroll-settings-tabs .ant-tabs-extra-content,
+          #payroll-settings-tabs .ant-tabs-nav-more {
+            background: transparent !important;
+            box-shadow: none !important;
+          }
+          #payroll-settings-tabs .ant-tabs-nav-wrap::before,
+          #payroll-settings-tabs .ant-tabs-nav-wrap::after {
+            box-shadow: none !important;
+            background: transparent !important;
+          }
+        }
+      `}</style>
       <div
         id="payroll-settings-page-content-view-container"
         data-cy="payroll-settings-page-content-view-container"
@@ -245,8 +261,12 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
                 paddingLeft: 0,
                 paddingRight: 0,
               }}
-              tabBarExtraContent={primaryActionButton}
-              className="text-base [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              tabBarExtraContent={
+                currentItem === 'pension' && isPensionAddDisabled
+                  ? null
+                  : primaryActionButton
+              }
+              className="text-base [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-nav-operations]:!bg-transparent [&_.ant-tabs-nav-operations]:!shadow-none [&_.ant-tabs-extra-content]:!bg-transparent [&_.ant-tabs-nav-more]:!bg-transparent"
             />
           </div>
         </div>
