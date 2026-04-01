@@ -1292,6 +1292,7 @@ h6 {
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   background-color: #e6f4ff !important; /* light blue background */
+  position: relative;
 }
 
 .org-structure-branch-select-dropdown
@@ -1299,20 +1300,16 @@ h6 {
   .ant-select-item-option-content {
   color: #111827 !important; /* keep text dark */
   font-weight: 400;
+  padding-right: 28px; /* room for single ✓ on the right */
 }
 
-/* Re-enable the checkmark icon inside this dropdown only */
+/* Single ✓ (Talent Pool Category + multi-select Candidate): Ant’s state icon + ::after produced a double tick; hide state and use one drawn tick only */
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-state {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  color: #1677ff !important; /* AntD primary blue */
-  font-size: 14px;
+  display: none !important;
 }
 
-/* Fallback: draw a custom checkmark on the right for selected option */
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(
     .ant-select-item-option-disabled
@@ -1324,52 +1321,7 @@ h6 {
   transform: translateY(-50%);
   color: #1677ff;
   font-size: 14px;
-  pointer-events: none;
-}
-
-/* Org Structure: Department Branch Select dropdown styling */
-.org-structure-branch-select-dropdown.ant-select-dropdown {
-  border-radius: 12px;
-  box-shadow:
-    0 12px 30px rgba(15, 23, 42, 0.12),
-    0 0 0 1px rgba(148, 163, 184, 0.12);
-}
-
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-  background-color: #e6f4ff !important; /* light blue background */
-}
-
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-  .ant-select-item-option-content {
-  color: #111827 !important; /* keep text dark */
-  font-weight: 400;
-}
-
-/* Re-enable the checkmark icon inside this dropdown only */
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-  .ant-select-item-option-state {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  color: #1677ff !important; /* AntD primary blue */
-  font-size: 14px;
-}
-
-/* Fallback: draw a custom checkmark on the right for selected option */
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(
-    .ant-select-item-option-disabled
-  )::after {
-  content: '✓';
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #1677ff;
-  font-size: 14px;
+  line-height: 1;
   pointer-events: none;
 }
 
