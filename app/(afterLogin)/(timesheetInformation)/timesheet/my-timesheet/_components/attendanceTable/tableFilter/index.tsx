@@ -11,15 +11,19 @@ interface AttendanceTableFilterProps {
   onChange: (val: CommonObject) => void;
 }
 
-const selectFieldClassName =
-  'w-full [&_.ant-select-selector]:min-h-[44px] [&_.ant-select-selector]:rounded-lg [&_.ant-select-selector]:border-gray-200 [&_.ant-select-selector]:bg-white [&_.ant-select-selection-placeholder]:text-gray-500 [&_.ant-select-selection-item]:text-gray-700';
+/** Mobile stacked filters: fixed height so status + date row match; Row gutter adds vertical gap. */
+const mobileSelectFieldClassName =
+  'h-11 w-full [&_.ant-select-selector]:!h-11 [&_.ant-select-selector]:!min-h-11 [&_.ant-select-selector]:rounded-lg [&_.ant-select-selector]:border-gray-200 [&_.ant-select-selector]:bg-white [&_.ant-select-selection-placeholder]:text-gray-500 [&_.ant-select-selection-item]:text-gray-700';
 
-const rangePickerClassName =
-  'w-full min-h-[44px] rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+/** Mobile date segments: fill the fixed-height shell (same h-11 as status select). */
+const mobileCompositeSegmentPickerClassName =
+  'h-full min-h-0 w-full border-0 bg-transparent shadow-none rounded-none [&_.ant-picker]:h-full [&_.ant-picker]:min-h-0 [&_.ant-picker]:border-0 [&_.ant-picker]:shadow-none [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
 
-/** Inside composite “range” row: no outer border on each picker (wrapper supplies one ring). */
-const compositeSegmentPickerClassName =
-  'w-full min-h-[44px] border-0 bg-transparent shadow-none rounded-none [&_.ant-picker]:border-0 [&_.ant-picker]:shadow-none [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+const desktopSelectClassName =
+  'h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50';
+
+const desktopRangePickerClassName =
+  'h-8 w-full rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
 
 const suffixIcon = (
   <MdKeyboardArrowDown size={18} className="text-gray-500" aria-hidden />
@@ -45,7 +49,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
     <div
       id="time-attendance-attendance-table-filter-container"
       data-cy="time-attendance-attendance-table-filter-container"
-      className="w-full sm:w-auto sm:min-w-0"
+      className="w-full px-4 sm:w-auto sm:min-w-0 sm:px-0"
     >
       <Form
         form={form}
@@ -55,7 +59,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
       >
         {/* Mobile: inline stacked filters (match leave-history / design reference) */}
         <Row
-          gutter={[12, 12]}
+          gutter={[0, 16]}
           className="sm:hidden w-full"
           id="time-attendance-attendance-table-filter-row-mobile"
           data-cy="time-attendance-attendance-table-filter-row-mobile"
@@ -70,7 +74,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
               <Select
                 placeholder="Filter Status"
                 allowClear
-                className={selectFieldClassName}
+                className={mobileSelectFieldClassName}
                 suffixIcon={suffixIcon}
                 options={attendanceRecordTypeOption}
                 optionRender={(option) => {
@@ -103,7 +107,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
           </Col>
           <Col span={24}>
             <div
-              className="flex w-full min-h-[44px] items-stretch overflow-hidden rounded-lg border border-gray-200 bg-white"
+              className="flex h-11 w-full items-stretch overflow-hidden rounded-lg border border-gray-200 bg-white"
               id="time-attendance-attendance-table-filter-date-range-mobile-shell"
               data-cy="time-attendance-attendance-table-filter-date-range-mobile-shell"
             >
@@ -112,7 +116,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 data-cy="time-attendance-attendance-table-filter-date-from-mobile-segment"
               >
                 <Form.Item
-                  className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
+                  className="mb-0 flex h-full min-h-0 w-full flex-1 [&_.ant-form-item-row]:h-full [&_.ant-form-item-control]:flex [&_.ant-form-item-control]:h-full [&_.ant-form-item-control-input]:!min-h-0 [&_.ant-form-item-control-input]:h-full [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-stretch"
                   id="time-attendance-attendance-table-filter-date-from-mobile"
                   data-cy="time-attendance-attendance-table-filter-date-from-mobile"
                   name={['date', 0]}
@@ -138,7 +142,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   ]}
                 >
                   <DatePicker
-                    className={compositeSegmentPickerClassName}
+                    className={mobileCompositeSegmentPickerClassName}
                     style={{ width: '100%' }}
                     format={DATE_FORMAT}
                     placeholder="Start date"
@@ -160,7 +164,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                 data-cy="time-attendance-attendance-table-filter-date-to-mobile-segment"
               >
                 <Form.Item
-                  className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
+                  className="mb-0 flex h-full min-h-0 w-full flex-1 [&_.ant-form-item-row]:h-full [&_.ant-form-item-control]:flex [&_.ant-form-item-control]:h-full [&_.ant-form-item-control-input]:!min-h-0 [&_.ant-form-item-control-input]:h-full [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-stretch"
                   id="time-attendance-attendance-table-filter-date-to-mobile"
                   data-cy="time-attendance-attendance-table-filter-date-to-mobile"
                   name={['date', 1]}
@@ -186,7 +190,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
                   ]}
                 >
                   <DatePicker
-                    className={compositeSegmentPickerClassName}
+                    className={mobileCompositeSegmentPickerClassName}
                     style={{ width: '100%' }}
                     format={DATE_FORMAT}
                     placeholder="End date"
@@ -215,7 +219,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
             <Select
               placeholder="Filter Status"
               allowClear={true}
-              className="h-9 w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50"
+              className={desktopSelectClassName}
               style={{ width: '100%' }}
               suffixIcon={
                 <MdKeyboardArrowDown
@@ -261,7 +265,7 @@ const AttendanceTableFilter: FC<AttendanceTableFilterProps> = ({
             data-cy="time-attendance-attendance-table-filter-date"
           >
             <DatePicker.RangePicker
-              className={`h-9 ${rangePickerClassName}`}
+              className={desktopRangePickerClassName}
               style={{ width: '100%' }}
               separator={'→'}
               format={DATE_FORMAT}

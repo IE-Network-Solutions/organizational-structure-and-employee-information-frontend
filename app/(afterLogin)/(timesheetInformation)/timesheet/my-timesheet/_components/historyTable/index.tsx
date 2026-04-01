@@ -289,7 +289,7 @@ const HistoryTable = () => {
       >
         {/* Filters + New Request: one filter form; desktop matches attendance (left group / right action + gap). */}
         <div
-          className="p-3 sm:p-0"
+          className="pl-4 pr-0 py-3 sm:p-0"
           id="time-attendance-history-table-toolbar"
           data-cy="time-attendance-history-table-toolbar"
         >
@@ -336,11 +336,11 @@ const HistoryTable = () => {
         </div>
 
         <div
-          className="border-t border-gray-200 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+          className="border-t border-gray-200 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           data-cy="time-attendance-history-table-container"
         >
           <Table
-            className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
+            className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
             columns={columns}
             loading={isFetching}
             dataSource={tableData}

@@ -519,7 +519,7 @@ const ApprovalTable = () => {
               .toLowerCase()
               .includes(input.toLowerCase())
           }
-          className="w-full min-w-0 min-[400px]:min-w-[88px] min-[400px]:flex-1 min-[400px]:basis-0 md:flex-none md:basis-auto md:w-[280px] md:min-w-[280px] md:max-w-[280px] [&_.ant-select-selector]:!min-w-0"
+          className="h-8 w-full min-w-0 min-[400px]:min-w-[88px] min-[400px]:flex-1 min-[400px]:basis-0 md:flex-none md:basis-auto md:w-[280px] md:min-w-[280px] md:max-w-[280px] [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!min-w-0"
           id="time-attendance-approval-table-search-employee"
           data-cy="time-attendance-approval-table-search-employee"
         />
@@ -595,7 +595,7 @@ const ApprovalTable = () => {
             options={statusFilterOptions}
             value={filterStatus || undefined}
             onChange={(v) => setFilterStatus(v ?? '')}
-            className="w-full min-w-0 min-[400px]:w-[136px] min-[400px]:min-w-[120px] min-[400px]:shrink-0 sm:min-w-[160px] sm:w-[160px] [&_.ant-select-selector]:!min-w-0"
+            className="h-8 w-full min-w-0 min-[400px]:w-[136px] min-[400px]:min-w-[120px] min-[400px]:shrink-0 sm:min-w-[160px] sm:w-[160px] [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!min-w-0"
             id="time-attendance-approval-table-filter-status"
             data-cy="time-attendance-approval-table-filter-status"
           />

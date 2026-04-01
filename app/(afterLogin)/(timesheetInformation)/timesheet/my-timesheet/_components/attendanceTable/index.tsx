@@ -519,7 +519,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
                   icon={<PiExportLight size={16} />}
                   data-cy="my-timesheet-attendance-export-button"
                   id="my-timesheet-attendance-export-button"
-                  className="border-gray-300 text-gray-500 font-medium hover:text-primary hover:border-primary"
+                  className="h-8 border-gray-300 px-3 text-gray-500 font-medium hover:text-primary hover:border-primary"
                 >
                   Export
                 </Button>
@@ -534,7 +534,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         data-cy="time-attendance-attendance-table-content"
       >
         <Table<AttendanceRecord>
-          className="mt-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
+          className="mt-3 [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
           columns={columns}
           dataSource={data?.items}
           loading={isFetching}

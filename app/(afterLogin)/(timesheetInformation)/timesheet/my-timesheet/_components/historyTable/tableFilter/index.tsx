@@ -29,7 +29,10 @@ const compositeSegmentPickerClassName =
   'w-full min-h-[44px] border-0 bg-transparent shadow-none rounded-none [&_.ant-picker]:border-0 [&_.ant-picker]:shadow-none [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
 
 const desktopSelectClassName =
-  'h-9 w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50';
+  'h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50';
+
+const desktopRangePickerClassName =
+  'h-8 w-full rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
 
 const desktopSuffixIcon = (
   <MdKeyboardArrowDown
@@ -222,7 +225,7 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
           data-cy="time-attendance-history-table-filter-date-range"
         >
           <DatePicker.RangePicker
-            className={`h-9 ${rangePickerClassName}`}
+            className={desktopRangePickerClassName}
             style={{ width: '100%' }}
             separator="→"
             format={DATE_FORMAT}
