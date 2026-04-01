@@ -438,6 +438,27 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           )}
         </Form>
       </Modal>
+      <style jsx global>{`
+        .ant-input,
+        .ant-input-affix-wrapper input,
+        .ant-input-number-input,
+        .ant-select-selector,
+        .ant-select-selection-item,
+        .ant-select-selection-placeholder,
+        .ant-select-item-option-content,
+        .ant-picker-input > input,
+        .ant-mentions > textarea {
+          font-size: 14px !important;
+        }
+
+        .ant-input::placeholder,
+        .ant-input-affix-wrapper input::placeholder,
+        .ant-input-number-input::placeholder,
+        .ant-picker-input > input::placeholder,
+        .ant-mentions > textarea::placeholder {
+          font-size: 14px !important;
+        }
+      `}</style>
     </div>
   );
 };
