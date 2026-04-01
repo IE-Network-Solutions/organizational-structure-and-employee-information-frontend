@@ -145,7 +145,7 @@ const CreateSurvayCategory = () => {
       <Form
         form={form}
         layout="vertical"
-        requiredMark
+        requiredMark={false}
         initialValues={{
           name: undefined,
           description: undefined,
@@ -157,7 +157,7 @@ const CreateSurvayCategory = () => {
         <Form.Item
           label={
             <span className="text-sm font-medium text-gray-800">
-              Category Name
+              Category Name <span style={{ color: 'red' }}>*</span>
             </span>
           }
           name="name"
@@ -175,7 +175,7 @@ const CreateSurvayCategory = () => {
         <Form.Item
           label={
             <span className="text-sm font-medium text-gray-800">
-              Description
+              Description <span style={{ color: 'red' }}>*</span>
             </span>
           }
           name="description"

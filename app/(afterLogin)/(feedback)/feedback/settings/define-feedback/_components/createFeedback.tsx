@@ -141,6 +141,14 @@ const CreateFeedback: React.FC = () => {
       </div>
     </div>
   );
+  const requiredLabel = (label: string, requiredDataCy: string) => (
+    <span>
+      {label}{' '}
+      <span style={{ color: 'red' }} data-cy={requiredDataCy}>
+        *
+      </span>
+    </span>
+  );
 
   return (
     <Modal
@@ -282,6 +290,7 @@ const CreateFeedback: React.FC = () => {
           layout="vertical"
           onFinish={onFinish}
           initialValues={{ points: 0 }}
+          requiredMark={false}
           data-cy="create-feedback-form"
           id="createFeedbackForm"
         >
@@ -298,7 +307,13 @@ const CreateFeedback: React.FC = () => {
                 className={commonClass}
                 data-cy="create-feedback-form-objective-label"
               >
-                {settingActiveTab === 'perspective' ? 'Name' : 'Objective'}
+                {settingActiveTab === 'perspective' ? 'Name' : 'Objective'}{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="create-feedback-form-objective-required"
+                >
+                  *
+                </span>
               </div>
             }
             name="name"
@@ -334,7 +349,13 @@ const CreateFeedback: React.FC = () => {
                 className={commonClass}
                 data-cy="create-feedback-form-description-label"
               >
-                Description
+                Description{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="create-feedback-form-description-required"
+                >
+                  *
+                </span>
               </div>
             }
             name="description"
@@ -361,7 +382,10 @@ const CreateFeedback: React.FC = () => {
             // Perspective: Department selector
             <Form.Item
               name="departmentId"
-              label="Department"
+              label={requiredLabel(
+                'Department',
+                'create-feedback-form-department-required',
+              )}
               rules={[
                 {
                   required: true,
@@ -393,7 +417,14 @@ const CreateFeedback: React.FC = () => {
             <>
               <Form.Item
                 name="perspectiveId"
-                label="Select Perspective"
+                label={
+                  feedbackModalType === 'KPI'
+                    ? requiredLabel(
+                        'Select Perspective',
+                        'create-feedback-form-perspective-required',
+                      )
+                    : 'Select Perspective'
+                }
                 rules={[
                   {
                     required: feedbackModalType === 'KPI',
@@ -429,7 +460,13 @@ const CreateFeedback: React.FC = () => {
                     className={commonClass}
                     data-cy="create-feedback-form-weight-label"
                   >
-                    Weight
+                    Weight{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-feedback-form-weight-required"
+                    >
+                      *
+                    </span>
                   </div>
                 }
                 name="points"

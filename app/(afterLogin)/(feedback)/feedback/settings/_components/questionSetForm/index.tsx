@@ -390,11 +390,16 @@ const QuestionSetForm = () => {
         layout="vertical"
         form={form}
         onFinish={handleSubmit}
+        requiredMark={false}
         data-cy="question-set-form"
         id="questionSetForm"
       >
         <Form.Item
-          label="Name"
+          label={
+            <span>
+              Name <span style={{ color: 'red' }}>*</span>
+            </span>
+          }
           name="name"
           rules={[{ required: true, message: 'Please enter a name' }]}
           data-cy="question-set-form-name-field"
@@ -432,7 +437,11 @@ const QuestionSetForm = () => {
         )}
 
         <Form.Item
-          label="Is Active"
+          label={
+            <span>
+              Is Active <span style={{ color: 'red' }}>*</span>
+            </span>
+          }
           name="active"
           initialValue={true}
           rules={[
@@ -452,7 +461,11 @@ const QuestionSetForm = () => {
         </Form.Item>
 
         <Form.Item
-          label="Questions"
+          label={
+            <span>
+              Questions <span style={{ color: 'red' }}>*</span>
+            </span>
+          }
           name="questions"
           required
           rules={[{ validator: checkQuestions }]}

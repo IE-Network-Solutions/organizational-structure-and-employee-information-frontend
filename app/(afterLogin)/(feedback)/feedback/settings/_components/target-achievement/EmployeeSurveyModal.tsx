@@ -323,12 +323,17 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
           layout="vertical"
           name="employee_survey_edit"
           onFinish={onFinishUpdate}
+          requiredMark={false}
           data-cy="employee-survey-modal-form"
           id="employeeSurveyModalForm"
         >
           <div className="grid grid-cols-12 gap-4 items-start">
             <Form.Item
-              label="Employee"
+              label={
+                <span>
+                  Employee <span style={{ color: 'red' }}>*</span>
+                </span>
+              }
               name="userId"
               rules={[{ required: true, message: 'Please select employee' }]}
               className="col-span-8 mb-0"
@@ -363,7 +368,11 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
             </Form.Item>
 
             <Form.Item
-              label="Score"
+              label={
+                <span>
+                  Score <span style={{ color: 'red' }}>*</span>
+                </span>
+              }
               name="score"
               rules={[{ required: true, message: 'Please input score' }]}
               className="col-span-4 mb-0"

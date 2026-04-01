@@ -467,7 +467,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       className="text-black text-sm "
       data-cy={`create-recognition-${text}-label`}
     >
-      {text}
+      {text} <span style={{ color: 'red' }}>*</span>
     </span>
   );
   const onFinish = (values: RecognitionFormValues) => {
@@ -1156,6 +1156,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           form={form}
           layout="vertical"
           onFinish={onFinish}
+          requiredMark={false}
           className="text-xs text-gray-950"
           initialValues={{
             isMonetized: false,
@@ -1178,7 +1179,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                   className="text-black text-sm "
                   data-cy="create-recognition-form-name-label"
                 >
-                  Name
+                  Name <span style={{ color: 'red' }}>*</span>
                 </span>
               }
               name="name"
@@ -1206,7 +1207,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                   className="text-black text-sm "
                   data-cy="create-recognition-form-description-label"
                 >
-                  Description
+                  Description <span style={{ color: 'red' }}>*</span>
                 </span>
               }
               name="description"
@@ -1240,7 +1241,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     className="text-black text-sm "
                     data-cy="create-recognition-form-criteria-label"
                   >
-                    Recognition Criteria
+                    Recognition Criteria <span style={{ color: 'red' }}>*</span>
                   </span>
                 }
                 name="criteria"
@@ -1859,7 +1860,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                       className="text-black text-sm "
                       data-cy="create-recognition-form-frequency-label"
                     >
-                      Frequency
+                      Frequency <span style={{ color: 'red' }}>*</span>
                     </span>
                   }
                   name="frequency"
@@ -1911,7 +1912,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                       className="text-black text-sm "
                       data-cy="create-recognition-form-department-label"
                     >
-                      Department
+                      Department <span style={{ color: 'red' }}>*</span>
                     </span>
                   }
                   name="departmentId"
@@ -2263,11 +2264,16 @@ const RecognitionForm: React.FC<PropsData> = ({
               form={criteriaForm}
               layout="vertical"
               onFinish={onFinishCriteria}
+              requiredMark={false}
               data-cy="create-recognition-criteria-modal-form"
               id="createRecognitionCriteriaModalForm"
             >
               <Form.Item
-                label="Criteria Name"
+                label={
+                  <span>
+                    Criteria Name <span style={{ color: 'red' }}>*</span>
+                  </span>
+                }
                 name="criteriaName"
                 rules={[
                   { required: true, message: 'Please enter criteria name' },

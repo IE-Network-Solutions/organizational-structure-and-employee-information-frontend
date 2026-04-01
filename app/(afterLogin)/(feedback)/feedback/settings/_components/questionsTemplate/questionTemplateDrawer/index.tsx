@@ -89,6 +89,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
             autoComplete="off"
             style={{ maxWidth: '100%' }}
             layout="vertical"
+            requiredMark={false}
             onValuesChange={() => {
               handleQuestionStateUpdate(form.getFieldsValue());
             }}
@@ -116,7 +117,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                       data-cy="question-template-drawer-title-label"
                       id="questionTemplateDrawerTitleLabel"
                     >
-                      Template Title
+                      Template Title <span style={{ color: 'red' }}>*</span>
                     </span>
                   }
                   data-cy="question-template-drawer-title-field"
@@ -148,7 +149,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           className="text-md font-semibold text-gray-700"
                           data-cy="question-template-drawer-field-type-label"
                         >
-                          Field Type
+                          Field Type <span style={{ color: 'red' }}>*</span>
                         </span>
                       }
                       required
@@ -207,7 +208,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           data-cy="question-template-drawer-question-label"
                           id="questionTemplateDrawerQuestionLabel"
                         >
-                          Question
+                          Question <span style={{ color: 'red' }}>*</span>
                         </span>
                       }
                       required

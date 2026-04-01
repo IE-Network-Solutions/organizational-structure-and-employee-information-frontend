@@ -372,6 +372,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         <Form
           form={categoryForm}
           layout="vertical"
+          requiredMark={false}
           onFinish={(values) => {
             const payload = {
               ...values,
@@ -401,7 +402,11 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           data-cy="recognition-category-form"
         >
           <Form.Item
-            label={<span className="text-xs font-semibold">Name</span>}
+            label={
+              <span className="text-xs font-semibold">
+                Name <span style={{ color: 'red' }}>*</span>
+              </span>
+            }
             name="name"
             rules={[{ required: true, message: 'Please enter a name' }]}
             data-cy="recognition-category-form-name"

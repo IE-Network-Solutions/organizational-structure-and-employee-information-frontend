@@ -99,11 +99,16 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           layout="vertical"
           onFinish={onFinish}
           initialValues={initialValues || { agendaItems: [''] }}
+          requiredMark={false}
           data-cy="meeting-template-drawer-form"
           id="meetingTemplateDrawerForm"
         >
           <Form.Item
-            label="Name"
+            label={
+              <span>
+                Name <span style={{ color: 'red' }}>*</span>
+              </span>
+            }
             name="name"
             rules={[{ required: true, message: 'Please enter the name' }]}
             data-cy="meeting-template-drawer-name-field"
@@ -117,7 +122,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           </Form.Item>
 
           <Form.Item
-            label="Meeting Objective"
+            label={
+              <span>
+                Meeting Objective <span style={{ color: 'red' }}>*</span>
+              </span>
+            }
             name="objective"
             rules={[
               { required: true, message: 'Please enter the meeting objective' },
@@ -133,7 +142,11 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           </Form.Item>
 
           <Form.Item
-            label="Description"
+            label={
+              <span>
+                Description <span style={{ color: 'red' }}>*</span>
+              </span>
+            }
             name="description"
             rules={[{ required: true, message: 'Please enter a description' }]}
             data-cy="meeting-template-drawer-description-field"
@@ -170,7 +183,12 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                         rules={[
                           { required: true, message: 'Missing agenda item' },
                         ]}
-                        label={`Agenda Item ${key + 1}`}
+                        label={
+                          <span>
+                            Agenda Item {key + 1}{' '}
+                            <span style={{ color: 'red' }}>*</span>
+                          </span>
+                        }
                         className="w-full"
                         data-cy={`meeting-template-drawer-agenda-item-field-${name}`}
                         id={`meetingTemplateDrawerAgendaItemField${name}`}

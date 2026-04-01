@@ -114,11 +114,16 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
         layout="vertical"
         name="itemForm"
         onFinish={onFinish}
+        requiredMark={false}
         data-cy="meeting-type-drawer-form"
         id="meetingTypeDrawerForm"
       >
         <Form.Item
-          label="Name"
+          label={
+            <span>
+              Name <span style={{ color: 'red' }}>*</span>
+            </span>
+          }
           name="name"
           rules={[
             { required: true, message: 'Please enter the item name.' },
@@ -136,7 +141,11 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
         </Form.Item>
 
         <Form.Item
-          label="Description"
+          label={
+            <span>
+              Description <span style={{ color: 'red' }}>*</span>
+            </span>
+          }
           name="description"
           rules={[
             { required: true, message: 'Please enter the item description.' },
