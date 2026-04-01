@@ -80,12 +80,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`${
-              isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
+            className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
               current === i
-                ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]  '
-                : 'bg-white text-[#111827] hover:bg-gray-100'
+                ? ' border border-[#1e40af] text-[#1e40af] font-semibold '
+                : ' text-[#111827] font-normal hover:bg-gray-100'
             }`}
             data-cy="pagination-page-button"
           >
@@ -102,12 +100,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={1}
           onClick={() => handlePageChange(1)}
-          className={`${
-            isMobile ? 'w-10 h-10' : 'w-8 h-8'
-          } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
+          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
             current === 1
-              ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af]'
-              : 'bg-white text-[#111827] hover:bg-gray-100'
+              ? 'border border-[#1e40af] text-[#1e40af] font-semibold '
+              : 'text-[#111827] font-normal hover:bg-gray-100'
           }`}
           data-cy="pagination-page-button"
         >
@@ -147,12 +143,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`${
-              isMobile ? 'w-10 h-10' : 'w-8 h-8'
-            } flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
+            className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors  ${
               current === i
-                ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
-                : 'bg-white text-[#111827] hover:bg-gray-100'
+                ? ' border border-[#1e40af] text-[#1e40af] font-semibold '
+                : ' text-[#111827] font-normal hover:bg-gray-100'
             }`}
             data-cy="pagination-page-button"
           >
@@ -179,10 +173,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         <button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          className={`w-8 h-8 flex items-center justify-center rounded-[10px] text-sm font-medium transition-colors border ${
+          className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
             current === totalPages
-              ? 'bg-[#F8F8F8] border border-[#1e40af] text-[#1e40af] '
-              : 'bg-white text-[#111827]  hover:bg-gray-100'
+              ? ' border-[1px] border-[#1e40af] text-[#1e40af] font-semibold '
+              : ' text-[#111827] font-normal  hover:bg-gray-100'
           }`}
           data-cy="pagination-page-button"
         >
@@ -209,7 +203,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           data-cy="pagination-prev-button"
-          className={`w-8 h-8 flex items-center justify-center rounded-[6px] border-0 bg-transparent ${
+          className={`w-8 h-8 flex items-center justify-center  ${
             current === 1
               ? 'text-[#111827] opacity-50'
               : 'text-[#111827] hover:bg-gray-50 active:bg-gray-100'
@@ -223,7 +217,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           data-cy="pagination-next-button"
-          className={`w-8 h-8 flex items-center justify-center rounded-[6px] border-0 bg-transparent ${
+          className={`w-8 h-8 flex items-center justify-center ${
             current === totalPages
               ? 'text-[#111827] opacity-50'
               : 'text-[#111827] hover:bg-gray-50 active:bg-gray-100'
@@ -231,36 +225,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         >
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
-
-        {!isMobile && totalPages > 0 && (
-          <div
-            className="flex items-center gap-2 ml-4"
-            data-cy="pagination-goto"
-          >
-            <span
-              className="text-xs text-[#718096]"
-              data-cy="pagination-goto-label"
-            >
-              Go to
-            </span>
-            <Input
-              type="number"
-              min={1}
-              max={totalPages}
-              value={goToPageValue}
-              onChange={(e) => setGoToPageValue(e.target.value)}
-              onPressEnter={handleGoToPage}
-              className="w-12 h-8 text-center text-sm px-1 border-gray-100"
-              data-cy="pagination-goto-input"
-            />
-            <span
-              className="text-xs text-[#718096]"
-              data-cy="pagination-goto-page-label-number-of-page"
-            >
-              Page
-            </span>
-          </div>
-        )}
       </div>
 
       {/* Info and Page Size Selector */}
@@ -270,7 +234,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {/* {!isMobile && (
+        {!isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
@@ -279,13 +243,13 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
             entries
           </span>
-        )} */}
+        )}
 
         {/* Mobile info - more compact */}
         {isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-215"
-            className="text-xs text-[#718096] mr-2"
+            className="text-sm text-[#718096] mr-2"
           >
             {Math.min(total, (current - 1) * pageSize + 1) || 0}-
             {Math.min(total, current * pageSize) || 0} of {total || 0}
@@ -294,7 +258,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
         <Select
           value={pageSize}
-          className={isMobile ? 'w-20' : 'w-24'}
+          className="w-[108px] h-10 text-center text-sm px-1 border-gray-100"
           size={isMobile ? 'small' : 'middle'}
           onChange={(value) => handleSizeChange(value)}
           data-cy="pagination-page-size-select"
@@ -310,6 +274,37 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             </Option>
           ))}
         </Select>
+
+        {!isMobile && totalPages > 0 && (
+          <div
+            className="flex items-center gap-2 ml-4"
+            data-cy="pagination-goto"
+          >
+            <span
+              className="text-sm text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              placeholder="Input"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              className="w-[75px] h-10 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-sm text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

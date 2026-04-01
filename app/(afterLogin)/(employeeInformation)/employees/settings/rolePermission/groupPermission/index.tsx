@@ -1,7 +1,6 @@
-import { Card, Empty, Spin } from 'antd';
+import { Card, Skeleton, Spin } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
 import CustomPagination from '@/components/customPagination';
@@ -101,13 +100,7 @@ const GroupPermissionComponent = () => {
           id="settings-role-permission-group-empty-wrapper"
           data-cy="settings-role-permission-group-empty-wrapper"
         >
-          <Empty
-            description={'data not found'}
-            image={
-              <EmptyImage data-cy="settings-role-permission-group-empty-icon" />
-            }
-            data-cy="settings-role-permission-group-empty"
-          />
+          <Skeleton />
         </div>
       )}
     </Card>

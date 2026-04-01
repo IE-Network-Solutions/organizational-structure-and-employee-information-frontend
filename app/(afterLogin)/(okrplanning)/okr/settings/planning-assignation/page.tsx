@@ -8,7 +8,7 @@ import {
   Spin,
   Tag,
 } from 'antd';
-import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -20,7 +20,7 @@ import {
 import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 import { useDeletePlanningUser } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import AccessGuard from '@/utils/permissionGuard';
@@ -70,7 +70,7 @@ const PlanAssignment: React.FC = () => {
       const planningPeriod = allPlanningPeriods?.items?.find(
         (period: any) => period.id === planningPeriodId,
       );
-      return planningPeriod?.intervalType || 'daily';
+      return planningPeriod?.intervalType || 'Daily';
     };
   }, [allPlanningPeriods]);
 
@@ -128,8 +128,10 @@ const PlanAssignment: React.FC = () => {
           ...item,
           employeeName: getEmployeeData(item?.userId),
           planningPeriodType:
-            planningPeriodType.charAt(0).toUpperCase() +
-            planningPeriodType.slice(1),
+            planningPeriodType.toLowerCase() === 'day'
+              ? 'Daily'
+              : planningPeriodType.charAt(0).toUpperCase() +
+                planningPeriodType.slice(1),
           updatedAt: item?.lastUpdated,
         };
       });
@@ -137,7 +139,6 @@ const PlanAssignment: React.FC = () => {
     userToPlanning,
     employeeData,
     searchTerm,
-    allPlanningPeriods,
     getEmployeeData,
     getPlanningPeriodType,
   ]);
@@ -161,12 +162,12 @@ const PlanAssignment: React.FC = () => {
             data-cy={`okr-planning-assignation-card-edit-access-guard-${item?.userId}`}
           >
             <div
-              className="flex items-center gap-3 py-1"
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
               onClick={() => handleEdit(item)}
               id={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
               data-cy={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
             >
-              <MdModeEditOutline className="text-[#595959] text-xl" />
+              <MdOutlineEdit className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-planning-assignation-card-edit-text-${item?.userId}`}
@@ -196,11 +197,11 @@ const PlanAssignment: React.FC = () => {
               data-cy={`okr-planning-assignation-card-delete-popconfirm-${item?.userId}`}
             >
               <div
-                className="flex items-center gap-3 py-1 text-red-600"
+                className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
                 id={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
                 data-cy={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
               >
-                <MdDeleteForever className="text-xl" />
+                <MdDeleteOutline className="text-xl" />
                 <span
                   className="text-[15px]"
                   data-cy={`okr-planning-assignation-card-delete-text-${item?.userId}`}
@@ -236,7 +237,7 @@ const PlanAssignment: React.FC = () => {
             addonAfter={<SearchOutlined className="text-[#8c8c8c]" />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md h-11 custom-search-input"
+            className="w-full max-w-md h-8 custom-search-input"
             id="okr-planning-assignation-search-input"
             data-cy="okr-planning-assignation-search-input"
           />
@@ -270,7 +271,7 @@ const PlanAssignment: React.FC = () => {
                 return (
                   <div
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                    className="bg-white border border-[#d9d9d9] rounded-[8px] py-2 px-4 min-h-[80px] hover:shadow-sm transition-shadow relative"
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
@@ -286,13 +287,13 @@ const PlanAssignment: React.FC = () => {
                       >
                         {item?.profileImage ? (
                           <Avatar
-                            size={40}
+                            size={24}
                             src={item?.profileImage}
                             data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
                           />
                         ) : (
                           <Avatar
-                            size={40}
+                            size={24}
                             className="bg-[#f0f0f0] text-[#8c8c8c]"
                             data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
                           >
@@ -308,7 +309,7 @@ const PlanAssignment: React.FC = () => {
                       >
                         {/* Tag */}
                         <div
-                          className="mb-2"
+                          className="mb-0"
                           data-cy={`okr-planning-assignation-card-tag-wrapper-${item.userId}`}
                         >
                           <Tag
@@ -322,7 +323,7 @@ const PlanAssignment: React.FC = () => {
 
                         {/* Name */}
                         <p
-                          className="text-[15px] font-semibold text-[#262626] mb-0.5 truncate"
+                          className="text-[14px] font-semibold text-[rgba(0,0,0,0.7)] mb-0.5 truncate"
                           id={`okr-planning-assignation-card-name-${item.userId}`}
                           data-cy={`okr-planning-assignation-card-name-${item.userId}`}
                         >
@@ -350,15 +351,44 @@ const PlanAssignment: React.FC = () => {
                           menu={{ items: getMenuItems(item) }}
                           trigger={['click']}
                           placement="bottomRight"
-                          overlayClassName="custom-menu-dropdown"
+                          overlayClassName="okr-settings-menu-dropdown"
                           data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
                         >
                           <button
-                            className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                            className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
-                            <EllipsisOutlined className="text-lg" />
+                            <svg
+                              width="14"
+                              height="4"
+                              viewBox="0 0 14 4"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              data-cy={`okr-planning-assignation-card-menu-svg-${item.userId}`}
+                            >
+                              <circle
+                                cx="2.5"
+                                cy="2"
+                                r="1.5"
+                                fill="currentColor"
+                                data-cy={`okr-planning-assignation-card-menu-circle-1-${item.userId}`}
+                              />
+                              <circle
+                                cx="7"
+                                cy="2"
+                                r="1.5"
+                                fill="currentColor"
+                                data-cy={`okr-planning-assignation-card-menu-circle-2-${item.userId}`}
+                              />
+                              <circle
+                                cx="11.5"
+                                cy="2"
+                                r="1.5"
+                                fill="currentColor"
+                                data-cy={`okr-planning-assignation-card-menu-circle-3-${item.userId}`}
+                              />
+                            </svg>
                           </button>
                         </Dropdown>
                       </div>
@@ -419,7 +449,7 @@ const PlanAssignment: React.FC = () => {
       <style jsx global data-cy="okr-planning-assignation-styles">{`
         /* Search Input Styling */
         .custom-search-input.ant-input-group-wrapper {
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input.ant-input-group-wrapper .ant-input-wrapper {
           display: flex !important;
@@ -428,12 +458,12 @@ const PlanAssignment: React.FC = () => {
           border-radius: 8px !important;
           overflow: hidden !important;
           background-color: white !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input.ant-input-group-wrapper .ant-input {
           border: none !important;
           box-shadow: none !important;
-          height: 44px !important;
+          height: 32px !important;
           padding-left: 12px !important;
           font-size: 14px !important;
           color: #262626 !important;
@@ -449,7 +479,7 @@ const PlanAssignment: React.FC = () => {
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .custom-search-input.ant-input-group-wrapper
           .ant-input-group-addon
