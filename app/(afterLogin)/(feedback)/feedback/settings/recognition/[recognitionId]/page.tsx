@@ -319,7 +319,7 @@ export default function RecognitionDetailPage() {
 
                     {isExpanded && (
                       <div
-                        className="mt-4 rounded-lg border border-[#D9D9D9] bg-gray-50 p-4"
+                        className="mt-4 rounded-lg border border-[#D9D9D9] bg-[#F0F0F0] p-2"
                         data-cy={`recognition-detail-criteria-accordion-${child?.id}`}
                       >
                         <div
@@ -327,51 +327,51 @@ export default function RecognitionDetailPage() {
                           data-cy={`recognition-detail-criteria-table-${child?.id}`}
                         >
                           <div
-                            className="min-w-[760px] rounded-md bg-white"
+                            className="min-w-[760px] rounded-md bg-white p-4 pb-14"
                             data-cy="recognition-detail-criteria-table-inner"
                           >
                             <div
-                              className="grid grid-cols-12 gap-2 border-b border-[#D9D9D9] px-3 py-2 text-xs font-semibold text-gray-700"
+                              className="grid grid-cols-12 gap-0 bg-[#F0F0F0] border-b border-[#D9D9D9] h-14 text-black text-base font-bold items-center"
                               data-cy="recognition-detail-criteria-table-header"
                             >
                               <div
-                                className="col-span-4"
+                                className="col-span-4 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
                                 data-cy="recognition-detail-criteria-col-criteria"
                               >
-                                Critaria
+                                Criteria
                               </div>
                               <div
-                                className="col-span-1"
+                                className="col-span-1 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
                                 data-cy="recognition-detail-criteria-col-weight"
                               >
                                 Weight
                               </div>
                               <div
-                                className="col-span-2"
+                                className="col-span-2 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
                                 data-cy="recognition-detail-criteria-col-operator"
                               >
                                 Operator
                               </div>
                               <div
-                                className="col-span-2"
+                                className="col-span-2 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
                                 data-cy="recognition-detail-criteria-col-condition"
                               >
                                 Condition
                               </div>
                               <div
-                                className="col-span-1"
+                                className="col-span-1 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
                                 data-cy="recognition-detail-criteria-col-status"
                               >
                                 Status
                               </div>
                               <div
-                                className="col-span-1"
+                                className="col-span-1 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
                                 data-cy="recognition-detail-criteria-col-value"
                               >
                                 Value
                               </div>
                               <div
-                                className="col-span-1 text-right"
+                                className="col-span-1 h-4 px-3 flex items-center"
                                 data-cy="recognition-detail-criteria-col-action"
                               >
                                 Action
@@ -389,7 +389,7 @@ export default function RecognitionDetailPage() {
                                       criterion?.id ??
                                       `${child?.id}-${criterion?.criteria?.criteriaName}`
                                     }
-                                    className="grid grid-cols-12 gap-2 border-b border-[#D9D9D9] px-3 py-2 text-xs text-gray-700 last:border-b-0"
+                                    className="grid grid-cols-12 gap-2 bg-white border-b border-[#D9D9D9] px-3 py-2 text-xs text-gray-700  h-14 items-center"
                                     data-cy={`recognition-detail-criteria-row-${criterion?.id}`}
                                   >
                                     <div
@@ -434,7 +434,7 @@ export default function RecognitionDetailPage() {
                                       {criterion?.value ?? 0}
                                     </div>
                                     <div
-                                      className="col-span-1 flex justify-end"
+                                      className="col-span-1 flex "
                                       data-cy="recognition-detail-criteria-action"
                                     >
                                       <Dropdown
