@@ -14,7 +14,6 @@ import {
 import {
   LoadingOutlined,
   UserOutlined,
-  EllipsisOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
 import {
@@ -334,12 +333,6 @@ const EmployeeSurveyTable: React.FC = () => {
               ],
             }}
           >
-            <Button
-              size="small"
-              icon={<EllipsisOutlined />}
-              className="border-[#D9D9D9]"
-              id="employeeSurveyTableActionButton"
-            />
             <button
               type="button"
               className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"

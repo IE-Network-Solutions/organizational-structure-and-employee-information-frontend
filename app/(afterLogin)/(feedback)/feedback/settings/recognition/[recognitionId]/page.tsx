@@ -87,7 +87,7 @@ export default function RecognitionDetailPage() {
       data-cy="recognition-detail-page"
     >
       <div
-        className="flex items-start justify-between gap-4"
+        className="flex items-start justify-between gap-4  border-b border-gray-200 pb-4"
         data-cy="recognition-detail-header"
       >
         <div
@@ -229,7 +229,7 @@ export default function RecognitionDetailPage() {
                       >
                         <Button
                           type="link"
-                          className="px-0 text-gray-600"
+                          className={`px-3 py-1 ${isExpanded ? 'bg-[#D9D9D9]' : 'bg-white'} font-normal text-sm text-black rounded-md`}
                           data-cy="recognition-detail-item-details"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -240,7 +240,7 @@ export default function RecognitionDetailPage() {
                             );
                           }}
                         >
-                          Details
+                          {isExpanded ? 'Collapse' : 'Detail'}
                         </Button>
 
                         <Dropdown
