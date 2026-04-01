@@ -1079,6 +1079,9 @@ const RecognitionForm: React.FC<PropsData> = ({
     }
     .create-recognition-criteria-select-scroll .ant-select-selector::-webkit-scrollbar { display: none; }
     .create-recognition-criteria-select-scroll .ant-select-selector { -ms-overflow-style: none; scrollbar-width: none; }
+    .create-recognition-criteria-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+      background: #e6f4ff !important;
+    }
 
     /* Mobile: keep stepper as dots+line (no titles/descriptions) */
     .recognition-steps--hide-title .ant-steps-item-title,
@@ -1258,6 +1261,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                   mode="multiple"
                   placeholder="Select criteria"
                   className="text-xs text-gray-950 create-recognition-criteria-select-scroll"
+                  popupClassName="create-recognition-criteria-dropdown"
                   onChange={(vals) => handleCriteriaChange(vals as any)}
                   data-cy="create-recognition-form-criteria-select"
                   id="createRecognitionFormCriteriaSelect"
