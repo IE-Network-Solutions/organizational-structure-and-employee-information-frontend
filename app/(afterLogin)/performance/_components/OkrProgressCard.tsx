@@ -283,7 +283,6 @@ export default function OkrProgressCard({
             placeholder="Department"
             value={selectedDepartmentId}
             onChange={(value) => setSelectedDepartmentId(value)}
-            
             className="md:w-[168px] w-full text-xs"
             style={{
               backgroundColor: selectedDepartmentId ? '#E6F4FF' : 'transparent',
@@ -339,7 +338,9 @@ export default function OkrProgressCard({
                         <span className="font-medium text-gray-800">
                           {dept.name}
                         </span>
-                        <span className="text-black font-bold">{dept.percent}%</span>
+                        <span className="text-black font-bold">
+                          {dept.percent}%
+                        </span>
                       </div>
                       {/* <div className="h-2 overflow-hidden rounded-full bg-gray-100"> */}
                       <div className="w-full h-3">

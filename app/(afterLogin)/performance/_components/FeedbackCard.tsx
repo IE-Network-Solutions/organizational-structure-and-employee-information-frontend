@@ -171,10 +171,16 @@ function StatBlock({
     <div className="flex min-h-[95px] flex-1 items-center rounded-xl border border-gray-200 bg-white px-5 py-4">
       <div className="flex w-[48%] min-w-0 shrink-0 flex-col justify-center pr-4">
         <div className="flex items-center gap-2">
-          <div className={`w-6 h-6 flex items-center justify-center rounded-[4px] ${title==='Total Appreciation' ? 'text-greenbg bg-greenlight' : 'text-errorbg  bg-errorlight '}`}>
-            {title==='Total Appreciation' ? <MdOutlineStar size={16}/> : <MdReportGmailerrorred size={16}/>}
-            </div>
-        <p className="text-sm text-black/45 font-normal">{title}</p>
+          <div
+            className={`w-6 h-6 flex items-center justify-center rounded-[4px] ${title === 'Total Appreciation' ? 'text-greenbg bg-greenlight' : 'text-errorbg  bg-errorlight '}`}
+          >
+            {title === 'Total Appreciation' ? (
+              <MdOutlineStar size={16} />
+            ) : (
+              <MdReportGmailerrorred size={16} />
+            )}
+          </div>
+          <p className="text-sm text-black/45 font-normal">{title}</p>
         </div>
         <p className={`mt-1 text-3xl font-bold leading-tight ${totalClass}`}>
           {total}

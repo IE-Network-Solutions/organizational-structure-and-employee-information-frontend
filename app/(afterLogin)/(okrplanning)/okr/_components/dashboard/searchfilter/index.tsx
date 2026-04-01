@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Select, Modal, Popover, Button } from 'antd';
-import {
-  FilterOutlined,
-  SearchOutlined,
-  CloseOutlined,
-} from '@ant-design/icons';
+import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
@@ -397,16 +393,18 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                 placeholder="Search Employee"
                 className="h-8 w-full md:w-[300px]"
                 allowClear
-                suffixIcon={ <div
-                  className="border-l border-gray-200 h-8 flex items-center justify-center"
-                  data-cy="okr-desktop-user-search-suffix"
-                  id="okr-desktop-user-search-suffix"
-                >
-                  <SearchOutlined
-                    className="text-gray-600 ml-2"
-                    data-cy="okr-desktop-user-search-icon"
-                  />
-                </div>}
+                suffixIcon={
+                  <div
+                    className="border-l border-gray-200 h-8 flex items-center justify-center"
+                    data-cy="okr-desktop-user-search-suffix"
+                    id="okr-desktop-user-search-suffix"
+                  >
+                    <SearchOutlined
+                      className="text-gray-600 ml-2"
+                      data-cy="okr-desktop-user-search-icon"
+                    />
+                  </div>
+                }
                 value={searchObjParams.userId || undefined}
                 onChange={(value) => handleFilter(value ?? '', 'userId')}
                 filterOption={(input: any, option: any) =>
@@ -437,12 +435,21 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                   className=" md:w-[min(100vw-2rem,400px)] "
                   data-cy="okr-performance-filter-popover-content"
                 >
-                  <div className="mb-4 flex items-start justify-between gap-2">
-                    <div>
-                      <div className="text-base font-semibold text-gray-900">
+                  <div
+                    className="mb-4 flex items-start justify-between gap-2"
+                    data-cy="okr-performance-filter-popover-header-row"
+                  >
+                    <div data-cy="okr-performance-filter-popover-header-text">
+                      <div
+                        className="text-base font-semibold text-gray-900"
+                        data-cy="okr-performance-filter-popover-title"
+                      >
                         Filter
                       </div>
-                      <p className="mt-0.5 text-xs font-normal text-gray-500">
+                      <p
+                        className="mt-0.5 text-xs font-normal text-gray-500"
+                        data-cy="okr-performance-filter-popover-subtitle"
+                      >
                         Select All filters that apply
                       </p>
                     </div>
@@ -457,12 +464,28 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                     </button>
                   </div>
 
-                  <div className="flex flex-col gap-4">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                      <div className="flex flex-col gap-1.5">
-                        <span className="text-sm text-gray-700">
+                  <div
+                    className="flex flex-col gap-4"
+                    data-cy="okr-performance-filter-popover-fields"
+                  >
+                    <div
+                      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                      data-cy="okr-performance-filter-popover-grid-employee-dept"
+                    >
+                      <div
+                        className="flex flex-col gap-1.5"
+                        data-cy="okr-performance-filter-field-employee"
+                      >
+                        <span
+                          className="text-sm text-gray-700"
+                          data-cy="okr-performance-filter-label-employee"
+                        >
                           Employee{' '}
-                          <span className="text-red-500" aria-hidden>
+                          <span
+                            className="text-red-500"
+                            aria-hidden
+                            data-cy="okr-performance-filter-label-employee-required"
+                          >
                             *
                           </span>
                         </span>
@@ -472,7 +495,9 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                           className="w-full [&_.ant-select-selector]:h-10 [&_.ant-select-selector]:rounded-lg"
                           allowClear
                           value={searchObjParams.userId || undefined}
-                          onChange={(value) => handleFilter(value ?? '', 'userId')}
+                          onChange={(value) =>
+                            handleFilter(value ?? '', 'userId')
+                          }
                           filterOption={(input: any, option: any) =>
                             (option?.label ?? '')
                               ?.toLowerCase()
@@ -488,12 +513,23 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                               ' ' +
                               item?.lastName,
                           }))}
+                          data-cy="okr-performance-filter-select-employee"
                         />
                       </div>
-                      <div className="flex flex-col gap-1.5">
-                        <span className="text-sm text-gray-700">
+                      <div
+                        className="flex flex-col gap-1.5"
+                        data-cy="okr-performance-filter-field-department"
+                      >
+                        <span
+                          className="text-sm text-gray-700"
+                          data-cy="okr-performance-filter-label-department"
+                        >
                           Department{' '}
-                          <span className="text-red-500" aria-hidden>
+                          <span
+                            className="text-red-500"
+                            aria-hidden
+                            data-cy="okr-performance-filter-label-department-required"
+                          >
                             *
                           </span>
                         </span>
@@ -511,6 +547,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                               ?.toLowerCase()
                               .includes(input.toLowerCase())
                           }
+                          data-cy="okr-performance-filter-select-department"
                         >
                           {DepartmentWithUsers?.map((dept: any) => (
                             <Option
@@ -525,10 +562,20 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-sm text-gray-700">
+                    <div
+                      className="flex flex-col gap-1.5"
+                      data-cy="okr-performance-filter-field-fiscal-year"
+                    >
+                      <span
+                        className="text-sm text-gray-700"
+                        data-cy="okr-performance-filter-label-fiscal-year"
+                      >
                         Fiscal Year{' '}
-                        <span className="text-red-500" aria-hidden>
+                        <span
+                          className="text-red-500"
+                          aria-hidden
+                          data-cy="okr-performance-filter-label-fiscal-year-required"
+                        >
                           *
                         </span>
                       </span>
@@ -546,6 +593,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                             ?.toLowerCase()
                             .includes(input.toLowerCase())
                         }
+                        data-cy="okr-performance-filter-select-fiscal-year"
                       >
                         {getAllFiscalYears?.items?.map((item: any) => (
                           <Select.Option
@@ -559,10 +607,20 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                       </Select>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-sm text-gray-700">
+                    <div
+                      className="flex flex-col gap-1.5"
+                      data-cy="okr-performance-filter-field-session"
+                    >
+                      <span
+                        className="text-sm text-gray-700"
+                        data-cy="okr-performance-filter-label-session"
+                      >
                         Session{' '}
-                        <span className="text-red-500" aria-hidden>
+                        <span
+                          className="text-red-500"
+                          aria-hidden
+                          data-cy="okr-performance-filter-label-session-required"
+                        >
                           *
                         </span>
                       </span>
@@ -581,6 +639,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                             ?.toLowerCase()
                             .includes(input.toLowerCase())
                         }
+                        data-cy="okr-performance-filter-select-session"
                       >
                         {getAllFiscalYears?.items
                           ?.find((fy: any) => fy.id === fiscalYearId)
@@ -597,7 +656,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                     </div>
                   </div>
 
-                  <div className="mt-6 flex justify-end gap-2 border-t border-gray-100 pt-4">
+                  <div
+                    className="mt-6 flex justify-end gap-2 border-t border-gray-100 pt-4"
+                    data-cy="okr-performance-filter-popover-footer"
+                  >
                     <Button
                       data-cy="okr-performance-filter-reset"
                       className="border-gray-200"
@@ -710,7 +772,9 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
             >
               <Select
                 loading={fyLoading}
-                value={useAllSessionsForEmployeeOkr ? sessionIds : sessionIds?.[0]}
+                value={
+                  useAllSessionsForEmployeeOkr ? sessionIds : sessionIds?.[0]
+                }
                 id="desktop-session-select"
                 data-cy="okr-desktop-session-select"
                 placeholder="Filter by Session"

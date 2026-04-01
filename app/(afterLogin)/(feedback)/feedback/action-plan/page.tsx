@@ -11,11 +11,9 @@ import {
   Form,
   Button,
   Popover,
-  Input,
 } from 'antd';
 import {
   CloseOutlined,
-  FilterOutlined,
   LeftOutlined,
   LoadingOutlined,
   SearchOutlined,
@@ -129,9 +127,14 @@ const issueActionsCellClass =
 // Table columns (order matches design: Name → Issues → Type → Deadline → Responsible → Status → Priority → Actions)
 const columns: ColumnsType<any> = [
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Name
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-name"
+      >
+        Name
+      </span>
+    ),
     dataIndex: 'name',
     render: (text, record) => (
       <p
@@ -144,9 +147,14 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Issues
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-issues"
+      >
+        Issues
+      </span>
+    ),
     dataIndex: 'issue',
     render: (text, record) => (
       <p
@@ -159,9 +167,14 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Type
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-type"
+      >
+        Type
+      </span>
+    ),
     dataIndex: 'sourceType',
     render: (val, record) => (
       <p
@@ -174,9 +187,14 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Deadline
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-deadline"
+      >
+        Deadline
+      </span>
+    ),
     dataIndex: 'deadline',
     render: (val, record) => (
       <span
@@ -189,9 +207,14 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Responsible Person
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-responsible"
+      >
+        Responsible Person
+      </span>
+    ),
     dataIndex: 'responsible',
     render: (users: string[] | undefined, record) => (
       <div
@@ -200,7 +223,12 @@ const columns: ColumnsType<any> = [
         id={`feedback-action-plan-table-cell-responsible-${record.key}`}
       >
         {!users?.length ? (
-          <span className="text-xs text-gray-500">—</span>
+          <span
+            className="text-xs text-gray-500"
+            data-cy="feedback-action-plan-table-cell-responsible-empty"
+          >
+            —
+          </span>
         ) : users.length === 1 ? (
           <EmployeeDetails empId={users[0]} type="all" />
         ) : (
@@ -221,12 +249,19 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Status
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-status"
+      >
+        Status
+      </span>
+    ),
     dataIndex: 'status',
     render: (status: string, record) => {
-      const statusLabel = String(status || '').trim().toLowerCase();
+      const statusLabel = String(status || '')
+        .trim()
+        .toLowerCase();
       let label = '';
       let colorClass = '';
       let borderClass = '';
@@ -270,9 +305,14 @@ const columns: ColumnsType<any> = [
     },
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Priority
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-priority"
+      >
+        Priority
+      </span>
+    ),
     dataIndex: 'priority',
     render: (priority: keyof typeof priorityColors, record) =>
       !priority ? (
@@ -287,7 +327,11 @@ const columns: ColumnsType<any> = [
         <Tag
           bordered
           className="min-w-[60px] h-[22px] rounded-md flex items-center justify-center border text-xs font-normal capitalize"
-          color={priorityColors[priority?.toString()?.toLowerCase() as keyof typeof priorityColors]}
+          color={
+            priorityColors[
+              priority?.toString()?.toLowerCase() as keyof typeof priorityColors
+            ]
+          }
           data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
           id={`feedback-action-plan-table-cell-priority-${record.key}`}
         >
@@ -296,9 +340,14 @@ const columns: ColumnsType<any> = [
       ),
   },
   {
-    title: <span className="text-base font-bold text-black/70 truncate">
-    Actions to be done
-   </span>,
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-actions"
+      >
+        Actions to be done
+      </span>
+    ),
     dataIndex: 'description',
     render: (text, record) => (
       <p
@@ -321,7 +370,6 @@ export default function ActionPlansPage() {
   const searchParams = useSearchParams();
   const { data: allUsers } = useGetAllUsers();
   const { userData, userId } = useAuthenticationStore();
-  const isOwner = userData?.role?.slug === 'owner';
   const isUserRole = userData?.role?.slug?.toLowerCase() === 'user';
   const peopleOptions = allUsers?.items?.map((i: any) => ({
     value: i.id,
@@ -388,7 +436,10 @@ export default function ActionPlansPage() {
   }, [form, sourceTypeFromUrl]);
 
   const breadcrumbSubtitle = (
-    <span className="text-black/45 text-sm font-medium">
+    <span
+      className="text-black/45 text-sm font-medium"
+      data-cy="feedback-action-plan-breadcrumb-subtitle"
+    >
       <Link
         href="/feedback/conversation"
         className="text-slate-500 hover:text-slate-700"
@@ -397,7 +448,12 @@ export default function ActionPlansPage() {
         Conversation
       </Link>
       <span data-cy="feedback-action-plan-breadcrumb-separator"> / </span>
-      <span className='text-black/70 font-normal' data-cy="feedback-action-plan-breadcrumb-current">Action Plan</span>
+      <span
+        className="text-black/70 font-normal"
+        data-cy="feedback-action-plan-breadcrumb-current"
+      >
+        Action Plan
+      </span>
     </span>
   );
 
@@ -467,7 +523,14 @@ export default function ActionPlansPage() {
                 maxTagCount={1}
                 placeholder="Search Employee"
                 options={peopleOptions}
-                suffixIcon={<div className='border-l border-gray-200 h-8 flex items-center justify-center '><SearchOutlined className="text-gray-400 ml-2" /></div>}
+                suffixIcon={
+                  <div
+                    className="border-l border-gray-200 h-8 flex items-center justify-center "
+                    data-cy="feedback-action-plan-select-employee-suffix"
+                  >
+                    <SearchOutlined className="text-gray-400 ml-2" />
+                  </div>
+                }
                 filterOption={(input: string, option) =>
                   String(option?.label ?? '')
                     .toLowerCase()
@@ -505,7 +568,9 @@ export default function ActionPlansPage() {
                     </h3>
                     <Button
                       type="text"
-                      icon={<CloseOutlined className="text-base text-black/70" />}
+                      icon={
+                        <CloseOutlined className="text-base text-black/70" />
+                      }
                       onClick={() => setIsFilterPopoverOpen(false)}
                       className="!h-8 !w-8 !p-0"
                       data-cy="feedback-action-plan-filter-popover-close"
@@ -516,15 +581,25 @@ export default function ActionPlansPage() {
                     className="max-h-[min(70vh,28rem)] space-y-5 overflow-y-auto pr-1"
                     data-cy="feedback-action-plan-filter-popover-fields"
                   >
-                   
-
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div
+                      className="grid grid-cols-1 gap-4 md:grid-cols-3"
+                      data-cy="feedback-action-plan-filter-grid"
+                    >
                       <Form.Item
                         name="sourceType"
                         className="mb-0"
                         label={
-                          <span className="text-base font-normal text-black/70">
-                            Type <span className="text-red-500">*</span>
+                          <span
+                            className="text-base font-normal text-black/70"
+                            data-cy="feedback-action-plan-filter-label-type"
+                          >
+                            Type{' '}
+                            <span
+                              className="text-red-500"
+                              data-cy="feedback-action-plan-filter-label-type-required"
+                            >
+                              *
+                            </span>
                           </span>
                         }
                         data-cy="feedback-action-plan-filter-form-item-source-type"
@@ -558,8 +633,17 @@ export default function ActionPlansPage() {
                         name="status"
                         className="mb-0"
                         label={
-                          <span className="text-base font-normal text-black/70">
-                            Status <span className="text-red-500">*</span>
+                          <span
+                            className="text-base font-normal text-black/70"
+                            data-cy="feedback-action-plan-filter-label-status"
+                          >
+                            Status{' '}
+                            <span
+                              className="text-red-500"
+                              data-cy="feedback-action-plan-filter-label-status-required"
+                            >
+                              *
+                            </span>
                           </span>
                         }
                         data-cy="feedback-action-plan-filter-form-item-status"
@@ -600,8 +684,17 @@ export default function ActionPlansPage() {
                         name="priority"
                         className="mb-0"
                         label={
-                          <span className="text-base font-normal text-black/70">
-                            Priority <span className="text-red-500">*</span>
+                          <span
+                            className="text-base font-normal text-black/70"
+                            data-cy="feedback-action-plan-filter-label-priority"
+                          >
+                            Priority{' '}
+                            <span
+                              className="text-red-500"
+                              data-cy="feedback-action-plan-filter-label-priority-required"
+                            >
+                              *
+                            </span>
                           </span>
                         }
                         data-cy="feedback-action-plan-filter-form-item-priority"
@@ -643,8 +736,17 @@ export default function ActionPlansPage() {
                       name="dateRange"
                       className="mb-0 !mt-1"
                       label={
-                          <span className="text-base font-normal text-black/70">
-                          Date <span className="text-red-500">*</span>
+                        <span
+                          className="text-base font-normal text-black/70"
+                          data-cy="feedback-action-plan-filter-label-date"
+                        >
+                          Date{' '}
+                          <span
+                            className="text-red-500"
+                            data-cy="feedback-action-plan-filter-label-date-required"
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       data-cy="feedback-action-plan-filter-form-item-date-range"
@@ -687,7 +789,7 @@ export default function ActionPlansPage() {
               <Button
                 type="default"
                 className="flex h-8 items-center justify-center gap-2 border-gray-300 md:w-auto text-black/70 font-normal"
-                icon={<MdOutlineFilterAlt size={16} className='mt-1' />}
+                icon={<MdOutlineFilterAlt size={16} className="mt-1" />}
                 data-cy="feedback-action-plan-page-button-filter"
               >
                 Filter
@@ -707,7 +809,7 @@ export default function ActionPlansPage() {
               loading={isLoading}
               scroll={{ x: 'max-content' }}
               rowKey="key"
-              rowClassName={(_, index) =>
+              rowClassName={(rowRecord, index) =>
                 index % 2 == 0 ? 'bg-white' : 'bg-[#fafafa]'
               }
               className="action-plan-table [&_.ant-table]:rounded-none"
@@ -737,7 +839,6 @@ export default function ActionPlansPage() {
           </div>
         </div>
       </Form>
-
     </div>
   );
 }

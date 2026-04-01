@@ -95,7 +95,8 @@ const getCombinedActionPlan = async (paramsInput: CombinedActionPlanParams) => {
   if (paramsInput.completionEndDate) {
     params.append('completionEndDate', paramsInput.completionEndDate);
   }
-  if (paramsInput.sourceType) params.append('sourceType', paramsInput.sourceType);
+  if (paramsInput.sourceType)
+    params.append('sourceType', paramsInput.sourceType);
   if (paramsInput.priority) params.append('priority', paramsInput.priority);
 
   return crudRequest({
@@ -117,7 +118,9 @@ export const useGetMeetingActionPlan = (id: string | null) => {
   );
 };
 
-export const useGetCombinedActionPlan = (paramsInput: CombinedActionPlanParams) => {
+export const useGetCombinedActionPlan = (
+  paramsInput: CombinedActionPlanParams,
+) => {
   return useQuery<any>(
     [
       'action-plans-combined',

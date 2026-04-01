@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useCallback } from 'react';
 import { Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetEmployeeOkr } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -128,11 +129,10 @@ const MOCK_EMPLOYEE_PERFORMANCE_ROWS: MockPerformanceRow[] = [
 
 // Memoized score tag component to prevent unnecessary re-renders
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
-  
   return (
     <span
       className="inline-flex w-[29px] h-[22px] justify-center rounded-md border border-gray-200 bg-gray-100  text-center text-xs font-medium text-black/70 py-0.5"
-        data-cy={`performance-employee-okr-score-tag-${score}`}
+      data-cy={`performance-employee-okr-score-tag-${score}`}
     >
       {score?.toLocaleString()}
     </span>
@@ -164,7 +164,10 @@ const EmployeeDetails = React.memo(
     return (
       <>
         {type === 'user' ? (
-          <span className="text-sm text-gray-900" data-cy="employee-okr-user-details">
+          <span
+            className="text-sm text-gray-900"
+            data-cy="employee-okr-user-details"
+          >
             {userName}
           </span>
         ) : (
@@ -228,81 +231,192 @@ export default function EmployeePerformanceTable() {
 
   const { isMobile, isTablet } = useIsMobile();
 
-  const columns = useMemo(
+  const columns = useMemo<ColumnsType<any>>(
     () =>
       USE_MOCK_EMPLOYEE_PERFORMANCE_DATA
         ? [
             {
-              title: <span className="text-sm text-black/70 font-bold">Employee</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-mock-col-employee"
+                >
+                  Employee
+                </span>
+              ),
               key: 'employee',
-              render: (_: unknown, row: MockPerformanceRow) => (
-                <span className="text-sm text-black/70 font-normal">{row.employee}</span>
+              render: (unusedRecord: unknown, row: MockPerformanceRow) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-mock-cell-employee-${row.id}`}
+                >
+                  {row.employee}
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">Job Title</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-mock-col-job-title"
+                >
+                  Job Title
+                </span>
+              ),
               key: 'jobTitle',
-              render: (_: unknown, row: MockPerformanceRow) => (
-                <span className="text-sm text-black/70 font-normal">{row.jobTitle}</span>
+              render: (unusedRecord: unknown, row: MockPerformanceRow) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-mock-cell-job-${row.id}`}
+                >
+                  {row.jobTitle}
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">Quarter</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-mock-col-quarter"
+                >
+                  Quarter
+                </span>
+              ),
               key: 'quarter',
-              render: (_: unknown, row: MockPerformanceRow) => (
-                <span className="text-sm text-black/70 font-normal">{row.quarter}</span>
+              render: (unusedRecord: unknown, row: MockPerformanceRow) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-mock-cell-quarter-${row.id}`}
+                >
+                  {row.quarter}
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">Department</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-mock-col-department"
+                >
+                  Department
+                </span>
+              ),
               key: 'department',
-              render: (_: unknown, row: MockPerformanceRow) => (
-                <span className="text-sm text-black/70 font-normal">{row.department}</span>
+              render: (unusedRecord: unknown, row: MockPerformanceRow) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-mock-cell-department-${row.id}`}
+                >
+                  {row.department}
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">OKR Score</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-mock-col-okr-score"
+                >
+                  OKR Score
+                </span>
+              ),
               key: 'okrScore',
               align: 'center' as const,
-              render: (_: unknown, row: MockPerformanceRow) => (
+              render: (unusedRecord: unknown, row: MockPerformanceRow) => (
                 <ScoreTag score={row.okrScore} />
               ),
             },
-          ] : [
+          ]
+        : [
             {
-              title: <span className="text-sm text-black/70 font-bold">Employee</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-col-employee"
+                >
+                  Employee
+                </span>
+              ),
               dataIndex: 'userId',
               key: 'userId',
               render: (userId: string) => (
-                <span className="text-sm text-black/70 font-normal"><EmployeeDetails type="user" empId={userId} /></span>
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-cell-employee-${userId}`}
+                >
+                  <EmployeeDetails type="user" empId={userId} />
+                </span>
               ),
             },
             {
-                  title: <span className="text-sm text-black/70 font-bold">Job Title</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-col-job-title"
+                >
+                  Job Title
+                </span>
+              ),
               dataIndex: 'title',
               key: 'title',
-              render: (notused: any, render: any) => (
-                <span className="text-sm text-black/70 font-normal"><EmployeeDetails type="job" empId={render?.userId} /></span>
+              render: (titleValue: any, record: any) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-cell-job-${record?.userId ?? 'row'}`}
+                >
+                  <EmployeeDetails type="job" empId={record?.userId} />
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">Quarter</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-col-quarter"
+                >
+                  Quarter
+                </span>
+              ),
               dataIndex: 'quarter',
               key: 'quarter',
-              render: (notused: any, render: any) => (
-                <span className="text-sm text-black/70 font-normal"><SessionDetail sessionId={render?.sessionId} /></span>
+              render: (quarterValue: any, record: any) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy="performance-employee-cell-quarter"
+                >
+                  <SessionDetail sessionId={record?.sessionId ?? []} />
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">Department</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-col-department"
+                >
+                  Department
+                </span>
+              ),
               dataIndex: 'department',
               key: 'department',
-              render: (notused: any, render: any) => (
-                <span className="text-sm text-black/70 font-normal"><EmployeeDetails type="department" empId={render?.userId} /></span>
+              render: (deptValue: any, record: any) => (
+                <span
+                  className="text-sm text-black/70 font-normal"
+                  data-cy={`performance-employee-cell-department-${record?.userId ?? 'row'}`}
+                >
+                  <EmployeeDetails type="department" empId={record?.userId} />
+                </span>
               ),
             },
             {
-              title: <span className="text-sm text-black/70 font-bold">OKR Score</span>,
+              title: (
+                <span
+                  className="text-sm text-black/70 font-bold"
+                  data-cy="performance-employee-col-okr-score"
+                >
+                  OKR Score
+                </span>
+              ),
               dataIndex: 'okrScore',
               key: 'okrScore',
               align: 'center' as const,
@@ -354,7 +468,7 @@ export default function EmployeePerformanceTable() {
       data-cy="okr-employee-okr-table-container"
       className="rounded-lg border border-gray-200 bg-white shadow-sm"
     >
-      <div className="">
+      <div data-cy="performance-employee-okr-table-inner">
         <div
           className="mb-4 flex w-full flex-col gap-4 p-4"
           data-cy="performance-employee-okr-filters"
@@ -371,15 +485,16 @@ export default function EmployeePerformanceTable() {
           loading={tableLoading}
           scroll={{ y: 400 }}
           rowKey="id"
-          rowClassName={(_, index) =>
-            index !== undefined && index % 2 === 1
-              ? 'bg-[#F9FAFB]'
-              : 'bg-white'
+          rowClassName={(rowRecord, index) =>
+            index !== undefined && index % 2 === 1 ? 'bg-[#F9FAFB]' : 'bg-white'
           }
         />
       </div>
 
-      <div className="border-t border-gray-100 px-4 pb-2 md:px-6">
+      <div
+        className="border-t border-gray-100 px-4 pb-2 md:px-6"
+        data-cy="performance-employee-okr-pagination-wrap"
+      >
         {isMobile || isTablet ? (
           <CustomMobilePagination
             data-cy="okr-employee-okr-mobile-pagination"

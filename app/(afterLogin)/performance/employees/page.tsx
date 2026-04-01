@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { LeftOutlined } from '@ant-design/icons';
 import { Breadcrumb } from 'antd';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import EmployeePerformanceTable from './_components/EmployeePerformanc';
@@ -14,7 +13,10 @@ export default function EmployeesOKRPage() {
       <header className="mb-4" data-cy="performance-employees-header">
         <CustomBreadcrumb
           title={
-            <div className="flex items-center gap-3">
+            <div
+              className="flex items-center gap-3"
+              data-cy="performance-employees-title-row"
+            >
               <Link
                 href="/performance"
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
@@ -23,7 +25,12 @@ export default function EmployeesOKRPage() {
               >
                 <MdKeyboardArrowLeft />
               </Link>
-              <span className="text-2xl font-bold text-black">Performance</span>
+              <span
+                className="text-2xl font-bold text-black"
+                data-cy="performance-employees-title-text"
+              >
+                Performance
+              </span>
             </div>
           }
           subtitle={

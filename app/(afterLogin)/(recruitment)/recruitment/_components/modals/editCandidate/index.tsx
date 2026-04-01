@@ -187,8 +187,6 @@ const EditCandidate: React.FC = () => {
       onCancel={() => setEditCandidateModal(false)}
       footer={null}
       width={809}
-
-      
       // className="ta-candidate-modal"
       title={
         <div
@@ -461,7 +459,10 @@ const EditCandidate: React.FC = () => {
                     },
                   ]}
                 >
-                  <div data-cy="talent-acquisition-job-edit-candidate-input-cgpa-container" className="relative h-10 w-full flex items-center">
+                  <div
+                    data-cy="talent-acquisition-job-edit-candidate-input-cgpa-container"
+                    className="relative h-10 w-full flex items-center"
+                  >
                     <InputNumber
                       id="talent-acquisition-job-edit-candidate-input-cgpa"
                       data-cy="talent-acquisition-job-edit-candidate-input-cgpa"
