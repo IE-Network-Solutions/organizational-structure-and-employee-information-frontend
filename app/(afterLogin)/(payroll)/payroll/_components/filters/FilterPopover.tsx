@@ -1,5 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Form, Select, Button, Row, Col, ConfigProvider, Popover } from 'antd';
+import {
+  Form,
+  Select,
+  Button,
+  Row,
+  Col,
+  ConfigProvider,
+  Popover,
+  Modal,
+} from 'antd';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { X } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -14,6 +23,7 @@ import { useGetLevel1Departments } from '@/store/server/features/employees/emplo
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
@@ -47,6 +57,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FilterValues>();
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: getAllFiscalYears } = useGetAllFiscalYears();
   const { data: payPeriodData } = useGetPayPeriod();
@@ -273,7 +284,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       data-cy="payroll-filter-popover-content"
     >
       <div
-        className="bg-white p-4 sm:p-6 w-full max-w-[500px] min-w-[320px] md:min-w-[450px] relative"
+        className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-[500px] min-w-0 sm:min-w-[320px] md:min-w-[450px] relative max-h-[calc(100vh-160px)] overflow-auto"
         data-cy="payroll-filter-popover-content"
       >
         {/* Close Icon */}
@@ -491,7 +502,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               htmlType="button"
               size="large"
               onClick={onReset}
-              className="px-6 w-[140px] sm:w-auto !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
+              className="!h-9 px-4 w-[120px] sm:w-auto sm:!h-10 sm:px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
               data-cy="payroll-filter-popover-reset-btn"
             >
               Reset
@@ -500,7 +511,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               size="large"
               type="primary"
               htmlType="submit"
-              className="bg-[#254ec2] hover:bg-[#1e3e9a] border-none px-6 w-[140px] sm:w-auto !font-normal shadow-none"
+              className="bg-[#254ec2] hover:bg-[#1e3e9a] border-none !h-9 px-4 w-[120px] sm:w-auto sm:!h-10 sm:px-6 !font-normal shadow-none"
               data-cy="payroll-filter-popover-save-btn"
             >
               Save Filter
@@ -511,6 +522,48 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
     </ConfigProvider>
   );
 
+  // Mobile/tablet: use a centered modal so the filter can't be clipped.
+  if (isMobile || isTablet) {
+    return (
+      <>
+        <Button
+          id="payroll-open-filter-modal-click-button"
+          data-cy="payroll-open-filter-modal-click-button"
+          className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
+          size="large"
+          icon={
+            <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
+          }
+          onClick={() => setOpen(true)}
+        >
+          <span
+            className="hidden sm:inline"
+            data-cy="payroll-filter-popover-button-text"
+          >
+            Filter
+          </span>
+        </Button>
+
+        <Modal
+          open={open}
+          onCancel={() => setOpen(false)}
+          footer={null}
+          centered
+          closable={false}
+          width="calc(100vw - 32px)"
+          rootClassName="[&_.ant-modal-content]:!rounded-xl [&_.ant-modal-content]:!overflow-hidden"
+          styles={{
+            body: { padding: 0 },
+            content: { padding: 0, borderRadius: 12 },
+          }}
+          data-cy="payroll-filter-mobile-modal"
+        >
+          {content}
+        </Modal>
+      </>
+    );
+  }
+
   return (
     <Popover
       content={content}
@@ -519,6 +572,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       onOpenChange={handleOpenChange}
       placement="bottomRight"
       overlayClassName="pixel-perfect-popover"
+      getPopupContainer={() => document.body}
       data-cy="payroll-filter-popover"
     >
       <Button
@@ -530,7 +584,12 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
         }
       >
-        <span className="hidden sm:inline" data-cy="payroll-filter-popover-button-text">Filter</span>
+        <span
+          className="hidden sm:inline"
+          data-cy="payroll-filter-popover-button-text"
+        >
+          Filter
+        </span>
       </Button>
     </Popover>
   );

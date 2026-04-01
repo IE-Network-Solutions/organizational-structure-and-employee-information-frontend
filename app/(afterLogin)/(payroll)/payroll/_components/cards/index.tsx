@@ -1,6 +1,7 @@
 import { Card } from 'antd';
 import React from 'react';
-import { ArrowDownOutlined } from '@ant-design/icons';
+import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
+import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 
 interface PayrollCardProps {
   title?: string;
@@ -89,12 +90,19 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
           <span
             id="payroll-summary-card-growth-view-text"
             data-cy="payroll-summary-card-growth-view-text"
-            className={`font-medium mr-1 ${isPositive ? 'text-success' : 'text-error'}`}
+            className={`inline-flex items-center gap-0.5 font-medium mr-1 ${isPositive ? 'text-success' : 'text-error'}`}
           >
-            {!isPositive && (
-              <ArrowDownOutlined data-cy="payroll-summary-card-growth-down-icon" />
+            {isPositive ? (
+              <TrendingUpOutlinedIcon
+                className="!w-4 !h-4 text-current shrink-0"
+                data-cy="payroll-summary-card-growth-up-icon"
+              />
+            ) : (
+              <TrendingDownOutlinedIcon
+                className="!w-4 !h-4 text-current shrink-0"
+                data-cy="payroll-summary-card-growth-down-icon"
+              />
             )}
-            {!isPositive && ' '}
             {isPositive ? '+' : ''}
             {growth || '--'}
           </span>

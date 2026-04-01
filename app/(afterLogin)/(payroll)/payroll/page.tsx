@@ -1222,12 +1222,12 @@ const Payroll = () => {
         <div
           id="payroll-dashboard-header-view-container"
           data-cy="payroll-dashboard-header-view-container"
-          className="flex justify-between items-start mb-6"
+          className="flex justify-between items-center mb-6"
         >
           <div
             id="payroll-dashboard-title-wrapper"
             data-cy="payroll-dashboard-title-wrapper"
-            className={isMobile ? 'pt-0.5' : ''}
+            className="flex flex-col justify-center"
           >
             <h2
               id="payroll-dashboard-title-view-text"
@@ -1638,7 +1638,7 @@ const Payroll = () => {
                   className="w-5 h-5"
                 />
               }
-              iconBg="bg-white"
+              iconBg="bg-[#F6FFED]"
               iconText="text-[#52C41A]"
             />
             <PayrollCard
