@@ -2,7 +2,9 @@
 
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import type { FormInstance } from 'antd/es/form';
+import Image from 'next/image';
 import React, { useMemo } from 'react';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 
 interface User {
   id: string;
@@ -37,16 +39,7 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
   }, [users]);
 
   const workflowName = form.getFieldValue('workFlownName') as string | undefined;
-  const description = form.getFieldValue('description') as string | undefined;
-
-  const approvalTypeLabel =
-    approverType === 'Sequential'
-      ? 'Sequential Approval'
-      : approverType === 'Parallel'
-        ? 'Parallel Approval'
-        : approverType === 'Conditional'
-          ? 'Conditional Approval'
-          : approverType ?? '—';
+  void approverType;
 
   const assignedByLevel = useMemo(() => {
     return selections.SectionItemType.slice(0, level).map((sel, idx) => {
@@ -65,100 +58,83 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
     <div
       id="approval-payroll-workflow-finalize-summary"
       data-cy="approval-payroll-workflow-finalize-summary"
-      className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
+      className="rounded-xl border border-gray-200 p-4"
     >
       <div
-        id="approval-payroll-workflow-finalize-header-row"
-        data-cy="approval-payroll-workflow-finalize-header-row"
-        className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 pb-4"
+        className="flex justify-between items-start gap-3"
+        data-cy="approval-payroll-workflow-final-card-header"
       >
-        <div>
-          <div
-            id="approval-payroll-workflow-finalize-workflow-name"
-            data-cy="approval-payroll-workflow-finalize-workflow-name"
-            className="text-base font-semibold text-gray-900"
+        <div data-cy="approval-payroll-workflow-final-info">
+          <p
+            className="mb-2 text-sm font-semibold text-[#4d4d4d]"
+            data-cy="approval-payroll-workflow-final-name"
+            id="approval-payroll-workflow-final-name"
           >
-            {workflowName || '—'}
-          </div>
-          <div
-            id="approval-payroll-workflow-finalize-approval-type"
-            data-cy="approval-payroll-workflow-finalize-approval-type"
-            className="mt-1 text-sm text-gray-500"
-          >
-            {approvalTypeLabel}
-          </div>
-        </div>
-        <div
-          id="approval-payroll-workflow-finalize-level-badge"
-          data-cy="approval-payroll-workflow-finalize-level-badge"
-          className="rounded border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600"
-        >
-          Level: {level}
-        </div>
-      </div>
-
-      {description ? (
-        <div
-          id="approval-payroll-workflow-finalize-description"
-          data-cy="approval-payroll-workflow-finalize-description"
-          className="mb-4 text-sm text-gray-600"
-        >
-          {description}
-        </div>
-      ) : null}
-
-      {appliedToLabel ? (
-        <div
-          id="approval-payroll-workflow-finalize-applied-block"
-          data-cy="approval-payroll-workflow-finalize-applied-block"
-          className="mb-4"
-        >
-          <div className="mb-2 text-xs font-medium text-gray-500">Applied to</div>
+            {workflowName || '-'}
+          </p>
           <span
-            id="approval-payroll-workflow-finalize-applied-pill"
-            data-cy="approval-payroll-workflow-finalize-applied-pill"
-            className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-800"
+            className="inline-flex items-center rounded-lg border border-gray-200 bg-[#f7f7f7] px-2 py-0.5 text-sm text-[#4d4d4d]"
+            data-cy="approval-payroll-workflow-final-applies"
+            id="approval-payroll-workflow-final-applies"
           >
-            {appliedToLabel}
+            Applied to: {appliedToLabel || '-'}
           </span>
         </div>
-      ) : null}
+        <span
+          className="inline-flex items-center rounded-lg border border-gray-200 bg-[#f7f7f7] px-2 py-0.5 text-sm text-[#4d4d4d]"
+          data-cy="approval-payroll-workflow-final-level"
+          id="approval-payroll-workflow-final-level"
+        >
+          Level: {level}
+        </span>
+      </div>
 
       <div
-        id="approval-payroll-workflow-finalize-assigned-block"
-        data-cy="approval-payroll-workflow-finalize-assigned-block"
-        className="border-t border-gray-100 pt-4"
+        className="mt-3 border-t border-gray-200 pt-3"
+        data-cy="approval-payroll-workflow-final-assigned-section"
+        id="approval-payroll-workflow-final-assigned-section"
       >
-        <div className="mb-2 text-xs font-medium text-gray-500">Assigned to</div>
+        <p
+          className="mb-2 text-sm text-[#4d4d4d]"
+          data-cy="approval-payroll-workflow-final-assigned-title"
+          id="approval-payroll-workflow-final-assigned-title"
+        >
+          Assigned To:
+        </p>
         <div
           className="flex flex-wrap gap-2"
-          id="approval-payroll-workflow-finalize-assigned-pills"
-          data-cy="approval-payroll-workflow-finalize-assigned-pills"
+          data-cy="approval-payroll-workflow-final-assigned-list"
+          id="approval-payroll-workflow-final-assigned-list"
         >
           {allAssignedNames.length === 0 ? (
-            <span className="text-sm text-gray-400">—</span>
+            <span className="text-sm text-gray-400">-</span>
           ) : (
             allAssignedNames.map((name, i) => (
               <span
                 key={`${name}-${i}`}
-                className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-sm text-gray-800"
-                data-cy={`approval-payroll-workflow-finalize-assigned-pill-${i}`}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-[#f8f8f8] px-2 py-1"
+                data-cy={`approval-payroll-workflow-final-assigned-chip-${i}`}
+                id={`approval-payroll-workflow-final-assigned-chip-${i}`}
               >
+                <span
+                  className="relative h-5 w-5 overflow-hidden rounded-full"
+                  data-cy={`approval-payroll-workflow-final-assigned-avatar-wrap-${i}`}
+                  id={`approval-payroll-workflow-final-assigned-avatar-wrap-${i}`}
+                >
+                  <Image
+                    src={Avatar}
+                    alt="avatar"
+                    fill
+                    className="object-cover"
+                    data-cy={`approval-payroll-workflow-final-assigned-avatar-${i}`}
+                    id={`approval-payroll-workflow-final-assigned-avatar-${i}`}
+                  />
+                </span>
                 {name}
               </span>
             ))
           )}
         </div>
-        {assignedByLevel.length > 1 && (
-          <ul className="mt-3 list-inside list-disc text-xs text-gray-500">
-            {assignedByLevel.map((row) => (
-              <li key={row.level}>
-                Level {row.level}:{' '}
-                {row.names.length ? row.names.join(', ') : '—'}
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -210,16 +210,27 @@ const ApprovalTable = () => {
       );
     }
 
+    const seen = new Set<string>();
+    const uniqueApprovers = approvers.filter((a: any) => {
+      const userId = String(a?.userId ?? '');
+      if (!userId) return false;
+      if (seen.has(userId)) return false;
+      seen.add(userId);
+      return true;
+    });
+
     return (
       <div
         id={`settings-payroll-approvals-card-assignees-list-${itemSlug}`}
         data-cy={`settings-payroll-approvals-card-assignees-list-${itemSlug}`}
         className="flex flex-wrap items-center gap-2"
       >
-        {approvers.map((employee: any, empIndex: number) => {
+        {uniqueApprovers.map((employee: any, empIndex: number) => {
           const userInfo = getEmployeeInformation(employee?.userId);
           const fullName = userInfo
-            ? `${userInfo.firstName ?? ''} ${userInfo.middleName ?? ''}`.trim()
+            ? `${userInfo.firstName ?? ''} ${userInfo.middleName ?? ''} ${userInfo.lastName ?? ''}`
+                .replace(/\s+/g, ' ')
+                .trim()
             : 'User not found';
 
           const displayName =
@@ -309,168 +320,154 @@ const ApprovalTable = () => {
             const approvers = Array.isArray(item?.approvers)
               ? item.approvers
               : [];
-
-            // Group assignees by stepOrder so we render one card per level
-            const grouped = new Map<number, any[]>();
-            for (const a of approvers) {
-              const level = Number(a?.stepOrder ?? 0);
-              const next = grouped.get(level) ?? [];
-              next.push(a);
-              grouped.set(level, next);
-            }
-
-            const levels = Array.from(grouped.keys())
-              .filter((l) => l > 0)
-              .sort((a, b) => a - b);
-            const effectiveLevels = levels.length > 0 ? levels : [1];
-
-            return effectiveLevels.map((level) => {
-              const levelApprovers = grouped.get(level) ?? [];
-              const itemSlug = `${baseSlug}-level-${level}`;
-
-              const menuItems: MenuProps['items'] = [
-                {
-                  key: 'edit',
-                  label: (
-                    <span
-                      id={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
-                    >
-                      Edit Approver
-                    </span>
-                  ),
-                  icon: (
-                    <FaPencil
-                      id={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
-                    />
-                  ),
-                  onClick: () => handleOpenEdit(item),
-                },
-                {
-                  key: 'add',
-                  label: (
-                    <span
-                      id={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
-                    >
-                      Add Approver
-                    </span>
-                  ),
-                  icon: (
-                    <FaPlus
-                      id={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
-                    />
-                  ),
-                  onClick: () => handleOpenAdd(item),
-                },
-                {
-                  key: 'delete',
-                  label: (
-                    <span
-                      id={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
-                    >
-                      Delete
-                    </span>
-                  ),
-                  icon: (
-                    <RiDeleteBin6Line
-                      id={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
-                    />
-                  ),
-                  onClick: () => {
-                    setDeleteModal(true);
-                    setDeletedItem(item?.id);
-                  },
-                },
-              ];
-
-              return (
-                <div
-                  key={`${item?.id ?? index}-${level}`}
-                  id={`settings-payroll-approvals-card-${itemSlug}`}
-                  data-cy={`settings-payroll-approvals-card-${itemSlug}`}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col gap-3"
-                >
-                  <div
-                    id={`settings-payroll-approvals-card-top-${itemSlug}`}
-                    data-cy={`settings-payroll-approvals-card-top-${itemSlug}`}
-                    className="flex justify-between items-start"
+            const levelCount = new Set(
+              approvers
+                .map((a: any) => Number(a?.stepOrder ?? 0))
+                .filter((n: number) => Number.isFinite(n) && n > 0),
+            ).size;
+            const itemSlug = baseSlug;
+            const menuItems: MenuProps['items'] = [
+              {
+                key: 'edit',
+                label: (
+                  <span
+                    id={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-menu-edit-text-${itemSlug}`}
                   >
-                    <span
-                      id={`settings-payroll-approvals-card-level-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-level-${itemSlug}`}
-                      className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
-                    >
-                      Level: {level}
-                    </span>
-
-                    <AccessGuard
-                      permissions={[
-                        Permissions.UpdateApprover,
-                        Permissions.DeleteApprover,
-                        Permissions.CreateApprover,
-                      ]}
-                      id={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
-                    >
-                      <Dropdown
-                        menu={{ items: menuItems }}
-                        trigger={['click']}
-                        placement="bottomRight"
-                        data-cy={`settings-payroll-approvals-card-more-dropdown-${itemSlug}`}
-                      >
-                        <button
-                          id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
-                          data-cy={`settings-payroll-approvals-card-more-button-${itemSlug}`}
-                          className="text-gray-800 border border-gray-200 rounded px-2 py-1 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                          type="button"
-                          aria-label="More actions"
-                        >
-                          <MoreHorizIcon
-                            id={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
-                            data-cy={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
-                            className="text-[20px] text-gray-800"
-                          />
-                        </button>
-                      </Dropdown>
-                    </AccessGuard>
-                  </div>
-
-                  <div
-                    id={`settings-payroll-approvals-card-title-${itemSlug}`}
-                    data-cy={`settings-payroll-approvals-card-title-${itemSlug}`}
-                    className="font-semibold text-gray-800 text-[15px] mt-1"
-                  >
-                    {item?.name || '-'}
-                  </div>
-
-                  <div
-                    id={`settings-payroll-approvals-card-divider-${itemSlug}`}
-                    data-cy={`settings-payroll-approvals-card-divider-${itemSlug}`}
-                    className="border-t border-gray-100 my-1"
+                    Edit Approver
+                  </span>
+                ),
+                icon: (
+                  <FaPencil
+                    id={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-menu-edit-icon-${itemSlug}`}
                   />
-
-                  <div
-                    id={`settings-payroll-approvals-card-assigned-row-${itemSlug}`}
-                    data-cy={`settings-payroll-approvals-card-assigned-row-${itemSlug}`}
-                    className="flex flex-wrap items-center gap-2"
+                ),
+                onClick: () => handleOpenEdit(item),
+              },
+              {
+                key: 'add',
+                label: (
+                  <span
+                    id={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-menu-add-text-${itemSlug}`}
                   >
-                    <span
-                      id={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
-                      data-cy={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
-                      className="text-sm font-medium text-gray-800 mr-1"
+                    Add Approver
+                  </span>
+                ),
+                icon: (
+                  <FaPlus
+                    id={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-menu-add-icon-${itemSlug}`}
+                  />
+                ),
+                onClick: () => handleOpenAdd(item),
+              },
+              {
+                key: 'delete',
+                label: (
+                  <span
+                    id={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-menu-delete-text-${itemSlug}`}
+                  >
+                    Delete
+                  </span>
+                ),
+                icon: (
+                  <RiDeleteBin6Line
+                    id={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-menu-delete-icon-${itemSlug}`}
+                  />
+                ),
+                onClick: () => {
+                  setDeleteModal(true);
+                  setDeletedItem(item?.id);
+                },
+              },
+            ];
+
+            return (
+              <div
+                key={`${item?.id ?? index}`}
+                id={`settings-payroll-approvals-card-${itemSlug}`}
+                data-cy={`settings-payroll-approvals-card-${itemSlug}`}
+                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col gap-3"
+              >
+                <div
+                  id={`settings-payroll-approvals-card-top-${itemSlug}`}
+                  data-cy={`settings-payroll-approvals-card-top-${itemSlug}`}
+                  className="flex justify-between items-start"
+                >
+                  <span
+                    id={`settings-payroll-approvals-card-level-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-level-${itemSlug}`}
+                    className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
+                  >
+                    Levels: {levelCount}
+                  </span>
+
+                  <AccessGuard
+                    permissions={[
+                      Permissions.UpdateApprover,
+                      Permissions.DeleteApprover,
+                      Permissions.CreateApprover,
+                    ]}
+                    id={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
+                  >
+                    <Dropdown
+                      menu={{ items: menuItems }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                      data-cy={`settings-payroll-approvals-card-more-dropdown-${itemSlug}`}
                     >
-                      Assigned To:
-                    </span>
-                    {renderAssignees(levelApprovers, itemSlug)}
-                  </div>
+                      <button
+                        id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-more-button-${itemSlug}`}
+                        className="text-gray-800 border border-gray-200 rounded px-2 py-1 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                        type="button"
+                        aria-label="More actions"
+                      >
+                        <MoreHorizRoundedIcon
+                          id={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
+                          data-cy={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
+                          className="text-[20px] text-gray-800"
+                        />
+                      </button>
+                    </Dropdown>
+                  </AccessGuard>
                 </div>
-              );
-            });
+
+                <p
+                  id={`settings-payroll-approvals-card-title-${itemSlug}`}
+                  data-cy={`settings-payroll-approvals-card-title-${itemSlug}`}
+                  className="mt-3 mb-2 text-[20px] font-semibold text-[#2f2f2f]"
+                >
+                  {item?.name || '-'}
+                </p>
+
+                <div
+                  id={`settings-payroll-approvals-card-divider-${itemSlug}`}
+                  data-cy={`settings-payroll-approvals-card-divider-${itemSlug}`}
+                  className="border-t border-gray-100 my-1"
+                />
+
+                <div
+                  id={`settings-payroll-approvals-card-assigned-row-${itemSlug}`}
+                  data-cy={`settings-payroll-approvals-card-assigned-row-${itemSlug}`}
+                  className="flex flex-wrap items-center gap-2"
+                >
+                  <span
+                    id={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
+                    data-cy={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
+                    className="text-sm font-medium text-gray-800 mr-1"
+                  >
+                    Assigned To:
+                  </span>
+                  {renderAssignees(approvers, itemSlug)}
+                </div>
+              </div>
+            );
           })}
 
           {!isEmployeeLoading && (allFilterData?.items ?? []).length === 0 && (

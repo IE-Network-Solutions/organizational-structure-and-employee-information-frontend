@@ -5,6 +5,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { Select, Button, Form, Input } from 'antd';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { IoArrowBack } from 'react-icons/io5';
+import CustomLabel from '@/components/form/customLabel/customLabel';
 
 interface User {
   id: string;
@@ -50,6 +51,7 @@ const PayrollApprovalWorkFlowSetting = ({
   };
   const handleLevelChange = (value: number) => {
     setLevel(value);
+    form.setFieldValue('level', value);
     const updatedSelections = Array.from(
       { length: value },
       /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
@@ -110,13 +112,15 @@ const PayrollApprovalWorkFlowSetting = ({
           form={form}
           onFinish={handleSubmit}
           layout="vertical"
+          requiredMark={CustomLabel}
           id="approval-payroll-workflow-setting-form"
           data-cy="approval-payroll-workflow-setting-form"
+          className={wizardMode ? 'px-2' : undefined}
         >
           <Form.Item
-            className="text-lg  font-bold mt-3 mb-1"
+            className="mb-4"
             name="workFlownName"
-            label="WorkFlow Name"
+            label="Workflow Name"
             rules={[
               { required: true, message: 'Please enter a workFlow name!' },
             ]}
@@ -124,22 +128,15 @@ const PayrollApprovalWorkFlowSetting = ({
             data-cy="approval-payroll-workflow-setting-workflow-name"
           >
             <Input
-              className="w-full h-10"
-              placeholder="Enter WorkFlow Name"
+              className="h-10 rounded-md"
+              placeholder="Input"
               id="approval-payroll-workflow-setting-workflow-name-input"
               data-cy="approval-payroll-workflow-setting-workflow-name-input"
             />
           </Form.Item>
-          <div
-            className="font-medium mb-3 text-gray-500"
-            id="approval-payroll-workflow-setting-workflow-name-label"
-            data-cy="approval-payroll-workflow-setting-workflow-name-label"
-          >
-            WorkfLow Name
-          </div>
 
           <Form.Item
-            className="text-lg font-bold mt-3 mb-1"
+            className="mb-4"
             name="description"
             label="Description"
             rules={[{ required: true, message: 'Please enter a description!' }]}
@@ -148,127 +145,142 @@ const PayrollApprovalWorkFlowSetting = ({
           >
             <Input.TextArea
               placeholder="Enter Description"
+              className="rounded-md"
               id="approval-payroll-workflow-setting-description-input"
               data-cy="approval-payroll-workflow-setting-description-input"
             />
           </Form.Item>
 
           <div
-            className="my-3"
-            id="approval-payroll-workflow-setting-number-of-level"
-            data-cy="approval-payroll-workflow-setting-number-of-level"
+            className="rounded-xl border border-gray-200 p-3 mb-4"
+            id="approval-payroll-workflow-setting-levels-and-assignees"
+            data-cy="approval-payroll-workflow-setting-levels-and-assignees"
           >
             <div
-              className="text-lg font-bold "
-              id="approval-payroll-workflow-setting-number-of-level-title"
-              data-cy="approval-payroll-workflow-setting-number-of-level-title"
+              id="approval-payroll-workflow-setting-number-of-level"
+              data-cy="approval-payroll-workflow-setting-number-of-level"
             >
-              Number Of Level
+              <div
+                className="text-sm text-[#4d4d4d]"
+                id="approval-payroll-workflow-setting-number-of-level-title"
+                data-cy="approval-payroll-workflow-setting-number-of-level-title"
+              >
+                Levels
+              </div>
+              <Form.Item
+                name="level"
+                className="mb-0 mt-1"
+                required
+                rules={[{ required: true, message: 'Please select levels' }]}
+                initialValue={level}
+                data-cy="approval-payroll-workflow-setting-levels-field"
+              >
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  className="h-10"
+                  onChange={handleLevelChange}
+                  placeholder="Select"
+                  options={Array.from({ length: 9 }, (_, i) => ({
+                    value: i + 1,
+                    label: `${i + 1}`,
+                  }))}
+                  id="approval-payroll-workflow-setting-number-of-level-select"
+                  data-cy="approval-payroll-workflow-setting-number-of-level-select"
+                />
+              </Form.Item>
+
+              <div
+                className="text-sm text-[#4d4d4d] mt-1"
+                id="approval-payroll-workflow-setting-number-of-level-select-description"
+                data-cy="approval-payroll-workflow-setting-number-of-level-select-description"
+              >
+                Select one assignee for {level} level{level === 1 ? '' : 's'} of
+                approval
+              </div>
             </div>
-            <Select
-              showSearch
-              optionFilterProp="label"
-              className="w-full h-10 m-1"
-              style={{ width: 120 }}
-              onChange={handleLevelChange}
-              defaultValue={1}
-              placeholder="Select Levels"
-              options={Array.from(
-                { length: 9 },
-                /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-                  _,
-                  i,
-                ) => ({
-                  value: i + 1,
-                  label: `${i + 1}`,
-                }),
-              )}
-              id="approval-payroll-workflow-setting-number-of-level-select"
-              data-cy="approval-payroll-workflow-setting-number-of-level-select"
-            />
 
             <div
-              className="font-medium mb-3 text-gray-500"
-              id="approval-payroll-workflow-setting-number-of-level-select-description"
-              data-cy="approval-payroll-workflow-setting-number-of-level-select-description"
+              className="mt-3 border-t border-gray-200 pt-3"
+              id="approval-payroll-workflow-setting-assignees"
+              data-cy="approval-payroll-workflow-setting-assignees"
             >
-              Select Number of specific approval stage or level within the
-              process
+              {Array.from({ length: level }).map(
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+                  _,
+                  index,
+                ) => (
+                  <div
+                    key={index}
+                    className={index === 0 ? '' : 'mt-3 pt-3 border-t border-gray-200'}
+                    id="approval-payroll-workflow-setting-level"
+                    data-cy="approval-payroll-workflow-setting-level"
+                  >
+                    <div
+                      className="text-sm text-[#4d4d4d]"
+                      id="approval-payroll-workflow-setting-level-title"
+                      data-cy="approval-payroll-workflow-setting-level-title"
+                    >
+                      Level: {index + 1}
+                    </div>
+                    <Form.Item
+                      className="mb-0 mt-2"
+                      name={`assignedUser_${index}`}
+                      label="Assignee"
+                      rules={[
+                        { required: true, message: 'Please select a user!' },
+                        {
+                          /* eslint-disable-next-line @typescript-eslint/naming-convention */
+                          validator: (_, value) => {
+                            /* eslint-enable @typescript-eslint/naming-convention */
+
+                            if (
+                              workflowApplies === 'User' &&
+                              value === workflowUserId
+                            ) {
+                              return Promise.reject(
+                                'Cannot select the same user as both workflow target and approver',
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        },
+                      ]}
+                      id="approval-payroll-workflow-setting-level-select"
+                      data-cy="approval-payroll-workflow-setting-level-select"
+                    >
+                      <Select
+                        className="h-10 w-full"
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        mode={
+                          approverType === 'Parallel' ? 'multiple' : undefined
+                        }
+                        onChange={(value) =>
+                          handleUserChange(value as string, index)
+                        }
+                        placeholder="Select"
+                        options={users?.items
+                          ?.filter(
+                            (user: User) =>
+                              workflowApplies !== 'User' ||
+                              user.id !== workflowUserId,
+                          )
+                          ?.map((list: User) => ({
+                            value: list.id,
+                            label:
+                              `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
+                          }))}
+                        id="approval-payroll-workflow-setting-level-select"
+                        data-cy="approval-payroll-workflow-setting-level-select"
+                      />
+                    </Form.Item>
+                  </div>
+                ),
+              )}
             </div>
           </div>
-
-          {Array.from({ length: level }).map(
-            /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-              _,
-              index,
-            ) => (
-              <div
-                key={index}
-                className="px-10 my-1"
-                id="approval-payroll-workflow-setting-level"
-                data-cy="approval-payroll-workflow-setting-level"
-              >
-                <div
-                  id="approval-payroll-workflow-setting-level-title"
-                  data-cy="approval-payroll-workflow-setting-level-title"
-                >
-                  Level: {index + 1}
-                </div>
-                <Form.Item
-                  className="font-semibold text-xs"
-                  name={`assignedUser_${index}`}
-                  label={`Assign User `}
-                  rules={[
-                    { required: true, message: 'Please select a user!' },
-                    {
-                      /* eslint-disable-next-line @typescript-eslint/naming-convention */
-                      validator: (_, value) => {
-                        /* eslint-enable @typescript-eslint/naming-convention */
-
-                        if (
-                          workflowApplies === 'User' &&
-                          value === workflowUserId
-                        ) {
-                          return Promise.reject(
-                            'Cannot select the same user as both workflow target and approver',
-                          );
-                        }
-                        return Promise.resolve();
-                      },
-                    },
-                  ]}
-                  id="approval-payroll-workflow-setting-level-select"
-                  data-cy="approval-payroll-workflow-setting-level-select"
-                >
-                  <Select
-                    className="w-full  my-3"
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                    style={{ width: 120 }}
-                    onChange={(value) =>
-                      handleUserChange(value as string, index)
-                    }
-                    placeholder="Select User"
-                    options={users?.items
-                      ?.filter(
-                        (user: User) =>
-                          workflowApplies !== 'User' ||
-                          user.id !== workflowUserId,
-                      )
-                      ?.map((list: User) => ({
-                        value: list.id,
-                        label:
-                          `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
-                      }))}
-                    id="approval-payroll-workflow-setting-level-select"
-                    data-cy="approval-payroll-workflow-setting-level-select"
-                  />
-                </Form.Item>
-              </div>
-            ),
-          )}
         </Form>
       </div>
     </div>

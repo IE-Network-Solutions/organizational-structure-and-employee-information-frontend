@@ -3,6 +3,7 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
 import { Button, Form, Modal } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import ApprovalTable from './_component/ApprovalTable';
 import { FaPlus } from 'react-icons/fa';
@@ -52,7 +53,8 @@ const Approvals = () => {
     [setApproverType],
   );
 
-  const { mutate: CreateApprover, isSuccess } = useCreateApproverMutation();
+  const { mutate: CreateApprover, isSuccess, isLoading: isCreateLoading } =
+    useCreateApproverMutation();
   const [form] = Form.useForm();
   const [workflowStep, setWorkflowStep] = useState<1 | 2 | 3>(1);
 
@@ -143,6 +145,26 @@ const Approvals = () => {
     else if (workflowStep === 3) setWorkflowStep(2);
   };
 
+  const handleModalBackOrCancel = () => {
+    if (workflowStep === 1) {
+      handleCloseModal();
+    } else {
+      handleWorkflowBack();
+    }
+  };
+
+  const handleModalPrimary = () => {
+    if (workflowStep === 1) {
+      setWorkflowStep(2);
+      return;
+    }
+    if (workflowStep === 2) {
+      handleContinueStep2();
+      return;
+    }
+    form.submit();
+  };
+
   const appliedToLabel =
     level0Department &&
     typeof (level0Department as { name?: string }).name === 'string'
@@ -206,23 +228,66 @@ const Approvals = () => {
       <Modal
         open={addDepartmentApproval}
         onCancel={handleCloseModal}
-        footer={null}
+        title={
+          <div
+            className="flex w-full items-center justify-between gap-4"
+            data-cy={`settings-${pageSlug}-workflow-modal-title-row`}
+          >
+            <span
+              className="text-lg font-semibold text-[#4d4d4d]"
+              data-cy={`settings-${pageSlug}-workflow-modal-title`}
+            >
+              Approval Workflow
+            </span>
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              aria-label="Close"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
+              data-cy={`settings-${pageSlug}-workflow-modal-close`}
+            >
+              <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
+            </button>
+          </div>
+        }
+        footer={
+          <div
+            className="flex justify-end gap-3"
+            data-cy={`settings-${pageSlug}-workflow-modal-footer`}
+          >
+            <Button
+              onClick={handleModalBackOrCancel}
+              className="h-8 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
+              data-cy={`settings-${pageSlug}-workflow-modal-back-btn`}
+              disabled={isCreateLoading}
+            >
+              {workflowStep === 1 ? 'Cancel' : 'Back'}
+            </Button>
+            <Button
+              type="primary"
+              loading={isCreateLoading}
+              className="h-8 font-normal"
+              onClick={handleModalPrimary}
+              data-cy={`settings-${pageSlug}-workflow-modal-primary-btn`}
+              disabled={workflowStep === 1 && !approverType}
+            >
+              {workflowStep === 3 ? 'Create' : 'Continue'}
+            </Button>
+          </div>
+        }
         centered
         width={720}
         destroyOnClose
         maskClosable={false}
         closable={false}
         data-cy={`settings-${pageSlug}-workflow-modal`}
+        styles={{ body: { paddingTop: 8, paddingLeft: 0, paddingRight: 0 } }}
+        zIndex={10002}
       >
         <PayrollApprovalWorkFlow
           onChange={handleApprovalTypeChange}
           approverType={approverType}
           currentStep={workflowStep}
-          onClose={handleCloseModal}
-          onBack={workflowStep > 1 ? handleWorkflowBack : undefined}
-          onContinueFromStep1={() => setWorkflowStep(2)}
-          onContinueFromStep2={handleContinueStep2}
-          onCreate={() => form.submit()}
           finalizeContent={
             workflowStep === 3 ? (
               <ApprovalWorkflowFinalizeSummary

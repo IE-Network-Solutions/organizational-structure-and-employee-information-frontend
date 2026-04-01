@@ -395,7 +395,7 @@ const PayPeriodSideBar = () => {
         <div
           id="payroll-payperiod-sidebar-modal-card-view-container"
           data-cy="payroll-payperiod-sidebar-modal-card-view-container"
-          className="mt-4 px-6 py-5"
+          className="mt-4 py-5"
         >
           <Spin data-cy="payroll-payperiod-sidebar-spinner" spinning={false}>
             <Form
