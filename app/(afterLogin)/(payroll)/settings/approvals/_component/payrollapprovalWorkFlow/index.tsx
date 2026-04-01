@@ -30,9 +30,36 @@ export const PayrollApprovalWorkFlow: React.FC<
 
   const stepItems = useMemo(
     () => [
-      { title: <span className="sm:text-nowrap">Choose Approval Type</span> },
-      { title: <span className="sm:text-nowrap">Setup Approval</span> },
-      { title: <span className="sm:text-nowrap">Finalize</span> },
+      {
+        title: (
+          <span
+            className="sm:text-nowrap"
+            data-cy="approval-payroll-workflow-step-title-type"
+          >
+            Choose Approval Type
+          </span>
+        ),
+      },
+      {
+        title: (
+          <span
+            className="sm:text-nowrap"
+            data-cy="approval-payroll-workflow-step-title-setup"
+          >
+            Setup Approval
+          </span>
+        ),
+      },
+      {
+        title: (
+          <span
+            className="sm:text-nowrap"
+            data-cy="approval-payroll-workflow-step-title-finalize"
+          >
+            Finalize
+          </span>
+        ),
+      },
     ],
     [],
   );
@@ -90,13 +117,25 @@ export const PayrollApprovalWorkFlow: React.FC<
                 }`}
                 data-cy="approval-workflow-sequential"
               >
-                <div className="flex items-start gap-3">
+                <div
+                  className="flex items-start gap-3"
+                  data-cy="approval-workflow-sequential-row"
+                >
                   <Radio value="Sequential" data-cy="approval-workflow-sequential-radio" />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-base font-medium text-gray-900">
+                  <div
+                    className="flex flex-col gap-1"
+                    data-cy="approval-workflow-sequential-text-block"
+                  >
+                    <span
+                      className="text-base font-medium text-gray-900"
+                      data-cy="approval-workflow-sequential-title"
+                    >
                       Sequential Approval
                     </span>
-                    <span className="text-sm text-gray-500 font-normal">
+                    <span
+                      className="text-sm text-gray-500 font-normal"
+                      data-cy="approval-workflow-sequential-description"
+                    >
                       Approval happen in a strict order, with each approver signing
                       off one after another
                     </span>
@@ -112,13 +151,25 @@ export const PayrollApprovalWorkFlow: React.FC<
                 }`}
                 data-cy="approval-workflow-parallel"
               >
-                <div className="flex items-start gap-3">
+                <div
+                  className="flex items-start gap-3"
+                  data-cy="approval-workflow-parallel-row"
+                >
                   <Radio value="Parallel" data-cy="approval-workflow-parallel-radio" />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-base font-medium text-gray-900">
+                  <div
+                    className="flex flex-col gap-1"
+                    data-cy="approval-workflow-parallel-text-block"
+                  >
+                    <span
+                      className="text-base font-medium text-gray-900"
+                      data-cy="approval-workflow-parallel-title"
+                    >
                       Parallel Approval
                     </span>
-                    <span className="text-sm text-gray-500 font-normal">
+                    <span
+                      className="text-sm text-gray-500 font-normal"
+                      data-cy="approval-workflow-parallel-description"
+                    >
                       multi approvers can approve at the same time without any specific
                       order
                     </span>
@@ -130,17 +181,29 @@ export const PayrollApprovalWorkFlow: React.FC<
                 className="flex flex-col gap-1 p-2 rounded-lg border border-[#D9D9D9] bg-white shadow-md opacity-60 cursor-not-allowed"
                 data-cy="approval-workflow-conditional"
               >
-                <div className="flex items-start gap-3">
+                <div
+                  className="flex items-start gap-3"
+                  data-cy="approval-workflow-conditional-row"
+                >
                   <Radio
                     value="Conditional"
                     disabled
                     data-cy="approval-workflow-conditional-radio"
                   />
-                  <div className="flex flex-col gap-1">
-                    <span className="text-base font-medium text-gray-900">
+                  <div
+                    className="flex flex-col gap-1"
+                    data-cy="approval-workflow-conditional-text-block"
+                  >
+                    <span
+                      className="text-base font-medium text-gray-900"
+                      data-cy="approval-workflow-conditional-title"
+                    >
                       Conditional Approval
                     </span>
-                    <span className="text-sm text-gray-500 font-normal">
+                    <span
+                      className="text-sm text-gray-500 font-normal"
+                      data-cy="approval-workflow-conditional-description"
+                    >
                       Approver level depend on certain condition or criteria,
                       triggering specific workflows based on the rules
                     </span>

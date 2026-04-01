@@ -284,7 +284,7 @@ const Pension = () => {
                         id={`payroll-pension-card-edit-tooltip-${record.id}`}
                         data-cy={`payroll-pension-card-edit-tooltip-${record.id}`}
                       >
-                        <span className="inline-flex shrink-0">
+                        <span className="inline-flex shrink-0" data-cy={`payroll-pension-card-edit-button-span-${record.id}`}>
                           <button
                             id={`payroll-pension-edit-click-button-${record.id}`}
                             data-cy={`payroll-pension-edit-click-button-${record.id}`}

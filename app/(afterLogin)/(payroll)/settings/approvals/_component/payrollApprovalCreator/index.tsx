@@ -36,11 +36,11 @@ const PayrollApprovalCreator = ({
       onCancel={onClose}
       title={
         <div
-          className="flex w-full items-center justify-between gap-4"
+          className="flex w-full min-w-0 items-center justify-between gap-3 sm:gap-4"
           data-cy="settings-payroll-approvals-creator-title-row"
         >
           <span
-            className="text-lg font-semibold text-[#4d4d4d]"
+            className="inline-flex min-h-6 min-w-0 flex-1 items-center pr-2 text-left text-lg font-semibold leading-6 text-[#4d4d4d]"
             id="settings-payroll-approvals-creator-title"
             data-cy="settings-payroll-approvals-creator-title"
           >
@@ -52,7 +52,7 @@ const PayrollApprovalCreator = ({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
           >
             <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
           </button>
@@ -86,11 +86,12 @@ const PayrollApprovalCreator = ({
       }
       centered
       width={640}
+      style={{ maxWidth: 'calc(100vw - 32px)' }}
       destroyOnClose
       maskClosable={false}
       closable={false}
-      styles={{ body: { paddingTop: 8, paddingLeft: 0, paddingRight: 0 } }}
       zIndex={10002}
+      rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-modal-title]:!min-w-0"
       classNames={{
         header:
           '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
@@ -185,78 +186,88 @@ const PayrollApprovalCreator = ({
             >
               This is the specific approval stage or level within the process
             </div>
-            <div className="mt-3 border-t border-gray-200 pt-3">
-          {Array.from({ length: level }).map(
-            /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-              _,
-              index,
-            ) => (
-              <div
-                key={index}
-                className={index === 0 ? '' : 'mt-3 pt-3 border-t border-gray-200'}
-                id="settings-payroll-approvals-creator-levels-container"
-                data-cy="settings-payroll-approvals-creator-levels-container"
-              >
-                {approverType !== 'Parallel' && (
+            <div
+              className="mt-3 border-t border-gray-200 pt-3"
+              id="settings-payroll-approvals-creator-levels-assignees-wrapper"
+              data-cy="settings-payroll-approvals-creator-levels-assignees-wrapper"
+            >
+              {Array.from({ length: level }).map(
+                /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
+                  _,
+                  index,
+                ) => (
                   <div
-                    className="text-sm text-[#4d4d4d]"
-                    id="settings-payroll-approvals-creator-levels-container-title"
-                    data-cy="settings-payroll-approvals-creator-levels-container-title"
-                  >
-                    Additional Levels:{' '}
-                    {selectedItem?.approvers?.length + index + 1}
-                  </div>
-                )}
-
-                {approverType === 'Parallel' && (
-                  <Form.Item
-                    className="mb-3 mt-2"
-                    name={`level_${index}`}
-                    label="Level"
-                    rules={[
-                      { required: true, message: 'Please enter a level!' },
-                    ]}
-                    id="settings-payroll-approvals-creator-levels-container-level"
-                    data-cy="settings-payroll-approvals-creator-levels-container-level"
-                  >
-                    <Input
-                      className="h-10 rounded-md"
-                      placeholder="Enter level"
-                      id="settings-payroll-approvals-creator-levels-container-level-input"
-                      data-cy="settings-payroll-approvals-creator-levels-container-level-input"
-                    />
-                  </Form.Item>
-                )}
-
-                <Form.Item
-                  className="mb-0 mt-2"
-                  name={`assignedUser_${index}`}
-                  label="Assignee"
-                  rules={[{ required: true, message: 'Please select a user!' }]}
-                  id="settings-payroll-approvals-creator-levels-container-assign-user"
-                  data-cy="settings-payroll-approvals-creator-levels-container-assign-user"
-                >
-                  <Select
-                    className="h-10 w-full"
-                    allowClear
-                    showSearch
-                    optionFilterProp="label"
-                    mode={approverType === 'Parallel' ? 'multiple' : undefined}
-                    onChange={(value) =>
-                      handleUserChange(value as string, index)
+                    key={index}
+                    className={
+                      index === 0 ? '' : 'mt-3 pt-3 border-t border-gray-200'
                     }
-                    placeholder="Select"
-                    options={users?.items?.map((list: any) => ({
-                      value: list?.id,
-                      label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-                    }))}
-                    id="settings-payroll-approvals-creator-levels-container-assign-user-select"
-                    data-cy="settings-payroll-approvals-creator-levels-container-assign-user-select"
-                  />
-                </Form.Item>
-              </div>
-            ),
-          )}
+                    id="settings-payroll-approvals-creator-levels-container"
+                    data-cy="settings-payroll-approvals-creator-levels-container"
+                  >
+                    {approverType !== 'Parallel' && (
+                      <div
+                        className="text-sm text-[#4d4d4d]"
+                        id="settings-payroll-approvals-creator-levels-container-title"
+                        data-cy="settings-payroll-approvals-creator-levels-container-title"
+                      >
+                        Additional Levels:{' '}
+                        {selectedItem?.approvers?.length + index + 1}
+                      </div>
+                    )}
+
+                    {approverType === 'Parallel' && (
+                      <Form.Item
+                        className="mb-3 mt-2"
+                        name={`level_${index}`}
+                        label="Level"
+                        rules={[
+                          { required: true, message: 'Please enter a level!' },
+                        ]}
+                        id="settings-payroll-approvals-creator-levels-container-level"
+                        data-cy="settings-payroll-approvals-creator-levels-container-level"
+                      >
+                        <Input
+                          className="h-10 rounded-md"
+                          placeholder="Enter level"
+                          id="settings-payroll-approvals-creator-levels-container-level-input"
+                          data-cy="settings-payroll-approvals-creator-levels-container-level-input"
+                        />
+                      </Form.Item>
+                    )}
+
+                    <Form.Item
+                      className="mb-0 mt-2"
+                      name={`assignedUser_${index}`}
+                      label="Assignee"
+                      rules={[
+                        { required: true, message: 'Please select a user!' },
+                      ]}
+                      id="settings-payroll-approvals-creator-levels-container-assign-user"
+                      data-cy="settings-payroll-approvals-creator-levels-container-assign-user"
+                    >
+                      <Select
+                        className="h-10 w-full"
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        mode={
+                          approverType === 'Parallel' ? 'multiple' : undefined
+                        }
+                        onChange={(value) =>
+                          handleUserChange(value as string, index)
+                        }
+                        placeholder="Select"
+                        options={users?.items?.map((list: any) => ({
+                          value: list?.id,
+                          label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+                        }))}
+                        id="settings-payroll-approvals-creator-levels-container-assign-user-select"
+                        data-cy="settings-payroll-approvals-creator-levels-container-assign-user-select"
+                      />
+                    </Form.Item>
+                  </div>
+                ),
+              )}
             </div>
           </div>
         </Form>

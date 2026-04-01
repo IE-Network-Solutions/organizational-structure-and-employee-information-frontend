@@ -181,6 +181,7 @@ const PayrollApprovalWorkFlowSetting = ({
                   className="h-10"
                   onChange={handleLevelChange}
                   placeholder="Select"
+                  // eslint-disable-next-line 
                   options={Array.from({ length: 9 }, (_, i) => ({
                     value: i + 1,
                     label: `${i + 1}`,

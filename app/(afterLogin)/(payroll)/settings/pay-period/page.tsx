@@ -170,7 +170,7 @@ const PayPeriod = () => {
                         data-cy={`payroll-payperiod-card-edit-tooltip-${period.id}`}
                         title="Edit"
                       >
-                        <span className="inline-flex shrink-0">
+                        <span className="inline-flex shrink-0" data-cy={`payroll-payperiod-card-edit-button-span-${period.id}`}>
                           <button
                             id={`payroll-payperiod-card-edit-button-${period.id}`}
                             data-cy={`payroll-payperiod-card-edit-button-${period.id}`}

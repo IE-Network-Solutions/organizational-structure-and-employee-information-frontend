@@ -107,7 +107,7 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
           id="approval-payroll-workflow-final-assigned-list"
         >
           {allAssignedNames.length === 0 ? (
-            <span className="text-sm text-gray-400">-</span>
+            <span className="text-sm text-gray-400" data-cy="approval-payroll-workflow-final-assigned-list-empty">-</span>
           ) : (
             allAssignedNames.map((name, i) => (
               <span

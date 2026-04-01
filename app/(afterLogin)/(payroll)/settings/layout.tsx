@@ -53,9 +53,9 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
     if (lastKey && tabs.some((t) => t.key === lastKey)) setCurrentItem(lastKey);
   }, [pathname, tabs]);
 
-  const currentTabLabel = useMemo(() => {
-    return tabs.find((t) => t.key === currentItem)?.label ?? 'Settings';
-  }, [tabs, currentItem]);
+  // const currentTabLabel = useMemo(() => {
+  //   return tabs.find((t) => t.key === currentItem)?.label ?? 'Settings';
+  // }, [tabs, currentItem]);
 
   const tabItems = useMemo<TabsProps['items']>(
     () =>
@@ -102,7 +102,7 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       id="payroll-settings-tabs-primary-action-button"
       data-cy="payroll-settings-tabs-primary-action-button"
       type="primary"
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors shadow-sm whitespace-nowrap ${
+      className={`flex !h-10 min-h-10 shrink-0 items-center justify-center gap-2 rounded-md px-3 py-0 text-sm font-medium shadow-sm transition-colors sm:px-5 sm:py-2.5 whitespace-nowrap max-sm:!w-10 max-sm:!min-w-10 max-sm:!p-0 ${
         isHeaderPrimaryActionDisabled
           ? 'cursor-not-allowed'
           : 'bg-primary hover:!bg-primary/90 text-white'
@@ -152,14 +152,28 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       data-cy="payroll-settings-page-view-container"
       className="min-h-screen bg-white text-gray-800 font-sans py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6"
     >
-      <style jsx global>{`
+      <style jsx global data-cy="payroll-settings-layout-global-styles">{`
         /* On mobile, AntD Tabs can render "fade" overlays that look like white blocks */
-        @media (max-width: 640px) {
+        @media (max-width: 767px) {
           #payroll-settings-tabs .ant-tabs-nav-operations,
-          #payroll-settings-tabs .ant-tabs-extra-content,
           #payroll-settings-tabs .ant-tabs-nav-more {
+            display: none !important;
+          }
+          #payroll-settings-tabs .ant-tabs-extra-content {
             background: transparent !important;
             box-shadow: none !important;
+            flex-shrink: 0 !important;
+          }
+          #payroll-settings-tabs .ant-tabs-nav-wrap {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch;
+          }
+          #payroll-settings-tabs .ant-tabs-nav-list {
+            flex-wrap: nowrap !important;
+          }
+          #payroll-settings-tabs .ant-tabs-nav {
+            min-width: 0 !important;
           }
           #payroll-settings-tabs .ant-tabs-nav-wrap::before,
           #payroll-settings-tabs .ant-tabs-nav-wrap::after {
@@ -264,9 +278,18 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
               tabBarExtraContent={
                 currentItem === 'pension' && isPensionAddDisabled
                   ? null
-                  : primaryActionButton
+                  : {
+                      right: (
+                        <div
+                          className="ml-2 flex shrink-0 items-center"
+                          data-cy="payroll-settings-tabs-primary-action-slot"
+                        >
+                          {primaryActionButton}
+                        </div>
+                      ),
+                    }
               }
-              className="text-base [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-nav-operations]:!bg-transparent [&_.ant-tabs-nav-operations]:!shadow-none [&_.ant-tabs-extra-content]:!bg-transparent [&_.ant-tabs-nav-more]:!bg-transparent"
+              className="text-base [&_.ant-tabs-nav]:!flex [&_.ant-tabs-nav]:min-w-0 [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!min-w-0 [&_.ant-tabs-nav-wrap]:!flex-1 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-nav-operations]:!bg-transparent [&_.ant-tabs-nav-operations]:!shadow-none [&_.ant-tabs-extra-content]:!ml-0 [&_.ant-tabs-extra-content]:!flex [&_.ant-tabs-extra-content]:!shrink-0 [&_.ant-tabs-extra-content]:!items-center [&_.ant-tabs-extra-content]:!bg-transparent [&_.ant-tabs-nav-more]:!bg-transparent"
             />
           </div>
         </div>

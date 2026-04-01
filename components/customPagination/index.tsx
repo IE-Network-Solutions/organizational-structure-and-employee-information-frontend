@@ -227,11 +227,19 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               className="inline-flex items-center gap-1.5 mx-0.5"
               data-cy="pagination-desktop-showing-range"
             >
-              <span>{Math.min(total, (current - 1) * pageSize + 1) || 0}</span>
-              <span className="select-none" aria-hidden="true">
+              <span data-cy="pagination-desktop-range-start">
+                {Math.min(total, (current - 1) * pageSize + 1) || 0}
+              </span>
+              <span
+                className="select-none"
+                aria-hidden="true"
+                data-cy="pagination-desktop-range-separator"
+              >
                 -
               </span>
-              <span>{Math.min(total, current * pageSize) || 0}</span>
+              <span data-cy="pagination-desktop-range-end">
+                {Math.min(total, current * pageSize) || 0}
+              </span>
             </span>
             {' '}
             out of {total || 0} entries
@@ -248,11 +256,19 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               className="inline-flex items-center gap-1"
               data-cy="pagination-mobile-showing-range"
             >
-              <span>{Math.min(total, (current - 1) * pageSize + 1) || 0}</span>
-              <span className="select-none" aria-hidden="true">
+              <span data-cy="pagination-mobile-range-start">
+                {Math.min(total, (current - 1) * pageSize + 1) || 0}
+              </span>
+              <span
+                className="select-none"
+                aria-hidden="true"
+                data-cy="pagination-mobile-range-separator"
+              >
                 -
               </span>
-              <span>{Math.min(total, current * pageSize) || 0}</span>
+              <span data-cy="pagination-mobile-range-end">
+                {Math.min(total, current * pageSize) || 0}
+              </span>
             </span>
             {' '}
             of {total || 0}
