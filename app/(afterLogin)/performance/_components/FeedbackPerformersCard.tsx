@@ -8,6 +8,7 @@ import { FeedbackPerformersCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetFeedbackStatsPerformers } from '@/store/server/features/performance/feedback-stats/queries';
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
+import Link from 'next/link';
 
 const ENGAGEMENT_BAR = '#4096FF';
 const KPI_BAR = '#1E40AF';
@@ -195,13 +196,13 @@ export default function FeedbackPerformersCard({
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-black">Feedback Performers</h2>
-
+<div className='flex items-center gap-2'>
         {orderedMonthsForUi.length > 0 && (
           <>
             <Select
               id="performance-performers-month-select"
               data-cy="performance-performers-month-select"
-              className="block sm:hidden w-[150px]"
+              className="md:min-w-[90px] w-full h-[22px]"
               size="small"
               placeholder="Select Month"
               value={resolvedMonthIdForUi ?? undefined}
@@ -215,7 +216,7 @@ export default function FeedbackPerformersCard({
               }))}
             />
 
-            {!isMonthListOpen && (
+            {/* {!isMonthListOpen && (
               <button
                 type="button"
                 onClick={() => setIsMonthListOpen(true)}
@@ -258,9 +259,13 @@ export default function FeedbackPerformersCard({
                   </button>
                 ))}
               </div>
-            )}
+            )} */}
           </>
         )}
+        <Link className="text-primary text-sm font-normal w-full" href='/feedback/feedback'> 
+           View All
+        </Link>
+        </div>
       </div>
       {showSpinner ? (
         <FeedbackPerformersCardSkeleton />

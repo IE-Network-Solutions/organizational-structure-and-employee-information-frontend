@@ -147,6 +147,7 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       motionDurationFast: '0.1s',
       motionDurationMid: '0.2s',
       motionDurationSlow: '0.3s',
+      
 
       // Shadow
       boxShadow:
@@ -178,6 +179,9 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       Select: {
         colorText: '#111827',
         colorBorder: '#E9EAEC',
+        // Background color of the selected item in the dropdown
+        optionSelectedBg: '#E6F4FF', 
+  
       },
       Collapse: {
         headerBg: '#FFF',
