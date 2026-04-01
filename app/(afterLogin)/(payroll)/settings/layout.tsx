@@ -2,11 +2,9 @@
 
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Breadcrumb, Button, Divider, Tabs, theme } from 'antd';
-import type { TabsProps } from 'antd';
+import { Breadcrumb, Button, Divider, theme } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { FaPencil } from 'react-icons/fa6';
-import usePensionRulesStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
 import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
 
 interface PayrollSettingsLayoutProps {
@@ -21,7 +19,6 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const [currentItem, setCurrentItem] = useState<TabKey>('tax-rule');
-  const { isPensionAddDisabled } = usePensionRulesStore();
   const { isApprovalsAddDisabled } = useApprovalsSettingsStore();
   const { token } = theme.useToken();
 
@@ -57,40 +54,20 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
   //   return tabs.find((t) => t.key === currentItem)?.label ?? 'Settings';
   // }, [tabs, currentItem]);
 
-  const tabItems = useMemo<TabsProps['items']>(
-    () =>
-      tabs.map((tab) => ({
-        key: tab.key,
-        label: (
-          <div
-            id={`payroll-settings-tab-label-${tab.key}`}
-            data-cy={`payroll-settings-tab-label-${tab.key}`}
-            className={`text-base m-0 ${currentItem === tab.key ? 'text-primary font-semibold' : 'text-gray-800'}`}
-          >
-            {tab.label}
-          </div>
-        ),
-      })),
-    [tabs, currentItem],
-  );
-
   const handlePrimaryActionClick = () => {
     const targetId =
       currentItem === 'tax-rule'
         ? 'payroll-tax-rule-add-click-button'
-        : currentItem === 'pension'
-          ? 'payroll-pension-add-click-button'
-          : currentItem === 'pay-period'
-            ? 'payroll-payperiod-add-click-button'
-            : 'settings-approvals-payroll-settings-add-approval-btn';
+        : currentItem === 'pay-period'
+          ? 'payroll-payperiod-add-click-button'
+          : 'settings-approvals-payroll-settings-add-approval-btn';
 
     const el = document.getElementById(targetId) as HTMLButtonElement | null;
     el?.click();
   };
 
   const isHeaderPrimaryActionDisabled =
-    (currentItem === 'pension' && isPensionAddDisabled) ||
-    (currentItem === 'approvals' && isApprovalsAddDisabled);
+    currentItem === 'approvals' && isApprovalsAddDisabled;
 
   const handleTabChange = (key: string) => {
     const next = tabs.find((t) => t.key === key);
@@ -137,11 +114,9 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       >
         {currentItem === 'tax-rule'
           ? 'Add Tax Rule'
-          : currentItem === 'pension'
-            ? 'Add Pension Rule'
-            : currentItem === 'pay-period'
-              ? 'Update Pay Period'
-              : 'Set Approval'}
+          : currentItem === 'pay-period'
+            ? 'Update Pay Period'
+            : 'Set Approval'}
       </span>
     </Button>
   );
@@ -152,36 +127,6 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       data-cy="payroll-settings-page-view-container"
       className="min-h-screen bg-white text-gray-800 font-sans py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6"
     >
-      <style jsx global data-cy="payroll-settings-layout-global-styles">{`
-        /* On mobile, AntD Tabs can render "fade" overlays that look like white blocks */
-        @media (max-width: 767px) {
-          #payroll-settings-tabs .ant-tabs-nav-operations,
-          #payroll-settings-tabs .ant-tabs-nav-more {
-            display: none !important;
-          }
-          #payroll-settings-tabs .ant-tabs-extra-content {
-            background: transparent !important;
-            box-shadow: none !important;
-            flex-shrink: 0 !important;
-          }
-          #payroll-settings-tabs .ant-tabs-nav-wrap {
-            overflow-x: auto !important;
-            overflow-y: hidden !important;
-            -webkit-overflow-scrolling: touch;
-          }
-          #payroll-settings-tabs .ant-tabs-nav-list {
-            flex-wrap: nowrap !important;
-          }
-          #payroll-settings-tabs .ant-tabs-nav {
-            min-width: 0 !important;
-          }
-          #payroll-settings-tabs .ant-tabs-nav-wrap::before,
-          #payroll-settings-tabs .ant-tabs-nav-wrap::after {
-            box-shadow: none !important;
-            background: transparent !important;
-          }
-        }
-      `}</style>
       <div
         id="payroll-settings-page-content-view-container"
         data-cy="payroll-settings-page-content-view-container"
@@ -204,41 +149,44 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
             data-cy="payroll-settings-breadcrumb-view-container"
             className="text-sm text-gray-400 flex flex-col items-start"
           >
-            <Breadcrumb
-              className="mt-2 mb-0 whitespace-nowrap"
-              style={{ whiteSpace: 'nowrap' }}
-              items={[
-                {
-                  title: (
-                    <a
-                      href="/payroll/payroll"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        router.push('/payroll/payroll');
-                      }}
-                      data-cy="payroll-settings-breadcrumb-payroll-link"
-                      id="payroll-settings-breadcrumb-payroll-link"
-                      className="text-xs sm:text-sm"
-                    >
-                      Payroll
-                    </a>
-                  ),
-                },
-                {
-                  title: (
-                    <span
-                      data-cy="payroll-settings-breadcrumb-settings"
-                      id="payroll-settings-breadcrumb-settings"
-                      className="text-xs sm:text-sm"
-                    >
-                      Settings
-                    </span>
-                  ),
-                },
-              ]}
-              data-cy="payroll-settings-breadcrumb"
+            <div
               id="payroll-settings-breadcrumb"
-            />
+              data-cy="payroll-settings-breadcrumb"
+            >
+              <Breadcrumb
+                className="mt-2 mb-0 whitespace-nowrap"
+                style={{ whiteSpace: 'nowrap' }}
+                items={[
+                  {
+                    title: (
+                      <a
+                        href="/payroll/payroll"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          router.push('/payroll/payroll');
+                        }}
+                        data-cy="payroll-settings-breadcrumb-payroll-link"
+                        id="payroll-settings-breadcrumb-payroll-link"
+                        className="text-xs sm:text-sm"
+                      >
+                        Payroll
+                      </a>
+                    ),
+                  },
+                  {
+                    title: (
+                      <span
+                        data-cy="payroll-settings-breadcrumb-settings"
+                        id="payroll-settings-breadcrumb-settings"
+                        className="text-xs sm:text-sm"
+                      >
+                        Settings
+                      </span>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           </div>
           <div
             id="payroll-settings-breadcrumb-tabs-divider-bleed"
@@ -255,42 +203,76 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
         <div
           id="payroll-settings-tabs-row-view-container"
           data-cy="payroll-settings-tabs-row-view-container"
-          className="mb-6"
+          className="mt-5 mb-6"
         >
           <div
             id="payroll-settings-tabs-actions-slot-view-container"
             data-cy="payroll-settings-tabs-actions-slot-view-container"
             className="w-full"
           >
-            <Tabs
+            {/*
+              Custom tab rail: matches incentives/page.tsx label styling (font-semibold
+              text-md p-3) and tabBar bottom spacing; avoids AntD ink-bar bugs with
+              scroll + tabBarExtraContent.
+            */}
+            <div
               id="payroll-settings-tabs"
               data-cy="payroll-settings-tabs"
-              activeKey={currentItem}
-              onChange={handleTabChange}
-              items={tabItems}
-              tabBarGutter={24}
-              tabBarStyle={{
-                marginBottom: 0,
-                marginLeft: 0,
-                paddingLeft: 0,
-                paddingRight: 0,
-              }}
-              tabBarExtraContent={
-                currentItem === 'pension' && isPensionAddDisabled
-                  ? null
-                  : {
-                      right: (
-                        <div
-                          className="ml-2 flex shrink-0 items-center"
-                          data-cy="payroll-settings-tabs-primary-action-slot"
-                        >
-                          {primaryActionButton}
-                        </div>
-                      ),
-                    }
-              }
-              className="text-base [&_.ant-tabs-nav]:!flex [&_.ant-tabs-nav]:min-w-0 [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!min-w-0 [&_.ant-tabs-nav-wrap]:!flex-1 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-nav-operations]:!bg-transparent [&_.ant-tabs-nav-operations]:!shadow-none [&_.ant-tabs-extra-content]:!ml-0 [&_.ant-tabs-extra-content]:!flex [&_.ant-tabs-extra-content]:!shrink-0 [&_.ant-tabs-extra-content]:!items-center [&_.ant-tabs-extra-content]:!bg-transparent [&_.ant-tabs-nav-more]:!bg-transparent"
-            />
+              className="w-full"
+            >
+              <div className="flex w-full items-end justify-between gap-2 border-b border-gray-200">
+                <div
+                  className="scrollbar-hide flex min-w-0 flex-1 items-end gap-8 overflow-x-auto [-webkit-overflow-scrolling:touch]"
+                  data-cy="payroll-settings-tabs-scroll"
+                >
+                  {tabs.map((tab) => {
+                    const isActive = currentItem === tab.key;
+                    return (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        id={`payroll-settings-tab-${tab.key}`}
+                        data-cy={`payroll-settings-tab-label-${tab.key}`}
+                        onClick={() => handleTabChange(tab.key)}
+                        className={`relative shrink-0 border-0 bg-transparent p-3 text-left font-semibold text-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 ${
+                          isActive
+                            ? 'text-primary'
+                            : 'text-gray-800 hover:text-gray-900'
+                        }`}
+                      >
+                        {tab.label}
+                        {isActive ? (
+                          <span
+                            className="pointer-events-none absolute inset-x-0 bottom-[-1px] z-10 h-0.5 bg-primary"
+                            data-cy={`payroll-settings-tab-indicator-${tab.key}`}
+                            aria-hidden
+                          />
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div
+                  className="ml-2 flex shrink-0 items-center self-end p-3"
+                  data-cy="payroll-settings-tabs-primary-action-slot"
+                >
+                  {currentItem === 'pension' ? (
+                    <div
+                      className="flex h-10 min-h-10 w-10 shrink-0 items-center justify-center sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[148px]"
+                      aria-hidden
+                      data-cy="payroll-settings-tabs-primary-action-pension-placeholder"
+                    />
+                  ) : (
+                    primaryActionButton
+                  )}
+                </div>
+              </div>
+              <div
+                className="h-4 shrink-0"
+                aria-hidden
+                data-cy="payroll-settings-tabs-bottom-spacer"
+              />
+            </div>
           </div>
         </div>
         <div
