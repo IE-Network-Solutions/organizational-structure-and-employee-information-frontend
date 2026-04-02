@@ -72,20 +72,57 @@ function userInMeeting(item: any, userId: string): string | null {
     return 'Chairman';
   if (String(item?.facilitatorId ?? '') === uid) return 'Facilitator';
 
+  const matchesUid = (entry: any): boolean => {
+    if (entry == null) return false;
+
+    // Raw id values or comma-separated list.
+    if (typeof entry === 'string' || typeof entry === 'number') {
+      const s = String(entry).trim();
+      if (!s) return false;
+      if (s === uid) return true;
+      if (s.includes(',')) {
+        return s
+          .split(',')
+          .map((x) => x.trim())
+          .filter(Boolean)
+          .some((x) => x === uid);
+      }
+      return false;
+    }
+
+    // Common nested/id fields we see across APIs.
+    const candidateIds = [
+      entry?.id,
+      entry?.userId,
+      entry?.employeeId,
+      entry?.attendeeId,
+      entry?.participantId,
+      entry?.accountId,
+      entry?.uid,
+      entry?.user?.id,
+      entry?.employee?.id,
+      entry?.attendee?.id,
+      entry?.participant?.id,
+    ]
+      .filter((x) => x != null && String(x).trim() !== '')
+      .map((x) => String(x));
+
+    return candidateIds.some((x) => x === uid);
+  };
+
   const attendeeSets = [
     normalizeToArray(item?.attendees),
     normalizeToArray(item?.attendeesIds),
     normalizeToArray(item?.participants),
     normalizeToArray(item?.participantIds),
+    normalizeToArray(item?.attendeeIds),
+    normalizeToArray(item?.participantUsers),
+    normalizeToArray(item?.attendeeUsers),
+    normalizeToArray(item?.meetingAttendees),
+    normalizeToArray(item?.meetingParticipants),
   ];
   for (const set of attendeeSets) {
-    const exists = set.some((entry: any) => {
-      if (entry == null) return false;
-      if (typeof entry === 'string' || typeof entry === 'number') {
-        return String(entry) === uid;
-      }
-      return String(entry?.id ?? entry?.userId ?? '') === uid;
-    });
+    const exists = set.some(matchesUid);
     if (exists) return 'Attendee';
   }
   return null;
@@ -166,6 +203,7 @@ function toMeetingListByMode(
           : undefined,
         dateLabel,
         badge: role,
+        href: `/feedback/meeting/${id}`,
       });
     }
   }
@@ -203,6 +241,7 @@ function toMeetingListByModeFromMeetingsApi(
           : undefined,
         dateLabel,
         badge: role ?? undefined,
+        href: `/feedback/meeting/${id}`,
       });
     }
   }
@@ -408,10 +447,7 @@ function RecentList({
   items: DashboardListItem[];
   emptyText: string;
   loading?: boolean;
-  onItemClick?: (
-    item: DashboardListItem,
-    e: React.MouseEvent<HTMLDivElement>,
-  ) => void;
+  onItemClick?: (item: DashboardListItem, e: React.MouseEvent<unknown>) => void;
   borderless?: boolean;
   hideHeader?: boolean;
 }) {
@@ -425,9 +461,11 @@ function RecentList({
           <Text className="!text-[12px] !font-semibold !text-[#1f3f8f]">
             {title}
           </Text>
-          <span className="rounded bg-[#e8efff] px-2 py-0.5 text-[10px] font-semibold text-[#365fbd]">
-            {loading ? '-' : items.length}
-          </span>
+          {loading ? null : (
+            <span className="rounded bg-[#e8efff] px-2 py-0.5 text-[10px] font-semibold text-[#365fbd]">
+              {items.length}
+            </span>
+          )}
         </div>
       ) : null}
       {loading ? (
@@ -435,13 +473,9 @@ function RecentList({
           {Array.from({ length: 3 }).map((_, idx) => (
             <div
               key={`recent-list-skeleton-${title}-${idx}`}
-              className="rounded border border-[#e7ecf8] bg-white px-2.5 py-2"
+              className="rounded px-2.5 py-2"
             >
-              <Skeleton
-                active
-                paragraph={{ rows: 1, width: ['75%'] }}
-                title={{ width: '45%' }}
-              />
+              <Skeleton active paragraph={{ rows: 1 }} title={false} />
             </div>
           ))}
         </div>
@@ -455,64 +489,76 @@ function RecentList({
               : ''
           }`}
         >
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className={`flex items-start justify-between gap-2 rounded border border-[#e7ecf8] bg-white px-2.5 py-2 ${
+          {items.map((item) =>
+            (() => {
+              const cardClassName = `flex items-start justify-between gap-2 rounded border border-[#e7ecf8] bg-white px-2.5 py-2 ${
                 item.href
                   ? 'cursor-pointer hover:border-[#d7dff3] hover:bg-[#fafcff]'
                   : ''
-              }`}
-              role={item.href ? 'button' : undefined}
-              tabIndex={item.href ? 0 : undefined}
-              onClick={(e) => {
-                if (!onItemClick || !item.href) return;
-                onItemClick(item, e);
-              }}
-              onKeyDown={(e) => {
-                if (!onItemClick || !item.href) return;
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  const mouseEvent =
-                    e as unknown as React.MouseEvent<HTMLDivElement>;
-                  onItemClick(item, mouseEvent);
-                }
-              }}
-            >
-              <div className="min-w-0">
-                <div className="truncate text-[12px] font-medium text-[#1f2937]">
-                  {item.title}
-                </div>
-                <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#6b7280]">
-                  {item.subtitle ? (
-                    item.subtitleTag ? (
-                      <span
-                        className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
-                          item.subtitleTag === 'solved'
-                            ? 'bg-[#E6FBDA] text-[#2f8f2f]'
-                            : 'bg-[#FFF7E6] text-[#b26a00]'
-                        }`}
-                      >
-                        {item.subtitleTag === 'solved' ? 'Solved' : 'Pending'}
-                      </span>
-                    ) : (
-                      <span className="truncate">{item.subtitle}</span>
-                    )
-                  ) : null}
-                  {item.badge ? (
-                    <span className="rounded bg-[#f2f6ff] px-1.5 py-0.5 text-[10px] font-medium text-[#2f66c9]">
-                      {item.badge}
+              }`;
+
+              const inner = (
+                <>
+                  <div className="min-w-0">
+                    <div className="truncate text-[12px] font-medium text-[#1f2937]">
+                      {item.title}
+                    </div>
+                    <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#6b7280]">
+                      {item.subtitle ? (
+                        item.subtitleTag ? (
+                          <span
+                            className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+                              item.subtitleTag === 'solved'
+                                ? 'bg-[#E6FBDA] text-[#2f8f2f]'
+                                : 'bg-[#FFF7E6] text-[#b26a00]'
+                            }`}
+                          >
+                            {item.subtitleTag === 'solved'
+                              ? 'Solved'
+                              : 'Pending'}
+                          </span>
+                        ) : (
+                          <span className="truncate">{item.subtitle}</span>
+                        )
+                      ) : null}
+                      {item.badge ? (
+                        <span className="rounded bg-[#f2f6ff] px-1.5 py-0.5 text-[10px] font-medium text-[#2f66c9]">
+                          {item.badge}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  {item.dateLabel ? (
+                    <span className="shrink-0 rounded bg-[#f5f7fb] px-1.5 py-0.5 text-[10px] text-[#5b6472]">
+                      {item.dateLabel}
                     </span>
                   ) : null}
+                </>
+              );
+
+              if (item.href) {
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className={cardClassName}
+                    onClick={(e) => {
+                      if (!onItemClick) return;
+                      onItemClick(item, e);
+                    }}
+                  >
+                    {inner}
+                  </Link>
+                );
+              }
+
+              return (
+                <div key={item.id} className={cardClassName}>
+                  {inner}
                 </div>
-              </div>
-              {item.dateLabel ? (
-                <span className="shrink-0 rounded bg-[#f5f7fb] px-1.5 py-0.5 text-[10px] text-[#5b6472]">
-                  {item.dateLabel}
-                </span>
-              ) : null}
-            </div>
-          ))}
+              );
+            })(),
+          )}
         </div>
       )}
     </div>
@@ -675,33 +721,25 @@ const DashboardComponent = () => {
                 <Text className="!text-[16px] !text-[#555]">
                   Total Action plans
                 </Text>
-                <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#f5f5f5] text-[#6b7280]">
-                  {isMeetingsSectionLoading ? (
-                    <Skeleton.Button
-                      active
-                      size="small"
-                      style={{ width: 28 }}
-                    />
-                  ) : (
-                    (userMeetings?.totalActionPlans ?? 0)
-                  )}
-                </span>
+                {isMeetingsSectionLoading ? (
+                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                ) : (
+                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#f5f5f5] text-[#6b7280]">
+                    {userMeetings?.totalActionPlans ?? 0}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1.5">
                 <Text className="!text-[12px] !text-[#555]">
                   Total Action plans resolved
                 </Text>
-                <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#E6FBDA] text-[#52C41A]">
-                  {isMeetingsSectionLoading ? (
-                    <Skeleton.Button
-                      active
-                      size="small"
-                      style={{ width: 28 }}
-                    />
-                  ) : (
-                    (userMeetings?.resolvedActionPlans ?? 0)
-                  )}
-                </span>
+                {isMeetingsSectionLoading ? (
+                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                ) : (
+                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#E6FBDA] text-[#52C41A]">
+                    {userMeetings?.resolvedActionPlans ?? 0}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -796,33 +834,25 @@ const DashboardComponent = () => {
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5">
                 <Text className="!text-[16px] !text-[#555]">Total Survey</Text>
-                <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#f5f5f5] text-[#6b7280]">
-                  {isSurveysSectionLoading ? (
-                    <Skeleton.Button
-                      active
-                      size="small"
-                      style={{ width: 28 }}
-                    />
-                  ) : (
-                    (userMeetings?.totalSurvey ?? 0)
-                  )}
-                </span>
+                {isSurveysSectionLoading ? (
+                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                ) : (
+                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#f5f5f5] text-[#6b7280]">
+                    {userMeetings?.totalSurvey ?? 0}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1.5">
                 <Text className="!text-[16px] !text-[#555]">
                   Total Survey Completed
                 </Text>
-                <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#E6FBDA] text-[#52C41A]">
-                  {isSurveysSectionLoading ? (
-                    <Skeleton.Button
-                      active
-                      size="small"
-                      style={{ width: 28 }}
-                    />
-                  ) : (
-                    (userMeetings?.totalCompletedSurvey ?? 0)
-                  )}
-                </span>
+                {isSurveysSectionLoading ? (
+                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                ) : (
+                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#E6FBDA] text-[#52C41A]">
+                    {userMeetings?.totalCompletedSurvey ?? 0}
+                  </span>
+                )}
               </div>
             </div>
 

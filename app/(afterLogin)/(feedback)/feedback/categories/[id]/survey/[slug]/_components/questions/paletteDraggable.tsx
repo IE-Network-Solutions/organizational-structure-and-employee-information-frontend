@@ -47,32 +47,42 @@ const PaletteDraggable: React.FC<PaletteDraggableProps> = ({
       {...listeners}
       {...attributes}
       onClick={() => onPointerDownPick?.()}
-      className="box-border flex h-[54px] w-full min-w-0 cursor-grab flex-col justify-center gap-0.5 overflow-hidden rounded-md border border-gray-200 bg-white p-2 text-left opacity-100 transition-colors hover:border-[#2D5BFF]/40 active:cursor-grabbing"
+      className="box-border flex w-full min-w-0 cursor-grab flex-row items-center gap-3 overflow-hidden rounded-md border border-[#E5E7EB] bg-white p-3 text-left opacity-100 transition-colors hover:border-[#2D5BFF]/40 active:cursor-grabbing lg:h-[54px] lg:flex-col lg:items-stretch lg:justify-center lg:gap-0.5 lg:p-2"
       data-cy={`survey-palette-${fieldType}`}
     >
+      <span
+        className="h-4 w-4 shrink-0 rounded-full border border-[#D1D5DB] bg-[#F9FAFB] lg:hidden"
+        aria-hidden
+        data-cy={`survey-palette-card-dot-${fieldType}`}
+      />
       <div
-        className="flex items-center justify-between gap-2"
-        data-cy={`survey-palette-card-row-${fieldType}`}
+        className="flex min-w-0 flex-1 flex-col gap-0.5"
+        data-cy={`survey-palette-card-body-${fieldType}`}
       >
-        <span
-          className="truncate text-[14px] font-semibold text-gray-900"
-          data-cy={`survey-palette-card-title-${fieldType}`}
+        <div
+          className="flex items-center justify-between gap-2"
+          data-cy={`survey-palette-card-row-${fieldType}`}
         >
-          {title}
-        </span>
-        <span
-          className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded border border-gray-200 bg-gray-100 px-1 text-[10px] font-semibold tabular-nums text-gray-600"
-          data-cy={`survey-palette-card-count-${fieldType}`}
+          <span
+            className="truncate text-sm font-semibold leading-tight text-gray-900 lg:text-[14px]"
+            data-cy={`survey-palette-card-title-${fieldType}`}
+          >
+            {title}
+          </span>
+          <span
+            className="hidden h-5 min-w-[20px] shrink-0 items-center justify-center rounded border border-gray-200 bg-gray-100 px-1 text-[10px] font-semibold tabular-nums text-gray-600 lg:inline-flex"
+            data-cy={`survey-palette-card-count-${fieldType}`}
+          >
+            {count}
+          </span>
+        </div>
+        <p
+          className="m-0 line-clamp-2 text-[11px] leading-snug text-gray-500 lg:text-[12px] lg:leading-tight"
+          data-cy={`survey-palette-card-desc-${fieldType}`}
         >
-          {count}
-        </span>
+          {description}
+        </p>
       </div>
-      <p
-        className="m-0 line-clamp-2 text-[12px] leading-tight text-gray-500"
-        data-cy={`survey-palette-card-desc-${fieldType}`}
-      >
-        {description}
-      </p>
     </button>
   );
 };
