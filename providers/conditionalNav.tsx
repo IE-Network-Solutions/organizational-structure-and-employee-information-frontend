@@ -34,8 +34,6 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
   const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname);
   const isExcludedPath =
     isPublicSurveyRoute || excludeNavPaths.includes(pathname);
-
-  const isExcludedPath = !!pathname && excludeNavPaths.includes(pathname);
   const isAdminPath = !!pathname && pathname.startsWith('/admin');
 
   const tenantId = useAuthenticationStore((s) => s.tenantId);
