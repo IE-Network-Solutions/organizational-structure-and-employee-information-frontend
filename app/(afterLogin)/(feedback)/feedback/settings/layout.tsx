@@ -331,7 +331,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         title={
           <SettingsModalHeader
             title={
-              <span data-cy="recognition-category-modal-title">
+              <span>
                 {recognitionCategoryEditId?.trim()
                   ? 'Edit Category'
                   : 'New Category'}

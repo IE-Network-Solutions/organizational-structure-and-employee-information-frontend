@@ -25,21 +25,24 @@ export function SettingsModalHeader({
 }: SettingsModalHeaderProps) {
   return (
     <div
-      className="flex items-center justify-between text-xl font-extrabold text-gray-800 "
+      className="flex items-center justify-between p-4 text-xl font-extrabold text-gray-800"
       data-cy={dataCy}
       id={id}
     >
-      <div className="min-w-0 flex-1 pr-2" data-cy={titleDataCy}>
+      <div
+        className="min-w-0 flex-1 pr-2"
+        data-cy={titleDataCy ?? 'settings-modal-header-title'}
+      >
         {title}
       </div>
       <Button
         onClick={onClose}
         data-cy={closeDataCy}
         id={closeId}
-        className="text-xl shadow-none text-black hover:!text-primary border-none shrink-0"
+        className="text-black hover:!text-primary border-none shrink-0"
         aria-label="Close"
       >
-        <IoClose />
+        <IoClose className="text-xl" />
       </Button>
     </div>
   );

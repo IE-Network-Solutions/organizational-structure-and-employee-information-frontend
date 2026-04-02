@@ -399,6 +399,7 @@ export default function RecognitionDetailPage() {
                           data-cy={`recognition-detail-criteria-table-inner-${child?.id}`}
                         >
                           <Table<CriteriaTableRecord>
+                            data-cy={`recognition-detail-criteria-table-ant-${child?.id}`}
                             rowKey={(r, index) =>
                               String(
                                 r.id ??
