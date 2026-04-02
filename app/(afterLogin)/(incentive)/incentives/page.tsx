@@ -1,30 +1,30 @@
 'use client';
 import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Skeleton, Tabs } from 'antd';
-import { TabsProps } from 'antd/lib';
-import PayRoleView from './payroll-detail';
-import { useEffect, useMemo } from 'react';
+import { Button, Card, Divider, Empty, Input, Skeleton, Tag } from 'antd';
+import { useEffect, useMemo, useState } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import AllIncentives from './compensation/all/page';
 import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
 import ConfirmModal from '@/components/common/confirmModal';
 import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
-import { Eye, FileDown, FileUp } from 'lucide-react';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
-import { MdOutlineSend } from 'react-icons/md';
+import SendIcon from '@mui/icons-material/Send';
+import { SearchOutlined, LeftOutlined } from '@ant-design/icons';
+import { MdOutlineEmojiEvents } from 'react-icons/md';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import CustomPagination from '@/components/customPagination';
+import IncentiveStatusCards from './compensation/cards/IncentiveStatusCards';
+import { useAllIncentiveCards } from '@/store/server/features/incentive/all/queries';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import { useGetAllIncentiveData } from '@/store/server/features/incentive/other/queries';
+import { useGetRecognitionTypeDashboardStats } from '@/store/server/features/CFR/recognition/queries';
 
 const Page = () => {
   const {
     activeKey,
     setActiveKey,
-    setProjectDrawer,
-    isPayrollView,
-    setIsPayrollView,
     setShowGenerateModal,
-    showGenerateModal,
     setSelectedRecognition,
     selectedRecognition,
     setParentResponseIsLoading,
@@ -32,6 +32,8 @@ const Page = () => {
     setSelectedRowKeys,
     confirmationModal,
     setConfirmationModal,
+    pageSize,
+    currentPage,
   } = useIncentiveStore();
   const { mutate: exportIncentiveData, isLoading: exportIncentiveLoading } =
     useExportIncentiveData();
@@ -49,15 +51,36 @@ const Page = () => {
   };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
+  const { data: recognitionTypeDashboardStats } =
+    useGetRecognitionTypeDashboardStats();
+
+  const { data: incentiveData } = useGetAllIncentiveData(
+    searchParams?.employee_name || '',
+    searchParams?.byYear || ' ',
+    searchParams?.bySession,
+    searchParams?.byMonth || '',
+    pageSize,
+    currentPage,
+  );
 
   const { mutate: sendIncentiveToPayroll, isLoading } =
     useSendIncentiveToPayroll();
 
   const { isMobile, isTablet } = useIsMobile();
+  const { data: allIncentiveCards } = useAllIncentiveCards();
+  const [searchCategory, setSearchCategory] = useState('');
+  const [categoryPage, setCategoryPage] = useState(1);
+  const [categoryPageSize, setCategoryPageSize] = useState(9);
+
+  useEffect(() => {
+    setActiveKey('1');
+    setSelectedRecognition(null);
+    setSelectedRowKeys([]);
+  }, [setActiveKey, setSelectedRecognition, setSelectedRowKeys]);
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
-  }, [parentResponseLoading]);
+  }, [parentResponseLoading, setParentResponseIsLoading]);
 
   const handleSendToPayrollClick = () => {
     setConfirmationModal(true);
@@ -75,328 +98,358 @@ const Page = () => {
       },
     );
   };
-  const items: TabsProps['items'] = parentResponseLoading
-    ? [{ key: 'loading', label: <Skeleton active />, children: null }]
-    : [
-        {
-          key: '1',
-          label: (
-            <span
-              className="font-semibold text-md p-3"
-              data-cy="incentives-page-all-label"
-            >
-              All
-            </span>
-          ),
-          children: (
-            <div className="mx-3" data-cy="incentives-page-all-children">
-              {isPayrollView ? (
-                <PayRoleView operationSlot={''} />
-              ) : (
-                <AllIncentives />
-              )}
-            </div>
-          ),
-        },
-        ...(parentRecognition ?? []).map((item: any) => ({
-          key: item?.id,
-          label: (
-            <span
-              className="font-semibold text-md p-3"
-              data-cy={`incentives-page-label-${item?.id}`}
-            >
-              {item?.name}
-            </span>
-          ),
-          children: (
-            <div
-              className="mx-3"
-              data-cy={`incentives-page-children-${item?.id}`}
-            >
-              <DynamicIncentive parentRecognitionId={item?.id} />
-            </div>
-          ),
-        })),
-      ];
+
   useEffect(() => {
     setSelectedRowKeys([]);
-  }, [activeKey]);
-  const OperationsSlot = useMemo(() => {
-    if (activeKey === '1') {
-      return (
-        <div
-          id="incentives-page-operations-slot-all"
-          data-cy="incentives-page-operations-slot-all"
-          className="flex items-center justify-center gap-3"
-        >
-          <CustomButton
-            data-cy="incentives-page-send-to-payroll-button"
-            title={
-              !(isMobile || isTablet) && (
-                <span
-                  id="incentives-page-send-to-payroll-text"
-                  data-cy="incentives-page-send-to-payroll-text"
-                  className="hidden sm:inline"
-                >
-                  Send to Payroll
-                </span>
-              )
-            }
-            id="createUserButton"
-            icon={
-              <MdOutlineSend
-                className="md:mr-0 ml-2"
-                size={18}
-                id="incentives-page-send-to-payroll-icon"
-                data-cy="incentives-page-send-to-payroll-icon"
-              />
-            }
-            onClick={() => handleSendToPayrollClick()}
-            textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-          />
+  }, [activeKey, setSelectedRowKeys]);
 
-          {isPayrollView ? (
-            <CustomButton
-              data-cy="incentives-page-generate-button"
-              title={
-                !(isMobile || isTablet) && (
-                  <span
-                    id="incentives-page-generate-text"
-                    data-cy="incentives-page-generate-text"
-                    className="hidden sm:inline"
-                  >
-                    Generate
-                  </span>
-                )
-              }
-              id="createUserButton"
-              icon={
-                <FileDown
-                  className="md:mr-0 ml-2"
-                  size={18}
-                  id="incentives-page-generate-icon"
-                  data-cy="incentives-page-generate-icon"
-                />
-              }
-              onClick={() => setShowGenerateModal(!showGenerateModal)}
-              textClassName="!text-sm !font-lg"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-            />
-          ) : (
-            <CustomButton
-              data-cy="incentives-page-export-button"
-              title={
-                !(isMobile || isTablet) && (
-                  <span
-                    id="incentives-page-export-text"
-                    data-cy="incentives-page-export-text"
-                    className="hidden sm:inline"
-                  >
-                    Export
-                  </span>
-                )
-              }
-              id="createUserButton"
-              icon={
-                <FileDown
-                  className="md:mr-0 ml-2"
-                  size={18}
-                  id="incentives-page-export-icon"
-                  data-cy="incentives-page-export-icon"
-                />
-              }
-              onClick={() => handleExport(searchParams, true)}
-              textClassName="!text-sm !font-lg"
-              className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-              loading={exportIncentiveLoading}
-              disabled={exportIncentiveLoading}
-            />
-          )}
-
-          <CustomButton
-            data-cy="incentives-page-view-toggle-button"
-            title={
-              !(isMobile || isTablet) && (
-                <span
-                  id="incentives-page-view-toggle-text"
-                  data-cy="incentives-page-view-toggle-text"
-                  className="hidden sm:inline"
-                >
-                  {isPayrollView ? 'Session View' : 'Payroll View'}
-                </span>
-              )
-            }
-            id="createUserButton"
-            icon={
-              <Eye
-                className="md:mr-0 ml-2"
-                size={18}
-                id="incentives-page-view-toggle-icon"
-                data-cy="incentives-page-view-toggle-icon"
-              />
-            }
-            onClick={() => setIsPayrollView(!isPayrollView)}
-            textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-          />
-        </div>
-      );
-    } else {
-      // Show Import & Generate for all other tabs
-      return (
-        <div
-          id="incentives-page-operations-slot-other"
-          data-cy="incentives-page-operations-slot-other"
-          className="flex items-center justify-center gap-3"
-        >
-          <CustomButton
-            data-cy="incentives-page-send-to-payroll-button-other"
-            title={
-              !(isMobile || isTablet) && (
-                <span
-                  id="incentives-page-send-to-payroll-text-other"
-                  data-cy="incentives-page-send-to-payroll-text-other"
-                  className="hidden sm:inline"
-                >
-                  Send to Payroll
-                </span>
-              )
-            }
-            id="createUserButton"
-            icon={
-              <MdOutlineSend
-                className="md:mr-0 ml-2"
-                size={18}
-                id="incentives-page-send-to-payroll-icon-other"
-                data-cy="incentives-page-send-to-payroll-icon-other"
-              />
-            }
-            onClick={() => handleSendToPayrollClick()}
-            textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-          />
-
-          <CustomButton
-            data-cy="incentives-page-export-button-other"
-            title={
-              !(isMobile || isTablet) && (
-                <span
-                  id="incentives-page-export-text-other"
-                  data-cy="incentives-page-export-text-other"
-                  className="hidden sm:inline"
-                >
-                  Export
-                </span>
-              )
-            }
-            id="createUserButton"
-            icon={
-              <FileUp
-                className="md:mr-0 ml-2"
-                size={18}
-                id="incentives-page-export-icon-other"
-                data-cy="incentives-page-export-icon-other"
-              />
-            }
-            onClick={() => handleExport(searchParams, false)}
-            textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-          />
-
-          <CustomButton
-            data-cy="incentives-page-import-button"
-            title={
-              !(isMobile || isTablet) && (
-                <span
-                  id="incentives-page-import-text"
-                  data-cy="incentives-page-import-text"
-                  className="hidden sm:inline"
-                >
-                  Import Data
-                </span>
-              )
-            }
-            id="createUserButton"
-            icon={
-              <FileDown
-                className="md:mr-0 ml-2"
-                size={18}
-                id="incentives-page-import-icon"
-                data-cy="incentives-page-import-icon"
-              />
-            }
-            onClick={() => setProjectDrawer(true)}
-            textClassName="!text-sm !font-lg"
-            className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
-          />
-        </div>
-      );
-    }
-  }, [
-    activeKey,
-    isPayrollView,
-    setProjectDrawer,
-    setIsPayrollView,
-    selectedRowKeys,
-    isMobile,
-    isTablet,
-    exportIncentiveLoading,
-    searchParams,
-    handleExport,
-  ]);
-
-  const handleTabChange = (key: string) => {
+  const handleCardSelect = (key: string) => {
+    setCategoryPage(1);
     setActiveKey(key);
 
-    if (parentRecognition.length > 0) {
-      const selectedRecognition = parentRecognition.find(
-        (rec: any) => rec.id === key,
-      );
-      setSelectedRecognition(selectedRecognition || null);
-    } else {
-      setSelectedRecognition(null);
+    const foundRecognition = (parentRecognition || []).find(
+      (rec: any) => rec?.id === key,
+    );
+    setSelectedRecognition(foundRecognition || null);
+  };
+
+  const handleBackToCards = () => {
+    setActiveKey('1');
+    setSelectedRecognition(null);
+    setSelectedRowKeys([]);
+  };
+
+  const formattedAmount = (incentiveData?.data?.totalAmount || 0)
+    .toString()
+    .padStart(3, '0')
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  const formattedCriteria = (incentiveData?.data?.totalCriteria || 0)
+    .toString()
+    .padStart(3, '0')
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  const formattedTotalRecognitionTypes = (
+    recognitionTypeDashboardStats?.totalRecognitionTypes || 0
+  ).toString();
+
+  const filteredRecognition = useMemo(() => {
+    if (!searchCategory.trim()) return parentRecognition || [];
+
+    const query = searchCategory.toLowerCase().trim();
+    return (parentRecognition || []).filter((item: any) => {
+      const name = String(item?.name || '').toLowerCase();
+      const description = String(item?.description || '').toLowerCase();
+      return name.includes(query) || description.includes(query);
+    });
+  }, [parentRecognition, searchCategory]);
+
+  const totalCategoryPages = Math.ceil(
+    (filteredRecognition?.length || 0) / categoryPageSize,
+  );
+
+  const paginatedRecognition = useMemo(() => {
+    const safePage = Math.min(
+      Math.max(categoryPage, 1),
+      totalCategoryPages || 1,
+    );
+    const startIndex = (safePage - 1) * categoryPageSize;
+    return filteredRecognition.slice(startIndex, startIndex + categoryPageSize);
+  }, [categoryPage, categoryPageSize, filteredRecognition, totalCategoryPages]);
+
+  const recognitionStats = useMemo(() => {
+    const categories = parentRecognition?.length || 0;
+
+    return {
+      categories,
+      totalCriteria: formattedCriteria,
+      totalIncentive: formattedAmount,
+      totalRecognitionTypes: formattedTotalRecognitionTypes,
+    };
+  }, [allIncentiveCards, parentRecognition]);
+
+  const operationSlot = (
+    <div
+      id="incentives-page-operations-slot-card-detail"
+      data-cy="incentives-page-operations-slot-card-detail"
+      className="flex items-center justify-center gap-3"
+    >
+      <Button
+        type="primary"
+        data-cy="incentives-page-send-to-payroll-button-other"
+        icon={
+          <SendIcon
+            className="pt-1"
+            id="incentives-page-send-to-payroll-icon-other"
+            data-cy="incentives-page-send-to-payroll-icon-other"
+          />
+        }
+        onClick={() => handleSendToPayrollClick()}
+        className="h-10 w-10 sm:w-full font-normal text-base"
+      >
+        {!isMobile && 'Send to Payroll'}
+      </Button>
+      <Button
+        type="default"
+        data-cy="incentives-page-export-button-other"
+        icon={
+          <SaveAltIcon
+            id="incentives-page-export-icon-other"
+            data-cy="incentives-page-export-icon-other"
+          />
+        }
+        onClick={() => handleExport(searchParams, false)}
+        className="h-10 w-10 sm:w-full border border-[#D9D9D9] font-normal text-base"
+        loading={exportIncentiveLoading}
+        disabled={exportIncentiveLoading}
+      >
+        {!(isMobile || isTablet) && (
+          <span
+            id="incentives-page-export-text-other"
+            data-cy="incentives-page-export-text-other"
+            className="hidden sm:inline"
+          >
+            Export
+          </span>
+        )}
+      </Button>
+    </div>
+  );
+
+  useEffect(() => {
+    if (categoryPage > totalCategoryPages && totalCategoryPages > 0) {
+      setCategoryPage(totalCategoryPages);
+    }
+  }, [categoryPage, totalCategoryPages]);
+
+  useEffect(() => {
+    setCategoryPage(1);
+  }, [searchCategory]);
+
+  const renderRecognitionCards = () => {
+    if (parentResponseLoading) {
+      return [...Array(6).keys()].map((index) => (
+        <Card
+          key={`recognition-skeleton-${index}`}
+          className="rounded-lg border border-[#D1D5DB] bg-white p-3"
+          bodyStyle={{ padding: 0 }}
+          data-cy={`incentive-recognition-type-card-skeleton-${index}`}
+        >
+          <Skeleton active avatar paragraph={{ rows: 2 }} />
+        </Card>
+      ));
     }
 
-    if (key !== '2') {
-      setIsPayrollView(false);
+    if (paginatedRecognition?.length === 0) {
+      return (
+        <div
+          className="col-span-3 py-8"
+          data-cy="incentive-recognition-empty-wrap"
+        >
+          <Empty />
+        </div>
+      );
     }
+
+    return paginatedRecognition?.map((item: any) => (
+      <Card
+        key={item?.id}
+        className="cursor-pointer rounded-lg border border-[#D1D5DB] bg-white p-3"
+        onClick={() => handleCardSelect(item?.id)}
+        bodyStyle={{ padding: 0 }}
+        data-cy={`incentive-recognition-type-card-${item?.id}`}
+      >
+        <div
+          className="flex flex-col gap-1"
+          data-cy={`incentive-card-content-${item?.id}`}
+        >
+          <div
+            className="flex items-center gap-3"
+            data-cy={`incentive-card-header-${item?.id}`}
+          >
+            <span
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-lightblue text-primary"
+              data-cy={`incentive-card-icon-${item?.id}`}
+            >
+              <MdOutlineEmojiEvents size={24} className="text-base" />
+            </span>
+            <p
+              className="min-w-0 truncate text-sm font-normal leading-normal text-black"
+              data-cy={`incentive-card-title-${item?.id}`}
+            >
+              {item?.name ?? '-'}
+            </p>
+          </div>
+          <div className="min-w-0" data-cy={`incentive-card-text-${item?.id}`}>
+            <p
+              className="text-[#6B7280] font-normal text-sm leading-[22px] line-clamp-2"
+              data-cy={`incentive-card-description-${item?.id}`}
+            >
+              {item?.description ?? 'Recognition for employee of the quarter'}
+            </p>
+          </div>
+          <div
+            className="flex flex-wrap items-center gap-3"
+            data-cy={`incentive-card-pills-${item?.id}`}
+          >
+            <Tag
+              className="inline-flex rounded-[4px] border border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-xs leading-none font-normal text-[#1677FF]"
+              data-cy={`incentive-card-types-pill-${item?.id}`}
+            >
+              {(item?.children?.length ?? 0) + ' Types'}
+            </Tag>
+          </div>
+        </div>
+      </Card>
+    ));
   };
 
   return (
-    <div
-      id="incentives-page-container"
-      data-cy="incentives-page-container"
-      className="!pt-12 sm:pt-2 !mt:5 sm:m-1 "
-    >
-      <div
-        id="incentives-page-payroll-view-wrapper"
-        data-cy="incentives-page-payroll-view-wrapper"
-      >
-        {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
-      </div>
-
-      {!isPayrollView && (
+    <div id="incentives-page-container" data-cy="incentives-page-container">
+      <style data-cy="incentives-page-styles">{`
+        @media (min-width: 640px) {
+     .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+          }
+        }
+      `}</style>
+      {!selectedRecognition ? (
         <>
-          {/* {parentResponseLoading ? (
-            <Skeleton.Button
-              active
-              style={{ width: '200px', height: '40px' }}
-            />
-          ) : ( */}
-          <Tabs
-            id="incentives-page-tabs"
-            data-cy="incentives-page-tabs"
-            tabBarStyle={{ borderBottom: '16px solid transparent' }}
-            defaultActiveKey="1"
-            items={items}
-            tabBarExtraContent={OperationsSlot}
-            onChange={handleTabChange}
-            className="mx-3 mt-5"
+          <CustomBreadcrumb
+            title="Incentive"
+            subtitle={
+              <span
+                data-cy="incentives-page-breadcrumb-subtitle"
+                className="px-1 text-sm text-black opacity-45"
+              >
+                Incentive
+              </span>
+            }
+            data-cy="incentives-page-breadcrumb"
           />
-          {/* )} */}
+          <Divider className="full-bleed-header-divider" />
+
+          <IncentiveStatusCards
+            recognitionTypeDashboardStats={recognitionStats}
+            isLoading={parentResponseLoading}
+          />
+
+          <Card
+            bordered
+            className="rounded-lg p-3"
+            data-cy="incentive-categories-card-wrapper"
+            bodyStyle={{ padding: 0 }}
+          >
+            <Input.Group
+              compact
+              className="max-w-[320px] mb-4"
+              data-cy="incentive-search-group"
+            >
+              <Input
+                placeholder="Search Category"
+                value={searchCategory}
+                onChange={(e) => setSearchCategory(e.target.value)}
+                allowClear
+                size="large"
+                suffix={
+                  <div
+                    data-cy="incentive-search-category-input-suffix"
+                    className="border-l border-gray-200 flex items-center justify-center h-8"
+                  >
+                    <SearchOutlined
+                      data-cy="incentive-search-category-input-suffix-icon"
+                      className="text-gray-400 ml-3"
+                    />
+                  </div>
+                }
+                className="w-full rounded-md h-8 md:w-[300px]"
+                data-cy="incentive-search-category-input"
+              />
+            </Input.Group>
+
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
+              data-cy="incentive-categories-grid"
+            >
+              {renderRecognitionCards()}
+            </div>
+
+            {!parentResponseLoading && filteredRecognition?.length > 0 && (
+              <CustomPagination
+                current={categoryPage}
+                total={filteredRecognition?.length ?? 0}
+                pageSize={categoryPageSize}
+                pageSizeOptions={[6, 9, 12, 24, 36]}
+                onChange={(page, size) => {
+                  setCategoryPage(page);
+                  setCategoryPageSize(size);
+                }}
+                onShowSizeChange={(size: number) => {
+                  setCategoryPage(1);
+                  setCategoryPageSize(size);
+                }}
+                data-cy="incentive-categories-pagination"
+              />
+            )}
+          </Card>
         </>
+      ) : (
+        <div
+          className="mx-3 mt-4"
+          data-cy="incentives-page-selected-recognition-view"
+        >
+          <div
+            data-cy="incentives-page-selected-recognition-view-container"
+            className="flex items-start justify-between gap-4 border-b pb-4 mb-4"
+          >
+            <div
+              data-cy="incentives-page-selected-recognition-view-container-content"
+              className="flex items-start gap-3"
+            >
+              <button
+                type="button"
+                onClick={handleBackToCards}
+                className="mt-1 h-8 w-8 rounded border border-gray-200 hover:bg-gray-50"
+                data-cy="incentives-page-back-to-cards-button"
+              >
+                <LeftOutlined />
+              </button>
+              <div data-cy="incentives-page-selected-recognition-view-container-content-title">
+                <h2
+                  className="text-2xl font-semibold text-[#111827]"
+                  data-cy="incentives-page-selected-title"
+                >
+                  {selectedRecognition?.name || 'Incentive'}
+                </h2>
+                <p
+                  className="text-sm text-[#6B7280] mt-1"
+                  data-cy="incentives-page-selected-subtitle"
+                >
+                  Incentive
+                </p>
+              </div>
+            </div>
+            <div data-cy="incentives-page-selected-recognition-view-container-content-operations">
+              {operationSlot}
+            </div>
+          </div>
+
+          <DynamicIncentive
+            parentRecognitionId={selectedRecognition?.id || activeKey}
+          />
+        </div>
       )}
+
       <ExportModal
         data-cy="incentives-page-export-modal"
         selectedRecognition={selectedRecognition?.id}

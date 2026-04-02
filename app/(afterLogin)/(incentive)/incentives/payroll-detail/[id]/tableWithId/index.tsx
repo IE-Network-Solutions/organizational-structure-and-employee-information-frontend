@@ -4,11 +4,10 @@ import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Avatar, Table, TableColumnsType, Tooltip, Space } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip, Space, Tag } from 'antd';
 import React from 'react';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useRouter } from 'next/navigation';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -16,6 +15,8 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
+import dayjs from 'dayjs';
+import IncentiveDetailModal from './components/IncentiveDetailModal';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -23,6 +24,8 @@ export type IncentiveTableDataParams = {
   criteria: React.ReactNode;
   bonus: React.ReactNode;
   status: React.ReactNode;
+  date_issued: React.ReactNode;
+  createdAt: string;
   id: string;
 };
 
@@ -33,12 +36,15 @@ interface IncentiveTableDetailsProps {
 const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   id,
 }) => {
-  const router = useRouter();
   const { mutate: deleteIncentive, isLoading: isDeleting } =
     useDeleteIncentive();
   const [deleteModalOpen, setDeleteModalOpen] = React.useState<
     Record<string, boolean>
   >({});
+  const [detailModalOpen, setDetailModalOpen] = React.useState(false);
+  const [selectedDetailId, setSelectedDetailId] = React.useState<string | null>(
+    null,
+  );
 
   const handleDeleteConfirm = (incentiveId: string) => {
     deleteIncentive(
@@ -60,33 +66,48 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       title: 'Recognition',
       dataIndex: 'recognition',
       sorter: (a, b) => a.recognition.localeCompare(b.recognition),
+      width: 260,
+      render: (recognition: string) => (
+        <span
+          data-cy="incentive-detail-table-recognition-value"
+          className="text-sm font-normal leading-normal text-black/70"
+        >
+          {recognition || '-'}
+        </span>
+      ),
     },
     {
-      title: 'Employees',
+      title: 'Employee',
       dataIndex: 'employee_name',
-      sorter: (a, b) =>
-        String(a.employee_name).localeCompare(String(b.employee_name)),
+      width: 200,
     },
     {
       title: 'Criteria',
       dataIndex: 'criteria',
-      sorter: (a, b) => String(a.criteria).localeCompare(String(b.criteria)),
+      width: 210,
     },
     {
       title: 'Bonus',
       dataIndex: 'bonus',
-      sorter: (a, b) => String(a.bonus).localeCompare(String(b.bonus)),
+      width: 110,
     },
     {
       title: 'Status',
       dataIndex: 'status',
-      sorter: (a, b) => String(a.status).localeCompare(String(b.status)),
+      width: 100,
     },
     {
-      title: 'Actions',
+      title: 'Date Issued',
+      dataIndex: 'date_issued',
+      width: 133,
+      sorter: (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    },
+    {
+      title: 'Action',
       key: 'actions',
       fixed: 'right' as const,
-      width: 100,
+      width: 80,
       render: (unused: any, record: any) => (
         <Space
           size="middle"
@@ -109,6 +130,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
               data-cy={`incentive-delete-modal-${record.id}`}
             >
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   setDeleteModalOpen((prev) => ({
@@ -116,11 +138,11 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
                     [record.id]: true,
                   }));
                 }}
-                className="bg-red-600 hover:bg-red-700 text-white rounded w-8 h-8 flex items-center justify-center"
+                className="bg-white hover:bg-gray-100 text-black border rounded-[4px] border-gray-300 w-7 h-7 flex items-center justify-center"
                 id={`incentive-detail-table-delete-button-${record.id}`}
                 data-cy={`incentive-detail-table-delete-button-${record.id}`}
               >
-                <DeleteOutlined className="text-white" />
+                <DeleteOutlined />
               </button>
             </DeleteConfirmationPopover>
           </AccessGuard>
@@ -190,51 +212,82 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
                 <div
                   id={`incentive-table-employee-wrapper-${item?.id}`}
                   data-cy={`incentive-table-employee-wrapper-${item?.id}`}
-                  className="flex flex-wrap items-center justify-start gap-3"
+                  className="flex items-center gap-2"
                 >
-                  <Avatar
-                    data-cy={`incentive-table-employee-avatar-${item?.id}`}
-                    icon={
-                      <UserOutlined
-                        id={`incentive-table-employee-avatar-icon-${item?.id}`}
-                        data-cy={`incentive-table-employee-avatar-icon-${item?.id}`}
-                      />
-                    }
-                  />
+                  {getEmployeeInformation(item?.userId)?.profileImage ? (
+                    <Avatar
+                      data-cy={`incentive-table-employee-avatar-${item?.id}`}
+                      src={getEmployeeInformation(item?.userId)?.profileImage}
+                      className="w-7 h-7 rounded-full object-cover"
+                    />
+                  ) : (
+                    <Avatar
+                      data-cy={`incentive-table-employee-avatar-${item?.id}`}
+                      icon={
+                        <UserOutlined
+                          id={`incentive-table-employee-avatar-icon-${item?.id}`}
+                          data-cy={`incentive-table-employee-avatar-icon-${item?.id}`}
+                        />
+                      }
+                      className="w-7 h-7 rounded-full object-cover"
+                    />
+                  )}
                   <span
                     id={`incentive-table-employee-name-${item?.id}`}
                     data-cy={`incentive-table-employee-name-${item?.id}`}
+                    className="text-sm font-normal leading-normal text-black/70"
                   >
                     {getEmployeeInformation(item?.userId)?.firstName +
                       '  ' +
-                      getEmployeeInformation(item?.userId)?.middleName}
+                      getEmployeeInformation(item?.userId)?.middleName || '-'}
                   </span>
                 </div>
               </Tooltip>
             ),
             role: getEmployeeInformation(item?.userId)?.role?.name,
-            criteria: item?.breakdown?.map((criterion, index) => (
-              <div
-                id={`incentive-table-criterion-wrapper-${item?.id}-${index}`}
-                data-cy={`incentive-table-criterion-wrapper-${item?.id}-${index}`}
-                className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
-                key={criterion?.criterionKey || index}
-              >
-                <span
-                  id={`incentive-table-criterion-${item?.id}-${index}`}
-                  data-cy={`incentive-table-criterion-${item?.id}-${index}`}
-                  className="inline-block flex-col flex-wrap space-x-1 space-y-1 rounded-xl bg-[#D3E4F0] text-[#1D9BF0] p-2 mx-1 my-1"
+            criteria:
+              item?.breakdown?.length > 0 ? (
+                <div
+                  className="flex items-center gap-2"
+                  id={`incentive-table-criterion-wrapper-${item?.id}`}
+                  data-cy={`incentive-table-criterion-wrapper-${item?.id}`}
                 >
-                  {criterion?.criterionKey}
+                  {item?.breakdown?.slice(0, 1).map((criterion, index) => (
+                    <span
+                      id={`incentive-table-criterion-${item?.id}-${index}`}
+                      data-cy={`incentive-table-criterion-${item?.id}-${index}`}
+                      className="whitespace-nowrap px-2 py-.5 bg-gray-100 rounded-[4px] border border-[#D1D5DB] text-sm font-normal text-black/70"
+                      key={criterion?.criterionKey || index}
+                    >
+                      {criterion?.criterionKey || '-'}
+                    </span>
+                  ))}
+                  {item?.breakdown?.length > 1 && (
+                    <span
+                      id={`incentive-table-criterion-more-${item?.id}`}
+                      data-cy={`incentive-table-criterion-more-${item?.id}`}
+                      className="whitespace-nowrap px-2 py-.5 bg-gray-100 rounded-[4px] border border-[#D1D5DB] text-sm font-normal text-black/70"
+                    >
+                      +{item?.breakdown?.length - 1}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span
+                  id={`incentive-table-criterion-empty-${item?.id}`}
+                  data-cy={`incentive-table-criterion-empty-${item?.id}`}
+                  className="text-sm font-normal leading-normal text-black/70"
+                >
+                  -
                 </span>
-              </div>
-            )),
+              ),
             bonus: (
               <div
                 id={`incentive-table-bonus-${item?.id}`}
                 data-cy={`incentive-table-bonus-${item?.id}`}
+                className="text-sm font-normal leading-normal text-black/70 whitespace-nowrap"
               >
-                {item?.amount} {''}ETB
+                {Number(item?.amount || 0).toLocaleString()} ETB
               </div>
             ),
             status: (
@@ -247,33 +300,35 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
                   <div
                     id={`incentive-table-status-paid-${item?.id}`}
                     data-cy={`incentive-table-status-paid-${item?.id}`}
-                    className="rounded-lg bg-[#55C79033] py-1 px-6"
                   >
-                    <span
+                    <Tag
                       id={`incentive-table-status-paid-text-${item?.id}`}
                       data-cy={`incentive-table-status-paid-text-${item?.id}`}
-                      className="text-[#0CAF60] font-semibold text-md"
+                      className="text-[#16A34A] text-sm font-normal rounded-[4px] border border-[#B8E6CB] bg-[#ECFDF3] px-1 py-0.5"
                     >
                       Paid
-                    </span>
+                    </Tag>
                   </div>
                 ) : (
                   <div
                     id={`incentive-table-status-not-paid-${item?.id}`}
                     data-cy={`incentive-table-status-not-paid-${item?.id}`}
-                    className="rounded-lg bg-[#FFEDEC] py-1 px-4"
                   >
-                    <span
+                    <Tag
                       id={`incentive-table-status-not-paid-text-${item?.id}`}
                       data-cy={`incentive-table-status-not-paid-text-${item?.id}`}
-                      className="text-[#E03137] font-semibold text-md"
+                      className="text-[#EF4444] text-sm font-normal rounded-[4px] border border-[#FECACA] bg-[#FEF2F2] px-2 py-0.5"
                     >
-                      Not Paid
-                    </span>
+                      Unpaid
+                    </Tag>
                   </div>
                 )}
               </div>
             ),
+            date_issued: item?.createdAt
+              ? dayjs(item?.createdAt).format('MMMM DD, YYYY')
+              : '-',
+            createdAt: item?.createdAt,
           };
         });
 
@@ -281,6 +336,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     <div
       id="incentive-table-after-generate-container"
       data-cy="incentive-table-after-generate-container"
+      className="overflow-x-auto scrollbar-hide"
     >
       <Table
         id="incentive-table-after-generate-table"
@@ -292,12 +348,17 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
         dataSource={IncentiveByRecognitionTypeTableData}
         pagination={false}
         loading={responseLoading}
-        scroll={{ x: 1100 }}
         onRow={(record) => ({
           onClick: () => {
-            router.push(`/incentives/detail/${record?.id}`);
+            setSelectedDetailId(record?.id);
+            setDetailModalOpen(true);
           },
         })}
+        rowHoverable={false}
+        rowClassName={(unusedRecord, rowIndex) => {
+          void unusedRecord;
+          return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
+        }}
       />
       {isMobile || isTablet ? (
         <CustomMobilePagination
@@ -317,6 +378,15 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
           onShowSizeChange={onPageChange}
         />
       )}
+
+      <IncentiveDetailModal
+        open={detailModalOpen}
+        onCancel={() => {
+          setDetailModalOpen(false);
+          setSelectedDetailId(null);
+        }}
+        detailId={selectedDetailId}
+      />
     </div>
   );
 };
