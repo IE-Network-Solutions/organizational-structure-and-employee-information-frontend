@@ -36,8 +36,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
   const activeEmployees = useMemo(() => {
     const items = employeeData?.items ?? [];
     return items.filter((user: any) => {
-      const deleted =
-        user?.deletedAt !== null && user?.deletedAt !== undefined;
+      const deleted = user?.deletedAt !== null && user?.deletedAt !== undefined;
       const inactive =
         user?.employee_status === 'inactive' ||
         user?.employee_status === 'terminated';
@@ -126,7 +125,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
       dataIndex: 'nameLabel',
       key: 'name',
       sorter: (a, b) => (a.nameLabel || '').localeCompare(b.nameLabel || ''),
-      render: (_nameLabel, record) => {
+      render: (nameLabel, record) => {
+        void nameLabel;
         return (
           <Tooltip
             title={record.nameLabel}
@@ -177,7 +177,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
     {
       title: 'Assigned average OKR rule',
       key: 'rule',
-      render: (_value, record) => {
+      render: (value, record) => {
+        void value;
         const rule = record.assignedRule as OkrRule | null;
         return (
           <span
@@ -192,7 +193,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_value, record) => {
+      render: (value, record) => {
+        void value;
         const rule = record.assignedRule as OkrRule | null;
         const hasRule = Boolean(rule?.id);
 
@@ -295,7 +297,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
             }}
             options={activeEmployees.map((list: any) => ({
               value: list?.id,
-              label: list.firstName + ' ' + list.middleName + ' ' + list.lastName,
+              label:
+                list.firstName + ' ' + list.middleName + ' ' + list.lastName,
             }))}
             loading={employeeDataLoading}
             id="okr-assign-average-okr-rule-user-filter"
@@ -334,7 +337,9 @@ const AssignAverageOkrRulePage: React.FC = () => {
         data-cy="okr-assign-average-okr-rule-table-wrapper"
       >
         <Table
-          loading={employeeDataLoading || userRuleQueries.some((q) => q.isLoading)}
+          loading={
+            employeeDataLoading || userRuleQueries.some((q) => q.isLoading)
+          }
           dataSource={dataSource}
           columns={columns}
           pagination={{
