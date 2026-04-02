@@ -1545,14 +1545,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                   index: number;
                 }) => (
                   <div
-                    className="flex gap-1"
                     key={`recognition-criteria-${criteria.criterionKey}-${index}`}
+                    className="mb-2 w-full"
                     data-cy={`create-recognition-form-criteria-item-${index}`}
                     id={`createRecognitionFormCriteriaItem${index}`}
                   >
+                    <div className="w-full max-w-full overflow-x-auto scrollbar-none">
+                      <div className="mx-auto flex w-max flex-nowrap items-end justify-center gap-2">
                     {selectedRecognitionType !== '' && (
                       <Form.Item
-                        className="w-1/2 text-xs text-gray-950"
+                        className="text-xs text-gray-950"
                         name={['recognitionCriteria', index, 'id']}
                         initialValue={criteria.id}
                         hidden
@@ -1561,7 +1563,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                       ></Form.Item>
                     )}
                     <Form.Item
-                      className="w-1/2 text-xs text-gray-950"
+                      className="text-xs text-gray-950"
                       name={['recognitionCriteria', index, 'criteriaId']}
                       initialValue={
                         criteria.criteriaId ?? criteria.criteria?.id
@@ -1572,7 +1574,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     ></Form.Item>
                     <Form.Item
                       labelAlign="left"
-                      className="w-1/2 text-xs text-gray-950"
+                      className="min-w-[11rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                       label={getLabel('Criteria')}
                       name={['recognitionCriteria', index, 'criterionKey']}
                       initialValue={criteria.criterionKey}
@@ -1587,7 +1589,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                       id={`createRecognitionFormCriteriaKeyField${index}`}
                     >
                       <Input
-                        className={commonClass}
+                        className={`${commonClass} w-full min-w-0`}
                         disabled
                         data-cy={`create-recognition-form-criteria-key-input-${index}`}
                         id={`createRecognitionFormCriteriaKeyInput${index}`}
@@ -1595,7 +1597,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     </Form.Item>
 
                     <Form.Item
-                      className="w-1/2 text-xs text-gray-950"
+                      className="min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                       label={getLabel('Weight')}
                       name={['recognitionCriteria', index, 'weight']}
                       initialValue={criteria.weight}
@@ -1623,6 +1625,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                         max={1} // Browser-level constraint
                         step={0.01}
                         placeholder="Enter weight (0.1-1)"
+                        className={`${commonClass} w-full min-w-0`}
                         onChange={(e) => {
                           const value = parseFloat(e.target.value || '0');
                           handleWeightChange(index, value);
@@ -1633,7 +1636,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     </Form.Item>
 
                     <Form.Item
-                      className="w-1/2 text-xs text-gray-950"
+                      className="min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                       label={getLabel('Operator')}
                       name={['recognitionCriteria', index, 'operator']}
                       initialValue={criteria.operator}
@@ -1645,7 +1648,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     >
                       <Select
                         placeholder="Select operator"
-                        className={commonClass}
+                        className={`${commonClass} w-full min-w-0`}
                         onChange={(value) => {
                           const updated = [...selectedCriteria];
                           updated[index].operator = value;
@@ -1671,7 +1674,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     </Form.Item>
 
                     <Form.Item
-                      className="w-1/2 text-xs text-gray-950"
+                      className="min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                       label={getLabel('Condition')}
                       name={['recognitionCriteria', index, 'condition']}
                       initialValue={criteria.condition}
@@ -1683,7 +1686,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     >
                       <Select
                         placeholder="Select condition"
-                        className={commonClass}
+                        className={`${commonClass} w-full min-w-0`}
                         onChange={(value) => {
                           const updated = [...selectedCriteria];
                           updated[index].condition = value;
@@ -1709,7 +1712,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                     </Form.Item>
 
                     <Form.Item
-                      className="w-1/2 text-xs text-gray-950"
+                      className="min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                       label={getLabel('Value')}
                       name={['recognitionCriteria', index, 'value']}
                       initialValue={criteria.value}
@@ -1722,7 +1725,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                       <Input
                         type="number"
                         placeholder="Enter value"
-                        className={commonClass}
+                        className={`${commonClass} w-full min-w-0`}
                         data-cy={`create-recognition-form-criteria-value-input-${index}`}
                         id={`createRecognitionFormCriteriaValueInput${index}`}
                       />
@@ -1748,11 +1751,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                             recognitionCriteria: updatedCriteria,
                           });
                         }}
-                        className="cursor-pointer"
+                        className="mb-2 shrink-0 cursor-pointer self-end"
                         data-cy={`create-recognition-form-criteria-remove-${index}`}
                         id={`createRecognitionFormCriteriaRemove${index}`}
                       />
                     )}
+                      </div>
+                    </div>
                   </div>
                 ),
               )}
