@@ -570,7 +570,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                       mode="multiple"
                       placeholder="Select"
                       showSearch
-                      className="add-feedback-cc-trigger add-feedback-field-select w-full"
+                      className="add-feedback-field-select add-feedback-cc-trigger w-full"
                       data-cy="feedback-feedback-components-createfeedback-select-cc"
                       optionFilterProp="label"
                       filterOption={(input: string, option: any) => {
@@ -740,6 +740,12 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         .add-feedback-modal .add-feedback-field-select .ant-select-arrow {
           color: rgba(0, 0, 0, 0.25) !important;
           font-size: 12px !important;
+          top: 50% !important;
+          transform: translateY(-50%) !important;
+          margin-top: 4px !important;
+        }
+        .add-feedback-modal .add-feedback-cc-trigger .ant-select-arrow {
+          margin-top: 0 !important;
         }
         .add-feedback-modal .add-feedback-field-textarea textarea.ant-input {
           box-sizing: border-box !important;
@@ -786,6 +792,16 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
         .add-feedback-cc-trigger.ant-select-multiple .ant-select-selector {
           height: 40px !important;
           min-height: 40px !important;
+        }
+        .add-feedback-modal .add-feedback-cc-trigger
+          .ant-select-selection-placeholder {
+          display: flex !important;
+          align-items: center !important;
+          margin-left: -8px !important;
+          margin-top: 4px !important;
+          height: 100% !important;
+          /* Keep horizontal padding/positioning from the shared selector rules */
+          line-height: 24px !important;
         }
       `}</style>
     </>
