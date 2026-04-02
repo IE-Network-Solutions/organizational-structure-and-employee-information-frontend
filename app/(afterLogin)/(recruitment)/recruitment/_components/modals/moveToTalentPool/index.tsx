@@ -167,30 +167,55 @@ const MoveToTalentPool: React.FC = () => {
                   },
                 ]}
               >
-                <Select
-                  id="talent-acquisition-move-talent-pool-select-candidates"
-                  data-cy="talent-acquisition-move-talent-pool-select-candidates"
-                  mode="multiple"
-                  size="large"
-                  className="w-full"
-                  placeholder="select candidate"
-                  popupClassName="org-structure-branch-select-dropdown"
-                  value={(Array.isArray(selectedCandidate)
-                    ? selectedCandidate
-                    : []
-                  ).map((item: any) => item.id)}
-                  onChange={handleChange}
-                  tagRender={({ label, closable, onClose }) => (
-                    <span
-                      id="talent-acquisition-move-talent-pool-div-candidate-option"
-                      data-cy="talent-acquisition-move-talent-pool-div-candidate-option"
-                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-gray-100 border border-gray-200 text-sm text-gray-800 mr-1 mb-1"
+                <div
+                  className="move-talent-pool-candidate-field"
+                  data-cy="talent-acquisition-move-talent-pool-candidate-field"
+                >
+                  <div
+                    className="relative w-full"
+                    data-cy="talent-acquisition-move-talent-pool-candidate-select-wrap"
+                  >
+                    <Select
+                      id="talent-acquisition-move-talent-pool-select-candidates"
+                      data-cy="talent-acquisition-move-talent-pool-select-candidates"
+                      mode="multiple"
+                      size="large"
+                      className="w-full always-show-placeholder"
+                      placeholder=""
+                      popupClassName="org-structure-branch-select-dropdown"
+                      loading={isCandidatesLoading}
+                      value={selectedCandidate.map((item: any) => item.id)}
+                      showSearch
+                      optionFilterProp="label"
+                      maxTagCount={0}
+                      maxTagPlaceholder={() => null}
+                      onChange={handleChange}
+                      onOpenChange={setCandidateSelectOpen}
+                      onFocus={() => setCandidateSelectFocused(true)}
+                      onBlur={() => setCandidateSelectFocused(false)}
                     >
+                      {candidateOptionsSource.map((item: any) => {
+                        const label =
+                          candidateDisplayName(item) || candidateIdKey(item.id);
+                        return (
+                          <Option
+                            key={candidateIdKey(item.id)}
+                            value={item.id}
+                            label={label}
+                            id={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
+                            data-cy={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
+                          >
+                            {label}
+                          </Option>
+                        );
+                      })}
+                    </Select>
+                    {!candidateSelectOpen && !candidateSelectFocused ? (
                       <span
                         data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188"
                         id="talent-acquisition-move-talent-pool-div-candidate-info"
                       >
-                        {label}
+                        Select candidate
                       </span>
                       {closable && (
                         <CloseOutlined

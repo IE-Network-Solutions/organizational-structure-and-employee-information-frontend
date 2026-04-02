@@ -445,15 +445,21 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                     },
                   ]}
                 >
-                  <InputNumber
-                    id="talent-acquisition-job-create-candidate-input-cgpa"
-                    data-cy="talent-acquisition-job-create-candidate-input-cgpa"
-                    min={0}
-                    max={4}
-                    step={0.01}
-                    className="text-sm w-full h-10"
-                    placeholder="CGPA"
-                  />
+                  <div
+                    data-cy="talent-acquisition-job-create-candidate-input-cgpa-contanier"
+                    className="relative h-10 w-full flex items-center"
+                  >
+                    <InputNumber
+                      id="talent-acquisition-job-create-candidate-input-cgpa"
+                      data-cy="talent-acquisition-job-create-candidate-input-cgpa"
+                      min={0}
+                      max={4}
+                      step={0.01}
+                      controls={false}
+                      className="text-sm w-full h-10 flex items-center" // preserve h-9, add flex alignment (redundancy okay for InputNumber container fix)
+                      placeholder="0"
+                    />
+                  </div>
                 </Form.Item>
                 <div
                   data-cy="-id-components-createcandidate-index-tsx-index-div-311"

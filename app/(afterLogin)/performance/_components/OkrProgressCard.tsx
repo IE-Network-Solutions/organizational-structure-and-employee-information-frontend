@@ -282,10 +282,13 @@ export default function OkrProgressCard({
             loading={departmentsLoading}
             placeholder="Department"
             value={selectedDepartmentId}
-            optionFilterProp="label"
             onChange={(value) => setSelectedDepartmentId(value)}
             className="md:w-[168px] w-full text-xs"
-            popupMatchSelectWidth={false}
+            style={{
+              backgroundColor: selectedDepartmentId ? '#E6F4FF' : 'transparent',
+            }}
+            popupClassName="[&_.ant-select-item-option-selected:not(.ant-select-item-option-disabled)]:!bg-[#E6F4FF]"
+            // popupMatchSelectWidth={false}
             data-cy="performance-okr-progress-select-department"
             options={filteredDepartmentsList.map(
               (dept: { id: string; name: string }) => ({
@@ -335,7 +338,9 @@ export default function OkrProgressCard({
                         <span className="font-medium text-gray-800">
                           {dept.name}
                         </span>
-                        <span className="text-gray-600">{dept.percent}%</span>
+                        <span className="text-black font-bold">
+                          {dept.percent}%
+                        </span>
                       </div>
                       {/* <div className="h-2 overflow-hidden rounded-full bg-gray-100"> */}
                       <div className="w-full h-3">

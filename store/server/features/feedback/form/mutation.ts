@@ -5,6 +5,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Form } from './interface';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
+import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
+import { isCategoryFormsListQueryKey } from '@/store/server/features/feedback/form/queries';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 /**
@@ -77,8 +79,23 @@ export const useAddForm = () => {
   const queryClient = useQueryClient();
   return useMutation(addForm, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('forms');
+    onSuccess: async (_data, variables: any) => {
+      const catId =
+        variables?.formCategoryId != null
+          ? String(variables.formCategoryId)
+          : '';
+      try {
+        await queryClient.refetchQueries({
+          predicate: (q) =>
+            catId
+              ? isCategoryFormsListQueryKey(q.queryKey, catId)
+              : Array.isArray(q.queryKey) &&
+                q.queryKey.length === 7 &&
+                q.queryKey[0] === 'forms',
+        });
+      } finally {
+        CategoriesManagementStore.getState().bumpCategoryFormsList();
+      }
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

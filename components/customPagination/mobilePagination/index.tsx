@@ -19,6 +19,7 @@ interface CustomPaginationProps {
   stackPagerAndGoTo?: boolean;
   id?: string;
   'data-cy'?: string;
+  className?: string;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
@@ -31,6 +32,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   stackPagerAndGoTo = false,
   id,
   'data-cy': dataCy,
+  className,
 }) => {
   const { currentPage: globalCurrentPage, setCurrentPage } =
     usePaginationStore();

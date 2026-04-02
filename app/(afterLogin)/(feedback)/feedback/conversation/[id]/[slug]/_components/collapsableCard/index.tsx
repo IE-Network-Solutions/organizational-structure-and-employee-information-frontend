@@ -86,7 +86,7 @@ const CollapsibleCardList: React.FC<PropsData> = ({
                     >
                       {question?.responseData?.response?.map(
                         (response: any, idx: number) => (
-                          <Tag key={idx} color="blue">
+                          <Tag key={idx} color="#1E40AF">
                             {response?.value}
                           </Tag>
                         ),

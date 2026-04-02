@@ -187,8 +187,8 @@ const EditCandidate: React.FC = () => {
       open={editCandidateModal}
       onCancel={() => setEditCandidateModal(false)}
       footer={null}
-      width={630}
-      className="ta-candidate-modal"
+      width={809}
+      // className="ta-candidate-modal"
       title={
         <div
           id="talent-acquisition-edit-candidate-div-header"
@@ -438,15 +438,21 @@ const EditCandidate: React.FC = () => {
                   }
                   rules={[{ required: true, message: 'Please input CGPA' }]}
                 >
-                  <InputNumber
-                    id="talent-acquisition-edit-candidate-input-cgpa"
-                    data-cy="talent-acquisition-edit-candidate-input-cgpa"
-                    min={0}
-                    max={4}
-                    step={0.01}
-                    className="text-sm w-full h-10"
-                    placeholder="CGPA"
-                  />
+                  <div
+                    data-cy="talent-acquisition-job-edit-candidate-input-cgpa-container"
+                    className="relative h-10 w-full flex items-center"
+                  >
+                    <InputNumber
+                      id="talent-acquisition-job-edit-candidate-input-cgpa"
+                      data-cy="talent-acquisition-job-edit-candidate-input-cgpa"
+                      min={0}
+                      max={4}
+                      step={0.01}
+                      controls={false}
+                      className="text-sm w-full h-10 flex items-center" // preserve h-9, add flex alignment (redundancy okay for InputNumber container fix)
+                      placeholder="0"
+                    />
+                  </div>
                 </Form.Item>
                 <div
                   id="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"

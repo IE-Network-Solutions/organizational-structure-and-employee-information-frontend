@@ -15,6 +15,7 @@ import {
   MdWidgets,
   MdHowToReg,
   MdAdminPanelSettings,
+  MdSpeed,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -30,6 +31,16 @@ import { removeCookie } from '@/helpers/storageHelper';
 const isRouteMatch = (routePattern: string, pathname: string) => {
   // Exact match
   if (routePattern === pathname) return true;
+
+  // Conversation: surveys and category list live under /feedback/categories — keep nav item active
+  if (routePattern === '/feedback/conversation') {
+    if (
+      pathname === '/feedback/categories' ||
+      pathname.startsWith('/feedback/categories/')
+    ) {
+      return true;
+    }
+  }
 
   // Match [id] to UUIDs (or any non-slash segment)
   if (routePattern.includes('[id]')) {
@@ -521,6 +532,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
+        icon: <MdSpeed style={{ fontSize: 20 }} />,
+        title: 'Dashboard',
+        key: '/performance-menu',
+        className: 'font-bold',
+        permissions: ['view_okr'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
+      },
+      {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
         title: 'OKR',
         key: '/okr-menu',
@@ -1001,12 +1021,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         if (item.children) {
           const matchesChild = item.children.some((child) => {
             const childKey = String(child.key);
-            return (
-              pathname === childKey ||
-              pathname.startsWith(childKey + '/') ||
-              (childKey.includes('[id]') &&
-                pathname.match(new RegExp(childKey.replace('[id]', '[^/]+'))))
-            );
+            return isRouteMatch(childKey, pathname);
           });
 
           if (matchesChild) {
@@ -1302,6 +1317,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 { key: 'skeleton-performance-item-1' },
                 { key: 'skeleton-performance-item-2' },
                 { key: 'skeleton-performance-item-3' },
+                { key: 'skeleton-performance-item-4' },
               ],
             },
             {
