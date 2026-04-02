@@ -44,8 +44,17 @@ interface PublicQuestionProps {
 function FloatingBranding() {
   return (
     <>
+      <style data-cy="public-survey-icon-size-styles">{`
+        [data-cy="public-survey-page"] svg,
+        [data-cy="public-survey-page-loading"] svg,
+        [data-cy="public-survey-page-error"] svg {
+          width: 24px !important;
+          height: 24px !important;
+          flex: 0 0 auto;
+        }
+      `}</style>
       <div
-        className="pointer-events-none fixed left-4 top-4 z-[9999] sm:left-6 sm:top-6 lg:left-8"
+        className="pointer-events-none relative z-[9999] ml-4 mt-4 sm:fixed sm:ml-0 sm:mt-0 sm:left-6 sm:top-6 lg:left-8"
         data-cy="public-survey-page-logo-wrap"
       >
         <img
@@ -56,23 +65,58 @@ function FloatingBranding() {
         />
       </div>
 
+      {/* Desktop: keep the full promo card fixed. */}
       <a
         href="https://selamnew.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="group fixed bottom-4 right-4 z-40 w-[min(92vw,320px)] rounded-xl border border-slate-200 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.16)] sm:bottom-6 sm:right-6 sm:p-3.5"
+        className="group hidden sm:block fixed bottom-4 right-4 z-40 w-[min(92vw,320px)] rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_12px_28px_rgba(15,23,42,0.16)] sm:bottom-6 sm:right-6"
         data-cy="public-survey-promo-card"
       >
         <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
           Powered by Selamnew
         </p>
-        <p className="mt-1 text-sm font-semibold leading-snug text-slate-900">
+        <p className="mt-1 text-sm font-normal leading-snug text-slate-900">
           Run your team faster with one modern HR workspace.
         </p>
         <div className="mt-2 inline-flex items-center rounded-lg bg-[#1E40AF] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(30,64,175,0.28)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:shadow-[0_12px_22px_rgba(30,64,175,0.36)]">
           Explore Selamnew Workspace
         </div>
       </a>
+
+      {/* Mobile: non-expandable full-width promo bar */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-40 sm:hidden pointer-events-none"
+        data-cy="public-survey-promo-mobile"
+      >
+        <a
+          href="https://selamnew.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="pointer-events-auto block w-full border-t border-slate-200 bg-white"
+        >
+          <div className="px-4 py-3">
+            <div className="min-w-0">
+              <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                Powered by Selamnew
+              </div>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <p className="min-w-0 flex-1 text-sm font-semibold leading-snug text-slate-900">
+                Run your team faster with one modern HR workspace.
+              </p>
+
+              <span
+                className="shrink-0 inline-flex items-center justify-center rounded-lg bg-[#1E40AF] px-4 py-2 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(30,64,175,0.28)] transition-all duration-200 hover:-translate-y-0.5"
+                data-cy="public-survey-promo-mobile-explore"
+              >
+                Explore
+              </span>
+            </div>
+          </div>
+        </a>
+      </div>
     </>
   );
 }
@@ -304,7 +348,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
       data-cy="public-survey-page"
     >
       <FloatingBranding />
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-10 lg:py-12">
+      <main className="mx-auto max-w-4xl px-4 pt-8 pb-28 sm:px-6 sm:pt-10 sm:pb-10 lg:pt-12 lg:pb-12">
         <section
           className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
           data-cy="public-survey-header-card"
