@@ -395,7 +395,6 @@ const ApprovalWorkFlowModal = ({
       destroyOnClose
       styles={{ body: { paddingTop: 8, paddingLeft: 0, paddingRight: 0 } }}
       zIndex={10002}
-      centered
     >
       <div className="mb-8" data-cy="approval-work-flow-steps-container">
         <ApprovalWorkflowSteps current={current} />

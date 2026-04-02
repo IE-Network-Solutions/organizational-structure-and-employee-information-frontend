@@ -39,7 +39,7 @@ const ClosedDateSidebar = () => {
     {
       label: 'Cancel',
       key: 'cancel',
-      className: 'h-[32px] text-sm border-1 border-[#D9D9D9] text-[#4d4d4d]',
+      className: 'h-[40px] text-sm border-1 border-[#D9D9D9] text-[#4d4d4d]',
       size: 'large',
       onClick: () => {
         (setIsShow(false), form.resetFields());
@@ -50,7 +50,7 @@ const ClosedDateSidebar = () => {
     {
       label: selectedClosedDate ? 'Edit' : 'Create',
       key: 'add',
-      className: 'h-[32px] text-sm',
+      className: 'h-[40px] text-sm',
       size: 'large',
       type: 'primary',
       loading: isLoading,
@@ -175,7 +175,6 @@ const ClosedDateSidebar = () => {
           </div>
         }
         data-cy="time-attendance-settings-closed-date-sidebar"
-        centered
       >
         <Form
           layout="vertical"

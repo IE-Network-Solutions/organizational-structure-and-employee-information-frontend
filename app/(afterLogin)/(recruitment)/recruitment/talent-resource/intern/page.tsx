@@ -26,6 +26,7 @@ const InternPage = () => {
     <div
       id="talent-acquisition-intern-page-div-container"
       data-cy="talent-acquisition-intern-page-div-container"
+      className="h-auto w-full bg-white"
     >
       <div
         id="talent-acquisition-intern-page-div-content"

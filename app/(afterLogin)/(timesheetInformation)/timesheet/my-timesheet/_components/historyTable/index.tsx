@@ -361,7 +361,10 @@ const HistoryTable = () => {
             data-cy="time-attendance-history-table-pagination-wrapper"
           >
             {isMobile || isTablet ? (
-              <div className="[&>div]:border-0 [&>div]:bg-transparent [&>div]:px-0 [&>div]:py-0">
+              <div
+                className="[&>div]:border-0 [&>div]:bg-transparent [&>div]:px-0 [&>div]:py-0"
+                data-cy="time-attendance-history-table-mobile-pagination-shell"
+              >
                 <CustomMobilePagination
                   currentPage={page}
                   totalResults={data?.meta?.totalItems ?? 0}
