@@ -352,6 +352,23 @@ const RecognitionForm: React.FC<PropsData> = ({
     });
   };
 
+  const handleRemoveSelectedCriterion = (criterionIdToRemove: string) => {
+    const idToRemoveStr = String(criterionIdToRemove);
+
+    // If the user is editing one of the chips, reset edit mode on removal
+    if (String(editingCriteriaId) === idToRemoveStr) {
+      handleCancelEdit();
+    }
+
+    const updatedIds = selectedCriteria
+      .filter(
+        (item: any) => String(item?.criteriaId ?? item?.id) !== idToRemoveStr,
+      )
+      .map((item: any) => String(item?.criteriaId ?? item?.id));
+
+    handleCriteriaChange(updatedIds as any);
+  };
+
   const handleWeightChange = (index: number, newWeight: number) => {
     const clampedWeight = Math.min(Math.max(newWeight, 0), 1); // Clamp the value between 0 and 1
     const updatedCriteria = [...selectedCriteria];
@@ -1078,13 +1095,20 @@ const RecognitionForm: React.FC<PropsData> = ({
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* Make multi-select tags area scrollable (step 2) – about 1.5 lines */
+    /* Multi-select tags are hidden (maxTagCount=0), so keep selector height natural */
     .create-recognition-criteria-select-scroll .ant-select-selector {
-      max-height: 50px;
-      overflow-y: auto;
+      max-height: none;
+      overflow-y: visible;
     }
-    .create-recognition-criteria-select-scroll .ant-select-selector::-webkit-scrollbar { display: none; }
-    .create-recognition-criteria-select-scroll .ant-select-selector { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Keep the Select control visually empty: hide tags/count, always show placeholder */
+    .create-recognition-criteria-select-scroll .ant-select-selection-item,
+    .create-recognition-criteria-select-scroll .ant-select-selection-overflow {
+      display: none !important;
+    }
+    .create-recognition-criteria-select-scroll .ant-select-selection-placeholder {
+      display: block !important;
+      opacity: 1 !important;
+    }
     .create-recognition-criteria-dropdown .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
       background: #e6f4ff !important;
     }
@@ -1128,12 +1152,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                 ? 583
                 : showFormulaStep && currentStep === 2
                   ? 640
-                  : 457,
+                  : currentStep === 1
+                    ? 583
+                    : 457,
             overflowY: isMobileViewport
               ? 'auto'
               : showFormulaStep && currentStep === 2
                 ? 'auto'
-                : 'hidden',
+                : currentStep === 1
+                  ? 'auto'
+                  : 'hidden',
           },
           content: {
             borderRadius: 12,
@@ -1284,6 +1312,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                 <Select
                   mode="multiple"
                   placeholder="Select criteria"
+                  maxTagCount={0}
                   className="text-xs text-gray-950 create-recognition-criteria-select-scroll"
                   popupClassName="create-recognition-criteria-dropdown"
                   onChange={(vals) => handleCriteriaChange(vals as any)}
@@ -1403,6 +1432,45 @@ const RecognitionForm: React.FC<PropsData> = ({
                   ))}
                 </Select>
               </Form.Item>
+              {selectedCriteria?.length > 0 && (
+                <div
+                  className="my-2  rounded-md p-2 max-h-[60px] overflow-y-auto scrollbar-none flex flex-wrap gap-2"
+                  data-cy="create-recognition-selected-criteria"
+                  id="createRecognitionSelectedCriteria"
+                >
+                  {selectedCriteria.map((item: any) => (
+                    <div
+                      key={String(
+                        item?.criteriaId ?? item?.id ?? item?.criterionKey,
+                      )}
+                      className="flex items-center gap-2 bg-gray-50 border border-[#D9D9D9] rounded-md px-2 py-1 max-w-full"
+                      id={`createRecognitionSelectedCriteriaItem-${String(
+                        item?.criteriaId ?? item?.id,
+                      )}`}
+                    >
+                      <span className="text-xs text-gray-950 font-semibold truncate">
+                        {item?.criterionKey}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveSelectedCriterion(
+                            String(item?.criteriaId ?? item?.id),
+                          );
+                        }}
+                        className="text-gray-500 hover:text-gray-800"
+                        aria-label="Remove criterion"
+                        data-cy={`create-recognition-remove-criteria-${String(
+                          item?.criteriaId ?? item?.id,
+                        )}`}
+                      >
+                        <CloseOutlined className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <div
@@ -2265,7 +2333,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                                         'operand',
                                       )
                                     }
-                                    className="  border-[1px] border-[#D9D9D9] hover:border-primary text-sm font-normal m-1 rounded-lg"
+                                    className={`${option.name === 'Clear' ? 'border-none' : 'border-[1px] border-[#D9D9D9] hover:border-primary'} text-sm font-normal m-1 rounded-lg`}
                                     data-cy={`create-recognition-formula-op-${option.name}`}
                                   >
                                     {option.name}
