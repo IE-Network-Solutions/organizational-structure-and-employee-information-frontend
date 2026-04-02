@@ -1113,12 +1113,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, []);
 
   const toggleCollapsed = () => {
+    // On mobile the sidebar behaves like an off-canvas drawer.
+    // We never want the "mini collapsed" (80px) variant there.
+    if (isMobile) {
+      setMobileCollapsed((v) => !v);
+      setCollapsed(false);
+      return;
+    }
     setCollapsed(!collapsed);
   };
 
   const toggleMobileCollapsed = () => {
     setMobileCollapsed(!mobileCollapsed);
   };
+
+  useEffect(() => {
+    // Ensure we never show the mini-collapsed sidebar on mobile.
+    if (isMobile && collapsed) {
+      setCollapsed(false);
+    }
+  }, [collapsed, isMobile]);
 
   const handleLogout = async () => {
     try {
@@ -1416,18 +1430,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 100,
+          // On mobile, the drawer overlays the whole viewport above header.
+          zIndex: isMobile ? 300 : 100,
           backgroundColor: '#F5fbff',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
         trigger={null}
         collapsible
-        collapsed={collapsed}
+        collapsed={isMobile ? false : collapsed}
         breakpoint="md"
         onBreakpoint={(broken) => {
           setIsMobile(broken);
           if (broken) {
+            setCollapsed(false);
             setMobileCollapsed(true);
           }
         }}
@@ -1451,7 +1467,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   className="w-full flex justify-center"
                 >
                   <Image
-                    src="/image/selamnew-workspace-logo.svg"
+                    src="/image/selamnew-workspace-logo-collapsed.svg"
                     alt="SelamNew Workspace Logo"
                     width={32}
                     height={32}
@@ -1470,18 +1486,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           </div>
 
-          <button
-            data-cy="nav-sider-toggle"
-            onClick={toggleCollapsed}
-            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
-            style={{ zIndex: 101, backgroundColor: colorPrimary }}
-          >
-            {collapsed ? (
-              <AiOutlineRight size={12} />
-            ) : (
-              <AiOutlineRight size={12} className="rotate-180" />
-            )}
-          </button>
+          {!isMobile && (
+            <button
+              data-cy="nav-sider-toggle"
+              onClick={toggleCollapsed}
+              className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
+              style={{ zIndex: 101, backgroundColor: colorPrimary }}
+            >
+              {collapsed ? (
+                <AiOutlineRight size={12} />
+              ) : (
+                <AiOutlineRight size={12} className="rotate-180" />
+              )}
+            </button>
+          )}
 
           <div
             data-cy="nav-sider-menu-scroll"
@@ -1509,7 +1527,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-skeleton"
-                          className="w-full font-light text-[#64748B] tracking-wide"
+                          className={`w-full font-light text-[#64748B] tracking-wide ${
+                            collapsed ? 'text-center truncate' : ''
+                          }`}
                           style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
@@ -1557,7 +1577,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         <div
                           data-cy="nav-sider-group-label-wrap"
                           className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
-                            collapsed ? 'hidden' : ''
+                            collapsed ? 'text-center truncate' : ''
                           }`}
                           style={{ fontSize: fontSizeSM }}
                         >
@@ -1649,41 +1669,53 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 : 'calc(100% - 280px)',
             zIndex: 40,
             top: 0,
-            left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
+            left: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'left 0.3s ease, width 0.3s ease',
             height: '74px',
             borderBottom: '1px solid #F1F5F9',
             boxShadow: 'none',
           }}
         >
-          {isMobile && (
+          {isMobile && mobileCollapsed && (
             <div
               data-cy="nav-header-mobile-toggle-wrap"
-              className="p-[10px] flex justify-center items-center"
+              className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
             >
               <Button
                 data-cy="nav-header-mobile-toggle"
-                className="w-full h-full"
+                type="text"
+                aria-label="Open menu"
+                className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
                 onClick={toggleMobileCollapsed}
-                icon={
-                  !mobileCollapsed ? (
-                    <IoCloseOutline
-                      size={24}
-                      className="text-gray-500 border-none"
-                    />
-                  ) : (
-                    <MenuOutlined
-                      size={24}
-                      className="text-gray-500 border-none"
-                    />
-                  )
-                }
+                icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
               />
             </div>
           )}
 
           <NavBar handleLogout={handleLogout} />
         </Header>
+
+        {/* Mobile drawer close button: on the right edge of the drawer, aligned with header */}
+        {isMobile && !mobileCollapsed && (
+          <button
+            data-cy="nav-mobile-drawer-close"
+            onClick={toggleMobileCollapsed}
+            className="fixed flex items-center justify-center rounded-full text-white shadow-md transition-all hover:opacity-90"
+            style={{
+              zIndex: 320,
+              top: 30,
+              // Position the close button outside the right edge of the 280px drawer.
+              left: 302,
+              width: 32,
+              height: 32,
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: colorPrimary,
+            }}
+            aria-label="Close menu"
+          >
+            <IoCloseOutline size={20} />
+          </button>
+        )}
         <Content
           className="overflow-y-hidden min-h-screen"
           style={{
