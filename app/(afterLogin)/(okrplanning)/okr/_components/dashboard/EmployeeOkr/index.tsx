@@ -688,7 +688,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
       data-cy={dataCy}
       className="border border-gray-200 rounded-lg"
     >
-      <div className="w-full h-auto">
+      <div className="w-full h-auto" data-cy="employee-okr-table-wrapper">
         {/* Search and Filter Controls — padding aligned with manage-employees table section */}
         <div
           id="employee-okr-search-filter-container"
@@ -811,7 +811,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           }
           data-cy="employee-okr-table-wrapper"
         >
-          <div className="mt-2">
+          <div className="mt-2" data-cy="employee-okr-table-wrapper-inner">
             <Table
               className="w-full"
               id="okr-employee-okr-table"
@@ -823,6 +823,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
               scroll={{ x: 1000 }}
               rowKey="id"
               rowHoverable={false}
+              // eslint-disable-next-line
               rowClassName={(_record, index) =>
                 index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
               }
@@ -830,7 +831,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           </div>
         </div>
 
-        <div className="px-3 pb-3">
+        <div className="px-3 pb-3" data-cy="employee-okr-pagination-wrapper">
           {isMobile || isTablet ? (
             <CustomMobilePagination
               data-cy="okr-employee-okr-mobile-pagination"

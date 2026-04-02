@@ -228,7 +228,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             overlayClassName="okr-actions-dropdown"
                             data-cy={`okr-objective-menu-dropdown-mobile-${objective?.id}`}
                           >
-                            <span className="inline-flex h-8 max-h-8 items-center leading-none sm:hidden">
+                            <span
+                              className="inline-flex h-8 max-h-8 items-center leading-none sm:hidden"
+                              data-cy={`okr-objective-menu-trigger-mobile-${objective?.id}`}
+                            >
                               <button
                                 type="button"
                                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-200 p-1 text-gray-400 hover:text-gray-600"
@@ -252,7 +255,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             overlayClassName="okr-actions-dropdown"
                             data-cy={`okr-objective-menu-dropdown-desktop-${objective?.id}`}
                           >
-                            <span className="hidden h-8 max-h-8 items-center leading-none sm:inline-flex sm:-translate-y-4">
+                            <span
+                              className="hidden h-8 max-h-8 items-center leading-none sm:inline-flex sm:-translate-y-4"
+                              data-cy={`okr-objective-menu-trigger-desktop-${objective?.id}`}
+                            >
                               <button
                                 type="button"
                                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-200 p-1 text-gray-400 hover:text-gray-600"
