@@ -35,6 +35,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   'data-cy': dataCy,
   className,
   grayBackground = false,
+  // hidePageSizeSelect = false,
   showPageSizeChanger = true,
   goToOnRight = false,
   goToInputPlaceholder,
@@ -253,7 +254,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         )}
       </div>
 
-      {/* Info and Page Size Selector */}
+      {/* Info and Page Size Selector (or Go to page when hidePageSizeSelect) */}
       <div
         className={`flex items-center ${
           isMobile ? 'justify-between order-2' : 'justify-end'

@@ -1,885 +1,604 @@
 'use client';
 
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
-  Upload,
+  Button,
   Form,
   Input,
+  Modal,
   Select,
   Skeleton,
+  Upload,
   notification,
-  Button,
 } from 'antd';
-import { countries } from '@/utils/countries';
-import { useEffect } from 'react';
-import { useGetClientById } from '@/store/server/features/tenant-management/clients/queries';
-import { useUpdateClient } from '@/store/server/features/tenant-management/clients/mutation';
-import { DEFAULT_TENANT_ID } from '@/utils/constants';
-import type { UpdateClientDto } from '@/store/server/features/tenant-management/clients/mutation';
-import { useUpdateCompanyProfileWithStamp } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import type { UploadFile } from 'antd/es/upload/interface';
-import { useCompanyProfile } from '@/store/uistate/features/organizationStructure/companyProfile/useStore';
+import { CheckOutlined, CloseOutlined, InboxOutlined } from '@ant-design/icons';
+import { MdOutlineModeEditOutline } from 'react-icons/md';
+import { countries } from '@/utils/countries';
+import { DEFAULT_TENANT_ID } from '@/utils/constants';
+import { useGetClientById } from '@/store/server/features/tenant-management/clients/queries';
+import {
+  useUpdateClient,
+  type UpdateClientDto,
+} from '@/store/server/features/tenant-management/clients/mutation';
+import { useUpdateCompanyProfileWithStamp } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 
 const { Dragger } = Upload;
-const { Option } = Select;
 
-// Updated regular for phone numbers with hyphenated format support
-const phoneRegexUpdated = /^(\+\d{1,3})?[- ]?(\d{1,4}[- ]?){1,5}\d{1,4}$/;
+/**
+ * Input with addonBefore: 40px row + no clipped prefix.
+ * Addon must not shrink in flex layout; affix/main field flexes with min-w-0.
+ */
+const profilePhoneInputGroupClassName =
+  '[&_.ant-input-group]:!flex [&_.ant-input-group]:!items-stretch [&_.ant-input-group]:!w-full ' +
+  '[&_.ant-input-group-addon]:!flex [&_.ant-input-group-addon]:!shrink-0 [&_.ant-input-group-addon]:!grow-0 ' +
+  '[&_.ant-input-group-addon]:!items-center [&_.ant-input-group-addon]:!justify-center ' +
+  '[&_.ant-input-group-addon]:!h-10 [&_.ant-input-group-addon]:!min-h-10 [&_.ant-input-group-addon]:!min-w-[3.5rem] ' +
+  '[&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!box-border [&_.ant-input-group-addon]:!overflow-visible ' +
+  '[&_.ant-input-affix-wrapper]:!min-h-10 [&_.ant-input-affix-wrapper]:!h-10 ' +
+  '[&_.ant-input-affix-wrapper]:!min-w-0 [&_.ant-input-affix-wrapper]:!flex-1 ' +
+  '[&_.ant-input-group_.ant-input]:!h-10 [&_.ant-input-group_.ant-input]:!min-w-0 [&_.ant-input-group_.ant-input]:!box-border';
 
-// Function for checking the validity of the image URL
-const isValidImageUrl = (url: string | undefined) => {
-  if (!url) return false;
-  return url.match(/\.(jpeg|jpg|gif|png|svg|webp)$/) !== null;
-};
+const profileSelect40ClassName =
+  '[&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selection-search-input]:!h-10 ' +
+  '[&_.ant-select-selection-item]:!leading-10 [&_.ant-select-selection-placeholder]:!leading-10';
 
 const AdminProfile = () => {
-  const isLoading = useCompanyProfile((state) => state.isLoading);
-  const setIsLoading = useCompanyProfile((state) => state.setIsLoading);
-  const clientData = useCompanyProfile((state) => state.clientData);
-  const setClientData = useCompanyProfile((state) => state.setClientData);
-  const logoExists = useCompanyProfile((state) => state.logoExists);
-  const setLogoExists = useCompanyProfile((state) => state.setLogoExists);
-  const stampExists = useCompanyProfile((state) => state.stampExists);
-  const setStampExists = useCompanyProfile((state) => state.setStampExists);
+  const [form] = Form.useForm();
+  const [logoForm] = Form.useForm();
+  const [isEditing, setIsEditing] = useState(false);
+  const [logoModalOpen, setLogoModalOpen] = useState(false);
+  const [logoFileList, setLogoFileList] = useState<UploadFile[]>([]);
+  const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined);
 
-  // Fetch client data using the existing query hook
   const {
     data: client,
-    isLoading: isClientLoading,
-    error,
-    refetch: refetchClient,
+    isLoading,
+    refetch,
   } = useGetClientById(DEFAULT_TENANT_ID);
+  const updateClientMutation = useUpdateClient();
+  const updateCompanyProfileMutation = useUpdateCompanyProfileWithStamp();
 
-  // Checking the existence of images
+  const profile = useMemo(
+    () => ({
+      id: client?.id ?? '',
+      companyName: client?.companyName ?? '',
+      companyDomain: client?.domainName ?? client?.domainUrl ?? '',
+      logo: client?.logo ?? '',
+      country: client?.country ?? '',
+      industry: client?.industry ?? client?.region ?? '',
+      fullName: client?.contactPersonName ?? '',
+      phone: client?.phoneNumber ?? '',
+      email: client?.contactPersonEmail ?? client?.billingEmail ?? '',
+    }),
+    [client],
+  );
+
   useEffect(() => {
-    const checkImageExists = (url: string): Promise<boolean> => {
-      if (!isValidImageUrl(url)) return Promise.resolve(false);
+    form.setFieldsValue({
+      country: profile.country,
+      industry: profile.industry,
+      fullName: profile.fullName,
+      phone: profile.phone,
+      email: profile.email,
+    });
+    logoForm.setFieldsValue({ companyName: profile.companyName });
+  }, [profile, form, logoForm]);
 
-      return new Promise((resolve) => {
-        const img = new globalThis.Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
-        img.src = url;
+  const closeLogoModal = () => {
+    setLogoModalOpen(false);
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoPreview(undefined);
+    setLogoFileList([]);
+    logoForm.setFieldsValue({ companyName: profile.companyName });
+  };
+
+  const handleSaveProfile = async (values: any) => {
+    if (!profile.id) return;
+    try {
+      const payload: UpdateClientDto = {
+        country: values.country,
+        industry: values.industry,
+        contactPersonName: values.fullName,
+        phoneNumber: values.phone,
+        contactPersonEmail: values.email,
+        billingEmail: values.email,
+      };
+      await updateClientMutation.mutateAsync({ id: profile.id, data: payload });
+      setIsEditing(false);
+      await refetch();
+      notification.success({
+        message: 'Updated',
+        description: 'Company profile updated successfully.',
       });
-    };
-
-    if (client) {
-      if (client.logo) {
-        checkImageExists(client.logo).then(setLogoExists);
-      } else {
-        setLogoExists(false);
-      }
-
-      if (client.stamp) {
-        checkImageExists(client.stamp).then(setStampExists);
-      } else {
-        setStampExists(false);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client]);
-
-  useEffect(() => {
-    if (client) {
-      // Only update if the client data has actually changed
-      const currentClientId = clientData?.id;
-      if (currentClientId !== client.id || !clientData) {
-        setClientData(client);
-      }
-      if (isLoading) {
-        setIsLoading(false);
-      }
-    } else if (error) {
+    } catch (error) {
       notification.error({
-        message: 'Error loading client data',
-        description: 'Failed to load company profile information',
+        message: 'Update Failed',
+        description:
+          error instanceof Error ? error.message : 'Failed to update profile.',
       });
-      if (isLoading) {
-        setIsLoading(false);
-      }
-    } else if (!isClientLoading && isLoading) {
-      setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, error, isClientLoading]);
-
-  const customRequest = ({ file, onSuccess, onError }: any) => {
-    // Validate file
-    if (!file) {
-      onError(new Error('No file provided'));
-      return;
-    }
-
-    // Ensure file is a File object
-    const fileObj = file.originFileObj || file;
-
-    if (!(fileObj instanceof File)) {
-      onError(new Error('Invalid file type'));
-      return;
-    }
-
-    // Simulate upload success (actual upload happens on form submit)
-    setTimeout(() => {
-      onSuccess('ok', fileObj);
-    }, 0);
   };
 
-  // Component with profile form
-  const ProfileForm = ({
-    onUpdateSuccess,
-  }: {
-    onUpdateSuccess: () => void;
-  }) => {
-    // Form initialization here is only when the component is actually rendered
-    const [form] = Form.useForm();
+  const handleUpdateLogo = async () => {
+    if (!profile.id) return;
+    const values = await logoForm.validateFields();
+    const logoFile = logoFileList[0]?.originFileObj;
 
-    // Zustand store hooks for form state - using selectors to prevent unnecessary re-renders
-    const submitting = useCompanyProfile((state) => state.submitting);
-    const setSubmitting = useCompanyProfile((state) => state.setSubmitting);
-    const logoFileList = useCompanyProfile((state) => state.logoFileList);
-    const setLogoFileList = useCompanyProfile((state) => state.setLogoFileList);
-    const stampFileList = useCompanyProfile((state) => state.stampFileList);
-    const setStampFileList = useCompanyProfile(
-      (state) => state.setStampFileList,
-    );
-    const logoPreview = useCompanyProfile((state) => state.logoPreview);
-    const setLogoPreview = useCompanyProfile((state) => state.setLogoPreview);
-    const stampPreview = useCompanyProfile((state) => state.stampPreview);
-    const setStampPreview = useCompanyProfile((state) => state.setStampPreview);
-    const resetAll = useCompanyProfile((state) => state.resetAll);
-    const storeClientData = useCompanyProfile((state) => state.clientData);
-    const dataVersion = useCompanyProfile((state) => state.dataVersion);
-    const incrementDataVersion = useCompanyProfile(
-      (state) => state.incrementDataVersion,
-    );
-
-    // Hook to update client data
-    const updateClientMutation = useUpdateClient();
-    const updateCompanyProfileMutation = useUpdateCompanyProfileWithStamp();
-
-    // Note: We don't reset file lists on clientData change to avoid infinite loops
-    // Files are only cleared after successful form submission
-
-    // Filling the form with data when mounting the component
-    useEffect(() => {
-      if (storeClientData) {
-        form.setFieldsValue({
-          companyName: storeClientData.companyName,
-          companyEmail: storeClientData.companyEmail,
-          country: storeClientData.country,
-          region: storeClientData.region,
-          companyPhone: storeClientData.phoneNumber,
-          contactPersonName: storeClientData.contactPersonName,
-          personEmail: storeClientData.contactPersonEmail,
-          personPhone: storeClientData.contactPersonPhoneNumber,
-          billingEmail: storeClientData.billingEmail,
+    try {
+      if (logoFile instanceof File) {
+        await updateCompanyProfileMutation.mutateAsync({
+          id: profile.id,
+          updateClientDto: { companyName: values.companyName },
+          companyProfileImage: { originFileObj: logoFile } as any,
+        });
+      } else {
+        await updateClientMutation.mutateAsync({
+          id: profile.id,
+          data: { companyName: values.companyName },
         });
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [storeClientData?.id]);
+      await refetch();
+      closeLogoModal();
+      notification.success({
+        message: 'Updated',
+        description: 'Company profile updated successfully.',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Update Failed',
+        description:
+          error instanceof Error ? error.message : 'Failed to update logo.',
+      });
+    }
+  };
 
-    const handleFormSubmit = async (values: any) => {
-      if (!storeClientData?.id) {
-        notification.error({
-          message: 'Error',
-          description: 'Client ID not found',
-        });
-        return;
-      }
-
-      setSubmitting(true);
-
-      try {
-        const updateData: UpdateClientDto = {
-          id: storeClientData.id,
-          companyName: values.companyName,
-          companyEmail: values.companyEmail,
-          phoneNumber: values.companyPhone,
-          country: values.country,
-          region: values.region,
-          contactPersonName: values.contactPersonName,
-          contactPersonEmail: values.personEmail,
-          contactPersonPhoneNumber: values.personPhone,
-          billingEmail: values.billingEmail,
-        };
-
-        const logoFile = logoFileList.length > 0 ? logoFileList[0] : null;
-        const stampFile = stampFileList.length > 0 ? stampFileList[0] : null;
-
-        // Check if files exist and have proper File objects
-        const hasLogo = logoFile?.originFileObj instanceof File;
-        const hasStamp = stampFile?.originFileObj instanceof File;
-
-        if (hasLogo || hasStamp) {
-          // Create CompanyProfileImage objects (omitting status and percent)
-          const logoImage =
-            hasLogo && logoFile
-              ? {
-                  uid: logoFile.uid,
-                  name: logoFile.name,
-                  size: logoFile.size,
-                  type: logoFile.type,
-                  originFileObj: logoFile.originFileObj as File,
-                  thumbUrl: logoFile.thumbUrl,
-                  url: logoFile.url,
-                }
-              : undefined;
-
-          const stampImage =
-            hasStamp && stampFile
-              ? {
-                  uid: stampFile.uid,
-                  name: stampFile.name,
-                  size: stampFile.size,
-                  type: stampFile.type,
-                  originFileObj: stampFile.originFileObj as File,
-                  thumbUrl: stampFile.thumbUrl,
-                  url: stampFile.url,
-                }
-              : undefined;
-
-          // Wait for mutation to complete
-          await updateCompanyProfileMutation.mutateAsync({
-            id: storeClientData.id,
-            updateClientDto: updateData,
-            companyProfileImage: logoImage as any,
-            companyStamp: stampImage as any,
-          });
-        } else {
-          await updateClientMutation.mutateAsync({
-            id: storeClientData.id,
-            data: updateData,
-          });
-        }
-
-        // Clear file lists and previews after successful submission
-        resetAll();
-
-        // Increment data version to bust image cache
-        incrementDataVersion();
-
-        notification.success({
-          message: 'Success',
-          description: 'Profile information updated successfully',
-        });
-
-        // Wait a bit for server to process images, then refetch
-        // This ensures the server has time to process and save the images
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Refetch client data to get updated images
-        await onUpdateSuccess();
-
-        // Re-check image existence after refetch
-        // This will be handled by the useEffect in the parent component
-      } catch (error) {
-        notification.error({
-          message: 'Error',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'Failed to update profile information',
-        });
-      } finally {
-        setSubmitting(false);
-      }
-    };
-
-    const handleLogoChange = (info: any) => {
-      const { fileList, file } = info;
-
-      // Handle file removal
-      if (fileList.length === 0) {
-        if (logoPreview) {
-          URL.revokeObjectURL(logoPreview);
-        }
-        setLogoFileList([]);
-        setLogoPreview(undefined);
-        return;
-      }
-
-      // Get the latest file from the list
-      const latestFileItem = fileList[fileList.length - 1];
-
-      // Extract the actual File object - check multiple possible locations
-      let actualFile: File | undefined;
-
-      if (file?.originFileObj instanceof File) {
-        actualFile = file.originFileObj;
-      } else if (file instanceof File) {
-        actualFile = file;
-      } else if (latestFileItem?.originFileObj instanceof File) {
-        actualFile = latestFileItem.originFileObj;
-      } else if (latestFileItem?.raw instanceof File) {
-        actualFile = latestFileItem.raw;
-      }
-
-      // Create UploadFile object with proper structure
-      const fileWithOrigin: UploadFile = {
-        uid: latestFileItem.uid || `logo-${Date.now()}`,
-        name: latestFileItem.name || actualFile?.name || 'logo',
-        status: latestFileItem.status || 'done',
-        ...latestFileItem,
-        originFileObj: actualFile,
-      };
-
-      // Only keep the latest file (maxCount is 1)
-      setLogoFileList([fileWithOrigin]);
-
-      // Handle preview
-      if (actualFile) {
-        if (logoPreview) {
-          URL.revokeObjectURL(logoPreview);
-        }
-        const previewUrl = URL.createObjectURL(actualFile);
-        setLogoPreview(previewUrl);
-      }
-    };
-
-    const handleStampChange = (info: any) => {
-      const { fileList, file } = info;
-
-      // Handle file removal
-      if (fileList.length === 0) {
-        if (stampPreview) {
-          URL.revokeObjectURL(stampPreview);
-        }
-        setStampFileList([]);
-        setStampPreview(undefined);
-        return;
-      }
-
-      // Get the latest file from the list
-      const latestFileItem = fileList[fileList.length - 1];
-
-      // Extract the actual File object - check multiple possible locations
-      let actualFile: File | undefined;
-
-      if (file?.originFileObj instanceof File) {
-        actualFile = file.originFileObj;
-      } else if (file instanceof File) {
-        actualFile = file;
-      } else if (latestFileItem?.originFileObj instanceof File) {
-        actualFile = latestFileItem.originFileObj;
-      } else if (latestFileItem?.raw instanceof File) {
-        actualFile = latestFileItem.raw;
-      }
-
-      // Create UploadFile object with proper structure
-      const fileWithOrigin: UploadFile = {
-        uid: latestFileItem.uid || `stamp-${Date.now()}`,
-        name: latestFileItem.name || actualFile?.name || 'stamp',
-        status: latestFileItem.status || 'done',
-        ...latestFileItem,
-        originFileObj: actualFile,
-      };
-
-      // Only keep the latest file (maxCount is 1)
-      setStampFileList([fileWithOrigin]);
-
-      // Handle preview
-      if (actualFile) {
-        if (stampPreview) {
-          URL.revokeObjectURL(stampPreview);
-        }
-        const previewUrl = URL.createObjectURL(actualFile);
-        setStampPreview(previewUrl);
-      }
-    };
-
-    useEffect(() => {
-      return () => {
-        if (logoPreview) {
-          URL.revokeObjectURL(logoPreview);
-        }
-        if (stampPreview) {
-          URL.revokeObjectURL(stampPreview);
-        }
-      };
-    }, [logoPreview, stampPreview]);
-
-    return (
-      <Form
-        id="profile-form"
-        data-cy="profile-form"
-        form={form}
-        layout="vertical"
-        initialValues={{ prefix: '1' }}
-        onFinish={handleFormSubmit}
+  const logoNode =
+    logoPreview || profile.logo ? (
+      <img
+        data-cy="-afterlogin-admin-profile-page-tsx-page-img-140"
+        src={logoPreview || profile.logo}
+        alt="Company"
+        className="h-24 w-24 rounded object-cover "
+      />
+    ) : (
+      <div
+        data-cy="-afterlogin-admin-profile-page-tsx-page-div-146"
+        className="h-16 w-16 rounded bg-[#EFF6FF] text-[#3B82F6] flex items-center justify-center font-semibold"
       >
-        <h2
-          id="company-information-title"
-          data-cy="company-information-title"
-          className="text-2xl font-bold mb-6"
-        >
-          Company information
-        </h2>
-
-        <div
-          id="logo-upload-label"
-          data-cy="logo-upload-label"
-          className="mb-4"
-        >
-          <span
-            id="logo-upload-label-text"
-            data-cy="logo-upload-label-text"
-            className="text-sm font-medium"
-          >
-            Upload Company Logo
-            <span
-              className="text-red-500"
-              id="logo-upload-label-text-asterisk"
-              data-cy="logo-upload-label-text-asterisk"
-            >
-              *
-            </span>
-          </span>
-        </div>
-
-        <Dragger
-          id="logo-upload"
-          data-cy="logo-upload"
-          name="logo"
-          multiple={false}
-          customRequest={customRequest}
-          beforeUpload={() => false}
-          onChange={handleLogoChange}
-          fileList={logoFileList}
-          accept="image/*"
-          className="!h-[200px]"
-        >
-          <div
-            id="logo-upload-content"
-            data-cy="logo-upload-content"
-            className="flex flex-col items-center justify-center gap-2"
-          >
-            {logoPreview ? (
-              <img
-                id="logo-preview"
-                data-cy="logo-preview"
-                src={logoPreview}
-                alt="Company Logo"
-                width={100}
-                height={100}
-                className="mb-4 rounded-full object-cover"
-              />
-            ) : storeClientData?.logo && logoExists ? (
-              <img
-                src={`${storeClientData.logo}?v=${dataVersion}`}
-                alt="Company Logo"
-                width={100}
-                height={100}
-                className="mb-4 rounded-full object-cover"
-                data-cy="admin-profile-page-img-466"
-              />
-            ) : (
-              <img
-                id="logo-placeholder"
-                data-cy="logo-placeholder"
-                src="/icons/gallery-add.svg"
-                alt="Upload"
-                width={40}
-                height={40}
-                className="mb-4"
-              />
-            )}
-            <p
-              id="logo-upload-text"
-              data-cy="logo-upload-text"
-              className="text-lg font-medium"
-            >
-              Upload Company Logo
-            </p>
-            <p
-              id="logo-upload-hint"
-              data-cy="logo-upload-hint"
-              className="text-gray-500"
-            >
-              or drag and drop it here
-            </p>
-            <p
-              id="logo-upload-size"
-              data-cy="logo-upload-size"
-              className="text-gray-500 text-sm"
-            >
-              Square 300 x 300 px
-            </p>
-          </div>
-        </Dragger>
-
-        <div
-          id="company-information-fields"
-          data-cy="company-information-fields"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6"
-        >
-          <Form.Item
-            id="company-name-field"
-            data-cy="company-name-field"
-            name="companyName"
-            label="Company Name"
-            rules={[{ required: true, message: 'Please enter company name' }]}
-          >
-            <Input
-              id="company-name-input"
-              data-cy="company-name-input"
-              placeholder="Enter company name"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="company-email-field"
-            data-cy="company-email-field"
-            name="companyEmail"
-            label="Company Email"
-            rules={[
-              { required: true, message: 'Please enter company email' },
-              { type: 'email', message: 'Please enter a valid email' },
-            ]}
-          >
-            <Input
-              id="company-email-input"
-              data-cy="company-email-input"
-              placeholder="Enter company email"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="country-field"
-            data-cy="country-field"
-            name="country"
-            label="Country"
-            rules={[{ required: true, message: 'Please select country' }]}
-          >
-            <Select
-              id="country-select"
-              data-cy="country-select"
-              showSearch
-              placeholder="Select country"
-              optionFilterProp="children"
-              filterOption={(input, option) => {
-                if (option && option.children) {
-                  return String(option.children)
-                    .toLowerCase()
-                    .includes(input.toLowerCase());
-                }
-                return false;
-              }}
-            >
-              {countries.map((country) => (
-                <Option
-                  key={country.code}
-                  value={country.code}
-                  id={`country-option-${country.code}`}
-                  data-cy={`country-option-${country.code}`}
-                >
-                  {country.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            id="region-field"
-            data-cy="region-field"
-            name="region"
-            label="Region"
-            rules={[{ required: true, message: 'Please enter region' }]}
-          >
-            <Input
-              id="region-input"
-              data-cy="region-input"
-              placeholder="Enter region"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="company-phone-field"
-            data-cy="company-phone-field"
-            name="companyPhone"
-            label="Company Phone"
-            rules={[
-              { required: true, message: 'Please enter company phone' },
-              {
-                pattern: phoneRegexUpdated,
-                message:
-                  'Please enter a valid phone number (e.g. +61-2-8765-4321)',
-              },
-            ]}
-          >
-            <Input
-              id="company-phone-input"
-              data-cy="company-phone-input"
-              placeholder="Enter company phone (e.g. +61-2-8765-4321)"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="billing-email-field"
-            data-cy="billing-email-field"
-            name="billingEmail"
-            label="Billing Email"
-            rules={[
-              { required: true, message: 'Please enter billing email' },
-              { type: 'email', message: 'Please enter a valid email' },
-            ]}
-          >
-            <Input
-              id="billing-email-input"
-              data-cy="billing-email-input"
-              placeholder="Enter billing email"
-            />
-          </Form.Item>
-        </div>
-
-        <div
-          id="stamp-upload-label"
-          data-cy="stamp-upload-label"
-          className="mb-4"
-        >
-          <span
-            className="text-sm font-medium"
-            id="stamp-upload-label-text"
-            data-cy="stamp-upload-label-text"
-          >
-            Upload Company Stamp
-            <span
-              className="text-red-500"
-              id="stamp-upload-label-text-asterisk"
-              data-cy="stamp-upload-label-text-asterisk"
-            >
-              *
-            </span>
-          </span>
-        </div>
-
-        <Dragger
-          id="stamp-upload"
-          data-cy="stamp-upload"
-          name="stamp"
-          multiple={false}
-          customRequest={customRequest}
-          beforeUpload={() => false}
-          onChange={handleStampChange}
-          fileList={stampFileList}
-          accept="image/*"
-          className="!h-[200px]"
-        >
-          <div
-            id="stamp-upload-content"
-            data-cy="stamp-upload-content"
-            className="flex flex-col items-center justify-center gap-2"
-          >
-            {stampPreview ? (
-              <img
-                id="stamp-preview"
-                data-cy="stamp-preview"
-                src={stampPreview}
-                alt="Company Stamp"
-                width={100}
-                height={100}
-                className="mb-4 rounded-full object-cover"
-              />
-            ) : storeClientData?.stamp && stampExists ? (
-              <img
-                src={`${storeClientData.stamp}?v=${dataVersion}`}
-                alt="Company Stamp"
-                width={100}
-                height={100}
-                className="mb-4 rounded-full object-cover"
-                data-cy="admin-profile-page-img-681"
-              />
-            ) : (
-              <img
-                id="stamp-placeholder"
-                data-cy="stamp-placeholder"
-                src="/icons/gallery-add.svg"
-                alt="Upload"
-                width={40}
-                height={40}
-                className="mb-4"
-              />
-            )}
-            <p
-              id="stamp-upload-text"
-              data-cy="stamp-upload-text"
-              className="text-lg font-medium"
-            >
-              Upload Company Stamp
-            </p>
-            <p
-              id="stamp-upload-hint"
-              data-cy="stamp-upload-hint"
-              className="text-gray-500"
-            >
-              or drag and drop it here
-            </p>
-            <p
-              id="stamp-upload-size"
-              data-cy="stamp-upload-size"
-              className="text-gray-500 text-sm"
-            >
-              Square 300 x 300 px
-            </p>
-          </div>
-        </Dragger>
-
-        <h2
-          id="contact-information-title"
-          data-cy="contact-information-title"
-          className="text-2xl font-bold mt-6 mb-6"
-        >
-          Contact information
-        </h2>
-
-        <div
-          id="contact-information-fields"
-          data-cy="contact-information-fields"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-6"
-        >
-          <Form.Item
-            id="contact-person-name-field"
-            data-cy="contact-person-name-field"
-            name="contactPersonName"
-            label="Contact Person Name"
-            rules={[{ required: true, message: 'Please enter person name' }]}
-          >
-            <Input
-              id="contact-person-name-input"
-              data-cy="contact-person-name-input"
-              placeholder="Enter contact person name"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="person-email-field"
-            data-cy="person-email-field"
-            name="personEmail"
-            label="Person Email"
-            rules={[
-              { required: true, message: 'Please enter person email' },
-              { type: 'email', message: 'Please enter a valid email' },
-            ]}
-          >
-            <Input
-              id="person-email-input"
-              data-cy="person-email-input"
-              placeholder="Enter person email"
-            />
-          </Form.Item>
-
-          <Form.Item
-            id="person-phone-field"
-            data-cy="person-phone-field"
-            name="personPhone"
-            label="Contact Person Phone"
-            rules={[
-              { required: true, message: 'Please enter Person phone' },
-              {
-                pattern: phoneRegexUpdated,
-                message:
-                  'Please enter a valid phone number (e.g. +61-2-8765-4321)',
-              },
-            ]}
-          >
-            <Input
-              id="person-phone-input"
-              data-cy="person-phone-input"
-              placeholder="Enter person phone (e.g. +61-2-8765-4321)"
-            />
-          </Form.Item>
-        </div>
-
-        <Form.Item id="save-button-field" data-cy="save-button-field">
-          <Button
-            id="save-changes-button"
-            data-cy="save-changes-button"
-            type="primary"
-            htmlType="submit"
-            className="bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all"
-            loading={submitting}
-            disabled={submitting}
-          >
-            Save Changes
-          </Button>
-        </Form.Item>
-      </Form>
+        {profile.companyName?.slice(0, 2).toUpperCase() || 'CO'}
+      </div>
     );
-  };
+  const modalLogoPreview = logoPreview || profile.logo || '';
 
   return (
     <div
-      id="admin-profile-page"
-      data-cy="admin-profile-page"
-      className="h-auto w-auto px-6 py-6"
+      data-cy="-afterlogin-admin-profile-page-tsx-page-div-153"
+      className="w-full max-w-[1100px]"
     >
       <div
-        id="admin-profile-container"
-        data-cy="admin-profile-container"
-        className="bg-white p-[25px_35px] mt-6 rounded-lg max-w-[800px]"
+        data-cy="-afterlogin-admin-profile-page-tsx-page-div-154"
+        className="rounded-lg border border-gray-200 bg-white"
       >
-        {isLoading || isClientLoading ? (
+        {isLoading ? (
           <div
-            id="admin-profile-loading"
-            data-cy="admin-profile-loading"
-            className="flex justify-center items-center max-w-[800px]"
-            style={{ margin: '25px 35px' }}
+            data-cy="-afterlogin-admin-profile-page-tsx-page-div-156"
+            className="p-6"
           >
-            <Skeleton
-              active
-              paragraph={{ rows: 10 }}
-              data-cy="admin-profile-loading-skeleton"
-            />
+            <Skeleton active paragraph={{ rows: 5 }} />
           </div>
         ) : (
           <>
-            <ProfileForm
-              data-cy="admin-profile-form"
-              onUpdateSuccess={async () => {
-                // Refetch and wait for it to complete
-                const result = await refetchClient();
-                // Update client data in store with fresh data
-                if (result.data) {
-                  setClientData(result.data);
-                  // Re-check image existence with fresh URLs
-                  if (result.data.logo) {
-                    const checkImageExists = (
-                      url: string,
-                    ): Promise<boolean> => {
-                      if (!isValidImageUrl(url)) return Promise.resolve(false);
-                      return new Promise((resolve) => {
-                        const img = new globalThis.Image();
-                        img.onload = () => resolve(true);
-                        img.onerror = () => resolve(false);
-                        // Add cache busting to ensure fresh image
-                        img.src = `${url}?t=${Date.now()}`;
-                      });
-                    };
-                    checkImageExists(result.data.logo).then(setLogoExists);
-                  } else {
-                    setLogoExists(false);
-                  }
-                  if (result.data.stamp) {
-                    const checkImageExists = (
-                      url: string,
-                    ): Promise<boolean> => {
-                      if (!isValidImageUrl(url)) return Promise.resolve(false);
-                      return new Promise((resolve) => {
-                        const img = new globalThis.Image();
-                        img.onload = () => resolve(true);
-                        img.onerror = () => resolve(false);
-                        // Add cache busting to ensure fresh image
-                        img.src = `${url}?t=${Date.now()}`;
-                      });
-                    };
-                    checkImageExists(result.data.stamp).then(setStampExists);
-                  } else {
-                    setStampExists(false);
-                  }
-                }
-              }}
+            <div
+              data-cy="-afterlogin-admin-profile-page-tsx-page-div-161"
+              className="px-4 py-3 flex items-center justify-between"
+            >
+              <div
+                data-cy="-afterlogin-admin-profile-page-tsx-page-div-162"
+                className="flex items-center gap-3"
+              >
+                <div
+                  data-cy="-afterlogin-admin-profile-page-tsx-page-div-163"
+                  className="relative shrink-0"
+                >
+                  {logoNode}
+                  <button
+                    type="button"
+                    onClick={() => setLogoModalOpen(true)}
+                    className="absolute -right-2 -bottom-1 h-5 w-5 rounded-md border border-gray-300 bg-white text-gray-500 hover:text-primary shadow-sm transition-colors flex items-center justify-center"
+                    data-cy="company-profile-open-logo-modal"
+                  >
+                    <MdOutlineModeEditOutline size={14} />
+                  </button>
+                </div>
+                <div data-cy="-afterlogin-admin-profile-page-tsx-page-div-174">
+                  <div
+                    data-cy="-afterlogin-admin-profile-page-tsx-page-div-175"
+                    className="text-sm font-medium text-gray-900"
+                  >
+                    {profile.companyName}
+                  </div>
+                  <div
+                    data-cy="-afterlogin-admin-profile-page-tsx-page-div-178"
+                    className="text-xs text-gray-500"
+                  >
+                    {profile.companyDomain || '__'}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              data-cy="company-profile-header-divider"
+              className="mx-4 border-b border-gray-200"
+              aria-hidden
             />
+
+            <Form
+              form={form}
+              layout="vertical"
+              className={
+                isEditing
+                  ? '[&_.ant-form-item-label]:!pb-3'
+                  : '[&_.ant-form-item-label]:!pb-1'
+              }
+              requiredMark={
+                isEditing
+                  ? (label: ReactNode, info: { required: boolean }) => (
+                      <span
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-span-192"
+                        className="inline-flex items-center gap-1"
+                      >
+                        <span data-cy="-afterlogin-admin-profile-page-tsx-page-span-193">
+                          {label}
+                        </span>
+                        {info.required ? (
+                          <span
+                            data-cy="-afterlogin-admin-profile-page-tsx-page-span-195"
+                            className="text-[#FF4D4F]"
+                            aria-hidden
+                          >
+                            *
+                          </span>
+                        ) : null}
+                      </span>
+                    )
+                  : false
+              }
+              onFinish={handleSaveProfile}
+            >
+              <div
+                data-cy="-afterlogin-admin-profile-page-tsx-page-div-205"
+                className="px-4 py-4"
+              >
+                <div
+                  data-cy="-afterlogin-admin-profile-page-tsx-page-div-206"
+                  className="flex justify-end mb-2"
+                >
+                  {isEditing ? (
+                    <div
+                      data-cy="-afterlogin-admin-profile-page-tsx-page-div-208"
+                      className="flex items-center gap-2"
+                    >
+                      <Button
+                        icon={<CloseOutlined className="text-[#FF4D4F]" />}
+                        size="small"
+                        onClick={() => {
+                          form.setFieldsValue({
+                            country: profile.country,
+                            industry: profile.industry,
+                            fullName: profile.fullName,
+                            phone: profile.phone,
+                            email: profile.email,
+                          });
+                          setIsEditing(false);
+                        }}
+                        data-cy="company-profile-cancel-edit"
+                      />
+                      <Button
+                        icon={<CheckOutlined />}
+                        size="small"
+                        type="primary"
+                        loading={updateClientMutation.isLoading}
+                        onClick={() => form.submit()}
+                        data-cy="company-profile-save-edit"
+                      />
+                    </div>
+                  ) : (
+                    <Button
+                      icon={<MdOutlineModeEditOutline />}
+                      size="small"
+                      onClick={() => setIsEditing(true)}
+                      data-cy="company-profile-start-edit"
+                    />
+                  )}
+                </div>
+                <div
+                  data-cy="-afterlogin-admin-profile-page-tsx-page-div-242"
+                  className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3"
+                >
+                  <Form.Item
+                    label={
+                      <span
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-span-245"
+                        className="text-sm font-medium text-[#030712]"
+                      >
+                        Country
+                      </span>
+                    }
+                    name="country"
+                    rules={[{ required: true, message: 'Country is required' }]}
+                    className="mb-0"
+                  >
+                    {isEditing ? (
+                      <Select
+                        className={profileSelect40ClassName}
+                        placeholder="Select"
+                        classNames={{
+                          popup: {
+                            root: '[&_.ant-select-item-option-selected:not(.ant-select-item-option-disabled)]:!bg-[#E6F4FF]',
+                          },
+                        }}
+                        options={countries.map((c) => ({
+                          label: c.name,
+                          value: c.name,
+                        }))}
+                      />
+                    ) : (
+                      <div
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-div-263"
+                        className="text-base text-gray-800"
+                      >
+                        {profile.country || '—'}
+                      </div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item
+                    label={
+                      <span
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-span-271"
+                        className="text-sm font-medium text-[#030712]"
+                      >
+                        Industry
+                      </span>
+                    }
+                    name="industry"
+                    rules={[
+                      { required: true, message: 'Industry is required' },
+                    ]}
+                    className="mb-0"
+                  >
+                    {isEditing ? (
+                      <Input
+                        placeholder="Select"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName="!min-h-10"
+                      />
+                    ) : (
+                      <div
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-div-284"
+                        className="text-base text-gray-800"
+                      >
+                        {profile.industry || '—'}
+                      </div>
+                    )}
+                  </Form.Item>
+
+                  <div data-cy="-afterlogin-admin-profile-page-tsx-page-div-290" />
+
+                  <Form.Item
+                    label={
+                      <span
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-span-294"
+                        className="text-sm font-medium text-[#030712]"
+                      >
+                        Full Name
+                      </span>
+                    }
+                    name="fullName"
+                    rules={[
+                      { required: true, message: 'Full name is required' },
+                    ]}
+                    className="mb-0"
+                  >
+                    {isEditing ? (
+                      <Input
+                        placeholder="Name"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName="!min-h-10"
+                      />
+                    ) : (
+                      <div
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-div-307"
+                        className="text-base text-gray-800"
+                      >
+                        {profile.fullName || '—'}
+                      </div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item
+                    label={
+                      <span
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-span-315"
+                        className="text-sm font-medium text-[#030712]"
+                      >
+                        Phone Number
+                      </span>
+                    }
+                    name="phone"
+                    rules={[
+                      { required: true, message: 'Phone number is required' },
+                    ]}
+                    className="mb-0 [&_.ant-form-item-control-input-content]:!overflow-visible"
+                  >
+                    {isEditing ? (
+                      <Input
+                        addonBefore="+251"
+                        placeholder="9876543"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName={profilePhoneInputGroupClassName}
+                      />
+                    ) : (
+                      <div
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-div-332"
+                        className="text-base text-gray-800"
+                      >
+                        {profile.phone || '—'}
+                      </div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item
+                    label={
+                      <span
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-span-340"
+                        className="text-sm font-medium text-[#030712]"
+                      >
+                        Email
+                      </span>
+                    }
+                    name="email"
+                    rules={[
+                      { required: true, message: 'Email is required' },
+                      { type: 'email', message: 'Invalid email address' },
+                    ]}
+                    className="mb-0"
+                  >
+                    {isEditing ? (
+                      <Input
+                        placeholder="example.mail.com"
+                        styles={{ input: { height: 40 } }}
+                        rootClassName="!min-h-10"
+                      />
+                    ) : (
+                      <div
+                        data-cy="-afterlogin-admin-profile-page-tsx-page-div-354"
+                        className="text-base text-gray-800"
+                      >
+                        {profile.email || '—'}
+                      </div>
+                    )}
+                  </Form.Item>
+                </div>
+              </div>
+            </Form>
           </>
         )}
       </div>
+
+      <Modal
+        open={logoModalOpen}
+        onCancel={closeLogoModal}
+        footer={null}
+        title="Update Logo"
+        destroyOnClose
+        width={520}
+      >
+        <div
+          data-cy="-afterlogin-admin-profile-page-tsx-page-div-374"
+          className="pt-2"
+        >
+          <Dragger
+            multiple={false}
+            accept="image/*"
+            beforeUpload={() => false}
+            fileList={logoFileList}
+            onChange={(info) => {
+              const fileList = info.fileList.slice(-1);
+              setLogoFileList(fileList);
+              const file = fileList[0]?.originFileObj;
+              if (file instanceof File) {
+                if (logoPreview) URL.revokeObjectURL(logoPreview);
+                setLogoPreview(URL.createObjectURL(file));
+              }
+            }}
+            className="!rounded-md"
+          >
+            {modalLogoPreview ? (
+              <img
+                data-cy="-afterlogin-admin-profile-page-tsx-page-img-392"
+                src={modalLogoPreview}
+                alt="Current company logo"
+                className="mx-auto mb-3 h-16 w-16 rounded object-cover border border-gray-200"
+              />
+            ) : (
+              <InboxOutlined className="text-[44px] text-[#1E40AF] mb-2" />
+            )}
+            <p
+              data-cy="-afterlogin-admin-profile-page-tsx-page-p-400"
+              className="text-base text-gray-700 mb-1"
+            >
+              Click or drag file to this area to upload
+            </p>
+            <p
+              data-cy="-afterlogin-admin-profile-page-tsx-page-p-403"
+              className="text-sm text-gray-400"
+            >
+              Support for a single or bulk upload.
+            </p>
+          </Dragger>
+
+          <Form
+            form={logoForm}
+            layout="vertical"
+            className="mt-4 [&_.ant-form-item-label]:!pb-3"
+            requiredMark={(label: ReactNode, info: { required: boolean }) => (
+              <span
+                data-cy="-afterlogin-admin-profile-logo-modal-required-wrap"
+                className="inline-flex items-center gap-1"
+              >
+                <span data-cy="-afterlogin-admin-profile-logo-modal-label">
+                  {label}
+                </span>
+                {info.required ? (
+                  <span
+                    data-cy="-afterlogin-admin-profile-logo-modal-asterisk"
+                    className="text-[#FF4D4F]"
+                    aria-hidden
+                  >
+                    *
+                  </span>
+                ) : null}
+              </span>
+            )}
+          >
+            <Form.Item
+              label="Company Name"
+              name="companyName"
+              rules={[{ required: true, message: 'Company name is required' }]}
+              className="mb-0"
+            >
+              <Input
+                placeholder="Name"
+                rootClassName="[&_.ant-input-affix-wrapper]:!min-h-10"
+                styles={{ input: { height: 40 } }}
+              />
+            </Form.Item>
+          </Form>
+
+          <div
+            data-cy="-afterlogin-admin-profile-page-tsx-page-div-418"
+            className="flex justify-end gap-2 font-normal mt-3"
+          >
+            <Button
+              onClick={closeLogoModal}
+              className="font-normal text-[#4d4d4d]"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              loading={updateCompanyProfileMutation.isLoading}
+              onClick={handleUpdateLogo}
+              data-cy="company-profile-update-logo-submit"
+              className="font-normal"
+            >
+              Update
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
