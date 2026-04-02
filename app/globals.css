@@ -37,8 +37,10 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
-#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+#time-attendance-employee-attendance-table-scroll-wrapper
+  .ant-table-content::-webkit-scrollbar,
+#time-attendance-employee-attendance-table-scroll-wrapper
+  .ant-table-body::-webkit-scrollbar {
   display: none;
 }
 
