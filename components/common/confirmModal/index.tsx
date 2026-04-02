@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Modal, Button } from 'antd';
-import Image from 'next/image';
 
 interface ConfirmModalProps {
   open: boolean;
@@ -21,12 +20,9 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   description,
 }) => {
   const confirmModalFooter = (
-    <div
-      className="flex justify-end gap-3"
-      data-cy="confirm-modal-footer"
-    >
+    <div className="flex justify-end gap-3" data-cy="confirm-modal-footer">
       <Button
-      type="default"
+        type="default"
         className="h-8 font-normal border border-[#D9D9D9]"
         onClick={onCancel}
       >
@@ -59,7 +55,8 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         data-cy="components-common-confirmmodal-index-tsx-index-p-66"
         className="flex justify-start text-base text-black opacity-70 font-bold"
       >
-           send to payroll      </p>
+        send to payroll{' '}
+      </p>
       <p
         data-cy="components-common-confirmmodal-index-tsx-index-p-69"
         className="flex justify-start mt-4 text-sm text-black opacity-70 font-normal"

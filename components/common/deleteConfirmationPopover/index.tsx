@@ -109,6 +109,7 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
       }
     >
       <span
+        data-cy="components-common-deleteconfirmationpopover-index-tsx-index-span-91"
         className="inline-flex"
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}

@@ -108,38 +108,37 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       key: 'actions',
       width: 80,
       render: (unused: any, record: any) => (
-        
-          <AccessGuard
-            permissions={[Permissions.DeleteRecognition]}
-            id={`incentive-detail-table-delete-guard-${record.id}`}
-            data-cy={`incentive-detail-table-delete-guard-${record.id}`}
+        <AccessGuard
+          permissions={[Permissions.DeleteRecognition]}
+          id={`incentive-detail-table-delete-guard-${record.id}`}
+          data-cy={`incentive-detail-table-delete-guard-${record.id}`}
+        >
+          <DeleteConfirmationPopover
+            open={deleteModalOpen[record.id] || false}
+            onCancel={() => handleDeleteCancel(record.id)}
+            onConfirm={() => handleDeleteConfirm(record.id)}
+            message="Are you sure you want to permanently delete this record?"
+            loading={isDeleting}
+            id={`incentive-delete-modal-${record.id}`}
+            data-cy={`incentive-delete-modal-${record.id}`}
           >
-            <DeleteConfirmationPopover
-              open={deleteModalOpen[record.id] || false}
-              onCancel={() => handleDeleteCancel(record.id)}
-              onConfirm={() => handleDeleteConfirm(record.id)}
-              message="Are you sure you want to permanently delete this record?"
-              loading={isDeleting}
-              id={`incentive-delete-modal-${record.id}`}
-              data-cy={`incentive-delete-modal-${record.id}`}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteModalOpen((prev) => ({
+                  ...prev,
+                  [record.id]: true,
+                }));
+              }}
+              className="bg-white hover:bg-gray-100 text-black border rounded-[4px] border-gray-300 w-7 h-7 flex items-center justify-center"
+              id={`incentive-detail-table-delete-button-${record.id}`}
+              data-cy={`incentive-detail-table-delete-button-${record.id}`}
             >
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDeleteModalOpen((prev) => ({
-                    ...prev,
-                    [record.id]: true,
-                  }));
-                }}
-                className="bg-white hover:bg-gray-100 text-black border rounded-[4px] border-gray-300 w-7 h-7 flex items-center justify-center"
-                id={`incentive-detail-table-delete-button-${record.id}`}
-                data-cy={`incentive-detail-table-delete-button-${record.id}`}
-              >
-                <DeleteOutlined />
-              </button>
-            </DeleteConfirmationPopover>
-          </AccessGuard>
+              <DeleteOutlined />
+            </button>
+          </DeleteConfirmationPopover>
+        </AccessGuard>
       ),
     },
   ];
