@@ -76,7 +76,7 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
         </div>
       ) : (
         <span
-          className="text-xs text-gray-500"
+          className="text-sm text-gray-500 items-"
           data-cy="employee-survey-table-type-info"
         >
           {type == 'job' ? jobPosition : department}
@@ -255,7 +255,7 @@ const EmployeeSurveyTable: React.FC = () => {
       key: 'date',
       render: (notused: any, render: any) => (
         <div
-          className="text-xs text-gray-500"
+          className="text-sm text-gray-500"
           data-cy="employee-survey-table-month"
           id="employeeSurveyTableMonth"
         >
