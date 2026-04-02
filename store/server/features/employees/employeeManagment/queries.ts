@@ -1,6 +1,10 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import {
+  createUnknownEmployeePlaceholder,
+  isUserNotFoundError,
+} from '@/utils/unknownEmployee';
 
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -268,6 +272,9 @@ const getEmployee = async (id: string) => {
     });
     return response;
   } catch (error) {
+    if (isUserNotFoundError(error)) {
+      return createUnknownEmployeePlaceholder(id);
+    }
     throw error;
   }
 };
@@ -288,6 +295,9 @@ export const getUser = async (id: string) => {
     });
     return response;
   } catch (error) {
+    if (isUserNotFoundError(error)) {
+      return createUnknownEmployeePlaceholder(id);
+    }
     throw error;
   }
 };

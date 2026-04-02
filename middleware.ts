@@ -6,6 +6,11 @@ export function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
     const pathname = url.pathname;
+    const isPublicStaticAsset =
+      pathname.startsWith('/image/') || pathname.startsWith('/icons/');
+    if (isPublicStaticAsset) {
+      return NextResponse.next();
+    }
 
     // TODO: Uncomment and restore token validation and redirects
 
@@ -32,9 +37,10 @@ export function middleware(req: NextRequest) {
       '/authentication/reset-password',
       '/authentication/2fa',
     ];
-    const isExcludedPath = excludedPath.some((path) =>
-      pathname.startsWith(path),
-    );
+    const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname);
+    const isExcludedPath =
+      isPublicSurveyRoute ||
+      excludedPath.some((path) => pathname.startsWith(path));
     const isRootPath = pathname === '/';
     if (!isExcludedPath && !token) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));

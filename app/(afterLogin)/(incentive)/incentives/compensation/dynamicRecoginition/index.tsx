@@ -2,7 +2,6 @@
 import React from 'react';
 import DynamicIncentiveFilter from './_components/filters';
 import ImportData from './_components/importDrawer';
-import DynamicIncentiveCards from './_components/dynamicCards';
 import IncentiveTableAfterGenerate from '../../payroll-detail/[id]/tableWithId';
 
 interface DynamicIncentiveProps {
@@ -13,10 +12,10 @@ const DynamicIncentive: React.FC<DynamicIncentiveProps> = ({
 }) => {
   return (
     <div id="dynamic-incentive-container" data-cy="dynamic-incentive-container">
-      <DynamicIncentiveCards
+      {/* <DynamicIncentiveCards
         data-cy="dynamic-incentive-cards"
         parentRecognitionId={parentRecognitionId}
-      />
+      /> */}
       <DynamicIncentiveFilter data-cy="dynamic-incentive-filter" />
       <IncentiveTableAfterGenerate
         data-cy="dynamic-incentive-table"

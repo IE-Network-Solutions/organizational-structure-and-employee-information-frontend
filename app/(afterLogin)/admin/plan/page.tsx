@@ -183,8 +183,27 @@ const PlanPage = () => {
     setAvailablePeriods(planPeriodTypes.length ? planPeriodTypes : periodTypes);
 
     // 2. Determine the period based on the rules:
+    // - if planId + periodTypeCode come from URL (e.g. from Manage Subscription modal), use that period
     // - if there is an active subscription with the same plan, take its period
     // - otherwise take the period with the smallest periodInMonths
+    const urlPeriodCode = searchParams.get('periodTypeCode');
+    const urlPeriodTypeId = searchParams.get('periodTypeId');
+    if (searchParams.get('planId') && (urlPeriodCode || urlPeriodTypeId)) {
+      const periodFromUrl = periodTypes.find(
+        (p) =>
+          (urlPeriodCode && p.code === urlPeriodCode) ||
+          (urlPeriodTypeId && p.id === urlPeriodTypeId),
+      );
+      const planHasPeriod = currentPlan.periods?.some(
+        (pp) => pp.periodTypeId === periodFromUrl?.id,
+      );
+      if (periodFromUrl && planHasPeriod) {
+        setCurrentPeriodType(periodFromUrl);
+        setUpdatedPeriod(periodFromUrl.code);
+        return;
+      }
+    }
+
     if (
       activeSubscription &&
       activeSubscription.planId === currentPlan.id &&
@@ -216,7 +235,7 @@ const PlanPage = () => {
       setCurrentPeriodType(sortedPeriods[0]);
       setUpdatedPeriod(sortedPeriods[0].code);
     }
-  }, [currentPlan, periodTypes, activeSubscription]);
+  }, [currentPlan, periodTypes, activeSubscription, searchParams]);
 
   // Ensure the selected period is displayed correctly on the confirmation step
   useEffect(() => {

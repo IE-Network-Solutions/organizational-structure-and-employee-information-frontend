@@ -5,8 +5,7 @@
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
-import { crudRequest } from '@/utils/crudRequest';
-import { getCurrentToken } from '@/utils/getCurrentToken';
+import apiClient from '@/utils/apiClient';
 import { useQuery } from 'react-query';
 
 /**
@@ -30,17 +29,15 @@ const tenantId = useAuthenticationStore.getState().tenantId;
  * @returns {Promise<any>} The response containing the form data from the API.
  */
 const fetchQuestions = async (formId: string) => {
-  const token = await getCurrentToken();
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-
-  return await crudRequest({
+  const headers: Record<string, string> = {};
+  if (tenantId) headers.tenantId = String(tenantId);
+  const response = await apiClient({
     url: `${ORG_DEV_URL}/forms/public/${formId}`,
     method: 'GET',
     headers,
-  });
+    skipEncryption: false,
+  } as any);
+  return response.data;
 };
 
 /**
