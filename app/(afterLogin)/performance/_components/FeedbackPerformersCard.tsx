@@ -8,6 +8,7 @@ import { FeedbackPerformersCardSkeleton } from './PerformanceCardSkeletons';
 import { useGetFeedbackStatsPerformers } from '@/store/server/features/performance/feedback-stats/queries';
 import { useGetActiveMonth } from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetActiveSession } from '@/store/server/features/okrplanning/okr/target/queries';
+import Link from 'next/link';
 
 const ENGAGEMENT_BAR = '#4096FF';
 const KPI_BAR = '#1E40AF';
@@ -85,7 +86,6 @@ export default function FeedbackPerformersCard({
   const { data: activeMonth, isLoading: activeMonthLoading } =
     useGetActiveMonth();
 
-  const [isMonthListOpen, setIsMonthListOpen] = useState(false);
   const [selectedMonthIdLocal, setSelectedMonthIdLocal] = useState<
     string | null
   >(() => {
@@ -101,7 +101,6 @@ export default function FeedbackPerformersCard({
 
     const last = monthOptions[monthOptions.length - 1];
     if (last?.id) setSelectedMonthIdLocal(String(last.id));
-    setIsMonthListOpen(false);
   }, [sessionIdProp, monthOptions?.length]);
 
   const resolvedSessionId =
@@ -145,14 +144,6 @@ export default function FeedbackPerformersCard({
     return null;
   }, [resolvedMonthId]);
 
-  const selectedMonthName = useMemo(() => {
-    if (!resolvedMonthIdForUi) return null;
-    const match = orderedMonthsForUi.find(
-      (m) => String(m.id) === resolvedMonthIdForUi,
-    );
-    return match?.name ?? null;
-  }, [orderedMonthsForUi, resolvedMonthIdForUi]);
-
   const {
     data,
     isLoading: performersLoading,
@@ -195,27 +186,26 @@ export default function FeedbackPerformersCard({
     >
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-black">Feedback Performers</h2>
+        <div className="flex items-center gap-2">
+          {orderedMonthsForUi.length > 0 && (
+            <>
+              <Select
+                id="performance-performers-month-select"
+                data-cy="performance-performers-month-select"
+                className="md:min-w-[90px] w-full h-[22px]"
+                size="small"
+                placeholder="Select Month"
+                value={resolvedMonthIdForUi ?? undefined}
+                onChange={(value) => {
+                  setSelectedMonthIdLocal(String(value));
+                }}
+                options={orderedMonthsForUi.map((m) => ({
+                  value: String(m.id),
+                  label: m.name ?? String(m.id),
+                }))}
+              />
 
-        {orderedMonthsForUi.length > 0 && (
-          <>
-            <Select
-              id="performance-performers-month-select"
-              data-cy="performance-performers-month-select"
-              className="block sm:hidden w-[150px]"
-              size="small"
-              placeholder="Select Month"
-              value={resolvedMonthIdForUi ?? undefined}
-              onChange={(value) => {
-                setIsMonthListOpen(false);
-                setSelectedMonthIdLocal(String(value));
-              }}
-              options={orderedMonthsForUi.map((m) => ({
-                value: String(m.id),
-                label: m.name ?? String(m.id),
-              }))}
-            />
-
-            {!isMonthListOpen && (
+              {/* {!isMonthListOpen && (
               <button
                 type="button"
                 onClick={() => setIsMonthListOpen(true)}
@@ -258,9 +248,16 @@ export default function FeedbackPerformersCard({
                   </button>
                 ))}
               </div>
-            )}
-          </>
-        )}
+            )} */}
+            </>
+          )}
+          <Link
+            className="text-primary text-sm font-normal w-full"
+            href="/feedback/feedback"
+          >
+            View All
+          </Link>
+        </div>
       </div>
       {showSpinner ? (
         <FeedbackPerformersCardSkeleton />

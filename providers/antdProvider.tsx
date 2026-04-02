@@ -178,6 +178,8 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
       Select: {
         colorText: '#111827',
         colorBorder: '#E9EAEC',
+        // Background color of the selected item in the dropdown
+        optionSelectedBg: '#E6F4FF',
       },
       Collapse: {
         headerBg: '#FFF',

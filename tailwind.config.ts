@@ -37,6 +37,8 @@ const config: Config = {
         orangebg: '#fe964a',
         greenbg: '#52C41A',
         greenlight: '#F6FFED',
+        errorbg: '#FF4D4F',
+        errorlight: '#FFE5E5',
       },
       fontFamily: {
         sans: ['Calibre', 'sans-serif'],
