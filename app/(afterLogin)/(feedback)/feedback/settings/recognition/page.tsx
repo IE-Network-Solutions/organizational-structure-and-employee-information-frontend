@@ -162,14 +162,13 @@ const Page = () => {
                         >
                           <button
                             type="button"
-                            className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
+                            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
                             data-cy={`settings-recognition-card-actions-${item?.id}`}
                             id={`settingsRecognitionCardActions${item?.id}`}
                           >
                             <BsThreeDots
                               data-cy={`settings-recognition-card-actions-icon-${item?.id}`}
                               id={`settingsRecognitionCardActionsIcon${item?.id}`}
-                              className="text-lg"
                             />
                           </button>
                         </Dropdown>

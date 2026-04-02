@@ -330,14 +330,13 @@ const EmployeeSurveyTable: React.FC = () => {
           >
             <button
               type="button"
-              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
+              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
               data-cy="employee-survey-table-action-button"
               id="employeeSurveyTableActionButton"
             >
               <BsThreeDots
                 id="employeeSurveyTableActionButtonIcon"
                 data-cy="employee-survey-table-action-button-icon"
-                className="text-lg"
               />
             </button>
           </Dropdown>
