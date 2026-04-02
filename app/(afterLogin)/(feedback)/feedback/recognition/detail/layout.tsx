@@ -47,6 +47,7 @@ function RecognitionDetailLayoutShell({
         >
           <Button
             icon={<MdOutlineArrowBackIos />}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
             onClick={() => router.push('/feedback/recognition')}
             data-cy="recognition-detail-back"
           />

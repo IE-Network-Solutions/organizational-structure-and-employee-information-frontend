@@ -142,7 +142,7 @@ function Page() {
                   id={`recognitionTypeCard-${item.id}`}
                 >
                   <div
-                    className="flex flex-col gap-1"
+                    className="flex flex-col gap-2"
                     data-cy={`recognition-card-content-${item.id}`}
                   >
                     <div
