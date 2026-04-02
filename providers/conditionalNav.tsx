@@ -26,10 +26,11 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     '/surveys/[id]',
     '/job/[tenantID]/[jobId]',
   ];
+  const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname);
+  const isExcludedPath =
+    isPublicSurveyRoute || excludeNavPaths.includes(pathname);
 
-  return (
-    <>{excludeNavPaths.includes(pathname) ? children : <Nav>{children}</Nav>}</>
-  );
+  return <>{isExcludedPath ? children : <Nav>{children}</Nav>}</>;
 };
 
 export default ConditionalNav;

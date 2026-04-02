@@ -2,7 +2,6 @@
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
-import { FaPlus } from 'react-icons/fa';
 import { useGetFormCategories } from '@/store/server/features/feedback/category/queries';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
 import FormDrawer from './formDrawer';
@@ -48,10 +47,9 @@ function Form({ params: { id } }: CategoryForms) {
           className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
         >
           <CustomButton
-            title={`Create ${formCategories?.name ? formCategories?.name : ''}`}
+            title="Add new survey"
             id="createSurveyButton"
             data-cy="createSurveyButton"
-            icon={<FaPlus size={13} className="mr-2" />}
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
           />
@@ -66,7 +64,10 @@ function Form({ params: { id } }: CategoryForms) {
           data-cy="category-form-component-list"
           className="w-full h-auto"
         >
-          <FormSearch data-cy="category-form-component-form-search" />
+          <FormSearch
+            categoryId={id}
+            data-cy="category-form-component-form-search"
+          />
           <FormCard id={id} data-cy="category-form-component-form-card" />
         </div>
       </div>

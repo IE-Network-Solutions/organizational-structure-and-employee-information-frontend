@@ -82,7 +82,7 @@ export const useCreateActionPlan = () => {
 
   return useMutation(createActionPlan, {
     onSuccess: () => {
-      queryClient.invalidateQueries('actionPlans');
+      queryClient.invalidateQueries(['actionPlans']);
       NotificationMessage.success({
         message: 'Successfully Created',
         description: 'Action plan successfully created',
@@ -102,8 +102,7 @@ export const useUpdateActionPlan = () => {
 
   return useMutation(updateActionPlan, {
     onSuccess: () => {
-      // Invalidate all action-plans queries (with hyphen to match query key)
-      queryClient.invalidateQueries('action-plans');
+      queryClient.invalidateQueries(['actionPlans']);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'Action plan updated successfully',
@@ -121,7 +120,7 @@ export const useDeleteActionPlanById = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteActionPlan, {
     onSuccess: () => {
-      queryClient.invalidateQueries('actionPlans');
+      queryClient.invalidateQueries(['actionPlans']);
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'action plan successfully Deleted',
@@ -139,7 +138,8 @@ export const useResolveActionPlanById = () => {
   const queryClient = useQueryClient();
   return useMutation(resolveActionPlan, {
     onSuccess: () => {
-      queryClient.invalidateQueries(['actionPlans', 'delegation']);
+      queryClient.invalidateQueries(['actionPlans']);
+      queryClient.invalidateQueries(['delegation']);
       NotificationMessage.success({
         message: 'Successfully resolved',
         description: 'action plan status resolved successfully',
