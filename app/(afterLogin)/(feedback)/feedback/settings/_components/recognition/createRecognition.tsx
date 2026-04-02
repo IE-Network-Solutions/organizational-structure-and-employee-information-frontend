@@ -1491,11 +1491,19 @@ const RecognitionForm: React.FC<PropsData> = ({
                         item?.criteriaId ?? item?.id ?? item?.criterionKey,
                       )}
                       className="flex items-center gap-2 bg-gray-50 border border-[#D9D9D9] rounded-md px-2 py-1 max-w-full"
+                      data-cy={`create-recognition-selected-criteria-chip-${String(
+                        item?.criteriaId ?? item?.id ?? item?.criterionKey,
+                      )}`}
                       id={`createRecognitionSelectedCriteriaItem-${String(
                         item?.criteriaId ?? item?.id,
                       )}`}
                     >
-                      <span className="text-xs text-gray-950 font-semibold truncate">
+                      <span
+                        className="text-xs text-gray-950 font-semibold truncate"
+                        data-cy={`create-recognition-selected-criteria-chip-label-${String(
+                          item?.criteriaId ?? item?.id ?? item?.criterionKey,
+                        )}`}
+                      >
                         {item?.criterionKey}
                       </span>
                       <button
@@ -1554,8 +1562,14 @@ const RecognitionForm: React.FC<PropsData> = ({
                     data-cy={`create-recognition-form-criteria-item-${index}`}
                     id={`createRecognitionFormCriteriaItem${index}`}
                   >
-                    <div className="w-full max-w-full overflow-x-auto scrollbar-none">
-                      <div className="mx-auto flex w-max flex-nowrap items-end justify-center gap-2">
+                    <div
+                      className="w-full max-w-full overflow-x-auto scrollbar-none"
+                      data-cy={`create-recognition-form-criteria-item-scroll-${index}`}
+                    >
+                      <div
+                        className="mx-auto flex w-max flex-nowrap items-end justify-center gap-2"
+                        data-cy={`create-recognition-form-criteria-item-row-${index}`}
+                      >
                         {selectedRecognitionType !== '' && (
                           <Form.Item
                             className="text-xs text-gray-950"

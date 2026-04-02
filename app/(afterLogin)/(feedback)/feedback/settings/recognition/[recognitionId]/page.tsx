@@ -394,7 +394,10 @@ export default function RecognitionDetailPage() {
                         className="mt-4  rounded-[8px] border bg-gray-50 p-3"
                         data-cy={`recognition-detail-criteria-table-${child?.id}`}
                       >
-                        <div className="rounded-[8px]  p-3 bg-white data-cy={`recognition-detail-criteria-table-inner-${child?.id}`}">
+                        <div
+                          className="rounded-[8px] p-3 bg-white"
+                          data-cy={`recognition-detail-criteria-table-inner-${child?.id}`}
+                        >
                           <Table<CriteriaTableRecord>
                             rowKey={(r, index) =>
                               String(
