@@ -8,7 +8,13 @@ import PageHeader from '@/components/common/pageHeader/pageHeader';
 import SidebarMenu from '@/components/sidebarMenu';
 import { SidebarMenuItem } from '@/types/sidebarMenu';
 import { useMediaQuery } from 'react-responsive';
-import { TbTarget, TbAward, TbShieldCheck, TbEdit } from 'react-icons/tb';
+import {
+  TbTarget,
+  TbAward,
+  TbShieldCheck,
+  TbEdit,
+  TbUserCheck,
+} from 'react-icons/tb';
 import { HiOutlineBriefcase } from 'react-icons/hi';
 
 interface OkrSettingsLayoutProps {
@@ -95,6 +101,31 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         className: currentItem === 'define-okr-rule' ? 'px-4' : 'px-1',
       },
       link: '/okr/settings/define-okr-rule',
+    },
+    {
+      item: {
+        key: 'assign-average-okr-rule',
+        icon: !isMobile ? (
+          <TbUserCheck
+            data-cy="okr-settings-layout-assign-average-okr-rule-icon-display-icon"
+            className={
+              currentItem === 'assign-average-okr-rule'
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            className="font-bold text-sm text-gray-900"
+            data-cy="okr-settings-layout-assign-average-okr-rule-label-display-label"
+          >
+            OKR rule assignment
+          </p>
+        ),
+        className: currentItem === 'assign-average-okr-rule' ? 'px-4' : 'px-1',
+      },
+      link: '/okr/settings/assign-average-okr-rule',
     },
     {
       item: {
