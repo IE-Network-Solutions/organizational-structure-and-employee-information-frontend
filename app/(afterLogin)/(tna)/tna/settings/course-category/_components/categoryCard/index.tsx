@@ -1,60 +1,131 @@
-import ActionButtons from '@/components/common/actionButton/actionButtons';
-import { FC } from 'react';
-import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
-import { Spin } from 'antd';
-import { CourseCategory } from '@/types/tna/course';
 import { useDeleteCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
-import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { CourseCategory } from '@/types/tna/course';
+import AccessGuard from '@/utils/permissionGuard';
+import { Button, Dropdown, MenuProps, Popconfirm } from 'antd';
+import React, { FC } from 'react';
+
+/** Three-dot horizontal icon matching the reference image */
+const DotsIcon = () => (
+  <svg
+    width="14"
+    height="4"
+    viewBox="0 0 14 4"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="2.5" cy="2" r="1.5" fill="currentColor" />
+    <circle cx="7" cy="2" r="1.5" fill="currentColor" />
+    <circle cx="11.5" cy="2" r="1.5" fill="currentColor" />
+  </svg>
+);
 
 interface CourseCategoryCardProps {
   item: CourseCategory;
+  /** Highlight the row when it is being edited */
+  isActive?: boolean;
+  onEdit: (item: CourseCategory) => void;
+  onDeleted?: (id: string) => void;
+  'data-cy'?: string;
 }
 
-const CourseCategoryCard: FC<CourseCategoryCardProps> = ({ item }) => {
-  const { setIsShowCourseCategorySidebar, setCourseCategoryId } =
-    useTnaSettingsStore();
+const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
+  item,
+  isActive,
+  onEdit,
+  onDeleted,
+  'data-cy': dataCy,
+}) => {
   const { mutate: deleteCategory, isLoading } = useDeleteCourseCategory();
 
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'edit',
+      label: <span className="text-[14px] font-normal">Edit</span>,
+      onClick: () => onEdit(item),
+    },
+    {
+      key: 'delete',
+      label: (
+        <Popconfirm
+          title="Are you sure you want to delete?"
+          okText="Yes"
+          cancelText="No"
+          onConfirm={() => {
+            deleteCategory([item.id], {
+              onSuccess: () => onDeleted?.(item.id),
+            });
+          }}
+          disabled={isLoading}
+        >
+          <span className="text-error text-[14px] font-normal">Delete</span>
+        </Popconfirm>
+      ),
+    },
+  ];
+
+  const hasDescription = !!item.description;
+
   return (
-    <Spin
-      spinning={isLoading}
-      data-cy={`tna-course-category-card-spinner-${item.id}`}
+    <div
+      className={[
+        'flex items-center justify-between px-4 border rounded-lg bg-white',
+        hasDescription ? 'py-3' : 'py-3',
+        isActive ? 'border-[#1677FF]' : 'border-[#D9D9D9]',
+      ].join(' ')}
+      id={`tnaCourseCategoryCard${item.id}Id`}
+      data-cy={dataCy ?? `tna-course-category-card-${item.id}`}
     >
-      <div
-        className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5"
-        id={`tnaCourseCategoryCard${item.id}Id`}
-        data-cy={`tna-course-category-card-${item.id}`}
-      >
+      {/* Title + optional description */}
+      <div className="flex-1 min-w-0 pr-3 flex flex-col gap-1">
         <div
-          className="text-lg font-semibold text-gray-900 flex-1"
+          className="text-[14px] font-normal text-black leading-snug truncate"
           id={`tnaCourseCategoryCardTitle${item.id}Id`}
           data-cy={`tna-course-category-card-title-${item.id}`}
         >
           {item.title}
         </div>
-        <AccessGuard
-          permissions={[
-            Permissions.UpdateCourseCategory,
-            Permissions.DeleteCourseCategory,
-          ]}
-          data-cy={`tna-course-category-card-action-guard-${item.id}`}
-          id={`tnaCourseCategoryCardActionGuard${item.id}Id`}
-        >
-          <ActionButtons
-            id={item?.id ?? null}
-            data-cy={`tna-course-category-card-actions-${item.id}`}
-            onDelete={() => {
-              deleteCategory([item.id]);
-            }}
-            onEdit={() => {
-              setCourseCategoryId(item.id);
-              setIsShowCourseCategorySidebar(true);
-            }}
-          />
-        </AccessGuard>
+
+        {hasDescription && (
+          <div
+            className="text-[14px] font-normal leading-snug truncate"
+            style={{ color: 'rgba(0,0,0,0.45)' }}
+            data-cy={`tna-course-category-card-description-${item.id}`}
+          >
+            {item.description}
+          </div>
+        )}
       </div>
-    </Spin>
+
+      {/* Three-dot dropdown */}
+      <AccessGuard
+        permissions={[
+          Permissions.UpdateCourseCategory,
+          Permissions.DeleteCourseCategory,
+        ]}
+        data-cy={`tna-course-category-card-action-guard-${item.id}`}
+        id={`tnaCourseCategoryCardActionGuard${item.id}Id`}
+      >
+        <Dropdown
+          trigger={['click']}
+          menu={{ items: menuItems }}
+          placement="bottomRight"
+        >
+          <Button
+            type="text"
+            disabled={isLoading}
+            className="!w-8 !h-8 !min-w-8 !min-h-8 flex items-center justify-center border border-[#D9D9D9] rounded-lg hover:!bg-gray-50 shrink-0"
+            id={`tna-course-category-card-menu-btn-${item.id}`}
+            data-cy={`tna-course-category-card-menu-btn-${item.id}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="text-[#737373]">
+              <DotsIcon />
+            </span>
+          </Button>
+        </Dropdown>
+      </AccessGuard>
+    </div>
   );
 };
 

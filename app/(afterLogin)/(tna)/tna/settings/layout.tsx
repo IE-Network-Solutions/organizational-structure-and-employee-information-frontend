@@ -1,147 +1,112 @@
 'use client';
-import { SidebarMenuItem } from '@/types/sidebarMenu';
-import { CiCalendarDate } from 'react-icons/ci';
 import { FC, ReactNode } from 'react';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
-import SidebarMenu from '@/components/sidebarMenu';
-import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { TbLayoutList } from 'react-icons/tb';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface TnaSettingsLayoutProps {
   children: ReactNode;
 }
 
+const TABS = [
+  {
+    key: 'course-category',
+    label: 'Course Category',
+    href: '/tna/settings/course-category',
+  },
+  {
+    key: 'tna-category',
+    label: 'TNA Category',
+    href: '/tna/settings/tna-category',
+  },
+  {
+    key: 'commitment-rule',
+    label: 'Commitment Rule',
+    href: '/tna/settings/commitment-rule',
+  },
+  {
+    key: 'approvals',
+    label: 'Approval Workflow',
+    href: '/tna/settings/approvals',
+  },
+];
+
 const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
-  const menuItems = new SidebarMenuItem([
-    {
-      item: {
-        key: 'course-category',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/course-category') ? 'lg:ml-4' : ''}`}
-            data-cy="course-category-icon"
-          >
-            <CiCalendarDate
-              className={`hidden lg:block ${pathname.includes('/tna/settings/course-category') ? 'text-[#1677FF]' : ''}`}
-            />
-            <p
-              data-cy="-tna-tna-settings-layout-tsx-layout-p-29"
-              className="menu-item-label"
-            >
-              Course Category
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/tna/settings/course-category',
-    },
-    {
-      item: {
-        key: 'tna-category',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/tna-category') ? 'lg:ml-4' : ''}`}
-            data-cy="tna-tna-settings-layout-tsx-div-45"
-          >
-            <CiCalendarDate
-              className={`hidden lg:block ${pathname.includes('/tna/settings/tna-category') ? 'text-[#1677FF]' : ''}`}
-            />
-            <p
-              data-cy="-tna-tna-settings-layout-tsx-layout-p-46"
-              className="menu-item-label"
-            >
-              TNA Category
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/tna/settings/tna-category',
-    },
-    {
-      item: {
-        key: 'commitment-rule',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/commitment-rule') ? 'lg:ml-4' : ''}`}
-            data-cy="tna-tna-settings-layout-tsx-div-67"
-          >
-            <CiCalendarDate
-              className={`hidden lg:block ${pathname.includes('/tna/settings/commitment-rule') ? 'text-[#1677FF]' : ''}`}
-            />
-            <p
-              data-cy="-tna-tna-settings-layout-tsx-layout-p-63"
-              className="menu-item-label"
-            >
-              Commitment Rule
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/tna/settings/commitment-rule',
-    },
-    {
-      item: {
-        key: 'approvals',
-        icon: (
-          <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/tna/settings/approvals') ? 'lg:ml-4' : ''}`}
-            data-cy="tna-tna-settings-layout-tsx-div-89"
-          >
-            <TbLayoutList
-              className={`hidden lg:block ${pathname.includes('/tna/settings/approvals') ? 'text-[#1677FF]' : ''}`}
-            />
-            <p
-              data-cy="-tna-tna-settings-layout-tsx-layout-p-80"
-              className="menu-item-label"
-            >
-              Approval Workflow
-            </p>
-          </div>
-        ),
-        className: 'px-1',
-      },
-      link: '/tna/settings/approvals',
-    },
-  ]);
+  const router = useRouter();
+
+  const activeTabKey =
+    TABS.find((t) => pathname.includes(t.key))?.key ?? TABS[0].key;
+
   return (
     <div
-      className="min-h-screen bg-[#fafafa] p-3"
+      className="min-h-screen bg-white"
       id="tnaSettingsLayoutId"
       data-cy="tna-settings-layout"
     >
-      <div
-        className="h-auto w-auto"
-        id="tnaSettingsLayoutContentId"
-        data-cy="tna-settings-layout-content"
-      >
-        <PageHeader
-          title="Settings"
-          description="Training & Learning Settings"
-          data-cy="tna-settings-layout-page-header"
-        ></PageHeader>
-
-        <div
-          className="flex flex-col lg:flex-row gap-6 mt-3"
-          id="tnaSettingsLayoutBodyId"
-          data-cy="tna-settings-layout-body"
+      {/* Title + breadcrumb */}
+      <div className="px-6 pt-5 pb-0" data-cy="tna-settings-header">
+        <h1
+          className="text-[24px] font-bold text-black leading-tight"
+          data-cy="tna-settings-title"
         >
-          <SidebarMenu
-            menuItems={menuItems}
-            data-cy="tna-settings-layout-sidebar"
-          />
-
-          <BlockWrapper
-            className="flex-1 h-max overflow-x-auto bg-[#fafafa] p-0"
-            data-cy="tna-settings-layout-block-wrapper"
-          >
-            {children}
-          </BlockWrapper>
+          Settings
+        </h1>
+        <div
+          className="flex items-center gap-1 mt-1"
+          data-cy="tna-settings-breadcrumb"
+        >
+          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.45)]">
+            Learning and Growth
+          </span>
+          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.45)] mx-0.5">
+            /
+          </span>
+          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+            Settings
+          </span>
         </div>
+      </div>
+
+      {/* Horizontal tab bar — exactly like the reference image */}
+      <div
+        className="px-6 mt-5 border-b border-[#D9D9D9]"
+        data-cy="tna-settings-tabs"
+      >
+        <div className="flex items-end gap-0">
+          {TABS.map((tab) => {
+            const isActive = activeTabKey === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => router.push(tab.href)}
+                className={[
+                  'relative px-4 pb-[10px] pt-0 text-[16px] whitespace-nowrap',
+                  'transition-colors duration-150 bg-transparent border-none outline-none cursor-pointer',
+                  isActive
+                    ? 'text-[#1E40AF] font-bold'
+                    : 'text-[rgba(0,0,0,0.7)] font-normal hover:text-[#1E40AF]',
+                ].join(' ')}
+                data-cy={`tna-settings-tab-${tab.key}`}
+              >
+                {tab.label}
+                {isActive && (
+                  <span
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#1E40AF]"
+                    aria-hidden="true"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tab page content */}
+      <div
+        className="px-6 pt-5"
+        data-cy="tna-settings-content"
+      >
+        {children}
       </div>
     </div>
   );
