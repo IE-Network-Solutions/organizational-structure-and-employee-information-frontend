@@ -25,12 +25,7 @@ import { useGetAllMonth } from '@/store/server/features/okrplanning/okr/dashboar
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useGetEmployeeSurvey } from '@/store/server/features/conversation/survey/queries';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
-import {
-  MdDeleteOutline,
-  MdOutlineDelete,
-  MdOutlineEdit,
-} from 'react-icons/md';
-import { Edit2Icon } from 'lucide-react';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import EmployeeSurveyModal from './EmployeeSurveyModal';
 import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -366,7 +361,10 @@ const EmployeeSurveyTable: React.FC = () => {
         data-cy="employee-survey-table-filters"
         id="employeeSurveyTableFilters"
       >
-        <div className="order-1 flex min-w-0 flex-1 items-center gap-3 md:w-[300px] md:flex-none">
+        <div
+          className="order-1 flex min-w-0 flex-1 items-center gap-3 md:w-[300px] md:flex-none"
+          data-cy="employee-survey-table-employee-filter-wrapper"
+        >
           <Select
             showSearch
             placeholder="Search Employee"
@@ -423,14 +421,20 @@ const EmployeeSurveyTable: React.FC = () => {
           ))}
         </div>
 
-        <div className="order-2 shrink-0 md:order-3 md:ml-auto">
+        <div
+          className="order-2 shrink-0 md:order-3 md:ml-auto"
+          data-cy="employee-survey-table-mobile-filter-wrapper"
+        >
           <Popover
             placement="bottomRight"
             trigger="click"
             open={isMobileFilterVisible}
             onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
             content={
-              <div className="space-y-4 p-2 min-w-[260px]">
+              <div
+                className="space-y-4 p-2 min-w-[260px]"
+                data-cy="employee-survey-table-mobile-filter-content"
+              >
                 <Select
                   loading={depLoading}
                   placeholder="Filter by Department"

@@ -1,4 +1,4 @@
-import { Avatar, Button, Dropdown, Popconfirm, Tag } from 'antd';
+import { Avatar, Dropdown, Popconfirm, Tag } from 'antd';
 import React from 'react';
 import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -47,13 +47,18 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
       data-cy={`survey-category-card-${category?.id}`}
       id={`survey-category-card-${category?.id}`}
     >
-      <div>
+      <div data-cy={`survey-category-card-content-${category?.id}`}>
         <div
           className="flex justify-between items-center mb-3"
           data-cy={`survey-category-card-header-${category?.id}`}
           id={`surveyCategoryCardHeader${category?.id}`}
         >
-          <div className="text-sm font-bold">{category.name}</div>{' '}
+          <div
+            className="text-sm font-bold"
+            data-cy={`survey-category-card-name-${category?.id}`}
+          >
+            {category.name}
+          </div>{' '}
           <Dropdown
             trigger={['click']}
             placement="bottomRight"
@@ -102,6 +107,7 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
                     >
                       <span
                         className="flex items-center gap-2"
+                        data-cy={`survey-category-card-delete-option-${category?.id}`}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -132,7 +138,10 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
           </Dropdown>
         </div>
 
-        <div className="flex justify-between items-center gap-2">
+        <div
+          className="flex justify-between items-center gap-2"
+          data-cy={`survey-category-card-footer-${category?.id}`}
+        >
           <div
             data-cy={`survey-category-card-profile-info-${category?.id}`}
             id={`surveyCategoryCardProfileInfo${category?.id}`}
