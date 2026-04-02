@@ -1,5 +1,5 @@
 // components/ApprovalStatus.tsx
-import { FC, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Button, Card, Skeleton } from 'antd';
 import { Clock3 } from 'lucide-react';
 import ApprovalRequestCard from './approval-status-card';
@@ -9,7 +9,7 @@ import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/ap
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
 import MyLeaveRequestDashboard from '../my-leave-request';
 
-const ApprovalStatus: FC = () => {
+const ApprovalStatus = ({ type }: { type: string }) => {
   const { userId } = useAuthenticationStore();
   const { data: LeaveTransferData, isLoading: isLoadingLeaveTransfer } =
     useGetApprovalLeaveRequest(userId, 1, 4);
@@ -62,7 +62,7 @@ const ApprovalStatus: FC = () => {
 
   return (
     <div
-      className="bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 h-[272px]"
+      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 ${type !== 'essentials' ? 'h-[272px]' : 'h-[343px]'}`}
       data-cy="dashboard-approval-status-container"
     >
       <div
@@ -152,7 +152,7 @@ const ApprovalStatus: FC = () => {
         )}
       </div>
       <div
-        className="h-[210px] overflow-y-auto scrollbar-none"
+        className={`${type !== 'essentials' ? 'h-[210px]' : 'h-[270px]'} overflow-y-auto scrollbar-none`}
         data-cy="dashboard-approval-status-content"
       >
         {approverType === 'Personal' ? (

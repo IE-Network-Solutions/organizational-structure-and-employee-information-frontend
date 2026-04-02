@@ -2,13 +2,14 @@
 import React from 'react';
 import ApprovalStatus from '../approval-status';
 
-const RightBar = () => {
+const RightBar = ({ type }: { type: string }) => {
   return (
     <div
       className="col-span-1 lg:col-span-6 flex flex-col gap-6"
       data-cy="dashboard-right-bar"
     >
-      <ApprovalStatus />
+      <ApprovalStatus type={type} />
+
       {/* <ActionPlans /> */}
       {/*
       
