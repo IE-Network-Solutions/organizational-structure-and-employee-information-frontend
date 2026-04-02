@@ -447,10 +447,7 @@ function RecentList({
   items: DashboardListItem[];
   emptyText: string;
   loading?: boolean;
-  onItemClick?: (
-    item: DashboardListItem,
-    e: React.MouseEvent<unknown>,
-  ) => void;
+  onItemClick?: (item: DashboardListItem, e: React.MouseEvent<unknown>) => void;
   borderless?: boolean;
   hideHeader?: boolean;
 }) {
@@ -478,11 +475,7 @@ function RecentList({
               key={`recent-list-skeleton-${title}-${idx}`}
               className="rounded px-2.5 py-2"
             >
-              <Skeleton
-                active
-                paragraph={{ rows: 1 }}
-                title={false}
-              />
+              <Skeleton active paragraph={{ rows: 1 }} title={false} />
             </div>
           ))}
         </div>
@@ -496,7 +489,7 @@ function RecentList({
               : ''
           }`}
         >
-          {items.map((item) => (
+          {items.map((item) =>
             (() => {
               const cardClassName = `flex items-start justify-between gap-2 rounded border border-[#e7ecf8] bg-white px-2.5 py-2 ${
                 item.href
@@ -564,8 +557,8 @@ function RecentList({
                   {inner}
                 </div>
               );
-            })()
-          ))}
+            })(),
+          )}
         </div>
       )}
     </div>
