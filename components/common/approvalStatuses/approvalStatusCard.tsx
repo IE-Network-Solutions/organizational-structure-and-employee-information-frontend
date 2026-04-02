@@ -6,10 +6,12 @@ const ApprovalStatusCard = ({
   data,
   userName,
   userImage,
+  hideApproverIdentity = false,
 }: {
   data: any;
   userName: (a: string) => string;
   userImage: (a: any) => any;
+  hideApproverIdentity?: boolean;
 }) => {
   // Use displayUserId if provided (from enriched data)
   // Otherwise, fallback logic: use approvedUserId if action taken, else userId
@@ -41,12 +43,14 @@ const ApprovalStatusCard = ({
           }
           alt={data?.status}
         />
-        <UserCard
-          data={data}
-          name={userName(String(displayUserId))}
-          profileImage={displayUserId && userImage(String(displayUserId))}
-          size="small"
-        />
+        {!hideApproverIdentity && (
+          <UserCard
+            data={data}
+            name={userName(String(displayUserId))}
+            profileImage={displayUserId && userImage(String(displayUserId))}
+            size="small"
+          />
+        )}
       </div>
       {data?.approvalComments?.length > 0 && (
         <div className="flex items-center gap-4 mb-2 px-5">

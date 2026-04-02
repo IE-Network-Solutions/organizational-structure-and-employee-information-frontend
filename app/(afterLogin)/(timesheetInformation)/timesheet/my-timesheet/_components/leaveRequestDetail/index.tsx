@@ -65,6 +65,17 @@ const LeaveRequestDetail = () => {
     leaveRequestSidebarData ?? '',
   );
 
+  const isWorkFromHomeLeave = useMemo(() => {
+    const lt = leaveData?.items?.leaveType;
+    const title =
+      typeof lt === 'string'
+        ? lt
+        : lt && typeof lt === 'object' && lt !== null && 'title' in lt
+          ? String((lt as { title?: string }).title ?? '')
+          : '';
+    return title.trim().toLowerCase() === 'work from home';
+  }, [leaveData]);
+
   // Merge data from both endpoints to show historical approvers who took action
   const enrichedApprovalData = useMemo(() => {
     if (!logData || !Array.isArray(logData)) return [];
@@ -105,14 +116,6 @@ const LeaveRequestDetail = () => {
       };
     });
   }, [logData, approverLog]);
-
-  const leaveTypeTitle = useMemo(() => {
-    const lt = leaveData?.items?.leaveType;
-    if (!lt) return '';
-    return typeof lt === 'string' ? lt : (lt.title ?? '');
-  }, [leaveData?.items?.leaveType]);
-
-  const showApprovalLevelsStatus = leaveTypeTitle.trim() !== 'Work from Home';
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
@@ -227,7 +230,11 @@ const LeaveRequestDetail = () => {
                   id="time-attendance-leave-request-detail-leave-type-value"
                   data-cy="time-attendance-leave-request-detail-leave-type-value"
                 >
-                  {leaveTypeTitle}
+                  {leaveData?.items?.leaveType
+                    ? typeof leaveData?.items?.leaveType !== 'string'
+                      ? leaveData?.items?.leaveType.title
+                      : ''
+                    : ''}
                 </div>
               </Col>
               <Col span={8}>
@@ -355,55 +362,53 @@ const LeaveRequestDetail = () => {
                 </div>
               </div>
             )}
-            {showApprovalLevelsStatus && (
-              <>
-                <Divider
-                  data-cy="time-attendance-leave-request-detail-approval-levels-divider"
-                  className="my-8 h-[5px] bg-gray-200"
-                />
-                <div
-                  id="time-attendance-leave-request-detail-approval-levels-container"
-                  data-cy="time-attendance-leave-request-detail-approval-levels-container"
-                >
-                  <div
-                    className="text-lg font-semibold text-gray-900"
-                    id="time-attendance-leave-request-detail-approval-levels-title"
-                    data-cy="time-attendance-leave-request-detail-approval-levels-title"
-                  >
-                    Approval Levels Status
-                  </div>
+            <Divider
+              data-cy="time-attendance-leave-request-detail-approval-levels-divider"
+              className="my-8 h-[5px] bg-gray-200"
+            />
+            <div
+              id="time-attendance-leave-request-detail-approval-levels-container"
+              data-cy="time-attendance-leave-request-detail-approval-levels-container"
+            >
+              <div
+                className="text-lg font-semibold text-gray-900"
+                id="time-attendance-leave-request-detail-approval-levels-title"
+                data-cy="time-attendance-leave-request-detail-approval-levels-title"
+              >
+                Approval Levels Status
+              </div>
 
-                  <div
-                    className="my-2.5"
-                    id="time-attendance-leave-request-detail-approval-statuses-info"
-                    data-cy="time-attendance-leave-request-detail-approval-statuses-info"
-                  >
-                    <ApprovalStatusesInfo data-cy="time-attendance-leave-request-detail-approval-statuses-info-component" />
-                  </div>
-                  {isLogDataLoading
-                    ? // Show skeleton loading while fetching approval log data
-                      // eslint-disable-next-line react/no-array-index-key
-                      Array.from({ length: 3 }).map((unusedItem, idx) => (
-                        <ApprovalStatusCardSkeleton
-                          key={`skeleton-${idx}`}
-                          dataCyPrefix={`time-attendance-leave-request-detail-approval-status-card-skeleton-${idx}`}
-                        />
-                      ))
-                    : // Show actual approval status cards when data is loaded
-                      enrichedApprovalData
-                        ?.sort((a, b) => a.stepOrder - b.stepOrder)
-                        ?.map((approvalCard: ApprovalRecord, idx: number) => (
-                          <ApprovalStatusCard
-                            key={idx}
-                            data={approvalCard}
-                            userName={userData}
-                            userImage={userImage}
-                            data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
-                          />
-                        ))}
-                </div>
-              </>
-            )}
+              <div
+                className="my-2.5"
+                id="time-attendance-leave-request-detail-approval-statuses-info"
+                data-cy="time-attendance-leave-request-detail-approval-statuses-info"
+              >
+                <ApprovalStatusesInfo data-cy="time-attendance-leave-request-detail-approval-statuses-info-component" />
+              </div>
+              {isLogDataLoading
+                ? // Show skeleton loading while fetching approval log data
+                  // eslint-disable-next-line react/no-array-index-key
+                  Array.from({ length: 3 }).map((unusedItem, idx) => (
+                    <ApprovalStatusCardSkeleton
+                      key={`skeleton-${idx}`}
+                      dataCyPrefix={`time-attendance-leave-request-detail-approval-status-card-skeleton-${idx}`}
+                      hideApproverSkeleton={isWorkFromHomeLeave}
+                    />
+                  ))
+                : // Show actual approval status cards when data is loaded
+                  enrichedApprovalData
+                    ?.sort((a, b) => a.stepOrder - b.stepOrder)
+                    ?.map((approvalCard: ApprovalRecord, idx: number) => (
+                      <ApprovalStatusCard
+                        key={idx}
+                        data={approvalCard}
+                        userName={userData}
+                        userImage={userImage}
+                        hideApproverIdentity={isWorkFromHomeLeave}
+                        data-cy={`time-attendance-leave-request-detail-approval-status-card-${idx}`}
+                      />
+                    ))}
+            </div>
             <Divider
               data-cy="time-attendance-leave-request-detail-overall-status-divider"
               className="my-8 h-[5px] bg-gray-200"
