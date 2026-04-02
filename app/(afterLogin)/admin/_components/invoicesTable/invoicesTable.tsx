@@ -594,7 +594,6 @@ const InvoicesTable = ({
               pageSize={effectivePageSize}
               onChange={handlePageChange}
               onShowSizeChange={(size) => handlePageChange(1, size)}
-              hidePageSizeSelect
             />
           )}
         </>
