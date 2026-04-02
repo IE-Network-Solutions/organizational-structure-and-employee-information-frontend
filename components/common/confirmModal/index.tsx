@@ -18,23 +18,23 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onConfirm,
   onCancel,
   loading,
-  imageSrc = '/confirmSvg.svg',
   description,
 }) => {
   const confirmModalFooter = (
     <div
-      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      className="flex justify-end gap-3"
       data-cy="confirm-modal-footer"
     >
       <Button
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+      type="default"
+        className="h-8 font-normal border border-[#D9D9D9]"
         onClick={onCancel}
       >
         No
       </Button>
       <Button
         id="confirmId"
-        className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
+        className="h-8 font-normal"
         type="primary"
         onClick={onConfirm}
       >
@@ -46,35 +46,23 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   return (
     <Modal
       open={open}
-      width={500}
       okText={'Confirm'}
       loading={loading}
       onOk={onConfirm}
       onCancel={onCancel}
       footer={confirmModalFooter}
       closeIcon={false}
+      centered
+      width={400}
     >
       <p
-        data-cy="components-common-confirmmodal-index-tsx-index-p-57"
-        className="flex justify-center items-center h-[200px] m-6"
-      >
-        <Image
-          src={imageSrc}
-          width={300}
-          height={300}
-          alt="Picture of the author"
-          className=""
-        />
-      </p>
-      <p
         data-cy="components-common-confirmmodal-index-tsx-index-p-66"
-        className="flex justify-center items-center mt-4 text-2xl text-gray-950 font-extrabold"
+        className="flex justify-start text-base text-black opacity-70 font-bold"
       >
-        Are you sure?
-      </p>
+           send to payroll      </p>
       <p
         data-cy="components-common-confirmmodal-index-tsx-index-p-69"
-        className="flex justify-center items-center mt-4 text-lg text-gray-950 font-medium"
+        className="flex justify-start mt-4 text-sm text-black opacity-70 font-normal"
       >
         {description}
       </p>

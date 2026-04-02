@@ -235,9 +235,9 @@ const DynamicIncentiveFilter: React.FC = () => {
           <Select
             mode="multiple"
             placeholder="Select Session"
+            maxTagCount="responsive"
             allowClear
             className="w-full h-10"
-            value={draftFilters?.bySession || []}
             onChange={(value) =>
               setDraftFilters((prev) => ({
                 ...prev,

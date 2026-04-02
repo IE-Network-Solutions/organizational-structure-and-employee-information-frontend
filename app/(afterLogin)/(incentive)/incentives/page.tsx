@@ -461,7 +461,7 @@ const Page = () => {
         onConfirm={handleYesSendToPayroll}
         onCancel={() => setConfirmationModal(false)}
         loading={isLoading}
-        description={'You want to send to payroll'}
+        description={'Are You sure you want to send to payroll ?'}
       />
     </div>
   );

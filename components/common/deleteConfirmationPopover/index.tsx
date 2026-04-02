@@ -63,41 +63,44 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
         <div
           id={id}
           data-cy={dataCy}
-          className="py-2"
-          style={{ width: '100%' }}
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           <p
-            className="text-base text-gray-900 mb-4 text-center"
+            className="text-sm text-black opacity-70 font-normal"
             data-cy="components-common-deleteconfirmationpopover-index-tsx-index-p-69"
-            style={{
-              lineHeight: '1.4',
-              wordBreak: 'break-word',
-              maxWidth: '240px',
-              margin: '0 auto 16px auto',
-            }}
           >
             {message}
           </p>
           <div
             data-cy="components-common-deleteconfirmationpopover-index-tsx-index-div-80"
-            className="flex justify-center gap-4"
+            className="flex justify-end gap-2"
           >
             <Button
-              className="px-6 py-2 text-sm font-bold border border-gray-300 bg-white hover:bg-gray-50"
-              onClick={onCancel}
+              type="default"
+              className="h-8 font-normal border border-[#D9D9D9]"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel();
+              }}
               id={`${id}-cancel-button`}
               data-cy={`${dataCy}-cancel-button`}
+              size="small"
             >
               Cancel
             </Button>
             <Button
               type="primary"
               danger
-              className="px-6 py-2 text-sm font-bold bg-red-600 hover:bg-red-700 border-none"
-              onClick={onConfirm}
+              className="h-8 font-normal"
+              onClick={(e) => {
+                e.stopPropagation();
+                onConfirm();
+              }}
               loading={loading}
               id={`${id}-delete-button`}
               data-cy={`${dataCy}-delete-button`}
+              size="small"
             >
               Delete
             </Button>
@@ -105,7 +108,13 @@ const DeleteConfirmationPopover: React.FC<DeleteConfirmationPopoverProps> = ({
         </div>
       }
     >
-      {children}
+      <span
+        className="inline-flex"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {children}
+      </span>
     </Popover>
   );
 };

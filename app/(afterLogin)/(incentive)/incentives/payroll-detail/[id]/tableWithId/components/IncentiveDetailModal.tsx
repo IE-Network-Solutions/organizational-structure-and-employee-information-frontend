@@ -82,14 +82,14 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
       open={open}
       onCancel={onCancel}
       footer={null}
-      width={1000}
+      width={1100}
       centered
       className="p-0"
       destroyOnClose
     >
       <div
         data-cy="incentive-detail-modal-content"
-        className="flex justify-center p-8"
+        className="flex justify-center p-2 sm:p-8"
       >
         {userDetailLoading || employeeDataLoading ? (
           <Spin size="large" />
@@ -101,7 +101,7 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
             {/* Top Box: User Info & Core Data */}
             <div
               data-cy="incentive-detail-modal-content-container-top-box"
-              className="border border-gray-200 rounded-lg p-6 bg-white flex flex-wrap lg:flex-nowrap items-start justify-between gap-6 shadow-sm"
+              className="border border-gray-200 rounded-lg p-2 sm:p-6 bg-white flex flex-wrap lg:flex-nowrap items-start justify-between gap-6 shadow-sm"
             >
               <div
                 data-cy="incentive-detail-modal-content-container-top-box-content"
@@ -137,7 +137,7 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
 
               <div
                 data-cy="incentive-detail-modal-content-container-top-box-content-recognition"
-                className="flex flex-1 gap-8 items-center border-l pl-8 pr-4"
+                className="flex flex-1 gap-8 items-center pl-8 pr-4"
               >
                 <div
                   data-cy="incentive-detail-modal-content-container-top-box-content-recognition-for"

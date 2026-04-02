@@ -4,7 +4,7 @@ import {
   AllIncentiveData,
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
-import { Avatar, Table, TableColumnsType, Tooltip, Space, Tag } from 'antd';
+import { Avatar, Table, TableColumnsType, Tooltip, Tag } from 'antd';
 import React from 'react';
 import { UserOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -106,15 +106,9 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     {
       title: 'Action',
       key: 'actions',
-      fixed: 'right' as const,
       width: 80,
       render: (unused: any, record: any) => (
-        <Space
-          size="middle"
-          onClick={(e) => e.stopPropagation()}
-          id={`incentive-detail-table-actions-${record.id}`}
-          data-cy={`incentive-detail-table-actions-${record.id}`}
-        >
+        
           <AccessGuard
             permissions={[Permissions.DeleteRecognition]}
             id={`incentive-detail-table-delete-guard-${record.id}`}
@@ -146,7 +140,6 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
               </button>
             </DeleteConfirmationPopover>
           </AccessGuard>
-        </Space>
       ),
     },
   ];
