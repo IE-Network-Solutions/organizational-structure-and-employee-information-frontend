@@ -24,7 +24,8 @@ const fetchFeedbackRecordById = async (id: string) => {
 };
 const fetchAllFeedbackRecord = async ({
   variantType,
-  activeTab,
+  feedbackTypeId,
+  feedbackPerspective,
   userId,
   pageSize,
   page,
@@ -32,7 +33,10 @@ const fetchAllFeedbackRecord = async ({
   givenDate,
 }: {
   variantType: 'appreciation' | 'reprimand';
-  activeTab: string;
+  /** When set, API filters by feedback type (Engagement/KPI). Omit to list all types for the variant. */
+  feedbackTypeId?: string;
+  /** Maps to issuerId=… or recipientId=… on the request (Given by vs Issued to). */
+  feedbackPerspective?: 'givenBy' | 'issuedTo' | null;
   userId: string;
   pageSize?: number;
   empId: string;
@@ -54,11 +58,27 @@ const fetchAllFeedbackRecord = async ({
     urlParams.push(`endDate=${givenDate[1]}`);
   }
   if (userId && userId !== 'all') urlParams.push(`userId=${userId}`);
-  if (empId && empId !== '') urlParams.push(`empId=${empId}`);
+
+  const authUserId = useAuthenticationStore.getState().userId ?? '';
+  const perspectiveSubjectId =
+    empId && empId !== ''
+      ? empId
+      : userId && userId !== 'all'
+        ? userId
+        : authUserId;
+
+  if (feedbackPerspective === 'givenBy' && perspectiveSubjectId) {
+    urlParams.push(`issuerId=${perspectiveSubjectId}`);
+  } else if (feedbackPerspective === 'issuedTo' && perspectiveSubjectId) {
+    urlParams.push(`recipientId=${perspectiveSubjectId}`);
+  } else if (empId && empId !== '') {
+    urlParams.push(`empId=${empId}`);
+  }
+
   if (pageSize) urlParams.push(`limit=${pageSize}`);
   if (page) urlParams.push(`page=${page}`);
   if (variantType) urlParams.push(`variantType=${variantType}`);
-  if (activeTab) urlParams.push(`feedbackTypeId=${activeTab}`);
+  if (feedbackTypeId) urlParams.push(`feedbackTypeId=${feedbackTypeId}`);
 
   const url = `${ORG_DEV_URL}/feedback-record?${urlParams.join('&')}`;
 
@@ -75,13 +95,15 @@ const fetchAllFeedbackRecord = async ({
 
 const fetchAllFeedbackRecordForExport = async ({
   variantType,
-  activeTab,
+  feedbackTypeId,
+  feedbackPerspective,
   userId,
   empId,
   givenDate,
 }: {
   variantType: 'appreciation' | 'reprimand';
-  activeTab: string;
+  feedbackTypeId?: string;
+  feedbackPerspective?: 'givenBy' | 'issuedTo' | null;
   userId: string;
   empId: string;
   givenDate?: string[];
@@ -101,9 +123,25 @@ const fetchAllFeedbackRecordForExport = async ({
     urlParams.push(`endDate=${givenDate[1]}`);
   }
   if (userId && userId !== 'all') urlParams.push(`userId=${userId}`);
-  if (empId && empId !== '') urlParams.push(`empId=${empId}`);
+
+  const authUserId = useAuthenticationStore.getState().userId ?? '';
+  const perspectiveSubjectId =
+    empId && empId !== ''
+      ? empId
+      : userId && userId !== 'all'
+        ? userId
+        : authUserId;
+
+  if (feedbackPerspective === 'givenBy' && perspectiveSubjectId) {
+    urlParams.push(`issuerId=${perspectiveSubjectId}`);
+  } else if (feedbackPerspective === 'issuedTo' && perspectiveSubjectId) {
+    urlParams.push(`recipientId=${perspectiveSubjectId}`);
+  } else if (empId && empId !== '') {
+    urlParams.push(`empId=${empId}`);
+  }
+
   if (variantType) urlParams.push(`variantType=${variantType}`);
-  if (activeTab) urlParams.push(`feedbackTypeId=${activeTab}`);
+  if (feedbackTypeId) urlParams.push(`feedbackTypeId=${feedbackTypeId}`);
 
   const url = `${ORG_DEV_URL}/feedback-record?${urlParams.join('&')}`;
 
@@ -129,7 +167,8 @@ export const useFetchFeedbackRecordById = (id: string) => {
 
 export const useFetchAllFeedbackRecord = ({
   variantType,
-  activeTab,
+  feedbackTypeId,
+  feedbackPerspective,
   userId,
   pageSize,
   page,
@@ -137,7 +176,8 @@ export const useFetchAllFeedbackRecord = ({
   givenDate,
 }: {
   variantType: 'appreciation' | 'reprimand';
-  activeTab: string;
+  feedbackTypeId?: string;
+  feedbackPerspective?: 'givenBy' | 'issuedTo' | null;
   userId: string;
   pageSize?: number;
   empId: string;
@@ -147,12 +187,22 @@ export const useFetchAllFeedbackRecord = ({
   return useQuery(
     [
       'feedbackRecord',
-      { variantType, activeTab, userId, empId, pageSize, page, givenDate },
+      {
+        variantType,
+        feedbackTypeId: feedbackTypeId ?? null,
+        feedbackPerspective: feedbackPerspective ?? null,
+        userId,
+        empId,
+        pageSize,
+        page,
+        givenDate,
+      },
     ],
     () =>
       fetchAllFeedbackRecord({
         variantType,
-        activeTab,
+        feedbackTypeId,
+        feedbackPerspective,
         userId,
         pageSize,
         empId,
@@ -164,13 +214,15 @@ export const useFetchAllFeedbackRecord = ({
 
 export const useFetchAllFeedbackRecordForExport = ({
   variantType,
-  activeTab,
+  feedbackTypeId,
+  feedbackPerspective,
   userId,
   empId,
   givenDate,
 }: {
   variantType: 'appreciation' | 'reprimand';
-  activeTab: string;
+  feedbackTypeId?: string;
+  feedbackPerspective?: 'givenBy' | 'issuedTo' | null;
   userId: string;
   empId: string;
   givenDate?: string[];
@@ -178,12 +230,20 @@ export const useFetchAllFeedbackRecordForExport = ({
   return useQuery(
     [
       'feedbackRecordForExport',
-      { variantType, activeTab, userId, empId, givenDate },
+      {
+        variantType,
+        feedbackTypeId: feedbackTypeId ?? null,
+        feedbackPerspective: feedbackPerspective ?? null,
+        userId,
+        empId,
+        givenDate,
+      },
     ],
     () =>
       fetchAllFeedbackRecordForExport({
         variantType,
-        activeTab,
+        feedbackTypeId,
+        feedbackPerspective,
         userId,
         empId,
         givenDate,
