@@ -5,6 +5,7 @@ import { useFetchUsers } from '@/store/server/features/feedback/category/queries
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Button, Form, Input, Modal, Select } from 'antd';
+import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import React, { useEffect } from 'react';
 
 interface CategoryFormValues {
@@ -206,9 +207,8 @@ const CreateSurvayCategory = () => {
           rules={[{ required: true, message: 'Please enter a description.' }]}
           data-cy="create-survey-category-form-item-description"
         >
-          <Input.TextArea
+          <SettingsTextArea
             allowClear
-            rows={4}
             placeholder="Textarea"
             className="rounded-md"
           />

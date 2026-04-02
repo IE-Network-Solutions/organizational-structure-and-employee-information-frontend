@@ -1,5 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Modal } from 'antd';
+import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import { MdClose } from 'react-icons/md';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -170,7 +171,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
             data-cy="meeting-template-drawer-description-field"
             id="meetingTemplateDrawerDescriptionField"
           >
-            <Input.TextArea
+            <SettingsTextArea
               placeholder="Some sort of description"
               data-cy="meeting-template-drawer-description-textarea"
               id="meetingTemplateDrawerDescriptionTextarea"

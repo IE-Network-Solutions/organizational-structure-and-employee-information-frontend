@@ -7,6 +7,7 @@ import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 import { Button, Form, Input, Modal } from 'antd';
+import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import React, { useEffect } from 'react';
 
 interface MeetingTypeDrawerProps {
@@ -166,8 +167,7 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           data-cy="meeting-type-drawer-description-field"
           id="meetingTypeDrawerDescriptionField"
         >
-          <Input.TextArea
-            rows={3}
+          <SettingsTextArea
             placeholder="Textarea"
             data-cy="meeting-type-drawer-description-textarea"
             id="meetingTypeDrawerDescriptionTextarea"

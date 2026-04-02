@@ -11,6 +11,7 @@ import {
   Input,
   Modal,
 } from 'antd';
+import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -437,8 +438,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             name="description"
             data-cy="recognition-category-form-description"
           >
-            <Input.TextArea
-              rows={3}
+            <SettingsTextArea
               placeholder="Description"
               data-cy="recognition-category-form-description-input"
             />
@@ -473,6 +473,20 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         .ant-picker-input > input::placeholder,
         .ant-mentions > textarea::placeholder {
           font-size: 14px !important;
+        }
+
+        /* Single-line inputs & selects: 40px tall (not textarea / not TextArea wrappers) */
+        .ant-input:not(textarea),
+        .ant-input-affix-wrapper:not(.ant-input-textarea-affix-wrapper),
+        .ant-input-number,
+        .ant-select-single .ant-select-selector,
+        .ant-picker {
+          height: 40px !important;
+          min-height: 40px !important;
+        }
+
+        .ant-select-multiple .ant-select-selector {
+          min-height: 40px !important;
         }
       `}</style>
     </div>

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Form, Input, InputNumber, Button, Select, Modal } from 'antd';
+import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import { commonClass } from '@/types/enumTypes';
 import {
   useCreateFeedback,
@@ -369,9 +370,8 @@ const CreateFeedback: React.FC = () => {
             data-cy="create-feedback-form-description-field"
             id="createFeedbackFormDescriptionField"
           >
-            <Input.TextArea
+            <SettingsTextArea
               className={commonClass}
-              rows={2}
               placeholder="Enter description"
               data-cy="create-feedback-form-description-textarea"
               id="createFeedbackFormDescriptionTextarea"
