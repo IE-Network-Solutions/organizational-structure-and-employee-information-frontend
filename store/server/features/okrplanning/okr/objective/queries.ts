@@ -270,8 +270,13 @@ export const useGetEmployeeOkr = (
   },
   page: number,
   currentPage: number,
+  queryOptions?: { enabled?: boolean },
 ) =>
   useQuery<ResponseData>(
     ['employeeOkrInformation', sessions, searchObjParams, page, currentPage],
     () => getEmployeeOkr(sessions, searchObjParams, page, currentPage),
+    {
+      keepPreviousData: true,
+      enabled: queryOptions?.enabled ?? true,
+    },
   );

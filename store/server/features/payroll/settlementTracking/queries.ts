@@ -32,8 +32,10 @@ interface SettlementTrackingResponse {
   limit: number;
 }
 
-interface SettlementTrackingDetail
-  extends Omit<SettlementTrackingResponse['data'][0], 'compensation'> {
+interface SettlementTrackingDetail extends Omit<
+  SettlementTrackingResponse['data'][0],
+  'compensation'
+> {
   compensation: {
     type: string;
     amount: number;

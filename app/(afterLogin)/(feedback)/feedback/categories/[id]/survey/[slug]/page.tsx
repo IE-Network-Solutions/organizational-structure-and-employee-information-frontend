@@ -1,284 +1,300 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import CustomButton from '@/components/common/buttons/customButton';
-import React from 'react';
-import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
+import React, { useLayoutEffect } from 'react';
+import { PlusOutlined } from '@ant-design/icons';
 import {
   GraphType,
   useOrganizationalDevelopment,
 } from '@/store/uistate/features/organizationalDevelopment';
 import { Col, Row, Select, Skeleton, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
+import Link from 'next/link';
 import IndividualResponses from './_components/individualResponses';
 import ActionPlans from './_components/actionPlans';
 import CreateActionPlan from './_components/createActionPlan';
 import Questions from './_components/questions';
+import SurveyInsights from './_components/surveyInsights';
 import { useGetFormsByID } from '@/store/server/features/feedback/form/queries';
-import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 const { Option } = Select;
-interface Params {
-  slug: string;
-}
-interface FormDetailProps {
-  params: Params;
-}
-function Page({ params: { slug } }: FormDetailProps) {
-  const { activeTab, setActiveTab, setOpen, setGraphType } =
-    useOrganizationalDevelopment();
 
-  const { data: formsData, isLoading: isFormDataLoading } =
-    useGetFormsByID(slug);
+function Page() {
+  const params = useParams();
+  const slug = (params?.slug as string) || '';
+  const categoryId = (params?.id as string) || '';
 
-  const router = useRouter();
+  const { data: formData, isLoading: isFormLoading } = useGetFormsByID(slug);
+
+  const {
+    activeTab,
+    setActiveTab,
+    setOpen,
+    setGraphType,
+    setSelectedEditActionPlan,
+    setNumberOfActionPlan,
+  } = useOrganizationalDevelopment();
+
+  useLayoutEffect(() => {
+    if (slug) setActiveTab('0');
+  }, [slug, setActiveTab]);
+
+  const categoryHref = categoryId
+    ? `/feedback/categories/${categoryId}`
+    : '/feedback/categories';
 
   const items: TabsProps['items'] = [
+    {
+      key: '0',
+      label: (
+        <span
+          className="survey-detail-tab-label text-[16px] font-normal"
+          data-cy="survey-detail-tab-text-insights"
+        >
+          Insights
+        </span>
+      ),
+      children: (
+        <div
+          className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden"
+          data-cy="survey-detail-tab-content-insights"
+        >
+          <SurveyInsights formId={slug} />
+        </div>
+      ),
+    },
     {
       key: '1',
       label: (
         <span
-          id="survey-detail-tab-label-questions"
-          data-cy="survey-detail-tab-label-questions"
-          className="mt-4"
+          className="survey-detail-tab-label text-[16px] font-normal"
+          data-cy="survey-detail-tab-text-questions"
         >
-          <p
-            id="survey-detail-tab-text-questions"
-            data-cy="survey-detail-tab-text-questions"
-            className="font-semibold"
-          >
-            Questions
-          </p>
+          Questions
         </span>
       ),
       children: (
-        <Questions id={slug} data-cy="survey-detail-tab-content-questions" />
+        <div
+          className="flex h-full min-h-0 flex-col overflow-hidden"
+          data-cy="survey-detail-tab-content-questions"
+        >
+          <Questions id={slug} />
+        </div>
       ),
-      className: 'text-gray-950 font-semibold ',
     },
     {
       key: '2',
       label: (
         <span
-          id="survey-detail-tab-label-responses"
-          data-cy="survey-detail-tab-label-responses"
-          className="mt-4"
+          className="survey-detail-tab-label text-[16px] font-normal"
+          data-cy="survey-detail-tab-text-responses"
         >
-          <p
-            id="survey-detail-tab-text-responses"
-            data-cy="survey-detail-tab-text-responses"
-            className="font-semibold"
-          >
-            Responses
-          </p>
+          Responses
         </span>
       ),
       children: (
-        <IndividualResponses
-          id={slug}
+        <div
+          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide"
           data-cy="survey-detail-tab-content-responses"
-        />
+        >
+          <IndividualResponses id={slug} />
+        </div>
       ),
-      className: 'text-gray-950 font-semibold',
     },
-    // {
-    //   key: '3',
-    //   label: (
-    //     <span className="mt-4">
-    //       <p className="font-semibold">Summary Responses</p>
-    //     </span>
-    //   ),
-    //   children: <SummaryResponses id={slug} />,
-    //   className: 'text-gray-950 font-semibold',
-    // },
     {
       key: '4',
       label: (
         <span
-          id="survey-detail-tab-label-action-plans"
-          data-cy="survey-detail-tab-label-action-plans"
-          className="mt-4"
+          className="survey-detail-tab-label text-[16px] font-normal"
+          data-cy="survey-detail-tab-text-action-plans"
         >
-          <p
-            id="survey-detail-tab-text-action-plans"
-            data-cy="survey-detail-tab-text-action-plans"
-            className="font-semibold"
-          >
-            Action Plans
-          </p>
+          Action Plans
         </span>
       ),
       children: (
-        <ActionPlans
-          id={slug}
+        <div
+          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide"
           data-cy="survey-detail-tab-content-action-plans"
-        />
+        >
+          <ActionPlans id={slug} />
+        </div>
       ),
-      className: 'text-gray-950 font-semibold',
     },
   ];
+
   const handleChangeGraphType = (e: GraphType) => {
     setGraphType(e);
   };
   const showDrawer = () => {
+    setSelectedEditActionPlan(null);
+    setNumberOfActionPlan(1);
     setOpen(true);
   };
   const onClose = () => {
     setOpen(false);
-  };
-  const onChange = (key: string) => {
-    setActiveTab(key);
   };
 
   return (
     <div
       id="survey-detail-page-container"
       data-cy="survey-detail-page-container"
-      className="flex flex-wrap justify-between items-center p-2"
+      className="box-border flex h-[calc(100dvh-74px)] w-full min-h-0 flex-col overflow-hidden bg-white pt-5 md:pt-6"
     >
       <div
-        id="survey-detail-page-header"
-        data-cy="survey-detail-page-header"
-        className="flex gap-4"
+        className="mb-4 w-full min-w-0 shrink-0 bg-white md:mb-6"
+        data-cy="survey-detail-header-block"
       >
-        <ArrowLeftOutlined
-          id="survey-detail-back-button"
-          data-cy="survey-detail-back-button"
-          className="cursor-pointer"
-          onClick={() => router.back()}
-        />
         <CustomBreadcrumb
           data-cy="survey-detail-breadcrumb"
-          title={
-            isFormDataLoading ? (
-              <Skeleton.Input
-                data-cy="survey-detail-title-skeleton"
-                active
-                size="small"
-              />
-            ) : (
-              formsData?.name
-            )
+          compact
+          title="Survey"
+          subtitle={
+            <>
+              <Link
+                href="/feedback/categories"
+                className="text-slate-500 hover:text-[#2D5BFF] transition-colors"
+                data-cy="survey-breadcrumb-cfr"
+              >
+                CFR
+              </Link>
+              <span
+                className="text-slate-500"
+                data-cy="survey-breadcrumb-sep-1"
+              >
+                {' '}
+                /{' '}
+              </span>
+              <Link
+                href="/feedback/conversation"
+                className="text-slate-500 hover:text-[#2D5BFF] transition-colors"
+                data-cy="survey-breadcrumb-conversation"
+              >
+                Conversation
+              </Link>
+              <span
+                className="text-slate-500"
+                data-cy="survey-breadcrumb-sep-2"
+              >
+                {' '}
+                /{' '}
+              </span>
+              <Link
+                href={categoryHref}
+                className="text-slate-500 hover:text-[#2D5BFF] transition-colors"
+                data-cy="survey-breadcrumb-survey-link"
+              >
+                Survey
+              </Link>
+              <span
+                className="text-slate-500"
+                data-cy="survey-breadcrumb-sep-3"
+              >
+                {' '}
+                /{' '}
+              </span>
+              {isFormLoading ? (
+                <Skeleton.Input
+                  active
+                  size="small"
+                  className="!inline-block align-middle"
+                  data-cy="survey-breadcrumb-name-skeleton"
+                />
+              ) : (
+                <span
+                  className="text-[#000000B2] font-medium"
+                  data-cy="survey-breadcrumb-survey-name"
+                >
+                  {formData?.name ?? '—'}
+                </span>
+              )}
+            </>
           }
-          subtitle=""
-          items={[
-            { title: 'Home', href: '/' },
-            {
-              title: 'Tenants',
-              href: '/tenant-manuser_typem"098765445676"/tenants',
-            },
-          ]}
         />
+
+        <Row
+          id="survey-detail-filter-row"
+          data-cy="survey-detail-filter-row"
+          justify="center"
+          style={{ width: '100%' }}
+        >
+          {activeTab === '3' && (
+            <Col
+              span={8}
+              id="survey-detail-graph-select-column"
+              data-cy="survey-detail-graph-select-column"
+            >
+              <Select
+                id="selectStatusChartType"
+                data-cy="selectStatusChartType"
+                placeholder="All Status"
+                onChange={handleChangeGraphType}
+                allowClear
+                className="w-full h-[48px] my-4"
+              >
+                <Option
+                  id="survey-detail-graph-option-bar"
+                  data-cy="survey-detail-graph-option-bar"
+                  key="active"
+                  value="barGraph"
+                >
+                  Bar graph
+                </Option>
+                <Option
+                  id="survey-detail-graph-option-pie"
+                  data-cy="survey-detail-graph-option-pie"
+                  key="pie"
+                  value="pieChart"
+                >
+                  Pie chart
+                </Option>
+              </Select>
+            </Col>
+          )}
+        </Row>
       </div>
 
-      {activeTab === '4' && (
-        <div
-          id="survey-detail-action-plan-section"
-          data-cy="survey-detail-action-plan-section"
-          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-        >
-          <CustomButton
-            title="Create New Action Plan"
-            id="survey-detail-create-action-button"
-            data-cy="survey-detail-create-action-button"
-            icon={
-              <PlusOutlined
-                id="survey-detail-create-action-icon"
-                data-cy="survey-detail-create-action-icon"
-                className="mr-2"
-              />
-            }
-            onClick={showDrawer}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
-          <CreateActionPlan
-            onClose={onClose}
-            id={slug}
-            data-cy="survey-detail-create-action-drawer"
-          />
-        </div>
-      )}
-
-      <Row
-        id="survey-detail-filter-row"
-        data-cy="survey-detail-filter-row"
-        justify="center"
-        style={{ width: '100%' }}
-      >
-        {/* {activeTab === '2' && (
-          <Col span={8}>
-            <Select
-              id={`selectStatusChartType`}
-              placeholder="All Users"
-              loading={userLoading}
-              onChange={handleUserChange}
-              allowClear
-              className="w-full h-[48px] my-4"
-            >
-              {employeeData?.items?.map((item: any) => (
-                <Option key="active" value={item.id}>
-                  <div className="flex space-x-3 p-1 rounded">
-                    <img
-                      src={`${item?.profileImage}`}
-                      alt="pep"
-                      className="rounded-full w-4 h-4 mt-2"
-                    />
-                    <span className="flex justify-center items-center">
-                      {item?.firstName + ' ' + ' ' + item?.middleName}
-                    </span>
-                  </div>
-                </Option>
-              ))}
-            </Select>
-          </Col>
-        )} */}
-        {activeTab === '3' && (
-          <Col
-            span={8}
-            id="survey-detail-graph-select-column"
-            data-cy="survey-detail-graph-select-column"
-          >
-            <Select
-              id={`selectStatusChartType`}
-              data-cy={`selectStatusChartType`}
-              placeholder="All Status"
-              onChange={handleChangeGraphType}
-              allowClear
-              className="w-full h-[48px] my-4"
-            >
-              <Option
-                id="survey-detail-graph-option-bar"
-                data-cy="survey-detail-graph-option-bar"
-                key="active"
-                value="barGraph"
-              >
-                Bar graph
-              </Option>
-              <Option
-                id="survey-detail-graph-option-pie"
-                data-cy="survey-detail-graph-option-pie"
-                key="active"
-                value="pieChart"
-              >
-                Pie chart
-              </Option>
-            </Select>
-          </Col>
-        )}
-      </Row>
       <div
-        id="survey-detail-tabs-container"
-        data-cy="survey-detail-tabs-container"
-        className="flex justify-between"
+        className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-white pb-5 md:pb-6"
+        data-cy="survey-detail-inner"
       >
         <Tabs
           id="survey-detail-tabs"
           data-cy="survey-detail-tabs"
-          defaultActiveKey="1"
-          className="w-[900px]"
+          activeKey={activeTab}
+          onChange={setActiveTab}
+          tabBarExtraContent={
+            activeTab === '4' ? (
+              <button
+                type="button"
+                id="survey-detail-create-action-button"
+                data-cy="survey-detail-create-action-button"
+                onClick={showDrawer}
+                className="inline-flex items-center gap-2 rounded-md bg-[#1E40AF] px-4 py-2 text-sm font-semibold text-white shadow-none transition-colors hover:bg-[#1E3A8A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF] focus-visible:ring-offset-2"
+              >
+                <PlusOutlined
+                  id="survey-detail-create-action-icon"
+                  data-cy="survey-detail-create-action-icon"
+                  className="text-base"
+                />
+                New Action Plan
+              </button>
+            ) : null
+          }
+          className="survey-detail-tabs mt-0 flex !h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white [&_.ant-tabs-content-holder]:!mt-0 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:!px-0 [&_.ant-tabs-content-holder]:!pt-3 [&_.ant-tabs-content-holder]:overflow-hidden [&_.ant-tabs-content-holder]:scrollbar-hide [&_.ant-tabs-content]:!m-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-content]:min-h-0 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:bg-white [&_.ant-tabs-nav]:before:border-slate-200 [&_.ant-tabs-nav]:!px-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-tab]:pb-2 [&_.ant-tabs-tab]:text-slate-600 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-[#1E40AF] [&_.ant-tabs-tab_.survey-detail-tab-label]:font-normal [&_.ant-tabs-tab-active_.survey-detail-tab-label]:font-bold [&_.ant-tabs-ink-bar]:bg-[#1E40AF] [&_.ant-tabs-tabpane]:!m-0 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:min-h-0 [&_.ant-tabs-tabpane]:!p-0 [&_.ant-tabs-tabpane]:overflow-hidden [&_.ant-tabs-tabpane]:scrollbar-hide"
           items={items}
-          onChange={onChange}
         />
       </div>
+
+      <CreateActionPlan
+        onClose={onClose}
+        id={slug}
+        surveyContext={{
+          title: formData?.name ?? formData?.title,
+          description: formData?.description,
+          updatedAt: formData?.updatedAt,
+        }}
+        data-cy="survey-detail-create-action-drawer"
+      />
     </div>
   );
 }
