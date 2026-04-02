@@ -92,6 +92,7 @@ const Page = () => {
 
   const [isExporting, setIsExporting] = useState(false);
   const [filterModalOpen, setFilterModalOpen] = useState(false);
+  const [isFilterPopoverNarrow, setIsFilterPopoverNarrow] = useState(false);
 
   // Local draft state for the filter modal
   const [filterDraftDate, setFilterDraftDate] = useState<
@@ -201,6 +202,17 @@ const Page = () => {
       setActiveTab(getAllFeedbackTypes.items[0].id);
     }
   }, [getAllFeedbackTypes, userIdData, setUserId, setActiveTab]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const mq = window.matchMedia('(max-width: 767px)');
+    const sync = () => setIsFilterPopoverNarrow(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const handleExport = async () => {
     if (userId !== 'all') return;
@@ -624,15 +636,15 @@ const Page = () => {
       >
         {/* Search & Date Filters */}
         <div
-          className="flex flex-col gap-3 px-3 pb-4 pt-5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-3 md:px-6 md:pb-6 md:pt-6"
+          className="feedback-page-search-filters flex flex-row flex-wrap items-center justify-between gap-0 px-2 pb-4 pt-5 md:gap-3 md:px-6 md:pb-6 md:pt-6"
           data-cy="feedback-page-search-filters"
         >
           <div
-            className="relative min-w-0 w-full max-w-full shrink md:w-[299px] md:flex-none"
+            className="relative h-8 min-w-0 max-w-[299px] flex-1 basis-0 shrink md:h-auto md:w-[299px] md:flex-none md:basis-auto"
             data-cy="feedback-page-employee-select-wrap"
           >
             <div
-              className="feedback-search-composite flex h-8 w-full items-stretch overflow-hidden rounded-md border border-[#D9D9D9] bg-white transition-colors focus-within:border-[#2563eb] focus-within:ring-1 focus-within:ring-[#2563eb]/20 md:border-[#e5e7eb]"
+              className="feedback-search-composite flex h-full min-h-8 w-full min-w-0 items-stretch overflow-hidden rounded-[6px] border border-[#D9D9D9] bg-white transition-colors focus-within:border-[#2563eb] focus-within:ring-1 focus-within:ring-[#2563eb]/20 md:border-[#e5e7eb] md:rounded-md"
               data-cy="feedback-page-search-wrapper"
             >
               <Select
@@ -657,12 +669,12 @@ const Page = () => {
                 data-cy="feedback-page-search-input"
               />
               <span
-                className="w-px shrink-0 self-stretch bg-[#e5e7eb]"
+                className="w-px shrink-0 self-stretch bg-[#D9D9D9]"
                 aria-hidden
                 data-cy="feedback-page-search-divider"
               />
               <div
-                className="flex w-9 shrink-0 items-center justify-center bg-white"
+                className="flex h-8 w-8 shrink-0 items-center justify-center bg-white"
                 aria-hidden
                 data-cy="feedback-page-search-icon"
               >
@@ -672,7 +684,7 @@ const Page = () => {
           </div>
 
           <div
-            className="flex min-w-0 flex-1 flex-row flex-wrap items-center justify-end gap-2 self-stretch md:min-w-0 md:flex-none md:justify-end"
+            className="flex h-8 min-w-0 shrink-0 flex-row flex-wrap items-center justify-end gap-2 md:h-auto md:flex-none"
             data-cy="feedback-page-filter-chips-wrap"
           >
             {appliedFilterChips.map((chip) => (
@@ -714,15 +726,27 @@ const Page = () => {
                 }
                 setFilterModalOpen(open);
               }}
-              placement="bottomRight"
+              placement={isFilterPopoverNarrow ? 'bottom' : 'bottomRight'}
               trigger="click"
               arrow={false}
               destroyTooltipOnHide
+              autoAdjustOverflow
+              getPopupContainer={() => document.body}
               overlayClassName="feedback-filter-popover"
+              overlayStyle={
+                isFilterPopoverNarrow
+                  ? {
+                      boxSizing: 'border-box',
+                    }
+                  : undefined
+              }
               overlayInnerStyle={{
                 padding: 0,
-                width: 509,
-                maxWidth: 'min(509px, calc(100vw - 24px))',
+                boxSizing: 'border-box',
+                width: isFilterPopoverNarrow ? '100%' : 509,
+                maxWidth: isFilterPopoverNarrow
+                  ? '100%'
+                  : 'min(509px, calc(100vw - 24px))',
                 borderRadius: 8,
                 boxShadow:
                   '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
@@ -731,7 +755,7 @@ const Page = () => {
               data-cy="feedback-filter-popover"
               content={
                 <div
-                  className="feedback-filter-modal-root flex max-h-[min(346px,90vh)] flex-col items-stretch bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif]"
+                  className="feedback-filter-modal-root flex max-h-[min(346px,calc(100dvh-120px))] max-w-full flex-col items-stretch overflow-x-hidden bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif] md:max-h-[min(346px,90vh)]"
                   data-cy="feedback-filter-modal-root"
                 >
                   <div
@@ -760,7 +784,7 @@ const Page = () => {
                     data-cy="feedback-filter-modal-scroll"
                   >
                     <div
-                      className="flex w-full max-w-[461px] flex-col"
+                      className="flex w-full max-w-full flex-col md:max-w-[461px]"
                       data-cy="feedback-filter-modal-issue-date-section"
                     >
                       <div
@@ -803,13 +827,14 @@ const Page = () => {
                             ]);
                           }
                         }}
-                        className="feedback-modal-range-picker w-full max-w-[461px]"
+                        className="feedback-modal-range-picker w-full max-w-full md:max-w-[461px]"
+                        getPopupContainer={() => document.body}
                         data-cy="feedback-filter-modal-date-range"
                       />
                     </div>
 
                     <div
-                      className="flex w-full max-w-[461px] flex-col"
+                      className="flex w-full max-w-full flex-col md:max-w-[461px]"
                       data-cy="feedback-filter-modal-type-section"
                     >
                       <div
@@ -834,8 +859,9 @@ const Page = () => {
                             label: item.category,
                           }),
                         )}
-                        className="feedback-modal-type-select w-full max-w-[461px]"
+                        className="feedback-modal-type-select w-full max-w-full md:max-w-[461px]"
                         popupClassName="feedback-modal-type-dropdown"
+                        getPopupContainer={() => document.body}
                         data-cy="feedback-filter-modal-type"
                       />
                     </div>
@@ -887,16 +913,22 @@ const Page = () => {
             >
               <Button
                 type="default"
+                aria-label="Filter"
                 icon={
                   <MdOutlineFilterAlt
                     className="text-base text-[#374151]"
                     aria-hidden
                   />
                 }
-                className="flex !h-8 shrink-0 items-center gap-2 !rounded-md !border !border-[#D9D9D9] !bg-white !px-3 !text-sm !font-normal !text-[#374151] shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#d1d5db] md:!border-[#e5e7eb] md:shadow-none"
+                className="flex !h-8 !min-h-8 shrink-0 items-center justify-center gap-2 !rounded-[6px] !border !border-[#D9D9D9] !bg-white !px-3 !text-sm !font-normal !text-[#374151] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#d1d5db] max-md:!h-8 max-md:!w-8 max-md:!min-w-8 max-md:!max-w-8 max-md:!gap-0 max-md:!p-0 md:!w-auto md:!max-w-none md:!justify-start md:!border-[#e5e7eb] md:!px-3"
                 data-cy="feedback-page-date-filter-btn"
               >
-                Filter
+                <span
+                  className="hidden md:inline"
+                  data-cy="feedback-page-date-filter-btn-label"
+                >
+                  Filter
+                </span>
               </Button>
             </Popover>
           </div>
@@ -968,6 +1000,26 @@ const Page = () => {
       <CreateFeedbackForm form={form} data-cy="feedback-page-create-form" />
 
       <style jsx global data-cy="feedback-page-style">{`
+        @media (max-width: 767px) {
+          .feedback-filter-popover.ant-popover {
+            /*
+              Equal horizontal inset + stretch between edges so the panel
+              stays in the viewport (avoids right-edge spill from trigger align).
+            */
+            box-sizing: border-box !important;
+            left: max(12px, env(safe-area-inset-left, 0px)) !important;
+            right: max(12px, env(safe-area-inset-right, 0px)) !important;
+            width: auto !important;
+            max-width: none !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+          .feedback-filter-popover.ant-popover .ant-popover-inner {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+            width: 100% !important;
+          }
+        }
         .feedback-filter-popover.ant-popover .ant-popover-inner {
           padding: 0 !important;
         }
