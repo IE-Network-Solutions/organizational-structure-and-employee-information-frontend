@@ -29,6 +29,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
   onSaveSuccess,
+  hideRemoveButton,
 }) => {
   const [form] = Form.useForm();
   const { objectiveValue } = useOKRStore();
@@ -54,19 +55,21 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
       data-cy={`okr-achieve-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-white border border-gray-200 rounded-lg p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div
-        className="absolute top-2 right-2"
-        style={{ zIndex: 10 }}
-        data-cy={`okr-achieve-form-remove-wrapper-${index}`}
-      >
-        <KeyResultRemoveButton
-          onClick={() => removeKeyResult(index)}
-          title="Remove Key Result"
-          aria-label="Remove Key Result"
-          id={`remove-key-result-${index}`}
-          data-cy={`okr-achieve-form-remove-${index}`}
-        />
-      </div>
+      {!hideRemoveButton && (isBasic || !isCardView) ? (
+        <div
+          className="absolute top-2 right-2"
+          style={{ zIndex: 10 }}
+          data-cy={`okr-achieve-form-remove-wrapper-${index}`}
+        >
+          <KeyResultRemoveButton
+            onClick={() => removeKeyResult(index)}
+            title="Remove Key Result"
+            aria-label="Remove Key Result"
+            id={`remove-key-result-${index}`}
+            data-cy={`okr-achieve-form-remove-${index}`}
+          />
+        </div>
+      ) : null}
 
       {/* Advanced mode: "You Have Selected" badge */}
       {!isBasic && (

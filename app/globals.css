@@ -1475,6 +1475,18 @@ h6 {
   box-shadow: none !important;
 }
 
+/* Keep global Ant notifications above high-z-index OKR modals */
+.ant-notification {
+  z-index: 13001 !important;
+}
+
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft {
+  z-index: 13001 !important;
+}
+
 /* Mobile bottom-sheet modal style for OKR Create Objective – opens from bottom, full width, rounded top */
 @media (max-width: 768px) {
   /* Align wrap so the modal sits at the bottom instead of centered */

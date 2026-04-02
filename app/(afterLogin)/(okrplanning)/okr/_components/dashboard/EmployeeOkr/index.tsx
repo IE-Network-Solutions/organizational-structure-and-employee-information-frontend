@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useCallback, useState } from 'react';
-import { Table, Avatar, Button, Popover, Modal, Select } from 'antd';
-import { UserOutlined, CloseOutlined } from '@ant-design/icons';
-import { LuSettings2 } from 'react-icons/lu';
+import { Table, Button, Popover, Modal, Select } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetEmployeeOkr } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -20,12 +20,19 @@ import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/q
 
 const { Option } = Select;
 
-// Memoized score tag component to prevent unnecessary re-renders
+/** Match manage-employees `UserTable` header / body typography */
+const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
+const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
+
+const scoreBoxClassName =
+  'inline-flex items-center justify-center min-w-[3.25rem] px-2.5 py-1 rounded-md text-xs font-medium border border-gray-200 text-gray-700 bg-white whitespace-nowrap';
+
+// Memoized score tag component — neutral bordered chip (My OKR card style); same thresholds/data-cy for tests
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
   if (score >= 90)
     return (
       <span
-        className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold"
+        className={scoreBoxClassName}
         data-cy={`okr-employee-score-tag-green-${score}`}
       >
         {score?.toLocaleString()}%
@@ -34,7 +41,7 @@ const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
   if (score >= 75)
     return (
       <span
-        className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"
+        className={scoreBoxClassName}
         data-cy={`okr-employee-score-tag-yellow-${score}`}
       >
         {score?.toLocaleString()}%
@@ -42,7 +49,7 @@ const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
     );
   return (
     <span
-      className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+      className={scoreBoxClassName}
       data-cy={`okr-employee-score-tag-red-${score}`}
     >
       {score?.toLocaleString()}%
@@ -64,11 +71,14 @@ const EmployeeDetails = React.memo(
 
     if (error || !userDetails) return '-';
 
-    const userName =
-      `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName} ` ||
-      '-';
-    const email = `${userDetails?.email} ` || '-';
-    const profileImage = userDetails?.profileImage;
+    const MAX_NAME_LENGTH = 20;
+    const fullName = [userDetails?.firstName, userDetails?.lastName]
+      .filter(Boolean)
+      .join(' ');
+    const displayName =
+      fullName.length > MAX_NAME_LENGTH
+        ? `${fullName.slice(0, MAX_NAME_LENGTH)}...`
+        : fullName || '-';
     const jobPosition =
       `${userDetails?.employeeJobInformation[0]?.position?.name} ` || '-';
     const department =
@@ -76,21 +86,15 @@ const EmployeeDetails = React.memo(
     return (
       <>
         {type === 'user' ? (
-          <div className="flex gap-2" data-cy="employee-okr-user-info">
-            <Avatar src={profileImage} icon={<UserOutlined />} />
-            <div data-cy="employee-okr-user-details">
-              {userName}
-              <div
-                className="text-xs text-gray-500"
-                data-cy="employee-okr-user-email"
-              >
-                {email}
-              </div>
-            </div>
-          </div>
+          <span
+            className={tableCellClassName}
+            data-cy="employee-okr-user-display-name"
+          >
+            {displayName}
+          </span>
         ) : (
           <span
-            className="text-xs text-gray-500"
+            className={tableCellClassName}
             data-cy={`employee-okr-${type}-info`}
           >
             {type == 'job' ? jobPosition : department}
@@ -117,13 +121,22 @@ const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
   const sessionName = `${session?.name}` || '-';
 
   return (
-    <span className="text-xs text-gray-500" data-cy="employee-okr-session-name">
+    <span
+      className={tableCellClassName}
+      data-cy="employee-okr-session-name"
+    >
       {sessionName}
     </span>
   );
 });
 
-const EmployeeOKRTable: React.FC = () => {
+interface EmployeeOKRTableProps {
+  'data-cy'?: string;
+}
+
+const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
+  'data-cy': dataCy = 'okr-employee-okr-table-container',
+}) => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState<boolean>(false);
   const {
     employeeSearchObjParams,
@@ -193,31 +206,63 @@ const EmployeeOKRTable: React.FC = () => {
   const columns = useMemo(
     () => [
       {
-        title: 'Employee Name',
+        title: (
+          <span
+            className={tableHeaderClassName}
+            data-cy="okr-employee-table-th-name"
+          >
+            Employee Name
+          </span>
+        ),
         dataIndex: 'userId',
         key: 'userId',
+        ellipsis: true,
+        width: 200,
         render: (userId: string) => (
           <EmployeeDetails type="user" empId={userId} />
         ),
       },
       {
-        title: 'Job Title',
+        title: (
+          <span
+            className={tableHeaderClassName}
+            data-cy="okr-employee-table-th-job"
+          >
+            Job Title
+          </span>
+        ),
         dataIndex: 'title',
         key: 'title',
+        width: 300,
         render: (notused: any, render: any) => (
           <EmployeeDetails type="job" empId={render?.userId} />
         ),
       },
       {
-        title: 'Department',
+        title: (
+          <span
+            className={tableHeaderClassName}
+            data-cy="okr-employee-table-th-department"
+          >
+            Department
+          </span>
+        ),
         dataIndex: 'department',
         key: 'department',
+        width: 250,
         render: (notused: any, render: any) => (
           <EmployeeDetails type="department" empId={render?.userId} />
         ),
       },
       {
-        title: 'Quarter',
+        title: (
+          <span
+            className={tableHeaderClassName}
+            data-cy="okr-employee-table-th-quarter"
+          >
+            Quarter
+          </span>
+        ),
         dataIndex: 'quarter',
         key: 'quarter',
         render: (notused: any, render: any) => (
@@ -225,7 +270,14 @@ const EmployeeOKRTable: React.FC = () => {
         ),
       },
       {
-        title: 'OKR Score',
+        title: (
+          <span
+            className={tableHeaderClassName}
+            data-cy="okr-employee-table-th-score"
+          >
+            OKR Score
+          </span>
+        ),
         dataIndex: 'okrScore',
         key: 'okrScore',
         render: (score: number) => <ScoreTag score={score} />,
@@ -633,15 +685,16 @@ const EmployeeOKRTable: React.FC = () => {
   return (
     <div
       id="okr-employee-okr-table-container"
-      data-cy="okr-employee-okr-table-container"
-      className="py-6"
+      data-cy={dataCy}
+      className="border border-gray-200 rounded-lg"
     >
-      {/* Search and Filter Controls */}
-      <div
-        id="employee-okr-search-filter-container"
-        data-cy="employee-okr-search-filter-container"
-        className="mb-4 flex justify-between items-center gap-3"
-      >
+      <div className="w-full h-auto">
+        {/* Search and Filter Controls — padding aligned with manage-employees table section */}
+        <div
+          id="employee-okr-search-filter-container"
+          data-cy="employee-okr-search-filter-container"
+          className="flex justify-between items-center gap-3 mb-2 px-3 pt-3"
+        >
         {/* Search Input */}
         <div
           id="employee-okr-search-input-container"
@@ -687,7 +740,7 @@ const EmployeeOKRTable: React.FC = () => {
               data-cy="employee-okr-desktop-filter-button"
               type="default"
               className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
-              icon={<LuSettings2 size={16} />}
+              icon={<FilterAltOutlinedIcon className="py-1" />}
             >
               Filter
             </Button>
@@ -703,7 +756,7 @@ const EmployeeOKRTable: React.FC = () => {
               type="default"
               onClick={() => setIsFilterModalOpen(true)}
               className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg h-10 flex-shrink-0"
-              icon={<LuSettings2 size={20} />}
+              icon={<FilterAltOutlinedIcon className="py-1" />}
             >
               Filter
             </Button>
@@ -747,50 +800,57 @@ const EmployeeOKRTable: React.FC = () => {
             </Modal>
           </>
         )}
-      </div>
+        </div>
 
-      <div
-        className={isMobile || isTablet ? 'overflow-x-auto' : ''}
-        style={
-          isMobile || isTablet
-            ? { WebkitOverflowScrolling: 'touch' }
-            : undefined
-        }
-        data-cy="employee-okr-table-wrapper"
-      >
-        <Table
-          id="okr-employee-okr-table"
-          data-cy="okr-employee-okr-table"
-          columns={columns}
-          dataSource={dataSource}
-          pagination={false}
-          loading={isLoading}
-          scroll={{
-            y: 400,
-            ...(isMobile || isTablet ? { x: 'max-content' } : {}),
-          }}
-          rowKey="id"
-        />
-      </div>
+        <div
+          className="overflow-x-auto"
+          style={
+            isMobile || isTablet
+              ? { WebkitOverflowScrolling: 'touch' }
+              : undefined
+          }
+          data-cy="employee-okr-table-wrapper"
+        >
+          <div className="mt-2">
+            <Table
+              className="w-full"
+              id="okr-employee-okr-table"
+              data-cy="okr-employee-okr-table"
+              columns={columns}
+              dataSource={dataSource}
+              pagination={false}
+              loading={isLoading}
+              scroll={{ x: 1000 }}
+              rowKey="id"
+              rowHoverable={false}
+              rowClassName={(_record, index) =>
+                index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+              }
+            />
+          </div>
+        </div>
 
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          data-cy="okr-employee-okr-mobile-pagination"
-          totalResults={employeeOkr?.meta?.totalItems ?? 0}
-          pageSize={employeePageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      ) : (
-        <CustomPagination
-          data-cy="okr-employee-okr-desktop-pagination"
-          current={employeeOkr?.meta?.currentPage ?? 0}
-          total={employeeOkr?.meta?.totalItems ?? 0}
-          pageSize={employeePageSize}
-          onChange={onPageChange}
-          onShowSizeChange={(pageSize) => setEmployeePageSize(pageSize)}
-        />
-      )}
+        <div className="px-3 pb-3">
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              data-cy="okr-employee-okr-mobile-pagination"
+              totalResults={employeeOkr?.meta?.totalItems ?? 0}
+              pageSize={employeePageSize}
+              onChange={onPageChange}
+              onShowSizeChange={onPageChange}
+            />
+          ) : (
+            <CustomPagination
+              data-cy="okr-employee-okr-desktop-pagination"
+              current={employeeOkr?.meta?.currentPage ?? 0}
+              total={employeeOkr?.meta?.totalItems ?? 0}
+              pageSize={employeePageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(pageSize) => setEmployeePageSize(pageSize)}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -799,4 +859,6 @@ ScoreTag.displayName = 'ScoreTag';
 EmployeeDetails.displayName = 'EmployeeDetails';
 SessionDetail.displayName = 'SessionDetail';
 
-export default React.memo(EmployeeOKRTable);
+const MemoizedEmployeeOKRTable = React.memo(EmployeeOKRTable);
+MemoizedEmployeeOKRTable.displayName = 'EmployeeOKRTable';
+export default MemoizedEmployeeOKRTable;

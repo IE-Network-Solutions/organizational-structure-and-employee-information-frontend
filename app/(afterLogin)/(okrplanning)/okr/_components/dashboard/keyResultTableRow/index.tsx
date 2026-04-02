@@ -9,7 +9,7 @@ import {
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
-import { IoIosMore } from 'react-icons/io';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IoCheckmarkCircle } from 'react-icons/io5';
 import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Select } from 'antd';
@@ -40,10 +40,14 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
   const isBasicOkr = useIsBasicOkr();
-  const { setKeyResultValue, setKeyResultId, setObjectiveId } = useOKRStore();
+  const { setKeyResultValue, setKeyResultId, setObjectiveId, okrTab } =
+    useOKRStore();
 
   const canEditDelete =
     (myOkr || objectiveUserId === userId) && isInActiveSession;
+  const hideOwnTeamOkrActions =
+    String(okrTab) === '2' && objectiveUserId === userId;
+  const canShowActionsMenu = canEditDelete && !hideOwnTeamOkrActions;
 
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
@@ -64,7 +68,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
 
   const onClose = () => setOpen(false);
 
-  const menu = canEditDelete ? (
+  const menu = canShowActionsMenu ? (
     <Menu
       className="okr-actions-menu"
       items={[
@@ -246,7 +250,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           className="px-6 py-4 whitespace-nowrap min-w-[56px]"
           data-cy={`okr-key-result-table-row-actions-${keyResult?.id}`}
         >
-          {canEditDelete &&
+          {canShowActionsMenu &&
           keyResult?.isClosed === false &&
           Number(keyResult?.progress ?? 0) === 0 &&
           menu ? (
@@ -261,7 +265,10 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                 className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"
                 data-cy={`okr-key-result-table-row-actions-button-${keyResult?.id}`}
               >
-                <IoIosMore size={16} />
+                <MoreHorizIcon
+                  sx={{ width: 24, height: 24 }}
+                  data-cy={`okr-key-result-table-row-actions-icon-${keyResult?.id}`}
+                />
               </button>
             </Dropdown>
           ) : null}

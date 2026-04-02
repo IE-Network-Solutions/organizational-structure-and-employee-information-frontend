@@ -1,12 +1,12 @@
 import React from 'react';
 import { Avatar, Menu, Dropdown } from 'antd';
 import {
-  EllipsisOutlined,
   CheckOutlined,
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
 } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import { PiCalendarBold } from 'react-icons/pi';
 import {
@@ -32,6 +32,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objectiveValue,
     keyResultValue,
     setKeyResultValue,
+    okrTab,
   } = useOKRStore();
   const { userId } = useAuthenticationStore();
   const {
@@ -79,6 +80,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   // Check if objective is part of the active session
   const isInActiveSession =
     !activeSessionId || objective?.sessionId === activeSessionId;
+  const hideOwnTeamOkrActions = String(okrTab) === '2' && isOwner;
 
   const showDeleteModal = () => {
     openDeleteModal(objectiveIdStr);
@@ -102,7 +104,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
 
   // Owner-only menu - only show if objective is in active session
   const menu =
-    isOwner && isInActiveSession ? (
+    isOwner && isInActiveSession && !hideOwnTeamOkrActions ? (
       <Menu
         className="okr-actions-menu"
         items={[
@@ -172,8 +174,9 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const getKeyResultMenu = (keyResult: any) => {
     const canEditDelete =
       (myOkr || objective?.userId === userId) && isInActiveSession;
+    const canShowKeyResultActions = canEditDelete && !hideOwnTeamOkrActions;
 
-    if (!canEditDelete) return null;
+    if (!canShowKeyResultActions) return null;
 
     return (
       <Menu
@@ -228,7 +231,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 <div
                   id={`okr-objective-basic-header-${objective?.id}`}
                   data-cy={`okr-objective-basic-header-${objective?.id}`}
-                  className="flex items-center justify-between sm:justify-start gap-2 mb-3 pl-10"
+                  className="flex flex-wrap items-center justify-between sm:justify-start gap-2 mb-3 pl-10"
                 >
                   <div
                     className="flex-1 sm:flex-none min-w-0"
@@ -243,37 +246,44 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     </span>
                   </div>
                   <div
-                    className="flex-1 sm:flex-none min-w-0 flex justify-end sm:justify-start"
+                    className="flex-1 sm:flex-none min-w-0 flex flex-wrap items-center justify-end sm:justify-start gap-2"
                     data-cy={`okr-objective-basic-kr-count-cell-${objective?.id}`}
                   >
                     <span
-                      className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white"
+                      className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
                       data-cy={`okr-objective-basic-kr-count-badge-${objective?.id}`}
                     >
                       {completedKeyResults} - {totalKeyResults} Key Results Done
                     </span>
+                    <span
+                      className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
+                      id={`objective-basic-status-${objective?.id}`}
+                      data-cy={`okr-objective-basic-days-left-badge-${objective?.id}`}
+                    >
+                      {objective?.daysLeft ?? '—'} Days Left
+                    </span>
                   </div>
                 </div>
                 <div
-                  className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4"
+                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4"
                   data-cy={`okr-objective-basic-title-actions-row-${objective?.id}`}
                 >
                   <div
-                    className="max-w-3xl min-w-0 order-1"
+                    className="min-w-0 order-1 sm:flex-1"
                     data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
                   >
                     <div
-                      className="relative flex items-center justify-between gap-2 mb-2 sm:pl-10"
+                      className="flex min-h-8 items-center justify-between gap-2"
                       data-cy={`okr-objective-basic-title-row-${objective?.id}`}
                     >
                       <div
-                        className="flex items-center gap-2 min-w-0"
+                        className="flex min-h-8 min-w-0 items-center gap-2"
                         data-cy={`okr-objective-basic-title-flex-${objective?.id}`}
                       >
                         <button
                           type="button"
                           onClick={() => toggleExpanded(objectiveIdStr)}
-                          className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 text-gray-400 transition-colors w-8 h-8 flex items-center justify-center flex-shrink-0 sm:absolute sm:left-0 sm:top-0"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-200 p-1 text-gray-400 transition-colors hover:bg-gray-50 sm:-translate-y-4"
                           data-cy={`okr-objective-basic-expand-${objective?.id}`}
                         >
                           {expanded ? (
@@ -285,7 +295,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         <h2
                           id={`objective-basic-title-${objective?.id}`}
                           data-cy={`okr-objective-basic-title-${objective?.id}`}
-                          className="text-base sm:text-lg font-bold text-gray-900 leading-snug min-w-0"
+                          className="text-base sm:text-lg font-bold text-gray-900 m-0 min-w-0 leading-7 sm:leading-8"
                         >
                           {objective?.title}
                         </h2>
@@ -300,36 +310,63 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             placement="bottomRight"
                             overlayClassName="okr-actions-dropdown"
                           >
-                            <button
-                              type="button"
-                              className="sm:hidden text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 flex items-center justify-center flex-shrink-0"
-                              data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
-                            >
-                              <EllipsisOutlined className="text-lg" />
-                            </button>
+                            <span className="inline-flex h-8 max-h-8 items-center leading-none sm:hidden">
+                              <button
+                                type="button"
+                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-200 p-1 text-gray-400 hover:text-gray-600"
+                                data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
+                              >
+                                <MoreHorizIcon
+                                  sx={{ width: 24, height: 24 }}
+                                  data-cy={`okr-objective-basic-menu-icon-mobile-${objective?.id}`}
+                                />
+                              </button>
+                            </span>
+                          </Dropdown>
+                        )}
+                      {objective?.isClosed === false &&
+                        Number(objective?.objectiveProgress ?? 0) !== 100 &&
+                        menu && (
+                          <Dropdown
+                            data-cy={`okr-objective-basic-actions-dropdown-desktop-${objective?.id}`}
+                            overlay={menu}
+                            trigger={['click']}
+                            placement="bottomRight"
+                            overlayClassName="okr-actions-dropdown"
+                          >
+                            <span className="hidden h-8 max-h-8 items-center leading-none sm:inline-flex sm:-translate-y-4">
+                              <button
+                                type="button"
+                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-200 p-1 text-gray-400 hover:text-gray-600"
+                                id={`objective-basic-menu-button-${objective?.id}`}
+                                data-cy={`okr-objective-basic-menu-button-desktop-${objective?.id}`}
+                              >
+                                <MoreHorizIcon
+                                  sx={{ width: 24, height: 24 }}
+                                  data-cy={`okr-objective-basic-menu-icon-desktop-${objective?.id}`}
+                                />
+                              </button>
+                            </span>
                           </Dropdown>
                         )}
                     </div>
                     <div
-                      className="flex items-center text-sm text-gray-500 pl-10"
-                      data-cy={`okr-objective-basic-days-left-${objective?.id}`}
+                      className="mt-1 flex items-center pl-10 text-sm text-gray-500 sm:hidden"
+                      data-cy={`okr-objective-basic-days-left-mobile-${objective?.id}`}
                     >
-                      <PiCalendarBold className="mr-2 text-lg text-gray-400" />
-                      <span
-                        id={`objective-basic-status-${objective?.id}`}
-                        data-cy={`okr-objective-basic-status-${objective?.id}`}
-                      >
+                      <PiCalendarBold className="mr-2 flex-shrink-0 text-lg text-gray-400" />
+                      <span data-cy={`okr-objective-basic-days-left-mobile-text-${objective?.id}`}>
                         {objective?.daysLeft ?? '—'} Days Left
                       </span>
                     </div>
                   </div>
                   <div
-                    className="flex items-start sm:items-center justify-end gap-3 flex-shrink-0 order-2 sm:ml-auto"
+                    className="order-2 flex flex-shrink-0 items-center justify-end gap-3 sm:ml-auto"
                     data-cy={`okr-objective-basic-actions-cell-${objective?.id}`}
                   >
                     {!myOkr && objective?.user && (
                       <div
-                        className="flex items-center gap-3"
+                        className="flex items-center gap-3 sm:-translate-y-4"
                         data-cy={`okr-objective-basic-assignee-${objective?.id}`}
                       >
                         <Avatar
@@ -378,26 +415,6 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         </div>
                       </div>
                     )}
-                    {objective?.isClosed === false &&
-                      Number(objective?.objectiveProgress ?? 0) !== 100 &&
-                      menu && (
-                        <Dropdown
-                          data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
-                          overlay={menu}
-                          trigger={['click']}
-                          placement="bottomRight"
-                          overlayClassName="okr-actions-dropdown"
-                        >
-                          <button
-                            type="button"
-                            className="hidden sm:flex text-gray-400 hover:text-gray-600 border border-gray-200 rounded-md p-1 w-8 h-8 items-center justify-center flex-shrink-0"
-                            id={`objective-basic-menu-button-${objective?.id}`}
-                            data-cy={`okr-objective-basic-menu-button-desktop-${objective?.id}`}
-                          >
-                            <EllipsisOutlined className="text-lg" />
-                          </button>
-                        </Dropdown>
-                      )}
                   </div>
                 </div>
               </div>
@@ -558,10 +575,10 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                                 className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"
                                 data-cy={`okr-key-result-basic-actions-button-${keyResult.id}`}
                               >
-                                <EllipsisOutlined
+                                <MoreHorizIcon
+                                  sx={{ width: 24, height: 24 }}
                                   id={`key-result-basic-menu-button-${keyResult.id}`}
                                   data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
-                                  className="text-lg"
                                 />
                               </button>
                             </Dropdown>

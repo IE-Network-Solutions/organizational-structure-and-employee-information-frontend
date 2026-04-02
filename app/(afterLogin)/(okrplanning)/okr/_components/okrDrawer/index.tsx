@@ -1115,7 +1115,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <div
               id="okr-drawer-metric-selector"
               data-cy="okr-drawer-metric-selector"
-              className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0"
+              className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible"
             >
               <span
                 className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap"
@@ -1133,7 +1133,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     type="button"
                     id={`okr-drawer-metric-pill-${type.value}`}
                     data-cy={`okr-drawer-metric-pill-${type.value}`}
-                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-okr-primary hover:text-okr-primary transition-colors flex-shrink-0 whitespace-nowrap"
+                    className="h-9 px-3 inline-flex items-center justify-center leading-none border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-okr-primary hover:text-okr-primary transition-colors flex-shrink-0 whitespace-nowrap"
                     onClick={() => {
                       handleAddKeyResultType({ key: type.value });
                       setShowMetricSelector(false);

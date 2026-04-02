@@ -1,8 +1,11 @@
 import { create } from 'zustand';
+import { Milestone } from './interface';
 
 interface MilestoneFormState {
-  milestonesByKey: Record<string, { title?: string; weight?: number }[]>;
-  setMilestones: (key: string, milestones: { title?: string; weight?: number }[]) => void;
+  milestonesByKey: Record<string, Milestone[]>;
+  setMilestones: (key: string, milestones: Milestone[]) => void;
+  cardViewByKey: Record<string, boolean>;
+  setCardView: (key: string, isCardView: boolean) => void;
   resetMilestoneForm: () => void;
 }
 
@@ -12,5 +15,10 @@ export const useMilestoneFormStore = create<MilestoneFormState>((set) => ({
     set((state) => ({
       milestonesByKey: { ...state.milestonesByKey, [key]: milestones },
     })),
-  resetMilestoneForm: () => set({ milestonesByKey: {} }),
+  cardViewByKey: {},
+  setCardView: (key, isCardView) =>
+    set((state) => ({
+      cardViewByKey: { ...state.cardViewByKey, [key]: isCardView },
+    })),
+  resetMilestoneForm: () => set({ milestonesByKey: {}, cardViewByKey: {} }),
 }));

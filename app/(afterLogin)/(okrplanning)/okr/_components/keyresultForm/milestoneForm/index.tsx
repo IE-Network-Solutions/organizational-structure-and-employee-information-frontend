@@ -10,7 +10,7 @@ import {
 } from 'antd';
 import { PlusOutlined, EditOutlined, CloseOutlined } from '@ant-design/icons';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
+import { Milestone, OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import {
   useOKRStore,
@@ -23,6 +23,7 @@ import { isKeyResultLockedForWeightEdit } from '../../../_utils/keyResultGuards'
 import {
   KeyResultFieldLabel,
   KeyResultRemoveButton,
+  KeyResultSavedCard,
   KeyResultSectionCard,
   KeyResultSelectedBadge,
   KEY_RESULT_TOOLTIP,
@@ -34,7 +35,7 @@ import {
 } from '../_ui';
 
 /** Stable empty array to avoid useEffect loop when keyItem has no milestones. */
-const EMPTY_MILESTONES: { title?: string; weight?: number }[] = [];
+const EMPTY_MILESTONES: Milestone[] = [];
 
 const MilestoneForm: React.FC<OKRFormProps> = ({
   keyItem,
@@ -42,16 +43,23 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   updateKeyResult,
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
+  hideRemoveButton,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
-  const { objectiveValue } = useOKRStore();
+  const { objectiveValue, deletedMilestoneIds, setDeletedMilestoneIds } =
+    useOKRStore();
   const { data: metrics } = useGetMetrics();
   const isBasic = useIsBasicOkr();
   const disableWeightEdit =
     disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
   const storeKey = `milestone-${keyItem?.id ?? 'new'}-${index}`;
   const setMilestonesInStore = useMilestoneFormStore((s) => s.setMilestones);
+  const cardViewKey = `milestone-${keyItem?.id ?? 'new'}-${index}`;
+  const setCardView = useMilestoneFormStore((s) => s.setCardView);
+  const isCardView = useMilestoneFormStore(
+    (s) => s.cardViewByKey[cardViewKey] ?? false,
+  );
   const milestones =
     useMilestoneFormStore((s) => s.milestonesByKey[storeKey]) ??
     (keyItem.milestones && keyItem.milestones.length > 0
@@ -124,6 +132,13 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   };
 
   const handleRemoveMilestone = (mIndex: number) => {
+    const milestoneToRemove = milestones[mIndex];
+    if (milestoneToRemove?.id) {
+      const currentDeletedIds = deletedMilestoneIds || [];
+      if (!currentDeletedIds.includes(milestoneToRemove.id)) {
+        setDeletedMilestoneIds([...currentDeletedIds, milestoneToRemove.id]);
+      }
+    }
     // eslint-disable-next-line
     const remaining = milestones.filter(
       (milestoneItem: any, i: number) => i !== mIndex,
@@ -145,19 +160,21 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       data-cy={`okr-milestone-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-gray-50 rounded-xl border-none p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div
-        className="absolute top-2 right-2"
-        style={{ zIndex: 10 }}
-        data-cy={`okr-milestone-remove-wrapper-${index}`}
-      >
-        <KeyResultRemoveButton
-          onClick={() => removeKeyResult(index)}
-          title="Remove Key Result"
-          aria-label="Remove Key Result"
-          id={`cancel-key-result-${index}`}
-          data-cy={`okr-milestone-remove-key-result-${index}`}
-        />
-      </div>
+      {!hideRemoveButton && (isBasic || !isCardView) ? (
+        <div
+          className="absolute top-2 right-2"
+          style={{ zIndex: 10 }}
+          data-cy={`okr-milestone-remove-wrapper-${index}`}
+        >
+          <KeyResultRemoveButton
+            onClick={() => removeKeyResult(index)}
+            title="Remove Key Result"
+            aria-label="Remove Key Result"
+            id={`cancel-key-result-${index}`}
+            data-cy={`okr-milestone-remove-key-result-${index}`}
+          />
+        </div>
+      ) : null}
 
       {/* Advanced mode: "You Have Selected" badge */}
       {!isBasic && (
@@ -174,6 +191,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
         layout="vertical"
         initialValues={{
           ...keyItem,
+          [`key_name_${index}`]: keyItem.title,
+          [`weight_${index}`]: keyItem.weight,
           [`dead_line_${index}`]: keyItem?.deadline
             ? dayjs(keyItem.deadline)
             : undefined,
@@ -416,16 +435,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           data-cy={`okr-milestone-mobile-edit-${mIndex + 1}-${index}`}
                         >
                           <EditOutlined className="text-xs" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveMilestone(mIndex + 1)}
-                          aria-label="Remove milestone"
-                          title="Remove milestone"
-                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50"
-                          data-cy={`okr-milestone-mobile-remove-${mIndex + 1}-${index}`}
-                        >
-                          <CloseOutlined className="text-xs" />
                         </button>
                       </div>
                     </div>
@@ -713,16 +722,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         >
                           <EditOutlined className="text-xs" />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveMilestone(mIndex + 1)}
-                          aria-label="Remove milestone"
-                          title="Remove milestone"
-                          className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50"
-                          data-cy={`okr-milestone-desktop-remove-${mIndex + 1}-${index}`}
-                        >
-                          <CloseOutlined className="text-xs" />
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -752,127 +751,134 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             data-cy={`okr-milestone-desktop-advanced-wrapper-${index}`}
             className={ADVANCED_WRAPPER_CLASS}
           >
-            <div
-              id={`okr-milestone-desktop-advanced-meta-row-${index}`}
-              data-cy={`okr-milestone-desktop-advanced-meta-row-${index}`}
-              className={ADVANCED_ROW_CLASS}
-            >
-              <Form.Item
-                className="flex-1 mb-0"
-                name="title"
-                label={
-                  <KeyResultFieldLabel
-                    label="Key Result"
-                    tooltip={KEY_RESULT_TOOLTIP}
-                  />
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please enter the Key Result name',
-                  },
-                ]}
-                id={`key-result-title-${index}`}
-                data-cy={`okr-milestone-desktop-advanced-title-item-${index}`}
-              >
-                <Input
-                  id={`okr-milestone-desktop-title-input-${index}`}
-                  data-cy={`okr-milestone-desktop-advanced-title-input-${index}`}
-                  placeholder="Input"
-                  aria-label="Key Result Name"
-                  className={INPUT_CLASS}
-                  value={keyItem.title === '' ? undefined : keyItem.title}
-                  onChange={(e) =>
-                    updateKeyResult(index, 'title', e.target.value)
-                  }
-                  onPressEnter={(e) => e.preventDefault()}
-                />
-              </Form.Item>
-              <Form.Item
-                className="w-32 mb-0"
-                name="weight"
-                label={
-                  <KeyResultFieldLabel
-                    label="Weight"
-                    tooltip={WEIGHT_TOOLTIP}
-                  />
-                }
-                rules={[
-                  { required: true, message: 'Weight required' },
-                  { type: 'number', message: 'Must be a number' },
-                ]}
-                id={`key-result-weight-${index}`}
-                data-cy={`okr-milestone-desktop-advanced-weight-item-${index}`}
-              >
-                <InputNumber
-                  id={`okr-milestone-desktop-weight-input-${index}`}
-                  data-cy={`okr-milestone-desktop-advanced-weight-input-${index}`}
-                  className={`w-full ${INPUT_CLASS}`}
-                  min={0}
-                  max={100}
-                  suffix="%"
-                  placeholder="Input"
-                  value={keyItem.weight}
-                  onChange={(value) => updateKeyResult(index, 'weight', value)}
-                  disabled={disableWeightEdit}
-                />
-              </Form.Item>
-              <Form.Item
-                className="w-44 mb-0"
-                name={`dead_line_${index}`}
-                label={
-                  <KeyResultFieldLabel
-                    label="Deadline"
-                    tooltip={DEADLINE_TOOLTIP}
-                  />
-                }
-                rules={[{ required: true, message: 'Deadline required' }]}
-                id={`key-result-deadline-${index}`}
-                data-cy={`okr-milestone-desktop-advanced-deadline-item-${index}`}
-              >
-                <DatePicker
-                  data-cy={`okr-milestone-desktop-advanced-deadline-picker-${index}`}
-                  className={`w-full ${INPUT_CLASS}`}
-                  placeholder="Select date"
-                  value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
-                  format="YYYY-MM-DD"
-                  disabledDate={(current) => {
-                    const startOfToday = dayjs().startOf('day');
-                    const objectiveDeadline = dayjs(objectiveValue?.deadline);
-                    return (
-                      current &&
-                      (current < startOfToday || current > objectiveDeadline)
-                    );
-                  }}
-                  onChange={(date) =>
-                    updateKeyResult(
-                      index,
-                      'deadline',
-                      date ? date.format('YYYY-MM-DD') : null,
-                    )
-                  }
-                  id={`deadline-picker-${index}`}
-                />
-              </Form.Item>
-            </div>
-
-            <KeyResultSectionCard
-              id={`okr-milestone-desktop-advanced-list-${index}`}
-              data-cy={`okr-milestone-desktop-advanced-list-${index}`}
-              title="Milestones"
-              badge={
-                <span
-                  className={`text-xs font-medium px-3 py-1 rounded-full border ${
-                    milestoneWeightSum === 100
-                      ? 'border-green-300 text-green-600 bg-green-50'
-                      : 'border-blue-300 text-okr-primary bg-blue-50'
-                  }`}
-                  data-cy={`okr-milestone-desktop-badge-${index}`}
+            {isCardView ? (
+              <KeyResultSavedCard
+                weight={keyItem.weight ?? 0}
+                title={keyItem.title ?? ''}
+                onEdit={() => setCardView(cardViewKey, false)}
+                id={`okr-milestone-desktop-saved-card-${index}`}
+                data-cy={`okr-milestone-desktop-saved-card-${index}`}
+              />
+            ) : (
+              <>
+                <div
+                  id={`okr-milestone-desktop-advanced-meta-row-${index}`}
+                  data-cy={`okr-milestone-desktop-advanced-meta-row-${index}`}
+                  className={`${ADVANCED_ROW_CLASS} items-end`}
                 >
-                  Total Weight: {milestoneWeightSum}
-                </span>
-              }
-            >
+                  <Form.Item
+                    className="flex-1 mb-0"
+                    name="title"
+                    label={
+                      <KeyResultFieldLabel
+                        label="Key Result"
+                        tooltip={KEY_RESULT_TOOLTIP}
+                      />
+                    }
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please enter the Key Result name',
+                      },
+                    ]}
+                    id={`key-result-title-${index}`}
+                    data-cy={`okr-milestone-desktop-advanced-title-item-${index}`}
+                  >
+                    <Input
+                      id={`okr-milestone-desktop-title-input-${index}`}
+                      data-cy={`okr-milestone-desktop-advanced-title-input-${index}`}
+                      placeholder="Input"
+                      aria-label="Key Result Name"
+                      className={INPUT_CLASS}
+                      value={keyItem.title === '' ? undefined : keyItem.title}
+                      onChange={(e) =>
+                        updateKeyResult(index, 'title', e.target.value)
+                      }
+                      onPressEnter={(e) => e.preventDefault()}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    className="w-32 mb-0"
+                    name="weight"
+                    label={
+                      <KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />
+                    }
+                    rules={[
+                      { required: true, message: 'Weight required' },
+                      { type: 'number', message: 'Must be a number' },
+                    ]}
+                    id={`key-result-weight-${index}`}
+                    data-cy={`okr-milestone-desktop-advanced-weight-item-${index}`}
+                  >
+                    <InputNumber
+                      id={`okr-milestone-desktop-weight-input-${index}`}
+                      data-cy={`okr-milestone-desktop-advanced-weight-input-${index}`}
+                      className={`w-full ${INPUT_CLASS}`}
+                      min={0}
+                      max={100}
+                      suffix="%"
+                      placeholder="Input"
+                      value={keyItem.weight}
+                      onChange={(value) =>
+                        updateKeyResult(index, 'weight', value)
+                      }
+                      disabled={disableWeightEdit}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    className="w-44 mb-0"
+                    name={`dead_line_${index}`}
+                    label={
+                      <KeyResultFieldLabel
+                        label="Deadline"
+                        tooltip={DEADLINE_TOOLTIP}
+                      />
+                    }
+                    rules={[{ required: true, message: 'Deadline required' }]}
+                    id={`key-result-deadline-${index}`}
+                    data-cy={`okr-milestone-desktop-advanced-deadline-item-${index}`}
+                  >
+                    <DatePicker
+                      data-cy={`okr-milestone-desktop-advanced-deadline-picker-${index}`}
+                      className={`w-full ${INPUT_CLASS}`}
+                      placeholder="Select date"
+                      value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
+                      format="YYYY-MM-DD"
+                      disabledDate={(current) => {
+                        const startOfToday = dayjs().startOf('day');
+                        const objectiveDeadline = dayjs(objectiveValue?.deadline);
+                        return (
+                          current &&
+                          (current < startOfToday || current > objectiveDeadline)
+                        );
+                      }}
+                      onChange={(date) =>
+                        updateKeyResult(
+                          index,
+                          'deadline',
+                          date ? date.format('YYYY-MM-DD') : null,
+                        )
+                      }
+                      id={`deadline-picker-${index}`}
+                    />
+                  </Form.Item>
+                </div>
+
+                <KeyResultSectionCard
+                  id={`okr-milestone-desktop-advanced-list-${index}`}
+                  data-cy={`okr-milestone-desktop-advanced-list-${index}`}
+                  title="Milestones"
+                  badge={
+                    milestones.length > 0 ? (
+                      <span
+                        className="text-xs font-medium px-3 py-1 rounded-md border bg-[#E6F4FF] border-[#91CAFF] text-okr-primary"
+                        data-cy={`okr-milestone-desktop-badge-${index}`}
+                      >
+                        Total Weight: {milestoneWeightSum}
+                      </span>
+                    ) : null
+                  }
+                >
               {milestones.length === 0 ? (
                 <div
                   className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-300 rounded-lg"
@@ -1031,20 +1037,6 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                             <EditOutlined className="text-xs" />
                           </button>
                         </Tooltip>
-                        <Tooltip
-                          title="Remove milestone"
-                          data-cy={`okr-milestone-desktop-advanced-tooltip-remove-${mIndex + 1}-${index}`}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveMilestone(mIndex + 1)}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-300"
-                            data-cy={`okr-milestone-desktop-advanced-remove-${mIndex + 1}-${index}`}
-                            aria-label="Remove milestone"
-                          >
-                            <CloseOutlined className="text-xs" />
-                          </button>
-                        </Tooltip>
                       </div>
                     </div>
                   ))}
@@ -1068,7 +1060,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   </div>
                 </>
               )}
-            </KeyResultSectionCard>
+                </KeyResultSectionCard>
+              </>
+            )}
           </div>
         )}
       </Form>

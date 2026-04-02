@@ -1,5 +1,5 @@
 'use client';
-import { Spin } from 'antd';
+import { Button, Spin, Tabs } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ObjectiveCard from '../objectivecard';
 import ObjectiveBasic from '../objectiveBasic';
@@ -14,7 +14,6 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
-import OkrProgress from '../okrprogress';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeOKRTable from '../EmployeeOkr';
@@ -29,6 +28,14 @@ const TAB_CONFIG = [
   { key: '4', label: 'All Employees OKR' },
 ];
 
+const OKR_STATUS_PILLS = [
+  { id: 'due-soon', label: 'Due Soon' },
+  { id: 'not-started', label: 'Not Started' },
+  { id: 'on-progress', label: 'On progress' },
+  { id: 'completed', label: 'Completed' },
+  { id: 'overdue', label: 'Overdue' },
+] as const;
+
 interface OkrTabProps {
   filterComponent?: React.ReactNode;
   'data-cy'?: string;
@@ -40,6 +47,9 @@ export default function OkrTab({
 }: OkrTabProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [activeKey, setActiveKey] = useState<string>('1');
+  const [selectedStatusPill, setSelectedStatusPill] = useState<string | null>(
+    null,
+  );
   const { userId } = useAuthenticationStore();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
@@ -446,44 +456,89 @@ export default function OkrTab({
       : []),
   ];
 
-  const currentContent = tabContent.find((t) => t.key === activeKey)?.children;
+  const contentByKey = new Map(
+    tabContent.map((entry) => [entry.key, entry.children]),
+  );
+
+  const tabItems = visibleTabs.map((tab) => ({
+    key: tab.key,
+    label: (
+      <div
+        className={`text-base font-normal m-0 ${
+          activeKey === tab.key
+            ? 'text-okr-primary font-semibold'
+            : 'text-gray-800'
+        }`}
+        data-cy={`okr-tab-${tab.key}`}
+        id={`okr-tab-label-${tab.key}`}
+      >
+        {tab.label}
+      </div>
+    ),
+    children: contentByKey.get(tab.key) ?? null,
+  }));
 
   return (
     <div id="okr-tab-container" data-cy={dataCy || 'okr-tab-container'}>
-      {activeKey !== '4' && <OkrProgress data-cy="okr-progress" />}
-      <div
-        className="flex justify-between items-center gap-3 border-b border-gray-200 mb-6"
-        data-cy="okr-tab-header"
-      >
-        <div
-          className="flex space-x-6 flex-1 min-w-0 overflow-x-auto pb-px"
-          data-cy="okr-tab-list"
-        >
-          {visibleTabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => handleTabChange(tab.key)}
-              className={`whitespace-nowrap py-3 px-1 text-sm font-medium transition-colors border-b-2 ${
-                activeKey === tab.key
-                  ? 'border-okr-primary text-okr-primary font-semibold'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-              data-cy={`okr-tab-${tab.key}`}
+      <Tabs
+        activeKey={activeKey}
+        onChange={handleTabChange}
+        items={tabItems}
+        moreIcon={false}
+        tabBarStyle={{
+          marginBottom: 0,
+          marginLeft: 0,
+          paddingLeft: 0,
+          paddingRight: 0,
+        }}
+        tabBarExtraContent={
+          <div
+            className="flex flex-wrap items-center justify-end gap-1 max-w-full"
+            data-cy="okr-tab-bar-extra"
+          >
+            <div
+              className="flex flex-wrap items-center gap-0.5"
+              data-cy="okr-status-pills-row"
             >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        {activeKey !== '4' && (
-          <div className="flex-shrink-0" data-cy="okr-filter-inline-container">
-            {filterComponent}
+              {OKR_STATUS_PILLS.map((pill) => {
+                const isSelected = selectedStatusPill === pill.id;
+                return (
+                  <Button
+                    key={pill.id}
+                    type="default"
+                    size="small"
+                    data-cy={`okr-status-pill-${pill.id}`}
+                    onClick={() =>
+                      setSelectedStatusPill((prev) =>
+                        prev === pill.id ? null : pill.id,
+                      )
+                    }
+                    className={
+                      isSelected
+                        ? '!rounded-md !h-7 !min-h-0 !px-2 !py-0 !leading-none border-okr-primary text-okr-primary !bg-[#FAFAFA] hover:!bg-[#FAFAFA] hover:!border-okr-primary hover:!text-okr-primary'
+                        : '!rounded-md !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-[#FAFAFA] hover:!bg-[#F0F0F0] hover:!border-gray-300 hover:!text-gray-800'
+                    }
+                  >
+                    {pill.label}
+                  </Button>
+                );
+              })}
+            </div>
+            {activeKey !== '4' ? (
+              <div
+                className="flex-shrink-0"
+                data-cy="okr-filter-inline-container"
+              >
+                {filterComponent}
+              </div>
+            ) : null}
           </div>
-        )}
-      </div>
-      <div id="okr-tabs" data-cy="okr-tabs" className="mt-6">
-        {currentContent}
-      </div>
+        }
+        className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6"
+        data-cy="okr-tabs"
+        id="okr-tabs"
+        destroyInactiveTabPane={false}
+      />
     </div>
   );
 }

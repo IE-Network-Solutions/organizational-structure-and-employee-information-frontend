@@ -14,8 +14,7 @@ import {
 } from '@/store/uistate/features/okrplanning/okr';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { LuSettings2 } from 'react-icons/lu';
-import { MdOutlineFilterAlt } from 'react-icons/md';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const { Option } = Select;
 
@@ -570,7 +569,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               type="default"
               onClick={openFilterModal}
               className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              icon={<LuSettings2 size={16} />}
+              icon={<FilterAltOutlinedIcon className="py-1" sx={{ fontSize: 22 }} />}
             >
               Filter
             </Button>
@@ -634,7 +633,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               data-cy="okr-desktop-filter-button"
               type="default"
               className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              icon={<LuSettings2 size={16} />}
+              icon={<FilterAltOutlinedIcon className="py-1" sx={{ fontSize: 22 }} />}
             >
               Filter
             </Button>
@@ -956,7 +955,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
             >
               <Button
                 type="default"
-                icon={<MdOutlineFilterAlt className="text-black/70" />}
+                icon={
+                  <FilterAltOutlinedIcon
+                    className="text-black/70 py-1"
+                    sx={{ fontSize: 18 }}
+                  />
+                }
                 className="flex h-8 shrink-0 items-center gap-2 rounded-lg border-gray-200 px-4 text-black/70"
                 data-cy="okr-performance-filter-popover-trigger"
               >
@@ -1204,9 +1208,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
               title=""
               icon={
-                <LuSettings2
+                <FilterAltOutlinedIcon
                   data-cy="okr-mobile-filter-button-icon"
-                  size={20}
+                  className="py-1"
+                  sx={{ fontSize: 24 }}
                 />
               }
             />

@@ -13,7 +13,6 @@ import { EditOutlined } from '@ant-design/icons';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import dayjs from 'dayjs';
-import CustomButton from '@/components/common/buttons/customButton';
 import KeyResultForm from '../../keyresultForm';
 import {
   KeyResultSelectedBadge,
@@ -325,9 +324,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     <div
       id="okr-edit-objective-modal-header"
       data-cy="okr-edit-objective-modal-header"
-      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+      className="text-lg font-semibold text-gray-900"
     >
-      Edit OKR
+      Edit Objective
     </div>
   );
 
@@ -335,25 +334,26 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     <div
       id="okr-edit-objective-modal-footer"
       data-cy="okr-edit-objective-modal-footer"
-      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+      className="w-full flex justify-end items-center pt-2 gap-3"
     >
-      <CustomButton
+      <Button
         id="okr-edit-objective-cancel-button"
         data-cy="okr-edit-objective-cancel-button"
-        type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        style={{ marginRight: 8, height: '40px' }}
-      />
-      <CustomButton
+        className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+      >
+        Cancel
+      </Button>
+      <Button
         id="okr-edit-objective-save-button"
         data-cy="okr-edit-objective-save-button"
-        loading={isLoading}
-        title={'Save'}
         type="primary"
         onClick={onSubmit}
-        style={{ height: '40px' }}
-      />
+        loading={isLoading}
+        className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+      >
+        Save
+      </Button>
     </div>
   );
 
@@ -501,16 +501,18 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       centered={!isMobile}
       width={isMobile ? '100%' : 1200}
       zIndex={12000}
-      wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : ''}
+      wrapClassName={
+        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
+      }
       bodyStyle={{
-        padding: isMobile ? 12 : 32,
-        maxHeight: isMobile ? 'calc(100vh - 150px)' : '80vh',
-        overflowY: 'auto',
+        padding: isMobile ? 12 : 24,
+        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
+        overflowY: isMobile ? 'auto' : undefined,
       }}
       style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
       destroyOnClose
-      closable={isMobile}
+      closable
     >
       <Form
         id="edit-objective-form"
@@ -993,7 +995,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           <div
             id="okr-edit-objective-metric-selector"
             data-cy="okr-edit-objective-metric-selector"
-            className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible pb-2 md:pb-0 -mx-1 px-1 md:mx-0 md:px-0"
+            className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible"
           >
             <span
               className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap"
@@ -1011,7 +1013,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   type="button"
                   id={`okr-edit-objective-metric-pill-${type.value}`}
                   data-cy={`okr-edit-objective-metric-pill-${type.value}`}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-okr-primary hover:text-okr-primary transition-colors flex-shrink-0 whitespace-nowrap"
+                  className="h-9 px-3 inline-flex items-center justify-center leading-none border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-okr-primary hover:text-okr-primary transition-colors flex-shrink-0 whitespace-nowrap"
                   onClick={() => {
                     handleAddKeyResultType({ key: type.value });
                     setShowMetricSelector(false);

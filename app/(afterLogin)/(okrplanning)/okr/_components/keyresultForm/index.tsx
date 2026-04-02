@@ -23,6 +23,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
   embedInOkrSheet = false,
   disableWeightEdit,
   onSaveSuccess,
+  hideRemoveButton,
 }) => {
   const { isMobile } = useIsMobile();
   const renderInline = !isMobile || embedInOkrSheet;
@@ -68,6 +69,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          hideRemoveButton={hideRemoveButton}
         />
       );
     }
@@ -84,6 +86,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
           onSaveSuccess={onSaveSuccess}
+          hideRemoveButton={hideRemoveButton}
         />
       );
     }
@@ -99,6 +102,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          hideRemoveButton={hideRemoveButton}
         />
       );
     }
@@ -114,6 +118,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          hideRemoveButton={hideRemoveButton}
         />
       );
     }
@@ -129,6 +134,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          hideRemoveButton={hideRemoveButton}
         />
       );
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Form, Tooltip } from 'antd';
+import { Modal, Form, Tooltip, Button } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import KeyResultForm from '../../keyresultForm';
 import { KeyResultSelectedBadge } from '../../keyresultForm/_ui';
@@ -7,7 +7,6 @@ import {
   useOKRStore,
   useEditKeyResultStore,
 } from '@/store/uistate/features/okrplanning/okr';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -173,7 +172,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     <div
       id="edit-key-result-modal-header"
       data-cy="okr-edit-key-result-modal-header"
-      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+      className="text-lg font-semibold text-gray-900"
     >
       Edit Key Result
     </div>
@@ -183,25 +182,26 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     <div
       id="edit-key-result-modal-footer"
       data-cy="okr-edit-key-result-modal-footer"
-      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+      className="w-full flex justify-end items-center pt-2 gap-3"
     >
-      <CustomButton
+      <Button
         id="edit-key-result-cancel-button"
         data-cy="okr-edit-key-result-cancel-button"
-        type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        style={{ marginRight: 8, height: '40px' }}
-      />
-      <CustomButton
+        className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+      >
+        Cancel
+      </Button>
+      <Button
         id="edit-key-result-save-button"
         data-cy="okr-edit-key-result-save-button"
-        title={'Save'}
         type="primary"
         onClick={onSubmit}
         loading={isLoading}
-        style={{ height: '40px' }}
-      />
+        className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+      >
+        Save
+      </Button>
     </div>
   );
 
@@ -214,16 +214,19 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
       title={modalHeader}
       centered={!isMobile}
       width={isMobile ? '100%' : 1200}
-      wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : ''}
+      zIndex={12000}
+      wrapClassName={
+        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
+      }
       bodyStyle={{
-        padding: isMobile ? 12 : 32,
-        maxHeight: isMobile ? 'calc(100vh - 150px)' : '80vh',
+        padding: isMobile ? 12 : 24,
+        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
         overflowY: isMobile ? 'auto' : undefined,
       }}
-      style={{ padding: 0, maxHeight: isMobile ? '100vh' : undefined }}
+      style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
       destroyOnClose
-      closable={isMobile}
+      closable
     >
       <Form
         id="edit-key-result-form"
@@ -232,7 +235,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         layout="vertical"
         className="w-full"
       >
-        {/* Section header – same style as Edit OKR / Create Objective */}
+        {/* Section header – same style as create / edit objective modals */}
         <div
           id="edit-key-result-section-header"
           data-cy="okr-edit-key-result-section-header"
@@ -349,6 +352,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                   embedInOkrSheet={isMobile}
                   disableWeightEdit={true}
                   onSaveSuccess={() => setIsEditing(false)}
+                  hideRemoveButton={true}
                 />
               )}
             </>

@@ -39,6 +39,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   updateKeyResult,
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
+  hideRemoveButton,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -104,19 +105,21 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
       data-cy={`okr-currency-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-gray-50 rounded-xl border-none p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div
-        className="absolute top-2 right-2"
-        style={{ zIndex: 10 }}
-        data-cy={`okr-currency-remove-wrapper-${index}`}
-      >
-        <KeyResultRemoveButton
-          onClick={() => removeKeyResult(index)}
-          title="Remove Key Result"
-          aria-label="Remove Key Result"
-          id={`remove-key-result-${index}`}
-          data-cy={`okr-currency-remove-key-result-${index}`}
-        />
-      </div>
+      {!hideRemoveButton && (isBasic || !isCardView) ? (
+        <div
+          className="absolute top-2 right-2"
+          style={{ zIndex: 10 }}
+          data-cy={`okr-currency-remove-wrapper-${index}`}
+        >
+          <KeyResultRemoveButton
+            onClick={() => removeKeyResult(index)}
+            title="Remove Key Result"
+            aria-label="Remove Key Result"
+            id={`remove-key-result-${index}`}
+            data-cy={`okr-currency-remove-key-result-${index}`}
+          />
+        </div>
+      ) : null}
 
       {/* Advanced mode: "You Have Selected" badge */}
       {!isBasic && (
@@ -132,6 +135,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         form={form}
         initialValues={{
           ...keyItem,
+          [`key_name_${index}`]: keyItem.title,
+          [`weight_${index}`]: keyItem.weight,
           initialValue:
             keyItem.initialValue === 0 ? undefined : keyItem.initialValue,
           targetValue:

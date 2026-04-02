@@ -109,6 +109,8 @@ export interface OKRFormProps {
   disableWeightEdit?: boolean;
   /** Called when Save succeeds (e.g. to collapse inline edit back to card view) */
   onSaveSuccess?: () => void;
+  /** When true, the remove key result button is hidden (e.g. in Edit KR modal where delete is handled separately) */
+  hideRemoveButton?: boolean;
 }
 export interface ObjectiveProps {
   objective: Objective;

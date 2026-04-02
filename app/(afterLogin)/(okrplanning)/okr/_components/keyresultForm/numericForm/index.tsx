@@ -39,6 +39,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
   updateKeyResult,
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
+  hideRemoveButton,
 }) => {
   const { isMobile } = useIsMobile();
   const { Option } = Select;
@@ -104,19 +105,21 @@ const NumericForm: React.FC<OKRFormProps> = ({
       data-cy={`okr-numeric-form-container-${index}`}
       className={`relative mb-4 ${isBasic ? 'bg-gray-50 rounded-xl border-none p-6' : 'border border-gray-200 rounded-lg p-6'}`}
     >
-      <div
-        className="absolute top-2 right-2"
-        style={{ zIndex: 10 }}
-        data-cy={`okr-numeric-remove-wrapper-${index}`}
-      >
-        <KeyResultRemoveButton
-          onClick={() => removeKeyResult(index)}
-          title="Remove Key Result"
-          aria-label="Remove Key Result"
-          id={`remove-key-result-${index}`}
-          data-cy={`okr-numeric-form-remove-${index}`}
-        />
-      </div>
+      {!hideRemoveButton && (isBasic || !isCardView) ? (
+        <div
+          className="absolute top-2 right-2"
+          style={{ zIndex: 10 }}
+          data-cy={`okr-numeric-remove-wrapper-${index}`}
+        >
+          <KeyResultRemoveButton
+            onClick={() => removeKeyResult(index)}
+            title="Remove Key Result"
+            aria-label="Remove Key Result"
+            id={`remove-key-result-${index}`}
+            data-cy={`okr-numeric-form-remove-${index}`}
+          />
+        </div>
+      ) : null}
 
       {/* Advanced mode: "You Have Selected" badge */}
       {!isBasic && (
@@ -132,6 +135,8 @@ const NumericForm: React.FC<OKRFormProps> = ({
         form={form}
         initialValues={{
           ...keyItem,
+          [`key_name_${index}`]: keyItem.title,
+          [`weight_${index}`]: keyItem.weight,
           initialValue: keyItem.initialValue ?? 0,
           targetValue: keyItem.targetValue ?? 0,
           [`dead_line_${index}`]: keyItem?.deadline
