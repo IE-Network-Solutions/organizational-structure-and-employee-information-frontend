@@ -7,6 +7,8 @@ import { ActionPlanStatus } from '@/types/enumTypes';
  */
 export interface ActionPlan {
   id: string;
+  /** Short label shown in the Issue column (preferred over actionToBeTaken when set). */
+  name?: string;
   issue?: string;
   actionToBeTaken?: string;
   description: string;
@@ -31,6 +33,8 @@ export interface ActionPlan {
  * NOTE: Do NOT include sourceType, sourceId, or sourceName - backend sets these automatically
  */
 export interface CreateActionPlanDto {
+  /** Issue text; shown in the Issue column (with fallbacks in UI). */
+  issue?: string;
   actionToBeTaken: string;
   description?: string;
   responsiblePerson: string[];
@@ -46,6 +50,7 @@ export interface CreateActionPlanDto {
  * NOTE: Do NOT include sourceType, sourceId, or sourceName - backend manages these
  */
 export interface UpdateActionPlanDto {
+  issue?: string;
   actionToBeTaken?: string;
   description?: string;
   responsiblePerson?: string[];

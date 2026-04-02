@@ -11,6 +11,7 @@ interface CustomPaginationProps {
   onShowSizeChange?: (current: number, size: number) => void;
   id?: string;
   'data-cy'?: string;
+  className?: string;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
@@ -21,6 +22,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   onShowSizeChange,
   id,
   'data-cy': dataCy,
+  className,
 }) => {
   const { currentPage: globalCurrentPage, setCurrentPage } =
     usePaginationStore();
@@ -75,7 +77,11 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   const visiblePageItems = getVisiblePageItems();
 
   return (
-    <div id={id} data-cy={dataCy} className="flex w-full px-2 py-2 rounded-lg">
+    <div
+      id={id}
+      data-cy={dataCy}
+      className={`flex w-full shrink-0 px-2 py-2 rounded-lg ${className ?? ''}`}
+    >
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
         className="flex items-center justify-between gap-2 w-full"
@@ -118,8 +124,8 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
                 onClick={() => handlePageClick(item)}
                 className={`w-8 h-8 flex items-center justify-center rounded-lg font-medium transition-colors ${
                   isActive
-                    ? 'text-[#1e40af] border border-[#1e40af] bg-white'
-                    : 'text-gray-400 hover:text-gray-600'
+                    ? 'text-[#1e40af] border border-[#1e40af] bg-white font-semibold '
+                    : 'text-[#4d4d4d] font-normal hover:bg-gray-100'
                 }`}
                 data-cy={`mobile-pagination-page-${item}`}
                 aria-label={`Go to page ${item}`}
