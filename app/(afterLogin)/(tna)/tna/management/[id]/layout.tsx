@@ -1,11 +1,11 @@
 'use client';
 import { FC, ReactNode, useEffect, useState } from 'react';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
-import { Breadcrumb, Spin } from 'antd';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
+import { Breadcrumb, Button, Spin } from 'antd';
+import { MdOutlineArrowBackIos } from 'react-icons/md';
 
 interface TnaManagementLayoutProps {
   children: ReactNode;
@@ -16,6 +16,8 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
     BreadcrumbProps['items']
   >([]);
   const { id, lessonId, materialId } = useParams();
+  const router = useRouter();
+
   const {
     course,
     setCourse,
@@ -81,7 +83,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   }, [courseData]);
   return (
     <div
-      className="page-wrap bg-[#f5f5f5] pt-4"
+      className="page-wrap  pt-4"
       id="tnaManagementLayoutId"
       data-cy="tna-management-layout"
     >
@@ -95,17 +97,29 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
         </div>
       ) : course ? (
         <>
-          <Breadcrumb
-            items={breadcrumbItems}
-            className="mb-2"
-            data-cy="tna-management-layout-breadcrumb"
-          />
-          <PageHeader
-            title={
-              lessonMaterial ? lessonMaterial.title : 'Training & Learning'
-            }
-            data-cy="tna-management-layout-page-header"
-          />
+          <div
+            className="flex gap-4 items-center border-b border-gray-200 pb-4"
+            data-cy="tna-management-layout-header"
+          >
+            <Button
+              icon={<MdOutlineArrowBackIos />}
+              onClick={() => router.push(`/tna/management/${id}`)}
+              data-cy="tna-management-layout-back"
+            />
+            <div className="" data-cy="tna-management-layout-header-content">
+              <div
+                className="font-bold text-2xl"
+                data-cy="tna-management-layout-page-header"
+              >
+                {lessonMaterial ? lessonMaterial.title : 'Training & Learning'}
+              </div>
+              <Breadcrumb
+                items={breadcrumbItems}
+                className="mb-2"
+                data-cy="tna-management-layout-breadcrumb"
+              />
+            </div>
+          </div>
 
           {children}
         </>
