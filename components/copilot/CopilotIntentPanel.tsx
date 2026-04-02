@@ -100,7 +100,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
   ];
 
   const ellipsisBtn =
-    'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#D1D5DB] bg-white text-[#6B7280] shadow-sm transition-colors hover:border-[#9CA3AF] hover:bg-[#F9FAFB] hover:text-[#374151]';
+    'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] border border-[#D1D5DB] bg-white text-[#6B7280] shadow-sm transition-colors hover:border-[#9CA3AF] hover:bg-[#F9FAFB] hover:text-[#374151]';
 
   return (
     <div
@@ -124,7 +124,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
           <button
             type="button"
             onClick={onHide}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#D1D5DB] bg-white text-[#595959] shadow-sm transition-colors hover:border-[#2563EB]/35 hover:text-[#2563EB]"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] border border-[#D1D5DB] bg-white text-[#595959] shadow-sm transition-colors hover:border-[#2563EB]/35 hover:text-[#2563EB]"
             title="Hide saved and available reports"
             aria-label="Hide saved and available reports"
             id={uid('copilot-hide-intents-button')}
@@ -201,22 +201,22 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
                         <button
                           type="button"
                           onClick={cancelInlineEdit}
-                          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-2 border-red-400 bg-white text-red-500 transition-colors hover:bg-red-50"
+                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] border-2 border-red-400 bg-white text-red-500 transition-colors hover:bg-red-50"
                           aria-label="Cancel edit"
                           id={uid(`copilot-saved-edit-cancel-${s.id}`)}
                           data-cy={`copilot-saved-edit-cancel-${variant}-${s.id}`}
                         >
-                          <CloseOutlined className="text-sm" />
+                          <CloseOutlined className="text-[12px]" />
                         </button>
                         <button
                           type="button"
                           onClick={confirmInlineEdit}
-                          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-white shadow-sm transition-colors hover:brightness-105"
+                          className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] bg-primary text-white shadow-sm transition-colors hover:brightness-105"
                           aria-label="Save name"
                           id={uid(`copilot-saved-edit-confirm-${s.id}`)}
                           data-cy={`copilot-saved-edit-confirm-${variant}-${s.id}`}
                         >
-                          <CheckOutlined className="text-sm" />
+                          <CheckOutlined className="text-[12px]" />
                         </button>
                       </div>
                     </div>
@@ -293,7 +293,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
               bordered={false}
               expandIcon={({ isActive }) => (
                 <span
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#E5E7EB] bg-white text-[#6B7280] shadow-sm"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[8px] border border-[#E5E7EB] bg-white text-[#6B7280] shadow-sm"
                   aria-hidden
                   data-cy={ucy('copilot-intent-collapse-expand-icon')}
                 >

@@ -811,7 +811,7 @@ const CopilotModule: React.FC = () => {
       data-cy="copilot-module"
     >
       <div
-        className="flex min-h-0 flex-1 gap-4 overflow-hidden md:gap-6"
+        className="flex min-h-0 flex-1 gap-3 overflow-hidden md:gap-4"
         id="copilot-module-body"
         data-cy="copilot-module-body"
       >
@@ -857,7 +857,7 @@ const CopilotModule: React.FC = () => {
           >
             {sharedView ? (
               <div
-                className="border-t border-slate-200 px-2 pb-3 pt-2"
+                className="px-2 pb-3 pt-2"
                 id="copilot-shared-readonly-banner-wrap"
                 data-cy="copilot-shared-readonly-banner-wrap"
               >
@@ -901,7 +901,7 @@ const CopilotModule: React.FC = () => {
 
         {isIntentPanelVisible && (
           <div
-            className="hidden h-full w-[min(320px,22vw)] min-w-[260px] max-w-[340px] shrink-0 flex-col overflow-hidden md:flex"
+            className="hidden h-full w-[318px] min-w-[318px] max-w-[318px] shrink-0 flex-col overflow-hidden md:flex"
             id="copilot-module-intent-panel-desktop"
             data-cy="copilot-module-intent-panel-desktop"
           >

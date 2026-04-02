@@ -745,9 +745,6 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               >
                 <div
                   className="flex items-center justify-between gap-2 px-3 pt-2.5 pb-2"
-                  style={{
-                    borderBottom: `1px solid ${COPILOT_THEME.userReportCardBorder}40`,
-                  }}
                   data-cy={`copilot-user-message-header-${mid}`}
                 >
                   <span
@@ -873,7 +870,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               data-cy={`copilot-message-bubble-copilot-${mid}`}
             >
               <div
-                className="mb-3 flex items-center gap-2 border-b border-[#F3F4F6] pb-2"
+                className="mb-3 flex items-center gap-2"
                 data-cy={`copilot-assistant-message-header-${mid}`}
               >
                 <span

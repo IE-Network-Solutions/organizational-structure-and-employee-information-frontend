@@ -55,8 +55,7 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
 
   return (
     <div
-      className={`border-t bg-white ${isWorkspace ? 'px-2 pb-6 pt-3' : 'px-4 pb-6 pt-4'}`}
-      style={{ borderColor: COPILOT_THEME.hairline }}
+      className={`bg-white ${isWorkspace ? 'px-2 pb-5 pt-3' : 'px-4 pb-5 pt-4'}`}
       id="copilot-input-wrapper"
       data-cy="copilot-input-wrapper"
     >
@@ -102,13 +101,13 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
               <Tooltip title="More options">
                 <button
                   type="button"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-[6px] border bg-white text-[#6B7280] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A48B1]/25"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-[8px] border bg-white text-[#6B7280] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2A48B1]/25"
                   style={{ borderColor: chromeBorder }}
                   aria-label="More composer options"
                   id="copilot-input-more"
                   data-cy="copilot-input-more"
                 >
-                  <EllipsisOutlined className="text-lg" />
+                  <EllipsisOutlined className="text-[14px]" />
                 </button>
               </Tooltip>
             </div>
