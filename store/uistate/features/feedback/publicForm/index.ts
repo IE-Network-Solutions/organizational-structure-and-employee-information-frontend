@@ -9,10 +9,13 @@ interface ResponseDetail {
 interface PublicFormState {
   selectedAnswer: ResponseDetail[];
   setSelectedAnswer: (responseDetail: ResponseDetail) => void;
+  replaceAllSelectedAnswers: (answers: ResponseDetail[]) => void;
 }
 
 export const usePublicFormStore = create<PublicFormState>((set) => ({
   selectedAnswer: [],
+  replaceAllSelectedAnswers: (answers: ResponseDetail[]) =>
+    set({ selectedAnswer: answers }),
   setSelectedAnswer: (newResponseDetail: ResponseDetail) =>
     set((state) => {
       const index = state.selectedAnswer.findIndex(

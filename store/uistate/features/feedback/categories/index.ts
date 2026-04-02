@@ -74,6 +74,9 @@ export interface CategoriesUseState {
     key: keyof SearchFormParams,
     value: string | boolean,
   ) => void;
+  /** Live search box text (updates immediately; `searchFormParams.form_name` is debounced). */
+  searchFormDraft: string;
+  setSearchFormDraft: (value: string) => void;
 
   rows: number;
   isAllSelected: boolean;
@@ -89,6 +92,10 @@ export interface CategoriesUseState {
   setSearchUserParams: (key: keyof SearchUserParams, value: string) => void;
   activeKey: string[];
   setActiveKey: (key: string[]) => void;
+
+  /** Increment after a survey is created so the category forms grid resets to page 1 and refetches. */
+  categoryFormsListBump: number;
+  bumpCategoryFormsList: () => void;
 }
 
 export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
@@ -133,7 +140,7 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
   open: false,
   isAddOpen: false,
   current: 1,
-  pageSize: 4,
+  pageSize: 12,
   totalPages: 1,
   selectedGroups: [],
   customFields: [
@@ -195,6 +202,8 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
     set((state) => ({
       searchFormParams: { ...state.searchFormParams, [key]: value },
     })),
+  searchFormDraft: '',
+  setSearchFormDraft: (value) => set({ searchFormDraft: value }),
   rows: 2,
 
   searchUserParams: {
@@ -211,4 +220,8 @@ export const CategoriesManagementStore = create<CategoriesUseState>((set) => ({
 
   activeKey: [],
   setActiveKey: (key) => set({ activeKey: key }),
+
+  categoryFormsListBump: 0,
+  bumpCategoryFormsList: () =>
+    set((s) => ({ categoryFormsListBump: s.categoryFormsListBump + 1 })),
 }));

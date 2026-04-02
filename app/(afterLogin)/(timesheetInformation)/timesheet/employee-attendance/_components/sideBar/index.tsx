@@ -11,7 +11,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
-  const itemClass = 'font-semibold text-xs';
+  const itemClass = 'font-normal text-xs';
   const controlClass = 'mt-2.5 h-[40px]  w-full';
   const {
     isShowEmployeeAttendanceSidebar,
@@ -144,13 +144,51 @@ const EmployeeAttendanceSideBar = () => {
     }
   }, [currentAttendanceData, form]);
 
+  const employeeFullName = `${employeeData?.firstName || ''} ${
+    employeeData?.middleName || ''
+  } ${employeeData?.lastName || ''}`.trim();
+
+  const editDateLabel = currentAttendanceData?.startAt
+    ? dayjs(currentAttendanceData.startAt, 'YYYY-MM-DD HH:mm').format('MMM D')
+    : '';
+
   return (
     isShowEmployeeAttendanceSidebar && (
       <div
-        className="w-full bg-white border border-[#d4d4d4] p-4 rounded-md"
+        className="bg-white border border-[#d4d4d4] p-4 rounded-md w-[320px] sm:w-[400px]"
         id="time-attendance-employee-attendance-sidebar-container"
         data-cy="time-attendance-employee-attendance-sidebar-container"
       >
+        <div
+          className="mb-4 flex items-start justify-between"
+          data-cy="time-attendance-employee-attendance-sidebar-header"
+        >
+          <div data-cy="time-attendance-employee-attendance-sidebar-header-content">
+            <div
+              className="text-base font-semibold text-[#000000B2]"
+              data-cy="time-attendance-sidebar-header-title"
+            >
+              Edit Attendance on {editDateLabel}
+            </div>
+            <div
+              className="mt-1 text-sm text-gray-500"
+              data-cy="time-attendance-sidebar-header-name"
+            >
+              {employeeFullName || '-'}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="text-gray-400 text-3xl leading-none select-none"
+            data-cy="time-attendance-sidebar-close"
+          >
+            ×
+          </button>
+        </div>
+
         <Form
           layout="vertical"
           form={form}
@@ -158,6 +196,7 @@ const EmployeeAttendanceSideBar = () => {
           onFinish={onFinish}
           id="time-attendance-employee-attendance-sidebar-form"
           data-cy="time-attendance-employee-attendance-sidebar-form"
+          requiredMark={false}
         >
           <Form.Item name="isAbsent" label="Is Absent">
             <div
@@ -175,13 +214,26 @@ const EmployeeAttendanceSideBar = () => {
           <div
             id="time-attendance-employee-attendance-sidebar-clock-in-out-div"
             data-cy="time-attendance-employee-attendance-sidebar-clock-in-out-div"
-            className="flex justify-between gap-2"
+            className="grid grid-cols-2 gap-2"
           >
             <Form.Item
               name="startAt"
               id="time-attendance-employee-attendance-sidebar-clock-in-form-item"
               data-cy="time-attendance-employee-attendance-sidebar-clock-in-form-item"
-              label="Clock In"
+              label={
+                <span
+                  className="text-sm font-normal"
+                  data-cy="time-attendance-employee-attendance-sidebar-check-in-label"
+                >
+                  Check In{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="time-attendance-employee-attendance-sidebar-check-in-required"
+                  >
+                    *
+                  </span>
+                </span>
+              }
               rules={[{ required: !isAbsent, message: 'Required' }]}
               className={itemClass}
             >
@@ -220,7 +272,20 @@ const EmployeeAttendanceSideBar = () => {
               name="endAt"
               id="time-attendance-employee-attendance-sidebar-clock-out-form-item"
               data-cy="time-attendance-employee-attendance-sidebar-clock-out-form-item"
-              label="Clock Out"
+              label={
+                <span
+                  className="text-sm font-normal"
+                  data-cy="time-attendance-employee-attendance-sidebar-check-out-label"
+                >
+                  Check Out{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="time-attendance-employee-attendance-sidebar-check-out-required"
+                  >
+                    *
+                  </span>
+                </span>
+              }
               rules={[{ required: !isAbsent, message: 'Required' }]}
               className={itemClass}
             >
@@ -267,6 +332,7 @@ const EmployeeAttendanceSideBar = () => {
               onClick={() => onClose()}
               id="time-attendance-employee-attendance-sidebar-cancel-button"
               data-cy="time-attendance-employee-attendance-sidebar-cancel-button"
+              className="h-8 border border-[#D9D9D9] text-sm font-normal text-[#4d4d4d]"
             >
               Cancel
             </Button>
@@ -276,6 +342,7 @@ const EmployeeAttendanceSideBar = () => {
               onClick={() => form.submit()}
               id="time-attendance-employee-attendance-sidebar-update-button"
               data-cy="time-attendance-employee-attendance-sidebar-update-button"
+              className="h-8 text-sm font-normal"
             >
               Update
             </Button>

@@ -1,13 +1,13 @@
 'use client';
 import React from 'react';
-import { Button } from 'antd';
+import { Button, Divider } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
-import DeductionTypeTable from './_components/DeductionTypeTable';
-// import BenefitypeSideBar from './_components/DeductiontypeSideBar';
+import DeductionTypeCardGrid from './_components/deductionTypeCardGrid';
 import DeductiontypeSideBar from './_components/DeductiontypeSideBar';
+import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { FaPlus } from 'react-icons/fa';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
 
 const DeductionTypePage = () => {
   const { setIsDeductionOpen, setSelectedDeductionRecord } =
@@ -15,17 +15,53 @@ const DeductionTypePage = () => {
 
   return (
     <div
-      className="bg-white rounded-lg px-1 py-4 sm:px-6"
+      className="bg-white rounded-lg px-1 py-4 sm:px-6 sm:mr-4"
       id="compensation-settings-deduction-type-wrapper"
       data-cy="compensation-settings-deduction-type-wrapper"
     >
+      {/* Mobile header */}
       <div
-        className="flex justify-between mb-3 items-center"
+        className="block sm:hidden pb-3 px-3"
+        id="compensation-settings-deduction-type-mobile-header-wrapper"
+        data-cy="compensation-settings-deduction-type-mobile-header-wrapper"
+      >
+        <div
+          className="flex items-center justify-between gap-3"
+          data-cy="compensation-settings-deduction-type-mobile-header-row"
+        >
+          <PageHeader
+            title="Deduction Types"
+            horizontalPadding="0px"
+            data-cy="compensation-settings-deduction-type-mobile-page-header"
+          />
+          <AccessGuard
+            permissions={[Permissions.CreateBenefitType]}
+            data-cy="compensation-settings-deduction-type-create-access-guard-mobile"
+          >
+            <Button
+              type="primary"
+              className="h-10 w-10 sm:w-auto rounded-md"
+              icon={
+                <FaPlus data-cy="compensation-settings-deduction-type-create-icon" />
+              }
+              onClick={() => {
+                setSelectedDeductionRecord(null);
+                setIsDeductionOpen(true);
+              }}
+              data-cy="compensation-settings-deduction-type-create-button"
+            />
+          </AccessGuard>
+        </div>
+      </div>
+
+      <Divider className="!my-0 !border-gray-200" />
+      <div
+        className="hidden sm:flex flex-wrap justify-between items-center gap-4 pt-4 pb-6"
         id="compensation-settings-deduction-type-header"
         data-cy="compensation-settings-deduction-type-header"
       >
         <h1
-          className="text-lg font-bold"
+          className="text-2xl font-bold text-gray-900 leading-8"
           id="compensation-settings-deduction-type-title"
           data-cy="compensation-settings-deduction-type-title"
         >
@@ -41,7 +77,7 @@ const DeductionTypePage = () => {
             icon={
               <FaPlus data-cy="compensation-settings-deduction-type-create-icon" />
             }
-            className="h-10"
+            className="h-10 text-sm font-medium rounded-md"
             onClick={() => {
               setSelectedDeductionRecord(null);
               setIsDeductionOpen(true);
@@ -49,20 +85,22 @@ const DeductionTypePage = () => {
             data-cy="compensation-settings-deduction-type-create-button"
           >
             <span
-              className="hidden lg:inline"
+              className="hidden sm:inline"
               id="compensation-settings-deduction-type-create-button-text"
               data-cy="compensation-settings-deduction-type-create-button-text"
             >
-              Deduction
+              Add Deduction Type
             </span>
           </Button>
         </AccessGuard>
       </div>
+      <Divider className="!my-0 !border-gray-200" />
       <div
-        id="compensation-settings-deduction-type-table-wrapper"
-        data-cy="compensation-settings-deduction-type-table-wrapper"
+        className="px-3 sm:px-0"
+        id="compensation-settings-deduction-type-card-grid-wrapper"
+        data-cy="compensation-settings-deduction-type-card-grid-wrapper"
       >
-        <DeductionTypeTable />
+        <DeductionTypeCardGrid data-cy="compensation-settings-deduction-type-card-grid" />
       </div>
       <DeductiontypeSideBar data-cy="compensation-settings-deduction-type-sidebar" />
     </div>

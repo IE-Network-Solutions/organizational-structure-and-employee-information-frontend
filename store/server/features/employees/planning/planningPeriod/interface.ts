@@ -102,6 +102,8 @@ export type PaginatedGroupedUsers = {
 export interface PlanningUserPayload {
   userIds: string[];
   planningPeriodIds: string[];
+  scoringConfigurationId?: string;
+  okrRuleId?: string;
 }
 
 export type UpdatePlanningPeriodFunction = (

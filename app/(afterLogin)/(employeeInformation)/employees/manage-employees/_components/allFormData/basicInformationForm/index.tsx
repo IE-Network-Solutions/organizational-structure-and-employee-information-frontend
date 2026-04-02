@@ -12,7 +12,7 @@ import {
   Upload,
   message,
   Button,
-  Popover,
+  Dropdown,
 } from 'antd';
 import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import { validateEmail, validateName } from '@/utils/validation';
@@ -21,6 +21,7 @@ import { RcFile } from 'antd/es/upload';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import dayjs from 'dayjs';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 
 const { Option } = Select;
 const { Dragger } = Upload;
@@ -29,6 +30,8 @@ const BasicInformationForm = ({ form }: any) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { profileFileList, setBirthDate, setProfileFileList } =
     useEmployeeManagementStore();
+  const { data: nationalities, isLoading: isLoadingNationality } =
+    useGetNationalities();
 
   type FileInfo = {
     file: UploadFile; // File being uploaded
@@ -90,10 +93,10 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-profile"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm"
                 id="basic-info-upload-label"
                 data-cy="basic-info-upload-label"
               >
@@ -111,14 +114,15 @@ const BasicInformationForm = ({ form }: any) => {
             id="profileImageId"
             data-cy="profileImageId"
           >
-            <Popover
-              trigger="click"
+            <Dropdown
+              trigger={['click']}
               open={isPopoverOpen}
               onOpenChange={setIsPopoverOpen}
-              placement="bottomRight"
-              content={
+              placement="bottomLeft"
+              dropdownRender={() => (
                 <div
-                  className="p-1 w-[450px]"
+                  className="p-3 bg-white rounded-lg shadow-lg max-w-full sm:w-[450px]"
+                  style={{ width: '100%', boxSizing: 'border-box' }}
                   id="avatar-popover-container"
                   data-cy="avatar-popover-container"
                 >
@@ -129,7 +133,7 @@ const BasicInformationForm = ({ form }: any) => {
                   >
                     <span
                       data-cy="avatar-popover-header-title"
-                      className="text-gray-700 font-semibold text-sm"
+                      className="font-normal text-sm text-[#030712]"
                     >
                       Upload Profile
                     </span>
@@ -144,7 +148,7 @@ const BasicInformationForm = ({ form }: any) => {
                   {/* Upload Area */}
                   {profileFileList.length > 0 ? (
                     <div
-                      className="flex justify-center items-center py-4 px-3 border-2 border-dashed border-gray-300 rounded-lg"
+                      className="flex justify-center items-center border-2 border-dashed border-gray-300 rounded-lg h-32"
                       id="basic-info-upload-preview"
                       data-cy="basic-info-upload-preview"
                     >
@@ -156,25 +160,8 @@ const BasicInformationForm = ({ form }: any) => {
                         <Image
                           src={getImageUrl(profileFileList)}
                           alt="Profile Preview"
-                          width={400}
-                          height={200}
                           className="object-cover rounded-lg"
-                          preview={true}
-                          style={{
-                            minWidth: '400px',
-                            minHeight: '200px',
-                            maxWidth: '100%',
-                          }}
-                        />
-                        <Button
-                          type="primary"
-                          danger
-                          size="small"
-                          icon={<CloseOutlined />}
-                          onClick={handleProfileRemove}
-                          className="absolute -top-2 -right-2 shadow-md"
-                          style={{ zIndex: 10 }}
-                          title="Remove image"
+                          // preview={true}
                         />
                       </div>
                     </div>
@@ -186,7 +173,7 @@ const BasicInformationForm = ({ form }: any) => {
                       onChange={(info) => {
                         handleProfileChange(info);
                       }}
-                      className="bg-gray-50 border-gray-300 border-dashed rounded-lg py-8"
+                      className="bg-gray-50 border-gray-300 border-dashed rounded-lg flex items-center justify-center px-3"
                       accept="image/*"
                       maxCount={1}
                       showUploadList={false}
@@ -225,7 +212,7 @@ const BasicInformationForm = ({ form }: any) => {
                     className="flex justify-end mt-4 gap-2"
                   >
                     <Button
-                      className="px-6 rounded-lg text-xs font-semibold"
+                      className="px-6 rounded-lg text-xs font-normal"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-cancel"
                       data-cy="avatar-popover-cancel"
@@ -234,7 +221,7 @@ const BasicInformationForm = ({ form }: any) => {
                     </Button>
                     <Button
                       type="primary"
-                      className="px-6 rounded-lg bg-blue-700 text-xs font-semibold"
+                      className="px-6 rounded-lg text-xs font-normal"
                       onClick={() => setIsPopoverOpen(false)}
                       id="avatar-popover-upload"
                       data-cy="avatar-popover-upload"
@@ -243,7 +230,7 @@ const BasicInformationForm = ({ form }: any) => {
                     </Button>
                   </div>
                 </div>
-              }
+              )}
             >
               <div
                 className="flex items-center justify-center bg-gray-300 rounded-full p-2 border border-gray-300 w-16 h-16 cursor-pointer relative overflow-visible"
@@ -264,10 +251,22 @@ const BasicInformationForm = ({ form }: any) => {
                     style={{ fontSize: '32px', color: '#6b7280' }}
                   />
                 )}
-                {/* The X button to remove image outside popover if needed, 
-                    but per image it shows the placeholder icon */}
+
+                {/* Small X button overlaid near the avatar to clear the image */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProfileRemove();
+                  }}
+                  className="absolute -bottom-1 right-2 w-5 h-5 flex items-center justify-center bg-white border border-gray-300 rounded shadow-sm"
+                  id="avatar-trigger-remove-btn"
+                  data-cy="avatar-trigger-remove-btn"
+                >
+                  <CloseOutlined className="text-gray-500 text-[10px]" />
+                </button>
               </div>
-            </Popover>
+            </Dropdown>
           </Form.Item>
         </Col>
       </Row>
@@ -279,15 +278,21 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-first-name"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="userFirstName"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 id="basic-info-first-name-label"
                 data-cy="basic-info-first-name-label"
               >
-                First Name
+                First Name{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-first-name-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userFirstNameId"
@@ -317,14 +322,20 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-middle-name"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="userMiddleName"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-middle-name-label"
               >
-                Middle Name
+                Middle Name{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-middle-name-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userMiddleNameId"
@@ -354,14 +365,20 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-last-name"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="userLastName"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-last-name-label"
               >
-                Last Name
+                Last Name{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-last-name-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userLastNameId"
@@ -397,14 +414,20 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-email"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="userEmail"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-email-label"
               >
-                Email Address
+                Email Address{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-email-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userEmailId"
@@ -432,14 +455,20 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-gender"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="employeeGender"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-gender-label"
               >
-                Gender
+                Gender{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-gender-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userEmployeeGenderId"
@@ -482,14 +511,21 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-dob"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="dateOfBirth"
+            rules={[{ required: true }]}
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-dob-label"
               >
-                Date of Birth
+                Date of Birth{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-dob-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userDateOfBirthId"
@@ -519,14 +555,21 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-marital-status"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="maritalStatus"
+            rules={[{ required: true }]}
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-marital-status-label"
               >
-                Marital Status
+                Marital Status{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy={`basic-info-marital-status-required`}
+                >
+                  *
+                </span>
               </span>
             }
             id="userMaritalStatusId"
@@ -562,12 +605,6 @@ const BasicInformationForm = ({ form }: any) => {
             </Select>
           </Form.Item>
         </Col>
-      </Row>
-      {/* <Row
-        gutter={16}
-        id="basic-info-row-nationality"
-        data-cy="basic-info-row-nationality"
-      >
         <Col
           xs={24}
           sm={24}
@@ -575,14 +612,20 @@ const BasicInformationForm = ({ form }: any) => {
           data-cy="basic-info-col-nationality"
         >
           <Form.Item
-            className="font-semibold text-xs"
+            className="font-normal text-base"
             name="nationalityId"
             label={
               <span
-                className="mb-1 font-semibold text-xs"
+                className="mb-1 font-normal text-sm text-[#030712]"
                 data-cy="basic-info-nationality-label"
               >
-                Nationality <span className="text-gray-400">(optional)</span>
+                Nationality{' '}
+                <span
+                  data-cy="basic-info-nationality-label-span"
+                  className="text-gray-400"
+                >
+                  (optional)
+                </span>
               </span>
             }
             id="userNationalityId"
@@ -601,6 +644,7 @@ const BasicInformationForm = ({ form }: any) => {
               }
               id="basic-info-nationality-select"
               data-cy="basic-info-nationality-select"
+              className="h-10"
             >
               {nationalities?.items?.map((nationality: any, index: number) => (
                 <Option
@@ -616,40 +660,6 @@ const BasicInformationForm = ({ form }: any) => {
           </Form.Item>
         </Col>
       </Row>
-      <Row
-        gutter={16}
-        id="basic-info-row-address"
-        data-cy="basic-info-row-address"
-      >
-        <Col
-          xs={24}
-          sm={24}
-          id="basic-info-col-address"
-          data-cy="basic-info-col-address"
-        >
-          <Form.Item
-            className="font-semibold text-xs"
-            name="address"
-            label={
-              <span
-                className="mb-1 font-semibold text-xs"
-                data-cy="basic-info-address-label"
-              >
-                Address <span className="text-gray-400">(optional)</span>
-              </span>
-            }
-            id="userAddressId"
-            data-cy="userAddressId"
-          >
-            <Input.TextArea
-              placeholder="Add your address as address, city, country"
-              rows={3}
-              id="basic-info-address-textarea"
-              data-cy="basic-info-address-textarea"
-            />
-          </Form.Item>
-        </Col>
-      </Row> */}
     </div>
   );
 };

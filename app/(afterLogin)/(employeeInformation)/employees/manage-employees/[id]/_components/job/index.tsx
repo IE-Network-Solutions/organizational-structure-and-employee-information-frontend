@@ -18,11 +18,9 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import WorkScheduleComponent from './workSchedule';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from './addEmployeeJobInfrmation';
-import { MoreOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import DownloadJobInformation from './downloadJobInformation';
-import { LuPencil } from 'react-icons/lu';
 import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
@@ -45,6 +43,8 @@ import { JobActionStatus } from '@/types/enumTypes';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckIcon from '@mui/icons-material/Check';
 import { useUpdateBasicSalary } from '@/store/server/features/payroll/payroll/mutation';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 function Job({ id }: { id: string }) {
   const params = useParams();
@@ -346,28 +346,36 @@ function Job({ id }: { id: string }) {
           <Card
             loading={isLoading}
             title={
-              <span
-                className="text-base font-bold text-gray-900"
-                data-cy="job-employment-card-title"
-              >
-                Employment Information
-              </span>
+              !isEditing ? (
+                <span
+                  className="text-base font-normal text-[#4d4d4d]"
+                  data-cy="job-employment-card-title"
+                >
+                  Employment Information
+                </span>
+              ) : null
             }
             extra={
-              <button
-                type="button"
-                onClick={handleEditClick}
-                className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
-                id="job-employment-edit-btn"
-                data-cy="job-employment-edit-btn"
-              >
-                <LuPencil className="text-gray-700" />
-              </button>
+              !isEditing ? (
+                <button
+                  onClick={handleEditClick}
+                  id="job-employment-edit-btn"
+                  data-cy="job-employment-edit-btn"
+                  className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
+                >
+                  <EditOutlinedIcon className="text-sm" />
+                </button>
+              ) : null
             }
             className="employment-information-card rounded-lg border border-gray-200 my-6 mt-0"
             id="job-employment-card"
             data-cy="job-employment-card"
-            headStyle={{ borderBottom: 'none' }}
+            headStyle={{
+              borderBottom: 'none',
+              paddingLeft: '16px',
+              paddingRight: '16px',
+            }}
+            bodyStyle={{ padding: '12px 16px 12px 16px' }}
           >
             {isEditing ? (
               <Form
@@ -376,31 +384,66 @@ function Job({ id }: { id: string }) {
                 layout="inline"
                 id="job-joined-date-form"
                 data-cy="job-joined-date-form"
+                className="w-full"
               >
+                <Row
+                  justify="space-between"
+                  align="middle"
+                  className="mb-4 w-full"
+                  style={{ width: '100%' }}
+                  id="job-employment-header-row"
+                  data-cy="job-employment-header-row"
+                >
+                  <Col>
+                    <span
+                      data-cy="job-employment-title"
+                      className="text-sm font-normal text-[#4d4d4d]"
+                    >
+                      Employment Information
+                    </span>
+                  </Col>
+                  <Col>
+                    <div
+                      data-cy="job-employment-buttons"
+                      className="flex items-center gap-2"
+                    >
+                      <Button
+                        type="default"
+                        size="small"
+                        onClick={() => setIsEditing(false)}
+                        id="job-joined-date-cancel-btn"
+                        data-cy="job-joined-date-cancel-btn"
+                        className="border border-red-500 h-6 w-6"
+                      >
+                        <CloseIcon className="text-red-500 text-[10px]" />
+                      </Button>
+
+                      <Button
+                        type="primary"
+                        size="small"
+                        htmlType="submit"
+                        id="job-joined-date-submit-btn"
+                        data-cy="job-joined-date-submit-btn"
+                        className="h-6 w-6"
+                      >
+                        <CheckIcon className="text-white text-[10px]" />
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
                 <Form.Item
                   name="joinedDate"
                   id="job-joined-date-form-item"
                   data-cy="job-joined-date-form-item"
                   rules={[{ required: true, message: 'Please select a date!' }]}
+                  className="w-full"
                 >
                   <DatePicker
                     format="YYYY-MM-DD"
                     id="job-joined-date-datepicker"
                     data-cy="job-joined-date-datepicker"
+                    className="w-full"
                   />
-                </Form.Item>
-                <Form.Item
-                  id="job-joined-date-submit-form-item"
-                  data-cy="job-joined-date-submit-form-item"
-                >
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    id="job-joined-date-submit-btn"
-                    data-cy="job-joined-date-submit-btn"
-                  >
-                    Save
-                  </Button>
                 </Form.Item>
               </Form>
             ) : (
@@ -421,13 +464,13 @@ function Job({ id }: { id: string }) {
                     data-cy="job-employment-service-year"
                   >
                     <p
-                      className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                      className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                       data-cy="job-employment-service-year-label"
                     >
                       Service Year
                     </p>
                     <p
-                      className="text-base font-semibold text-gray-500 m-0"
+                      className="text-base font-normal text-[#4d4d4d] m-0"
                       data-cy="job-employment-service-year-value"
                     >
                       {employeeData?.employeeInformation?.joinedDate
@@ -469,13 +512,13 @@ function Job({ id }: { id: string }) {
                     data-cy="job-employment-joined-date"
                   >
                     <p
-                      className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                      className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
                       data-cy="job-employment-joined-date-label"
                     >
                       Joined Date
                     </p>
                     <p
-                      className="text-base font-semibold text-gray-500 m-0"
+                      className="text-base font-normal text-[#4d4d4d] m-0"
                       data-cy="job-employment-joined-date-value"
                     >
                       {dayjs(
@@ -500,7 +543,7 @@ function Job({ id }: { id: string }) {
                   data-cy="job-information-edit-title-row"
                 >
                   <span
-                    className="text-base font-bold text-gray-900"
+                    className="text-base font-normal text-[#4d4d4d]"
                     data-cy="job-information-edit-title"
                   >
                     Job Information
@@ -510,27 +553,31 @@ function Job({ id }: { id: string }) {
                     data-cy="job-information-edit-actions"
                   >
                     <Button
-                      type="text"
-                      icon={<CloseIcon className="text-red-500" />}
+                      type="default"
+                      size="small"
                       onClick={handleEditModalClose}
-                      className="border border-red-500 bg-white rounded-lg p-2 h-8 w-8 flex items-center justify-center hover:bg-red-50"
+                      className="border border-red-500 h-6 w-6"
                       id="job-edit-inline-close-btn"
                       data-cy="job-edit-inline-close-btn"
-                    />
+                    >
+                      <CloseIcon className="text-red-500 text-[10px]" />
+                    </Button>
                     <Button
-                      type="text"
-                      icon={<CheckIcon className="text-white" />}
+                      type="primary"
+                      size="small"
                       onClick={() => editForm.submit()}
-                      className=" bg-[#1d4ed8] rounded-lg p-2 h-8 w-8 flex items-center justify-center hover:bg-blue-50"
+                      className="h-6 w-6"
                       loading={isUpdating || updateLoading}
                       id="job-edit-inline-save-btn"
                       data-cy="job-edit-inline-save-btn"
-                    />
+                    >
+                      <CheckIcon className="text-white text-[10px]" />
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <span
-                  className="text-base font-bold text-gray-900"
+                  className="text-base font-normal text-[#4d4d4d]"
                   data-cy="job-information-card-title"
                 >
                   Job Information
@@ -558,14 +605,15 @@ function Job({ id }: { id: string }) {
                         trigger={['click']}
                         placement="bottomRight"
                       >
-                        <button
-                          type="button"
-                          className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-700 hover:bg-gray-200 transition-colors"
+                        <Button
+                          type="default"
+                          className="border border-[#d9d9d9] h-6 w-6"
                           id="job-information-menu-btn"
                           data-cy="job-information-menu-btn"
+                          size="small"
                         >
-                          <MoreOutlined className="text-black" />
-                        </button>
+                          <MoreHorizIcon className="text-sm" />
+                        </Button>
                       </Dropdown>
                     </div>
                   </AccessGuard>
@@ -574,7 +622,12 @@ function Job({ id }: { id: string }) {
             }
             id="job-information-card"
             data-cy="job-information-card"
-            headStyle={{ borderBottom: 'none' }}
+            headStyle={{
+              borderBottom: 'none',
+              paddingLeft: '16px',
+              paddingRight: '16px',
+            }}
+            bodyStyle={{ padding: '12px 16px 12px 16px' }}
           >
             {isEditModalVisible && selectedJobRecord ? (
               <Form
@@ -587,16 +640,16 @@ function Job({ id }: { id: string }) {
                 <Row gutter={24}>
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="title"
                       id="job-edit-title-form-item"
                       data-cy="job-edit-title-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-title-label"
                         >
-                          Title *
+                          Title
                         </span>
                       }
                       rules={[
@@ -611,16 +664,16 @@ function Job({ id }: { id: string }) {
                       />
                     </Form.Item>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="basicSalary"
                       id="job-edit-salary-form-item"
                       data-cy="job-edit-salary-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-salary-label"
                         >
-                          Salary *
+                          Salary
                         </span>
                       }
                       rules={[
@@ -645,16 +698,16 @@ function Job({ id }: { id: string }) {
                       />
                     </Form.Item>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="employementTypeId"
                       id="job-edit-type-form-item"
                       data-cy="job-edit-type-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-type-label"
                         >
-                          Type *
+                          Type
                         </span>
                       }
                       rules={[
@@ -675,16 +728,16 @@ function Job({ id }: { id: string }) {
                       />
                     </Form.Item>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="jobAction"
                       id="job-edit-status-form-item"
                       data-cy="job-edit-status-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-status-label"
                         >
-                          Status *
+                          Status
                         </span>
                       }
                       rules={[
@@ -707,16 +760,16 @@ function Job({ id }: { id: string }) {
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="effectiveStartDate"
                       id="job-edit-joined-date-form-item"
                       data-cy="job-edit-joined-date-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-joined-date-label"
                         >
-                          Joined Date *
+                          Joined Date
                         </span>
                       }
                       rules={[
@@ -735,7 +788,7 @@ function Job({ id }: { id: string }) {
                       />
                     </Form.Item>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="positionId"
                       id="job-edit-position-form-item"
                       data-cy="job-edit-position-form-item"
@@ -744,7 +797,7 @@ function Job({ id }: { id: string }) {
                           className="mb-1 font-semibold text-xs"
                           data-cy="job-edit-position-label"
                         >
-                          Position *
+                          Position
                         </span>
                       }
                       rules={[
@@ -775,14 +828,14 @@ function Job({ id }: { id: string }) {
                       />
                     </Form.Item>
                     <Form.Item
-                      className="w-full font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="departmentLeadOrNot"
                       id="job-edit-member-form-item"
                       data-cy="job-edit-member-form-item"
                       initialValue={false}
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-member-label"
                         >
                           Member
@@ -849,16 +902,16 @@ function Job({ id }: { id: string }) {
                       />
                     </Form.Item>
                     <Form.Item
-                      className="font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="departmentId"
                       id="job-edit-department-form-item"
                       data-cy="job-edit-department-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-department-label"
                         >
-                          Department *
+                          Department
                         </span>
                       }
                       rules={[
@@ -892,16 +945,16 @@ function Job({ id }: { id: string }) {
                     data-cy="job-edit-branch-col"
                   >
                     <Form.Item
-                      className="w-full font-semibold text-xs"
+                      className="text-sm font-normal text-[#4d4d4d]"
                       name="branchId"
                       id="job-edit-branch-form-item"
                       data-cy="job-edit-branch-form-item"
                       label={
                         <span
-                          className="mb-1 font-semibold text-xs"
+                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
                           data-cy="job-edit-branch-label"
                         >
-                          Branch Office *
+                          Branch Office
                         </span>
                       }
                       rules={[
@@ -967,13 +1020,13 @@ function Job({ id }: { id: string }) {
                 }) => (
                   <div className="mb-5" id={dataCy} data-cy={dataCy}>
                     <p
-                      className="text-xs text-gray-500 font-medium m-0 mb-0.5"
+                      className="text-sm font-normal text-[#4d4d4d] m-0 mb-0.5"
                       data-cy={`${dataCy}-label`}
                     >
                       {label}
                     </p>
                     <p
-                      className="text-base font-semibold text-gray-500 m-0"
+                      className="text-base font-normal text-[#4d4d4d] m-0"
                       data-cy={`${dataCy}-value`}
                     >
                       {value}
@@ -1490,6 +1543,7 @@ function Job({ id }: { id: string }) {
           onCancel={() => setIsJobHistoryModalVisible(false)}
           footer={null}
           width={700}
+          centered
         >
           <Table
             dataSource={sortedJobInformation}

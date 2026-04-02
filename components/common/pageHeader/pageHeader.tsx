@@ -5,7 +5,7 @@ import { Tooltip } from 'antd';
 import { useIsMobile } from '@/hooks/useIsMobile';
 interface PageHeaderProps {
   title: React.ReactNode;
-  description?: string;
+  description?: React.ReactNode;
   children?: React.ReactNode;
   size?: 'small' | 'medium';
   toolTip?: string;

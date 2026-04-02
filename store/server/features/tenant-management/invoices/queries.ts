@@ -10,16 +10,23 @@ const getInvoices = async (
   data: Partial<InvoiceRequestBody>,
   orderDirection?: string,
 ) => {
-  let url = `${TENANT_MGMT_URL}/subscription/rest/invoices`;
-  if (orderDirection) {
-    url += `?orderDirection=${orderDirection}`;
-  }
+  const { page, limit, ...body } = (data ??
+    {}) as Partial<InvoiceRequestBody> & {
+    page?: number;
+    limit?: number;
+  };
+  const query = new URLSearchParams();
+  if (orderDirection) query.set('orderDirection', orderDirection);
+  if (typeof page === 'number') query.set('page', String(page));
+  if (typeof limit === 'number') query.set('limit', String(limit));
+  const qs = query.toString();
+  const url = `${TENANT_MGMT_URL}/subscription/rest/invoices${qs ? `?${qs}` : ''}`;
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url,
     method: 'POST',
     headers: requestHeaders,
-    data,
+    data: body,
   });
 };
 
@@ -30,7 +37,9 @@ export const useGetInvoices = (
   isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<Invoice>>(
-    Object.keys(data).length ? ['invoices', data] : 'invoices',
+    Object.keys(data).length
+      ? ['invoices', data, orderDirection ?? null]
+      : ['invoices', orderDirection ?? null],
     () => getInvoices(data, orderDirection),
     {
       keepPreviousData: isKeepData,

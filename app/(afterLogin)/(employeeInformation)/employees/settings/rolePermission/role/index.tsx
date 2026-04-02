@@ -1,8 +1,7 @@
-import { Card, Empty, Input, Spin } from 'antd';
+import { Card, Input, Skeleton } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
-import { EmptyImage } from '@/components/emptyIndicator';
 import {
   useGetRoles,
   useGetRolesWithPermission,
@@ -80,10 +79,17 @@ const RoleComponent: React.FC = () => {
       <div data-cy="settings-role-search-container" className="mb-4">
         <Input
           placeholder="Search Roles"
-          suffix={<SearchOutlined className="text-gray-400" />}
+          className="w-full pr-0 py-0"
+          suffix={
+            <div
+              className="text-gray-400 border-l border-gray-300 px-2 py-1"
+              data-cy="merge-search-icon-container"
+            >
+              <SearchOutlined />
+            </div>
+          }
           value={roleSearch}
           onChange={(e) => setRoleSearch(e.target.value)}
-          className="rounded-lg bg-white"
           id="settings-role-search"
           data-cy="settings-role-search"
           allowClear
@@ -95,7 +101,7 @@ const RoleComponent: React.FC = () => {
         data-cy="settings-role-loading"
       >
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
-          <Spin size="large" data-cy="settings-role-spinner" />
+          <Skeleton />
         )}
       </div>
       {rolePermissionsData && filteredItems.length > 0 ? (
@@ -148,12 +154,7 @@ const RoleComponent: React.FC = () => {
           id="settings-role-empty"
           data-cy="settings-role-empty-wrapper"
         >
-          {' '}
-          <Empty
-            description={'data not found'}
-            image={<EmptyImage data-cy="settings-role-empty-image" />}
-            data-cy="settings-role-empty"
-          />
+          <Skeleton />
         </div>
       )}
     </Card>
