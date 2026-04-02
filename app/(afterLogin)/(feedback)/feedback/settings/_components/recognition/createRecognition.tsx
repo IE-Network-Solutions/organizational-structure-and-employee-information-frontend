@@ -467,7 +467,13 @@ const RecognitionForm: React.FC<PropsData> = ({
       className="text-black text-sm "
       data-cy={`create-recognition-${text}-label`}
     >
-      {text} <span style={{ color: 'red' }}>*</span>
+      {text}{' '}
+      <span
+        style={{ color: 'red' }}
+        data-cy="create-recognition-label-required"
+      >
+        *
+      </span>
     </span>
   );
   const onFinish = (values: RecognitionFormValues) => {
@@ -1182,7 +1188,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                   className="text-black text-sm "
                   data-cy="create-recognition-form-name-label"
                 >
-                  Name <span style={{ color: 'red' }}>*</span>
+                  Name{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="create-recognition-form-name-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               name="name"
@@ -1210,7 +1222,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                   className="text-black text-sm "
                   data-cy="create-recognition-form-description-label"
                 >
-                  Description <span style={{ color: 'red' }}>*</span>
+                  Description{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="create-recognition-form-description-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               name="description"
@@ -1244,7 +1262,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                     className="text-black text-sm "
                     data-cy="create-recognition-form-criteria-label"
                   >
-                    Recognition Criteria <span style={{ color: 'red' }}>*</span>
+                    Recognition Criteria{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-recognition-form-criteria-required"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 name="criteria"
@@ -1394,7 +1418,10 @@ const RecognitionForm: React.FC<PropsData> = ({
               data-cy="create-recognition-criteria-items-scroll"
             >
               {isCriteriaOnlyEdit && criteriaRowsForStep.length === 0 && (
-                <div className="text-sm text-gray-500 py-4 text-center">
+                <div
+                  className="text-sm text-gray-500 py-4 text-center"
+                  data-cy="create-recognition-criteria-loading"
+                >
                   Loading criterion…
                 </div>
               )}
@@ -1698,8 +1725,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                           className="min-w-0"
                           data-cy="create-recognition-form-monetized-text"
                         >
-                          <div className="text-sm  text-gray-900">Monetize</div>
-                          <div className="text-xs text-gray-500">
+                          <div
+                            className="text-sm  text-gray-900"
+                            data-cy="create-recognition-form-monetized-title"
+                          >
+                            Monetize
+                          </div>
+                          <div
+                            className="text-xs text-gray-500"
+                            data-cy="create-recognition-form-monetized-description"
+                          >
                             People that are Eligible for payment under this
                             recognition
                           </div>
@@ -1739,10 +1774,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                           className="min-w-0"
                           data-cy="create-recognition-form-requires-certification-text"
                         >
-                          <div className="text-sm  text-gray-900">
+                          <div
+                            className="text-sm  text-gray-900"
+                            data-cy="create-recognition-form-certification-title"
+                          >
                             Requires Certificate
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div
+                            className="text-xs text-gray-500"
+                            data-cy="create-recognition-form-certification-description"
+                          >
                             People that are Eligible for certificate under this
                             recognition
                           </div>
@@ -1864,7 +1905,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                       className="text-black text-sm "
                       data-cy="create-recognition-form-frequency-label"
                     >
-                      Frequency <span style={{ color: 'red' }}>*</span>
+                      Frequency{' '}
+                      <span
+                        style={{ color: 'red' }}
+                        data-cy="create-recognition-form-frequency-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   name="frequency"
@@ -1916,7 +1963,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                       className="text-black text-sm "
                       data-cy="create-recognition-form-department-label"
                     >
-                      Department <span style={{ color: 'red' }}>*</span>
+                      Department{' '}
+                      <span
+                        style={{ color: 'red' }}
+                        data-cy="create-recognition-form-department-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   name="departmentId"
@@ -2002,7 +2055,10 @@ const RecognitionForm: React.FC<PropsData> = ({
                 <Input />
               </Form.Item>
 
-              <div className="flex items-center justify-center gap-2 mb-4 ">
+              <div
+                className="flex items-center justify-center gap-2 mb-4 "
+                data-cy="create-recognition-formula-amount-type-toggles"
+              >
                 <Form.Item shouldUpdate noStyle>
                   {() => {
                     const t =
@@ -2066,8 +2122,17 @@ const RecognitionForm: React.FC<PropsData> = ({
                   return (
                     <Form.Item
                       label={
-                        <span className="text-black text-sm">
-                          Amount <span className="text-red-500">*</span>
+                        <span
+                          className="text-black text-sm"
+                          data-cy="create-recognition-formula-fixed-amount-label"
+                        >
+                          Amount{' '}
+                          <span
+                            className="text-red-500"
+                            data-cy="create-recognition-formula-fixed-amount-required"
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       name="incentiveFixedAmount"
@@ -2091,60 +2156,78 @@ const RecognitionForm: React.FC<PropsData> = ({
                   if (t !== 'Formula') return null;
                   return (
                     <Form.Item data-cy="create-recognition-formula-expression">
-                      <div className="my-4">
+                      <div
+                        className="my-4"
+                        data-cy="create-recognition-formula-builder-section"
+                      >
                         <Row gutter={[16, 10]}>
                           <Col xs={12} sm={12} md={13} lg={13} xl={13}>
-                            <div className="flex flex-col gap-1">
-                              <span className="font-bold text-sm">
+                            <div
+                              className="flex flex-col gap-1"
+                              data-cy="create-recognition-formula-criteria-col"
+                            >
+                              <span
+                                className="font-bold text-sm"
+                                data-cy="create-recognition-formula-criteria-heading"
+                              >
                                 Criteria
-                                <span className="text-red-500">*</span>
+                                <span
+                                  className="text-red-500"
+                                  data-cy="create-recognition-formula-criteria-required"
+                                >
+                                  *
+                                </span>
                               </span>
-                              <span className="flex flex-wrap my-1">
+                              <span
+                                className="flex flex-wrap my-1"
+                                data-cy="create-recognition-formula-criteria-tags"
+                              >
                                 {selectedCriteria?.length ? (
-                                  selectedCriteria.map(
-                                    (option: any, idx: number) => {
-                                      const cid =
-                                        option?.criteriaId || option?.id;
-                                      const cname = option?.criterionKey;
-                                      if (!cname) return null;
-                                      const isSelectedInFormula =
-                                        formulaTokens?.some(
-                                          (token) =>
-                                            token?.type === 'criteria' &&
-                                            String(token?.id) === String(cid),
-                                        ) ?? false;
-                                      return (
-                                        <>
-                                          <Tag
-                                            data-cy={`create-recognition-formula-criteria-${cid}`}
-                                            id={`createRecognitionFormulaCriteria${cid}`}
-                                            onClick={() =>
-                                              handleFormulaOptionClick(
-                                                cid,
-                                                cname,
-                                                'criteria',
-                                              )
-                                            }
-                                            key={
-                                              isSelectedInFormula
-                                                ? 'blue'
-                                                : 'default'
-                                            }
-                                            color={
-                                              isSelectedInFormula
-                                                ? 'blue'
-                                                : 'default'
-                                            }
-                                            className="cursor-pointer h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none mb-2"
-                                          >
-                                            {cname}
-                                          </Tag>
-                                        </>
-                                      );
-                                    },
-                                  )
+                                  selectedCriteria.map((option: any) => {
+                                    const cid =
+                                      option?.criteriaId || option?.id;
+                                    const cname = option?.criterionKey;
+                                    if (!cname) return null;
+                                    const isSelectedInFormula =
+                                      formulaTokens?.some(
+                                        (token) =>
+                                          token?.type === 'criteria' &&
+                                          String(token?.id) === String(cid),
+                                      ) ?? false;
+                                    return (
+                                      <>
+                                        <Tag
+                                          data-cy={`create-recognition-formula-criteria-${cid}`}
+                                          id={`createRecognitionFormulaCriteria${cid}`}
+                                          onClick={() =>
+                                            handleFormulaOptionClick(
+                                              cid,
+                                              cname,
+                                              'criteria',
+                                            )
+                                          }
+                                          key={
+                                            isSelectedInFormula
+                                              ? 'blue'
+                                              : 'default'
+                                          }
+                                          color={
+                                            isSelectedInFormula
+                                              ? 'blue'
+                                              : 'default'
+                                          }
+                                          className="cursor-pointer h-full p-2 items-center justify-center rounded-lg text-xs font-normal shadow-none mb-2"
+                                        >
+                                          {cname}
+                                        </Tag>
+                                      </>
+                                    );
+                                  })
                                 ) : (
-                                  <span className="text-sm text-gray-500 m-1">
+                                  <span
+                                    className="text-sm text-gray-500 m-1"
+                                    data-cy="create-recognition-formula-no-criteria"
+                                  >
                                     No Criterion
                                   </span>
                                 )}
@@ -2152,12 +2235,26 @@ const RecognitionForm: React.FC<PropsData> = ({
                             </div>
                           </Col>
                           <Col xs={12} sm={12} md={10} lg={10} xl={10}>
-                            <div className="flex flex-col gap-1">
-                              <span className="font-bold text-sm">
+                            <div
+                              className="flex flex-col gap-1"
+                              data-cy="create-recognition-formula-operators-col"
+                            >
+                              <span
+                                className="font-bold text-sm"
+                                data-cy="create-recognition-formula-operators-heading"
+                              >
                                 Operators
-                                <span className="text-red-500">*</span>
+                                <span
+                                  className="text-red-500"
+                                  data-cy="create-recognition-formula-operators-required"
+                                >
+                                  *
+                                </span>
                               </span>
-                              <span className="my-1 flex flex-wrap">
+                              <span
+                                className="my-1 flex flex-wrap"
+                                data-cy="create-recognition-formula-operators-buttons"
+                              >
                                 {FORMULA_OPERAND_OPTIONS.map((option) => (
                                   <Button
                                     key={option.id}
@@ -2179,8 +2276,17 @@ const RecognitionForm: React.FC<PropsData> = ({
                           </Col>
                         </Row>
                       </div>
-                      <span className="text-black text-sm font-semibold">
-                        Formula <span className="text-red-500">*</span>
+                      <span
+                        className="text-black text-sm font-semibold"
+                        data-cy="create-recognition-formula-field-label"
+                      >
+                        Formula{' '}
+                        <span
+                          className="text-red-500"
+                          data-cy="create-recognition-formula-field-required"
+                        >
+                          *
+                        </span>
                       </span>
                       <TextArea
                         ref={formulaTextAreaRef}
@@ -2274,8 +2380,14 @@ const RecognitionForm: React.FC<PropsData> = ({
             >
               <Form.Item
                 label={
-                  <span>
-                    Criteria Name <span style={{ color: 'red' }}>*</span>
+                  <span data-cy="create-recognition-criteria-modal-name-label">
+                    Criteria Name{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-recognition-criteria-modal-name-required"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 name="criteriaName"

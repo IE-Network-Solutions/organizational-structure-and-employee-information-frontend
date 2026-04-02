@@ -62,7 +62,10 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
             data-cy="meeting-template-card-delete-confirm"
             id="meetingTemplateCardDeleteConfirm"
           >
-            <span className="flex items-center gap-2">
+            <span
+              className="flex items-center gap-2"
+              data-cy="meeting-template-card-delete-menu-label"
+            >
               <MdOutlineDelete className="w-4 h-4" />
               Delete
             </span>

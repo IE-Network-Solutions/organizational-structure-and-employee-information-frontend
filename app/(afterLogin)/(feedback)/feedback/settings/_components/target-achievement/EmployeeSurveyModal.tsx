@@ -189,6 +189,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
       return (
         <span
           className={`${baseClasses} border-green-300 bg-green-50 text-green-600`}
+          data-cy={`employee-survey-modal-score-pill-green-${score}`}
         >
           {scoreText}
         </span>
@@ -198,13 +199,17 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
       return (
         <span
           className={`${baseClasses} border-yellow-300 bg-yellow-50 text-yellow-700`}
+          data-cy={`employee-survey-modal-score-pill-yellow-${score}`}
         >
           {scoreText}
         </span>
       );
     }
     return (
-      <span className={`${baseClasses} border-red-300 bg-red-50 text-red-600`}>
+      <span
+        className={`${baseClasses} border-red-300 bg-red-50 text-red-600`}
+        data-cy={`employee-survey-modal-score-pill-red-${score}`}
+      >
         {scoreText}
       </span>
     );
@@ -225,7 +230,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   };
 
   const removeDraftRow = (index: number) => {
-    setDraftRows((prev) => prev.filter((_, i) => i !== index));
+    setDraftRows((prev) => prev.filter((row, i) => i !== index));
   };
 
   const confirmDraftRow = (index: number) => {
@@ -262,7 +267,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   const editRow = (index: number) => {
     const row = confirmed[index];
     if (!row) return;
-    setConfirmed((prev) => prev.filter((_, i) => i !== index));
+    setConfirmed((prev) => prev.filter((row, i) => i !== index));
     setDraftRows((prev) => [
       ...prev,
       { userId: row.userId, score: row.score, targetIndex: index },
@@ -270,7 +275,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
   };
 
   const deleteRow = (index: number) => {
-    setConfirmed((prev) => prev.filter((_, i) => i !== index));
+    setConfirmed((prev) => prev.filter((row, i) => i !== index));
   };
 
   return (
@@ -327,11 +332,20 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
           data-cy="employee-survey-modal-form"
           id="employeeSurveyModalForm"
         >
-          <div className="grid grid-cols-12 gap-4 items-start">
+          <div
+            className="grid grid-cols-12 gap-4 items-start"
+            data-cy="employee-survey-modal-edit-fields-grid"
+          >
             <Form.Item
               label={
-                <span>
-                  Employee <span style={{ color: 'red' }}>*</span>
+                <span data-cy="employee-survey-modal-employee-label">
+                  Employee{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="employee-survey-modal-required-asterisk"
+                  >
+                    *
+                  </span>
                 </span>
               }
               name="userId"
@@ -369,8 +383,14 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
 
             <Form.Item
               label={
-                <span>
-                  Score <span style={{ color: 'red' }}>*</span>
+                <span data-cy="employee-survey-modal-score-label">
+                  Score{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="employee-survey-modal-score-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               name="score"
@@ -399,9 +419,21 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                 className="grid grid-cols-12 gap-4 items-start mb-3"
                 data-cy={`employee-survey-modal-draft-row-${index}`}
               >
-                <div className="col-span-7">
-                  <label className="block mb-2 text-sm font-medium text-gray-700">
-                    Employee <span className="text-red-500">*</span>
+                <div
+                  className="col-span-7"
+                  data-cy={`employee-survey-modal-draft-employee-col-${index}`}
+                >
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-700"
+                    data-cy={`employee-survey-modal-draft-employee-label-${index}`}
+                  >
+                    Employee{' '}
+                    <span
+                      className="text-red-500"
+                      data-cy={`employee-survey-modal-draft-employee-required-${index}`}
+                    >
+                      *
+                    </span>
                   </label>
                   <Select
                     value={draft.userId ?? undefined}
@@ -437,9 +469,21 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                   />
                 </div>
 
-                <div className="col-span-3">
-                  <label className="block mb-2 text-sm font-medium text-gray-700">
-                    Score <span className="text-red-500">*</span>
+                <div
+                  className="col-span-3"
+                  data-cy={`employee-survey-modal-draft-score-col-${index}`}
+                >
+                  <label
+                    className="block mb-2 text-sm font-medium text-gray-700"
+                    data-cy={`employee-survey-modal-draft-score-label-${index}`}
+                  >
+                    Score{' '}
+                    <span
+                      className="text-red-500"
+                      data-cy={`employee-survey-modal-draft-score-required-${index}`}
+                    >
+                      *
+                    </span>
                   </label>
                   <InputNumber
                     value={draft.score ?? undefined}
@@ -459,7 +503,10 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                   />
                 </div>
 
-                <div className="col-span-2 flex gap-2 items-end justify-end h-full">
+                <div
+                  className="col-span-2 flex gap-2 items-end justify-end h-full"
+                  data-cy={`employee-survey-modal-draft-actions-${index}`}
+                >
                   <Button
                     type="primary"
                     onClick={() => confirmDraftRow(index)}
@@ -494,17 +541,26 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                     data-cy={`employee-survey-modal-list-row-${index}`}
                     id={`employeeSurveyModalListRow${index}`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div
+                      className="flex items-center gap-3"
+                      data-cy={`employee-survey-modal-list-row-main-${index}`}
+                    >
                       <Avatar src={img} size={28}>
                         {(getUserLabel(row.userId)[0] || 'U').toUpperCase()}
                       </Avatar>
-                      <span className="text-sm font-medium text-gray-700">
+                      <span
+                        className="text-sm font-medium text-gray-700"
+                        data-cy={`employee-survey-modal-list-row-name-${index}`}
+                      >
                         {getUserLabel(row.userId)}
                       </span>
                       {scorePill(row.score)}
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div
+                      className="flex items-center gap-2"
+                      data-cy={`employee-survey-modal-list-row-actions-${index}`}
+                    >
                       <Button
                         onClick={() => editRow(index)}
                         icon={<EditOutlined />}
@@ -525,7 +581,10 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
               })}
             </div>
 
-            <div className="flex justify-center mt-4">
+            <div
+              className="flex justify-center mt-4"
+              data-cy="employee-survey-modal-add-row-wrapper"
+            >
               <Button
                 type="primary"
                 onClick={addDraftRow}

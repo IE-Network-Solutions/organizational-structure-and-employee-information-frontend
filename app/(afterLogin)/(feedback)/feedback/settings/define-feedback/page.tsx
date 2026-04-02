@@ -54,6 +54,7 @@ const Page = () => {
                 ? 'border-primary'
                 : 'border-[#D9D9D9]'
             }`}
+            data-cy="define-feedback-tab-appreciation-mobile"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -61,10 +62,17 @@ const Page = () => {
               viewBox="0 -960 960 960"
               width="22px"
               fill={settingActiveTab === 'appreciation' ? '#1E40AF' : '#6b7280'}
+              data-cy="define-feedback-tab-appreciation-mobile-icon"
             >
-              <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+              <path
+                d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                data-cy="define-feedback-tab-appreciation-mobile-icon-path"
+              />
             </svg>
-            <span className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700">
+            <span
+              className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700"
+              data-cy="define-feedback-tab-appreciation-mobile-count"
+            >
               {getAppreciationFeedbackTypesByVariant?.meta?.totalItems ?? 0}
             </span>
           </div>
@@ -75,14 +83,19 @@ const Page = () => {
                 ? 'text-primary ring-1 ring-inset ring-primary'
                 : 'text-gray-700 ring-[#D9D9D9]'
             }`}
+            data-cy="define-feedback-tab-appreciation-desktop"
           >
-            <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-2"
+              data-cy="define-feedback-tab-appreciation-desktop-main"
+            >
               <div
                 className={`ml-2 flex h-8 w-8 items-center justify-center rounded-lg border-[2px] ${
                   settingActiveTab === 'appreciation'
                     ? 'border-primary text-primary'
                     : 'border-[#D9D9D9] text-gray-700'
                 }`}
+                data-cy="define-feedback-tab-appreciation-desktop-icon-wrap"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -92,18 +105,31 @@ const Page = () => {
                   fill={
                     settingActiveTab === 'appreciation' ? '#1E40AF' : '#6b7280'
                   }
+                  data-cy="define-feedback-tab-appreciation-desktop-icon"
                 >
-                  <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+                  <path
+                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                    data-cy="define-feedback-tab-appreciation-desktop-icon-path"
+                  />
                 </svg>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="text-base">Appreciation</span>
+              <div
+                className="flex flex-col items-start"
+                data-cy="define-feedback-tab-appreciation-desktop-text"
+              >
+                <span
+                  className="text-base"
+                  data-cy="define-feedback-tab-appreciation-desktop-title"
+                >
+                  Appreciation
+                </span>
                 <span
                   className={`text-xs ${
                     settingActiveTab === 'appreciation'
                       ? 'text-primary'
                       : 'text-gray-300'
                   }`}
+                  data-cy="define-feedback-tab-appreciation-desktop-subtitle"
                 >
                   Define and manage Appreciation
                 </span>
@@ -129,6 +155,7 @@ const Page = () => {
                 ? 'border-primary'
                 : 'border-[#D9D9D9]'
             }`}
+            data-cy="define-feedback-tab-reprimand-mobile"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -137,10 +164,17 @@ const Page = () => {
               width="22px"
               fill={settingActiveTab === 'reprimand' ? '#1E40AF' : '#6b7280'}
               style={{ transform: 'scale(-1, -1)' }}
+              data-cy="define-feedback-tab-reprimand-mobile-icon"
             >
-              <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+              <path
+                d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                data-cy="define-feedback-tab-reprimand-mobile-icon-path"
+              />
             </svg>
-            <span className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700">
+            <span
+              className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700"
+              data-cy="define-feedback-tab-reprimand-mobile-count"
+            >
               {getReprimandFeedbackTypesByVariant?.meta?.totalItems ?? 0}
             </span>
           </div>
@@ -151,14 +185,19 @@ const Page = () => {
                 ? 'text-primary ring-1 ring-inset ring-primary'
                 : 'text-gray-700 ring-[#D9D9D9]'
             }`}
+            data-cy="define-feedback-tab-reprimand-desktop"
           >
-            <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-2"
+              data-cy="define-feedback-tab-reprimand-desktop-main"
+            >
               <div
                 className={`h-8 w-8 ml-2 flex items-center justify-center rounded-lg border-[2px]  ${
                   settingActiveTab === 'reprimand'
                     ? 'border-primary text-primary'
                     : 'border-[#D9D9D9] text-gray-700'
                 }`}
+                data-cy="define-feedback-tab-reprimand-desktop-icon-wrap"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -168,18 +207,31 @@ const Page = () => {
                   fill={
                     settingActiveTab === 'reprimand' ? '#1E40AF' : '#6b7280'
                   }
+                  data-cy="define-feedback-tab-reprimand-desktop-icon"
                 >
-                  <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+                  <path
+                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                    data-cy="define-feedback-tab-reprimand-desktop-icon-path"
+                  />
                 </svg>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="text-base">Reprimand</span>
+              <div
+                className="flex flex-col items-start"
+                data-cy="define-feedback-tab-reprimand-desktop-text"
+              >
+                <span
+                  className="text-base"
+                  data-cy="define-feedback-tab-reprimand-desktop-title"
+                >
+                  Reprimand
+                </span>
                 <span
                   className={`text-xs ${
                     settingActiveTab === 'reprimand'
                       ? 'text-primary'
                       : 'text-gray-300'
                   }`}
+                  data-cy="define-feedback-tab-reprimand-desktop-subtitle"
                 >
                   Define and manage Reprimand
                 </span>
@@ -205,6 +257,7 @@ const Page = () => {
                 ? 'border-primary'
                 : 'border-[#D9D9D9]'
             }`}
+            data-cy="define-feedback-tab-perspective-mobile"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -213,10 +266,17 @@ const Page = () => {
               width="22px"
               fill={settingActiveTab === 'perspective' ? '#1E40AF' : '#6b7280'}
               style={{ transform: 'scale(-1, -1)' }}
+              data-cy="define-feedback-tab-perspective-mobile-icon"
             >
-              <path d="m234-480-12-60q-12-5-22.5-10.5T178-564l-58 18-40-68 46-40q-2-13-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T222-820l12-60h80l12 60q12 5 22.5 10.5T370-796l58-18 40 68-46 40q2 13 2 26t-2 26l46 40-40 68-58-18q-11 8-21.5 13.5T326-540l-12 60h-80Zm96.5-143.5Q354-647 354-680t-23.5-56.5Q307-760 274-760t-56.5 23.5Q194-713 194-680t23.5 56.5Q241-600 274-600t56.5-23.5ZM592-40l-18-84q-17-6-31.5-14.5T514-158l-80 26-56-96 64-56q-2-18-2-36t2-36l-64-56 56-96 80 26q14-11 28.5-19.5T574-516l18-84h112l18 84q17 6 31.5 14.5T782-482l80-26 56 96-64 56q2 18 2 36t-2 36l64 56-56 96-80-26q-14 11-28.5 19.5T722-124l-18 84H592Zm56-160q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z" />
+              <path
+                d="m234-480-12-60q-12-5-22.5-10.5T178-564l-58 18-40-68 46-40q-2-13-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T222-820l12-60h80l12 60q12 5 22.5 10.5T370-796l58-18 40 68-46 40q2 13 2 26t-2 26l46 40-40 68-58-18q-11 8-21.5 13.5T326-540l-12 60h-80Zm96.5-143.5Q354-647 354-680t-23.5-56.5Q307-760 274-760t-56.5 23.5Q194-713 194-680t23.5 56.5Q241-600 274-600t56.5-23.5ZM592-40l-18-84q-17-6-31.5-14.5T514-158l-80 26-56-96 64-56q-2-18-2-36t2-36l-64-56 56-96 80 26q14-11 28.5-19.5T574-516l18-84h112l18 84q17 6 31.5 14.5T782-482l80-26 56 96-64 56q2 18 2 36t-2 36l64 56-56 96-80-26q-14 11-28.5 19.5T722-124l-18 84H592Zm56-160q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z"
+                data-cy="define-feedback-tab-perspective-mobile-icon-path"
+              />
             </svg>
-            <span className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700">
+            <span
+              className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700"
+              data-cy="define-feedback-tab-perspective-mobile-count"
+            >
               {perspectiveData?.length ?? 0}
             </span>
           </div>
@@ -227,15 +287,19 @@ const Page = () => {
                 ? 'text-primary ring-1 ring-inset ring-primary'
                 : 'text-gray-700 ring-[#D9D9D9]'
             }`}
+            data-cy="define-feedback-tab-perspective-desktop"
           >
-            <div className="flex items-center gap-2">
-              {' '}
+            <div
+              className="flex items-center gap-2"
+              data-cy="define-feedback-tab-perspective-desktop-main"
+            >
               <div
                 className={`ml-2 flex h-8 w-8 items-center justify-center rounded-lg border-[2px] ${
                   settingActiveTab === 'perspective'
                     ? 'border-primary text-primary'
                     : 'border-[#D9D9D9] text-gray-700'
                 }`}
+                data-cy="define-feedback-tab-perspective-desktop-icon-wrap"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -246,18 +310,31 @@ const Page = () => {
                     settingActiveTab === 'perspective' ? '#1E40AF' : '#6b7280'
                   }
                   style={{ transform: 'scale(-1, -1)' }}
+                  data-cy="define-feedback-tab-perspective-desktop-icon"
                 >
-                  <path d="m234-480-12-60q-12-5-22.5-10.5T178-564l-58 18-40-68 46-40q-2-13-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T222-820l12-60h80l12 60q12 5 22.5 10.5T370-796l58-18 40 68-46 40q2 13 2 26t-2 26l46 40-40 68-58-18q-11 8-21.5 13.5T326-540l-12 60h-80Zm96.5-143.5Q354-647 354-680t-23.5-56.5Q307-760 274-760t-56.5 23.5Q194-713 194-680t23.5 56.5Q241-600 274-600t56.5-23.5ZM592-40l-18-84q-17-6-31.5-14.5T514-158l-80 26-56-96 64-56q-2-18-2-36t2-36l-64-56 56-96 80 26q14-11 28.5-19.5T574-516l18-84h112l18 84q17 6 31.5 14.5T782-482l80-26 56 96-64 56q2 18 2 36t-2 36l64 56-56 96-80-26q-14 11-28.5 19.5T722-124l-18 84H592Zm56-160q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z" />
+                  <path
+                    d="m234-480-12-60q-12-5-22.5-10.5T178-564l-58 18-40-68 46-40q-2-13-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T222-820l12-60h80l12 60q12 5 22.5 10.5T370-796l58-18 40 68-46 40q2 13 2 26t-2 26l46 40-40 68-58-18q-11 8-21.5 13.5T326-540l-12 60h-80Zm96.5-143.5Q354-647 354-680t-23.5-56.5Q307-760 274-760t-56.5 23.5Q194-713 194-680t23.5 56.5Q241-600 274-600t56.5-23.5ZM592-40l-18-84q-17-6-31.5-14.5T514-158l-80 26-56-96 64-56q-2-18-2-36t2-36l-64-56 56-96 80 26q14-11 28.5-19.5T574-516l18-84h112l18 84q17 6 31.5 14.5T782-482l80-26 56 96-64 56q2 18 2 36t-2 36l64 56-56 96-80-26q-14 11-28.5 19.5T722-124l-18 84H592Zm56-160q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z"
+                    data-cy="define-feedback-tab-perspective-desktop-icon-path"
+                  />
                 </svg>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="text-base">Perspective</span>
+              <div
+                className="flex flex-col items-start"
+                data-cy="define-feedback-tab-perspective-desktop-text"
+              >
+                <span
+                  className="text-base"
+                  data-cy="define-feedback-tab-perspective-desktop-title"
+                >
+                  Perspective
+                </span>
                 <span
                   className={`text-xs ${
                     settingActiveTab === 'perspective'
                       ? 'text-primary'
                       : 'text-gray-300'
                   }`}
+                  data-cy="define-feedback-tab-perspective-desktop-subtitle"
                 >
                   Define and manage Perspective
                 </span>

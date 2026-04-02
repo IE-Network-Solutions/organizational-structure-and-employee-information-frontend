@@ -142,7 +142,7 @@ const CreateFeedback: React.FC = () => {
     </div>
   );
   const requiredLabel = (label: string, requiredDataCy: string) => (
-    <span>
+    <span data-cy={`${requiredDataCy}-label-wrapper`}>
       {label}{' '}
       <span style={{ color: 'red' }} data-cy={requiredDataCy}>
         *

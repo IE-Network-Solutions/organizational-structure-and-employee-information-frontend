@@ -403,8 +403,17 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         >
           <Form.Item
             label={
-              <span className="text-xs font-semibold">
-                Name <span style={{ color: 'red' }}>*</span>
+              <span
+                className="text-xs font-semibold"
+                data-cy="recognition-category-form-name-label"
+              >
+                Name{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="recognition-category-form-name-required"
+                >
+                  *
+                </span>
               </span>
             }
             name="name"
@@ -417,7 +426,14 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             />
           </Form.Item>
           <Form.Item
-            label={<span className="text-xs font-semibold">Description</span>}
+            label={
+              <span
+                className="text-xs font-semibold"
+                data-cy="recognition-category-form-description-label"
+              >
+                Description
+              </span>
+            }
             name="description"
             data-cy="recognition-category-form-description"
           >
@@ -438,7 +454,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           )}
         </Form>
       </Modal>
-      <style jsx global>{`
+      <style jsx global data-cy="feedback-settings-layout-global-styles">{`
         .ant-input,
         .ant-input-affix-wrapper input,
         .ant-input-number-input,

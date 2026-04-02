@@ -120,8 +120,14 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
       >
         <Form.Item
           label={
-            <span>
-              Name <span style={{ color: 'red' }}>*</span>
+            <span data-cy="meeting-type-drawer-name-label">
+              Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="meeting-type-drawer-name-required"
+              >
+                *
+              </span>
             </span>
           }
           name="name"
@@ -142,8 +148,14 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
 
         <Form.Item
           label={
-            <span>
-              Description <span style={{ color: 'red' }}>*</span>
+            <span data-cy="meeting-type-drawer-description-label">
+              Description{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="meeting-type-drawer-description-required"
+              >
+                *
+              </span>
             </span>
           }
           name="description"

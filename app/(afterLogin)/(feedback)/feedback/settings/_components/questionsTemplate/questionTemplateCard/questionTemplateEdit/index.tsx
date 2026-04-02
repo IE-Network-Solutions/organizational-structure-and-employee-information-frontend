@@ -71,8 +71,14 @@ const EditQuestionTemplate: React.FC<{
           <Form.Item
             name="customFieldName"
             label={
-              <span>
-                Template Title <span style={{ color: 'red' }}>*</span>
+              <span data-cy="edit-question-template-title-label-text">
+                Template Title{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="edit-question-template-title-required"
+                >
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Please input the title!' }]}
@@ -100,8 +106,14 @@ const EditQuestionTemplate: React.FC<{
               <Form.Item
                 name="fieldType"
                 label={
-                  <span>
-                    Field Type <span style={{ color: 'red' }}>*</span>
+                  <span data-cy="edit-question-template-field-type-label-text">
+                    Field Type{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="edit-question-template-field-type-required"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 rules={[
@@ -156,8 +168,14 @@ const EditQuestionTemplate: React.FC<{
               <Form.Item
                 name="question"
                 label={
-                  <span>
-                    Question <span style={{ color: 'red' }}>*</span>
+                  <span data-cy="edit-question-template-question-label-text">
+                    Question{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="edit-question-template-question-required"
+                    >
+                      *
+                    </span>
                   </span>
                 }
                 rules={[

@@ -396,8 +396,14 @@ const QuestionSetForm = () => {
       >
         <Form.Item
           label={
-            <span>
-              Name <span style={{ color: 'red' }}>*</span>
+            <span data-cy="question-set-form-name-label">
+              Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="question-set-form-name-required"
+              >
+                *
+              </span>
             </span>
           }
           name="name"
@@ -438,8 +444,14 @@ const QuestionSetForm = () => {
 
         <Form.Item
           label={
-            <span>
-              Is Active <span style={{ color: 'red' }}>*</span>
+            <span data-cy="question-set-form-active-label">
+              Is Active{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="question-set-form-active-required"
+              >
+                *
+              </span>
             </span>
           }
           name="active"
@@ -462,8 +474,14 @@ const QuestionSetForm = () => {
 
         <Form.Item
           label={
-            <span>
-              Questions <span style={{ color: 'red' }}>*</span>
+            <span data-cy="question-set-form-questions-label">
+              Questions{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="question-set-form-questions-required"
+              >
+                *
+              </span>
             </span>
           }
           name="questions"

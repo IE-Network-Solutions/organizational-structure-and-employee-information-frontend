@@ -58,7 +58,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
           data-cy={`feedback-type-detail-${variantType}-search-container`}
           id={`feedbackTypeDetail${variantType}SearchContainer`}
         >
-          <div>
+          <div data-cy={`feedback-type-detail-${variantType}-search-inner`}>
             <Input
               placeholder={searchPlaceholder}
               addonAfter={<SearchOutlined className="text-gray-400" />}
@@ -167,6 +167,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
                         >
                           <span
                             className="flex items-center gap-2"
+                            data-cy={`feedback-type-detail-delete-option-${item.id}`}
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -200,7 +201,10 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
         </Card>
       ))}
       {feedbackTypeDetail?.meta && (
-        <div className={isMobile ? 'px-0 pt-1' : ''}>
+        <div
+          className={isMobile ? 'px-0 pt-1' : ''}
+          data-cy={`feedback-type-detail-${variantType}-pagination-wrap`}
+        >
           <CustomPagination
             current={page}
             total={feedbackTypeDetail?.meta?.totalItems}

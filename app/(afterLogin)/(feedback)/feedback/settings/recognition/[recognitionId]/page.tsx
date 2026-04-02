@@ -162,10 +162,16 @@ export default function RecognitionDetailPage() {
                         className=" flex items-start justify-between gap-4"
                         data-cy="recognition-detail-item-left"
                       >
-                        <div className=" bg-[#E6F4FF] rounded-lg h-9 w-9 flex items-center justify-center text-lg text-primary ">
+                        <div
+                          className=" bg-[#E6F4FF] rounded-lg h-9 w-9 flex items-center justify-center text-lg text-primary "
+                          data-cy="recognition-detail-item-icon-wrap"
+                        >
                           <AiOutlineTrophy className="" />
                         </div>
-                        <div className="min-w-0">
+                        <div
+                          className="min-w-0"
+                          data-cy="recognition-detail-item-text-wrap"
+                        >
                           <div
                             className="text-sm font-semibold  truncate"
                             title={child?.name}
@@ -393,7 +399,10 @@ export default function RecognitionDetailPage() {
                                       className="col-span-4"
                                       data-cy="recognition-detail-criteria-name"
                                     >
-                                      <span className="inline-flex max-w-full truncate rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-1 text-[11px] text-gray-700">
+                                      <span
+                                        className="inline-flex max-w-full truncate rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-1 text-[11px] text-gray-700"
+                                        data-cy="recognition-detail-criteria-name-badge"
+                                      >
                                         {criterion?.criteria?.criteriaName ??
                                           '-'}
                                       </span>
@@ -420,7 +429,10 @@ export default function RecognitionDetailPage() {
                                       className="col-span-1"
                                       data-cy="recognition-detail-criteria-status"
                                     >
-                                      <span className="inline-flex rounded border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600">
+                                      <span
+                                        className="inline-flex rounded border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600"
+                                        data-cy="recognition-detail-criteria-status-badge"
+                                      >
                                         {statusLabel}
                                       </span>
                                     </div>

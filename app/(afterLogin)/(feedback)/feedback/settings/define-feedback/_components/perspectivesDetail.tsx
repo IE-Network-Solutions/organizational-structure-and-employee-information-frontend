@@ -40,6 +40,7 @@ const PerspectivesDetail = ({
       className={`rounded-lg border-[1px] border-[#D9D9D9] bg-white shadow-sm ${
         isMobile ? ' p-3 ' : 'p-1'
       }`}
+      data-cy="settings-define-feedback-perspectives-panel"
     >
       {paginatedData?.map((item: any) => (
         <Card
@@ -150,6 +151,7 @@ const PerspectivesDetail = ({
                       >
                         <span
                           className="flex items-center gap-2"
+                          data-cy={`perspective-type-detail-delete-option-${item.id}`}
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();

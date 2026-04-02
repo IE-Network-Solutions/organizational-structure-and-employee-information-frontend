@@ -54,10 +54,16 @@ const DefineMeetingType = () => {
   }
   return (
     <>
-      <div className="rounded-2xl bg-white h-full">
+      <div
+        className="rounded-2xl bg-white h-full"
+        data-cy="settings-define-meeting-type-page-shell"
+      >
         <Skeleton active loading={isLoading} paragraph={{ rows: 6 }}>
           {meetingTypes?.items && meetingTypes.items.length > 0 ? (
-            <div className="border-[1px] border-[#D9D9D9] rounded-lg p-4">
+            <div
+              className="border-[1px] border-[#D9D9D9] rounded-lg p-4"
+              data-cy="settings-define-meeting-type-list-border"
+            >
               <div
                 className="grid grid-cols-12 flex-col-reverse justify-between"
                 data-cy="settings-define-meeting-type-content"
@@ -84,7 +90,10 @@ const DefineMeetingType = () => {
                           );
                         }}
                       >
-                        <div className="flex items-center justify-between gap-3 h-12 w-full px-4">
+                        <div
+                          className="flex items-center justify-between gap-3 h-12 w-full px-4"
+                          data-cy={`settings-define-meeting-type-card-header-row-${item?.id}`}
+                        >
                           <div
                             className="text-sm font-normal text-gray-900 truncate"
                             title={item?.name}

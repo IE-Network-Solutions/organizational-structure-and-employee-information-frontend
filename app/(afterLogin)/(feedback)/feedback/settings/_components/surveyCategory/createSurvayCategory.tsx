@@ -71,7 +71,10 @@ const CreateSurvayCategory = () => {
   const isEdit = Boolean(surveyCategoryEditId);
 
   const footer = (
-    <div className="flex justify-end gap-3 pt-1">
+    <div
+      className="flex justify-end gap-3 pt-1"
+      data-cy="create-survey-category-footer"
+    >
       <Button
         size="large"
         className="min-w-[100px] h-11 border-[#D9D9D9] text-gray-800 font-medium"
@@ -98,7 +101,10 @@ const CreateSurvayCategory = () => {
   return (
     <Modal
       title={
-        <span className="text-lg font-semibold text-gray-900">
+        <span
+          className="text-lg font-semibold text-gray-900"
+          data-cy="create-survey-category-modal-title"
+        >
           Survey Category
         </span>
       }
@@ -156,8 +162,17 @@ const CreateSurvayCategory = () => {
       >
         <Form.Item
           label={
-            <span className="text-sm font-medium text-gray-800">
-              Category Name <span style={{ color: 'red' }}>*</span>
+            <span
+              className="text-sm font-medium text-gray-800"
+              data-cy="create-survey-category-name-label"
+            >
+              Category Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="create-survey-category-name-required"
+              >
+                *
+              </span>
             </span>
           }
           name="name"
@@ -174,8 +189,17 @@ const CreateSurvayCategory = () => {
 
         <Form.Item
           label={
-            <span className="text-sm font-medium text-gray-800">
-              Description <span style={{ color: 'red' }}>*</span>
+            <span
+              className="text-sm font-medium text-gray-800"
+              data-cy="create-survey-category-description-label"
+            >
+              Description{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="create-survey-category-description-required"
+              >
+                *
+              </span>
             </span>
           }
           name="description"
@@ -192,7 +216,10 @@ const CreateSurvayCategory = () => {
 
         <Form.Item
           label={
-            <span className="text-sm font-medium text-gray-800">
+            <span
+              className="text-sm font-medium text-gray-800"
+              data-cy="create-survey-category-employees-label"
+            >
               Employee allowed to view
             </span>
           }

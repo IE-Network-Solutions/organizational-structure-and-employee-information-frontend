@@ -82,7 +82,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       }}
       data-cy="meeting-template-drawer"
     >
-      <div>
+      <div data-cy="meeting-template-drawer-inner">
         <div
           className="flex justify-start text-xl font-extrabold text-gray-800 p-4"
           data-cy="meeting-template-drawer-header"
@@ -105,8 +105,14 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
         >
           <Form.Item
             label={
-              <span>
-                Name <span style={{ color: 'red' }}>*</span>
+              <span data-cy="meeting-template-drawer-name-label">
+                Name{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="meeting-template-drawer-name-required"
+                >
+                  *
+                </span>
               </span>
             }
             name="name"
@@ -123,8 +129,14 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
 
           <Form.Item
             label={
-              <span>
-                Meeting Objective <span style={{ color: 'red' }}>*</span>
+              <span data-cy="meeting-template-drawer-objective-label">
+                Meeting Objective{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="meeting-template-drawer-objective-required"
+                >
+                  *
+                </span>
               </span>
             }
             name="objective"
@@ -143,8 +155,14 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
 
           <Form.Item
             label={
-              <span>
-                Description <span style={{ color: 'red' }}>*</span>
+              <span data-cy="meeting-template-drawer-description-label">
+                Description{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="meeting-template-drawer-description-required"
+                >
+                  *
+                </span>
               </span>
             }
             name="description"
@@ -184,9 +202,16 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                           { required: true, message: 'Missing agenda item' },
                         ]}
                         label={
-                          <span>
+                          <span
+                            data-cy={`meeting-template-drawer-agenda-label-${name}`}
+                          >
                             Agenda Item {key + 1}{' '}
-                            <span style={{ color: 'red' }}>*</span>
+                            <span
+                              style={{ color: 'red' }}
+                              data-cy={`meeting-template-drawer-agenda-required-${name}`}
+                            >
+                              *
+                            </span>
                           </span>
                         }
                         className="w-full"

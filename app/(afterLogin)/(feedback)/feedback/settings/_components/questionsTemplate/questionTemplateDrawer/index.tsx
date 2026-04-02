@@ -117,7 +117,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                       data-cy="question-template-drawer-title-label"
                       id="questionTemplateDrawerTitleLabel"
                     >
-                      Template Title <span style={{ color: 'red' }}>*</span>
+                      Template Title{' '}
+                      <span
+                        style={{ color: 'red' }}
+                        data-cy="question-template-drawer-title-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   data-cy="question-template-drawer-title-field"
@@ -149,7 +155,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           className="text-md font-semibold text-gray-700"
                           data-cy="question-template-drawer-field-type-label"
                         >
-                          Field Type <span style={{ color: 'red' }}>*</span>
+                          Field Type{' '}
+                          <span
+                            style={{ color: 'red' }}
+                            data-cy="question-template-drawer-field-type-required"
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       required
@@ -208,7 +220,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           data-cy="question-template-drawer-question-label"
                           id="questionTemplateDrawerQuestionLabel"
                         >
-                          Question <span style={{ color: 'red' }}>*</span>
+                          Question{' '}
+                          <span
+                            style={{ color: 'red' }}
+                            data-cy="question-template-drawer-question-required"
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       required
