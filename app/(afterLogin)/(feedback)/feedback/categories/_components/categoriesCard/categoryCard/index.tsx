@@ -119,7 +119,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
               id={`feedback-categories-components-categoriescard-categorycard-menu-btn-${category?.id}`}
             >
               <MdMoreHoriz
-                className="text-[20px] text-[#374151]"
+                className="text-[24px] text-[#374151]"
                 data-cy={`feedback-categories-components-categoriescard-categorycard-icon-menu-${category?.id}`}
                 id={`feedback-categories-components-categoriescard-categorycard-icon-menu-${category?.id}`}
               />

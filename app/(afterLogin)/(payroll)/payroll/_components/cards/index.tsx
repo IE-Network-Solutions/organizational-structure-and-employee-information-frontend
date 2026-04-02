@@ -1,67 +1,121 @@
-import { Card, Col } from 'antd';
+import { Card } from 'antd';
 import React from 'react';
-import { ArrowUpOutlined } from '@ant-design/icons';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
+import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 
 interface PayrollCardProps {
   title?: string;
   value?: string;
   growth?: string;
+  icon?: React.ReactNode;
+  iconBg?: string;
+  iconText?: string;
+  'data-cy'?: string;
 }
 
-const PayrollCard: React.FC<PayrollCardProps> = ({ title, value, growth }) => {
-  const { isMobile } = useIsMobile();
+const PayrollCard: React.FC<PayrollCardProps> = ({
+  title,
+  value,
+  growth,
+  icon,
+  iconBg,
+  iconText,
+  'data-cy': dataCy,
+}) => {
+  const growthNum = parseFloat(growth || '0');
+  const isPositive = growthNum >= 0;
 
   return (
-    <Col
+    <div
       id="payroll-summary-card-view-column"
-      data-cy="payroll-summary-card-view-column"
-      xs={24}
-      sm={24}
-      md={24}
-      lg={24}
-      className={`${isMobile ? 'w-full px-3' : 'max-w-[25%]'} flex-shrink-0`}
+      data-cy={dataCy || 'payroll-summary-card-view-column'}
+      className="w-full min-w-0"
     >
       <Card
         id="payroll-summary-card-view-card"
         data-cy="payroll-summary-card-view-card"
         bordered={false}
-        className={
-          isMobile
-            ? 'bg-[#FAFAFA] my-2 h-full -mr-8 pr-2'
-            : 'bg-[#FAFAFA] my-2 h-full'
-        }
+        className="h-full shadow-sm"
+        style={{
+          borderRadius: '10px',
+          border: '2px solid #A8AEB9',
+        }}
+        styles={{ body: { padding: '16px' } }}
       >
+        <div
+          id="payroll-summary-card-title-row"
+          data-cy="payroll-summary-card-title-row"
+          className="flex items-center gap-2 mb-2"
+        >
+          {icon && (
+            <span
+              id="payroll-summary-card-icon-badge"
+              data-cy="payroll-summary-card-icon-badge"
+              className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${iconBg || 'bg-gray-100'} ${iconText || 'text-gray-500'}`}
+            >
+              <span
+                id="payroll-summary-card-icon"
+                data-cy="payroll-summary-card-icon"
+                className="inline-flex items-center justify-center leading-none"
+              >
+                {icon}
+              </span>
+            </span>
+          )}
+          <p
+            id="payroll-summary-card-title-view-text"
+            data-cy="payroll-summary-card-title-view-text"
+            className="text-gray-500 m-0 text-sm"
+          >
+            {title}
+          </p>
+        </div>
         <h3
           id="payroll-summary-card-value-view-text"
           data-cy="payroll-summary-card-value-view-text"
-          className="text-2xl font-bold mb-2"
+          className="text-xl font-semibold mb-4 text-gray-800"
         >
-          {value ? Number(value).toFixed(2) : '--'}
+          {value
+            ? Number(value).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '--'}
         </h3>
-        <p
-          id="payroll-summary-card-title-view-text"
-          data-cy="payroll-summary-card-title-view-text"
-          className="text-gray-600"
-        >
-          {title}
-        </p>
         <div
           id="payroll-summary-card-growth-view-container"
           data-cy="payroll-summary-card-growth-view-container"
-          className="flex justify-end items-center"
+          className="text-sm"
         >
           <span
             id="payroll-summary-card-growth-view-text"
             data-cy="payroll-summary-card-growth-view-text"
-            style={{ color: 'green' }}
+            className={`inline-flex items-center gap-0.5 font-medium mr-1 ${isPositive ? 'text-success' : 'text-error'}`}
           >
-            <ArrowUpOutlined data-cy="payroll-summary-card-growth-view-icon" />{' '}
-            {growth || '--'} vs last pay period
+            {isPositive ? (
+              <TrendingUpOutlinedIcon
+                className="!w-4 !h-4 text-current shrink-0"
+                data-cy="payroll-summary-card-growth-up-icon"
+              />
+            ) : (
+              <TrendingDownOutlinedIcon
+                className="!w-4 !h-4 text-current shrink-0"
+                data-cy="payroll-summary-card-growth-down-icon"
+              />
+            )}
+            {isPositive ? '+' : ''}
+            {growth || '--'}
+          </span>
+          <span
+            id="payroll-summary-card-growth-period-text"
+            data-cy="payroll-summary-card-growth-period-text"
+            className="text-gray-500"
+          >
+            Since last pay period
           </span>
         </div>
       </Card>
-    </Col>
+    </div>
   );
 };
 

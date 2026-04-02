@@ -272,7 +272,7 @@ export default function SurveyInsights({ formId }: SurveyInsightsProps) {
       data-cy="survey-insights-root"
     >
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide">
-        <div className="w-full pb-8 pt-4">
+        <div className="w-full pb-8 pt-0 lg:pt-4">
           <div className="flex w-full min-w-0 flex-col gap-5 lg:flex-row lg:items-stretch lg:gap-5">
             <SectionCard
               title="Responses"

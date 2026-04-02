@@ -3,7 +3,7 @@ import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
-import { CancelInvoiceRequest, CreateAdvanceInvoiceRequest } from './interface';
+import { CreateAdvanceInvoiceRequest } from './interface';
 
 const createAdvanceInvoice = async (data: CreateAdvanceInvoiceRequest) => {
   const requestHeaders = await requestHeader();
@@ -27,16 +27,12 @@ const createAdvanceInvoice = async (data: CreateAdvanceInvoiceRequest) => {
 //   });
 // };
 
-const cancelInvoice = async ({
-  invoiceId,
-  ...data
-}: CancelInvoiceRequest & { invoiceId: string }) => {
+const deleteManageInvoice = async (invoiceId: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/subscription/manage/invoices/${invoiceId}/cancel`,
-    method: 'POST',
+    url: `${TENANT_MGMT_URL}/subscription/manage/invoices/${invoiceId}`,
+    method: 'DELETE',
     headers: requestHeaders,
-    data,
   });
 };
 
@@ -61,9 +57,9 @@ export const useCreateAdvanceInvoice = () => {
 //   });
 // };
 
-export const useCancelInvoice = () => {
+export const useDeleteManageInvoice = () => {
   const queryClient = useQueryClient();
-  return useMutation(cancelInvoice, {
+  return useMutation(deleteManageInvoice, {
     onSuccess: () => {
       queryClient.invalidateQueries('invoices');
       handleSuccessMessage('DELETE');
