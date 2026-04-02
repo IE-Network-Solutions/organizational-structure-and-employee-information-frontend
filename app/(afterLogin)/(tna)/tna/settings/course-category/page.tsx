@@ -69,14 +69,8 @@ const TnaCourseCategoryPage = () => {
   const isEditing = !!selectedCategoryId;
 
   return (
-    <div
-      id="tnaCourseCategoryPageId"
-      data-cy="tna-course-category-page"
-    >
-      <div
-        className="flex gap-5"
-        data-cy="tna-course-category-two-column"
-      >
+    <div id="tnaCourseCategoryPageId" data-cy="tna-course-category-page">
+      <div className="flex gap-5" data-cy="tna-course-category-two-column">
         {/* Left: category list — capped at 60% of the content area */}
         <div
           className="w-[60%] border border-[#D9D9D9] rounded-lg bg-white p-4"
@@ -90,7 +84,10 @@ const TnaCourseCategoryPage = () => {
               <Spin spinning />
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
+            <div
+              className="flex flex-col gap-3"
+              data-cy="tna-course-category-list"
+            >
               {(data?.items ?? []).map((item) => (
                 <CourseCategoryCard
                   key={item.id}
@@ -127,7 +124,10 @@ const TnaCourseCategoryPage = () => {
             <Form.Item
               name="title"
               label={
-                <span className="text-[14px] font-normal text-[#030712]">
+                <span
+                  data-cy="tna-course-category-form-name-label"
+                  className="text-[14px] font-normal text-[#030712]"
+                >
                   Name
                 </span>
               }
@@ -148,9 +148,15 @@ const TnaCourseCategoryPage = () => {
             <Form.Item
               name="description"
               label={
-                <span className="text-[14px] font-normal text-[#030712]">
+                <span
+                  data-cy="tna-course-category-form-description-label"
+                  className="text-[14px] font-normal text-[#030712]"
+                >
                   Description{' '}
-                  <span className="text-[14px] font-normal text-[rgba(0,0,0,0.45)]">
+                  <span
+                    data-cy="tna-course-category-form-description-optional"
+                    className="text-[14px] font-normal text-[rgba(0,0,0,0.45)]"
+                  >
                     (optional)
                   </span>
                 </span>
@@ -170,7 +176,10 @@ const TnaCourseCategoryPage = () => {
 
             {/* Submit / Cancel */}
             <Form.Item className="mb-0 mt-6">
-              <div className="flex justify-end gap-2">
+              <div
+                className="flex justify-end gap-2"
+                data-cy="tna-course-category-form-actions"
+              >
                 {isEditing && (
                   <Button
                     onClick={handleCancel}

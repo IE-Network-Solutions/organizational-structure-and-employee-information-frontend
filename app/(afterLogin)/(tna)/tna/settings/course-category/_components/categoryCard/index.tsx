@@ -8,15 +8,34 @@ import React, { FC } from 'react';
 /** Three-dot horizontal icon matching the reference image */
 const DotsIcon = () => (
   <svg
+    data-cy="tna-course-category-dots-icon"
     width="14"
     height="4"
     viewBox="0 0 14 4"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <circle cx="2.5" cy="2" r="1.5" fill="currentColor" />
-    <circle cx="7" cy="2" r="1.5" fill="currentColor" />
-    <circle cx="11.5" cy="2" r="1.5" fill="currentColor" />
+    <circle
+      data-cy="tna-dots-circle-1"
+      cx="2.5"
+      cy="2"
+      r="1.5"
+      fill="currentColor"
+    />
+    <circle
+      data-cy="tna-dots-circle-2"
+      cx="7"
+      cy="2"
+      r="1.5"
+      fill="currentColor"
+    />
+    <circle
+      data-cy="tna-dots-circle-3"
+      cx="11.5"
+      cy="2"
+      r="1.5"
+      fill="currentColor"
+    />
   </svg>
 );
 
@@ -41,7 +60,14 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
   const menuItems: MenuProps['items'] = [
     {
       key: 'edit',
-      label: <span className="text-[14px] font-normal">Edit</span>,
+      label: (
+        <span
+          data-cy={`tna-course-category-menu-edit-${item.id}`}
+          className="text-[14px] font-normal"
+        >
+          Edit
+        </span>
+      ),
       onClick: () => onEdit(item),
     },
     {
@@ -58,7 +84,12 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           }}
           disabled={isLoading}
         >
-          <span className="text-error text-[14px] font-normal">Delete</span>
+          <span
+            data-cy={`tna-course-category-menu-delete-${item.id}`}
+            className="text-error text-[14px] font-normal"
+          >
+            Delete
+          </span>
         </Popconfirm>
       ),
     },
@@ -69,15 +100,17 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
   return (
     <div
       className={[
-        'flex items-center justify-between px-4 border rounded-lg bg-white',
-        hasDescription ? 'py-3' : 'py-3',
+        'flex items-center justify-between px-4 py-3 border rounded-lg bg-white',
         isActive ? 'border-[#1677FF]' : 'border-[#D9D9D9]',
       ].join(' ')}
       id={`tnaCourseCategoryCard${item.id}Id`}
       data-cy={dataCy ?? `tna-course-category-card-${item.id}`}
     >
       {/* Title + optional description */}
-      <div className="flex-1 min-w-0 pr-3 flex flex-col gap-1">
+      <div
+        data-cy={`tna-course-category-card-text-${item.id}`}
+        className="flex-1 min-w-0 pr-3 flex flex-col gap-1"
+      >
         <div
           className="text-[14px] font-normal text-black leading-snug truncate"
           id={`tnaCourseCategoryCardTitle${item.id}Id`}
@@ -119,7 +152,10 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
             data-cy={`tna-course-category-card-menu-btn-${item.id}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="text-[#737373]">
+            <span
+              data-cy={`tna-course-category-card-menu-icon-${item.id}`}
+              className="text-[#737373]"
+            >
               <DotsIcon />
             </span>
           </Button>

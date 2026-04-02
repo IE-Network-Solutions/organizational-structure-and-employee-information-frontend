@@ -54,13 +54,22 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
           className="flex items-center gap-1 mt-1"
           data-cy="tna-settings-breadcrumb"
         >
-          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.45)]">
+          <span
+            data-cy="tna-settings-breadcrumb-root"
+            className="text-[14px] font-normal text-[rgba(0,0,0,0.45)]"
+          >
             Learning and Growth
           </span>
-          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.45)] mx-0.5">
+          <span
+            data-cy="tna-settings-breadcrumb-separator"
+            className="text-[14px] font-normal text-[rgba(0,0,0,0.45)] mx-0.5"
+          >
             /
           </span>
-          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+          <span
+            data-cy="tna-settings-breadcrumb-current"
+            className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+          >
             Settings
           </span>
         </div>
@@ -71,7 +80,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         className="px-6 mt-5 border-b border-[#D9D9D9]"
         data-cy="tna-settings-tabs"
       >
-        <div className="flex items-end gap-0">
+        <div className="flex items-end gap-0" data-cy="tna-settings-tabs-inner">
           {TABS.map((tab) => {
             const isActive = activeTabKey === tab.key;
             return (
@@ -91,6 +100,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
                 {tab.label}
                 {isActive && (
                   <span
+                    data-cy={`tna-settings-tab-indicator-${tab.key}`}
                     className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#1E40AF]"
                     aria-hidden="true"
                   />
@@ -102,10 +112,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
       </div>
 
       {/* Tab page content */}
-      <div
-        className="px-6 pt-5"
-        data-cy="tna-settings-content"
-      >
+      <div className="px-6 pt-5" data-cy="tna-settings-content">
         {children}
       </div>
     </div>
