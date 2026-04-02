@@ -14,6 +14,7 @@ import {
   Button,
   Col,
   DatePicker,
+  Dropdown,
   Form,
   Input,
   Modal,
@@ -28,10 +29,14 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
-import { IoCheckmarkSharp } from 'react-icons/io5';
-import { MdOutlineFilterAlt, MdOutlineModeEditOutline } from 'react-icons/md';
-import { RiDeleteBin5Line } from 'react-icons/ri';
+import {
+  MdDeleteOutline,
+  MdMoreHoriz,
+  MdOutlineFilterAlt,
+  MdOutlineModeEditOutline,
+} from 'react-icons/md';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -814,52 +819,91 @@ function ActionPlans({ id }: Params) {
       align: 'left',
       width: 96,
       render: (_: unknown, item: any) => (
-        <div className="flex items-center justify-start gap-0.5">
-          {item?.status !== 'solved' &&
-            responsibleIds(item).includes(String(currentUserId)) && (
-              <>
-                <Tooltip title="Resolve">
-                  <Button
-                    type="text"
-                    size="small"
-                    className="text-emerald-600"
-                    loading={actionPlanResolvingLoading}
-                    icon={<IoCheckmarkSharp className="text-lg" />}
-                    onClick={() => handleResolveHandler(item?.id)}
-                    data-cy={`action-plan-row-${item.id}-resolve`}
-                  />
-                </Tooltip>
-              </>
-            )}
+        (() => {
+          const planId = item?.id;
+          const canResolve =
+            item?.status !== 'solved' &&
+            responsibleIds(item).includes(String(currentUserId));
 
-          {surveyCreatorId(item) &&
-          currentUserId &&
-          String(surveyCreatorId(item)) === String(currentUserId) ? (
-            <>
-              <Tooltip title="Edit">
-                <Button
-                  type="text"
-                  size="small"
-                  className="text-gray-600"
-                  icon={<MdOutlineModeEditOutline className="text-lg" />}
-                  onClick={() => handleEditActionPlan(item?.id)}
-                  data-cy={`action-plan-row-${item.id}-edit`}
-                />
-              </Tooltip>
-              <Tooltip title="Delete">
-                <Button
-                  type="text"
-                  size="small"
-                  danger
-                  loading={actionPlanDeletingLoading}
-                  icon={<RiDeleteBin5Line className="text-lg" />}
-                  onClick={() => setSelectedActionPlan(item?.id)}
-                  data-cy={`action-plan-row-${item.id}-delete`}
-                />
-              </Tooltip>
-            </>
-          ) : null}
-        </div>
+          const canEdit =
+            surveyCreatorId(item) &&
+            currentUserId &&
+            String(surveyCreatorId(item)) === String(currentUserId);
+
+          const canDelete = canEdit;
+
+          const menuItems = [
+            ...(canResolve
+              ? [
+                  {
+                    key: 'resolve',
+                    label: (
+                      <span
+                        onClick={() => handleResolveHandler(planId)}
+                        data-cy={`action-plan-row-${planId}-menu-resolve`}
+                        className="inline-flex items-center gap-3 text-[16px] font-normal text-[#262626]"
+                      >
+                        <IoCheckmarkCircleOutline className="text-[16px] leading-none text-[#52c41a]" />
+                        Resolve Action Plan
+                      </span>
+                    ),
+                  },
+                ]
+              : []),
+            ...(canEdit
+              ? [
+                  {
+                    key: 'edit',
+                    label: (
+                      <span
+                        onClick={() => handleEditActionPlan(planId)}
+                        data-cy={`action-plan-row-${planId}-menu-edit`}
+                        className="inline-flex items-center gap-3 text-[16px] font-normal text-[#262626]"
+                      >
+                        <MdOutlineModeEditOutline className="text-[16px] leading-none text-[#262626]" />
+                        Edit Action Plan
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <span
+                        onClick={() => setSelectedActionPlan(planId)}
+                        data-cy={`action-plan-row-${planId}-menu-delete`}
+                        className="inline-flex items-center gap-3 text-[16px] font-normal text-[#ff4d4f]"
+                      >
+                        <MdDeleteOutline className="text-[16px] leading-none text-[#ff4d4f]" />
+                        Delete Action Plan
+                      </span>
+                    ),
+                  },
+                ]
+              : []),
+            ...(canDelete ? [] : []),
+          ];
+
+          if (menuItems.length === 0) return null;
+
+          return (
+            <Dropdown
+              menu={{ items: menuItems as any }}
+              trigger={['click']}
+              placement="bottomRight"
+              overlayClassName="action-plan-row-actions-menu"
+              data-cy={`action-plan-row-${planId}-menu`}
+            >
+              <button
+                type="button"
+                className="relative z-[2] flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-[#374151] transition-colors hover:border-slate-300 hover:bg-slate-50 pointer-events-auto"
+                data-cy={`action-plan-row-${planId}-menu-trigger`}
+                aria-label="More options"
+              >
+                <MdMoreHoriz className="text-[24px] leading-none" />
+              </button>
+            </Dropdown>
+          );
+        })()
       ),
     },
   ];
@@ -993,6 +1037,25 @@ function ActionPlans({ id }: Params) {
         loading={actionPlanDeletingLoading}
       />
       <style jsx global>{`
+        /* Action plan row dropdown: match the "triple-dot" menu UI. */
+        .action-plan-row-actions-menu.ant-dropdown
+          .ant-dropdown-menu
+          .ant-dropdown-menu-item {
+          padding: 10px 16px !important;
+          font-size: 16px !important;
+          line-height: 22px !important;
+          min-height: 0 !important;
+        }
+
+        .action-plan-row-actions-menu.ant-dropdown .ant-dropdown-menu {
+          border-radius: 12px !important;
+        }
+
+        .action-plan-row-actions-menu.ant-dropdown
+          .ant-dropdown-menu-item:hover {
+          background: #f5f5f5 !important;
+        }
+
         .responsible-hidden-users-scroll {
           -ms-overflow-style: none;
           scrollbar-width: none;
