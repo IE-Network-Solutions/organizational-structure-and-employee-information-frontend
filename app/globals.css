@@ -487,6 +487,9 @@
   .lesson-material-article {
     @apply text-gray-600 text-base;
   }
+.page-wrap {
+  @apply h-auto w-auto pb-6;
+}
 
   .lesson-material-article h3 {
     @apply text-gray-900 text-[24px];

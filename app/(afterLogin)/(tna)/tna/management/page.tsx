@@ -79,7 +79,7 @@ const TnaManagementPage = () => {
     if (categoryData?.items) {
       setCourseCategory(categoryData.items);
     }
-  }, [categoryData]);
+  }, [categoryData, setCourseCategory]);
 
   const onFilterChange = useDebounce((value: CommonObject) => {
     const nFilter: Partial<CourseManagementRequestBody> = {};
@@ -101,72 +101,137 @@ const TnaManagementPage = () => {
 
   return (
     <div
-      className="page-wrap bg-[#f5f5f5] mt-4 "
+      className="page-wrap bg-[#ffffff] mt-4 "
       id="tnaManagementPageId"
       data-cy="tna-management-page"
     >
-      <PageHeader
-        title="Training & Learning"
-        description="Training and Learning module"
-        data-cy="tna-management-page-header"
+      <div
+        className="bg-[#ffffff] border-b border-[#F3F4F6] py-4"
+        data-cy="tna-management-page-header-band"
       >
-        <Flex
-          gap={16}
-          className="pt-4"
-          id="tnaManagementPageHeaderActionsId"
-          data-cy="tna-management-page-header-actions"
+        <PageHeader
+          title={
+            <span
+              className="font-bold text-[22px] text-gray-900 leading-none"
+              data-cy="tna-management-page-title"
+            >
+              Learning and Growth
+            </span>
+          }
+          description={
+            <span
+              className="text-sm font-medium mt-1"
+              data-cy="tna-management-page-breadcrumb"
+            >
+              <span
+                className="text-gray-400"
+                data-cy="tna-management-page-breadcrumb-segment-first"
+              >
+                Learning and Growth
+              </span>
+              <span
+                className="text-gray-300 mx-1"
+                data-cy="tna-management-page-breadcrumb-separator"
+              >
+                /
+              </span>
+              <span
+                className="text-gray-600"
+                data-cy="tna-management-page-breadcrumb-segment-current"
+              >
+                Learning Management
+              </span>
+            </span>
+          }
+          data-cy="tna-management-page-header"
         >
+          <Flex
+            gap={16}
+            id="tnaManagementPageHeaderActionsId"
+            data-cy="tna-management-page-header-actions"
+          >
+            <AccessGuard
+              permissions={[Permissions.CreateCourse]}
+              data-cy="tna-management-create-course-guard"
+              id="tna-management-create-course-guard"
+            >
+              <Button
+                id="tnaAddCourseActionButtonId"
+                data-cy="tna-add-course-action-button"
+                type="primary"
+                className="h-[44px] bg-[#2F4DB2] rounded-lg border-none px-5 text-[15px] font-medium"
+                icon={<LuPlus size={18} />}
+                loading={isFetching}
+                onClick={() => setIsShowCourseSidebar(true)}
+              >
+                <span
+                  className="hidden sm:block"
+                  data-cy="tna-management-add-course-button-text"
+                >
+                  New Course
+                </span>
+              </Button>
+            </AccessGuard>
+          </Flex>
+        </PageHeader>
+      </div>
+
+      <div
+        className="bg-white border border-gray-200 rounded-xl p-6 mt-6 shadow-sm"
+        data-cy="tna-management-main-panel"
+      >
+        <div className="mb-6" data-cy="tna-management-filter-wrap">
           <CourseFilter
             onChange={onFilterChange}
             data-cy="tna-management-filter"
           />
-          <AccessGuard
-            permissions={[Permissions.CreateCourse]}
-            data-cy="tna-management-create-course-guard"
-            id="tna-management-create-course-guard"
-          >
-            <Button
-              id="tnaAddCourseActionButtonId"
-              data-cy="tna-add-course-action-button"
-              size="large"
-              type="primary"
-              className="h-[50px]"
-              icon={<LuPlus size={16} />}
-              loading={isFetching}
-              onClick={() => setIsShowCourseSidebar(true)}
-            >
-              <span
-                className="hidden sm:block"
-                data-cy="tna-management-add-course-button-text"
-              >
-                Add Course
-              </span>
-            </Button>
-          </AccessGuard>
-        </Flex>
-      </PageHeader>
-
-      {isLoading ? (
-        <div
-          className="flex justify-center p-5"
-          id="tnaManagementLoadingId"
-          data-cy="tna-management-loading"
-        >
-          <Spin data-cy="tna-management-spinner-spin" />
         </div>
-      ) : (
-        <Spin
-          spinning={isFetchingCourse}
-          data-cy="tna-management-spinner-spinning"
-        >
+
+        {isLoading ? (
           <div
-            className="grid grid-cols-course-list gap-6 mt-8"
-            id="tnaManagementCourseGridId"
-            data-cy="tna-management-course-grid"
+            className="flex justify-center p-5"
+            id="tnaManagementLoadingId"
+            data-cy="tna-management-loading"
           >
-            {normalizedCourses.map((item) => {
-              // Users with ViewAllCourse permission can see ALL courses including drafts
-              if (hasViewAllCoursePermission) {
+            <Spin data-cy="tna-management-spinner-spin" />
+          </div>
+        ) : (
+          <Spin
+            spinning={isFetchingCourse}
+            data-cy="tna-management-spinner-spinning"
+          >
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 justify-items-center xl:justify-items-start"
+              id="tnaManagementCourseGridId"
+              data-cy="tna-management-course-grid"
+            >
+              {normalizedCourses.map((item) => {
+                // Users with ViewAllCourse permission can see ALL courses including drafts
+                if (hasViewAllCoursePermission) {
+                  return (
+                    <CourseCard
+                      item={item}
+                      key={item.id}
+                      refetch={refetch}
+                      data-cy={`tna-management-course-card-${item.id}`}
+                    />
+                  );
+                }
+
+                // Users without ViewAllCourse permission:
+                // - Can only see their own drafts
+                // - Can see all published courses they are assigned to
+                if (item.isDraft) {
+                  return item.preparedBy === localUserID ? (
+                    <CourseCard
+                      item={item}
+                      key={item.id}
+                      refetch={refetch}
+                      data-cy={`tna-management-course-card-${item.id}`}
+                    />
+                  ) : null;
+                }
+
                 return (
                   <CourseCard
                     item={item}
@@ -175,34 +240,11 @@ const TnaManagementPage = () => {
                     data-cy={`tna-management-course-card-${item.id}`}
                   />
                 );
-              }
-
-              // Users without ViewAllCourse permission:
-              // - Can only see their own drafts
-              // - Can see all published courses they are assigned to
-              if (item.isDraft) {
-                return item.preparedBy === localUserID ? (
-                  <CourseCard
-                    item={item}
-                    key={item.id}
-                    refetch={refetch}
-                    data-cy={`tna-management-course-card-${item.id}`}
-                  />
-                ) : null;
-              }
-
-              return (
-                <CourseCard
-                  item={item}
-                  key={item.id}
-                  refetch={refetch}
-                  data-cy={`tna-management-course-card-${item.id}`}
-                />
-              );
-            })}
-          </div>
-        </Spin>
-      )}
+              })}
+            </div>
+          </Spin>
+        )}
+      </div>
 
       <CourseCategorySidebar data-cy="tna-management-course-category-sidebar" />
     </div>

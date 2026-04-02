@@ -1,9 +1,10 @@
 import React, { FC, useEffect } from 'react';
 import { Course } from '@/types/tna/course';
-import { Card, Spin } from 'antd';
+import { Spin } from 'antd';
 import ActionButton from '@/components/common/actionButton';
+import { FaRegFileAlt } from 'react-icons/fa';
+import { LuLayers } from 'react-icons/lu';
 import { classNames } from '@/utils/classNames';
-import { FaRegFile } from 'react-icons/fa6';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
 import { useDeleteCourseManagement } from '@/store/server/features/tna/management/mutation';
 import { useRouter } from 'next/navigation';
@@ -34,128 +35,139 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
 
   return (
     <Spin spinning={isLoading} data-cy={`tna-course-card-spinner-${item?.id}`}>
-      <Card
-        hoverable
+      <div
         className={classNames(
-          'relative min-h-[180px] max-h-[180px] overflow-hidden',
+          'relative flex flex-col w-[348px] h-[295px] rounded-[8px] border border-gray-200 bg-white overflow-hidden cursor-pointer hover:shadow-md transition-shadow group pt-[1px] pb-[12px] gap-[13px]',
           { 'opacity-70': item?.isDraft },
           [className],
         )}
+        onClick={() => router.push(`/tna/management/${item?.id}`)}
         id={`tnaCourseCard${item?.id}Id`}
         data-cy={`tna-course-card-${item?.id}`}
-        cover={
+      >
+        <div
+          className="relative w-[348px] h-[159px] shrink-0"
+          data-cy={`tna-course-card-thumbnail-wrap-${item?.id}`}
+        >
           <Image
-            alt="example"
-            src={item?.thumbnail ?? ''}
-            width={300}
-            height={120}
-            className="w-full h-[120px] object-cover object-top"
+            alt={item?.title || 'thumbnail'}
+            src={item?.thumbnail || '/default-thumbnail.png'}
+            fill
+            className="object-cover"
             id={`tnaCourseCardThumbnail${item?.id}Id`}
             data-cy={`tna-course-card-thumbnail-${item?.id}`}
           />
-        }
-        onClick={() => {
-          router.push(`/tna/management/${item?.id}`);
-        }}
-      >
+        </div>
+
         <div
-          className="flex justify-between "
+          className="flex flex-col w-[320px] mx-auto gap-[8px] flex-1 min-h-0"
           id={`tnaCourseCardContent${item?.id}Id`}
           data-cy={`tna-course-card-content-${item?.id}`}
         >
           <div
-            id={`tnaCourseCardInfo${item?.id}Id`}
-            data-cy={`tna-course-card-info-${item?.id}`}
+            className="flex justify-between items-center"
+            data-cy={`tna-course-card-category-row-${item?.id}`}
           >
-            <div
-              className="absolute top-5 left-5 z-10 py-2 px-3 rounded-lg bg-primary text-white text-sm font-semibold"
-              id={`tnaCourseCardBadge${item?.id}Id`}
-              data-cy={`tna-course-card-badge-${item?.id}`}
+            <span
+              className="text-[13px] font-bold text-gray-900 leading-none"
+              id={`tnaCourseCardCategory${item?.id}Id`}
+              data-cy={`tna-course-card-category-${item?.id}`}
             >
-              {item?.isDraft ? (
-                <div
-                  className="flex items-center gap-2"
-                  id={`tnaCourseCardDraft${item?.id}Id`}
-                  data-cy={`tna-course-card-draft-${item?.id}`}
-                >
-                  Draft{' '}
-                  <FaRegFile
-                    size={16}
-                    data-cy={`tna-course-card-draft-icon-${item?.id}`}
-                  />
-                </div>
-              ) : (
-                item?.courseCategory?.title || ''
-              )}
-            </div>
-            {item?.tenantId === null && (
-              <div
-                className="absolute top-5 right-5 z-10 py-2 px-3 rounded-lg bg-green-500 text-white text-sm font-semibold"
-                id={`tnaCourseCardSystem${item?.id}Id`}
-                data-cy={`tna-course-card-system-${item?.id}`}
+              {item?.courseCategory?.title || 'Uncategorized'}
+            </span>
+            {item?.isDraft && (
+              <span
+                className="text-[13px] text-[#A6A6A6] font-medium leading-none"
+                id={`tnaCourseCardDraft${item?.id}Id`}
+                data-cy={`tna-course-card-draft-${item?.id}`}
               >
-                system course
-              </div>
+                Draft
+              </span>
             )}
-
-            <Card.Meta
-              title={
-                <div
-                  className="flex items-center gap-1"
-                  id={`tnaCourseCardTitle${item?.id}Id`}
-                  data-cy={`tna-course-card-title-${item?.id}`}
-                >
-                  <div
-                    className="text-lg font-bold text-gray-900 flex-1 text-pretty line-clamp-1"
-                    data-cy={`tna-course-card-title-text-${item?.id}`}
-                    id={`tnaCourseCardTitleText${item?.id}Id`}
-                  >
-                    {item?.title}
-                  </div>
-                </div>
-              }
-              description={
-                <div
-                  className="text-base text-gray-600 line-clamp-1"
-                  id={`tnaCourseCardDescription${item?.id}Id`}
-                  data-cy={`tna-course-card-description-${item?.id}`}
-                >
-                  {item?.overview && !/^[a-f0-9-]{16,}$/.test(item.overview)
-                    ? item.overview
-                    : 'No overview available'}
-                </div>
-              }
-              data-cy={`tna-course-card-meta-${item?.id}`}
-            />
           </div>
+
+          <h3
+            className="text-base font-bold text-gray-900 line-clamp-1 leading-tight m-0"
+            id={`tnaCourseCardTitle${item?.id}Id`}
+            data-cy={`tna-course-card-title-${item?.id}`}
+          >
+            {item?.title}
+          </h3>
+
+          <p
+            className="text-[13px] text-[#A6A6A6] line-clamp-2 leading-[18px] m-0"
+            id={`tnaCourseCardDescription${item?.id}Id`}
+            data-cy={`tna-course-card-description-${item?.id}`}
+          >
+            {item?.overview && !/^[a-f0-9-]{16,}$/.test(item.overview)
+              ? item.overview
+              : 'No overview available'}
+          </p>
 
           <div
-            className="action-buttons mt-2  gap-2"
-            onClick={(e) => e.stopPropagation()}
-            id={`tnaCourseCardActions${item?.id}Id`}
-            data-cy={`tna-course-card-actions-${item?.id}`}
+            className="flex items-center gap-4 mt-auto pt-1"
+            id={`tnaCourseCardFooter${item?.id}Id`}
+            data-cy={`tna-course-card-footer-${item?.id}`}
           >
-            <AccessGuard
-              permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
-              data-cy={`tna-course-card-action-guard-${item?.id}`}
-              id={`tnaCourseCardActionGuard${item?.id}Id`}
+            <div
+              className="flex items-center gap-1.5 text-[#A6A6A6] text-xs font-medium"
+              data-cy={`tna-course-card-courses-stat-${item?.id}`}
             >
-              <ActionButton
-                id={item?.id ?? null}
-                data-cy={`tna-course-card-action-button-${item?.id}`}
-                onEdit={() => {
-                  setCourseId(item?.id);
-                  setIsShowCourseSidebar(true);
-                }}
-                onDelete={() => {
-                  deleteCourse([item?.id]);
-                }}
-                onCancelDelete={() => ''}
+              <LuLayers
+                size={14}
+                className="text-[#A6A6A6]"
+                data-cy={`tna-course-card-courses-icon-${item?.id}`}
               />
-            </AccessGuard>
+              <span data-cy={`tna-course-card-courses-count-${item?.id}`}>
+                Courses({item.courseLessons?.length || 12})
+              </span>
+            </div>
+            <div
+              className="flex items-center gap-1.5 text-[#A6A6A6] text-xs font-medium"
+              data-cy={`tna-course-card-lessons-stat-${item?.id}`}
+            >
+              <FaRegFileAlt
+                size={13}
+                className="text-[#A6A6A6]"
+                data-cy={`tna-course-card-lessons-icon-${item?.id}`}
+              />
+              <span data-cy={`tna-course-card-lessons-count-${item?.id}`}>
+                Lessons(
+                {item.courseLessons?.reduce(
+                  (acc, curr) =>
+                    acc + (curr.courseLessonMaterials?.length || 0),
+                  0,
+                ) || 24}
+                )
+              </span>
+            </div>
           </div>
         </div>
-      </Card>
+
+        <div
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2"
+          onClick={(e) => e.stopPropagation()}
+          id={`tnaCourseCardActions${item?.id}Id`}
+          data-cy={`tna-course-card-actions-${item?.id}`}
+        >
+          <AccessGuard
+            permissions={[Permissions.UpdateCourse, Permissions.DeleteCourse]}
+            id={`tnaCourseCardActionGuard${item?.id}Id`}
+          >
+            <ActionButton
+              id={item?.id ?? null}
+              onEdit={() => {
+                setCourseId(item?.id);
+                setIsShowCourseSidebar(true);
+              }}
+              onDelete={() => {
+                deleteCourse([item?.id]);
+              }}
+              onCancelDelete={() => ''}
+            />
+          </AccessGuard>
+        </div>
+      </div>
     </Spin>
   );
 };
