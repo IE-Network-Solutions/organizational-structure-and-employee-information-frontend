@@ -249,7 +249,7 @@ function ActionPlansTableSkeleton() {
         <div
           key={row}
           className={`border-b border-gray-100 px-3 py-4 ${
-            row % 2 === 1 ? 'bg-gray-50/80' : 'bg-white'
+            row % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
           }`}
         >
           <Skeleton
@@ -649,7 +649,7 @@ function ActionPlans({ id }: Params) {
 
   const columns: ColumnsType<any> = [
     {
-      title: 'Issue',
+      title: 'Issues',
       key: 'issue',
       align: 'left',
       width: 300,
@@ -818,7 +818,7 @@ function ActionPlans({ id }: Params) {
       key: 'rowActions',
       align: 'left',
       width: 96,
-      render: (_: unknown, item: any) => (
+      render: (_: unknown, item: any) =>
         (() => {
           const planId = item?.id;
           const canResolve =
@@ -843,7 +843,7 @@ function ActionPlans({ id }: Params) {
                         data-cy={`action-plan-row-${planId}-menu-resolve`}
                         className="inline-flex items-center gap-3 text-[16px] font-normal text-[#262626]"
                       >
-                        <IoCheckmarkCircleOutline className="text-[16px] leading-none text-[#52c41a]" />
+                        <IoCheckmarkCircleOutline className="text-[16px] leading-none text-[#262626]" />
                         Resolve Action Plan
                       </span>
                     ),
@@ -903,20 +903,19 @@ function ActionPlans({ id }: Params) {
               </button>
             </Dropdown>
           );
-        })()
-      ),
+        })(),
     },
   ];
 
   return (
     <div
       data-cy="action-plans-container"
-      className="flex h-full min-h-0 w-full min-w-0 flex-col"
+      className="flex h-full min-h-0 w-full min-w-0 flex-col pb-3 pt-0 lg:pb-0"
     >
-      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <div className="flex w-full min-w-0 shrink-0 flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-4">
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-sm lg:shadow-none">
+        <div className="flex w-full min-w-0 shrink-0 flex-row items-stretch justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4">
           <div
-            className="flex h-10 w-[300px] max-w-full shrink-0 items-stretch overflow-hidden rounded-md border border-gray-200 bg-white transition-colors focus-within:border-[#1e40af]/40"
+            className="flex h-10 min-w-0 max-w-[min(100%,calc(17rem+30px))] flex-1 items-stretch overflow-hidden rounded-md border border-[#E5E7EB] bg-white transition-colors focus-within:border-[#1e40af]/40 md:max-w-none"
             data-cy="action-plans-search-employee"
           >
             <Input
@@ -931,13 +930,13 @@ function ActionPlans({ id }: Params) {
               }}
             />
             <div
-              className="flex w-10 shrink-0 items-center justify-center border-l border-gray-200 bg-white"
+              className="flex w-10 shrink-0 items-center justify-center border-l border-[#E5E7EB] bg-white"
               aria-hidden
             >
               <SearchOutlined className="text-base text-gray-800" />
             </div>
           </div>
-          <div className="flex shrink-0 items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center">
             <Popover
               content={filterPopoverContent}
               trigger="click"
@@ -949,17 +948,22 @@ function ActionPlans({ id }: Params) {
               overlayInnerStyle={{ padding: 0 }}
             >
               <Button
+                type="default"
                 size="large"
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-[14px] leading-none text-slate-800 shadow-sm hover:border-gray-300 hover:bg-gray-50 [&_.ant-btn-icon]:leading-none"
+                aria-label="Filter"
+                title="Filter"
+                className="inline-flex !h-10 !min-h-10 !min-w-10 !w-10 !items-center !justify-center !gap-0 !rounded-lg !border !border-[#E5E7EB] !bg-white !px-0 !py-0 text-slate-800 shadow-sm hover:!border-gray-300 hover:!bg-gray-50 lg:!min-w-[auto] lg:!w-auto lg:!gap-2 lg:!px-4 [&_.ant-btn-icon]:!m-0"
                 icon={
                   <MdOutlineFilterAlt
-                    className="h-4 w-4 shrink-0 text-slate-600"
+                    className="h-[18px] w-[18px] shrink-0 text-slate-600"
                     aria-hidden
                   />
                 }
                 data-cy="action-plans-filter"
               >
-                Filter
+                <span className="hidden pl-0 text-[14px] font-normal leading-none lg:inline">
+                  Filter
+                </span>
               </Button>
             </Popover>
           </div>
@@ -978,12 +982,13 @@ function ActionPlans({ id }: Params) {
                 rowKey="id"
                 pagination={false}
                 scroll={{ x: 'max-content' }}
+                size={isMobile ? 'small' : 'middle'}
                 dataSource={paginatedRows}
                 columns={columns}
                 rowClassName={(_, index) =>
-                  index % 2 === 1 ? 'bg-gray-50/80' : 'bg-white'
+                  index % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
                 }
-                className="survey-action-plans-table w-full min-w-0 [&_.ant-table-wrapper]:w-full [&_.ant-table-wrapper]:!rounded-t-none [&_.ant-table]:w-full [&_.ant-table]:!rounded-t-none [&_.ant-table-container]:!rounded-t-none [&_.ant-table-content]:!rounded-t-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead>tr>th]:!bg-[#F5F5F5] [&_.ant-table-thead>tr>th]:!text-left [&_.ant-table-thead>tr>th]:!font-bold [&_.ant-table-thead>tr>th]:!text-gray-900 [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th]:border-r [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th:last-child]:!border-r-0 [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-sm [&_.ant-table-tbody>tr>td]:align-top [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td]:border-r [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td:last-child]:!border-r-0 [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-4"
+                className="survey-action-plans-table w-full min-w-0 [&_.ant-table-wrapper]:w-full [&_.ant-table-wrapper]:!rounded-t-none [&_.ant-table]:w-full [&_.ant-table]:!rounded-t-none [&_.ant-table-container]:!rounded-t-none [&_.ant-table-content]:!rounded-t-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead>tr>th]:!bg-[#F5F5F5] [&_.ant-table-thead>tr>th]:!text-left [&_.ant-table-thead>tr>th]:!font-bold [&_.ant-table-thead>tr>th]:!text-gray-900 [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th]:border-r [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th:last-child]:!border-r-0 [&_.ant-table-thead>tr>th]:px-2 [&_.ant-table-thead>tr>th]:py-2.5 [&_.ant-table-thead>tr>th]:text-xs lg:[&_.ant-table-thead>tr>th]:px-3 lg:[&_.ant-table-thead>tr>th]:py-3 lg:[&_.ant-table-thead>tr>th]:text-sm [&_.ant-table-tbody>tr>td]:align-top [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td]:border-r [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td:last-child]:!border-r-0 [&_.ant-table-tbody>tr>td]:px-2 [&_.ant-table-tbody>tr>td]:py-3 lg:[&_.ant-table-tbody>tr>td]:px-3 lg:[&_.ant-table-tbody>tr>td]:py-4"
                 style={{ width: '100%' }}
               />
             )}
