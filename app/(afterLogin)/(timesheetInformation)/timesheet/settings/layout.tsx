@@ -14,7 +14,7 @@ import { IoTimeOutline } from 'react-icons/io5';
 import { GoKey } from 'react-icons/go';
 import { AiOutlineImport } from 'react-icons/ai';
 import { BsFileBreak } from 'react-icons/bs';
-import { TbCode } from 'react-icons/tb';
+import { TbCode, TbLink } from 'react-icons/tb';
 import { usePathname } from 'next/navigation';
 
 interface TimesheetSettingsLayoutProps {
@@ -312,6 +312,32 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         className: 'px-1',
       },
       link: '/timesheet/settings/zkt-addon',
+    },
+    {
+      item: {
+        key: 'basecamp-user-mapping',
+        icon: (
+          <div
+            className={`lg:flex items-center gap-2 ${pathname.includes('/timesheet/settings/basecamp-user-mapping') ? 'lg:ml-4' : ''}`}
+            id="time-attendance-settings-menu-basecamp-user-mapping-item"
+            data-cy="time-attendance-settings-menu-basecamp-user-mapping-item"
+          >
+            <TbLink
+              className={`hidden lg:block ${pathname.includes('/timesheet/settings/basecamp-user-mapping') ? 'text-[#1677FF]' : ''}`}
+              data-cy="time-attendance-settings-menu-basecamp-user-mapping-icon"
+            />
+            <p
+              className="menu-item-label "
+              id="time-attendance-settings-menu-basecamp-user-mapping-label"
+              data-cy="time-attendance-settings-menu-basecamp-user-mapping-label"
+            >
+              Basecamp
+            </p>
+          </div>
+        ),
+        className: 'px-1',
+      },
+      link: '/timesheet/settings/basecamp-user-mapping',
     },
   ]);
 

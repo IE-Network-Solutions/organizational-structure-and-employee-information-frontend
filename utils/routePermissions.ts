@@ -153,6 +153,10 @@ const MENU_ROUTES: MenuRouteNode[] = [
         key: '/timesheet/settings/closed-date',
         permissions: ['manage_timesheet_settings'],
       },
+      {
+        key: '/timesheet/settings/basecamp-user-mapping',
+        permissions: ['manage_timesheet_settings'],
+      },
     ],
   },
   {
