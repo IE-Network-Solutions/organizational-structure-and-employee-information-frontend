@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Row, Col, Card } from 'antd';
+import { Row, Col, Card, Radio } from 'antd';
 import {
   DndContext,
   PointerSensor,
@@ -15,37 +15,73 @@ import { useGetEmployeInformationForms } from '@/store/server/features/employees
 import DraggableFieldTypeCard from './_components/DraggableFieldTypeCard';
 import DroppableFormCategoryCard from './_components/DroppableFormCategoryCard';
 import CustomFieldModal from './_components/CustomFieldModal';
+import type { FieldTypeValue } from './_components/DraggableFieldTypeCard';
 
 const FIELD_TYPES = [
   {
     id: 'textField',
-    label: 'Text Field',
-    description: 'Input field for text',
+    label: <Radio>Text Field</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-text-field-description"
+        className="px-6 text-xs"
+      >
+        Input field for text
+      </p>
+    ),
     fieldType: 'input' as const,
   },
   {
     id: 'textArea',
-    label: 'Text Area',
-    description: 'Input field for larger text',
-    fieldType: 'input' as const,
+    label: <Radio>Text Area</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-text-area-description"
+        className="px-6 text-xs"
+      >
+        Input field for larger text
+      </p>
+    ),
+    fieldType: 'textArea' as const,
   },
   {
     id: 'checkbox',
-    label: 'Checkbox',
-    description: 'Input field for multiple values',
+    label: <Radio>Checkbox</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-checkbox-description"
+        className="px-6 text-xs"
+      >
+        Input field for multiple values
+      </p>
+    ),
     fieldType: 'checkbox' as const,
   },
   {
     id: 'radio',
-    label: 'Radio box',
-    description: 'Input field for single value',
-    fieldType: 'select' as const,
+    label: <Radio>Radio box</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-radio-description"
+        className="px-6 text-xs"
+      >
+        Input field for single value
+      </p>
+    ),
+    fieldType: 'radio' as const,
   },
   {
     id: 'dropdown',
-    label: 'Dropdown',
-    description: 'Input field for selecting a value',
-    fieldType: 'select' as const,
+    label: <Radio>Dropdown</Radio>,
+    description: (
+      <p
+        data-cy="settings-custom-fields-dropdown-description"
+        className="px-6 text-xs"
+      >
+        Input field for selecting a value
+      </p>
+    ),
+    fieldType: 'dropdown' as const,
   },
 ];
 
@@ -64,18 +100,53 @@ const FORM_CATEGORIES = [
   },
 ];
 
+interface EditableField {
+  id?: string;
+  fieldName?: string;
+  fieldType?: FieldTypeValue;
+  fieldValidation?: string;
+  isActive?: boolean;
+  isRequired?: boolean;
+  options?: string[];
+  field?: {
+    id?: string;
+    fieldName?: string;
+    fieldType?: FieldTypeValue;
+    fieldValidation?: string;
+    isActive?: boolean;
+    isRequired?: boolean;
+    options?: string[];
+  };
+}
+
+const toFieldTypeValue = (value: string | undefined): FieldTypeValue => {
+  switch (value) {
+    case 'textArea':
+    case 'checkbox':
+    case 'radio':
+    case 'dropdown':
+      return value;
+    default:
+      return 'input';
+  }
+};
+
 const CustomFieldsPage: React.FC = () => {
   const { data: employeeInformationForms } = useGetEmployeInformationForms();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedFormTitle, setSelectedFormTitle] = useState<string | null>(
     null,
   );
-  const [selectedFieldType, setSelectedFieldType] = useState<
-    'input' | 'datePicker' | 'select' | 'toggle' | 'checkbox'
-  >('input');
+  const [selectedFieldType, setSelectedFieldType] =
+    useState<FieldTypeValue>('input');
   const [highlightedFormTitle, setHighlightedFormTitle] = useState<
     string | null
   >(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [editingField, setEditingField] = useState<EditableField | null>(null);
+  const [editingFieldIndex, setEditingFieldIndex] = useState<number | null>(
+    null,
+  );
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -97,20 +168,63 @@ const CustomFieldsPage: React.FC = () => {
     setModalOpen(true);
   }, []);
 
-  const handleModalSuccess = useCallback((formTitle: string) => {
-    setModalOpen(false);
-    setSelectedFormTitle(null);
-    setHighlightedFormTitle(formTitle);
-    const t = setTimeout(() => {
-      setHighlightedFormTitle(null);
-    }, 2500);
-    return () => clearTimeout(t);
-  }, []);
+  const handleModalSuccess = useCallback(
+    (formTitle: string, action: 'create' | 'edit') => {
+      setModalOpen(false);
+      setSelectedFormTitle(null);
+      setModalMode('create');
+      setEditingField(null);
+      setEditingFieldIndex(null);
+
+      if (action !== 'create') return;
+
+      setHighlightedFormTitle(formTitle);
+      const t = setTimeout(() => {
+        setHighlightedFormTitle(null);
+      }, 2500);
+      return () => clearTimeout(t);
+    },
+    [],
+  );
 
   const handleModalClose = useCallback(() => {
     setModalOpen(false);
     setSelectedFormTitle(null);
+    setModalMode('create');
+    setEditingField(null);
+    setEditingFieldIndex(null);
   }, []);
+
+  const handleEditField = useCallback(
+    ({
+      formTitle,
+      field,
+      fieldIndex,
+    }: {
+      formTitle: string;
+      field: any;
+      fieldIndex: number;
+    }) => {
+      setSelectedFormTitle(formTitle);
+      setSelectedFieldType(
+        toFieldTypeValue(field.fieldType ?? field.field?.fieldType),
+      );
+      setEditingField({
+        ...field,
+        fieldType: toFieldTypeValue(field.fieldType),
+        field: field.field
+          ? {
+              ...field.field,
+              fieldType: toFieldTypeValue(field.field.fieldType),
+            }
+          : undefined,
+      });
+      setEditingFieldIndex(fieldIndex);
+      setModalMode('edit');
+      setModalOpen(true);
+    },
+    [],
+  );
 
   const items = employeeInformationForms?.items ?? [];
 
@@ -120,22 +234,41 @@ const CustomFieldsPage: React.FC = () => {
       id="settings-custom-fields-page"
       data-cy="settings-custom-fields-page"
     >
+      <style data-cy="settings-custom-fields-page-style" jsx global>{`
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio-checked
+          .ant-radio-inner {
+          border-color: #8c8c8c !important;
+          background-color: #fff !important;
+        }
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio-checked
+          .ant-radio-inner::after {
+          background-color: #fff;
+        }
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio-wrapper:hover
+          .ant-radio-inner,
+        #settings-custom-fields-page
+          .custom-fields-radio-neutral
+          .ant-radio:hover
+          .ant-radio-inner {
+          border-color: #8c8c8c;
+        }
+      `}</style>
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <Row gutter={24}>
           <Col xs={24} md={10} lg={10}>
             <Card
-              title="Field Type"
               bordered
-              className="mb-4"
+              className="mb-4 custom-fields-radio-neutral border-[1px] border-[#D9D9D9] rounded-lg"
               id="settings-custom-fields-field-types-card"
               data-cy="settings-custom-fields-field-types-card"
+              headStyle={{ borderBottom: 'none' }}
             >
-              <p
-                data-cy="settings-custom-fields-field-types-description"
-                className="text-gray-500 text-xs mb-4 px-2"
-              >
-                Drag a field type to a form category to add a custom field.
-              </p>
               <div
                 data-cy="settings-custom-fields-field-types-list"
                 className="flex flex-col gap-3"
@@ -154,17 +287,12 @@ const CustomFieldsPage: React.FC = () => {
           </Col>
           <Col xs={24} md={14} lg={14}>
             <Card
-              title="Form Category"
               bordered
+              headStyle={{ borderBottom: 'none' }}
               id="settings-custom-fields-form-categories-card"
               data-cy="settings-custom-fields-form-categories-card"
+              className="border-[1px] border-[#D9D9D9] rounded-lg"
             >
-              <p
-                data-cy="settings-custom-fields-form-categories-description"
-                className="text-gray-500 text-xs mb-4 px-2"
-              >
-                Drop a field type here to add it to the category.
-              </p>
               <div
                 data-cy="settings-custom-fields-form-categories-list"
                 className="flex flex-col gap-4"
@@ -184,6 +312,7 @@ const CustomFieldsPage: React.FC = () => {
                       fieldCount={fieldCount}
                       fields={fields}
                       isHighlighted={highlightedFormTitle === cat.formTitle}
+                      onEditField={handleEditField}
                     />
                   );
                 })}
@@ -201,6 +330,9 @@ const CustomFieldsPage: React.FC = () => {
           customEmployeeInformationForm={items.find(
             (item: any) => item.formTitle?.trim() === selectedFormTitle,
           )}
+          mode={modalMode}
+          editField={editingField}
+          editFieldIndex={editingFieldIndex}
           onSuccess={handleModalSuccess}
           onCancel={handleModalClose}
         />

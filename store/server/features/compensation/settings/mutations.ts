@@ -94,8 +94,7 @@ export const useCreateAllowanceType = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceType, {
     onSuccess: async (unused: any, variables: any) => {
-      await queryClient.invalidateQueries('allowanceType');
-      // Fetch the latest data after invalidation
+      await queryClient.invalidateQueries(['allowanceType']);
       await queryClient.refetchQueries(['allowanceType']);
       // Update the store with the new data
       const method = variables?.method?.toUpperCase();
@@ -107,8 +106,9 @@ export const useCreateAllowanceType = () => {
 export const useDeleteAllowanceType = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteAllowanceType, {
-    onSuccess: (unused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceType');
+    onSuccess: async (unused: any, variables: any) => {
+      await queryClient.invalidateQueries(['allowanceType']);
+      await queryClient.refetchQueries(['allowanceType']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation type successfully deleted.');
     },
@@ -123,7 +123,7 @@ export const useEditAllowanceType = () => {
     },
     {
       onSuccess: async (unused: any, variables: any) => {
-        await queryClient.invalidateQueries('allowanceType');
+        await queryClient.invalidateQueries(['allowanceType']);
         await queryClient.refetchQueries(['allowanceType']);
         const method = variables?.method?.toUpperCase?.();
         handleSuccessMessage(method, 'Compensation type successfully updated.');
@@ -168,8 +168,9 @@ const updateCompensation = async ({
 export const useUpdateCompensationStatus = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompensationStatus, {
-    onSuccess: (unused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceType');
+    onSuccess: async (unused: any, variables: any) => {
+      await queryClient.invalidateQueries(['allowanceType']);
+      await queryClient.refetchQueries(['allowanceType']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation status successfully updated.');
     },
@@ -179,8 +180,9 @@ export const useUpdateCompensationStatus = () => {
 export const useUpdateCompensation = () => {
   const queryClient = useQueryClient();
   return useMutation(updateCompensation, {
-    onSuccess: (unused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceType');
+    onSuccess: async (unused: any, variables: any) => {
+      await queryClient.invalidateQueries(['allowanceType']);
+      await queryClient.refetchQueries(['allowanceType']);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method, 'Compensation status successfully updated.');
     },

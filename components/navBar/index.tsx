@@ -15,6 +15,7 @@ import {
   MdWidgets,
   MdHowToReg,
   MdAdminPanelSettings,
+  MdSpeed,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -56,10 +57,10 @@ import { useGetActiveFiscalYearsData } from '@/store/server/features/organizatio
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
-import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
-import dayjs from 'dayjs';
-import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+// import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
+// import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+// import dayjs from 'dayjs';
+// import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
@@ -239,7 +240,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
   const { userData } = useAuthenticationStore();
-  const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
+  // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
     setTenantId,
@@ -435,6 +436,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         children: [
           {
             title: (
+              <span data-cy="nav-tree-manage-employees-dashboard">
+                Dashboard
+              </span>
+            ),
+            key: '/employees/dashboard',
+            className: 'font-bold',
+            permissions: ['view_employees_dashboard'],
+          },
+          {
+            title: (
               <span data-cy="nav-tree-manage-employees">Manage Employees</span>
             ),
             key: '/employees/manage-employees',
@@ -509,6 +520,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['manage_recruitment_settings'],
           },
         ],
+      },
+      {
+        icon: <MdSpeed style={{ fontSize: 20 }} />,
+        title: 'Dashboard',
+        key: '/performance-menu',
+        className: 'font-bold',
+        permissions: ['view_okr'],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
       },
       {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
@@ -1131,7 +1151,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       .filter((item): item is NonNullable<typeof item> => item !== null);
 
     const treeItemMap = new Map<string, (typeof accessibleTreeItems)[0]>();
-    const treeItemByRouteMap = new Map<string, (typeof accessibleTreeItems)[0]>();
+    const treeItemByRouteMap = new Map<
+      string,
+      (typeof accessibleTreeItems)[0]
+    >();
     accessibleTreeItems.forEach((item) => {
       treeItemMap.set(String(item.title).toLowerCase().trim(), item);
 
@@ -1289,6 +1312,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 { key: 'skeleton-performance-item-1' },
                 { key: 'skeleton-performance-item-2' },
                 { key: 'skeleton-performance-item-3' },
+                { key: 'skeleton-performance-item-4' },
               ],
             },
             {
@@ -1304,36 +1328,37 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ],
     [groupedMenuItems],
   );
-  const { mutate: employeeInfo } = useCreateEmployee();
-  const handleUserInfoUpdate = () => {
-    const fullName = employeeData?.firstName?.split(' ') || [];
-    const payloadUser = {
-      firstName: fullName[0] || '-',
-      middleName: fullName[1] || '-',
-      lastName: fullName[2] || '-',
-    };
-    const payloadEmp = {
-      joinedDate: employeeData?.createdAt
-        ? new Date(employeeData?.createdAt).toISOString()
-        : new Date().toISOString(),
-      dateOfBirth: dayjs().subtract(30, 'year'),
-      employeeAttendanceId: 1,
-      gender: 'male',
-      maritalStatus: 'SINGLE',
-      addresses: {},
-      additionalInformation: {},
-      bankInformation: {},
-      userId: userId,
-    };
+  // const { mutate: employeeInfo } = useCreateEmployee();
 
-    updateEmployeeInformation({
-      id: userId,
-      values: payloadUser,
-    });
-    employeeInfo({
-      values: payloadEmp,
-    });
-  };
+  // const handleUserInfoUpdate = () => {
+  //   const fullName = employeeData?.firstName?.split(' ') || [];
+  //   const payloadUser = {
+  //     firstName: fullName[0] || '-',
+  //     middleName: fullName[1] || '-',
+  //     lastName: fullName[2] || '-',
+  //   };
+  //   const payloadEmp = {
+  //     joinedDate: employeeData?.createdAt
+  //       ? new Date(employeeData?.createdAt).toISOString()
+  //       : new Date().toISOString(),
+  //     dateOfBirth: dayjs().subtract(30, 'year'),
+  //     employeeAttendanceId: 1,
+  //     gender: 'male',
+  //     maritalStatus: 'SINGLE',
+  //     addresses: {},
+  //     additionalInformation: {},
+  //     bankInformation: {},
+  //     userId: userId,
+  //   };
+
+  //   updateEmployeeInformation({
+  //     id: userId,
+  //     values: payloadUser,
+  //   });
+  //   employeeInfo({
+  //     values: payloadEmp,
+  //   });
+  // };
 
   // Render the component with the layout and navigation on the left
 
@@ -1631,24 +1656,24 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           ) : (
             <div
               data-cy="nav-content-inner"
-              className="overflow-auto"
+              className="overflow-auto scrollbar-hide"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                paddingRight: 24,
-                paddingLeft: 24,
+                paddingRight: isMobile ? 8 : 24,
+                paddingLeft: isMobile ? 8 : 24,
                 background: '#ffffff',
               }}
             >
               {children}
             </div>
           )}
-          <CreateEmployeeJobInformation
+          {/* <CreateEmployeeJobInformation
             onInfoSubmition={() => {
               handleUserInfoUpdate();
             }}
             id={userId}
-          />
+          /> */}
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}

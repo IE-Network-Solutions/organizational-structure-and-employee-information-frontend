@@ -24,6 +24,24 @@
   display: none;
 }
 
+/* Timesheet employee attendance table: hide scrollbars (keep scrolling) */
+#time-attendance-employee-attendance-table-scroll-wrapper {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content,
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
+#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
 /* Org Structure chart: smooth layout transitions on collapse/expand */
 .org-structure-flow .react-flow__node,
 .org-structure-flow .xyflow__node {
@@ -161,6 +179,20 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
   /* Safari and Chrome */
+}
+
+/* Stronger hide on small viewports (Ant Design modal body, iOS) */
+@media (max-width: 639px) {
+  .hide-scrollbar-mobile {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar-mobile::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    background: transparent !important;
+  }
 }
 
 /* Leaflet Map Styles */
@@ -1009,6 +1041,36 @@ h6 {
   }
 }
 
+/* Galaxy Fold / very narrow screens: prevent tabs + extra button overlap */
+@media (max-width: 320px) {
+  .org-settings-tabs-foldfix .ant-tabs-nav {
+    flex-wrap: wrap !important;
+    row-gap: 8px;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-nav-wrap {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-nav-list {
+    max-width: 100% !important;
+    overflow-x: auto;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-extra-content {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-left: 0 !important;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-extra-content .ant-btn {
+    margin-left: 0 !important;
+  }
+}
+
 /* Offline indicator styles */
 .offline-indicator {
   position: fixed;
@@ -1230,6 +1292,7 @@ h6 {
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   background-color: #e6f4ff !important; /* light blue background */
+  position: relative;
 }
 
 .org-structure-branch-select-dropdown
@@ -1237,20 +1300,16 @@ h6 {
   .ant-select-item-option-content {
   color: #111827 !important; /* keep text dark */
   font-weight: 400;
+  padding-right: 28px; /* room for single ✓ on the right */
 }
 
-/* Re-enable the checkmark icon inside this dropdown only */
+/* Single ✓ (Talent Pool Category + multi-select Candidate): Ant’s state icon + ::after produced a double tick; hide state and use one drawn tick only */
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
   .ant-select-item-option-state {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  color: #1677ff !important; /* AntD primary blue */
-  font-size: 14px;
+  display: none !important;
 }
 
-/* Fallback: draw a custom checkmark on the right for selected option */
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(
     .ant-select-item-option-disabled
@@ -1262,52 +1321,7 @@ h6 {
   transform: translateY(-50%);
   color: #1677ff;
   font-size: 14px;
-  pointer-events: none;
-}
-
-/* Org Structure: Department Branch Select dropdown styling */
-.org-structure-branch-select-dropdown.ant-select-dropdown {
-  border-radius: 12px;
-  box-shadow:
-    0 12px 30px rgba(15, 23, 42, 0.12),
-    0 0 0 1px rgba(148, 163, 184, 0.12);
-}
-
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-  background-color: #e6f4ff !important; /* light blue background */
-}
-
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-  .ant-select-item-option-content {
-  color: #111827 !important; /* keep text dark */
-  font-weight: 400;
-}
-
-/* Re-enable the checkmark icon inside this dropdown only */
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
-  .ant-select-item-option-state {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  color: #1677ff !important; /* AntD primary blue */
-  font-size: 14px;
-}
-
-/* Fallback: draw a custom checkmark on the right for selected option */
-.org-structure-branch-select-dropdown
-  .ant-select-item-option-selected:not(
-    .ant-select-item-option-disabled
-  )::after {
-  content: '✓';
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #1677ff;
-  font-size: 14px;
+  line-height: 1;
   pointer-events: none;
 }
 
@@ -1664,4 +1678,15 @@ h6 {
     left: auto !important;
     right: 12px !important;
   }
+}
+
+/* OKR settings dropdown menu (Edit OKR / Delete OKR) */
+.okr-settings-menu-dropdown .ant-dropdown-menu-item {
+  padding: 0 !important;
+  height: 32px !important;
+  width: 145px !important;
+}
+.okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
+  padding: 0 !important;
+  margin: 0 !important;
 }

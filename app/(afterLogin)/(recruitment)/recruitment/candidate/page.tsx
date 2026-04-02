@@ -11,13 +11,24 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
-import { Button, Card, DatePicker, Row, Col, Select, Popover } from 'antd';
+import {
+  Breadcrumb,
+  Button,
+  Card,
+  DatePicker,
+  Row,
+  Col,
+  Select,
+  Popover,
+  Divider,
+} from 'antd';
 import { theme } from 'antd';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { MdClose } from 'react-icons/md';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -214,7 +225,7 @@ const AllCandidates: React.FC = () => {
           onClick={() => setShowFilters(false)}
           data-cy="talent-acquisition-candidate-page-filter-modal-close"
         >
-          ×
+          <MdClose size={22} />
         </button>
         <h3
           className="text-lg font-semibold text-gray-900 m-0"
@@ -363,22 +374,15 @@ const AllCandidates: React.FC = () => {
       >
         <Button
           onClick={handleResetFilters}
-          className="px-4"
+          className="px-4 transition-colors text-normal font-normal border border-gray-300 text-black/70 shadow-none"
           data-cy="talent-acquisition-candidate-page-filter-modal-reset-button"
-          style={{ borderColor: '#D9D9D9' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = token.colorPrimaryHover;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = '#D9D9D9';
-          }}
         >
           Reset
         </Button>
         <Button
           type="primary"
           onClick={handleSaveFilters}
-          className="px-4"
+          className="px-4 transition-colors text-normal font-normal text-white shadow-none"
           data-cy="talent-acquisition-candidate-page-filter-modal-save-button"
         >
           Save Filter
@@ -388,45 +392,75 @@ const AllCandidates: React.FC = () => {
   );
 
   return (
-    <div
-      id="talent-acquisition-candidate-page-div-container"
-      data-cy="talent-acquisition-candidate-page-div-container"
-      className="h-auto w-full py-4 sm:py-6"
-    >
-      <Card
+    <>
+      <style data-cy="talent-acquisition-candidate-page-styles">{`
+        @media (min-width: 640px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+            min-width: calc(100% + 48px) !important;
+          }
+          @media (max-width: 768px) {
+            .full-bleed-header-divider {
+              width: calc(100% + 48px) !important;
+              margin-left: -24px !important;
+              margin-right: -24px !important;
+            }
+          }
+        }
+      `}</style>
+      <div
+        id="talent-acquisition-candidate-page-div-container"
+        data-cy="talent-acquisition-candidate-page-div-container"
+        className="h-auto w-full"
+      >
+        <Card
+        bordered={false}
         data-cy="talent-acquisition-candidate-card"
-        className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
+        className="w-full border-none shadow-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:border-b-0 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:border-b-0 [&_.ant-card-body]:px-0 [&_.ant-card-body]:pb-0 [&_.ant-card-body]:pt-0"
         title={
           <div
-            className="px-4 sm:px-6 py-0.5"
             data-cy="talent-acquisition-candidate-breadcrumb-container"
           >
             <CustomBreadcrumb
-              compact
               title={
                 <span
-                  className="text-lg sm:text-2xl font-bold text-[#000000B2]"
+                  className="text-xl text-[#000000B2]"
                   data-cy="talent-acquisition-candidate-breadcrumb-title"
                 >
                   Candidates
                 </span>
               }
               subtitle={
-                <>
-                  <span
-                    className="text-slate-500"
-                    data-cy="talent-acquisition-candidate-breadcrumb-prefix"
-                  >
-                    Talent Acquisition /{' '}
-                  </span>
-                  <span
-                    className="text-[#000000B2]"
-                    data-cy="talent-acquisition-candidate-breadcrumb-current"
-                  >
-                    Candidates
-                  </span>
-                </>
+                <Breadcrumb
+                  data-cy="talent-acquisition-candidate-breadcrumb-trail"
+                  items={[
+                    {
+                      title: (
+                        <span
+                          className="text-xs text-slate-500"
+                          data-cy="talent-acquisition-candidate-breadcrumb-prefix"
+                        >
+                          Talent Acquisition
+                        </span>
+                      ),
+                    },
+                    {
+                      title: (
+                        <span
+                          className="text-xs text-[#000000B2]"
+                          data-cy="talent-acquisition-candidate-breadcrumb-current"
+                        >
+                          Candidates
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
               }
+              titleClassName="!text-xl !font-bold !leading-7 !text-[#000000B2]"
+              rootClassName="gap-1.5 py-1"
               data-cy="talent-acquisition-candidate-breadcrumb"
             />
           </div>
@@ -435,7 +469,7 @@ const AllCandidates: React.FC = () => {
           <div
             id="talent-acquisition-candidate-page-div-buttons"
             data-cy="talent-acquisition-candidate-page-div-buttons"
-            className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 my-2 sm:my-4 px-4 sm:px-6"
+            className="flex flex-wrap items-center justify-end gap-2 sm:gap-4"
           >
             {selectedCandidate?.length > 0 && (
               <div
@@ -516,10 +550,15 @@ const AllCandidates: React.FC = () => {
           </div>
         }
       >
+        <Divider
+          className="full-bleed-header-divider"
+          style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+          data-cy="talent-acquisition-candidate-page-header-divider"
+        />
         <div
           id="talent-acquisition-candidate-page-div-table"
           data-cy="talent-acquisition-candidate-page-div-table"
-          className="mt-0 sm:mt-2 w-full h-auto bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden"
+          className="mt-0 sm:mt-2 w-full h-auto bg-white rounded-md rounded-b-none border-x border-t border-gray-200 shadow-sm overflow-hidden"
         >
           <div
             className="px-0 sm:px-0 py-4 bg-white"
@@ -605,7 +644,7 @@ const AllCandidates: React.FC = () => {
                       className="text-gray-600"
                     />
                   }
-                  className="h-8 sm:h-10 flex items-center gap-2 rounded-lg border text-gray-700 bg-white text-xs sm:text-sm transition-colors shrink-0"
+                  className="h-8 flex items-center gap-2 rounded-lg border text-gray-700 bg-white text-xs sm:text-sm transition-colors shrink-0"
                   id="talent-acquisition-candidate-page-filter-button"
                   data-cy="talent-acquisition-candidate-page-filter-button"
                   style={{
@@ -641,8 +680,9 @@ const AllCandidates: React.FC = () => {
             <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
           </div>
         </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 };
 

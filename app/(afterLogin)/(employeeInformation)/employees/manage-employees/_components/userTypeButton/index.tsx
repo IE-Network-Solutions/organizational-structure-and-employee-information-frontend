@@ -1,35 +1,35 @@
-import { Button } from 'antd';
+import { Button, Tag } from 'antd';
 
 const userTypeButton = (val: string) => {
   if (val === 'On Boarding') {
     return (
-      <Button
+      <Tag
         id="roleTypeOwner"
         data-cy="roleTypeOwner"
-        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
+        className="text-sky-600 text-xs font-normal px-2 bg-white border border-sky-600 hover:bg-sky-50 h-[22px]"
       >
         ON BOARDING
-      </Button>
+      </Tag>
     );
   } else if (val === 'Permanent') {
     return (
-      <Button
+      <Tag
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-black text-xs font-medium w-[90px] px-[20px] bg-white border border-[#d9d9d9]"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
         Permanent
-      </Button>
+      </Tag>
     );
   } else if (val === 'Probation') {
     return (
-      <Button
+      <Tag
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-black text-xs font-medium w-[90px] px-[20px] bg-white border border-[#d9d9d9]"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
-        PROBATION
-      </Button>
+        Probation
+      </Tag>
     );
   } else if (val === 'On Leave') {
     return (
@@ -53,23 +53,23 @@ const userTypeButton = (val: string) => {
     );
   } else if (val === 'Active') {
     return (
-      <Button
+      <Tag
         id="roleTypeActive"
         data-cy="roleTypeActive"
-        className="text-[#1677ff] text-xs font-medium w-[90px] px-[20px] bg-[#e6f4ff] border border-[#91caff]"
+        className="text-[#1677ff] text-sm font-normal px-2 bg-[#e6f4ff] border border-[#91caff] h-[22px]"
       >
         Active
-      </Button>
+      </Tag>
     );
   } else if (val === 'InActive') {
     return (
-      <Button
+      <Tag
         id="roleTypeInActive"
         data-cy="roleTypeInActive"
-        className="text-[#ff4d4f] text-xs font-medium w-[90px] px-[20px] bg-[#fff1f0] border border-[#ffccc7]"
+        className="text-[#ff4d4f] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffccc7] h-[22px]"
       >
         InActive
-      </Button>
+      </Tag>
     );
   } else {
     return (

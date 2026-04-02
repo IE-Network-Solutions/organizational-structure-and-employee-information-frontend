@@ -1,5 +1,5 @@
 'use client';
-import { Card } from 'antd';
+import { Card, Tag } from 'antd';
 import { RolePermissionCardProps } from '@/types/dashboard/adminManagement';
 import KebabMenu from '@/components/common/kebabMenu';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
@@ -84,20 +84,20 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
             data-cy="settings-role-card-permissions-groups-container"
             className="flex flex-wrap gap-2 mt-3"
           >
-            <span
-              className="inline-flex items-center p-2 rounded-md text-xs font-medium bg-gray-50 text-gray-600 border border-[#d9d9d9]"
+            <Tag
+              className="rounded-md border border-[#d9d9d9] text-xs font-normal text-[#9ca3af] py-1 px-2"
               id={`settings-role-card-permissions-pill-${props?.item?.id}`}
               data-cy={`settings-role-card-permissions-pill-${props?.item?.id}`}
             >
               {permissionCount} Permission{permissionCount !== 1 ? 's' : ''}
-            </span>
-            <span
-              className="inline-flex items-center p-2 rounded-md text-xs font-medium bg-gray-50 text-gray-600 border border-[#d9d9d9]"
+            </Tag>
+            <Tag
+              className="rounded-md border border-[#d9d9d9] text-xs font-normal text-[#9ca3af] py-1 px-2"
               id={`settings-role-card-groups-pill-${props?.item?.id}`}
               data-cy={`settings-role-card-groups-pill-${props?.item?.id}`}
             >
               {groupCount} Group{groupCount !== 1 ? 's' : ''}
-            </span>
+            </Tag>
           </div>
         </div>
         <div
@@ -111,7 +111,7 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
           >
             <button
               id={`cardIdComponent${props?.item?.id}`}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800 h-6 w-6"
               onClick={() => props?.handleButtonClick(props?.item?.id)}
               data-cy={`settings-role-card-menu-btn-${props?.item?.id}`}
             >
