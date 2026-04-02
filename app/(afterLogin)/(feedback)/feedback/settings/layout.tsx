@@ -12,6 +12,7 @@ import {
   Modal,
 } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -76,6 +77,12 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     useGetRecognitionTypeById(
       recognitionCategoryEditId?.trim() ? recognitionCategoryEditId : null,
     );
+
+  const handleRecognitionCategoryModalClose = () => {
+    setOpenRecognitionCategoryModal(false);
+    setRecognitionCategoryEditId('');
+    categoryForm.resetFields();
+  };
   const { mutate: createCategory, isLoading: isCreatingCategory } =
     useAddRecognitionType();
   const { mutate: updateCategory, isLoading: isUpdatingCategory } =
@@ -322,12 +329,21 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
 
       <Modal
         title={
-          <span data-cy="recognition-category-modal-title">
-            {recognitionCategoryEditId?.trim()
-              ? 'Edit Category'
-              : 'New Category'}
-          </span>
+          <SettingsModalHeader
+            title={
+              <span data-cy="recognition-category-modal-title">
+                {recognitionCategoryEditId?.trim()
+                  ? 'Edit Category'
+                  : 'New Category'}
+              </span>
+            }
+            onClose={handleRecognitionCategoryModalClose}
+            data-cy="recognition-category-modal-header"
+            titleDataCy="recognition-category-modal-title"
+            closeDataCy="recognition-category-modal-close-button"
+          />
         }
+        closeIcon={null}
         centered={!isMobileViewport}
         open={openRecognitionCategoryModal}
         width={isMobileViewport ? '100%' : undefined}
@@ -347,17 +363,12 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               }
             : undefined
         }
-        onCancel={() => {
-          setOpenRecognitionCategoryModal(false);
-          setRecognitionCategoryEditId('');
-          categoryForm.resetFields();
-        }}
+        onCancel={handleRecognitionCategoryModalClose}
         okText={recognitionCategoryEditId?.trim() ? 'Update' : 'Create'}
         confirmLoading={isCreatingCategory || isUpdatingCategory}
         onOk={() => categoryForm.submit()}
         styles={{
           body: {
-            paddingTop: 8,
             maxHeight: isMobileViewport ? 'calc(100vh - 220px)' : undefined,
             overflowY: isMobileViewport ? 'auto' : undefined,
           },

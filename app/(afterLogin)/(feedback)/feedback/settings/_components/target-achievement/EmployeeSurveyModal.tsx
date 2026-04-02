@@ -14,6 +14,7 @@ import {
 } from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import { useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { MdCheck } from 'react-icons/md';
 
@@ -282,14 +283,15 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
     <Modal
       open={open}
       onCancel={handleClose}
+      closeIcon={null}
       title={
-        <span
-          className="text-lg font-extrabold text-gray-800"
+        <SettingsModalHeader
+          title={modalTitle}
+          onClose={handleClose}
           data-cy="employee-survey-modal-header"
           id="employeeSurveyModalHeader"
-        >
-          {modalTitle}
-        </span>
+          closeDataCy="employee-survey-modal-close-button"
+        />
       }
       footer={footer}
       destroyOnClose

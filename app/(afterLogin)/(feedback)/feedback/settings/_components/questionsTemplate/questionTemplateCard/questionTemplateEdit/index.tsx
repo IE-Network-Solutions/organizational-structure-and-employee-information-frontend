@@ -5,6 +5,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useUpdateQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import { v4 as uuidv4 } from 'uuid';
 import { FieldType } from '@/types/enumTypes';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 
 const { Option } = Select;
 
@@ -54,7 +55,15 @@ const EditQuestionTemplate: React.FC<{
     questionModal && (
       <Modal
         centered
-        title="Edit Question"
+        title={
+          <SettingsModalHeader
+            title="Edit Question"
+            onClose={onClose}
+            data-cy="edit-question-template-modal-header"
+            closeDataCy="edit-question-template-modal-close-button"
+          />
+        }
+        closeIcon={null}
         open={true}
         onCancel={onClose}
         footer={null}

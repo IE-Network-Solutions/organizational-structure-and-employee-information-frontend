@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Form, Input, Select, Button, Modal, Steps, Row, Col, Tag } from 'antd';
 import type { TextAreaRef } from 'antd/es/input/TextArea';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   useGetAllCriteria,
@@ -243,24 +244,26 @@ const RecognitionForm: React.FC<PropsData> = ({
   }, [isWizardOpen, selectedRecognitionType, refetchFormulaById]);
 
   const modalHeader = (
-    <div
-      className="flex justify-start text-xl text-gray-800 p-4"
+    <SettingsModalHeader
+      title={
+        <span
+          data-cy="create-recognition-drawer-header-text"
+          className="text-base font-bold"
+        >
+          {selectedRecognitionType === ''
+            ? 'Recognition Category'
+            : editType == 'formula'
+              ? 'Edit Formula'
+              : isCriteriaOnlyEdit
+                ? 'Recognition Criterion Edit '
+                : 'Update Recognition Category'}
+        </span>
+      }
+      onClose={handleWizardClose}
       data-cy="create-recognition-drawer-header"
       id="createRecognitionDrawerHeader"
-    >
-      <span
-        data-cy="create-recognition-drawer-header-text"
-        className="text-base font-bold"
-      >
-        {selectedRecognitionType === ''
-          ? 'Recognition Category'
-          : editType == 'formula'
-            ? 'Edit Formula'
-            : isCriteriaOnlyEdit
-              ? 'Recognition Criterion Edit '
-              : 'Update Recognition Category'}
-      </span>
-    </div>
+      closeDataCy="create-recognition-modal-close-button"
+    />
   );
 
   // This function will calculate the total weight of all criteria
@@ -1164,6 +1167,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   `}</style>
       <Modal
         title={modalHeader}
+        closeIcon={null}
         open={isWizardOpen}
         onCancel={handleWizardClose}
         footer={null}
@@ -2361,7 +2365,15 @@ const RecognitionForm: React.FC<PropsData> = ({
           <Modal
             centered={!isMobileViewport}
             width={isMobileViewport ? '100%' : undefined}
-            title=""
+            title={
+              <SettingsModalHeader
+                title="Create criterion"
+                onClose={() => setIsModalVisible(false)}
+                data-cy="create-recognition-criteria-modal-header"
+                closeDataCy="create-recognition-criteria-modal-close-button"
+              />
+            }
+            closeIcon={null}
             open={isModalVisible}
             onCancel={() => setIsModalVisible(false)}
             style={
@@ -2415,7 +2427,6 @@ const RecognitionForm: React.FC<PropsData> = ({
                   : {}),
               },
               body: {
-                paddingTop: 0,
                 maxHeight: isMobileViewport ? 'calc(100vh - 240px)' : undefined,
                 overflowY: isMobileViewport ? 'auto' : undefined,
               },

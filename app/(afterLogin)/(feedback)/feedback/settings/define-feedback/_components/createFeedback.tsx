@@ -15,6 +15,7 @@ import {
 } from '@/store/server/features/CFR/feedback/mutations';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 
 const CreateFeedback: React.FC = () => {
   const [form] = Form.useForm();
@@ -127,20 +128,24 @@ const CreateFeedback: React.FC = () => {
   };
 
   const modalHeader = (
-    <div
-      className="flex items-center justify-start text-xl font-extrabold text-gray-800 p-4"
+    <SettingsModalHeader
+      onClose={onCloseHandler}
       data-cy="create-feedback-modal-header"
-    >
-      <div className="" data-cy="create-feedback-modal-header-title">
-        {settingActiveTab === 'perspective'
-          ? selectedFeedback === null
-            ? 'Add New Perspective'
-            : 'Edit Perspective'
-          : selectedFeedback === null
-            ? `New ${feedbackModalType} ${settingActiveTab} Type`
-            : `Edit ${settingActiveTab}`}
-      </div>
-    </div>
+      titleDataCy="create-feedback-modal-header-title"
+      closeDataCy="create-feedback-modal-header-close-button"
+      closeId="createFeedbackModalHeaderCloseButton"
+      title={
+        <>
+          {settingActiveTab === 'perspective'
+            ? selectedFeedback === null
+              ? 'Add New Perspective'
+              : 'Edit Perspective'
+            : selectedFeedback === null
+              ? `New ${feedbackModalType} ${settingActiveTab} Type`
+              : `Edit ${settingActiveTab}`}
+        </>
+      }
+    />
   );
   const requiredLabel = (label: string, requiredDataCy: string) => (
     <span data-cy={`${requiredDataCy}-label-wrapper`}>
@@ -154,7 +159,7 @@ const CreateFeedback: React.FC = () => {
   return (
     <Modal
       open={Boolean(open || selectedFeedback?.id)}
-      onCancel={onCloseHandler}
+      closeIcon={null}
       footer={
         <div
           className="w-full flex justify-end space-x-2"

@@ -6,6 +6,7 @@ import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/surve
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Button, Form, Input, Modal, Select } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import React, { useEffect } from 'react';
 
 interface CategoryFormValues {
@@ -102,13 +103,21 @@ const CreateSurvayCategory = () => {
   return (
     <Modal
       title={
-        <span
-          className="text-lg font-semibold text-gray-900"
-          data-cy="create-survey-category-modal-title"
-        >
-          Survey Category
-        </span>
+        <SettingsModalHeader
+          title={
+            <span
+              className="text-lg font-semibold text-gray-900"
+              data-cy="create-survey-category-modal-title"
+            >
+              Survey Category
+            </span>
+          }
+          onClose={handleCloseDrawer}
+          data-cy="create-survey-category-modal-header"
+          closeDataCy="create-survey-category-modal-close-button"
+        />
       }
+      closeIcon={null}
       open={openSurveyCategoryModal}
       onCancel={handleCloseDrawer}
       footer={footer}
@@ -144,8 +153,6 @@ const CreateSurvayCategory = () => {
       }}
       classNames={{
         content: 'rounded-xl overflow-hidden',
-        header: 'pb-2 border-b border-[#D9D9D9]',
-        body: 'pt-4 pb-2',
       }}
       data-cy="create-survey-category-modal"
     >

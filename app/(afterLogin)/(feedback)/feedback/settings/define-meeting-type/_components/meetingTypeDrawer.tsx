@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 import { Button, Form, Input, Modal } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import React, { useEffect } from 'react';
 
 interface MeetingTypeDrawerProps {
@@ -70,11 +71,11 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
     <Modal
       open={open}
       onCancel={handleDrawerClose}
+      closeIcon={null}
       footer={null}
       centered={!isMobileViewport}
       width={isMobileViewport ? '100%' : 780}
       destroyOnClose
-      bodyStyle={{ paddingTop: 8 }}
       style={
         isMobileViewport
           ? {
@@ -100,13 +101,20 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           : undefined,
       }}
       title={
-        <div
-          className="text-4 font-semibold text-gray-700"
-          data-cy="meeting-type-drawer-header"
-          id="meetingTypeDrawerHeader"
-        >
-          Meeting Type
-        </div>
+        <SettingsModalHeader
+          title={
+            <span
+              className="text-base font-semibold text-gray-700"
+              data-cy="meeting-type-drawer-header"
+              id="meetingTypeDrawerHeader"
+            >
+              Meeting Type
+            </span>
+          }
+          onClose={handleDrawerClose}
+          data-cy="meeting-type-modal-header"
+          closeDataCy="meeting-type-modal-close-button"
+        />
       }
       data-cy="meeting-type-drawer"
     >

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Modal } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import { MdClose } from 'react-icons/md';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -50,13 +51,26 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
     <Modal
       open={open}
       onCancel={onClose}
+      closeIcon={null}
       footer={null}
       centered={!isMobileViewport}
       width={isMobileViewport ? '100%' : 720}
       destroyOnClose
-      // Keep modal content static; agenda section handles its own scroll.
-      bodyStyle={{ paddingTop: 0 }}
-      title={null}
+      title={
+        <SettingsModalHeader
+          title={
+            <span data-cy="meeting-template-drawer-header-text">
+              {initialValues
+                ? 'Update Meeting Template'
+                : 'Add New Meeting Template'}
+            </span>
+          }
+          onClose={onClose}
+          data-cy="meeting-template-drawer-header"
+          id="meetingTemplateDrawerHeader"
+          closeDataCy="meeting-template-modal-close-button"
+        />
+      }
       style={
         isMobileViewport
           ? {
@@ -84,17 +98,6 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
       data-cy="meeting-template-drawer"
     >
       <div data-cy="meeting-template-drawer-inner">
-        <div
-          className="flex justify-start text-xl font-extrabold text-gray-800 p-4"
-          data-cy="meeting-template-drawer-header"
-          id="meetingTemplateDrawerHeader"
-        >
-          <span data-cy="meeting-template-drawer-header-text">
-            {initialValues
-              ? 'Update Meeting Template'
-              : 'Add New Meeting Template'}
-          </span>
-        </div>
         <Form
           form={form}
           layout="vertical"
