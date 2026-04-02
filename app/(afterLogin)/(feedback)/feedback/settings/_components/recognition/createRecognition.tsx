@@ -1118,6 +1118,48 @@ const RecognitionForm: React.FC<PropsData> = ({
     .recognition-steps--hide-title .ant-steps-item-description {
       display: none !important;
     }
+    /*
+     * Mobile (titles hidden): Ant Design progress-dot uses descriptionMaxWidth (140px)
+     * per .ant-steps-item-content — three steps need far more horizontal space than a
+     * phone row, so the last dot clips. Shrink the content column + tail margins so
+     * three dots + connectors fit; keep full row width so nothing is pushed off-screen.
+     */
+    .recognition-steps--hide-title {
+      overflow-x: visible;
+    }
+    .recognition-steps--hide-title .ant-steps.ant-steps-horizontal.ant-steps-dot {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    .recognition-steps--hide-title
+      .ant-steps-horizontal.ant-steps-dot
+      .ant-steps-item {
+      overflow: visible !important;
+    }
+    .recognition-steps--hide-title
+      .ant-steps-horizontal.ant-steps-dot
+      .ant-steps-item-content {
+      width: 28px !important;
+      min-width: 28px !important;
+      max-width: 28px !important;
+    }
+    .recognition-steps--hide-title
+      .ant-steps-horizontal.ant-steps-dot
+      .ant-steps-item-icon {
+      margin-inline-start: 0 !important;
+    }
+    .recognition-steps--hide-title
+      .ant-steps-horizontal.ant-steps-dot
+      .ant-steps-item-process
+      .ant-steps-item-icon {
+      margin-inline-start: 0 !important;
+    }
+    .recognition-steps--hide-title
+      .ant-steps-horizontal.ant-steps-dot
+      .ant-steps-item-tail {
+      margin-inline: 0 !important;
+    }
   `}</style>
       <Modal
         title={modalHeader}
@@ -1181,6 +1223,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           >
             <Steps
               direction="horizontal"
+              responsive={false}
               size="small"
               progressDot={true}
               current={currentStep}
