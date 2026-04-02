@@ -76,6 +76,7 @@ const FileButton: FC<FileButtonProps> = ({
       </div>
 
       <a
+        data-cy="file-button-download-link"
         target="_blank"
         href={link}
         className="border border-[#D9D9D9] rounded-lg h-8 w-8 flex items-center justify-center"

@@ -1,17 +1,10 @@
 'use client';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import 'react-quill/dist/quill.snow.css';
-import { CourseLessonMaterial } from '@/types/tna/course';
-import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import ReactPlayer from 'react-player';
 import FileButton from '@/components/common/fileButton';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
-
-interface NextAndPrevLesson {
-  next: CourseLessonMaterial | null;
-  prev: CourseLessonMaterial | null;
-}
 
 const LessonPage = () => {
   const router = useRouter();
@@ -20,29 +13,7 @@ const LessonPage = () => {
     typeof params.materialId === 'string'
       ? params.materialId
       : params.materialId?.[0];
-  const [nextAndPrev, setNextAndPrev] = useState<NextAndPrevLesson>({
-    next: null,
-    prev: null,
-  });
   const { lesson, lessonMaterial } = useTnaManagementCoursePageStore();
-
-  useEffect(() => {
-    if (lessonMaterial && lesson) {
-      const getCurrentIdx = lesson.courseLessonMaterials.findIndex(
-        (m) => m.id === lessonMaterial.id,
-      );
-      setNextAndPrev({
-        next:
-          getCurrentIdx >= lesson.courseLessonMaterials.length
-            ? null
-            : lesson.courseLessonMaterials[getCurrentIdx + 1],
-        prev:
-          getCurrentIdx <= 0
-            ? null
-            : lesson.courseLessonMaterials[getCurrentIdx - 1],
-      });
-    }
-  }, [lessonMaterial, lesson]);
 
   return (
     lessonMaterial && (
