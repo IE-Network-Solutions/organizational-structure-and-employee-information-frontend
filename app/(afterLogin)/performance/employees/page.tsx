@@ -10,21 +10,23 @@ import { MdKeyboardArrowLeft } from 'react-icons/md';
 export default function EmployeesOKRPage() {
   return (
     <div className="min-h-screen py-4" data-cy="okr-all-employee-page">
-      <header className="mb-4" data-cy="performance-employees-header">
+      <header className="mb-4 flex items-center gap-2" data-cy="performance-employees-header">
+      <Link
+      href="/performance"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
+      aria-label="Back to performance"
+      data-cy="performance-employees-back"
+    >
+      <MdKeyboardArrowLeft size={16} />
+    </Link>
         <CustomBreadcrumb
+        compact={true}
           title={
             <div
               className="flex items-center gap-3"
               data-cy="performance-employees-title-row"
             >
-              <Link
-                href="/performance"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
-                aria-label="Back to performance"
-                data-cy="performance-employees-back"
-              >
-                <MdKeyboardArrowLeft />
-              </Link>
+            
               <span
                 className="text-2xl font-bold text-black"
                 data-cy="performance-employees-title-text"
