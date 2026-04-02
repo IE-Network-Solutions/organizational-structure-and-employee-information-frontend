@@ -1,7 +1,11 @@
 export type DataItem = {
-  actionPlan: string;
-  description: string;
-  responsiblePerson: string;
+  issue?: string;
+  actionToBeTaken: string;
+  description?: string;
+  responsiblePerson: string[];
+  status: string;
+  priority: string;
+  deadline?: string;
 };
 
 export type QuestionsType = {

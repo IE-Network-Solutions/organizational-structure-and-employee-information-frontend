@@ -96,7 +96,7 @@ export default function PerformanceDashboardPage() {
     <div className="h-auto w-full " data-cy="performance-dashboard-page">
       <div className="">
         <div className="flex items-center py-4 justify-between">
-          <h1 className="mb-6 text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900">
             Performance Dashboard
           </h1>
           <div

@@ -4,6 +4,17 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { ActionPlanSourceType } from '@/types/enumTypes';
+
+type CombinedActionPlanParams = {
+  page: number;
+  limit: number;
+  status?: string | null;
+  userId?: string | null;
+  completionStartDate?: string | null;
+  completionEndDate?: string | null;
+  sourceType?: ActionPlanSourceType | string | null;
+  priority?: string | null;
+};
 const getMeetingActionPlan = async (id: string | null) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -66,6 +77,37 @@ const getAllActionPlan = async (
     },
   });
 };
+
+const getCombinedActionPlan = async (paramsInput: CombinedActionPlanParams) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const params = new URLSearchParams({
+    page: paramsInput.page.toString(),
+    limit: paramsInput.limit.toString(),
+  });
+
+  if (paramsInput.status) params.append('status', paramsInput.status);
+  if (paramsInput.userId) params.append('userId', paramsInput.userId);
+  if (paramsInput.completionStartDate) {
+    params.append('completionStartDate', paramsInput.completionStartDate);
+  }
+  if (paramsInput.completionEndDate) {
+    params.append('completionEndDate', paramsInput.completionEndDate);
+  }
+  if (paramsInput.sourceType)
+    params.append('sourceType', paramsInput.sourceType);
+  if (paramsInput.priority) params.append('priority', paramsInput.priority);
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/action-plans/combined?${params.toString()}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 export const useGetMeetingActionPlan = (id: string | null) => {
   return useQuery<any>(
     ['meeting-action-plans', id], // Unique query key based on params
@@ -73,6 +115,25 @@ export const useGetMeetingActionPlan = (id: string | null) => {
     {
       enabled: !!id, // Ensures id is truthy and not null or empty
     },
+  );
+};
+
+export const useGetCombinedActionPlan = (
+  paramsInput: CombinedActionPlanParams,
+) => {
+  return useQuery<any>(
+    [
+      'action-plans-combined',
+      paramsInput.page,
+      paramsInput.limit,
+      paramsInput.status,
+      paramsInput.userId,
+      paramsInput.completionStartDate,
+      paramsInput.completionEndDate,
+      paramsInput.sourceType,
+      paramsInput.priority,
+    ],
+    () => getCombinedActionPlan(paramsInput),
   );
 };
 
