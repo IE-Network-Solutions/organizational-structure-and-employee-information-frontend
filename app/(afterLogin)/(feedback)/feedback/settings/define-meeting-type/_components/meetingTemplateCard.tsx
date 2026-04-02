@@ -95,7 +95,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         </h3>
         <Dropdown
           placement="bottomRight"
-          arrow
+          arrow={false}
           menu={{
             items,
             onClick: ({ key, domEvent }) => {

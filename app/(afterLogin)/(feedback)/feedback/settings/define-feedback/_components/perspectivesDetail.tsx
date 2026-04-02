@@ -100,7 +100,7 @@ const PerspectivesDetail = ({
             <Dropdown
               trigger={['click']}
               placement="bottomRight"
-              arrow
+              arrow={false}
               open={perspectiveOpenDropdownId === item.id}
               onOpenChange={(open) => {
                 if (open) {

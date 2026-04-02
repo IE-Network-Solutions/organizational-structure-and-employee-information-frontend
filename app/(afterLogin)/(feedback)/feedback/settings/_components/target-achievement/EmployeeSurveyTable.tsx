@@ -291,7 +291,7 @@ const EmployeeSurveyTable: React.FC = () => {
           <Dropdown
             trigger={['click']}
             placement="bottomRight"
-            arrow
+            arrow={false}
             menu={{
               items: [
                 {

@@ -62,7 +62,7 @@ const ServayCategoryCard = ({ category }: { category: any }) => {
           <Dropdown
             trigger={['click']}
             placement="bottomRight"
-            arrow
+            arrow={false}
             open={menuOpen}
             onOpenChange={(open) => setMenuOpen(open)}
             menu={{

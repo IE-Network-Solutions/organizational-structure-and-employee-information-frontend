@@ -117,7 +117,7 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
               <Dropdown
                 trigger={['click']}
                 placement="bottomRight"
-                arrow
+                arrow={false}
                 open={feedbackOpenDropdownId === item.id}
                 onOpenChange={(open) => {
                   if (open) {

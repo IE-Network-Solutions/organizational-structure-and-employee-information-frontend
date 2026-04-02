@@ -110,7 +110,7 @@ const DefineMeetingType = () => {
                             <Dropdown
                               trigger={['click']}
                               placement="bottomRight"
-                              arrow
+                              arrow={false}
                               open={
                                 meetingTypeOpenDropdownId === String(item?.id)
                               }

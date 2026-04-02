@@ -319,7 +319,7 @@ export default function RecognitionDetailPage() {
                         <Dropdown
                           trigger={['click']}
                           placement="bottomRight"
-                          arrow
+                          arrow={false}
                           menu={{
                             items: [
                               {

@@ -88,7 +88,7 @@ const Page = () => {
                         <Dropdown
                           trigger={['click']}
                           placement="bottomRight"
-                          arrow
+                          arrow={false}
                           open={recognitionOpenDropdownId === String(item?.id)}
                           onOpenChange={(open) => {
                             if (open) {
