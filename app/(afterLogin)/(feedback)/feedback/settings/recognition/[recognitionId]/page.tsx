@@ -1,7 +1,16 @@
 'use client';
 
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
-import { Button, Card, Dropdown, Popconfirm, Skeleton, Tag } from 'antd';
+import {
+  Button,
+  Card,
+  Dropdown,
+  Popconfirm,
+  Skeleton,
+  Table,
+  TableColumnsType,
+  Tag,
+} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { MdDeleteOutline, MdOutlineEdit } from 'react-icons/md';
@@ -13,7 +22,15 @@ import { LuSuperscript } from 'react-icons/lu';
 import { IoChevronBackSharp } from 'react-icons/io5';
 import { BsThreeDots } from 'react-icons/bs';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
-
+export type CriteriaTableRecord = {
+  id?: string;
+  criteria?: { criteriaName?: string };
+  weight?: number | string;
+  operator?: string;
+  condition?: string;
+  active?: boolean;
+  value?: number | string;
+};
 type RecognitionCriterion = {
   id?: string;
   weight?: number;
@@ -81,6 +98,59 @@ export default function RecognitionDetailPage() {
   const handleDeleteRecognitionType = (id: string) => {
     deleteRecognitionType(id);
   };
+
+  const columns: TableColumnsType<CriteriaTableRecord> = [
+    {
+      title: 'Criteria',
+      width: 200,
+      dataIndex: ['criteria', 'criteriaName'],
+      key: 'criteriaName',
+      render: (notUsedCell: unknown, record: CriteriaTableRecord) => (
+        <span
+          className="inline-block rounded-[4px] border border-gray-200 bg-gray-100/50 px-2 py-1 text-sm text-gray-500"
+          data-cy="recognition-type-criteria-table-criteria-pill"
+        >
+          {record?.criteria?.criteriaName ?? '-'}
+        </span>
+      ),
+    },
+    {
+      title: 'Weight',
+      dataIndex: 'weight',
+      key: 'weight',
+      width: 90,
+    },
+    {
+      title: 'Operator',
+      dataIndex: 'operator',
+      key: 'operator',
+      width: 100,
+    },
+    {
+      title: 'Condition',
+      dataIndex: 'condition',
+      key: 'condition',
+      width: 100,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'active',
+      key: 'active',
+      width: 100,
+      render: (notUsedStatus: unknown, record: CriteriaTableRecord) => (
+        <Tag className="m-0 border-gray-200 bg-gray-50 text-gray-700">
+          {record?.active ? 'Active' : 'Inactive'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Value',
+      dataIndex: 'value',
+      key: 'value',
+      width: 90,
+    },
+  ];
+
   return (
     <div
       className="p-5 rounded-2xl bg-white h-full"
@@ -322,184 +392,25 @@ export default function RecognitionDetailPage() {
 
                     {isExpanded && (
                       <div
-                        className="mt-4 rounded-lg border border-[#D9D9D9] bg-[#F0F0F0] p-2"
-                        data-cy={`recognition-detail-criteria-accordion-${child?.id}`}
+                        className="mt-4  rounded-[8px] border bg-gray-50 p-3"
+                        data-cy={`recognition-detail-criteria-table-${child?.id}`}
                       >
-                        <div
-                          className="overflow-x-auto"
-                          data-cy={`recognition-detail-criteria-table-${child?.id}`}
-                        >
-                          <div
-                            className="min-w-[760px] rounded-md bg-white p-4 pb-14"
-                            data-cy="recognition-detail-criteria-table-inner"
-                          >
-                            <div
-                              className="grid grid-cols-12 gap-0 bg-[#F0F0F0] border-b border-[#D9D9D9] h-14 text-black text-base font-bold items-center"
-                              data-cy="recognition-detail-criteria-table-header"
-                            >
-                              <div
-                                className="col-span-4 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
-                                data-cy="recognition-detail-criteria-col-criteria"
-                              >
-                                Criteria
-                              </div>
-                              <div
-                                className="col-span-1 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
-                                data-cy="recognition-detail-criteria-col-weight"
-                              >
-                                Weight
-                              </div>
-                              <div
-                                className="col-span-2 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
-                                data-cy="recognition-detail-criteria-col-operator"
-                              >
-                                Operator
-                              </div>
-                              <div
-                                className="col-span-2 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
-                                data-cy="recognition-detail-criteria-col-condition"
-                              >
-                                Condition
-                              </div>
-                              <div
-                                className="col-span-1 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
-                                data-cy="recognition-detail-criteria-col-status"
-                              >
-                                Status
-                              </div>
-                              <div
-                                className="col-span-1 h-4 px-3 border-r border-[#D9D9D9] flex items-center"
-                                data-cy="recognition-detail-criteria-col-value"
-                              >
-                                Value
-                              </div>
-                              <div
-                                className="col-span-1 h-4 px-3 flex items-center"
-                                data-cy="recognition-detail-criteria-col-action"
-                              >
-                                Action
-                              </div>
-                            </div>
-
-                            {(child?.recognitionCriteria ?? []).map(
-                              (criterion: RecognitionCriterion) => {
-                                const statusLabel = criterion?.active
-                                  ? 'Active'
-                                  : 'Inactive';
-                                return (
-                                  <div
-                                    key={
-                                      criterion?.id ??
-                                      `${child?.id}-${criterion?.criteria?.criteriaName}`
-                                    }
-                                    className="grid grid-cols-12 gap-2 bg-white border-b border-[#D9D9D9] px-3 py-2 text-xs text-gray-700  h-14 items-center"
-                                    data-cy={`recognition-detail-criteria-row-${criterion?.id}`}
-                                  >
-                                    <div
-                                      className="col-span-4"
-                                      data-cy="recognition-detail-criteria-name"
-                                    >
-                                      <span
-                                        className="inline-flex max-w-full truncate rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-1 text-[11px] text-gray-700"
-                                        data-cy="recognition-detail-criteria-name-badge"
-                                      >
-                                        {criterion?.criteria?.criteriaName ??
-                                          '-'}
-                                      </span>
-                                    </div>
-                                    <div
-                                      className="col-span-1"
-                                      data-cy="recognition-detail-criteria-weight"
-                                    >
-                                      {criterion?.weight ?? '-'}
-                                    </div>
-                                    <div
-                                      className="col-span-2"
-                                      data-cy="recognition-detail-criteria-operator"
-                                    >
-                                      {criterion?.operator ?? '-'}
-                                    </div>
-                                    <div
-                                      className="col-span-2"
-                                      data-cy="recognition-detail-criteria-condition"
-                                    >
-                                      {criterion?.condition ?? '-'}
-                                    </div>
-                                    <div
-                                      className="col-span-1"
-                                      data-cy="recognition-detail-criteria-status"
-                                    >
-                                      <span
-                                        className="inline-flex rounded border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-[11px] text-gray-600"
-                                        data-cy="recognition-detail-criteria-status-badge"
-                                      >
-                                        {statusLabel}
-                                      </span>
-                                    </div>
-                                    <div
-                                      className="col-span-1"
-                                      data-cy="recognition-detail-criteria-value"
-                                    >
-                                      {criterion?.value ?? 0}
-                                    </div>
-                                    <div
-                                      className="col-span-1 flex "
-                                      data-cy="recognition-detail-criteria-action"
-                                    >
-                                      <Dropdown
-                                        trigger={['click']}
-                                        placement="bottomRight"
-                                        arrow
-                                        menu={{
-                                          items: [
-                                            {
-                                              key: 'edit',
-                                              label:
-                                                'Edit Recognition Criterion',
-                                              icon: (
-                                                <LuSuperscript className="w-4 h-4 " />
-                                              ),
-                                              className:
-                                                'text-xs text-gray-600',
-                                              onClick: () => {
-                                                openEditRecognitionModal(
-                                                  child?.id,
-                                                  'criteria',
-                                                  criterion?.id,
-                                                );
-                                              },
-                                            },
-                                          ],
-                                        }}
-                                      >
-                                        <button
-                                          type="button"
-                                          className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700 p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9]"
-                                          data-cy={`recognition-detail-criteria-actions-${criterion?.id}`}
-                                          id={`recognitionDetailCriteriaActions${criterion?.id}`}
-                                        >
-                                          <BsThreeDots
-                                            data-cy={`recognition-detail-criteria-actions-${criterion?.id}`}
-                                            id={`recognitionDetailCriteriaActions${criterion?.id}`}
-                                            className="text-lg"
-                                          />
-                                        </button>
-                                      </Dropdown>
-                                    </div>
-                                  </div>
-                                );
-                              },
-                            )}
-
-                            {!criteriaCount && (
-                              <div
-                                className="px-3 py-6 text-center text-xs text-gray-500"
-                                data-cy={`recognition-detail-criteria-empty-${child?.id}`}
-                              >
-                                No criteria found.
-                              </div>
-                            )}
-                          </div>
+                        <div className="rounded-[8px]  p-3 bg-white data-cy={`recognition-detail-criteria-table-inner-${child?.id}`}">
+                          <Table<CriteriaTableRecord>
+                            rowKey={(r, index) =>
+                              String(
+                                r.id ??
+                                  r.criteria?.criteriaName ??
+                                  `criteria-row-${index}`,
+                              )
+                            }
+                            size="small"
+                            columns={columns}
+                            dataSource={child?.recognitionCriteria ?? []}
+                            pagination={false}
+                            className="bg-transparent [&_.ant-table]:bg-transparent"
+                            scroll={{ x: 720 }}
+                          />
                         </div>
                       </div>
                     )}
