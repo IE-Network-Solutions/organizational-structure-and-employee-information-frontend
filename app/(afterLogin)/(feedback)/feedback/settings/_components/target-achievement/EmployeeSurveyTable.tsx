@@ -376,11 +376,11 @@ const EmployeeSurveyTable: React.FC = () => {
           <Select
             showSearch
             placeholder="Search Employee"
-            className="m-0 h-8 w-full rounded-lg border border-[#D9D9D9] p-0"
+            className="m-0 h-10 p-0 w-full rounded-lg "
             allowClear
             loading={empLoading}
             suffixIcon={
-              <SearchOutlined className="text-gray-400 border-l border-[#D9D9D9] p-2" />
+              <SearchOutlined className="text-gray-400 h-10 border-l border-[#D9D9D9] p-2" />
             }
             value={userId ?? undefined}
             onChange={(value) => {
