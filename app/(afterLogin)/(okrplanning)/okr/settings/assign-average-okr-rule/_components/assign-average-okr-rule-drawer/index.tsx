@@ -8,7 +8,7 @@ import { useAssignAverageOkrRuleToUser } from '@/store/server/features/okrplanni
 import { useAssignAverageOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/assign-average-okr-rule';
 import { Avatar, Form, Select } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 interface AssignAverageOkrRuleDrawerProps {
   open: boolean;
@@ -26,9 +26,6 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
   const { mutate: assignRule, isLoading: assignLoading } =
     useAssignAverageOkrRuleToUser();
   const { editContext, setEditContext } = useAssignAverageOkrRuleStore();
-  const [userTypeFilter, setUserTypeFilter] = useState<
-    'all' | 'team leads' | 'team members'
-  >('all');
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -75,16 +72,16 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
     </div>
   );
 
-  const filteredUsers = useMemo(() => {
+  /** Users whose active job is marked as department lead (`departmentLeadOrNot`). */
+  const departmentLeadsOnly = useMemo(() => {
     const users = allUsers?.items ?? [];
     return users.filter((user: any) => {
-      if (userTypeFilter === 'all') return true;
-      const isTeamLead = user?.employeeJobInformation?.find(
+      const isDepartmentLead = user?.employeeJobInformation?.find(
         (job: any) => job?.isPositionActive,
       )?.departmentLeadOrNot;
-      return userTypeFilter === 'team leads' ? isTeamLead : !isTeamLead;
+      return Boolean(isDepartmentLead);
     });
-  }, [allUsers?.items, userTypeFilter]);
+  }, [allUsers?.items]);
 
   const onFinish = (values: {
     userIds: string[];
@@ -138,11 +135,11 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
   );
 
   const rules = okrRulesData?.items ?? [];
-  const allFilteredUserIds = filteredUsers.map((user: any) => user.id);
+  const allDepartmentLeadIds = departmentLeadsOnly.map((user: any) => user.id);
 
   const handleUserSelectChange = (selectedValues: string[]) => {
     if (selectedValues.includes(SELECT_ALL_VALUE)) {
-      form.setFieldsValue({ userIds: allFilteredUserIds });
+      form.setFieldsValue({ userIds: allDepartmentLeadIds });
       return;
     }
     form.setFieldsValue({ userIds: selectedValues });
@@ -166,30 +163,13 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
         data-cy="okr-assign-average-okr-rule-drawer-form"
       >
         <Form.Item
-          label="User type"
-          id="okr-assign-average-okr-rule-drawer-user-type-filter-field"
-          data-cy="okr-assign-average-okr-rule-drawer-user-type-filter-field"
-        >
-          <Select
-            value={userTypeFilter}
-            onChange={(value: 'all' | 'team leads' | 'team members') =>
-              setUserTypeFilter(value)
-            }
-            options={[
-              { value: 'all', label: 'All users' },
-              { value: 'team leads', label: 'Team leads' },
-              { value: 'team members', label: 'Non team leads' },
-            ]}
-            id="okr-assign-average-okr-rule-drawer-user-type-filter-select"
-            data-cy="okr-assign-average-okr-rule-drawer-user-type-filter-select"
-          />
-        </Form.Item>
-
-        <Form.Item
           name="userIds"
-          label="Employees"
+          label="Department leads"
           rules={[
-            { required: true, message: 'Please select at least one employee' },
+            {
+              required: true,
+              message: 'Please select at least one department lead',
+            },
           ]}
           id="okr-assign-average-okr-rule-drawer-user-field"
           data-cy="okr-assign-average-okr-rule-drawer-user-field"
@@ -198,7 +178,7 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
             mode="multiple"
             showSearch
             allowClear
-            placeholder="Select employees"
+            placeholder="Select department leads"
             optionLabelProp="label"
             optionFilterProp="label"
             loading={usersLoading}
@@ -209,14 +189,14 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
             <Select.Option
               key={SELECT_ALL_VALUE}
               value={SELECT_ALL_VALUE}
-              disabled={filteredUsers.length === 0}
+              disabled={departmentLeadsOnly.length === 0}
               label="Select all"
               id="okr-assign-average-okr-rule-drawer-user-option-select-all"
               data-cy="okr-assign-average-okr-rule-drawer-user-option-select-all"
             >
               Select all
             </Select.Option>
-            {filteredUsers?.map((option: any) => (
+            {departmentLeadsOnly?.map((option: any) => (
               <Select.Option
                 key={option.id}
                 value={option.id}
