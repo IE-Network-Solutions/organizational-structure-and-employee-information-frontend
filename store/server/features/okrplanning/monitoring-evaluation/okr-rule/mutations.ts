@@ -147,7 +147,7 @@ const removeAverageOkrRuleFromUser = async (userId: string) => {
 export const useAssignAverageOkrRuleToUser = () => {
   const queryClient = useQueryClient();
   return useMutation(assignAverageOkrRuleToUser, {
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
       variables.userIds?.forEach((userId) => {
         queryClient.invalidateQueries(['averageOkrRuleByUser', userId]);
       });
@@ -159,7 +159,7 @@ export const useAssignAverageOkrRuleToUser = () => {
 export const useRemoveAverageOkrRuleFromUser = () => {
   const queryClient = useQueryClient();
   return useMutation(removeAverageOkrRuleFromUser, {
-    onSuccess: (_data, userId) => {
+    onSuccess: (data, userId) => {
       queryClient.invalidateQueries(['averageOkrRuleByUser', userId]);
     },
   });

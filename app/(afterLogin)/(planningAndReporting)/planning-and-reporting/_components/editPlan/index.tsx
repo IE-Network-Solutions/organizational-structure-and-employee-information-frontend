@@ -346,7 +346,16 @@ function EditPlan() {
       planningPeriodId,
       planGroupData?.id,
     );
-  }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId, isEditing, open, form, setWeight]); // Ensure proper re-execution
+  }, [
+    planningPeriodHierarchy,
+    selectedPlanId,
+    planGroupData,
+    selectParentId,
+    isEditing,
+    open,
+    form,
+    setWeight,
+  ]); // Ensure proper re-execution
 
   const footer = (
     <div className="flex items-center justify-between w-full">

@@ -18,7 +18,7 @@ import {
   Tooltip,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import { useQueries } from 'react-query';
@@ -36,8 +36,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
   const activeEmployees = useMemo(() => {
     const items = employeeData?.items ?? [];
     return items.filter((user: any) => {
-      const deleted =
-        user?.deletedAt !== null && user?.deletedAt !== undefined;
+      const deleted = user?.deletedAt !== null && user?.deletedAt !== undefined;
       const inactive =
         user?.employee_status === 'inactive' ||
         user?.employee_status === 'terminated';
@@ -60,14 +59,17 @@ const AssignAverageOkrRulePage: React.FC = () => {
     })),
   );
 
-  const getEmployeeLabel = (userId: string) => {
-    const employee = activeEmployees.find((u: any) => u.id === userId);
-    if (!employee) return '—';
-    const firstName = employee?.firstName || '';
-    const middleName = employee?.middleName || '';
-    const lastName = employee?.lastName || '';
-    return `${firstName} ${middleName} ${lastName}`.trim() || '—';
-  };
+  const getEmployeeLabel = useCallback(
+    (userId: string) => {
+      const employee = activeEmployees.find((u: any) => u.id === userId);
+      if (!employee) return '—';
+      const firstName = employee?.firstName || '';
+      const middleName = employee?.middleName || '';
+      const lastName = employee?.lastName || '';
+      return `${firstName} ${middleName} ${lastName}`.trim() || '—';
+    },
+    [activeEmployees],
+  );
 
   const showDrawer = () => {
     setEditContext(null);
@@ -105,7 +107,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
       .filter((row: { assignedRule?: OkrRule | null }) =>
         Boolean(row.assignedRule?.id),
       );
-  }, [filteredEmployees, userRuleQueries]);
+  }, [filteredEmployees, userRuleQueries, getEmployeeLabel]);
 
   const total = assignedRows.length;
   const dataSource = useMemo(() => {
@@ -126,10 +128,10 @@ const AssignAverageOkrRulePage: React.FC = () => {
       dataIndex: 'nameLabel',
       key: 'name',
       sorter: (a, b) => (a.nameLabel || '').localeCompare(b.nameLabel || ''),
-      render: (_nameLabel, record) => {
+      render: (nameLabel, record) => {
         return (
           <Tooltip
-            title={record.nameLabel}
+            title={nameLabel}
             id={`okr-assign-average-okr-rule-table-employee-tooltip-${record.userId}`}
             data-cy={`okr-assign-average-okr-rule-table-employee-tooltip-${record.userId}`}
           >
@@ -177,7 +179,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
     {
       title: 'Assigned average OKR rule',
       key: 'rule',
-      render: (_value, record) => {
+      render: (value, record) => {
+        void value;
         const rule = record.assignedRule as OkrRule | null;
         return (
           <span
@@ -192,7 +195,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_value, record) => {
+      render: (value, record) => {
+        void value;
         const rule = record.assignedRule as OkrRule | null;
         const hasRule = Boolean(rule?.id);
 
@@ -295,7 +299,8 @@ const AssignAverageOkrRulePage: React.FC = () => {
             }}
             options={activeEmployees.map((list: any) => ({
               value: list?.id,
-              label: list.firstName + ' ' + list.middleName + ' ' + list.lastName,
+              label:
+                list.firstName + ' ' + list.middleName + ' ' + list.lastName,
             }))}
             loading={employeeDataLoading}
             id="okr-assign-average-okr-rule-user-filter"
@@ -334,7 +339,9 @@ const AssignAverageOkrRulePage: React.FC = () => {
         data-cy="okr-assign-average-okr-rule-table-wrapper"
       >
         <Table
-          loading={employeeDataLoading || userRuleQueries.some((q) => q.isLoading)}
+          loading={
+            employeeDataLoading || userRuleQueries.some((q) => q.isLoading)
+          }
           dataSource={dataSource}
           columns={columns}
           pagination={{
