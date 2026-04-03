@@ -41,6 +41,11 @@ const LessonPage = () => {
     }
   }, [lessonMaterial, lesson]);
 
+  const videoUrls =
+    lessonMaterial?.videos.filter((url): url is string =>
+      Boolean(url && String(url).trim()),
+    ) ?? [];
+
   return (
     lessonMaterial && (
       <div
@@ -48,19 +53,29 @@ const LessonPage = () => {
         id="tnaLessonPageContainerId"
         data-cy="tna-lesson-page-container"
       >
-        <div
-          id="tnaLessonPageVideoContainerId"
-          data-cy="tna-lesson-page-video-container"
-        >
-          <ReactPlayer
-            url={lessonMaterial.videos[0]}
-            className="w-full aspect-video"
-            height="auto"
-            controls={true}
-            id="tnaLessonPageVideoPlayerId"
-            data-cy="tna-lesson-page-video-player"
-          />
-        </div>
+        {videoUrls.length > 0 ? (
+          <div
+            id="tnaLessonPageVideoContainerId"
+            data-cy="tna-lesson-page-video-container"
+            className="flex flex-col gap-6"
+          >
+            {videoUrls.map((url, index) => (
+              <ReactPlayer
+                key={`${url}-${index}`}
+                url={url}
+                className="w-full aspect-video"
+                height="auto"
+                controls={true}
+                id={
+                  index === 0
+                    ? 'tnaLessonPageVideoPlayerId'
+                    : `tnaLessonPageVideoPlayerId-${index}`
+                }
+                data-cy={`tna-lesson-page-video-player-${index}`}
+              />
+            ))}
+          </div>
+        ) : null}
 
         {lessonMaterial.article && (
           <div

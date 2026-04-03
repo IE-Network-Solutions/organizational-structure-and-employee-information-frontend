@@ -480,10 +480,6 @@
     @apply h-auto w-auto pr-6 pb-6 pl-3;
   }
 
-  .lesson-card .ant-collapse-content {
-    border: none !important;
-  }
-
   .lesson-material-article {
     @apply text-gray-600 text-base;
   }

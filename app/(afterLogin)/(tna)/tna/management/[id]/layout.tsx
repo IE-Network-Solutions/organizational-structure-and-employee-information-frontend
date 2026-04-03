@@ -1,20 +1,18 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
-import { BreadcrumbProps } from 'antd/lib/breadcrumb';
+import { FC, ReactNode, useEffect } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
-import { Breadcrumb, Spin } from 'antd';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
+import { Button, Spin } from 'antd';
+import { LeftOutlined } from '@ant-design/icons';
+import { LuPlus } from 'react-icons/lu';
 
 interface TnaManagementLayoutProps {
   children: ReactNode;
 }
 
 const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
-  const [breadcrumbItems, setBreadcrumbItems] = useState<
-    BreadcrumbProps['items']
-  >([]);
   const { id, lessonId, materialId } = useParams();
   const {
     course,
@@ -22,7 +20,9 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
     setRefetchCourse,
     setLessonMaterial,
     lessonMaterial,
+    lesson,
     setLesson,
+    setIsShowAddLesson,
   } = useTnaManagementCoursePageStore();
   const {
     data: courseData,
@@ -33,44 +33,30 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    if (course) {
-      const bItems: BreadcrumbProps['items'] = [
-        {
-          title: 'Training & Learning',
-          href: '/tna/management',
-        },
-      ];
-
-      if (lessonId) {
-        const lesson = course.courseLessons.find((l) => l.id === lessonId);
-        if (lesson) {
-          bItems.push({
-            title: course.title,
-            href: `/tna/management/${course.id}`,
-          });
-          setLesson(lesson);
-          if (materialId) {
-            const material = lesson.courseLessonMaterials.find(
-              (m) => m.id === materialId,
-            );
-            if (material) {
-              bItems.push({
-                title: lesson.title,
-              });
-
-              setLessonMaterial(material);
-            }
-          }
+    if (!course) {
+      return;
+    }
+    if (lessonId) {
+      const matchedLesson = course.courseLessons.find((l) => l.id === lessonId);
+      if (matchedLesson) {
+        setLesson(matchedLesson);
+        if (materialId) {
+          const material = matchedLesson.courseLessonMaterials.find(
+            (m) => m.id === materialId,
+          );
+          setLessonMaterial(material ?? null);
+        } else {
+          setLessonMaterial(null);
         }
       } else {
-        bItems.push({
-          title: course.title,
-        });
+        setLesson(null);
+        setLessonMaterial(null);
       }
-
-      setBreadcrumbItems(bItems);
+    } else {
+      setLesson(null);
+      setLessonMaterial(null);
     }
-  }, [id, lessonId, materialId, course]);
+  }, [id, lessonId, materialId, course, setLesson, setLessonMaterial]);
 
   useEffect(() => {
     if (courseData?.items?.length) {
@@ -81,7 +67,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   }, [courseData]);
   return (
     <div
-      className="page-wrap bg-[#f5f5f5] pt-4"
+      className="page-wrap bg-white pt-4"
       id="tnaManagementLayoutId"
       data-cy="tna-management-layout"
     >
@@ -95,17 +81,119 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
         </div>
       ) : course ? (
         <>
-          <Breadcrumb
-            items={breadcrumbItems}
-            className="mb-2"
-            data-cy="tna-management-layout-breadcrumb"
-          />
-          <PageHeader
-            title={
-              lessonMaterial ? lessonMaterial.title : 'Training & Learning'
-            }
+          <div
+            className="border-b border-[#F3F4F6] bg-white py-4"
             data-cy="tna-management-layout-page-header"
-          />
+          >
+            <div
+              className="flex flex-wrap items-center justify-between gap-3 px-2 sm:px-3"
+              data-cy="tna-management-layout-header-row"
+            >
+              <div
+                className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3"
+                data-cy="tna-management-layout-header-main"
+              >
+                <Link
+                  href={
+                    materialId && id
+                      ? `/tna/management/${String(id)}`
+                      : '/tna/management'
+                  }
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                  data-cy="tna-management-layout-back"
+                  id="tnaManagementLayoutBackId"
+                >
+                  <LeftOutlined style={{ fontSize: 14 }} />
+                </Link>
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy="tna-management-layout-header-titles"
+                >
+                  <h1
+                    className="truncate font-bold text-[22px] leading-tight text-gray-900"
+                    data-cy="page-header-title"
+                  >
+                    {lessonMaterial?.title ??
+                      course?.title ??
+                      'Training & Learning'}
+                  </h1>
+                  <div
+                    className="mt-1 text-sm font-medium"
+                    data-cy="tna-management-layout-breadcrumb"
+                  >
+                    <span
+                      className="text-gray-400"
+                      data-cy="tna-management-layout-breadcrumb-segment-first"
+                    >
+                      Learning and Growth
+                    </span>
+                    <span
+                      className="mx-1 text-gray-300"
+                      data-cy="tna-management-layout-breadcrumb-separator"
+                    >
+                      /
+                    </span>
+                    <span
+                      className="text-gray-600"
+                      data-cy="tna-management-layout-breadcrumb-segment-second"
+                    >
+                      Learning Management
+                    </span>
+                    {materialId && course ? (
+                      <>
+                        <span
+                          className="mx-1 text-gray-300"
+                          data-cy="tna-management-layout-breadcrumb-separator-course"
+                        >
+                          /
+                        </span>
+                        <Link
+                          href={`/tna/management/${course.id}`}
+                          className="text-gray-600 hover:text-primary"
+                          data-cy="tna-management-layout-breadcrumb-course"
+                        >
+                          {course.title}
+                        </Link>
+                      </>
+                    ) : null}
+                    {materialId && lesson ? (
+                      <>
+                        <span
+                          className="mx-1 text-gray-300"
+                          data-cy="tna-management-layout-breadcrumb-separator-lesson"
+                        >
+                          /
+                        </span>
+                        <span
+                          className="text-gray-600"
+                          data-cy="tna-management-layout-breadcrumb-lesson"
+                        >
+                          {lesson.title}
+                        </span>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+              {!lessonId && !materialId ? (
+                <div className="shrink-0" data-cy="page-header-actions">
+                  <Button
+                    type="primary"
+                    icon={<LuPlus size={16} />}
+                    className="h-10"
+                    id="tnaManagementNewLessonButtonId"
+                    data-cy="tna-management-new-lesson-button"
+                    onClick={() => {
+                      setLesson(null);
+                      setIsShowAddLesson(true);
+                    }}
+                  >
+                    New Lesson
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+          </div>
 
           {children}
         </>
