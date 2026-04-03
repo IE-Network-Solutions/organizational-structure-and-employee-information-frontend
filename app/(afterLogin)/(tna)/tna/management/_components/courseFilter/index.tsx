@@ -88,7 +88,7 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
 
   const searchField = (
     <div
-      className="flex h-[32px] min-w-0 w-full max-w-[319px] shrink-0 flex-row items-stretch overflow-hidden rounded-[6px] bg-white max-md:max-w-none md:w-[319px] md:max-w-full ml-[-24px]"
+      className="flex h-[32px] min-w-0 w-full max-w-[319px] shrink-0 flex-row items-stretch overflow-hidden rounded-[6px] bg-white max-md:max-w-none md:w-[319px] md:max-w-full"
       id="searchCourseFieldId"
       data-cy="search-course-field"
     >
@@ -159,11 +159,22 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
     </div>
   );
 
-  const renderViewToggle = (dataCySuffix: string) =>
+  const renderViewToggle = (
+    dataCySuffix: string,
+    variant: 'desktop' | 'mobile' = 'desktop',
+  ) =>
     showViewToggle ? (
       <Button
         type="link"
-        className="!m-0 inline-flex !h-[24px] min-w-[77px] flex-none items-center justify-center !px-[7px] !py-0 !text-sm !font-normal !leading-[22px] !text-[#1E40AF] font-[Calibri,sans-serif] !no-underline shadow-none hover:!text-[#1E40AF] hover:!no-underline"
+        className={classNames(
+          '!m-0 inline-flex !h-[24px] flex-none items-center !py-0 !text-sm !font-normal !leading-[22px] !text-[#1E40AF] font-[Calibri,sans-serif] !no-underline shadow-none hover:!text-[#1E40AF] hover:!no-underline',
+          {},
+          [
+            variant === 'mobile'
+              ? '!min-w-0 !w-full !justify-end !px-0'
+              : 'min-w-[77px] !justify-center !px-[7px]',
+          ],
+        )}
         onClick={() => setFiltersExpanded((v) => !v)}
         data-cy={
           (filtersExpanded
@@ -174,6 +185,16 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
         {filtersExpanded ? 'View Less' : 'View More'}
       </Button>
     ) : null;
+
+  /** Fixed-width right column so View More / View Less stay on the same edge on mobile. */
+  const mobileViewToggleSlot = showViewToggle ? (
+    <div
+      className="box-border flex h-[32px] w-[88px] shrink-0 items-center justify-end self-center"
+      data-cy="tna-course-filter-mobile-view-toggle-wrap"
+    >
+      {renderViewToggle('-mobile', 'mobile')}
+    </div>
+  ) : null;
 
   return (
     <Form
@@ -186,7 +207,7 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
       className="w-full"
     >
       <div
-        className="flex flex-col w-full max-w-[1106px] mx-auto gap-2 md:gap-0"
+        className="flex w-full flex-col gap-2 md:gap-0"
         data-cy="tna-course-filter-toolbar"
       >
         <Form.Item name="courseCategoryId" className="mb-0 hidden">
@@ -234,24 +255,19 @@ const CourseFilter: FC<CourseFilterProps> = ({ onChange }) => {
                   {mobileAllChip}
                   {courseCategory.map((cat) => renderCategoryChip(cat))}
                 </div>
-                <div
-                  className="shrink-0"
-                  data-cy="tna-course-filter-mobile-view-toggle-wrap"
-                >
-                  {renderViewToggle('-mobile')}
-                </div>
+                {mobileViewToggleSlot}
               </>
             ) : (
               <>
                 {mobileAllChip}
-                {renderViewToggle('-mobile')}
+                {mobileViewToggleSlot}
               </>
             )}
           </div>
 
           <div
             className={classNames(
-              'hidden md:flex flex-1 min-w-0 items-center justify-end gap-[8px] mr-[-32px]',
+              'hidden min-w-0 flex-1 items-center justify-end gap-[8px] md:flex',
               {},
               [filtersExpanded ? 'w-full' : ''],
             )}
