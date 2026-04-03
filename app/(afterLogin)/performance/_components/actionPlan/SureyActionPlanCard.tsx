@@ -330,7 +330,7 @@ export default function ActionPlanCard({
               Top Action Owners
             </span>
             <Link
-              href={`/action-plan${selectedTab == null ? '' : `?type=${selectedTab}`}`}
+              href={`/feedback/action-plan${selectedTab == null ? '' : `?type=${selectedTab}`}`}
               className="text-sm font-normal text-primary hover:underline focus:outline-none"
             >
               View All
