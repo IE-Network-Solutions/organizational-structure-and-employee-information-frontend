@@ -10,7 +10,6 @@ import {
   Spin,
   DatePicker,
   Button,
-  message,
   Modal,
   Radio,
 } from 'antd';
@@ -39,6 +38,9 @@ const PayPeriodSideBar = () => {
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
   const [step, setStep] = useState<1 | 2>(1);
+  const [divisionErrors, setDivisionErrors] = useState<
+    Record<number, string>
+  >({});
 
   const {
     isPayPeriodSidebarVisible,
@@ -193,23 +195,19 @@ const PayPeriodSideBar = () => {
     });
 
     if (errors.length > 0) {
-      errors.forEach((error) => {
-        message.error(error);
+      const errorMap: Record<number, string> = {};
+      divisions.forEach((_unused, index) => {
+        const fieldErrors = errors.filter((err) =>
+          err.includes(`Pay period ${index + 1}`),
+        );
+        if (fieldErrors.length > 0) {
+          errorMap[index] = fieldErrors[0];
+        }
       });
-
-      form.setFields(
-        divisions.map((unused, index) => {
-          const fieldErrors = errors.filter((err) =>
-            err.includes(`Pay period ${index + 1}`),
-          );
-          return {
-            name: `range${index}`,
-            errors: fieldErrors.length > 0 ? [fieldErrors[0]] : [],
-          };
-        }),
-      );
+      setDivisionErrors(errorMap);
       return;
     }
+    setDivisionErrors({});
 
     const transformedData = divisions.map((division) => ({
       startDate: dayjs(division[0]).format('YYYY-MM-DD'),
@@ -249,6 +247,7 @@ const PayPeriodSideBar = () => {
     resetStore();
     setSelectedFiscalYear(null);
     setStep(1);
+    setDivisionErrors({});
   };
 
   const handleContinue = () => {
@@ -646,70 +645,94 @@ const PayPeriodSideBar = () => {
                 <div
                   id="payroll-payperiod-sidebar-divisions-container"
                   data-cy="payroll-payperiod-sidebar-divisions-container"
-                  className="rounded-lg border border-gray-200 divide-y divide-gray-200"
+                  className="rounded-lg border border-gray-200 p-4 space-y-2"
                 >
                   {divisions.map((range, index) => (
                     <div
                       id={`payroll-payperiod-sidebar-division-${index}`}
                       data-cy={`payroll-payperiod-sidebar-division-${index}`}
                       key={index}
-                      className="flex flex-wrap items-center gap-2 px-4 py-3 sm:flex-nowrap"
+                      className="flex flex-col gap-1"
                     >
-                      <span
-                        className="shrink-0 rounded border border-gray-300 bg-gray-50 px-2.5 py-1.5 text-xs text-gray-700 whitespace-nowrap"
-                        data-cy={`payroll-payperiod-sidebar-division-label-${index}`}
-                      >
-                        {dayjs(range[0]).format('MMM D,YYYY')} -{' '}
-                        {dayjs(range[1]).format('MMM D,YYYY')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-[190px] shrink-0 rounded border border-gray-300 bg-gray-50 px-2.5 py-2 text-xs text-gray-700 text-center whitespace-nowrap"
+                          data-cy={`payroll-payperiod-sidebar-division-label-${index}`}
+                        >
+                          {dayjs(range[0]).format('MMM D,YYYY')} -{' '}
+                          {dayjs(range[1]).format('MMM D,YYYY')}
+                        </span>
 
-                      <DatePicker
-                        data-cy={`payroll-payperiod-sidebar-division-start-${index}`}
-                        value={dayjs(range[0])}
-                        format="YYYY-MM-DD"
-                        className="h-9 min-w-[120px] flex-1"
-                        suffixIcon={null}
-                        allowClear={false}
-                        disabledDate={disabledDate}
-                        onChange={(date) => {
-                          if (!date) return;
-                          handleDivisionDateChange(
-                            index,
-                            date,
-                            dayjs(range[1]),
-                          );
-                        }}
-                      />
-
-                      <span
-                        className="shrink-0 text-gray-400"
-                        data-cy={`payroll-payperiod-sidebar-division-arrow-${index}`}
-                      >
-                        →
-                      </span>
-
-                      <DatePicker
-                        data-cy={`payroll-payperiod-sidebar-division-end-${index}`}
-                        value={dayjs(range[1])}
-                        format="YYYY-MM-DD"
-                        className="h-9 min-w-[120px] flex-1"
-                        suffixIcon={null}
-                        allowClear={false}
-                        disabledDate={disabledDate}
-                        onChange={(date) => {
-                          if (!date) return;
-                          handleDivisionDateChange(
-                            index,
-                            dayjs(range[0]),
-                            date,
-                          );
-                        }}
-                      />
-
-                      <CalendarOutlined
-                        className="shrink-0 text-gray-400"
-                        data-cy={`payroll-payperiod-sidebar-division-calendar-${index}`}
-                      />
+                        <div
+                          className={`flex flex-1 items-center rounded-md border bg-white h-9 min-w-0 ${divisionErrors[index] ? 'border-red-500' : 'border-gray-300'}`}
+                          data-cy={`payroll-payperiod-sidebar-division-range-${index}`}
+                        >
+                          <DatePicker
+                            data-cy={`payroll-payperiod-sidebar-division-start-${index}`}
+                            value={dayjs(range[0])}
+                            format="YYYY-MM-DD"
+                            className="h-full flex-1 min-w-0 !border-0 !shadow-none !rounded-none !rounded-l-md [&_.ant-picker-input>input]:text-center"
+                            suffixIcon={null}
+                            allowClear={false}
+                            disabledDate={disabledDate}
+                            onChange={(date) => {
+                              if (!date) return;
+                              handleDivisionDateChange(
+                                index,
+                                date,
+                                dayjs(range[1]),
+                              );
+                              setDivisionErrors((prev) => {
+                                const next = { ...prev };
+                                delete next[index];
+                                return next;
+                              });
+                            }}
+                          />
+                          <span
+                            className="shrink-0 px-1 text-gray-400 text-sm select-none"
+                            data-cy={`payroll-payperiod-sidebar-division-arrow-${index}`}
+                          >
+                            →
+                          </span>
+                          <DatePicker
+                            data-cy={`payroll-payperiod-sidebar-division-end-${index}`}
+                            value={dayjs(range[1])}
+                            format="YYYY-MM-DD"
+                            className="h-full flex-1 min-w-0 !border-0 !shadow-none !rounded-none [&_.ant-picker-input>input]:text-center"
+                            suffixIcon={null}
+                            allowClear={false}
+                            disabledDate={disabledDate}
+                            onChange={(date) => {
+                              if (!date) return;
+                              handleDivisionDateChange(
+                                index,
+                                dayjs(range[0]),
+                                date,
+                              );
+                              setDivisionErrors((prev) => {
+                                const next = { ...prev };
+                                delete next[index];
+                                return next;
+                              });
+                            }}
+                          />
+                          <span
+                            className="shrink-0 pr-2.5 text-gray-400 flex items-center"
+                            data-cy={`payroll-payperiod-sidebar-division-calendar-${index}`}
+                          >
+                            <CalendarOutlined style={{ fontSize: 14 }} />
+                          </span>
+                        </div>
+                      </div>
+                      {divisionErrors[index] && (
+                        <span
+                          className="pl-[198px] text-xs text-red-500"
+                          data-cy={`payroll-payperiod-sidebar-division-error-${index}`}
+                        >
+                          {divisionErrors[index]}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -722,7 +745,7 @@ const PayPeriodSideBar = () => {
       <div
         id="payroll-payperiod-sidebar-modal-footer"
         data-cy="payroll-payperiod-sidebar-modal-footer"
-        className="flex w-full items-center justify-end gap-3 bg-white px-6 pb-6 pt-4"
+        className="flex w-full items-center justify-end gap-3 bg-white pb-6 pt-4"
       >
         {step === 1 ? (
           <>
