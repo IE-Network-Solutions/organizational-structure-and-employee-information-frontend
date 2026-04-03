@@ -1,8 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Button } from 'antd';
-import { IoClose } from 'react-icons/io5';
+import { CloseOutlined } from '@ant-design/icons';
 
 export type SettingsModalHeaderProps = {
   title: ReactNode;
@@ -25,25 +24,26 @@ export function SettingsModalHeader({
 }: SettingsModalHeaderProps) {
   return (
     <div
-      className="flex items-center justify-between p-4 text-xl font-extrabold text-gray-800"
-      data-cy={dataCy}
+      className="flex w-full items-center justify-between gap-4"
       id={id}
+      data-cy={dataCy}
     >
-      <div
-        className="min-w-0 flex-1 pr-2"
+      <span
+        className="inline-flex min-h-6 items-center text-base font-semibold leading-6 text-[#000000]"
         data-cy={titleDataCy ?? 'settings-modal-header-title'}
       >
         {title}
-      </div>
-      <Button
-        onClick={onClose}
+      </span>
+      <button
+        type="button"
         data-cy={closeDataCy}
         id={closeId}
-        className="text-black hover:!text-primary border-none shrink-0"
+        onClick={onClose}
         aria-label="Close"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 "
       >
-        <IoClose className="text-xl" />
-      </Button>
+        <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
+      </button>
     </div>
   );
 }
