@@ -1,5 +1,5 @@
 'use client';
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import 'react-quill/dist/quill.snow.css';
 import { useParams, useRouter } from 'next/navigation';
@@ -109,6 +109,89 @@ const LessonMaterialsSidebar: FC<LessonMaterialsSidebarProps> = ({
   );
 };
 
+const ARTICLE_PREVIEW_MAX_CHARS = 475;
+
+function articleHtmlToPlainText(html: string): string {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+const LessonMaterialArticleBlock: FC<{
+  articleHtml: string;
+  materialKey: string;
+}> = ({ articleHtml, materialKey }) => {
+  const [expanded, setExpanded] = useState(false);
+  const plainText = articleHtmlToPlainText(articleHtml);
+  const needsTruncate = plainText.length > ARTICLE_PREVIEW_MAX_CHARS;
+
+  useEffect(() => {
+    setExpanded(false);
+  }, [materialKey, articleHtml]);
+
+  return (
+    <div
+      className="lesson-material-article "
+      id="tnaLessonPageArticleContainerId"
+      data-cy="tna-lesson-page-article-container"
+    >
+      <div
+        className="mb-2 mt-3 text-base font-bold text-gray-900"
+        id="tnaLessonPageArticleTitleId"
+        data-cy="tna-lesson-page-article-title"
+      >
+        Details
+      </div>
+
+      {needsTruncate && !expanded ? (
+        <div
+          className="p-0 text-sm font-normal leading-relaxed text-gray-900 border-none"
+          id="tnaLessonPageArticleEditorId"
+          data-cy="tna-lesson-page-article-editor"
+        >
+          {plainText.slice(0, ARTICLE_PREVIEW_MAX_CHARS)}
+          <span
+            className="text-gray-900"
+            data-cy="tna-lesson-page-article-ellipsis"
+          >
+            ...
+          </span>{' '}
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            className="inline border-0 bg-transparent p-0 text-sm font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
+            data-cy="tna-lesson-page-article-more"
+          >
+            More
+          </button>
+        </div>
+      ) : (
+        <div data-cy="tna-lesson-page-article-expanded-wrap">
+          <div
+            className=" p-0 text-sm font-normal border-none"
+            dangerouslySetInnerHTML={{ __html: articleHtml }}
+            id="tnaLessonPageArticleEditorId"
+            data-cy="tna-lesson-page-article-editor"
+          />
+          {needsTruncate && expanded ? (
+            <button
+              type="button"
+              onClick={() => setExpanded(false)}
+              className="mt-2 border-0 bg-transparent p-0 text-sm font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
+              data-cy="tna-lesson-page-article-less"
+            >
+              Less
+            </button>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const LessonPage = () => {
   const params = useParams();
   const { isMobile } = useIsMobile();
@@ -158,26 +241,10 @@ const LessonPage = () => {
             </div>
 
             {lessonMaterial.article && (
-              <div
-                className="lesson-material-article "
-                id="tnaLessonPageArticleContainerId"
-                data-cy="tna-lesson-page-article-container"
-              >
-                <div
-                  className="mb-2 mt-3 text-base font-bold text-gray-900"
-                  id="tnaLessonPageArticleTitleId"
-                  data-cy="tna-lesson-page-article-title"
-                >
-                  Details
-                </div>
-
-                <div
-                  className=" p-0 text-sm font-normal border-none"
-                  dangerouslySetInnerHTML={{ __html: lessonMaterial.article }}
-                  id="tnaLessonPageArticleEditorId"
-                  data-cy="tna-lesson-page-article-editor"
-                />
-              </div>
+              <LessonMaterialArticleBlock
+                articleHtml={lessonMaterial.article}
+                materialKey={routeMaterialId ?? lessonMaterial.article}
+              />
             )}
 
             <div
