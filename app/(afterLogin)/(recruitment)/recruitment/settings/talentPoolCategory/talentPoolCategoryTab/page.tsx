@@ -1,19 +1,23 @@
 'use client';
-import { Button, Dropdown } from 'antd';
+import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/tallentPoolCategory/query';
 import CustomDeleteTalentPool from '../deleteModal';
 import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { MoreHorizontal, Pencil, Trash2, UserPlus } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import TalentPoolDrawer from '../customDrawer';
 import { useSettingsAddButton } from '../../SettingsAddButtonContext';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import CustomPagination from '@/components/customPagination';
 
 const canUpdate = () =>
   AccessGuard.checkAccess({
@@ -25,21 +29,14 @@ const canDelete = () =>
   });
 
 function TalentPoolCategoryTab() {
-  const {
-    openDrawer,
-    setEditMode,
-    setDeleteMode,
-    setSelectedTalentPool,
-    setCurrentPage,
-    setPage,
-    pageSize,
-    currentPage,
-  } = useTalentPoolSettingsStore();
+  const { openDrawer, setEditMode, setDeleteMode, setSelectedTalentPool } =
+    useTalentPoolSettingsStore();
 
-  const { isMobile, isTablet } = useIsMobile();
+  const [deleteTriggerRect, setDeleteTriggerRect] =
+    useState<TriggerRect | null>(null);
 
   const { data: talentPoolCategories, isLoading: fetchLoading } =
-    useGetTalentPoolCategory(pageSize, currentPage);
+    useGetTalentPoolCategory(100, 1);
 
   const handleEditTalentPoolCategory = (data: any): void => {
     openDrawer();
@@ -48,64 +45,44 @@ function TalentPoolCategoryTab() {
   };
 
   const handleDeleteTalentPoolCategory = (data: any): void => {
+    const btn = document.querySelector<HTMLElement>(
+      `[data-cy="talent-acquisition-talent-pool-category-card-menu-${data?.id}"]`,
+    );
+    if (btn) {
+      const r = btn.getBoundingClientRect();
+      setDeleteTriggerRect({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height: r.height,
+      });
+    } else {
+      setDeleteTriggerRect(null);
+    }
     setSelectedTalentPool(data);
     setDeleteMode(true);
   };
 
-  const onPageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPage(pageSize);
-    }
-  };
-  const onSizeChange = (size: number) => {
-    setPage(size);
-    setCurrentPage(1);
-  };
-
-  const { setAddAction } = useSettingsAddButton();
+  const { setAddAction, setAddLabel } = useSettingsAddButton();
   const canCreate = AccessGuard.checkAccess({
     permissions: [Permissions.CreateTalentPool],
   });
   useEffect(() => {
-    if (canCreate) setAddAction(() => openDrawer);
-    return () => setAddAction(null);
-  }, [setAddAction, canCreate, openDrawer]);
+    if (canCreate) {
+      setAddAction(() => openDrawer);
+      setAddLabel('Add Category');
+    }
+    return () => {
+      setAddAction(null);
+      setAddLabel(null);
+    };
+  }, [setAddAction, setAddLabel, canCreate, openDrawer]);
 
   return (
     <div
       className="p-5 rounded-2xl bg-white h-full"
       data-cy="talent-acquisition-talent-pool-category-page-container"
     >
-      {/* Header: Add Category button on the right (desktop only; mobile uses tab bar Add button) */}
-      <div
-        className="hidden md:flex justify-end items-center mb-6"
-        data-cy="talent-acquisition-talent-pool-category-page-header"
-      >
-        <AccessGuard permissions={[Permissions.CreateTalentPool]}>
-          <Button
-            type="primary"
-            id="createTalentPoolButton"
-            data-cy="talent-acquisition-talent-pool-category-button-new"
-            onClick={openDrawer}
-            className="h-10 px-4 recruitment-settings-primary-btn"
-            icon={
-              <UserPlus
-                size={18}
-                data-cy="talent-acquisition-talent-pool-category-button-new-icon"
-              />
-            }
-          >
-            <span
-              className="hidden sm:inline"
-              data-cy="talent-acquisition-talent-pool-category-button-new-text"
-            >
-              Add Category
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-
       {/* Talent Pool Category cards grid */}
       <div
         data-cy="settings-talentpoolcategory-talentpoolcategorytab-page-tsx-page-div-94"
@@ -173,28 +150,10 @@ function TalentPoolCategoryTab() {
         )}
       </div>
       <TalentPoolDrawer />
-      <CustomDeleteTalentPool />
-      {isMobile || isTablet ? (
-        <div
-          className="mt-6"
-          data-cy="talent-acquisition-talent-pool-category-mobile-pagination"
-        >
-          <CustomMobilePagination
-            totalResults={talentPoolCategories?.meta?.totalItems ?? 1}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
-        </div>
-      ) : (
-        <CustomPagination
-          current={currentPage}
-          total={talentPoolCategories?.meta?.totalItems ?? 1}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
-      )}
+      <CustomDeleteTalentPool
+        triggerRect={deleteTriggerRect}
+        onAfterClose={() => setDeleteTriggerRect(null)}
+      />
     </div>
   );
 }

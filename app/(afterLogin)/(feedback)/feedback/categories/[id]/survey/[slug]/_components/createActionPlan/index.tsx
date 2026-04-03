@@ -251,7 +251,9 @@ const CreateActionPlan = (props: any) => {
                             className="flex space-x-3 p-1 rounded"
                           >
                             <Image
-                              src={item?.profileImage ?? GENDER_NEUTRAL_AVATAR_URL}
+                              src={
+                                item?.profileImage ?? GENDER_NEUTRAL_AVATAR_URL
+                              }
                               alt="pep"
                               className="rounded-full w-4 h-4 mt-2"
                               width={15}

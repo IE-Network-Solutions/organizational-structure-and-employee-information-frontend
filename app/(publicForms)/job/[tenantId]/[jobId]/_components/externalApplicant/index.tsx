@@ -147,7 +147,12 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             data-cy="-jobid-components-externalapplicant-index-tsx-index-div-141"
             className="flex items-center justify-center"
           >
-            <Image src={CV_UPLOAD_IMAGE_URL} alt="Upload" width={30} height={30} />
+            <Image
+              src={CV_UPLOAD_IMAGE_URL}
+              alt="Upload"
+              width={30}
+              height={30}
+            />
           </div>
           <div
             data-cy="-jobid-components-externalapplicant-index-tsx-index-div-144"

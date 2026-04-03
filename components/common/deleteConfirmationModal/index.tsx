@@ -17,6 +17,12 @@ interface DeleteModalProps {
   onCancel: () => void;
   /** Optional anchor rect to position the modal under a trigger element */
   triggerRect?: TriggerRect;
+  /**
+   * Called after the close animation fully finishes.
+   * Use this (NOT onCancel/onConfirm) to clear triggerRect state so the modal
+   * keeps its anchored position throughout the entire exit animation.
+   */
+  onAfterClose?: () => void;
   customMessage?: React.ReactNode;
   deleteMessage?: React.ReactNode;
   deleteText?: React.ReactNode;
@@ -39,6 +45,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   onConfirm,
   onCancel,
   triggerRect,
+  onAfterClose,
   customMessage,
   deleteMessage,
   deleteText,
@@ -53,14 +60,19 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
 }) => {
   const isPositioned = Boolean(triggerRect);
   const modalStyle: React.CSSProperties | undefined = isPositioned
-    ? {
-        position: 'fixed',
-        top: triggerRect!.top + triggerRect!.height + 8,
-        left: triggerRect!.left,
-        margin: 0,
-        paddingBottom: 0,
-        maxHeight: `calc(100vh - ${triggerRect!.top + triggerRect!.height + 8}px)`,
-      }
+    ? (() => {
+        const modalWidth = 440;
+        const rightEdge = triggerRect!.left + triggerRect!.width;
+        const left = Math.max(8, rightEdge - modalWidth);
+        return {
+          position: 'fixed',
+          top: triggerRect!.top + triggerRect!.height + 8,
+          left,
+          margin: 0,
+          paddingBottom: 0,
+          maxHeight: `calc(100vh - ${triggerRect!.top + triggerRect!.height + 8}px)`,
+        };
+      })()
     : undefined;
 
   const deleteModalFooter = (
@@ -93,9 +105,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       title={title}
       width={hideImage ? 440 : 500}
       onCancel={onCancel}
+      afterClose={onAfterClose}
       footer={deleteModalFooter}
       closable
-      centered
+      centered={!isPositioned}
       style={modalStyle}
       rootClassName={modalClassName}
       modalRender={(modal) => (

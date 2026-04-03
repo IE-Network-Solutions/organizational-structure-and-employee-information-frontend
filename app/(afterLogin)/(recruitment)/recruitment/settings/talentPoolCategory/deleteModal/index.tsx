@@ -3,7 +3,23 @@ import { useDeleteTalentPoolCategory } from '@/store/server/features/recruitment
 import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
 import React from 'react';
 
-function CustomDeleteTalentPool() {
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+interface CustomDeleteTalentPoolProps {
+  triggerRect?: TriggerRect | null;
+  /** Called after the exit animation fully completes — use to clear triggerRect. */
+  onAfterClose?: () => void;
+}
+
+function CustomDeleteTalentPool({
+  triggerRect,
+  onAfterClose,
+}: CustomDeleteTalentPoolProps) {
   const {
     setSelectedTalentPool,
     isDeleteMode,
@@ -11,9 +27,6 @@ function CustomDeleteTalentPool() {
     selectedTalentPool,
   } = useTalentPoolSettingsStore();
   const { mutate: deleteTalentPOolCategory } = useDeleteTalentPoolCategory();
-  const handleDeleteTalentPoolCategory = (id: string) => {
-    deleteTalentPOolCategory(id);
-  };
 
   return (
     <div
@@ -25,15 +38,20 @@ function CustomDeleteTalentPool() {
         onCancel={() => {
           setSelectedTalentPool(null);
           setDeleteMode(false);
+          // triggerRect is cleared via onAfterClose, not here
         }}
-        onConfirm={() =>
-          handleDeleteTalentPoolCategory(selectedTalentPool?.id ?? '')
-        }
+        onConfirm={() => {
+          deleteTalentPOolCategory(selectedTalentPool?.id ?? '');
+          setDeleteMode(false);
+          // triggerRect is cleared via onAfterClose, not here
+        }}
+        onAfterClose={onAfterClose}
         title="Delete Talent Pool category"
         deleteMessage="Are you Sure you want to delete this category?"
         hideImage
         danger
         modalClassName="recruitment-settings-delete-modal"
+        triggerRect={triggerRect ?? undefined}
       />
     </div>
   );

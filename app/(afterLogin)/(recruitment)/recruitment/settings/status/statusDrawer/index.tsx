@@ -88,48 +88,53 @@ const RecruitmentStatusDrawer: React.FC = () => {
         form={form}
         layout="vertical"
       >
-        <Form.Item
-          label="Status Name"
-          name="title"
-          rules={[{ required: true, message: 'Please enter status name' }]}
-          required
+        <div
+          className="border border-[#D1D5DB] rounded-[8px] px-4 pt-4 pb-1 mb-6"
+          data-cy="talent-acquisition-status-form-fields-container"
         >
-          <Input
-            id="talent-acquisition-status-input-title"
-            data-cy="talent-acquisition-status-input-title"
-            className="h-10 rounded-md"
-            placeholder="status name"
-          />
-        </Form.Item>
-
-        {!isEditMode && (
           <Form.Item
-            label="Status Level"
-            name="level"
-            rules={[{ required: true, message: 'Please enter status level' }]}
+            label="Status Name"
+            name="title"
+            rules={[{ required: true, message: 'Please enter status name' }]}
             required
           >
             <Input
-              id="talent-acquisition-status-input-level"
-              data-cy="talent-acquisition-status-input-level"
+              id="talent-acquisition-status-input-title"
+              data-cy="talent-acquisition-status-input-title"
               className="h-10 rounded-md"
-              placeholder="status level"
+              placeholder="status name"
             />
           </Form.Item>
-        )}
 
-        <Form.Item label="Description" name="description">
-          <Input.TextArea
-            id="talent-acquisition-status-textarea-description"
-            data-cy="talent-acquisition-status-textarea-description"
-            rows={4}
-            className="rounded-md"
-            placeholder="Status Description"
-          />
-        </Form.Item>
+          {!isEditMode && (
+            <Form.Item
+              label="Status Level"
+              name="level"
+              rules={[{ required: true, message: 'Please enter status level' }]}
+              required
+            >
+              <Input
+                id="talent-acquisition-status-input-level"
+                data-cy="talent-acquisition-status-input-level"
+                className="h-10 rounded-md"
+                placeholder="status level"
+              />
+            </Form.Item>
+          )}
+
+          <Form.Item label="Description" name="description" className="mb-3">
+            <Input.TextArea
+              id="talent-acquisition-status-textarea-description"
+              data-cy="talent-acquisition-status-textarea-description"
+              rows={4}
+              className="rounded-md"
+              placeholder="Status Description"
+            />
+          </Form.Item>
+        </div>
 
         <div
-          className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100"
+          className="flex justify-end gap-3"
           data-cy="talent-acquisition-status-drawer-actions"
         >
           <Button

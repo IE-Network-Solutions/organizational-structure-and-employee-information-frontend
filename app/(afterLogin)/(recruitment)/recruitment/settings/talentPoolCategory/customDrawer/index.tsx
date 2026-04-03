@@ -93,32 +93,37 @@ const TalentPoolDrawer: React.FC = () => {
         form={form}
         layout="vertical"
       >
-        <Form.Item
-          label="Category Name"
-          name="title"
-          rules={[{ required: true, message: 'Please enter category name' }]}
-          required
+        <div
+          className="border border-[#D1D5DB] rounded-[8px] px-4 pt-4 pb-1 mb-6"
+          data-cy="talent-acquisition-talent-pool-category-form-fields-container"
         >
-          <Input
-            id="talent-acquisition-talent-pool-category-input-title"
-            data-cy="talent-acquisition-talent-pool-category-input-title"
-            className="h-10 rounded-md"
-            placeholder="Category name"
-          />
-        </Form.Item>
+          <Form.Item
+            label="Category Name"
+            name="title"
+            rules={[{ required: true, message: 'Please enter category name' }]}
+            required
+          >
+            <Input
+              id="talent-acquisition-talent-pool-category-input-title"
+              data-cy="talent-acquisition-talent-pool-category-input-title"
+              className="h-10 rounded-md"
+              placeholder="Category name"
+            />
+          </Form.Item>
 
-        <Form.Item label="Description" name="description">
-          <Input.TextArea
-            id="talent-acquisition-talent-pool-category-textarea-description"
-            data-cy="talent-acquisition-talent-pool-category-textarea-description"
-            rows={4}
-            className="rounded-md"
-            placeholder="Category Description"
-          />
-        </Form.Item>
+          <Form.Item label="Description" name="description" className="mb-3">
+            <Input.TextArea
+              id="talent-acquisition-talent-pool-category-textarea-description"
+              data-cy="talent-acquisition-talent-pool-category-textarea-description"
+              rows={4}
+              className="rounded-md"
+              placeholder="Category Description"
+            />
+          </Form.Item>
+        </div>
 
         <div
-          className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100"
+          className="flex justify-end gap-3"
           data-cy="talent-acquisition-talent-pool-category-drawer-actions"
         >
           <Button

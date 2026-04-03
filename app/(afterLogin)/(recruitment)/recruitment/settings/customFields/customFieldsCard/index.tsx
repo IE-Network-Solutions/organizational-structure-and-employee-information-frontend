@@ -10,9 +10,6 @@ import React from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useIsMobile } from '@/hooks/useIsMobile';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import CustomPagination from '@/components/customPagination';
 
 function fieldTypeToLabel(fieldType: string | undefined): string {
   if (!fieldType) return 'Short text';
@@ -40,16 +37,10 @@ const CustomFieldsCard: React.FC = () => {
     setDeletingQuestionId,
     deleteModal,
     setDeleteModal,
-    templateCurrentPage,
-    setTemplateCurrentPage,
-    templatePageSize,
-    setTemplatePageSize,
   } = useRecruitmentSettingsStore();
 
-  const { isMobile, isTablet } = useIsMobile();
-
   const { data: customFields, isLoading: isCustomFieldsLoading } =
-    useGetCustomFieldsTemplate(templatePageSize, templateCurrentPage);
+    useGetCustomFieldsTemplate(100, 1);
 
   const { mutate: deleteCustomField } = useDeleteCustomFieldsTemplate();
   const handleCustomFieldsModalOpen = (question: any) => {
@@ -83,17 +74,6 @@ const CustomFieldsCard: React.FC = () => {
         />
       </div>
     );
-
-  const onPageChange = (page: number, pageSize?: number) => {
-    setTemplateCurrentPage(page);
-    if (pageSize) {
-      setTemplatePageSize(pageSize);
-    }
-  };
-  const onSizeChange = (size: number) => {
-    setTemplatePageSize(size);
-    setTemplateCurrentPage(1);
-  };
 
   return (
     <>
@@ -171,7 +151,7 @@ const CustomFieldsCard: React.FC = () => {
       ) : (
         <div
           data-cy="settings-customfields-customfieldscard-index-tsx-index-div-122"
-          className="text-center py-8 text-gray-500 rounded-lg border border-gray-200 bg-gray-50/50"
+          className="text-center py-8 text-gray-500 rounded-lg border border-gray-200"
         >
           No custom fields available.
         </div>
@@ -188,36 +168,6 @@ const CustomFieldsCard: React.FC = () => {
           isEdit={editCustomFieldsModalOpen}
         />
       )}
-
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          totalResults={customFields?.meta?.totalItems ?? 1}
-          pageSize={templatePageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      ) : (
-        <CustomPagination
-          current={templateCurrentPage}
-          total={customFields?.meta?.totalItems ?? 1}
-          pageSize={templatePageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onSizeChange}
-        />
-      )}
-      {/* <RecruitmentPagination
-        current={templateCurrentPage}
-        total={customFields?.meta?.totalItems ?? 1}
-        pageSize={templatePageSize}
-        onChange={(page, pageSize) => {
-          setTemplateCurrentPage(page);
-          setTemplatePageSize(pageSize);
-        }}
-        onShowSizeChange={(size) => {
-          setTemplatePageSize(size);
-          setTemplateCurrentPage(1);
-        }}
-      /> */}
     </>
   );
 };

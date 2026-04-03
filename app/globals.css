@@ -1486,6 +1486,16 @@ h6 {
 .recruitment-settings-dropdown-overlay .ant-dropdown-menu-item .ant-dropdown-menu-item-icon {
   color: #000 !important;
 }
+/* Remove red danger hover; use greyed-white for all items */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item:hover,
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger:hover,
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  background: #F3F4F6 !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger {
+  color: #000 !important;
+}
 
 /* Talent acquisition settings: primary button blue #1E40AF */
 .recruitment-settings-primary-btn.ant-btn-primary,
@@ -1515,7 +1525,7 @@ h6 {
 .recruitment-settings-card {
   border: 1px solid var(--recruitment-settings-border);
   border-radius: var(--recruitment-settings-radius);
-  background: rgb(249 250 251 / 0.8);
+  background: #ffffff;
 }
 
 /* Define Status / Template Questions: card title (14px, 400, black) */
@@ -1649,7 +1659,7 @@ h6 {
 .recruitment-settings-panel {
   border: 1px solid var(--recruitment-settings-border);
   border-radius: var(--recruitment-settings-radius);
-  background: rgb(249 250 251 / 0.3);
+  background: #ffffff;
 }
 
 /* Template Questions: existing question card title (16px, 400, black) */
@@ -1679,35 +1689,82 @@ h6 {
   font-weight: 600;
   color: #111827;
 }
+
+/* Fields: 8px border radius, visible border */
 .recruitment-settings-status-modal .ant-input,
 .recruitment-settings-status-modal .ant-input-affix-wrapper,
 .recruitment-settings-status-modal textarea.ant-input {
   border-color: #D1D5DB !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
+  border-bottom: 1px solid #D1D5DB !important;
 }
+/* Remove any extra bottom-only border that some global styles may add */
+.recruitment-settings-status-modal .ant-input-textarea textarea {
+  border-radius: 8px !important;
+}
+
+/* Form item wrapper: add visible border with 8px radius around each field */
+.recruitment-settings-status-modal .ant-form-item .ant-input,
+.recruitment-settings-status-modal .ant-form-item textarea.ant-input {
+  border: 1px solid #D1D5DB !important;
+  border-radius: 8px !important;
+}
+
+/* Labels */
 .recruitment-settings-status-modal .ant-form-item-label > label {
   font-size: 14px;
   font-weight: 400;
   color: #374151;
 }
-.recruitment-settings-status-modal .ant-btn-default {
-  border-color: #D1D5DB !important;
-  background: #fff !important;
-  color: #374151 !important;
+
+/* Required asterisk: hide the default left-side asterisk, add one on the right */
+.recruitment-settings-status-modal .ant-form-item-label > label.ant-form-item-required::before {
+  display: none !important;
 }
-.recruitment-settings-status-modal .recruitment-settings-status-primary-btn.ant-btn-primary {
-  background: #3B82F6 !important;
-  border-color: #3B82F6 !important;
+.recruitment-settings-status-modal .ant-form-item-label > label.ant-form-item-required::after {
+  display: inline-block !important;
+  margin-inline-start: 4px !important;
+  color: #ff4d4f !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  content: '*' !important;
+  visibility: visible !important;
 }
-.recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
-.recruitment-settings-delete-modal .ant-btn-dangerous {
-  background: #EF4444 !important;
-  border-color: #EF4444 !important;
-}
+
+/* Cancel button: 14px, 400 weight, black 70% */
+.recruitment-settings-status-modal .ant-btn-default,
 .recruitment-settings-delete-modal .ant-btn-default {
   border-color: #D1D5DB !important;
   background: #fff !important;
-  color: #374151 !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* Anchored delete modals keep their triggerRect alive until afterClose fires,
+   so the default Ant Design zoom plays from the modal's actual position. */
+
+/* Primary (Edit/Continue) button: #1E40AF, white text, 14px, 400 */
+.recruitment-settings-status-modal .recruitment-settings-status-primary-btn.ant-btn-primary {
+  background: #1E40AF !important;
+  border-color: #1E40AF !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.recruitment-settings-status-modal .recruitment-settings-status-primary-btn.ant-btn-primary:hover {
+  background: #1D3A9F !important;
+  border-color: #1D3A9F !important;
+}
+
+/* Delete modal: delete button #FF4D4F bg, white text, 14px, 400 */
+.recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
+.recruitment-settings-delete-modal .ant-btn-dangerous {
+  background: #FF4D4F !important;
+  border-color: #FF4D4F !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
 /* Org Structure: Add/Edit/Delete Department modals close button position */

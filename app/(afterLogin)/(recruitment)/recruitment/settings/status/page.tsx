@@ -1,5 +1,5 @@
 'use client';
-import { Button, Dropdown } from 'antd';
+import { Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -29,16 +29,17 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteRecruitmentStatus } from '@/store/server/features/recruitment/settings/status/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import {
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  UserPlus,
-  GripVertical,
-} from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { useSettingsAddButton } from '../SettingsAddButtonContext';
 
 const STATUS_LIST_LIMIT = 100;
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 const canUpdate = () =>
   AccessGuard.checkAccess({
@@ -134,11 +135,13 @@ function StatusCardContent({
 function SortableStatusCard({
   status,
   levelLabel,
+  onDeleteTrigger,
 }: {
   status: any;
   levelLabel: string;
+  onDeleteTrigger: (rect: TriggerRect | null) => void;
 }) {
-  const { menuItems } = useStatusCardActions(status, true);
+  const { menuItems } = useStatusCardActions(status, true, onDeleteTrigger);
   const {
     attributes,
     listeners,
@@ -165,7 +168,6 @@ function SortableStatusCard({
       className="recruitment-settings-card relative p-4 min-h-[80px] flex items-center gap-3 w-full"
       data-cy="recruitment-settings-status-card"
     >
-      {/* Placeholder visible when this card is being dragged */}
       {isDragging && (
         <div
           className="absolute inset-0 rounded recruitment-settings-status-drag-placeholder"
@@ -197,12 +199,14 @@ function StaticStatusCard({
   status,
   levelLabel,
   showMenu,
+  onDeleteTrigger,
 }: {
   status: any;
   levelLabel: string;
   showMenu: boolean;
+  onDeleteTrigger: (rect: TriggerRect | null) => void;
 }) {
-  const { menuItems } = useStatusCardActions(status, showMenu);
+  const { menuItems } = useStatusCardActions(status, showMenu, onDeleteTrigger);
 
   return (
     <div
@@ -218,7 +222,6 @@ function StaticStatusCard({
   );
 }
 
-/** Ghost card rendered inside DragOverlay — floats with the cursor */
 function DragGhostCard({
   status,
   levelLabel,
@@ -226,7 +229,7 @@ function DragGhostCard({
   status: any;
   levelLabel: string;
 }) {
-  const { menuItems } = useStatusCardActions(status, true);
+  const { menuItems } = useStatusCardActions(status, true, () => {});
   return (
     <div
       className="recruitment-settings-card recruitment-settings-drag-ghost p-4 min-h-[80px] flex items-center gap-3 w-full"
@@ -248,7 +251,11 @@ function DragGhostCard({
   );
 }
 
-function useStatusCardActions(status: any, showMenu: boolean) {
+function useStatusCardActions(
+  status: any,
+  showMenu: boolean,
+  onDeleteTrigger: (rect: TriggerRect | null) => void,
+) {
   const {
     setSelectedStatus,
     setIsDrawerOpen,
@@ -267,10 +274,24 @@ function useStatusCardActions(status: any, showMenu: boolean) {
 
   const handleDeleteStatus = useCallback(
     (s: any) => {
+      const btn = document.querySelector<HTMLElement>(
+        `[data-cy="talent-acquisition-status-card-menu-${s.id}"]`,
+      );
+      if (btn) {
+        const r = btn.getBoundingClientRect();
+        onDeleteTrigger({
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height,
+        });
+      } else {
+        onDeleteTrigger(null);
+      }
       setSelectedStatus(s);
       setIsDeleteModalOpen(true);
     },
-    [setSelectedStatus, setIsDeleteModalOpen],
+    [setSelectedStatus, setIsDeleteModalOpen, onDeleteTrigger],
   );
 
   const menuItems: MenuProps['items'] = useMemo(
@@ -310,6 +331,9 @@ const Status: React.FC = () => {
     selectedStatus,
   } = useRecruitmentStatusStore();
 
+  const [deleteTriggerRect, setDeleteTriggerRect] =
+    useState<TriggerRect | null>(null);
+
   const { data: recruitmentStatus, isLoading: fetchLoading } =
     useGetRecruitmentStatuses(STATUS_LIST_LIMIT, 1);
   const { mutate: deleteRecruitmentStatus } = useDeleteRecruitmentStatus();
@@ -319,6 +343,8 @@ const Status: React.FC = () => {
     deleteRecruitmentStatus(selectedStatus?.id);
     setIsDeleteModalOpen(false);
     setSelectedStatus(null);
+    // triggerRect is cleared in onAfterClose — NOT here — so the modal
+    // keeps its anchored position throughout the entire exit animation.
   };
 
   const handleOpen = useCallback(() => {
@@ -327,14 +353,20 @@ const Status: React.FC = () => {
     setSelectedStatus(null);
   }, [setIsDrawerOpen, setEditMode, setSelectedStatus]);
 
-  const { setAddAction } = useSettingsAddButton();
+  const { setAddAction, setAddLabel } = useSettingsAddButton();
   const canCreate = AccessGuard.checkAccess({
     permissions: [Permissions.CreateApplicationStage],
   });
   useEffect(() => {
-    if (canCreate) setAddAction(() => handleOpen);
-    return () => setAddAction(null);
-  }, [setAddAction, canCreate, handleOpen]);
+    if (canCreate) {
+      setAddAction(() => handleOpen);
+      setAddLabel('Define Status');
+    }
+    return () => {
+      setAddAction(null);
+      setAddLabel(null);
+    };
+  }, [setAddAction, setAddLabel, canCreate, handleOpen]);
 
   const items = recruitmentStatus?.items ?? [];
 
@@ -383,7 +415,6 @@ const Status: React.FC = () => {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Require a tiny move before starting drag so clicks still work
       activationConstraint: { distance: 5 },
     }),
   );
@@ -430,24 +461,6 @@ const Status: React.FC = () => {
         className="p-5 rounded-2xl bg-white h-full"
         data-cy="talent-acquisition-status-page-container"
       >
-        <div
-          className="hidden md:flex justify-end items-center mb-6"
-          data-cy="talent-acquisition-status-button-define-new-container"
-        >
-          <AccessGuard
-            permissions={[Permissions.CreateApplicationStage]}
-            data-cy="talent-acquisition-status-button-define-new"
-          >
-            <Button
-              type="primary"
-              className="h-10 px-4 recruitment-settings-primary-btn"
-              disabled
-              data-cy="talent-acquisition-status-button-define-new-button"
-            >
-              Define Status
-            </Button>
-          </AccessGuard>
-        </div>
         <SkeletonLoading
           alignment="vertical"
           componentType="card"
@@ -463,37 +476,6 @@ const Status: React.FC = () => {
       className="p-5 rounded-2xl bg-white h-full"
       data-cy="talent-acquisition-status-page-container"
     >
-      <div
-        className="hidden md:flex justify-end items-center mb-6"
-        data-cy="talent-acquisition-status-page-header"
-      >
-        <AccessGuard
-          permissions={[Permissions.CreateApplicationStage]}
-          data-cy="talent-acquisition-status-button-define-new-access-guard"
-        >
-          <Button
-            type="primary"
-            id="createStatusButton"
-            data-cy="talent-acquisition-status-button-define-new"
-            onClick={handleOpen}
-            className="h-10 px-4 recruitment-settings-primary-btn"
-            icon={
-              <UserPlus
-                size={18}
-                data-cy="talent-acquisition-status-button-define-new-icon"
-              />
-            }
-          >
-            <span
-              className="hidden sm:inline"
-              data-cy="talent-acquisition-status-button-define-new-text"
-            >
-              Define Status
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-
       <div
         className="flex flex-col gap-4 w-full"
         data-cy="talent-acquisition-status-list-container"
@@ -513,6 +495,7 @@ const Status: React.FC = () => {
                 status={status}
                 levelLabel={formatLevelLabel(status?.level)}
                 showMenu={false}
+                onDeleteTrigger={setDeleteTriggerRect}
               />
             ))}
 
@@ -537,12 +520,12 @@ const Status: React.FC = () => {
                         key={status.id}
                         status={status}
                         levelLabel={formatLevelLabel(status?.level)}
+                        onDeleteTrigger={setDeleteTriggerRect}
                       />
                     ))}
                   </div>
                 </SortableContext>
 
-                {/* Floating ghost card that follows the cursor while dragging */}
                 <DragOverlay dropAnimation={null}>
                   {activeDragStatus ? (
                     <DragGhostCard
@@ -560,6 +543,7 @@ const Status: React.FC = () => {
                 status={status}
                 levelLabel={formatLevelLabel(status?.level)}
                 showMenu
+                onDeleteTrigger={setDeleteTriggerRect}
               />
             ))}
           </>
@@ -572,11 +556,13 @@ const Status: React.FC = () => {
         open={isDeleteModalOpen}
         onCancel={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDelete}
+        onAfterClose={() => setDeleteTriggerRect(null)}
         title="Delete Status"
         deleteMessage="Are you sure you want to delete this status?"
         hideImage
         danger
         modalClassName="recruitment-settings-delete-modal"
+        triggerRect={deleteTriggerRect ?? undefined}
       />
     </div>
   );

@@ -211,193 +211,203 @@ const CustomFieldsDrawer: React.FC<{
       }}
       data-cy="custom-field-form"
     >
-      <Form.Item
-        name="fieldName"
-        label="Field Name"
-        rules={[{ required: true, message: 'Please enter field name' }]}
-        required
-        data-cy="custom-field-input-name"
+      <div
+        className="border border-[#D1D5DB] rounded-[8px] px-4 pt-4 pb-1 mb-6"
+        data-cy="custom-field-edit-form-fields-container"
       >
-        <Input
-          placeholder="Input"
-          className="h-10 rounded-md"
+        <Form.Item
+          name="fieldName"
+          label="Field Name"
+          rules={[{ required: true, message: 'Please enter field name' }]}
+          required
           data-cy="custom-field-input-name"
-        />
-      </Form.Item>
+        >
+          <Input
+            placeholder="Input"
+            className="h-10 rounded-md"
+            data-cy="custom-field-input-name"
+          />
+        </Form.Item>
 
-      <Form.Item
-        name="fieldValidation"
-        label="Field Validation"
-        rules={[{ required: true, message: 'Please select field validation' }]}
-        required
-        data-cy="custom-field-select-validation"
-      >
-        <Select
-          placeholder="Select"
-          className="h-10 rounded-md w-full"
-          options={FIELD_VALIDATION_OPTIONS}
+        <Form.Item
+          name="fieldValidation"
+          label="Field Validation"
+          rules={[
+            { required: true, message: 'Please select field validation' },
+          ]}
+          required
           data-cy="custom-field-select-validation"
-        />
-      </Form.Item>
-      <p
-        className="text-sm text-gray-500 -mt-2 mb-4"
-        data-cy="custom-field-validation-description"
-      >
-        Select a field validation type.
-      </p>
+        >
+          <Select
+            placeholder="Select"
+            className="h-10 rounded-md w-full"
+            options={FIELD_VALIDATION_OPTIONS}
+            data-cy="custom-field-select-validation"
+          />
+        </Form.Item>
+        <p
+          className="text-sm text-gray-500 -mt-2 mb-4"
+          data-cy="custom-field-validation-description"
+        >
+          Select a field validation type.
+        </p>
 
-      <Form.Item
-        noStyle
-        shouldUpdate={(prev, curr) =>
-          prev?.fieldValidation !== curr?.fieldValidation
-        }
-        data-cy="custom-field-options-container"
-      >
-        {() => {
-          const fieldType = form.getFieldValue('fieldValidation');
-          const showOptions =
-            fieldType === 'multiple_choice' || fieldType === 'checkbox';
-          if (!showOptions) return null;
-          return (
-            <Form.List
-              name="field"
-              initialValue={[]}
-              data-cy="custom-field-options-list"
-            >
-              {(fields, { add, remove }, { errors }) => (
-                <div className="mb-4" data-cy="custom-field-options-container">
-                  <p
-                    className="text-sm font-medium text-gray-700 mb-2"
-                    data-cy="custom-field-options-title"
+        <Form.Item
+          noStyle
+          shouldUpdate={(prev, curr) =>
+            prev?.fieldValidation !== curr?.fieldValidation
+          }
+          data-cy="custom-field-options-container"
+        >
+          {() => {
+            const fieldType = form.getFieldValue('fieldValidation');
+            const showOptions =
+              fieldType === 'multiple_choice' || fieldType === 'checkbox';
+            if (!showOptions) return null;
+            return (
+              <Form.List
+                name="field"
+                initialValue={[]}
+                data-cy="custom-field-options-list"
+              >
+                {(fields, { add, remove }, { errors }) => (
+                  <div
+                    className="mb-4"
+                    data-cy="custom-field-options-container"
                   >
-                    Options
-                  </p>
-                  <Form.Item
-                    className="mb-2"
-                    style={{ marginBottom: errors.length ? undefined : 0 }}
-                  >
-                    <Form.ErrorList errors={errors} />
-                  </Form.Item>
-                  {fields.map((field) => (
+                    <p
+                      className="text-sm font-medium text-gray-700 mb-2"
+                      data-cy="custom-field-options-title"
+                    >
+                      Options
+                    </p>
                     <Form.Item
-                      data-cy={`custom-field-option-item-${field.key}`}
-                      key={field.key}
-                      required={false}
                       className="mb-2"
+                      style={{ marginBottom: errors.length ? undefined : 0 }}
+                    >
+                      <Form.ErrorList errors={errors} />
+                    </Form.Item>
+                    {fields.map((field) => (
+                      <Form.Item
+                        data-cy={`custom-field-option-item-${field.key}`}
+                        key={field.key}
+                        required={false}
+                        className="mb-2"
+                      >
+                        <div
+                          className="flex items-center gap-3"
+                          data-cy={`custom-field-option-row-${field.key}`}
+                        >
+                          {renderOptionInput(fieldType)}
+                          <Form.Item
+                            {...field}
+                            noStyle
+                            rules={[
+                              {
+                                required: true,
+                                message: 'Please input an option!',
+                              },
+                            ]}
+                            data-cy="custom-field-input-option"
+                          >
+                            <Input
+                              placeholder="Option"
+                              className="h-10 rounded-md flex-1"
+                              data-cy={`custom-field-input-option-${field.name}`}
+                            />
+                          </Form.Item>
+                          {fields.length > 0 && (
+                            <MinusCircleOutlined
+                              className="dynamic-delete-button text-red-500 cursor-pointer text-lg"
+                              onClick={() => remove(field.name)}
+                              data-cy={`custom-field-button-remove-option-${field.name}`}
+                            />
+                          )}
+                        </div>
+                      </Form.Item>
+                    ))}
+                    <Form.Item
+                      className="mb-0"
+                      data-cy="custom-field-options-add-form-item"
                     >
                       <div
-                        className="flex items-center gap-3"
-                        data-cy={`custom-field-option-row-${field.key}`}
+                        className="flex flex-col items-center justify-center py-2"
+                        data-cy="custom-field-options-add-wrapper"
                       >
-                        {renderOptionInput(fieldType)}
-                        <Form.Item
-                          {...field}
-                          noStyle
-                          rules={[
-                            {
-                              required: true,
-                              message: 'Please input an option!',
-                            },
-                          ]}
-                          data-cy="custom-field-input-option"
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => add()}
+                          onKeyDown={(e) =>
+                            e.key === 'Enter' && (e.preventDefault(), add())
+                          }
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-primary cursor-pointer hover:opacity-90"
+                          data-cy="custom-field-button-add-option"
                         >
-                          <Input
-                            placeholder="Option"
-                            className="h-10 rounded-md flex-1"
-                            data-cy={`custom-field-input-option-${field.name}`}
+                          <PlusOutlined
+                            className="text-white text-lg"
+                            data-cy="custom-field-button-add-option-icon"
                           />
-                        </Form.Item>
-                        {fields.length > 0 && (
-                          <MinusCircleOutlined
-                            className="dynamic-delete-button text-red-500 cursor-pointer text-lg"
-                            onClick={() => remove(field.name)}
-                            data-cy={`custom-field-button-remove-option-${field.name}`}
-                          />
-                        )}
+                        </div>
+                        <p
+                          className="text-xs font-light text-gray-400 mt-1"
+                          data-cy="custom-field-options-add-text"
+                        >
+                          + Add options
+                        </p>
                       </div>
                     </Form.Item>
-                  ))}
-                  <Form.Item
-                    className="mb-0"
-                    data-cy="custom-field-options-add-form-item"
-                  >
-                    <div
-                      className="flex flex-col items-center justify-center py-2"
-                      data-cy="custom-field-options-add-wrapper"
-                    >
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => add()}
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' && (e.preventDefault(), add())
-                        }
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-primary cursor-pointer hover:opacity-90"
-                        data-cy="custom-field-button-add-option"
-                      >
-                        <PlusOutlined
-                          className="text-white text-lg"
-                          data-cy="custom-field-button-add-option-icon"
-                        />
-                      </div>
-                      <p
-                        className="text-xs font-light text-gray-400 mt-1"
-                        data-cy="custom-field-options-add-text"
-                      >
-                        + Add options
-                      </p>
-                    </div>
-                  </Form.Item>
-                </div>
-              )}
-            </Form.List>
-          );
-        }}
-      </Form.Item>
+                  </div>
+                )}
+              </Form.List>
+            );
+          }}
+        </Form.Item>
 
-      <Form.Item
-        name="fieldMode"
-        label={null}
-        data-cy="custom-field-field-mode"
-      >
-        <Radio.Group className="w-full" data-cy="custom-field-radio-group">
-          <div className="mb-3" data-cy="custom-field-radio-active-wrapper">
-            <Radio value="active" data-cy="custom-field-radio-active">
-              <span
-                className="font-medium text-gray-900"
-                data-cy="custom-field-radio-active-label"
+        <Form.Item
+          name="fieldMode"
+          label={null}
+          data-cy="custom-field-field-mode"
+        >
+          <Radio.Group className="w-full" data-cy="custom-field-radio-group">
+            <div className="mb-3" data-cy="custom-field-radio-active-wrapper">
+              <Radio value="active" data-cy="custom-field-radio-active">
+                <span
+                  className="font-medium text-gray-900"
+                  data-cy="custom-field-radio-active-label"
+                >
+                  Active
+                </span>
+              </Radio>
+              <p
+                className="text-sm text-gray-500 ml-6 mt-0.5"
+                data-cy="custom-field-radio-active-description"
               >
-                Active
-              </span>
-            </Radio>
-            <p
-              className="text-sm text-gray-500 ml-6 mt-0.5"
-              data-cy="custom-field-radio-active-description"
-            >
-              If the field is active will show.
-            </p>
-          </div>
-          <div data-cy="custom-field-radio-required-wrapper">
-            <Radio value="required" data-cy="custom-field-radio-required">
-              <span
-                className="font-medium text-gray-900"
-                data-cy="custom-field-radio-required-label"
+                If the field is active will show.
+              </p>
+            </div>
+            <div data-cy="custom-field-radio-required-wrapper">
+              <Radio value="required" data-cy="custom-field-radio-required">
+                <span
+                  className="font-medium text-gray-900"
+                  data-cy="custom-field-radio-required-label"
+                >
+                  Required
+                </span>
+              </Radio>
+              <p
+                className="text-sm text-gray-500 ml-6 mt-0.5"
+                data-cy="custom-field-radio-required-description"
               >
-                Required
-              </span>
-            </Radio>
-            <p
-              className="text-sm text-gray-500 ml-6 mt-0.5"
-              data-cy="custom-field-radio-required-description"
-            >
-              If selected it must be filled.
-            </p>
-          </div>
-        </Radio.Group>
-      </Form.Item>
+                If selected it must be filled.
+              </p>
+            </div>
+          </Radio.Group>
+        </Form.Item>
+      </div>
 
       <div
-        className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100"
+        className="flex justify-end gap-3"
         data-cy="custom-field-modal-actions"
       >
         <Button
