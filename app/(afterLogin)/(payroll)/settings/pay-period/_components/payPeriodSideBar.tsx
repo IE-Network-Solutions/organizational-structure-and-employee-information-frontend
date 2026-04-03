@@ -10,12 +10,11 @@ import {
   Spin,
   DatePicker,
   Button,
-  Popover,
   message,
   Modal,
   Radio,
 } from 'antd';
-import { CloseOutlined, DeleteOutlined } from '@ant-design/icons';
+import { CloseOutlined } from '@ant-design/icons';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import usePayPeriodStore from '@/store/uistate/features/payroll/settings/payPeriod';
 import {
@@ -233,10 +232,10 @@ const PayPeriodSideBar = () => {
     });
   };
 
-  const handleDeleteDivision = (index: number) => {
-    const updatedDivisions = divisions.filter((unused, i) => i !== index);
-    setDivisions(updatedDivisions);
-  };
+  // const handleDeleteDivision = (index: number) => {
+  //   const updatedDivisions = divisions.filter((unused, i) => i !== index);
+  //   setDivisions(updatedDivisions);
+  // };
 
   // const handleMonthSelect = (value: string, index: number) => {
   //   const newDivisions = [...divisions];
@@ -290,30 +289,30 @@ const PayPeriodSideBar = () => {
   //   },
   // ];
 
-  const footerModalItems = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      dataCy: 'payroll-payperiod-sidebar-cancel-button',
-      className:
-        'h-8 rounded-md border border-gray-300 bg-white px-4 text-sm font-normal text-gray-700 hover:bg-gray-50',
-      loading: false,
-      onClick: () => onClose(),
-    },
-    {
-      label: (
-        <span data-cy="payroll-payperiod-sidebar-create-button-label">
-          Create
-        </span>
-      ),
-      key: 'create',
-      dataCy: 'payroll-payperiod-sidebar-create-button',
-      className: 'h-8 rounded-md px-4 text-sm font-normal',
-      type: 'primary' as const,
-      loading: createPayPeriodsLoading,
-      onClick: () => form.submit(),
-    },
-  ];
+  // const footerModalItems = [
+  //   {
+  //     label: 'Cancel',
+  //     key: 'cancel',
+  //     dataCy: 'payroll-payperiod-sidebar-cancel-button',
+  //     className:
+  //       'h-8 rounded-md border border-gray-300 bg-white px-4 text-sm font-normal text-gray-700 hover:bg-gray-50',
+  //     loading: false,
+  //     onClick: () => onClose(),
+  //   },
+  //   {
+  //     label: (
+  //       <span data-cy="payroll-payperiod-sidebar-create-button-label">
+  //         Create
+  //       </span>
+  //     ),
+  //     key: 'create',
+  //     dataCy: 'payroll-payperiod-sidebar-create-button',
+  //     className: 'h-8 rounded-md px-4 text-sm font-normal',
+  //     type: 'primary' as const,
+  //     loading: createPayPeriodsLoading,
+  //     onClick: () => form.submit(),
+  //   },
+  // ];
 
   const modeOptions = [
     {

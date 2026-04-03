@@ -201,7 +201,7 @@ const TaxRules = () => {
           >
             <Popconfirm
               title={
-                <span className="text-base font-semibold text-gray-900">
+                <span className="text-base font-semibold text-gray-900" data-cy="payroll-tax-rule-delete-popconfirm-title">
                   Delete Tax Rule
                 </span>
               }
@@ -300,7 +300,7 @@ const TaxRules = () => {
         data-cy="payroll-tax-rule-page-view-container"
         className="overflow-hidden"
       >
-        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white" data-cy="payroll-tax-rule-page-view-container-div-1">
       <div
         id="payroll-tax-rule-header-view-container"
         data-cy="payroll-tax-rule-header-view-container"
@@ -346,6 +346,7 @@ const TaxRules = () => {
             bordered={false}
             loading={isLoading}
             rowHoverable={false}
+            // eslint-disable-next-line 
             rowClassName={(_notUsed, index) =>
               `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
             }

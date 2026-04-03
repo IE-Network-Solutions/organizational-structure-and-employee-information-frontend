@@ -420,7 +420,7 @@ const ApprovalTable = () => {
                     >
                       <Popconfirm
                         title={
-                          <span className="text-base font-semibold text-gray-900">
+                          <span className="text-base font-semibold text-gray-900" data-cy="settings-payroll-approvals-card-delete-popconfirm-title">
                             Delete Approval
                           </span>
                         }

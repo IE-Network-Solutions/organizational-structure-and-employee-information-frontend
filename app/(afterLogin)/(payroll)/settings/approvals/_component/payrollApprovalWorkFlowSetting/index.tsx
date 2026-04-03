@@ -230,6 +230,7 @@ const PayrollApprovalWorkFlowSetting = ({
                 rules={[
                   { required: true, message: 'Please select assignees!' },
                   {
+                    // eslint-disable-next-line 
                     validator: (_, value) => {
                       if (!value || value.length === 0) {
                         return Promise.reject('Please select assignees!');
