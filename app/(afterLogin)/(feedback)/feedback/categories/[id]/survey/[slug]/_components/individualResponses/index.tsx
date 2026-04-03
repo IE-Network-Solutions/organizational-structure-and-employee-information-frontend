@@ -485,7 +485,7 @@ const IndividualResponses = ({ id }: Params) => {
                                         />
                                       );
                                     })}
-                                    <p className="mt-2 text-[11px] text-gray-400">
+                                    <p className="mt-2 text-xs text-gray-400">
                                       {question.fieldType === FieldType.CHECKBOX
                                         ? 'Each bar is % of respondents who included that option (can exceed 100% in total).'
                                         : 'Shares add to 100% — one answer per response.'}

@@ -48,7 +48,7 @@ const FormSearch: React.FC<FormSearchProps> = ({
     <div
       id="form-search-container"
       data-cy={dataCy ?? 'form-search-container'}
-      className="flex h-10 w-[300px] max-w-full shrink-0 items-stretch overflow-hidden rounded-md border border-gray-200 bg-white transition-colors focus-within:border-[#1e40af]/40"
+      className="flex h-8 w-[300px] max-w-full shrink-0 items-stretch overflow-hidden rounded-md border border-gray-200 bg-white transition-colors focus-within:border-[#1e40af]/40"
     >
       <Input
         id="form-search-input"

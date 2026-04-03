@@ -6,7 +6,7 @@ import {
   GraphType,
   useOrganizationalDevelopment,
 } from '@/store/uistate/features/organizationalDevelopment';
-import { Col, Row, Select, Skeleton, Tabs } from 'antd';
+import { Button, Col, Row, Select, Skeleton, Tabs } from 'antd';
 import type { TabsProps } from 'antd';
 import Link from 'next/link';
 import IndividualResponses from './_components/individualResponses';
@@ -113,7 +113,7 @@ function Page() {
       ),
       children: (
         <div
-          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide px-4 lg:px-0"
+          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide px-4 lg:px-0 mt-4"
           data-cy="survey-detail-tab-content-action-plans"
         >
           <ActionPlans id={slug} />
@@ -265,24 +265,25 @@ function Page() {
           tabBarExtraContent={
             activeTab === '4' ? (
               <div
-                className="flex shrink-0 items-center"
+                className="flex shrink-0 items-center mb-4"
                 data-cy="survey-detail-create-action-wrap"
               >
-                <button
-                  type="button"
+                <Button
+                  type="primary"
                   id="survey-detail-create-action-button"
                   data-cy="survey-detail-create-action-button"
                   onClick={showDrawer}
-                  aria-label="New Action Plan"
                   title="New Action Plan"
-                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#1E40AF] text-white shadow-none transition-colors hover:bg-[#1E3A8A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF] focus-visible:ring-offset-2"
+                  icon={<PlusOutlined size={18} />}
+                  className="inline-flex h-10 md:w-full w-10 shrink-0 items-center justify-center rounded-md bg-[#1E40AF] text-white shadow-none transition-colors hover:bg-[#1E3A8A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF] focus-visible:ring-offset-2"
                 >
-                  <PlusOutlined
-                    id="survey-detail-create-action-icon"
-                    data-cy="survey-detail-create-action-icon"
-                    className="text-lg text-white"
-                  />
-                </button>
+                  <span className="hidden md:inline ml-1 !text-normal text-base">
+                    New Action Plan
+                  </span>
+                </Button>
+
+  
+              
               </div>
             ) : null
           }

@@ -38,7 +38,7 @@ export function employeeFullName(u: {
   middleName?: string;
   lastName?: string;
 }): string {
-  return [u.firstName, u.middleName, u.lastName].filter(Boolean).join(' ');
+  return [u.firstName, u.middleName].filter(Boolean).join(' ');
 }
 
 export function normalizeActionPlanListPayload(data: unknown): any[] {

@@ -152,7 +152,7 @@ const SurveyQuestionEditorForm: React.FC<SurveyQuestionEditorFormProps> = ({
                   {fields.map((field, index) => (
                     <div
                       key={field.key}
-                      className="flex min-h-10 items-stretch gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2"
+                      className="flex min-h-10 items-stretch gap-2 rounded-lg border border-gray-200 bg-white px-3 "
                       data-cy={`survey-question-choice-row-${questionId}-${index}`}
                     >
                       <Form.Item

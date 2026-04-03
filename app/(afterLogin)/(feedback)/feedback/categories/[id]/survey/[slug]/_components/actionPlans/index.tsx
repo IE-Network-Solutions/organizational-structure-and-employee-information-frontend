@@ -131,9 +131,9 @@ function StatusCell({
       >
         {initial}
       </Avatar>
-      <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 flex-col-reverse gap-1">
         <span className="inline-flex w-fit items-center rounded border border-emerald-500/55 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
-          Resolved by
+          Resolved
         </span>
         <span
           className="truncate text-sm font-medium leading-tight text-gray-900"
@@ -705,7 +705,7 @@ function ActionPlans({ id }: Params) {
       title: 'Responsible Person',
       key: 'responsible',
       align: 'left',
-      width: 88,
+      width: 150,
       render: (_: unknown, item: any) => {
         const ids = responsibleIds(item);
         const users = ids
@@ -799,7 +799,7 @@ function ActionPlans({ id }: Params) {
       title: 'Status',
       key: 'status',
       align: 'left',
-      width: 220,
+      width: 100,
       render: (_: unknown, item: any) => (
         <StatusCell item={item} userById={userById} />
       ),
@@ -913,9 +913,9 @@ function ActionPlans({ id }: Params) {
       className="flex h-full min-h-0 w-full min-w-0 flex-col pb-3 pt-0 lg:pb-0"
     >
       <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-sm lg:shadow-none">
-        <div className="flex w-full min-w-0 shrink-0 flex-row items-stretch justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4">
+        <div className="flex w-full  shrink-0 flex-row items-stretch justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4">
           <div
-            className="flex h-10 min-w-0 max-w-[min(100%,calc(17rem+30px))] flex-1 items-stretch overflow-hidden rounded-md border border-[#E5E7EB] bg-white transition-colors focus-within:border-[#1e40af]/40 md:max-w-none"
+            className="flex h-8 w-[300px]  overflow-hidden rounded-md border border-[#E5E7EB] bg-white transition-colors focus-within:border-[#1e40af]/40 "
             data-cy="action-plans-search-employee"
           >
             <Input
@@ -952,11 +952,11 @@ function ActionPlans({ id }: Params) {
                 size="large"
                 aria-label="Filter"
                 title="Filter"
-                className="inline-flex !h-10 !min-h-10 !min-w-10 !w-10 !items-center !justify-center !gap-0 !rounded-lg !border !border-[#E5E7EB] !bg-white !px-0 !py-0 text-slate-800 shadow-sm hover:!border-gray-300 hover:!bg-gray-50 lg:!min-w-[auto] lg:!w-auto lg:!gap-2 lg:!px-4 [&_.ant-btn-icon]:!m-0"
+                className="h-8 border border-gray-200 shadow-none"
                 icon={
                   <MdOutlineFilterAlt
-                    className="h-[18px] w-[18px] shrink-0 text-slate-600"
-                    aria-hidden
+                    className="mt-1.5"
+                    size={16}
                   />
                 }
                 data-cy="action-plans-filter"

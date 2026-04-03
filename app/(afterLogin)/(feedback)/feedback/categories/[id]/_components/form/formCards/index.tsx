@@ -430,11 +430,11 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     >
                       <button
                         type="button"
-                        className="relative z-[2] flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-[#374151] transition-colors hover:border-slate-300 hover:bg-slate-50 pointer-events-auto"
+                        className="relative z-[2] flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-[#374151] transition-colors hover:border-slate-300 hover:bg-slate-50 pointer-events-auto"
                         data-cy="form-card-menu-trigger"
                         aria-label="More options"
                       >
-                        <MdMoreHoriz className="text-[24px] leading-none" />
+                        <MdMoreHoriz size={14} />
                       </button>
                     </Dropdown>
                   </div>

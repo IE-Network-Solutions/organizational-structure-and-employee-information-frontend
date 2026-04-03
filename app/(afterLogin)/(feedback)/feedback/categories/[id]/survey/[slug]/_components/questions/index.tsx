@@ -710,7 +710,7 @@ const Questions = ({ id }: Params) => {
           >
             <div
               data-cy="survey-questions-palette-col"
-              className="box-border flex h-fit w-full shrink-0 flex-col bg-transparent lg:w-[232px] lg:min-w-[232px] lg:max-w-[232px] lg:self-start lg:rounded-md lg:border lg:border-gray-200 lg:bg-white lg:px-3 lg:pb-3 lg:pt-3"
+              className="box-border flex h-fit w-full shrink-0 flex-col bg-transparent lg:w-[260px] lg:min-w-[260px] lg:max-w-[260px] lg:self-start lg:rounded-md lg:border lg:border-gray-200 lg:bg-white lg:px-3 lg:pb-3 lg:pt-3"
             >
               <h3
                 className="mb-0 hidden text-base font-semibold text-gray-900 lg:block"
@@ -719,7 +719,7 @@ const Questions = ({ id }: Params) => {
                 Supported types
               </h3>
               <p
-                className="mb-0 mt-2 hidden text-[11px] leading-snug text-gray-500 lg:block"
+                className="mb-0  hidden text-xs leading-snug text-gray-500 lg:block"
                 data-cy="survey-palette-drag-hint"
               >
                 Drag a type into the Questions column to add

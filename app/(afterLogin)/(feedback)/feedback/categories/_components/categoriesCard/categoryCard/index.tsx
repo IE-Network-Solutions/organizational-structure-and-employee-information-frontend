@@ -113,13 +113,14 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           >
             <button
               type="button"
-              className="w-10 h-9 flex items-center justify-center border border-[#E5E7EB] rounded-lg bg-white hover:bg-[#F8FAFC] transition-colors shrink-0"
+              className="w-6 h-6 flex items-center justify-center border border-[#E5E7EB] rounded-[4px] bg-white hover:bg-[#F8FAFC] transition-colors shrink-0"
               aria-label="Open menu"
               data-cy={`feedback-categories-components-categoriescard-categorycard-menu-btn-${category?.id}`}
               id={`feedback-categories-components-categoriescard-categorycard-menu-btn-${category?.id}`}
             >
               <MdMoreHoriz
-                className="text-[24px] text-[#374151]"
+                size={14}
+                className="text-[#374151]"
                 data-cy={`feedback-categories-components-categoriescard-categorycard-icon-menu-${category?.id}`}
                 id={`feedback-categories-components-categoriescard-categorycard-icon-menu-${category?.id}`}
               />

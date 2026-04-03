@@ -108,7 +108,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
       destroyOnClose
       wrapClassName="!flex !items-center !justify-center"
       title={
-        <span className="text-[26px] font-semibold text-gray-900">
+        <span className="text-base font-semibold text-gray-900">
           Create Survey
         </span>
       }

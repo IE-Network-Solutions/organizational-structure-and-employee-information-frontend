@@ -492,7 +492,7 @@ function CreatePlanRow({
       ? 'relative mb-4 rounded-lg border border-gray-200 p-3'
       : '';
 
-  const labelClassRow = 'text-sm font-semibold text-gray-900';
+  const labelClassRow = 'text-sm font-semibold text-gray-900 flex items-end gap-1';
 
   return (
     <div
@@ -520,14 +520,14 @@ function CreatePlanRow({
       >
         <div>
           <Form.Item
-            className="mb-3"
+            className="mb-3 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before]:hidden [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:ml-1 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:inline-block [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:text-[#ff4d4f] [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:content-['*']"
             name={[`${planIndex}`, 'issue']}
             label={
               <span
                 className={labelClassRow}
                 data-cy={`create-action-plan-label-issue-${planIndex + 1}`}
               >
-                Issue
+                Issue <span className="text-[#ff4d4f] text-base leading-none ">*</span>
               </span>
             }
             rules={[{ required: true, message: 'Issue is required' }]}
@@ -543,14 +543,14 @@ function CreatePlanRow({
           </Form.Item>
 
           <Form.Item
-            className="mb-3"
+            className="mb-3 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before]:hidden [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:ml-1 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:inline-block [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:text-[#ff4d4f] [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:content-['*']"
             name={[`${planIndex}`, 'actionToBeTaken']}
             label={
               <span
                 className={labelClassRow}
                 data-cy={`create-action-plan-label-action-${planIndex + 1}`}
               >
-                Action to be taken
+                Action to be taken <span className="text-[#ff4d4f] text-base leading-none ">*</span>
               </span>
             }
             rules={[
@@ -571,14 +571,14 @@ function CreatePlanRow({
           </Form.Item>
 
           <Form.Item
-            className="mb-3"
+            className="mb-3 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before]:hidden [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:ml-1 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:inline-block [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:text-[#ff4d4f] [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:content-['*']"
             name={[`${planIndex}`, 'responsiblePerson']}
             label={
               <span
                 className={labelClassRow}
                 data-cy={`create-action-plan-label-responsible-${planIndex + 1}`}
               >
-                Responsible Person
+                Responsible Person <span className="text-[#ff4d4f] text-base leading-none ">*</span>  
               </span>
             }
             rules={[
@@ -596,7 +596,7 @@ function CreatePlanRow({
               placeholder="Select"
               loading={userLoading}
               popupClassName="action-plan-responsible-dropdown"
-              className="w-full rounded-md text-[14px] [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selection-overflow]:!h-10 [&_.ant-select-selection-overflow]:!items-center [&_.ant-select-selection-item]:!hidden [&_.ant-select-selection-item-remove]:!hidden [&_.ant-select-selection-placeholder]:text-[14px] [&_.ant-select-selection-placeholder]:text-gray-500"
+              // className="w-full rounded-md text-[14px] [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selection-overflow]:!h-10 [&_.ant-select-selection-overflow]:!items-center [&_.ant-select-selection-item]:!hidden [&_.ant-select-selection-item-remove]:!hidden [&_.ant-select-selection-placeholder]:text-[14px] [&_.ant-select-selection-placeholder]:text-gray-500"
               value={selectedResponsibleIds}
               showSearch
               optionFilterProp="children"
@@ -679,7 +679,7 @@ function CreatePlanRow({
               data-cy={`create-action-plan-col-priority-${planIndex + 1}`}
             >
               <Form.Item
-                className="mb-0"
+                className="mb-0 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before]:hidden [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:ml-1 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:inline-block [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:text-[#ff4d4f] [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:content-['*']"
                 name={[`${planIndex}`, 'priority']}
                 label={
                   <span
@@ -687,6 +687,7 @@ function CreatePlanRow({
                     data-cy={`create-action-plan-label-priority-${planIndex + 1}`}
                   >
                     Priority
+                    <span className="text-[#ff4d4f] text-base leading-none ">*</span>
                   </span>
                 }
                 rules={[
@@ -701,7 +702,7 @@ function CreatePlanRow({
                   placeholder="Select"
                   allowClear
                   popupClassName="action-plan-priority-dropdown"
-                  className="w-full rounded-md"
+                  className="w-full rounded-md [&_.ant-picker-suffix]:ml-1 [&_.ant-picker-suffix_.anticon]:!text-[13px] [&_.ant-picker-suffix_.anticon]:!leading-none [&_.ant-picker-suffix_.anticon_svg]:!h-[13px] [&_.ant-picker-suffix_.anticon_svg]:!w-[13px]"
                   options={[
                     { value: 'high', label: 'High' },
                     { value: 'medium', label: 'Medium' },
@@ -718,14 +719,17 @@ function CreatePlanRow({
               data-cy={`create-action-plan-col-deadline-${planIndex + 1}`}
             >
               <Form.Item
-                className="mb-0"
+                className="mb-0 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before]:hidden [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:ml-1 [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:inline-block [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:text-[#ff4d4f] [&_label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after]:content-['*']"
                 name={[`${planIndex}`, 'deadline']}
                 label={
                   <span
                     className={labelClassRow}
                     data-cy={`create-action-plan-label-deadline-${planIndex + 1}`}
                   >
-                    Deadline
+                    Deadline{' '}
+                    <span className="text-[#ff4d4f] text-base leading-none ">
+                      *
+                    </span>
                   </span>
                 }
                 rules={[
@@ -737,7 +741,7 @@ function CreatePlanRow({
                 data-cy={`create-action-plan-form-item-deadline-${planIndex + 1}`}
               >
                 <DatePicker
-                  className="w-full rounded-md"
+                  className="w-full rounded-md [&_.ant-picker-suffix]:ml-1 [&_.ant-picker-suffix_.anticon]:!text-[13px] [&_.ant-picker-suffix_.anticon]:!leading-none [&_.ant-picker-suffix_.anticon_svg]:!h-[13px] [&_.ant-picker-suffix_.anticon_svg]:!w-[13px]"
                   format="MMM D, YYYY"
                   placeholder="Select date"
                   data-cy={`create-action-plan-deadline-picker-${planIndex + 1}`}
@@ -1116,7 +1120,7 @@ const CreateActionPlan = (props: CreateActionPlanProps) => {
       }
       title={
         <h2
-          className="m-0 pr-2 text-[16px] font-bold leading-tight"
+          className="m-0 pr-2 text-base font-bold leading-tight"
           style={{
             color: 'var(--Components-Modal-Component-titleColor, #000000B2)',
           }}
