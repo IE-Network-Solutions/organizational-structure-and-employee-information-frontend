@@ -10,6 +10,7 @@ import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
+import { QuestionsType } from '@/store/server/features/organization-development/categories/interface';
 import { useMutation, useQueryClient } from 'react-query';
 
 /**
@@ -61,6 +62,33 @@ const updateQuestions = async (data: any, id: string) => {
     data,
     headers,
   });
+};
+
+/** Persists `order` after drag-and-drop without per-item success handlers. */
+export const persistQuestionOrders = async (
+  ordered: QuestionsType[],
+  formId: string,
+): Promise<void> => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  await Promise.all(
+    ordered.map((q, index) =>
+      crudRequest({
+        url: `${ORG_DEV_URL}/questions/${q.id}`,
+        method: 'PUT',
+        data: {
+          ...q,
+          formId,
+          order: index + 1,
+        },
+        headers,
+      }),
+    ),
+  );
 };
 
 /**

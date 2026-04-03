@@ -237,13 +237,13 @@ export default function RecentHrActions({
             data-cy="recent-hr-actions-title"
             id="recent-hr-actions-title"
           >
-            Recent HR Actions
+            Recent Actions
           </h3>
         </div>
 
         <Link
           href={`/audit-log?modules=${encodeURIComponent(auditLogModules?.join(',') ?? '')}`}
-          className="text-sm font-medium text-blue hover:underline whitespace-nowrap"
+          className="text-sm font-normal text-primary "
           id="recent-hr-actions-view-all"
           data-cy="recent-hr-actions-view-all"
           aria-label="View all recent HR actions"

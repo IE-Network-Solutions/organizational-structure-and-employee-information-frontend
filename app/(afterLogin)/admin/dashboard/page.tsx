@@ -1,18 +1,10 @@
 'use client';
 
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import {
-  CalendarFilled,
-  UserOutlined,
-  SyncOutlined,
-  FileImageFilled,
-  FileDoneOutlined,
-} from '@ant-design/icons';
-import { Button, Card, Checkbox, Skeleton, Tooltip } from 'antd';
+import { Button, Card, Divider, Progress, Skeleton, Tag } from 'antd';
 import { useEffect, useState } from 'react';
-import React from 'react';
-import CustomButton from '@/components/common/buttons/customButton';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
+import { InvoiceModal } from '../_components/InvoiceModal/InvoiceModal';
+import { ManageSubscriptionModal } from '../_components/ManageSubscriptionModal/ManageSubscriptionModal';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetInvoices } from '@/store/server/features/tenant-management/invoices/queries';
 import { useGetCurrencies } from '@/store/server/features/tenant-management/currencies/queries';
@@ -24,21 +16,28 @@ import {
 } from '@/types/tenant-management';
 import { useGetPlans } from '@/store/server/features/tenant-management/plans/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
-import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
 import { useQueryClient } from 'react-query';
+import dayjs from 'dayjs';
 
 const AdminDashboard = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentPlan, setCurrentPlan] = useState<Plan>();
+  const [currentPlan, setCurrentPlan] = useState<Plan | undefined>();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [activeSubscription, setActiveSubscription] =
     useState<Subscription | null>(null);
-
   const [lastInvoice, setLastInvoice] = useState<Invoice | null>(null);
-  const { setTransactionType } = usePaymentStore();
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
+    null,
+  );
+  const [manageSubscriptionOpen, setManageSubscriptionOpen] = useState(false);
+  const [invoicePage, setInvoicePage] = useState(1);
+  const invoicePageSize = 10;
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
@@ -49,11 +48,11 @@ const AdminDashboard = () => {
     refetch: refetchInvoices,
   } = useGetInvoices(
     {
-      filter: {
-        tenantId: DEFAULT_TENANT_ID,
-      },
+      filter: { tenantId: DEFAULT_TENANT_ID },
+      page: invoicePage,
+      limit: invoicePageSize,
     },
-    'ASC',
+    'DESC',
     false,
     true,
   );
@@ -65,13 +64,6 @@ const AdminDashboard = () => {
     'ASC',
   );
 
-  const currentCurrencyId = currentPlan?.currencyId;
-
-  const plansWithSameCurrency = plansData?.items?.filter(
-    (plan: { currencyId: string | undefined }) =>
-      plan.currencyId === currentCurrencyId,
-  );
-
   const { data: currenciesData, isLoading: currenciesLoading } =
     useGetCurrencies({ filter: {} }, true, true);
 
@@ -80,31 +72,36 @@ const AdminDashboard = () => {
     isLoading: subscriptionsLoading,
     refetch: refetchSubscriptions,
   } = useGetSubscriptions(
-    {
-      filter: {
-        tenantId: [DEFAULT_TENANT_ID],
-      },
-    },
+    { filter: { tenantId: [DEFAULT_TENANT_ID] } },
     true,
     true,
   );
 
-  // Refetch data when returning from payment or when page becomes visible
+  const { data: employeeStatus } = useGetEmployeeStatus('');
+  const seatsUsed =
+    employeeStatus?.reduce((acc, s) => acc + Number(s.count), 0) ?? 0;
+  const seatsTotal = activeSubscription?.slotTotal ?? 0;
+  const seatsPercent =
+    seatsTotal > 0
+      ? Math.min(100, Math.round((seatsUsed / seatsTotal) * 100))
+      : 0;
+
   useEffect(() => {
+    const manageSubscription = searchParams.get('manageSubscription');
+    if (manageSubscription === '1') {
+      setManageSubscriptionOpen(true);
+      router.replace('/admin/dashboard', { scroll: false });
+    }
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        queryClient.invalidateQueries('invoices').then(() => {
-          refetchInvoices();
-        });
-        queryClient.invalidateQueries('subscriptions').then(() => {
-          refetchSubscriptions();
-        });
+        queryClient.invalidateQueries('invoices').then(() => refetchInvoices());
+        queryClient
+          .invalidateQueries('subscriptions')
+          .then(() => refetchSubscriptions());
       }
     };
-
     const paymentSuccess = searchParams.get('payment_success');
     const paymentReturn = searchParams.get('payment_return');
-
     if (paymentSuccess === 'true' || paymentReturn === 'true') {
       queryClient.invalidateQueries('invoices');
       queryClient.invalidateQueries('subscriptions');
@@ -112,12 +109,9 @@ const AdminDashboard = () => {
       refetchSubscriptions();
       router.replace('/admin/dashboard', { scroll: false });
     }
-
     document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
+    return () =>
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, [
     searchParams,
     router,
@@ -127,637 +121,336 @@ const AdminDashboard = () => {
   ]);
 
   useEffect(() => {
-    if (invoicesData) {
-      if (invoicesData?.items && invoicesData.items.length > 0) {
-        const sortedInvoices = [...invoicesData.items].sort((a, b) => {
-          return (
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-          );
-        });
-        setInvoices(sortedInvoices);
-        // Set the latest invoice
-        setLastInvoice(sortedInvoices[0]);
-      } else {
-        // No invoices available
-        setInvoices([]);
-        setLastInvoice(null);
-      }
+    if (invoicesData?.items?.length) {
+      const sorted = [...invoicesData.items].sort(
+        (a, b) =>
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime(),
+      );
+      setInvoices(sorted);
+      setLastInvoice(sorted[0]);
+    } else {
+      setInvoices([]);
+      setLastInvoice(null);
     }
   }, [invoicesData]);
 
   useEffect(() => {
-    if (currenciesData?.items && currenciesData.items.length > 0) {
-      setCurrencies(currenciesData.items);
-    }
+    if (currenciesData?.items?.length) setCurrencies(currenciesData.items);
   }, [currenciesData]);
 
   useEffect(() => {
-    if (plansData?.items && plansData.items.length > 0) {
-      setPlans(plansData.items);
-    }
+    if (plansData?.items?.length) setPlans(plansData.items);
   }, [plansData]);
 
   useEffect(() => {
-    if (subscriptionsData?.items && subscriptionsData.items.length > 0) {
-      const allSubscriptions = subscriptionsData.items;
-      setSubscriptions(allSubscriptions);
-
-      // Find active subscription
-      const active = allSubscriptions.find((sub) => sub.isActive === true);
+    if (subscriptionsData?.items?.length) {
+      const all = subscriptionsData.items;
+      setSubscriptions(all);
+      const active = all.find((s: Subscription) => s.isActive === true);
       if (active) {
         setActiveSubscription(active);
         setCurrentPlan(active.plan);
       } else {
-        // If no active subscription found, use the latest one by creation date
-        const sortedSubs = [...allSubscriptions].sort((a, b) => {
-          return (
+        const latest = [...all].sort(
+          (a, b) =>
             new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-          );
-        });
-        setActiveSubscription(sortedSubs[0]);
-        setCurrentPlan(sortedSubs[0]?.plan);
+            new Date(a.createdAt || 0).getTime(),
+        )[0];
+        setActiveSubscription(latest ?? null);
+        setCurrentPlan(latest?.plan);
       }
     } else {
-      // No subscriptions available
       setSubscriptions([]);
       setActiveSubscription(null);
       setCurrentPlan(undefined);
     }
   }, [subscriptionsData]);
 
-  const getFormattedSubscriptionStatus = (status?: string): string => {
-    if (!status) return 'Unknown';
-
-    // Convert first letter to uppercase
-    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-  };
-
-  // Check if the latest invoice is paid
-  const isLatestInvoicePaid = () => {
-    if (!lastInvoice) return true; // If no invoice, allow actions
-    return lastInvoice.status?.toLowerCase() === 'paid';
-  };
-
-  // Generate tooltip message for disabled buttons
-  const getDisabledTooltip = () => {
-    return 'Please pay your current invoice before making changes to your subscription';
-  };
-
-  const dashboardData = [
-    {
-      overview: 'Current Subscription',
-      color: '#3636F0',
-      icon: <SyncOutlined />,
-      id: 'currentSubscription',
-    },
-    {
-      overview: 'Total Quota',
-      color: '#3636F0',
-      icon: <FileImageFilled />,
-      id: 'totalQuota',
-    },
-    {
-      overview: 'Active User',
-      color: '#3636F0',
-      icon: <UserOutlined />,
-      id: 'activeUser',
-    },
-    {
-      overview: 'Invoice Status',
-      color: '#3636F0',
-      icon: <FileDoneOutlined />,
-      id: 'invoiceStatus',
-    },
-    {
-      overview: 'Subscription Status',
-      color: '#3636F0',
-      icon: <CalendarFilled />,
-      id: 'subscriptionStatus',
-    },
-  ];
-
-  // Dynamically generate dashboard values based on current data
-  const getDashboardValues = () => {
-    return [
-      {
-        id: 'currentSubscription',
-        value: activeSubscription?.plan?.name || 'No Plan',
-      },
-      {
-        id: 'totalQuota',
-        value: activeSubscription?.slotTotal?.toString() || '0',
-      },
-      {
-        id: 'activeUser',
-        value: activeSubscription?.slotTotal?.toString() || '0',
-      },
-      {
-        id: 'invoiceStatus',
-        value: lastInvoice
-          ? getFormattedSubscriptionStatus(lastInvoice.status)
-          : 'No Invoice',
-      },
-      {
-        id: 'subscriptionStatus',
-        value: activeSubscription
-          ? getFormattedSubscriptionStatus(
-              activeSubscription.subscriptionStatus,
-            )
-          : 'No Subscription',
-      },
-    ];
-  };
-
-  const dashboardValues = getDashboardValues();
+  const daysLeft = (() => {
+    const end = activeSubscription?.endAt ?? activeSubscription?.trialEndAt;
+    if (!end) return null;
+    const diff = dayjs(end).diff(dayjs(), 'day');
+    return Math.max(0, diff);
+  })();
 
   const isLoading =
     isInvoicesLoading ||
     plansLoading ||
     currenciesLoading ||
     subscriptionsLoading;
-  const hasSelectedPlan = !!currentPlan;
-  const activeSubscriptionData = subscriptionsData?.items?.find(
-    (sub) => sub.isActive === true,
-  );
-  return (
-    <div
-      id="admin-dashboard"
-      data-cy="admin-dashboard"
-      className="h-auto w-auto px-6 py-6"
-    >
-      <CustomBreadcrumb
-        title="Hi, Admin"
-        subtitle="Manage Tenant Billing, Invoices, and Profile Information"
-        data-cy="admin-dashboard-breadcrumb"
-      />
 
-      <div
-        id="dashboard-cards"
-        data-cy="dashboard-cards"
-        className="grid gap-3  mb-[35px] mt-[25px] md:grid-cols-2 lg:grid-cols-5"
-      >
-        {dashboardData.map((item, idx) => {
-          const valueData = dashboardValues.find((v) => v.id === item.id);
-          return (
-            <Card
-              key={idx}
-              id={`dashboard-card-${item.id}`}
-              data-cy={`dashboard-card-${item.id}`}
-              loading={isLoading}
-              className="rounded-lg bg-white relative"
-              bordered={false}
-              styles={{
-                body: { padding: '0px' },
-              }}
-              style={{
-                boxShadow: isLoading
-                  ? 'none'
-                  : '0px 5px 10px 0px rgba(0, 0, 0, 0.1)',
-                border: isLoading
-                  ? 'none'
-                  : '1px solid rgba(162, 161, 168, 0.2)',
-                padding: isLoading ? '20px' : '0px',
-              }}
+  const openInvoiceModal = (id: string) => {
+    setSelectedInvoiceId(id);
+    setInvoiceModalOpen(true);
+  };
+
+  return (
+    <div id="admin-dashboard" data-cy="admin-dashboard">
+      {/* Current Subscription + Invoice cards */}
+      {isLoading ? (
+        <Card
+          id="current-subscription-card-loading"
+          className="rounded-lg border border-gray-200 shadow-sm mb-8"
+        >
+          <Skeleton active paragraph={{ rows: 4 }} />
+        </Card>
+      ) : (
+        <div
+          data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-200"
+          className="grid gap-4 mb-8 lg:grid-cols-2"
+        >
+          {/* Left: Current Subscription */}
+          <Card
+            id="current-subscription-card"
+            data-cy="current-subscription-card"
+            className="rounded-lg shadow-sm h-full"
+            style={{
+              border: '2px solid rgba(9, 88, 217, 0.3)',
+            }}
+            styles={{ body: { padding: '16px' } }}
+          >
+            <div
+              data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-209"
+              className="flex-1 w-full"
             >
-              {isLoading ? (
-                <Skeleton
-                  active
-                  paragraph={{ rows: 2 }}
-                  data-cy="dashboard-card-loading-skeleton"
-                />
-              ) : (
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-210"
+                className="flex items-center justify-between gap-2 mb-2 w-full"
+              >
+                <h2
+                  data-cy="-afterlogin-admin-dashboard-page-tsx-page-h2-211"
+                  className="text-[16px] font-medium text-gray-500"
+                >
+                  Current Subscription plan
+                </h2>
+                {activeSubscription && (
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-215"
+                    className="flex justify-end"
+                  >
+                    <Tag
+                      color="success"
+                      data-cy="subscription-status-badge"
+                      className="shrink-0 m-0"
+                    >
+                      Active
+                    </Tag>
+                  </div>
+                )}
+              </div>
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-226"
+                className="flex items-center gap-2 flex-wrap mt-2"
+              >
+                <span
+                  data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-227"
+                  className="text-2xl font-bold text-gray-900"
+                >
+                  {currentPlan?.name ?? 'No Plan'}
+                </span>
+              </div>
+              {seatsTotal > 0 && (
+                <div
+                  data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-232"
+                  className="mt-4"
+                >
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-233"
+                    className="flex justify-end mb-1"
+                  >
+                    <span
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-234"
+                      className="text-sm text-gray-600"
+                    >
+                      <span
+                        data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-235"
+                        className="font-bold"
+                      >
+                        {seatsUsed} / {seatsTotal}
+                      </span>{' '}
+                      Seats Used
+                    </span>
+                  </div>
+                  <div
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-241"
+                    className="w-[93%]"
+                  >
+                    <Progress
+                      percent={seatsPercent}
+                      showInfo={false}
+                      strokeColor="#1C3CA5"
+                      className="mb-4"
+                    />
+                  </div>
+                </div>
+              )}
+              <p
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-p-251"
+                className="text-[16px] text-gray-600 mb-3"
+              >
+                Need extra feature or want to update seats?
+              </p>
+              <div
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-254"
+                className="flex justify-center"
+              >
+                <Button
+                  type="primary"
+                  onClick={() => setManageSubscriptionOpen(true)}
+                  data-cy="manage-subscription-button"
+                  className="w-[265px] font-normal h-10"
+                >
+                  Manage Subscription
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Right: Latest Invoice summary */}
+          <Card
+            id="latest-invoice-card"
+            data-cy="latest-invoice-card"
+            className="rounded-lg shadow-sm h-full"
+            style={{ border: '2px solid #e5e7eb' }}
+            styles={{ body: { padding: '16px' } }}
+          >
+            <div
+              data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-275"
+              className="flex flex-col justify-between gap-4 h-full"
+            >
+              {lastInvoice && (
                 <>
                   <div
-                    id={`dashboard-card-${item.id}-header`}
-                    data-cy={`dashboard-card-${item.id}-header`}
-                    className="flex flex-col gap-2 pt-6 pl-4 pr-4 pb-4"
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-278"
+                    className="w-full"
                   >
                     <div
-                      id={`dashboard-card-${item.id}-icon`}
-                      data-cy={`dashboard-card-${item.id}-icon`}
-                      className="bg-gray-100 rounded-md py-2 px-3 w-fit"
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-279"
+                      className="flex items-center justify-between gap-2 w-full mb-1"
                     >
-                      {React.cloneElement(item.icon, {
-                        style: { color: item.color },
-                        size: 24,
-                      })}
+                      <span
+                        data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-280"
+                        className="text-[16px] font-medium text-gray-500"
+                      >
+                        Invoice
+                      </span>
+                      <Tag
+                        color={
+                          lastInvoice.status?.toLowerCase() === 'paid'
+                            ? 'success'
+                            : lastInvoice.status?.toLowerCase() === 'pending' ||
+                                lastInvoice.status?.toLowerCase() === 'issued'
+                              ? 'warning'
+                              : 'error'
+                        }
+                        className="shrink-0 m-0"
+                      >
+                        {lastInvoice.status}
+                      </Tag>
                     </div>
                     <div
-                      id={`dashboard-card-${item.id}-label`}
-                      data-cy={`dashboard-card-${item.id}-label`}
-                      className="text-sm text-gray-500"
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-297"
+                      className="text-[16px] text-gray-700 font-bold"
                     >
-                      {item.overview}
+                      #{lastInvoice.invoiceNumber}
                     </div>
                   </div>
-
+                  <Divider className="my-0" />
                   <div
-                    id={`dashboard-card-${item.id}-content`}
-                    data-cy={`dashboard-card-${item.id}-content`}
-                    className="flex flex-col"
+                    data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-302"
+                    className="flex flex-col gap-1 w-full"
                   >
                     <div
-                      id={`dashboard-card-${item.id}-value-container`}
-                      data-cy={`dashboard-card-${item.id}-value-container`}
-                      className="p-4 pt-0"
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-303"
+                      className="flex items-baseline justify-between gap-2 w-full"
                     >
-                      <div
-                        id={`dashboard-card-${item.id}-value`}
-                        data-cy={`dashboard-card-${item.id}-value`}
-                        className="text-1xl font-bold flex items-center justify-between"
+                      <span
+                        data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-304"
+                        className="text-[16px] text-gray-500"
                       >
-                        {valueData?.value}
-                      </div>
-                    </div>
+                        Due Date
+                      </span>
+
+                      {daysLeft !== null && (
+                        <Tag
+                          color="success"
+                          className="shrink-0 align-baseline m-0"
+                        >
+                          {daysLeft} Days Left
+                        </Tag>
+                      )}
+                    </div>{' '}
+                    <span
+                      data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-315"
+                      className="text-[16px] text-gray-700 font-bold"
+                    >
+                      {dayjs(lastInvoice.dueAt).format('MMM D, YYYY')}
+                    </span>
                   </div>
                 </>
               )}
-            </Card>
-          );
-        })}
-      </div>
-
-      <div
-        id="tenant-plans-title"
-        data-cy="tenant-plans-title"
-        className="text-2xl font-bold mb-5"
-      >
-        Tenant Plan & Available Upgrades
-      </div>
-
-      {isLoading ? (
-        <div
-          id="tenant-plans-loading"
-          data-cy="tenant-plans-loading"
-          className="flex flex-col md:flex-row gap-4"
-        >
-          {[1, 2].map((index) => (
-            <div
-              key={index}
-              id={`tenant-plans-loading-skeleton-${index}`}
-              data-cy={`tenant-plans-loading-skeleton-${index}`}
-              className="bg-white rounded-lg p-4 w-full md:w-1/2 mb-4"
-              style={{
-                boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
-                minHeight: '571px',
-              }}
-            >
-              <Skeleton
-                active
-                paragraph={{ rows: 10 }}
-                data-cy="tenant-plans-loading-skeleton"
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <>
-          <div
-            id="tenant-plans-container"
-            data-cy="tenant-plans-container"
-            className="flex flex-col mb-[35px] mt-[25px] md:flex-row justify-between items-center gap-4 bg-purple/10 rounded-lg p-4"
-            style={{
-              boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
-              overflowX: 'auto',
-            }}
-          >
-            {(plansWithSameCurrency ?? []).length > 0 ? (
-              (plansWithSameCurrency ?? [])
-                ?.filter((plan) => plan.isFree == false)
-                .map((plan) => (
-                  <div
-                    key={plan.id}
-                    id={`tenant-plan-${plan.id}`}
-                    data-cy={`tenant-plan-${plan.id}`}
-                    className={`flex flex-col justify-between gap-2 rounded-lg p-4
-    ${plan.id === currentPlan?.id ? 'md:min-w-[542px]' : 'md:min-w-[435px] bg-white'}
-    min-h-[571px] w-full md:w-auto `}
-                  >
-                    <div
-                      id={`tenant-plan-${plan.id}-content`}
-                      data-cy={`tenant-plan-${plan.id}-content`}
-                      className="flex flex-col gap-2"
-                    >
-                      <div
-                        id={`tenant-plan-${plan.id}-header`}
-                        data-cy={`tenant-plan-${plan.id}-header`}
-                        className="flex justify-between text-lg font-extrabold mb-2"
-                      >
-                        <span
-                          id={`tenant-plan-${plan.id}-name`}
-                          data-cy={`tenant-plan-${plan.id}-name`}
-                        >
-                          {plan.name}
-                        </span>
-                        <div
-                          id={`tenant-plan-${plan.id}-status`}
-                          data-cy={`tenant-plan-${plan.id}-status`}
-                        >
-                          {' '}
-                          {/* {plan.id === currentPlan?.id && (
-                            <div className="text-sm rounded-lg bg-white font-bold p-2">
-                              Renews in{' '}
-                              <span
-                                className={
-                                  plan.invoiceGenerationDaysBefore < 10
-                                    ? 'text-red-500'
-                                    : 'text-green-500'
-                                }
-                              >
-                                {plan.invoiceGenerationDaysBefore} days
-                              </span>
-                            </div>
-                          )} */}
-                          {activeSubscription &&
-                            plan.id === currentPlan?.id && (
-                              <div
-                                id={`tenant-plan-${plan.id}-expires`}
-                                data-cy={`tenant-plan-${plan.id}-expires`}
-                                className="text-sm rounded-lg bg-white font-bold p-2 "
-                              >
-                                Expires in{' '}
-                                <span
-                                  id={`tenant-plan-${plan.id}-expires-days`}
-                                  data-cy={`tenant-plan-${plan.id}-expires-days`}
-                                  className={
-                                    new Date(
-                                      activeSubscription.trialEndAt &&
-                                      activeSubscription.isTrial
-                                        ? activeSubscription.trialEndAt
-                                        : activeSubscription.endAt,
-                                    ).getTime() -
-                                      Date.now() <
-                                    10 * 24 * 60 * 60 * 1000 // Less than 10 days
-                                      ? 'text-red-500'
-                                      : 'text-green-500'
-                                  }
-                                >
-                                  {Math.ceil(
-                                    (new Date(
-                                      activeSubscription.trialEndAt &&
-                                      activeSubscription.isTrial
-                                        ? activeSubscription.trialEndAt
-                                        : activeSubscription.endAt,
-                                    ).getTime() -
-                                      Date.now()) /
-                                      (24 * 60 * 60 * 1000),
-                                  )}{' '}
-                                  days
-                                </span>
-                              </div>
-                            )}
-                        </div>
-                      </div>
-                      {!plan.isFree && (
-                        <div
-                          id={`tenant-plan-${plan.id}-pricing`}
-                          data-cy={`tenant-plan-${plan.id}-pricing`}
-                          className="flex gap-5 items-center"
-                        >
-                          <div
-                            id={`tenant-plan-${plan.id}-main-price`}
-                            data-cy={`tenant-plan-${plan.id}-main-price`}
-                          >
-                            <div
-                              id={`tenant-plan-${plan.id}-price`}
-                              data-cy={`tenant-plan-${plan.id}-price`}
-                              className="text-5xl font-bold"
-                            >
-                              {plan.currency.symbol}
-                              {plan.id === currentPlan?.id
-                                ? plan.periods?.find(
-                                    (period) =>
-                                      period.id ==
-                                      activeSubscriptionData?.planPeriodId,
-                                  )?.periodSlotPrice
-                                : plan.slotPrice}
-                            </div>
-                            <div
-                              id={`tenant-plan-${plan.id}-price-label`}
-                              data-cy={`tenant-plan-${plan.id}-price-label`}
-                              className="text-sm text-gray-500"
-                            >
-                              per user billed annually
-                            </div>
-                          </div>
-                          <div
-                            id={`tenant-plan-${plan.id}-other-periods`}
-                            data-cy={`tenant-plan-${plan.id}-other-periods`}
-                          >
-                            {plan.periods
-                              ?.filter(
-                                (period) =>
-                                  period.id !=
-                                  activeSubscriptionData?.planPeriodId,
-                              )
-                              ?.map((period, index) => (
-                                <div
-                                  key={index}
-                                  id={`tenant-plan-${plan.id}-period-${period.id}`}
-                                  data-cy={`tenant-plan-${plan.id}-period-${period.id}`}
-                                  className={`text-sm rounded-lg font-bold p-2 my-2  ${plan.id === currentPlan?.id ? 'bg-white' : 'bg-purple/10'} w-fit`}
-                                >
-                                  {plan.currency.symbol}
-                                  {period.periodSlotPrice}/
-                                  {period?.periodType?.code}
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
-                      <div
-                        id={`tenant-plan-${plan.id}-features-title`}
-                        data-cy={`tenant-plan-${plan.id}-features-title`}
-                        className="mt-8 mb-6 font-bold"
-                      >
-                        Get in depth with our system
-                      </div>
-                      <div
-                        id={`tenant-plan-${plan.id}-features`}
-                        data-cy={`tenant-plan-${plan.id}-features`}
-                        className="flex flex-col gap-5"
-                      >
-                        {plan.planDetails &&
-                          plan.planDetails.map((detail, index) => (
-                            <div
-                              key={index}
-                              id={`tenant-plan-${plan.id}-feature-${index}`}
-                              data-cy={`tenant-plan-${plan.id}-feature-${index}`}
-                              className="flex gap-2 font-bold"
-                            >
-                              <Checkbox
-                                id={`tenant-plan-${plan.id}-feature-checkbox-${index}`}
-                                data-cy={`tenant-plan-${plan.id}-feature-checkbox-${index}`}
-                                checked={true}
-                              />
-                              <span
-                                id={`tenant-plan-${plan.id}-feature-text-${index}`}
-                                data-cy={`tenant-plan-${plan.id}-feature-text-${index}`}
-                              >
-                                {detail}
-                              </span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                    {plan.id === currentPlan?.id ? (
-                      <div
-                        id={`tenant-plan-${plan.id}-current-actions`}
-                        data-cy={`tenant-plan-${plan.id}-current-actions`}
-                        className="flex flex-wrap gap-4 mt-8 pl-0 md:pl-4"
-                      >
-                        {plan.isFree !== true && (
-                          <Tooltip
-                            title={
-                              !isLatestInvoicePaid() ? getDisabledTooltip() : ''
-                            }
-                            placement="bottom"
-                            data-cy={`tenant-plan-${plan.id}-update-quota-button-tooltip`}
-                          >
-                            <span
-                              className="w-full md:w-auto"
-                              data-cy={`tenant-plan-${plan.id}-update-quota-button-container`}
-                            >
-                              <Button
-                                id={`tenant-plan-${plan.id}-update-quota-button`}
-                                data-cy={`tenant-plan-${plan.id}-update-quota-button`}
-                                onClick={() =>
-                                  router.push('/admin/plan?source=quota')
-                                }
-                                className="h-8 rounded-lg w-full px-2 h-8"
-                                type="default"
-                                disabled={!isLatestInvoicePaid()}
-                              >
-                                Update User Quota
-                              </Button>
-                            </span>
-                          </Tooltip>
-                        )}
-                        {plan.isFree !== true && (
-                          <Tooltip
-                            title={
-                              !isLatestInvoicePaid() ? getDisabledTooltip() : ''
-                            }
-                            placement="bottom"
-                            data-cy={`tenant-plan-${plan.id}-update-period-button-tooltip`}
-                          >
-                            <span
-                              className="w-full md:w-auto"
-                              data-cy={`tenant-plan-${plan.id}-update-period-button-container`}
-                            >
-                              <Button
-                                id={`tenant-plan-${plan.id}-update-period-button`}
-                                data-cy={`tenant-plan-${plan.id}-update-period-button`}
-                                onClick={() =>
-                                  router.push(
-                                    '/admin/plan?source=period&step=1',
-                                  )
-                                }
-                                className="h-8 rounded-lg w-full px-2 h-8"
-                                type="default"
-                                disabled={!isLatestInvoicePaid()}
-                              >
-                                Update Subscription Period
-                              </Button>
-                            </span>
-                          </Tooltip>
-                        )}
-                        {plan.isFree !== true && (
-                          <span
-                            className="w-full md:w-auto"
-                            data-cy={`tenant-plan-${plan.id}-pay-bill-button-container`}
-                          >
-                            <Button
-                              id={`tenant-plan-${plan.id}-pay-bill-button`}
-                              data-cy={`tenant-plan-${plan.id}-pay-bill-button`}
-                              onClick={() =>
-                                router.push(
-                                  `/admin/invoice/${activeSubscription?.invoices[0]?.id}`,
-                                )
-                              }
-                              className="h-8 rounded-lg w-full px-2 h-8"
-                              type="default"
-                            >
-                              Pay Next Bill
-                            </Button>
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <div
-                        id={`tenant-plan-${plan.id}-upgrade-actions`}
-                        data-cy={`tenant-plan-${plan.id}-upgrade-actions`}
-                        className="flex justify-center mt-8"
-                      >
-                        <Tooltip
-                          title={
-                            !isLatestInvoicePaid() ? getDisabledTooltip() : ''
-                          }
-                          placement="bottom"
-                          data-cy={`tenant-plan-${plan.id}-upgrade-button-tooltip`}
-                        >
-                          <span
-                            className="w-full"
-                            data-cy={`tenant-plan-${plan.id}-upgrade-button-container`}
-                          >
-                            <CustomButton
-                              id={`tenant-plan-${plan.id}-upgrade-button`}
-                              data-cy={`tenant-plan-${plan.id}-upgrade-button`}
-                              title={
-                                hasSelectedPlan &&
-                                plan.slotPrice < Number(currentPlan?.slotPrice)
-                                  ? 'Downgrade Plan'
-                                  : 'Upgrade Plan'
-                              }
-                              onClick={() => {
-                                setTransactionType('purchase_subscription');
-                                router.push(`/admin/plan?planId=${plan.id}`);
-                              }}
-                              className="w-full text-center flex justify-center items-center"
-                              type="primary"
-                              disabled={!isLatestInvoicePaid()}
-                            />
-                          </span>
-                        </Tooltip>
-                      </div>
-                    )}
-                  </div>
-                ))
-            ) : (
               <div
-                id="tenant-plans-empty"
-                data-cy="tenant-plans-empty"
-                className="w-full py-10 text-center"
+                data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-321"
+                className="flex justify-center mt-6"
               >
-                <p
-                  id="tenant-plans-empty-message"
-                  data-cy="tenant-plans-empty-message"
-                  className="text-gray-500 text-lg"
+                <Button
+                  onClick={() => router.push('/admin/billing')}
+                  data-cy="billing-and-invoice-button"
+                  className="w-[265px] font-normal border-gray-300 h-10"
                 >
-                  No plans available. Please check back later.
-                </p>
+                  Billing and Invoice
+                </Button>
               </div>
-            )}
-          </div>
-        </>
+            </div>
+          </Card>
+        </div>
       )}
 
+      {/* Recent Billing History */}
       <div
-        id="billing-history-title"
-        data-cy="billing-history-title"
-        className="text-2xl font-bold mb-5"
+        data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-338"
+        className="mb-4"
       >
-        Tenant Billing History
+        <h2
+          data-cy="-afterlogin-admin-dashboard-page-tsx-page-h2-339"
+          className="text-base font-bold text-gray-900"
+        >
+          Recent Billing History
+        </h2>
       </div>
-
       <InvoicesTable
         data={invoices}
         loading={isLoading}
         plans={plans}
         currencies={currencies}
         subscriptions={subscriptions}
+        totalItems={invoicesData?.meta?.totalItems ?? invoices.length}
+        totalPages={invoicesData?.meta?.totalPages}
+        currentPage={invoicePage}
+        pageSize={invoicePageSize}
+        onPageChange={(page) => setInvoicePage(page)}
+        onInvoiceClick={openInvoiceModal}
+        hideFilters
+      />
+
+      <InvoiceModal
+        open={invoiceModalOpen}
+        invoiceId={selectedInvoiceId}
+        onClose={() => {
+          setInvoiceModalOpen(false);
+          setSelectedInvoiceId(null);
+        }}
+      />
+
+      <ManageSubscriptionModal
+        open={manageSubscriptionOpen}
+        onClose={() => setManageSubscriptionOpen(false)}
+        onContinueToInvoice={(invoiceId) => {
+          setManageSubscriptionOpen(false);
+          setSelectedInvoiceId(invoiceId);
+          setInvoiceModalOpen(true);
+        }}
       />
     </div>
   );
