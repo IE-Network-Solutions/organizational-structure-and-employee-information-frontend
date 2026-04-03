@@ -5,6 +5,7 @@ import { useOrganizationalDevelopment } from '@/store/uistate/features/organizat
 import { Button, Col, DatePicker, Form, Input, Row, Select, Spin } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect } from 'react';
+import { conversationPrimaryButtonClassName } from '@/app/(afterLogin)/(feedback)/feedback/conversation/conversationTheme';
 const { Option } = Select;
 
 interface PropsData {
@@ -181,7 +182,7 @@ const EditActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
               htmlType="submit"
               name="createActionButton"
               id="createActionButtonId"
-              className="px-6 py-3 text-xs font-bold"
+              className={`px-6 py-3 text-xs font-bold ${conversationPrimaryButtonClassName}`}
               type="primary"
             >
               Update

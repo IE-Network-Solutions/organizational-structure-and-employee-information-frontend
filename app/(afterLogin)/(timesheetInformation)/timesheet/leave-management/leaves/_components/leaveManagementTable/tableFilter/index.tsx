@@ -328,7 +328,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
         >
           <Button
             onClick={handleReset}
-            className="transition-colors text-normal border-gray-300 border text-black/70 shadow-none"
+            className="transition-colors text-normal font-normal border-gray-300 border text-black/70 shadow-none"
             data-cy="time-attendance-leave-management-filter-reset-button"
           >
             Reset
@@ -336,7 +336,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
           <Button
             type="primary"
             onClick={handleSaveFilter}
-            className="transition-colors  text-normal  text-white shadow-none"
+            className="transition-colors text-normal font-normal text-white shadow-none"
             data-cy="time-attendance-leave-management-filter-save-button"
           >
             Save Filter

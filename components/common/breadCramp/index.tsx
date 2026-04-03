@@ -36,7 +36,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   >
     <div
       className={classNames(
-        'self-stretch text-2xl font-bold leading-[31.20px] text-gray-900',
+        'self-stretch text-2xl font-bold leading-[31.20px] text-black',
         titleClassName,
       )}
       data-cy="breadcrumb-title"
