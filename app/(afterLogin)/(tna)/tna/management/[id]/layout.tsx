@@ -180,7 +180,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
                   <Button
                     type="primary"
                     icon={<LuPlus size={16} />}
-                    className="h-10"
+                    className="h-10 !font-normal"
                     id="tnaManagementNewLessonButtonId"
                     data-cy="tna-management-new-lesson-button"
                     onClick={() => {
