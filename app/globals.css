@@ -84,6 +84,36 @@
     display: none;
   }
 
+  /* Action plan create modal: normalize control heights */
+  .action-plan-create-modal .ant-picker,
+  .action-plan-create-modal .ant-select-selector {
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+
+  /* Make inner inputs match the outer control height */
+  .action-plan-create-modal .ant-picker-input > input,
+  .action-plan-create-modal .ant-select-selection-search-input,
+  .action-plan-create-modal .ant-select-selection-overflow {
+    height: 40px !important;
+    line-height: 40px !important;
+  }
+
+  /* Vertically center suffix/arrow and keep icons aligned */
+  .action-plan-create-modal .ant-picker-suffix,
+  .action-plan-create-modal .ant-select-arrow {
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Survey/modal icons: make them consistent at 24px */
+  .action-plan-create-modal .anticon,
+  .action-plan-create-modal .ant-picker-suffix svg,
+  .action-plan-create-modal .ant-select-arrow svg {
+    font-size: 24px !important;
+  }
+
   /* Org Structure chart: smooth layout transitions on collapse/expand */
   .org-structure-flow .react-flow__node,
   .org-structure-flow .xyflow__node {
@@ -95,6 +125,25 @@
   .org-structure-flow .react-flow__edge-path,
   .org-structure-flow .xyflow__edge-path {
     transition: opacity 220ms ease;
+  }
+
+  /* Ant Select caret container (multi-select uses suffix container) */
+  .action-plan-create-modal .ant-select-suffix {
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Ensure the caret icon itself is vertically centered */
+  .action-plan-create-modal .ant-select-arrow {
+    justify-content: center !important;
+  }
+
+  .action-plan-create-modal .ant-select-arrow svg,
+  .action-plan-create-modal .ant-select-arrow .anticon {
+    display: block !important;
+    align-self: center !important;
   }
 
   /* Calibre font family - local OTF files */
@@ -1306,6 +1355,42 @@
     }
   }
 
+  /* Survey Form Card (triple-dot): dropdown panel styling */
+  .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu {
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow:
+      0 12px 30px rgba(15, 23, 42, 0.12),
+      0 0 0 1px rgba(148, 163, 184, 0.12) !important;
+    padding: 4px 0 !important;
+    overflow: hidden !important;
+  }
+
+  .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
+    padding: 10px 16px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item-content {
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+  }
+
+  .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover {
+    background-color: #f8faff !important;
+  }
+
+  .form-card-menu-item-delete {
+    color: #ef4444 !important;
+  }
+
+  .form-card-menu-overlay.ant-dropdown svg {
+    color: inherit !important;
+  }
+
   /* Recruitment: Add/Edit Candidate modal - tighter mobile spacing */
   .ta-candidate-modal.ant-modal {
     width: calc(100vw - 24px) !important;
@@ -1690,3 +1775,40 @@
     margin: 0 !important;
   }
 
+/* Payroll page table styles */
+.payroll-table .ant-table-thead > tr > th {
+  background-color: #fafafa !important;
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.payroll-table .ant-table-tbody > tr > td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  color: #4b5563;
+}
+
+.payroll-table .ant-table-tbody > tr:hover > td {
+  background-color: #f0f4f8 !important;
+}
+
+.payroll-zebra-row > td {
+  background-color: #fafafa !important;
+}
+
+.payroll-zebra-row:hover > td {
+  background-color: #f0f4f8 !important;
+}
+
+/* OKR settings dropdown menu (Edit OKR / Delete OKR) */
+.okr-settings-menu-dropdown .ant-dropdown-menu-item {
+  padding: 0 !important;
+  height: 32px !important;
+  width: 145px !important;
+}
+.okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
