@@ -27,6 +27,12 @@ export interface EmployeeSurveyState {
   setDepartmentId: (departmentId: string) => void;
   monthId: string | null;
   setMonthId: (monthId: string) => void;
+  employeeSurveyFilterPopoverOpen: boolean;
+  setEmployeeSurveyFilterPopoverOpen: (open: boolean) => void;
+  filterDraftDepartmentId: string | null;
+  setFilterDraftDepartmentId: (id: string | null) => void;
+  filterDraftMonthId: string | null;
+  setFilterDraftMonthId: (id: string | null) => void;
   page: number;
   setPage: (page: number) => void;
   currentPage: number;
@@ -60,6 +66,14 @@ export const EmployeeSurveyStore = create<EmployeeSurveyState>((set) => ({
   setMonthId: (monthId) => set({ monthId }),
   departmentId: null,
   setDepartmentId: (departmentId) => set({ departmentId }),
+  employeeSurveyFilterPopoverOpen: false,
+  setEmployeeSurveyFilterPopoverOpen: (employeeSurveyFilterPopoverOpen) =>
+    set({ employeeSurveyFilterPopoverOpen }),
+  filterDraftDepartmentId: null,
+  setFilterDraftDepartmentId: (filterDraftDepartmentId) =>
+    set({ filterDraftDepartmentId }),
+  filterDraftMonthId: null,
+  setFilterDraftMonthId: (filterDraftMonthId) => set({ filterDraftMonthId }),
   page: 10,
   setPage: (page) => set({ page }),
   currentPage: 1,

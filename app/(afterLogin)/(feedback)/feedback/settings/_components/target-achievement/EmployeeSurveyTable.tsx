@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Table,
   Select,
@@ -127,7 +127,6 @@ const EmployeeSurveyTable: React.FC = () => {
     useGetDepartmentsWithUsers();
   const { data: months, isLoading: monthsLoading } = useGetAllMonth();
   const { data: activeMonth } = useGetActiveMonth();
-  const [isMobileFilterVisible, setIsMobileFilterVisible] = useState(false);
   const {
     openEmployeeSurvey,
     setOpenEmployeeSurvey,
@@ -144,6 +143,12 @@ const EmployeeSurveyTable: React.FC = () => {
     currentPage,
     setCurrentPage,
     setSurvey,
+    employeeSurveyFilterPopoverOpen,
+    setEmployeeSurveyFilterPopoverOpen,
+    filterDraftDepartmentId,
+    setFilterDraftDepartmentId,
+    filterDraftMonthId,
+    setFilterDraftMonthId,
   } = EmployeeSurveyStore();
   const { data: employeeSurvey, isLoading: employeeSurveyLoading } =
     useGetEmployeeSurvey(userId, monthId, departmentId, page, currentPage);
@@ -397,7 +402,7 @@ const EmployeeSurveyTable: React.FC = () => {
         </div>
 
         <div
-          className="order-3 flex w-full flex-wrap items-center justify-end gap-2 md:order-2 md:w-auto md:flex-1"
+          className={`order-3 flex w-full flex-wrap items-center justify-end gap-2 md:order-2 md:w-auto md:flex-1 ${isMobile ? 'mt-2' : ''}`}
           id="employee-survey-table-active-filters"
           data-cy="employee-survey-table-active-filters"
         >
@@ -429,8 +434,14 @@ const EmployeeSurveyTable: React.FC = () => {
           data-cy="employee-survey-table-mobile-filter-wrapper"
         >
           <Popover
-            open={isMobileFilterVisible}
-            onOpenChange={(visible) => setIsMobileFilterVisible(visible)}
+            open={employeeSurveyFilterPopoverOpen}
+            onOpenChange={(visible) => {
+              setEmployeeSurveyFilterPopoverOpen(visible);
+              if (visible) {
+                setFilterDraftDepartmentId(departmentId);
+                setFilterDraftMonthId(monthId);
+              }
+            }}
             placement={isMobile ? 'bottom' : 'bottomRight'}
             trigger="click"
             arrow={false}
@@ -473,7 +484,7 @@ const EmployeeSurveyTable: React.FC = () => {
                   </h3>
                   <button
                     type="button"
-                    onClick={() => setIsMobileFilterVisible(false)}
+                    onClick={() => setEmployeeSurveyFilterPopoverOpen(false)}
                     className="absolute right-5 top-4 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-black/[0.45] transition-colors hover:bg-black/[0.04]"
                     aria-label="Close"
                     data-cy="employee-survey-table-mobile-filter-close"
@@ -483,7 +494,7 @@ const EmployeeSurveyTable: React.FC = () => {
                 </div>
 
                 <div
-                  className="employee-survey-filter-modal-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 pt-3 pb-5  mb-3"
+                  className="employee-survey-filter-modal-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-3"
                   data-cy="employee-survey-table-mobile-filter-scroll"
                 >
                   <div
@@ -507,10 +518,9 @@ const EmployeeSurveyTable: React.FC = () => {
                       className="employee-survey-filter-select w-full max-w-full md:max-w-[461px]"
                       allowClear
                       showSearch
-                      value={departmentId ?? undefined}
+                      value={filterDraftDepartmentId ?? undefined}
                       onChange={(value) => {
-                        setDepartmentId(normalizeNullableId(value));
-                        setCurrentPage(1);
+                        setFilterDraftDepartmentId(normalizeNullableId(value));
                       }}
                       filterOption={(input, option) =>
                         (option?.children as any)
@@ -554,10 +564,9 @@ const EmployeeSurveyTable: React.FC = () => {
                       className="employee-survey-filter-select w-full max-w-full md:max-w-[461px]"
                       allowClear
                       showSearch
-                      value={monthId ?? undefined}
+                      value={filterDraftMonthId ?? undefined}
                       onChange={(value) => {
-                        setMonthId(normalizeNullableId(value));
-                        setCurrentPage(1);
+                        setFilterDraftMonthId(normalizeNullableId(value));
                       }}
                       filterOption={(input, option) =>
                         (option?.children as any)
@@ -583,6 +592,42 @@ const EmployeeSurveyTable: React.FC = () => {
                         ))}
                     </Select>
                   </div>
+                </div>
+
+                <div
+                  className="mt-1 flex shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5 pt-0"
+                  data-cy="employee-survey-table-mobile-filter-footer"
+                >
+                  <Button
+                    type="default"
+                    onClick={() => {
+                      setFilterDraftDepartmentId(null);
+                      setFilterDraftMonthId(null);
+                      setDepartmentId(null as any);
+                      setMonthId(null as any);
+                      setCurrentPage(1);
+                      setEmployeeSurveyFilterPopoverOpen(false);
+                    }}
+                    className="employee-survey-filter-modal-btn-cancel !m-0 !h-8 !min-w-[68px] !rounded-md !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] !text-sm !font-normal !leading-[22px] !text-black/[0.7] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#D9D9D9] hover:!text-black/[0.7]"
+                    data-cy="employee-survey-table-mobile-filter-cancel"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      setDepartmentId(
+                        normalizeNullableId(filterDraftDepartmentId),
+                      );
+                      setMonthId(normalizeNullableId(filterDraftMonthId));
+                      setCurrentPage(1);
+                      setEmployeeSurveyFilterPopoverOpen(false);
+                    }}
+                    className="employee-survey-filter-modal-btn-primary !m-0 !h-8 !min-w-[62px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1E40AF]"
+                    data-cy="employee-survey-table-mobile-filter-apply"
+                  >
+                    Filter
+                  </Button>
                 </div>
               </div>
             }
