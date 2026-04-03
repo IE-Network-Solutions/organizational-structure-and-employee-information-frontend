@@ -63,6 +63,7 @@ import { useRouter } from 'next/navigation';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
 import Welcome from './welcome';
 import OnboardingModalBackground from './OnboardingModalBackground';
+import { Department, OrgData } from '@/types/dashboard/organization';
 
 /**
  * Onboarding simplified flow
@@ -132,6 +133,7 @@ const OnboardingSteper: React.FC = () => {
     location: 'HQ',
     contactNumber: companyInformation?.contactPersonPhoneNumber || '',
     contactEmail: companyInformation?.contactPersonEmail || '',
+    tenantId: tenantId || '',
   };
   const applicantStatusPayload = {
     title: 'Initial Stage',
@@ -157,6 +159,31 @@ const OnboardingSteper: React.FC = () => {
   const deleteApplicantStatus = useDeleteRecruitmentStatus();
   const updateCompanyImageWithStamp = useUpdateCompanyProfileWithStamp();
 
+  const assignBranchIdToDepartments = (
+    departments: Department[] = [],
+    fallbackBranchId: string,
+  ): Department[] =>
+    departments.map((department) => ({
+      ...department,
+      branchId: department.branchId || fallbackBranchId,
+      department: assignBranchIdToDepartments(
+        department.department || [],
+        fallbackBranchId,
+      ),
+    }));
+
+  const buildOrgDataWithBranchId = (
+    sourceOrgData: OrgData,
+    fallbackBranchId: string,
+  ): OrgData => ({
+    ...sourceOrgData,
+    branchId: sourceOrgData.branchId || fallbackBranchId,
+    department: assignBranchIdToDepartments(
+      sourceOrgData.department || [],
+      fallbackBranchId,
+    ),
+  });
+
   /* -------------------------------------------------------------------------- */
   /*                        generator for sequential calls                      */
   /* -------------------------------------------------------------------------- */
@@ -166,7 +193,6 @@ const OnboardingSteper: React.FC = () => {
     orgData: any,
     companyInfo: any,
     timeZone: any,
-    branch: any,
     applicantStatus: any,
   ) {
     yield {
@@ -199,11 +225,6 @@ const OnboardingSteper: React.FC = () => {
       },
     };
     yield { createFn: updateTimeZone.mutateAsync, data: timeZone };
-    yield {
-      createFn: createBranch.mutateAsync,
-      deleteFn: deleteBranch.mutateAsync,
-      data: branch,
-    };
     yield {
       createFn: createApplicantStatus.mutateAsync,
       deleteFn: deleteApplicantStatus.mutateAsync,
@@ -307,17 +328,33 @@ const OnboardingSteper: React.FC = () => {
         }) || [],
     };
 
-    const generator = createResourcesGenerator(
-      activeFiscalYearPayload,
-      schedulePayload,
-      orgData,
-      companyInfoPayload,
-      timeZonePayload,
-      branchPayload,
-      applicantStatusPayload,
-    );
-
     try {
+      const createdBranch = await createBranch.mutateAsync(branchPayload);
+      const createdBranchId = createdBranch?.id;
+
+      if (!createdBranchId) {
+        throw new Error('Branch creation did not return an id');
+      }
+
+      successfulRequests.push({
+        deletePayload: createdBranchId,
+        deleteFn: deleteBranch.mutateAsync,
+      });
+
+      const orgDataWithBranchId = buildOrgDataWithBranchId(
+        orgData,
+        createdBranchId,
+      );
+
+      const generator = createResourcesGenerator(
+        activeFiscalYearPayload,
+        schedulePayload,
+        orgDataWithBranchId,
+        companyInfoPayload,
+        timeZonePayload,
+        applicantStatusPayload,
+      );
+
       for (const { createFn, deleteFn, data } of generator) {
         const response = await createFn(data);
         if (deleteFn && response) {

@@ -88,7 +88,7 @@ export default function TopOkrPerformersCard({
               return (
                 <li
                   key={person.userId}
-                  className="flex items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white px-4 py-3"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <Avatar
@@ -97,7 +97,7 @@ export default function TopOkrPerformersCard({
                       icon={!src ? <UserOutlined /> : undefined}
                     />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-gray-900">
+                      <p className="truncate text-sm font-normal text-black">
                         {person.fullName}
                       </p>
                       <p className="truncate text-xs font-normal text-gray-500">
