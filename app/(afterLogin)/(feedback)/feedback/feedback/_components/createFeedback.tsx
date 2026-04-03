@@ -793,7 +793,8 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
           height: 40px !important;
           min-height: 40px !important;
         }
-        .add-feedback-modal .add-feedback-cc-trigger
+        .add-feedback-modal
+          .add-feedback-cc-trigger
           .ant-select-selection-placeholder {
           display: flex !important;
           align-items: center !important;
