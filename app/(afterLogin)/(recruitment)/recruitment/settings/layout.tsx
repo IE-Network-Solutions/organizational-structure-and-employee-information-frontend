@@ -33,7 +33,7 @@ const TABS = [
 const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { addAction, addLabel } = useSettingsAddButton();
+  const { addAction, addLabel, mobileOnly } = useSettingsAddButton();
 
   const isTabActive = (path: string) => {
     return pathname === path || pathname.startsWith(path + '/');
@@ -122,19 +122,21 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
 
           {addAction && (
             <>
-              <button
-                type="button"
-                onClick={() => addAction()}
-                className="hidden md:flex flex-shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-[#1E40AF] text-white text-base font-normal ml-4 self-center mb-1"
-                data-cy="talent-acquisition-settings-desktop-add-button"
-              >
-                <UserPlus size={16} />
-                {addLabel && (
-                  <span data-cy="talent-acquisition-settings-desktop-add-button-label">
-                    {addLabel}
-                  </span>
-                )}
-              </button>
+              {!mobileOnly && (
+                <button
+                  type="button"
+                  onClick={() => addAction()}
+                  className="hidden md:flex flex-shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-[#1E40AF] text-white text-base font-normal ml-4 self-center mb-1"
+                  data-cy="talent-acquisition-settings-desktop-add-button"
+                >
+                  <UserPlus size={16} />
+                  {addLabel && (
+                    <span data-cy="talent-acquisition-settings-desktop-add-button-label">
+                      {addLabel}
+                    </span>
+                  )}
+                </button>
+              )}
               {/* Mobile: circular icon-only button */}
               <button
                 type="button"

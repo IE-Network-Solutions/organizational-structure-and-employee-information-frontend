@@ -118,14 +118,18 @@ const CustomAddJobFields: React.FC = () => {
     }
   }, []);
 
-  const { setAddAction } = useSettingsAddButton();
+  const { setAddAction, setMobileOnly } = useSettingsAddButton();
   const canCreate = AccessGuard.checkAccess({
     permissions: [Permissions.CreateCustomFields],
   });
   useEffect(() => {
+    setMobileOnly(true);
     if (canCreate) setAddAction(() => () => showCreateModal(null));
-    return () => setAddAction(null);
-  }, [setAddAction, canCreate, showCreateModal]);
+    return () => {
+      setAddAction(null);
+      setMobileOnly(false);
+    };
+  }, [setAddAction, setMobileOnly, canCreate, showCreateModal]);
 
   return (
     <div
