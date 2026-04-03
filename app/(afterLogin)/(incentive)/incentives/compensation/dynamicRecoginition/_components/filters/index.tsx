@@ -15,12 +15,16 @@ import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { MdOutlineFilterAlt } from 'react-icons/md';
 import { useGetRecognitionTypeParentChildById } from '@/store/server/features/CFR/recognition/queries';
 
-function normalizeChildRecognitionTypes(raw: unknown): { id: string; name: string }[] {
+function normalizeChildRecognitionTypes(
+  raw: unknown,
+): { id: string; name: string }[] {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw as { id: string; name: string }[];
   const obj = raw as Record<string, unknown>;
-  if (Array.isArray(obj.items)) return obj.items as { id: string; name: string }[];
-  if (Array.isArray(obj.data)) return obj.data as { id: string; name: string }[];
+  if (Array.isArray(obj.items))
+    return obj.items as { id: string; name: string }[];
+  if (Array.isArray(obj.data))
+    return obj.data as { id: string; name: string }[];
   return [];
 }
 
@@ -45,9 +49,8 @@ const DynamicIncentiveFilter: React.FC = () => {
   }>({});
 
   const parentRecognitionId = selectedRecognition?.id ?? '';
-  const { data: recognitionTypesRaw } = useGetRecognitionTypeParentChildById(
-    parentRecognitionId,
-  );
+  const { data: recognitionTypesRaw } =
+    useGetRecognitionTypeParentChildById(parentRecognitionId);
   const childTypeOptions = React.useMemo(() => {
     const fromApi = normalizeChildRecognitionTypes(recognitionTypesRaw);
     if (fromApi.length > 0) return fromApi;
@@ -341,7 +344,10 @@ const DynamicIncentiveFilter: React.FC = () => {
 
             handleCreatedBySession(sessionValue);
             handleCreatedByMonth(monthValue);
-            onSelectChange(draftFilters?.childRecognitionTypeId ?? '', 'byType');
+            onSelectChange(
+              draftFilters?.childRecognitionTypeId ?? '',
+              'byType',
+            );
             setFilterPopoverOpen(false);
           }}
           className="font-normal h-8"

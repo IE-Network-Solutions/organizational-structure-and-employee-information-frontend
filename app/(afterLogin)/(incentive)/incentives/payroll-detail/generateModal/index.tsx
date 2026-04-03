@@ -4,7 +4,7 @@ import {
   useFetchIncentiveSessions,
 } from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import { Button, Checkbox, Form, Modal, Select, Switch } from 'antd';
+import { Button, Checkbox, Form, Modal, Select } from 'antd';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import dayjs from 'dayjs';
 import React from 'react';
@@ -101,7 +101,6 @@ const GenerateModal: React.FC = () => {
           id="generate-modal-form-generate-all"
           data-cy="generate-modal-form-generate-all"
           className="border border-[#D9D9D9] rounded-lg p-2"
-          
           valuePropName="checked"
           name="generateAll"
         >
@@ -111,7 +110,6 @@ const GenerateModal: React.FC = () => {
             onChange={handleSwitchChange}
           /> */}
 
-          
           <Checkbox
             id="generate-modal-form-generate-all-checkbox"
             data-cy="generate-modal-form-generate-all-checkbox"
@@ -123,7 +121,6 @@ const GenerateModal: React.FC = () => {
           <p
             data-cy="generate-modal-form-generate-all-description"
             className="text-xs text-black opacity-45 px-6"
-
           >
             Generate incentive for unpaid recognition
           </p>

@@ -3,7 +3,16 @@ import {
   useAllChildrenRecognition,
   useParentRecognition,
 } from '@/store/server/features/incentive/other/queries';
-import { Button, Card, Divider, Dropdown, Empty, Input, Skeleton, Tag } from 'antd';
+import {
+  Button,
+  Card,
+  Divider,
+  Dropdown,
+  Empty,
+  Input,
+  Skeleton,
+  Tag,
+} from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
@@ -11,7 +20,6 @@ import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
 import ConfirmModal from '@/components/common/confirmModal';
 import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 import SendIcon from '@mui/icons-material/Send';
 import { SearchOutlined, LeftOutlined } from '@ant-design/icons';
@@ -56,9 +64,8 @@ const Page = () => {
     pageSize,
     currentPage,
   } = useIncentiveStore();
-  
-  const { mutate: exportIncentiveData, isLoading: exportIncentiveLoading } =
-    useExportIncentiveData();
+
+  const { mutate: exportIncentiveData } = useExportIncentiveData();
 
   const { searchParams } = useIncentiveStore();
   const handleExport = (values: any, generateAll: boolean) => {
@@ -104,7 +111,6 @@ const Page = () => {
   const { mutate: sendIncentiveToPayroll, isLoading } =
     useSendIncentiveToPayroll();
 
-  const { isMobile, isTablet } = useIsMobile();
   const { data: allIncentiveCards } = useAllIncentiveCards();
   const [searchCategory, setSearchCategory] = useState('');
   const [categoryPage, setCategoryPage] = useState(1);
@@ -189,11 +195,7 @@ const Page = () => {
     if (!prev || prev.id !== id) return;
     if ((prev.children?.length ?? 0) === children.length) return;
     setSelectedRecognition({ ...prev, children });
-  }, [
-    allChildTypes,
-    selectedRecognition?.id,
-    setSelectedRecognition,
-  ]);
+  }, [allChildTypes, selectedRecognition?.id, setSelectedRecognition]);
 
   const handleBackToCards = () => {
     setActiveKey('1');
@@ -250,63 +252,19 @@ const Page = () => {
     };
   }, [allIncentiveCards, parentRecognition]);
 
- 
-
-  const operationSlot = (
-    <div
-      id="incentives-page-operations-slot-card-detail"
-      data-cy="incentives-page-operations-slot-card-detail"
-      className="flex items-center justify-center gap-3"
-    >
-      <Button
-        type="primary"
-        data-cy="incentives-page-send-to-payroll-button-other"
-        icon={
-          <SendIcon
-            className="pt-1"
-            id="incentives-page-send-to-payroll-icon-other"
-            data-cy="incentives-page-send-to-payroll-icon-other"
-          />
-        }
-        onClick={() => handleSendToPayrollClick()}
-        className="h-10 w-10 sm:w-full font-normal text-base"
-      >
-        {!isMobile && 'Send to Payroll'}
-      </Button>
-      <Button
-        type="default"
-        data-cy="incentives-page-export-button-other"
-        icon={
-          <SaveAltIcon
-            id="incentives-page-export-icon-other"
-            data-cy="incentives-page-export-icon-other"
-          />
-        }
-        onClick={() => handleExport(searchParams, false)}
-        className="h-10 w-10 sm:w-full border border-[#D9D9D9] font-normal text-base"
-        loading={exportIncentiveLoading}
-        disabled={exportIncentiveLoading}
-      >
-        {!(isMobile || isTablet) && (
-          <span
-            id="incentives-page-export-text-other"
-            data-cy="incentives-page-export-text-other"
-            className="hidden sm:inline"
-          >
-            Export
-          </span>
-        )}
-      </Button>
-    </div>
-  );
-
   const dropdownMenuItems: MenuProps['items'] = [
     {
       key: 'send',
       label: (
-        <div className="flex items-center gap-2">
+        <div
+          data-cy="incentives-page-send-to-payroll-button"
+          className="flex items-center gap-2"
+        >
           <SendIcon className="text-[#2E3137] text-base" />
-          <span className="text-base font-normal text-black opacity-70">
+          <span
+            data-cy="incentives-page-send-to-payroll-button-text"
+            className="text-base font-normal text-black opacity-70"
+          >
             Send to Payroll
           </span>
         </div>
@@ -315,9 +273,15 @@ const Page = () => {
     {
       key: 'export',
       label: (
-        <div className="flex items-center gap-3 py-1">
+        <div
+          data-cy="incentives-page-export-button"
+          className="flex items-center gap-3 py-1"
+        >
           <SaveAltIcon className="text-[#2E3137] text-base" />
-          <span className="text-base font-normal text-black opacity-70">
+          <span
+            data-cy="incentives-page-export-button-text"
+            className="text-base font-normal text-black opacity-70"
+          >
             Export
           </span>
         </div>
@@ -326,9 +290,15 @@ const Page = () => {
     {
       key: 'generate',
       label: (
-        <div className="flex items-center gap-3 py-1">
+        <div
+          data-cy="incentives-page-generate-incentive-button"
+          className="flex items-center gap-3 py-1"
+        >
           <PublishedWithChangesIcon className="text-[#2E3137] text-base" />
-          <span className="text-base font-normal text-black opacity-70">
+          <span
+            data-cy="incentives-page-generate-incentive-button-text"
+            className="text-base font-normal text-black opacity-70"
+          >
             Generate Incentive
           </span>
         </div>
