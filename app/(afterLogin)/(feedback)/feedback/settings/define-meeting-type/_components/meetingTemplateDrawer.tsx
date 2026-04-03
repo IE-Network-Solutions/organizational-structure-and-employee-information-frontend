@@ -49,6 +49,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
   }, [open, initialValues, form]);
   return (
     <Modal
+      rootClassName="cfr-feedback-settings-modal"
       open={open}
       onCancel={onClose}
       closeIcon={null}
@@ -240,7 +241,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
                   ))}
                 </div>
                 <div
-                  className="flex justify-center mb-1 mt-2"
+                  className="feedback-settings-modal-actions flex justify-center mb-1 mt-2"
                   data-cy="meeting-template-drawer-add-agenda-item-container"
                   id="meetingTemplateDrawerAddAgendaItemContainer"
                 >
@@ -259,7 +260,7 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
           </Form.List>
         </Form>
         <div
-          className="flex justify-end gap-3 pt-2"
+          className="feedback-settings-modal-actions flex justify-end gap-3 pt-2"
           data-cy="meeting-template-drawer-footer"
           id="meetingTemplateDrawerFooter"
         >
@@ -268,7 +269,6 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
             onClick={onClose}
             style={{ marginRight: 8 }}
             loading={loading}
-            className="h-10"
             data-cy="meeting-template-drawer-cancel-button"
             id="meetingTemplateDrawerCancelButton"
           >
@@ -279,7 +279,6 @@ export const MeetingTemplateDrawer: React.FC<DrawerProps> = ({
             type="primary"
             onClick={() => form.submit()}
             loading={loading}
-            className="h-10"
             data-cy="meeting-template-drawer-submit-button"
             id="meetingTemplateDrawerSubmitButton"
           >

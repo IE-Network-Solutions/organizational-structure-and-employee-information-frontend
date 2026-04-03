@@ -326,6 +326,7 @@ const QuestionSetForm = () => {
 
   return (
     <CustomDrawerLayout
+      rootClassName="cfr-feedback-settings-drawer"
       open={open && activeTabName !== ''}
       onClose={() => setOpen(false)}
       modalHeader={modalHeader}
@@ -604,16 +605,18 @@ const QuestionSetForm = () => {
             </div>
           ))}
 
-          <Button
-            type="dashed"
-            onClick={handleAddQuestion}
-            icon={<PlusOutlined />}
-            style={{ width: '100%' }}
-            data-cy="question-set-form-add-question-button"
-            id="questionSetFormAddQuestionButton"
-          >
-            Add Question
-          </Button>
+          <div className="feedback-settings-modal-actions w-full">
+            <Button
+              type="dashed"
+              onClick={handleAddQuestion}
+              icon={<PlusOutlined />}
+              className="w-full"
+              data-cy="question-set-form-add-question-button"
+              id="questionSetFormAddQuestionButton"
+            >
+              Add Question
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

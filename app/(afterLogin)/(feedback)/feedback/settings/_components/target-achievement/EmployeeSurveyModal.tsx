@@ -281,6 +281,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
 
   return (
     <Modal
+      rootClassName="cfr-feedback-settings-modal"
       open={open}
       onCancel={handleClose}
       closeIcon={null}
@@ -506,14 +507,14 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                 </div>
 
                 <div
-                  className="col-span-2 flex gap-2 items-end justify-end h-full"
+                  className="feedback-settings-modal-actions col-span-2 flex gap-2 items-end justify-end h-full"
                   data-cy={`employee-survey-modal-draft-actions-${index}`}
                 >
                   <Button
                     type="primary"
                     onClick={() => confirmDraftRow(index)}
                     icon={<MdCheck />}
-                    className="!bg-blue-600 hover:!bg-blue-700 !border-0 w-10 h-10"
+                    className="!bg-blue-600 hover:!bg-blue-700 !border-0 !h-8 !w-8 !min-h-8 !min-w-8 p-0 flex items-center justify-center"
                     data-cy={`employee-survey-modal-draft-confirm-btn-${index}`}
                     id={`employeeSurveyModalDraftConfirmBtn${index}`}
                   />
@@ -521,7 +522,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                     danger
                     onClick={() => removeDraftRow(index)}
                     icon={<CloseOutlined />}
-                    className="!border-red-500 w-10 h-10"
+                    className="!border-red-500 !h-8 !w-8 !min-h-8 !min-w-8 p-0 flex items-center justify-center"
                     data-cy={`employee-survey-modal-draft-cancel-btn-${index}`}
                     id={`employeeSurveyModalDraftCancelBtn${index}`}
                   />
@@ -560,13 +561,13 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                     </div>
 
                     <div
-                      className="flex items-center gap-2"
+                      className="feedback-settings-modal-actions flex items-center gap-2"
                       data-cy={`employee-survey-modal-list-row-actions-${index}`}
                     >
                       <Button
                         onClick={() => editRow(index)}
                         icon={<EditOutlined />}
-                        className="border border-[#D9D9D9]"
+                        className="border border-[#D9D9D9] !h-8 !w-8 !min-h-8 !min-w-8 p-0 flex items-center justify-center"
                         data-cy={`employee-survey-modal-list-edit-${index}`}
                         id={`employeeSurveyModalListEdit${index}`}
                       />
@@ -574,6 +575,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
                         danger
                         onClick={() => deleteRow(index)}
                         icon={<CloseOutlined />}
+                        className="!h-8 !w-8 !min-h-8 !min-w-8 p-0 flex items-center justify-center"
                         data-cy={`employee-survey-modal-list-delete-${index}`}
                         id={`employeeSurveyModalListDelete${index}`}
                       />
@@ -584,7 +586,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
             </div>
 
             <div
-              className="flex justify-center mt-4"
+              className="feedback-settings-modal-actions flex justify-center mt-4"
               data-cy="employee-survey-modal-add-row-wrapper"
             >
               <Button

@@ -78,6 +78,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
 
   return (
     <Modal
+      rootClassName="cfr-feedback-settings-modal"
       title="Edit Category"
       open={editModal}
       footer={null}
@@ -194,7 +195,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({}) => {
           </Select>
         </Form.Item>
         <Form.Item
-          className="flex justify-end w-full gap-3"
+          className="feedback-settings-modal-actions flex justify-end w-full gap-3"
           data-cy="feedback-categories-components-categoriescard-editcategory-form-item-footer"
           id="feedback-categories-components-categoriescard-editcategory-form-item-footer"
         >

@@ -328,6 +328,9 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       </div>
 
       <Modal
+        rootClassName="cfr-feedback-settings-modal"
+        okButtonProps={{ className: 'h-8 min-h-8' }}
+        cancelButtonProps={{ className: 'h-8 min-h-8' }}
         title={
           <SettingsModalHeader
             title={
@@ -498,6 +501,18 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
 
         .ant-select-multiple .ant-select-selector {
           min-height: 40px !important;
+        }
+
+        /* Feedback settings modals/drawers: primary action buttons 32px */
+        .cfr-feedback-settings-modal .ant-modal-footer .ant-btn,
+        .cfr-feedback-settings-modal .feedback-settings-modal-actions .ant-btn {
+          height: 32px !important;
+          min-height: 32px !important;
+        }
+        .cfr-feedback-settings-drawer .ant-drawer-footer .ant-btn,
+        .cfr-feedback-settings-drawer .feedback-settings-modal-actions .ant-btn {
+          height: 32px !important;
+          min-height: 32px !important;
         }
       `}</style>
     </div>

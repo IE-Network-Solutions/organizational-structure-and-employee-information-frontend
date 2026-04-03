@@ -72,6 +72,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
   return (
     isOpen && (
       <CustomDrawerLayout
+        rootClassName="cfr-feedback-settings-drawer"
         open={isOpen}
         onClose={props?.onClose}
         modalHeader={drawerHeader}
@@ -401,13 +402,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   id="questionTemplateDrawerFooter"
                 >
                   <div
-                    className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8"
+                    className="feedback-settings-modal-actions flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8"
                     data-cy="question-template-drawer-actions"
                     id="questionTemplateDrawerActions"
                   >
                     <Button
                       onClick={() => setIsOpen(false)}
-                      className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-[#D9D9D9] border-[#D9D9D9]"
+                      className="flex justify-center text-sm font-medium text-gray-800 bg-white px-6 hover:border-[#D9D9D9] border-[#D9D9D9]"
                       data-cy="question-template-drawer-cancel-button"
                       id="questionTemplateDrawerCancelButton"
                     >
@@ -415,7 +416,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                     </Button>
                     <Button
                       htmlType="submit"
-                      className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                      className="flex justify-center text-sm font-medium text-white bg-primary px-6"
                       data-cy="question-template-drawer-create-button"
                       id="questionTemplateDrawerCreateButton"
                     >

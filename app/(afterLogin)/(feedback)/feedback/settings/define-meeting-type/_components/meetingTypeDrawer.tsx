@@ -69,6 +69,7 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
 
   return (
     <Modal
+      rootClassName="cfr-feedback-settings-modal"
       open={open}
       onCancel={handleDrawerClose}
       closeIcon={null}
@@ -183,14 +184,14 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
         </Form.Item>
 
         <div
-          className="w-full flex justify-end items-center gap-3 pt-4"
+          className="feedback-settings-modal-actions w-full flex justify-end items-center gap-3 pt-4"
           data-cy="meeting-type-drawer-footer"
           id="meetingTypeDrawerFooter"
         >
           <Button
             onClick={handleDrawerClose}
             loading={loading}
-            className="h-10 px-6"
+            className="px-6"
             data-cy="meeting-type-drawer-cancel-button"
             id="meetingTypeDrawerCancelButton"
           >
@@ -200,7 +201,7 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
             htmlType="submit"
             type="primary"
             loading={loading}
-            className="h-10 px-6"
+            className="px-6"
             data-cy="meeting-type-drawer-submit-button"
             id="meetingTypeDrawerSubmitButton"
           >

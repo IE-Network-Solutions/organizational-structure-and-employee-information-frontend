@@ -158,6 +158,7 @@ const CreateFeedback: React.FC = () => {
 
   return (
     <Modal
+      rootClassName="cfr-feedback-settings-modal"
       open={Boolean(open || selectedFeedback?.id)}
       closeIcon={null}
       footer={

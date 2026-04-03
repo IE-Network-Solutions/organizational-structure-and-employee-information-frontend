@@ -54,6 +54,7 @@ const EditQuestionTemplate: React.FC<{
   return (
     questionModal && (
       <Modal
+        rootClassName="cfr-feedback-settings-modal"
         centered
         title={
           <SettingsModalHeader
@@ -315,7 +316,7 @@ const EditQuestionTemplate: React.FC<{
             id="editQuestionTemplateFormActions"
           >
             <div
-              className="flex items-center justify-end gap-3"
+              className="feedback-settings-modal-actions flex items-center justify-end gap-3"
               data-cy="edit-question-template-form-buttons"
               id="editQuestionTemplateFormButtons"
             >

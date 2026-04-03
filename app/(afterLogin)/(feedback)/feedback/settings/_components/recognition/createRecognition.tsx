@@ -426,6 +426,7 @@ const RecognitionForm: React.FC<PropsData> = ({
   const handleDeleteCriteria = (criteriaItem: any) => {
     // You can add a confirmation modal here if needed
     Modal.confirm({
+      rootClassName: 'cfr-feedback-settings-modal',
       content: (
         <span
           className="text-sm text-gray-950 "
@@ -436,7 +437,10 @@ const RecognitionForm: React.FC<PropsData> = ({
       ),
       okText: 'Confirm',
       okButtonProps: {
-        className: 'bg-red-500 text-white',
+        className: 'bg-red-500 text-white h-8 min-h-8',
+      },
+      cancelButtonProps: {
+        className: 'h-8 min-h-8',
       },
       cancelText: 'Cancel',
       centered: false,
@@ -1166,6 +1170,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     }
   `}</style>
       <Modal
+        rootClassName="cfr-feedback-settings-modal"
         title={modalHeader}
         closeIcon={null}
         open={isWizardOpen}
@@ -1943,7 +1948,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               <div
                 className={
                   currentStep === 1 && !isCriteriaOnlyEdit
-                    ? 'flex justify-center mb-3'
+                    ? 'feedback-settings-modal-actions flex justify-center mb-3'
                     : 'hidden'
                 }
                 data-cy="create-recognition-form-new-criteria-container"
@@ -2127,7 +2132,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               </Form.Item>
 
               <div
-                className="flex items-center justify-center gap-2 mb-4 "
+                className="feedback-settings-modal-actions flex items-center justify-center gap-2 mb-4 "
                 data-cy="create-recognition-formula-amount-type-toggles"
               >
                 <Form.Item shouldUpdate noStyle>
@@ -2323,7 +2328,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 </span>
                               </span>
                               <span
-                                className="my-1 flex flex-wrap"
+                                className="feedback-settings-modal-actions my-1 flex flex-wrap"
                                 data-cy="create-recognition-formula-operators-buttons"
                               >
                                 {FORMULA_OPERAND_OPTIONS.map((option) => (
@@ -2377,6 +2382,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           {/* department moved into the step-1 frequency/department row above */}
 
           <Modal
+            rootClassName="cfr-feedback-settings-modal"
             centered={!isMobileViewport}
             width={isMobileViewport ? '100%' : undefined}
             title={
@@ -2508,7 +2514,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             </Form>
           </Modal>
           <div
-            className="flex justify-end gap-3 pt-4"
+            className="feedback-settings-modal-actions flex justify-end gap-3 pt-4"
             data-cy="create-recognition-wizard-footer"
           >
             <Button
