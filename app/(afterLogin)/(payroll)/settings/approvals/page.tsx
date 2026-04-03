@@ -65,8 +65,11 @@ const Approvals = () => {
     [setApproverType],
   );
 
-  const { mutate: CreateApprover, isSuccess, isLoading: isCreateLoading } =
-    useCreateApproverMutation();
+  const {
+    mutate: CreateApprover,
+    isSuccess,
+    isLoading: isCreateLoading,
+  } = useCreateApproverMutation();
   const [form] = Form.useForm();
   const [workflowStep, setWorkflowStep] = useState<1 | 2 | 3>(1);
 
@@ -195,42 +198,42 @@ const Approvals = () => {
           id={`settings-${pageSlug}-inner`}
           data-cy={`settings-${pageSlug}-inner`}
         >
-        <div
-          id={`settings-${pageSlug}-list-header`}
-          data-cy={`settings-${pageSlug}-list-header`}
-          className="hidden"
-        >
-          <PermissionWraper
-            permissions={[Permissions.CreateApprover]}
-            id={`settings-${pageSlug}-add-approval-guard`}
-            data-cy={`settings-${pageSlug}-add-approval-guard`}
+          <div
+            id={`settings-${pageSlug}-list-header`}
+            data-cy={`settings-${pageSlug}-list-header`}
+            className="hidden"
           >
-            <Button
-              type="primary"
-              className="hidden h-10 w-10 sm:w-auto bg-primary hover:!bg-primary/90"
-              onClick={() => setAddDepartmentApproval(true)}
-              icon={<FaPlus />}
-              id={`settings-${pageSlug}-add-approval-btn`}
-              data-cy={`settings-${pageSlug}-add-approval-btn`}
-              disabled={isApprovalsAddDisabled}
+            <PermissionWraper
+              permissions={[Permissions.CreateApprover]}
+              id={`settings-${pageSlug}-add-approval-guard`}
+              data-cy={`settings-${pageSlug}-add-approval-guard`}
             >
-              <span
-                className="hidden sm:inline"
-                data-cy="settings-approvals-add-btn-text"
+              <Button
+                type="primary"
+                className="hidden h-10 w-10 sm:w-auto bg-primary hover:!bg-primary/90"
+                onClick={() => setAddDepartmentApproval(true)}
+                icon={<FaPlus />}
+                id={`settings-${pageSlug}-add-approval-btn`}
+                data-cy={`settings-${pageSlug}-add-approval-btn`}
+                disabled={isApprovalsAddDisabled}
               >
-                Set Approval
-              </span>
-            </Button>
-          </PermissionWraper>
-        </div>
+                <span
+                  className="hidden sm:inline"
+                  data-cy="settings-approvals-add-btn-text"
+                >
+                  Set Approval
+                </span>
+              </Button>
+            </PermissionWraper>
+          </div>
 
-        <div
-          className="w-full overflow-x-auto"
-          id={`settings-${pageSlug}-table-wrapper`}
-          data-cy={`settings-${pageSlug}-table-wrapper`}
-        >
-          <ApprovalTable data-cy={`settings-${pageSlug}-table`} />
-        </div>
+          <div
+            className="w-full overflow-x-auto"
+            id={`settings-${pageSlug}-table-wrapper`}
+            data-cy={`settings-${pageSlug}-table-wrapper`}
+          >
+            <ApprovalTable data-cy={`settings-${pageSlug}-table`} />
+          </div>
         </div>
 
         <Modal

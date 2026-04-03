@@ -277,13 +277,13 @@ function Page() {
                   icon={<PlusOutlined size={18} />}
                   className="inline-flex h-10 md:w-full w-10 shrink-0 items-center justify-center rounded-md bg-[#1E40AF] text-white shadow-none transition-colors hover:bg-[#1E3A8A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF] focus-visible:ring-offset-2"
                 >
-                  <span className="hidden md:inline ml-1 !text-normal text-base">
+                  <span
+                    data-cy="survey-detail-create-action-button-text"
+                    className="hidden md:inline ml-1 !text-normal text-base"
+                  >
                     New Action Plan
                   </span>
                 </Button>
-
-  
-              
               </div>
             ) : null
           }

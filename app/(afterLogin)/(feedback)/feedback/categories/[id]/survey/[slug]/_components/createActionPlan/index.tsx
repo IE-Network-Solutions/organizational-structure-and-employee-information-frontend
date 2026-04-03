@@ -492,7 +492,8 @@ function CreatePlanRow({
       ? 'relative mb-4 rounded-lg border border-gray-200 p-3'
       : '';
 
-  const labelClassRow = 'text-sm font-semibold text-gray-900 flex items-end gap-1';
+  const labelClassRow =
+    'text-sm font-semibold text-gray-900 flex items-end gap-1';
 
   return (
     <div
@@ -527,7 +528,10 @@ function CreatePlanRow({
                 className={labelClassRow}
                 data-cy={`create-action-plan-label-issue-${planIndex + 1}`}
               >
-                Issue <span className="text-[#ff4d4f] text-base leading-none ">*</span>
+                Issue{' '}
+                <span className="text-[#ff4d4f] text-base leading-none ">
+                  *
+                </span>
               </span>
             }
             rules={[{ required: true, message: 'Issue is required' }]}
@@ -550,7 +554,10 @@ function CreatePlanRow({
                 className={labelClassRow}
                 data-cy={`create-action-plan-label-action-${planIndex + 1}`}
               >
-                Action to be taken <span className="text-[#ff4d4f] text-base leading-none ">*</span>
+                Action to be taken{' '}
+                <span className="text-[#ff4d4f] text-base leading-none ">
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -578,7 +585,10 @@ function CreatePlanRow({
                 className={labelClassRow}
                 data-cy={`create-action-plan-label-responsible-${planIndex + 1}`}
               >
-                Responsible Person <span className="text-[#ff4d4f] text-base leading-none ">*</span>  
+                Responsible Person{' '}
+                <span className="text-[#ff4d4f] text-base leading-none ">
+                  *
+                </span>
               </span>
             }
             rules={[
@@ -687,7 +697,9 @@ function CreatePlanRow({
                     data-cy={`create-action-plan-label-priority-${planIndex + 1}`}
                   >
                     Priority
-                    <span className="text-[#ff4d4f] text-base leading-none ">*</span>
+                    <span className="text-[#ff4d4f] text-base leading-none ">
+                      *
+                    </span>
                   </span>
                 }
                 rules={[
@@ -701,8 +713,8 @@ function CreatePlanRow({
                 <Select
                   placeholder="Select"
                   allowClear
-                  popupClassName="action-plan-priority-dropdown"
-                  className="w-full rounded-md [&_.ant-picker-suffix]:ml-1 [&_.ant-picker-suffix_.anticon]:!text-[13px] [&_.ant-picker-suffix_.anticon]:!leading-none [&_.ant-picker-suffix_.anticon_svg]:!h-[13px] [&_.ant-picker-suffix_.anticon_svg]:!w-[13px]"
+                  // popupClassName="action-plan-priority-dropdown"
+                  className="w-full h-10 rounded-md"
                   options={[
                     { value: 'high', label: 'High' },
                     { value: 'medium', label: 'Medium' },
@@ -741,7 +753,7 @@ function CreatePlanRow({
                 data-cy={`create-action-plan-form-item-deadline-${planIndex + 1}`}
               >
                 <DatePicker
-                  className="w-full rounded-md [&_.ant-picker-suffix]:ml-1 [&_.ant-picker-suffix_.anticon]:!text-[13px] [&_.ant-picker-suffix_.anticon]:!leading-none [&_.ant-picker-suffix_.anticon_svg]:!h-[13px] [&_.ant-picker-suffix_.anticon_svg]:!w-[13px]"
+                  className="w-full rounded-md [&_.ant-picker-suffix]:ml-1"
                   format="MMM D, YYYY"
                   placeholder="Select date"
                   data-cy={`create-action-plan-deadline-picker-${planIndex + 1}`}
@@ -1120,7 +1132,7 @@ const CreateActionPlan = (props: CreateActionPlanProps) => {
       }
       title={
         <h2
-          className="m-0 pr-2 text-base font-bold leading-tight"
+          className="mt-2 pr-2 text-base font-bold leading-tight"
           style={{
             color: 'var(--Components-Modal-Component-titleColor, #000000B2)',
           }}

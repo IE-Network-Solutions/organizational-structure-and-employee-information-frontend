@@ -953,12 +953,7 @@ function ActionPlans({ id }: Params) {
                 aria-label="Filter"
                 title="Filter"
                 className="h-8 border border-gray-200 shadow-none"
-                icon={
-                  <MdOutlineFilterAlt
-                    className="mt-1.5"
-                    size={16}
-                  />
-                }
+                icon={<MdOutlineFilterAlt className="mt-1.5" size={16} />}
                 data-cy="action-plans-filter"
               >
                 <span className="hidden pl-0 text-[14px] font-normal leading-none lg:inline">

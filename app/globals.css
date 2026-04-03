@@ -107,12 +107,14 @@
   align-items: center !important;
 }
 
-/* Survey/modal icons: make them consistent at 24px */
+/* Match typical Ant embedded controls (~14px); 24px looked oversized in 40px fields */
 .action-plan-create-modal .anticon,
 .action-plan-create-modal .ant-picker-suffix svg,
-.action-plan-create-modal .ant-select-arrow svg {
-  font-size: 24px !important;
-}
+/* .action-plan-create-modal .ant-select-arrow svg,
+.action-plan-create-modal .ant-select-suffix .anticon,
+.action-plan-create-modal .ant-select-suffix svg {
+  font-size: 14px !important;
+} */
 
 /* Org Structure chart: smooth layout transitions on collapse/expand */
 .org-structure-flow .react-flow__node,
