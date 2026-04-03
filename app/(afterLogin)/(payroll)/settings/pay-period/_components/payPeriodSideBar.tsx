@@ -196,6 +196,7 @@ const PayPeriodSideBar = () => {
 
     if (errors.length > 0) {
       const errorMap: Record<number, string> = {};
+      //eslint-disable-next-line 
       divisions.forEach((_unused, index) => {
         const fieldErrors = errors.filter((err) =>
           err.includes(`Pay period ${index + 1}`),
@@ -654,7 +655,7 @@ const PayPeriodSideBar = () => {
                       key={index}
                       className="flex flex-col gap-1"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" data-cy={`payroll-payperiod-sidebar-division-${index}`}>
                         <span
                           className="w-[190px] shrink-0 rounded border border-gray-300 bg-gray-50 px-2.5 py-2 text-xs text-gray-700 text-center whitespace-nowrap"
                           data-cy={`payroll-payperiod-sidebar-division-label-${index}`}
