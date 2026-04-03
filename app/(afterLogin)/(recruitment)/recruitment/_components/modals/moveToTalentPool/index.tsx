@@ -253,26 +253,38 @@ const MoveToTalentPool: React.FC = () => {
                       placeholder=""
                       popupClassName="org-structure-branch-select-dropdown"
                       loading={isCandidatesLoading}
+                      value={selectedCandidate.map((item: any) => item.id)}
                       showSearch
                       optionFilterProp="label"
                       maxTagCount={0}
                       maxTagPlaceholder={() => null}
-                      options={candidateOptionsSource.map((item: any) => ({
-                        value: item.id,
-                        label:
-                          candidateDisplayName(item) || candidateIdKey(item.id),
-                      }))}
                       onChange={handleChange}
                       onOpenChange={setCandidateSelectOpen}
                       onFocus={() => setCandidateSelectFocused(true)}
                       onBlur={() => setCandidateSelectFocused(false)}
-                    />
+                    >
+                      {candidateOptionsSource.map((item: any) => {
+                        const label =
+                          candidateDisplayName(item) || candidateIdKey(item.id);
+                        return (
+                          <Option
+                            key={candidateIdKey(item.id)}
+                            value={item.id}
+                            label={label}
+                            id={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
+                            data-cy={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
+                          >
+                            {label}
+                          </Option>
+                        );
+                      })}
+                    </Select>
                     {!candidateSelectOpen && !candidateSelectFocused ? (
                       <span
                         className="pointer-events-none absolute left-3 top-1/2 z-[1] -translate-y-1/2 text-sm text-[#bfbfbf]"
                         data-cy="talent-acquisition-move-talent-pool-candidate-placeholder"
                       >
-                        select candidate
+                        Select candidate
                       </span>
                     ) : null}
                   </div>

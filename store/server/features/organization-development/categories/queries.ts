@@ -39,6 +39,21 @@ const fetchQuestionsByFormId = async (
     },
   });
 };
+
+/** Loads a large page of questions for the survey builder (single-page UI). */
+const fetchAllQuestionsByFormId = async (formId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_DEV_URL}/questions/by-form-id/${formId}?page=1&&limit=500&&question=`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
 const fetchIndividualResponses = async (
   formId: string,
   userId: string | null,
@@ -117,8 +132,10 @@ const fetchActionPlanById = async (actionPlanId: string) => {
   });
 };
 export const useGetAllActionPlan = (formId: string) => {
-  return useQuery<any>(['actionPlans', formId], () =>
-    fetchAllActionPlans(formId),
+  return useQuery<any>(
+    ['actionPlans', formId],
+    () => fetchAllActionPlans(formId),
+    { enabled: !!formId },
   );
 };
 export const useFetchedQuestions = (searchTitle: string | null) => {
@@ -132,6 +149,16 @@ export const useFetchedQuestionsByFormId = (
 ) => {
   return useQuery<QuestionData>(['questions', formId, searchTitle], () =>
     fetchQuestionsByFormId(formId, searchTitle),
+  );
+};
+
+export const useAllQuestionsByFormId = (formId: string) => {
+  return useQuery<QuestionData>(
+    ['questions', formId, 'all'],
+    () => fetchAllQuestionsByFormId(formId),
+    {
+      enabled: !!formId,
+    },
   );
 };
 
@@ -152,14 +179,18 @@ export const useFetchedAllIndividualResponses = () => {
   return useQuery<any>('allIndividualResponses', fetchAllIndividualResponses);
 };
 export const useFetchedAllIndividualResponsesByFormId = (formId: string) => {
-  return useQuery<any>(['allIndividualResponses', formId], () =>
-    fetchAllIndividualResponsesByformId(formId),
+  return useQuery<any>(
+    ['allIndividualResponses', formId],
+    () => fetchAllIndividualResponsesByformId(formId),
+    { enabled: !!formId },
   );
 };
 
 export const useGetAllSummaryResultByformId = (formId: string) => {
-  return useQuery<any>(['allSummaryResult', formId], () =>
-    fetchAllSummaryResultByFormId(formId),
+  return useQuery<any>(
+    ['allSummaryResult', formId],
+    () => fetchAllSummaryResultByFormId(formId),
+    { enabled: !!formId },
   );
 };
 

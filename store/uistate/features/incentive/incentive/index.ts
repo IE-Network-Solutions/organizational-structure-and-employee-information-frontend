@@ -149,6 +149,7 @@ export interface Records {
 }
 interface SearchParams {
   employee_name: string;
+  byType: string;
   byProject: string;
   byRecognition: string;
   byYear: string;
@@ -331,6 +332,7 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
 ) => ({
   searchParams: {
     employee_name: '',
+    byType: '',
     byProject: '',
     byRecognition: '',
     byYear: '',

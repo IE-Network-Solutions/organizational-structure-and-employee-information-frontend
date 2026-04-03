@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { IoIosInformationCircleOutline } from 'react-icons/io';
 import { useDynamicFormStore } from '@/store/uistate/features/feedback/dynamicForm';
@@ -32,7 +32,28 @@ const Question: React.FC<Props> = (props) => {
     addQuestion,
     setIsDrawerOpen,
     filteredQuestions,
+    pendingDrawerFieldType,
+    setPendingDrawerFieldType,
   } = useDynamicFormStore();
+
+  useEffect(() => {
+    if (!isDrawerOpen || !pendingDrawerFieldType) return;
+    const needsOptions =
+      pendingDrawerFieldType === FieldType.MULTIPLE_CHOICE ||
+      pendingDrawerFieldType === FieldType.CHECKBOX;
+    form.setFieldsValue({
+      questions: [
+        {
+          id: 1,
+          fieldType: pendingDrawerFieldType,
+          question: '',
+          required: false,
+          field: needsOptions ? ['', ''] : [],
+        },
+      ],
+    });
+    setPendingDrawerFieldType(null);
+  }, [isDrawerOpen, pendingDrawerFieldType, form, setPendingDrawerFieldType]);
 
   const handleQuestionStateUpdate = useDebounce(addQuestion, 1500);
 

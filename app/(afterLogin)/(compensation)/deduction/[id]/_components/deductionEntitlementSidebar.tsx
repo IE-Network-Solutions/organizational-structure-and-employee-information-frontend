@@ -1,6 +1,7 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Button, Form, Input, InputNumber, Select, Spin } from 'antd';
+'use client';
+
+import { Button, Form, Input, InputNumber, Modal, Select, Spin } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import {
   useAllowanceEntitlementStore,
   PayPeriodScheduleRow,
@@ -14,10 +15,47 @@ import {
   useFetchAllowanceEntitlements,
 } from '@/store/server/features/compensation/allowance/queries';
 import DuplicateDeductionModal from '@/components/common/duplicateDeductionModal';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
+
+const inputClassName = 'w-full rounded-md border-gray-300';
+const CONTROL_40H =
+  'h-10 [&_.ant-input-number-input]:h-10 [&_.ant-input-number-input]:leading-10';
+const SELECT_40H =
+  'h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!items-center [&_.ant-select-selection-search-input]:!h-10';
+
+function toBasicSalaryRows(data: unknown): any[] {
+  if (data == null) return [];
+  if (Array.isArray(data)) return data;
+  if (
+    typeof data === 'object' &&
+    Array.isArray((data as { items?: unknown }).items)
+  ) {
+    return (data as { items: any[] }).items;
+  }
+  if (
+    typeof data === 'object' &&
+    (data as { basicSalary?: unknown }).basicSalary != null
+  ) {
+    return [data];
+  }
+  return [];
+}
+
+function pickActiveBasicSalaryAmount(rows: any[]): number {
+  const active = rows.find(
+    (item) =>
+      item?.status === true ||
+      item?.status === 'ACTIVE' ||
+      item?.isActive === true ||
+      item?.isActive === 'ACTIVE',
+  );
+  if (!active) return 0;
+  const n = Number(active.basicSalary);
+  return Number.isFinite(n) ? n : 0;
+}
 
 const DeductionEntitlementSideBar = () => {
   const {
@@ -28,7 +66,6 @@ const DeductionEntitlementSideBar = () => {
     setDeductionPayPeriodSchedule,
     selectedEmployeeForDeduction,
     setSelectedEmployeeForDeduction,
-    selectedEmployeeBasicSalary,
     setSelectedEmployeeBasicSalary,
     deductionTotalAmount,
     setDeductionTotalAmount,
@@ -61,53 +98,54 @@ const DeductionEntitlementSideBar = () => {
   const { data: basicSalaryData, isLoading: basicSalaryLoading } =
     useGetBasicSalaryById(selectedEmployeeForDeduction ?? '');
 
-  // Update rate from deduction type
+  // Update rate from deduction type (store copy for other consumers)
   useEffect(() => {
-    if (deductionTypeData?.defaultAmount) {
-      setDeductionRate(Number(deductionTypeData.defaultAmount));
+    if (deductionTypeData?.defaultAmount != null) {
+      const n = Number(deductionTypeData.defaultAmount);
+      if (Number.isFinite(n)) setDeductionRate(n);
     }
   }, [deductionTypeData, setDeductionRate]);
 
-  // Update basic salary when employee is selected
-  useEffect(() => {
-    if (basicSalaryData && Array.isArray(basicSalaryData)) {
-      const activeBasicSalary = basicSalaryData.find(
-        (item: any) => item.status,
-      );
-      if (activeBasicSalary) {
-        const salary = Number(activeBasicSalary.basicSalary);
-        setSelectedEmployeeBasicSalary(salary);
-        // Reset schedule when basic salary changes so it recalculates
-        setDeductionPayPeriodSchedule([]);
-      } else {
-        // No active basic salary found
-        setSelectedEmployeeBasicSalary(0);
-      }
-    } else if (basicSalaryData && !Array.isArray(basicSalaryData)) {
-      // Handle case where API returns single object
-      const salary = Number(basicSalaryData.basicSalary || 0);
-      setSelectedEmployeeBasicSalary(salary);
-      setDeductionPayPeriodSchedule([]);
-    }
-  }, [
-    basicSalaryData,
-    setSelectedEmployeeBasicSalary,
-    setDeductionPayPeriodSchedule,
-  ]);
+  /** Salary from API in the same render as fetch — avoids schedule using stale 0 from Zustand. */
+  const resolvedBasicSalary = useMemo(
+    () => pickActiveBasicSalaryAmount(toBasicSalaryRows(basicSalaryData)),
+    [basicSalaryData],
+  );
 
-  // Calculate payment schedule when employee, total amount, and rate are available
+  useEffect(() => {
+    setSelectedEmployeeBasicSalary(resolvedBasicSalary);
+  }, [resolvedBasicSalary, setSelectedEmployeeBasicSalary]);
+
+  const effectiveRatePercent = useMemo(() => {
+    const fromStore = Number(deductionRate);
+    if (Number.isFinite(fromStore) && fromStore > 0) return fromStore;
+    const fromType = Number(deductionTypeData?.defaultAmount);
+    return Number.isFinite(fromType) && fromType > 0 ? fromType : 0;
+  }, [deductionRate, deductionTypeData?.defaultAmount]);
+
+  /**
+   * Builds schedule rows: sequential min(monthlyCap, remaining) until total is
+   * allocated. Each row starts with payPeriodId '' — user picks distinct periods
+   * in the Payment Schedule UI. See proceedWithCreation / API payload.
+   */
   const calculatePaymentSchedule = useCallback(() => {
+    const salary = resolvedBasicSalary;
+    const total = Number(deductionTotalAmount);
+    const rate = effectiveRatePercent;
+
     if (
-      !selectedEmployeeBasicSalary ||
-      !deductionTotalAmount ||
-      !deductionRate
+      !Number.isFinite(salary) ||
+      salary <= 0 ||
+      !Number.isFinite(total) ||
+      total <= 0 ||
+      !Number.isFinite(rate) ||
+      rate <= 0
     ) {
       setDeductionPayPeriodSchedule([]);
       return;
     }
 
-    const monthlyDeduction =
-      (selectedEmployeeBasicSalary * deductionRate) / 100;
+    const monthlyDeduction = (salary * rate) / 100;
 
     if (monthlyDeduction <= 0) {
       setDeductionPayPeriodSchedule([]);
@@ -115,12 +153,12 @@ const DeductionEntitlementSideBar = () => {
     }
 
     const schedule: PayPeriodScheduleRow[] = [];
-    let remainingAmount = deductionTotalAmount;
+    let remainingAmount = total;
 
     while (remainingAmount > 0) {
       const amount = Math.min(monthlyDeduction, remainingAmount);
       schedule.push({
-        amount: Math.round(amount * 100) / 100, // Round to 2 decimal places
+        amount: Math.round(amount * 100) / 100,
         payPeriodId: '',
       });
       remainingAmount -= amount;
@@ -128,9 +166,9 @@ const DeductionEntitlementSideBar = () => {
 
     setDeductionPayPeriodSchedule(schedule);
   }, [
-    selectedEmployeeBasicSalary,
+    resolvedBasicSalary,
     deductionTotalAmount,
-    deductionRate,
+    effectiveRatePercent,
     setDeductionPayPeriodSchedule,
   ]);
 
@@ -250,96 +288,131 @@ const DeductionEntitlementSideBar = () => {
 
   const handleEmployeeChange = (value: string) => {
     setSelectedEmployeeForDeduction(value);
-    // Reset basic salary and schedule when employee changes
+    form.setFieldsValue({ employee: value });
     setSelectedEmployeeBasicSalary(0);
     setDeductionPayPeriodSchedule([]);
   };
 
   const handleTotalAmountChange = (value: number | null) => {
-    setDeductionTotalAmount(value || 0);
+    const next = value || 0;
+    setDeductionTotalAmount(next);
+    form.setFieldsValue({ totalAmount: next });
   };
 
   const handlePayPeriodChange = (index: number, payPeriodId: string) => {
     updatePayPeriodScheduleRow(index, payPeriodId);
   };
 
-  // Check if all pay periods are selected
   const areAllPayPeriodsSelected =
     deductionPayPeriodSchedule.length > 0 &&
     deductionPayPeriodSchedule.every((row) => row.payPeriodId);
 
-  // Validate that schedule amounts are correctly calculated (not just the rate)
   const isScheduleValid =
     deductionPayPeriodSchedule.length > 0 &&
-    deductionPayPeriodSchedule.every((row) => row.amount > 1); // Amount should be > 1 (not just rate percentage)
+    deductionPayPeriodSchedule.every((row) => row.amount > 1);
 
   const isSubmitDisabled =
     !selectedEmployeeForDeduction ||
-    !deductionTotalAmount ||
-    !selectedEmployeeBasicSalary || // Must have basic salary loaded
-    basicSalaryLoading || // Must wait for basic salary to load
+    !Number(deductionTotalAmount) ||
+    resolvedBasicSalary <= 0 ||
+    basicSalaryLoading ||
     !areAllPayPeriodsSelected ||
-    !isScheduleValid; // Ensure schedule has valid calculated amounts
+    !isScheduleValid;
 
   return (
     <>
-      {isAllowanceEntitlementSidebarOpen && (
-        <CustomDrawerLayout
-          open={isAllowanceEntitlementSidebarOpen}
-          onClose={onClose}
-          modalHeader={
-            <CustomDrawerHeader
-              className="flex justify-center"
-              data-cy="compensation-deduction-sidebar-header"
+      <Modal
+        title={
+          <div
+            className="flex w-full items-center justify-between gap-4"
+            data-cy="compensation-deduction-sidebar-modal-title-row"
+          >
+            <span
+              className="inline-flex min-h-6 min-w-0 flex-1 items-center text-left text-base font-semibold leading-6 text-gray-900"
+              id="compensation-deduction-sidebar-title-text"
+              data-cy="compensation-deduction-sidebar-title-text"
             >
-              <span
-                id="compensation-deduction-sidebar-title-text"
-                data-cy="compensation-deduction-sidebar-title-text"
-              >
-                {deductionTypeData?.name || 'Add Deduction Entitlement'}
-              </span>
-            </CustomDrawerHeader>
-          }
-          footer={
-            <div
-              className="flex flex-row gap-4 justify-center py-3"
-              id="compensation-deduction-sidebar-footer"
-              data-cy="compensation-deduction-sidebar-footer"
+              Add Deduction Entitlement
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
+              data-cy="compensation-deduction-sidebar-close"
             >
-              <Button
-                type="default"
-                className="h-10 px-3 w-40"
-                size="large"
-                loading={allUserLoading}
-                onClick={() => onClose()}
-                disabled={createAllowanceEntitlementLoading}
-                id="compensation-deduction-sidebar-cancel-button"
-                data-cy="compensation-deduction-sidebar-cancel-button"
-              >
-                Cancel
-              </Button>
-
-              <Button
-                type="primary"
-                key="create"
-                className="h-10 px-3 w-40"
-                size="large"
-                loading={createAllowanceEntitlementLoading}
-                disabled={isSubmitDisabled}
-                onClick={() => form.submit()}
-                id="compensation-deduction-sidebar-create-button"
-                data-cy="compensation-deduction-sidebar-create-button"
-              >
-                Create
-              </Button>
-            </div>
-          }
-          width="600px"
-          data-cy="compensation-deduction-sidebar-layout"
+              <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
+            </button>
+          </div>
+        }
+        open={isAllowanceEntitlementSidebarOpen}
+        onCancel={onClose}
+        closable={false}
+        mask
+        maskClosable={false}
+        zIndex={10002}
+        width={640}
+        centered
+        style={{ maxWidth: 'calc(100vw - 32px)' }}
+        footer={
+          <div
+            className="flex w-full justify-end gap-3"
+            id="compensation-deduction-sidebar-footer"
+            data-cy="compensation-deduction-sidebar-footer"
+          >
+            <Button
+              type="default"
+              className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-normal hover:bg-gray-50"
+              loading={createAllowanceEntitlementLoading}
+              onClick={onClose}
+              disabled={createAllowanceEntitlementLoading}
+              id="compensation-deduction-sidebar-cancel-button"
+              data-cy="compensation-deduction-sidebar-cancel-button"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              className="h-10 px-4 rounded-md text-sm font-normal"
+              loading={createAllowanceEntitlementLoading}
+              disabled={isSubmitDisabled}
+              onClick={() => form.submit()}
+              id="compensation-deduction-sidebar-create-button"
+              data-cy="compensation-deduction-sidebar-create-button"
+            >
+              Create
+            </Button>
+          </div>
+        }
+        rootClassName="[&_.ant-modal-title]:!block [&_.ant-modal-title]:!w-full [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:text-[#262626] [&_.ant-form-item-required]:before:!hidden [&_.ant-form-item-required]:after:!hidden max-sm:[&_.ant-modal-body]:[-ms-overflow-style:none] max-sm:[&_.ant-modal-body]:[scrollbar-width:none] max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!hidden max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!w-0 max-sm:[&_.ant-modal-body::-webkit-scrollbar]:!h-0"
+        classNames={{
+          header:
+            '!mb-0 flex !items-center !rounded-t-lg border-0 !px-6 !py-4 !min-h-0',
+          body: '!px-6 !pb-0 !pt-0 hide-scrollbar hide-scrollbar-mobile',
+          footer: '!mt-0 border-0 !px-6 !pb-6 !pt-4',
+        }}
+        styles={{
+          content: { borderRadius: 8, padding: 0 },
+          header: { borderBottom: 'none' },
+          body: {
+            borderBottom: 'none',
+            maxHeight: 'calc(100vh - 240px)',
+            overflowY: 'auto',
+          },
+          footer: { borderTop: 'none' },
+        }}
+        data-cy="compensation-deduction-sidebar-modal"
+      >
+        <div
+          className="rounded-lg border border-solid border-[#D9D9D9] bg-white px-6 py-5"
+          data-cy="compensation-deduction-sidebar-modal-inner"
         >
           <Spin
             spinning={
-              allUserLoading || deductionTypeLoading || basicSalaryLoading
+              allUserLoading ||
+              deductionTypeLoading ||
+              basicSalaryLoading ||
+              payPeriodsLoading
             }
             data-cy="compensation-deduction-sidebar-loading"
           >
@@ -350,87 +423,104 @@ const DeductionEntitlementSideBar = () => {
               requiredMark={CustomLabel}
               id="compensation-deduction-sidebar-form"
               data-cy="compensation-deduction-sidebar-form"
+              className="[&_.ant-form-item-label>label]:text-sm [&_.ant-form-item-label>label]:font-normal [&_.ant-form-item-label>label]:text-[#262626]"
             >
-              {/* Rate-based deduction form */}
-              <Form.Item
-                name="employee"
-                label="Select Employee"
-                rules={[
-                  { required: true, message: 'Please select an employee' },
-                ]}
-                id="compensation-deduction-sidebar-employee-item"
-                data-cy="compensation-deduction-sidebar-employee-item"
+              <div
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6"
+                data-cy="compensation-deduction-sidebar-top-fields"
               >
-                <Select
-                  showSearch
-                  placeholder="Select an employee"
-                  className="w-full"
-                  allowClear
-                  filterOption={(input: any, option: any) =>
-                    (option?.label ?? '')
-                      ?.toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
-                  options={allUsers?.items?.map((item: any) => ({
-                    value: item?.id,
-                    label:
-                      `${item?.firstName || ''} ${item?.middleName || ''} ${item?.lastName || ''}`
-                        .replace(/\s+/g, ' ')
-                        .trim(),
-                  }))}
-                  loading={allUserLoading}
-                  onChange={handleEmployeeChange}
-                  id="compensation-deduction-sidebar-employee-select"
-                  data-cy="compensation-deduction-sidebar-employee-select"
-                />
-              </Form.Item>
+                <Form.Item
+                  name="employee"
+                  label="Select Employee"
+                  rules={[
+                    { required: true, message: 'Please select an employee' },
+                  ]}
+                  className="mb-0"
+                  id="compensation-deduction-sidebar-employee-item"
+                  data-cy="compensation-deduction-sidebar-employee-item"
+                >
+                  <Select
+                    showSearch
+                    placeholder="Select employee"
+                    className="w-full h-10"
+                    allowClear
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        ?.toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={allUsers?.items?.map((item: any) => ({
+                      value: item?.id,
+                      label:
+                        `${item?.firstName || ''} ${item?.middleName || ''} ${item?.lastName || ''}`
+                          .replace(/\s+/g, ' ')
+                          .trim(),
+                    }))}
+                    loading={allUserLoading}
+                    onChange={handleEmployeeChange}
+                    id="compensation-deduction-sidebar-employee-select"
+                    data-cy="compensation-deduction-sidebar-employee-select"
+                  />
+                </Form.Item>
 
-              <Form.Item
-                name="totalAmount"
-                label="Total Amount"
-                rules={[
-                  { required: true, message: 'Total amount is required!' },
-                  {
-                    // eslint-disable-next-line
-                    validator: (_, value) => {
-                      if (value && value < 0) {
-                        return Promise.reject(
-                          new Error('Total amount cannot be less than 0!'),
-                        );
-                      }
-                      return Promise.resolve();
+                <Form.Item
+                  name="totalAmount"
+                  label="Total Amount"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Total amount is required',
                     },
-                  },
-                ]}
-                id="compensation-deduction-sidebar-total-amount-item"
-                data-cy="compensation-deduction-sidebar-total-amount-item"
-              >
-                <InputNumber
-                  className="w-full"
-                  min={0}
-                  placeholder="Enter total amount to be deducted"
-                  onChange={handleTotalAmountChange}
-                  id="compensation-deduction-sidebar-total-amount-input"
-                  data-cy="compensation-deduction-sidebar-total-amount-input"
-                />
-              </Form.Item>
+                    {
+                      validator: (notused, value) => {
+                        void notused;
+                        if (value != null && value < 0) {
+                          return Promise.reject(
+                            new Error('Total amount cannot be less than 0'),
+                          );
+                        }
+                        return Promise.resolve();
+                      },
+                    },
+                  ]}
+                  className="mb-0"
+                  id="compensation-deduction-sidebar-total-amount-item"
+                  data-cy="compensation-deduction-sidebar-total-amount-item"
+                >
+                  <InputNumber
+                    className={`${inputClassName} ${CONTROL_40H} w-full`}
+                    min={0}
+                    placeholder="0"
+                    value={deductionTotalAmount}
+                    onChange={handleTotalAmountChange}
+                    formatter={(val) =>
+                      val === undefined || val === null
+                        ? ''
+                        : `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    }
+                    parser={(display) =>
+                      display ? Number(display.replace(/,/g, '')) : 0
+                    }
+                    id="compensation-deduction-sidebar-total-amount-input"
+                    data-cy="compensation-deduction-sidebar-total-amount-input"
+                  />
+                </Form.Item>
+              </div>
 
-              {/* Show loading state for basic salary */}
               {selectedEmployeeForDeduction && basicSalaryLoading && (
                 <div
-                  className="text-sm text-gray-500 mb-4"
+                  className="mt-4 text-sm text-gray-500"
                   data-cy="deduction-sidebar-loading-salary"
                 >
                   Loading employee basic salary...
                 </div>
               )}
 
-              {/* Show error if no basic salary found */}
               {selectedEmployeeForDeduction &&
                 !basicSalaryLoading &&
-                !selectedEmployeeBasicSalary && (
+                resolvedBasicSalary <= 0 && (
                   <div
-                    className="text-sm text-red-500 mb-4"
+                    className="mt-4 text-sm text-red-500"
                     data-cy="deduction-sidebar-no-salary-error"
                   >
                     No active basic salary found for this employee. Please set
@@ -438,97 +528,109 @@ const DeductionEntitlementSideBar = () => {
                   </div>
                 )}
 
-              {/* Dynamic payment schedule rows */}
               {deductionPayPeriodSchedule.length > 0 && (
-                <div
-                  className="space-y-4"
-                  id="compensation-deduction-sidebar-schedule-container"
-                  data-cy="compensation-deduction-sidebar-schedule-container"
-                >
-                  <div
-                    className="border-t pt-4"
-                    data-cy="deduction-sidebar-payment-schedule-header"
+                <>
+                  <h3
+                    className="mt-6 mb-4 text-sm font-semibold text-[#262626]"
+                    data-cy="compensation-deduction-sidebar-schedule-heading"
                   >
-                    <h4
-                      className="font-medium mb-3 text-gray-700"
-                      data-cy="deduction-sidebar-payment-schedule-title"
-                    >
-                      Payment Schedule
-                    </h4>
-                  </div>
-                  {deductionPayPeriodSchedule.map((row, index) => (
-                    <div
-                      key={index}
-                      className="flex gap-4"
-                      id={`compensation-deduction-sidebar-schedule-row-${index}`}
-                      data-cy={`compensation-deduction-sidebar-schedule-row-${index}`}
-                    >
-                      <Form.Item
-                        label="Amount"
-                        className="flex-1 mb-0"
-                        id={`compensation-deduction-sidebar-schedule-amount-item-${index}`}
-                        data-cy={`compensation-deduction-sidebar-schedule-amount-item-${index}`}
+                    Payment Schedule
+                  </h3>
+                  <div
+                    className="rounded-lg border border-gray-200 px-4 py-4"
+                    id="compensation-deduction-sidebar-schedule-container"
+                    data-cy="compensation-deduction-sidebar-schedule-container"
+                  >
+                    {deductionPayPeriodSchedule.map((row, index) => (
+                      <div
+                        key={index}
+                        className="mb-4 grid grid-cols-1 gap-4 last:mb-0 sm:grid-cols-2 sm:gap-6"
+                        id={`compensation-deduction-sidebar-schedule-row-${index}`}
+                        data-cy={`compensation-deduction-sidebar-schedule-row-${index}`}
                       >
-                        <Input
-                          value={row.amount.toLocaleString()}
-                          disabled
-                          className="bg-gray-100"
-                          id={`compensation-deduction-sidebar-schedule-amount-input-${index}`}
-                          data-cy={`compensation-deduction-sidebar-schedule-amount-input-${index}`}
-                        />
-                      </Form.Item>
+                        <Form.Item
+                          label="Amount"
+                          className="mb-0"
+                          id={`compensation-deduction-sidebar-schedule-amount-item-${index}`}
+                          data-cy={`compensation-deduction-sidebar-schedule-amount-item-${index}`}
+                        >
+                          <Input
+                            disabled
+                            value={Number(row.amount).toLocaleString('en-US', {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2,
+                            })}
+                            className={`${inputClassName} h-10 cursor-not-allowed bg-[#F5F5F5] text-[#434343]`}
+                            id={`compensation-deduction-sidebar-schedule-amount-input-${index}`}
+                            data-cy={`compensation-deduction-sidebar-schedule-amount-input-${index}`}
+                          />
+                        </Form.Item>
 
-                      <Form.Item
-                        label="Pay Period"
-                        className="flex-1 mb-0"
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Pay period is required',
-                          },
-                        ]}
-                        id={`compensation-deduction-sidebar-schedule-period-item-${index}`}
-                        data-cy={`compensation-deduction-sidebar-schedule-period-item-${index}`}
-                      >
-                        <Select
-                          placeholder="Select pay period"
-                          value={row.payPeriodId || undefined}
-                          onChange={(value) =>
-                            handlePayPeriodChange(index, value)
-                          }
-                          loading={payPeriodsLoading}
-                          options={payPeriods
-                            ?.filter((period: any) => {
-                              // Filter out inactive pay periods
-                              if (period.isActive === false) return false;
-                              // Filter out past pay periods (where end date is before today)
-                              const endDate = dayjs(period.endDate);
+                        <Form.Item
+                          label="Pay Period"
+                          className="mb-0"
+                          rules={[
+                            {
+                              required: true,
+                              message: 'Pay period is required',
+                            },
+                          ]}
+                          id={`compensation-deduction-sidebar-schedule-period-item-${index}`}
+                          data-cy={`compensation-deduction-sidebar-schedule-period-item-${index}`}
+                        >
+                          <Select
+                            placeholder="Select pay period"
+                            value={row.payPeriodId || undefined}
+                            onChange={(value) =>
+                              handlePayPeriodChange(index, value)
+                            }
+                            loading={payPeriodsLoading}
+                            className={`w-full ${SELECT_40H}`}
+                            options={(() => {
+                              const raw = payPeriods as unknown as
+                                | any[]
+                                | { items?: any[] }
+                                | undefined;
+                              const periodsList: any[] = Array.isArray(raw)
+                                ? raw
+                                : raw &&
+                                    typeof raw === 'object' &&
+                                    Array.isArray(raw.items)
+                                  ? raw.items
+                                  : [];
                               const today = dayjs().startOf('day');
-                              return (
-                                endDate.isAfter(today) ||
-                                endDate.isSame(today, 'day')
-                              );
-                            })
-                            .map((period: any) => ({
-                              value: period.id,
-                              label: `${dayjs(period.startDate).format('MMM DD, YYYY')} – ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
-                              disabled: deductionPayPeriodSchedule.some(
-                                (r, i) =>
-                                  i !== index && r.payPeriodId === period.id,
-                              ),
-                            }))}
-                          id={`compensation-deduction-sidebar-schedule-period-select-${index}`}
-                          data-cy={`compensation-deduction-sidebar-schedule-period-select-${index}`}
-                        />
-                      </Form.Item>
-                    </div>
-                  ))}
-                </div>
+                              return periodsList
+                                .filter((period: any) => {
+                                  if (period.isActive === false) return false;
+                                  const endDate = dayjs(period.endDate);
+                                  return (
+                                    endDate.isAfter(today) ||
+                                    endDate.isSame(today, 'day')
+                                  );
+                                })
+                                .map((period: any) => ({
+                                  value: String(period.id),
+                                  label: `${dayjs(period.startDate).format('MMM DD, YYYY')} – ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
+                                  disabled: deductionPayPeriodSchedule.some(
+                                    (r, i) =>
+                                      i !== index &&
+                                      r.payPeriodId === String(period.id),
+                                  ),
+                                }));
+                            })()}
+                            id={`compensation-deduction-sidebar-schedule-period-select-${index}`}
+                            data-cy={`compensation-deduction-sidebar-schedule-period-select-${index}`}
+                          />
+                        </Form.Item>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </Form>
           </Spin>
-        </CustomDrawerLayout>
-      )}
+        </div>
+      </Modal>
 
       {/* Duplicate Confirmation Modal */}
       <DuplicateDeductionModal

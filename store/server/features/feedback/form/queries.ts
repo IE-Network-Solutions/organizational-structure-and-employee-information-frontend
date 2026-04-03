@@ -34,12 +34,29 @@ const getFormsByCategoryId = async (
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
   };
+  const sortParams = 'sortBy=createdAt&sortOrder=desc';
   return crudRequest({
-    url: `${ORG_DEV_URL}/forms/category/${formCategoryId}?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${current}`,
+    url: `${ORG_DEV_URL}/forms/category/${formCategoryId}?name=${name}&description=${description}&createdBy=${createdBy}&limit=${pageSize}&page=${current}&${sortParams}`,
     method: 'GET',
     headers,
   });
 };
+
+/**
+ * Total surveys/forms in a category — same source as the category detail grid
+ * (`meta.totalItems` from GET forms/category/:id).
+ */
+export async function fetchSurveyCountForCategory(
+  formCategoryId: string,
+): Promise<number> {
+  const data = await getFormsByCategoryId(formCategoryId, '', '', '', 1, 1);
+  const meta = data?.meta as
+    | { totalItems?: number; total?: number }
+    | undefined;
+  const total = meta?.totalItems ?? meta?.total;
+  if (typeof total === 'number' && total >= 0) return total;
+  return Array.isArray(data?.items) ? data.items.length : 0;
+}
 
 const getFormsById = async (id: string) => {
   const token = await getCurrentToken();
@@ -65,6 +82,23 @@ export const useFetchedForms = (pageSize: number, currentPage: number) => {
     },
   );
 };
+
+/**
+ * Matches the react-query key used by `useGetFormsByCategoryID` (7 segments).
+ * Used after mutations so we refetch the category survey grid without colliding with
+ * `['forms', formId]` (single-form detail) or `['forms', pageSize, page]` (global list).
+ */
+export function isCategoryFormsListQueryKey(
+  queryKey: unknown,
+  categoryId: string,
+): boolean {
+  return (
+    Array.isArray(queryKey) &&
+    queryKey.length === 7 &&
+    queryKey[0] === 'forms' &&
+    String(queryKey[1]) === String(categoryId)
+  );
+}
 
 export const useGetFormsByCategoryID = (
   formCategoryId: string,

@@ -15,6 +15,7 @@ import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
   handleLogout: () => void;
+  /** When true, search and profile are omitted (e.g. payroll dashboard uses page-level Nav). */
 }
 
 const NavBar = ({ handleLogout }: NavBarProps) => {

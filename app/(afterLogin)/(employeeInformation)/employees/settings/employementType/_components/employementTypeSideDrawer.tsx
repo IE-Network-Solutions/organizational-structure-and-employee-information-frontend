@@ -107,8 +107,8 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
           data-cy={`employment-type-modal-footer-${drawerSlug}`}
         >
           <Button
-            className="h-8 text-base px-10"
             type="default"
+            className="h-8 font-normal border border-[#D9D9D9]"
             onClick={handleCloseDrawer}
             id={`employment-type-modal-cancel-${drawerSlug}`}
             data-cy={`employment-type-modal-cancel-${drawerSlug}`}
@@ -116,7 +116,7 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
             Cancel
           </Button>
           <Button
-            className="h-8 text-base px-10"
+            className="h-8 font-normal"
             type="primary"
             onClick={handleSubmit}
             id={`employment-type-modal-submit-${drawerSlug}`}
@@ -128,6 +128,7 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
       }
       width={500}
       data-cy={`employment-type-modal-${drawerSlug}`}
+      centered
       zIndex={10002}
     >
       <Form
@@ -135,16 +136,23 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
         layout="vertical"
         id={`employment-type-modal-form-${drawerSlug}`}
         data-cy={`employment-type-modal-form-${drawerSlug}`}
+        requiredMark={false}
       >
         <Form.Item
           id="name"
           label={
             <span
-              className="text-md font-semibold text-gray-700"
+              className="text-sm font-normal text-black mb-1"
               id={`employment-type-name-label-${drawerSlug}`}
               data-cy={`employment-type-name-label-${drawerSlug}`}
             >
-              Name
+              Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`employment-type-name-required-${drawerSlug}`}
+              >
+                *
+              </span>
             </span>
           }
           name="name"
@@ -169,7 +177,7 @@ const EmployementTypeSideDrawer: React.FC<EmployementTypeSideDrawerProps> = ({
           id="description"
           label={
             <span
-              className="text-md font-semibold text-gray-700"
+              className="text-sm font-normal text-black mb-1"
               id={`employment-type-description-label-${drawerSlug}`}
               data-cy={`employment-type-description-label-${drawerSlug}`}
             >

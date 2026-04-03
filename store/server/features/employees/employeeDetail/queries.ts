@@ -3,6 +3,10 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { crudRequest } from '@/utils/crudRequest';
+import {
+  createUnknownEmployeePlaceholder,
+  isUserNotFoundError,
+} from '@/utils/unknownEmployee';
 
 const getEmployee = async (id: string) => {
   // Prevent API call if id is not available
@@ -54,6 +58,9 @@ const getEmployee = async (id: string) => {
       throw fallbackError;
     }
   } catch (error) {
+    if (isUserNotFoundError(error)) {
+      return createUnknownEmployeePlaceholder(id);
+    }
     throw error;
   }
 };
@@ -102,6 +109,9 @@ const getSimpleEmployee = async (id: string) => {
       throw fallbackError;
     }
   } catch (error) {
+    if (isUserNotFoundError(error)) {
+      return createUnknownEmployeePlaceholder(id);
+    }
     throw error;
   }
 };

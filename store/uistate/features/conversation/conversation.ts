@@ -96,6 +96,13 @@ export interface CategoriesUseState {
   givenDate: any;
   setGivenDate: (givenDate: any) => void;
 
+  feedbackListPerspective: 'givenBy' | 'issuedTo' | null;
+  setFeedbackListPerspective: (
+    perspective: 'givenBy' | 'issuedTo' | null,
+  ) => void;
+  feedbackListTypeId: string | undefined;
+  setFeedbackListTypeId: (id: string | undefined) => void;
+
   variantType: 'appreciation' | 'reprimand';
   setVariantType: (variantType: 'appreciation' | 'reprimand') => void;
 
@@ -227,6 +234,13 @@ export const ConversationStore = create<CategoriesUseState>((set) => ({
 
   givenDate: [],
   setGivenDate: (givenDate: any) => set({ givenDate }),
+
+  feedbackListPerspective: null,
+  setFeedbackListPerspective: (perspective) =>
+    set({ feedbackListPerspective: perspective }),
+
+  feedbackListTypeId: undefined,
+  setFeedbackListTypeId: (id) => set({ feedbackListTypeId: id }),
 
   editableData: null,
   setEditableData: (editableData: any) => set({ editableData }),
