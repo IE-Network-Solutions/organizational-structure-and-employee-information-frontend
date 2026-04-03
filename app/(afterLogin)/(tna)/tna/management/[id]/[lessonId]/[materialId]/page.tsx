@@ -1,5 +1,5 @@
 'use client';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import 'react-quill/dist/quill.snow.css';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,6 +16,11 @@ type LessonMaterialsSidebarProps = {
   showHeading?: boolean;
   /** Modal: lesson title stays fixed; only the materials list scrolls */
   scrollMaterialsOnly?: boolean;
+  /**
+   * Desktop: max height (px) aligned to the main lesson column; materials list
+   * scrolls when taller. Sidebar stays content-height when the list is short.
+   */
+  desktopMainColumnMaxHeight?: number | null;
 };
 
 const LessonMaterialsSidebar: FC<LessonMaterialsSidebarProps> = ({
@@ -24,9 +29,17 @@ const LessonMaterialsSidebar: FC<LessonMaterialsSidebarProps> = ({
   onMaterialSelect,
   showHeading = true,
   scrollMaterialsOnly = false,
+  desktopMainColumnMaxHeight = null,
 }) => {
   const router = useRouter();
   const { lesson } = useTnaManagementCoursePageStore();
+
+  const isDesktopHeightConstrained =
+    desktopMainColumnMaxHeight != null && desktopMainColumnMaxHeight > 0;
+  /** Modal layout: flex column + inner scroll. Desktop: whole panel scrolls up to main column height. */
+  const useModalInnerScroll = scrollMaterialsOnly;
+  const useDesktopMaxHeightScroll =
+    isDesktopHeightConstrained && !scrollMaterialsOnly;
 
   const materialsList = lesson?.courseLessonMaterials?.map((material, key) => (
     <div
@@ -72,18 +85,34 @@ const LessonMaterialsSidebar: FC<LessonMaterialsSidebarProps> = ({
   ));
 
   return (
-    <div data-cy="tna-lesson-page-sidebar" className={wrapperClassName}>
+    <div
+      data-cy="tna-lesson-page-sidebar"
+      className={`${wrapperClassName}${
+        useModalInnerScroll ? ' flex flex-col overflow-hidden' : ''
+      }${useDesktopMaxHeightScroll ? ' overflow-y-auto scrollbar-none' : ''}`}
+      style={
+        useDesktopMaxHeightScroll
+          ? { maxHeight: desktopMainColumnMaxHeight }
+          : undefined
+      }
+    >
       {showHeading && (
         <div
           data-cy="tna-lesson-page-sidebar-title"
-          className="text-sm font-normal shrink-0"
+          className={`text-sm font-normal shrink-0${
+            useDesktopMaxHeightScroll ? ' pb-1' : ''
+          }`}
         >
           In this section
         </div>
       )}
       <div
         data-cy="tna-lesson-page-sidebar-lesson-title"
-        className={scrollMaterialsOnly ? 'shrink-0 mb-1' : undefined}
+        className={
+          useModalInnerScroll || useDesktopMaxHeightScroll
+            ? 'mb-1 shrink-0'
+            : undefined
+        }
       >
         {lesson?.title && (
           <span
@@ -95,7 +124,7 @@ const LessonMaterialsSidebar: FC<LessonMaterialsSidebarProps> = ({
         )}
       </div>
 
-      {scrollMaterialsOnly ? (
+      {useModalInnerScroll ? (
         <div
           data-cy="tna-lesson-page-sidebar-materials-scroll"
           className="min-h-0 flex-1 overflow-y-auto scrollbar-none"
@@ -212,6 +241,31 @@ const LessonPage = () => {
     }
   }, [isMobile, setLessonPageSidebarOpen]);
 
+  const mainColumnRef = useRef<HTMLDivElement>(null);
+  const [mainColumnHeightPx, setMainColumnHeightPx] = useState<number | null>(
+    null,
+  );
+
+  useLayoutEffect(() => {
+    if (isMobile) {
+      setMainColumnHeightPx(null);
+      return;
+    }
+    const el = mainColumnRef.current;
+    if (!el) {
+      setMainColumnHeightPx(null);
+      return;
+    }
+    const update = () => {
+      const h = el.getBoundingClientRect().height;
+      setMainColumnHeightPx(Number.isFinite(h) ? Math.round(h) : null);
+    };
+    update();
+    const ro = new ResizeObserver(() => update());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isMobile, lessonMaterial, routeMaterialId]);
+
   return (
     lessonMaterial && (
       <>
@@ -220,6 +274,7 @@ const LessonPage = () => {
           data-cy="tna-lesson-page"
         >
           <div
+            ref={mainColumnRef}
             className={`mt-6 ${isMobile ? 'w-full' : 'w-[67%]'} mx-auto shrink-0 border border-[#D9D9D9] rounded-lg p-4 self-start`}
             id="tnaLessonPageContainerId"
             data-cy="tna-lesson-page-container"
@@ -281,6 +336,7 @@ const LessonPage = () => {
             <LessonMaterialsSidebar
               routeMaterialId={routeMaterialId}
               wrapperClassName="mt-6 w-[32%] mx-auto shrink-0 border border-[#D9D9D9] rounded-lg p-4 self-start"
+              desktopMainColumnMaxHeight={mainColumnHeightPx}
             />
           )}
         </div>
