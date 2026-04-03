@@ -328,17 +328,17 @@ const TaxRules = () => {
       <div
         id="payroll-tax-rule-table-wrapper-view-container"
         data-cy="payroll-tax-rule-table-wrapper-view-container"
-        className="w-full overflow-x-auto scrollbar-hide"
+        className="w-full overflow-x-auto scrollbar-hide px-4 pt-4 pb-2"
       >
         <div
           id="payroll-tax-rule-table-inner-view-container"
           data-cy="payroll-tax-rule-table-inner-view-container"
-          className="w-full bg-white rounded-b-lg"
+          className="w-full bg-white"
         >
           <Table
             id="payroll-tax-rule-table-view-table"
             data-cy="payroll-tax-rule-table-view-table"
-            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
+            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead_.ant-table-cell:first-child]:!rounded-tl-none [&_.ant-table-thead_.ant-table-cell:last-child]:!rounded-tr-none"
             dataSource={paginatedData}
             columns={columns}
             pagination={false}
