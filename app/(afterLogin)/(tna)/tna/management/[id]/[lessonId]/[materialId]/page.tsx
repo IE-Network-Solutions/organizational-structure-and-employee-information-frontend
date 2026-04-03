@@ -29,11 +29,13 @@ const LessonPage = () => {
           <div
             id="tnaLessonPageVideoContainerId"
             data-cy="tna-lesson-page-video-container"
+            className="relative w-full aspect-video overflow-hidden bg-black"
           >
             <ReactPlayer
               url={lessonMaterial.videos[0]}
-              className="w-full aspect-video"
-              height="auto"
+              width="100%"
+              height="100%"
+              style={{ position: 'absolute', top: 0, left: 0 }}
               controls={true}
               id="tnaLessonPageVideoPlayerId"
               data-cy="tna-lesson-page-video-player"
