@@ -18,6 +18,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     setSelectedRecognitionType,
     setParentRecognitionTypeId,
     setOpenRecognitionType,
+    setEditingRecognitionCriteriaId,
     // setEditingRowKeys,
   } = ConversationStore();
   const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
@@ -113,6 +114,7 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
     deleteRecognitionCriteria(id);
   };
   const handleEditItem = (id: string) => {
+    setEditingRecognitionCriteriaId('');
     setSelectedRecognitionType(id);
     // Only open modal for "All Recognitions" tab (when all=true)
     if (all) {

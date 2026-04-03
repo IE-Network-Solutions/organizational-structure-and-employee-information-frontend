@@ -15,6 +15,8 @@ interface CustomDrawerLayoutProps {
   hideButton?: boolean;
   customMobileHeight?: string | null;
   customPadding?: string | null;
+  /** Applied to the Ant Design Drawer root (e.g. for scoped footer button styles). */
+  rootClassName?: string;
 }
 
 const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
@@ -29,6 +31,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
   paddingBottom = 10,
   customMobileHeight = null,
   customPadding = null,
+  rootClassName,
 }) => {
   // Default width
   const {
@@ -95,6 +98,7 @@ const CustomDrawerLayout: React.FC<CustomDrawerLayoutProps> = ({
         closable={false}
         onClose={onClose}
         open={open}
+        rootClassName={rootClassName}
         style={{ paddingBottom: isMobile ? 0 : paddingBottom }}
         footer={footer}
         styles={{
