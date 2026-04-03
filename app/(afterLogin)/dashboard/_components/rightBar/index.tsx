@@ -9,7 +9,6 @@ const RightBar = ({ type }: { type: string }) => {
       data-cy="dashboard-right-bar"
     >
       <ApprovalStatus type={type} />
-
       {/* <ActionPlans /> */}
       {/*
       

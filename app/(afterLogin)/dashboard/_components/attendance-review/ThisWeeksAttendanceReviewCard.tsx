@@ -1,7 +1,19 @@
 'use client';
 
-import React from 'react';
-import { Card, Progress } from 'antd';
+import React, { useLayoutEffect, useMemo } from 'react';
+import Link from 'next/link';
+import { Card, Progress, Spin } from 'antd';
+import dayjs from 'dayjs';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
+import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
+import usePagination from '@/utils/usePagination';
+import {
+  AttendanceRecord,
+  AttendanceRecordType,
+} from '@/types/timesheet/attendance';
+import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import { calculateAttendanceRecordToTotalWorkTime } from '@/helpers/calculateHelper';
 
 type AttendanceDayStatus = 'present' | 'late' | 'absent' | 'leave';
 
@@ -10,7 +22,8 @@ type AttendanceDayRow = {
   hours: string;
   startTime: string;
   endTime: string;
-  status: AttendanceDayStatus;
+  status: AttendanceDayStatus | null;
+  workMs: number;
 };
 
 const statusDotClass: Record<AttendanceDayStatus, string> = {
@@ -30,47 +43,34 @@ const statusPillClass: Record<AttendanceDayStatus, string> = {
 const statusLabel: Record<AttendanceDayStatus, string> = {
   present: 'Present',
   late: 'Late',
-  absent: 'Acent', // kept as screenshot typo
+  absent: 'Absent',
   leave: 'Leave',
 };
 
-const DEFAULT_ROWS: AttendanceDayRow[] = [
-  {
-    day: 'Mon',
-    hours: 'Hours: 8hrs',
-    startTime: '8:55 AM',
-    endTime: '5:32 PM',
-    status: 'present',
-  },
-  {
-    day: 'Tus',
-    hours: 'Hours: 8hrs',
-    startTime: '8:55 AM',
-    endTime: '5:32 PM',
-    status: 'late',
-  },
-  {
-    day: 'Wed',
-    hours: 'Hours: 8hrs',
-    startTime: '8:55 AM',
-    endTime: '5:32 PM',
-    status: 'absent',
-  },
-  {
-    day: 'Thu',
-    hours: 'Hours: 8hrs',
-    startTime: '8:55 AM',
-    endTime: '5:32 PM',
-    status: 'leave',
-  },
-  {
-    day: 'Fri',
-    hours: 'Hours: 8hrs',
-    startTime: '8:55 AM',
-    endTime: '5:32 PM',
-    status: 'present',
-  },
-];
+const TIME_ONLY_FORMAT = 'hh:mm A';
+
+function recordToCardStatus(
+  record: AttendanceRecord | undefined,
+): AttendanceDayStatus {
+  if (!record) return 'absent';
+  if (record.isAbsent) return 'absent';
+  const statuses = formatToAttendanceStatuses(record);
+  if (statuses.some((s) => s.status === AttendanceRecordType.LATE))
+    return 'late';
+  return 'present';
+}
+
+function progressPercent(status: AttendanceDayStatus | null, workMs: number) {
+  if (status == null) return 0;
+  if (workMs > 0) {
+    const capped = Math.min(
+      100,
+      Math.round((workMs / (8 * 60 * 60 * 1000)) * 100),
+    );
+    return Math.max(capped, 8);
+  }
+  return getBarWidth(status);
+}
 
 function getBarWidth(status: AttendanceDayStatus) {
   switch (status) {
@@ -87,7 +87,165 @@ function getBarWidth(status: AttendanceDayStatus) {
   }
 }
 
+/** Monday 00:00 local time of the ISO work week containing `reference`. */
+function startOfMondayWeek(reference = dayjs()) {
+  const d = reference.startOf('day');
+  const dow = d.day();
+  const daysSinceMonday = dow === 0 ? 6 : dow - 1;
+  return d.subtract(daysSinceMonday, 'day');
+}
+
+/** Local calendar date key for bucketing an attendance record (works for ISO and SQL datetime strings). */
+function attendanceDateKey(isoOrLocalDateTime: string) {
+  return dayjs(isoOrLocalDateTime).startOf('day').format('YYYY-MM-DD');
+}
+
 export default function ThisWeeksAttendanceReviewCard() {
+  const { userId } = useAuthenticationStore();
+  const mondayThisWeek = startOfMondayWeek(dayjs());
+  const weekStart = mondayThisWeek.format('YYYY-MM-DD');
+  const weekEnd = mondayThisWeek.add(6, 'day').format('YYYY-MM-DD');
+
+  const { filter, setFilter } = useEmployeeAttendanceStore();
+
+  const {
+    page: currentPage,
+    limit: pageSize,
+    orderBy,
+    orderDirection,
+    setOrderBy,
+    setOrderDirection,
+  } = usePagination(1, 100);
+
+  useLayoutEffect(() => {
+    setOrderBy('startAt');
+    setOrderDirection('ascend');
+  }, [setOrderBy, setOrderDirection]);
+
+  useLayoutEffect(() => {
+    if (!userId) return;
+    setFilter({
+      userIds: [userId],
+      date: {
+        from: weekStart,
+        to: weekEnd,
+      },
+    });
+  }, [userId, weekStart, weekEnd, setFilter]);
+
+  const isWeekUserFilterReady = Boolean(
+    userId &&
+      filter &&
+      filter.userIds?.length === 1 &&
+      filter.userIds[0] === userId &&
+      filter.date?.from === weekStart &&
+      filter.date?.to === weekEnd,
+  );
+
+  const { data, isFetching } = useGetAttendances(
+    { page: currentPage, limit: pageSize, orderBy, orderDirection },
+    { filter },
+    true,
+    isWeekUserFilterReady,
+  );
+
+  const { rows, onTimeCount, onTimeDenominator, totalHoursDisplay } =
+    useMemo(() => {
+      const items = data?.items ?? [];
+      const recordByDate = new Map<string, AttendanceRecord>();
+      for (const item of items) {
+        const dKey = attendanceDateKey(item.startAt);
+        const prev = recordByDate.get(dKey);
+        if (!prev || dayjs(item.startAt).isAfter(dayjs(prev.startAt))) {
+          recordByDate.set(dKey, item);
+        }
+      }
+
+      const today = dayjs().startOf('day');
+      const monday = dayjs(weekStart).startOf('day');
+      const workWeekDays = [0, 1, 2, 3, 4].map((i) =>
+        monday.add(i, 'day').startOf('day'),
+      );
+
+      const rowList: AttendanceDayRow[] = [];
+      let onNum = 0;
+      let onDen = 0;
+      let totalMs = 0;
+
+      for (const d of workWeekDays) {
+        const dDay = d.startOf('day');
+        const dKey = dDay.format('YYYY-MM-DD');
+        const isFuture = dDay.isAfter(today);
+        const record = recordByDate.get(dKey);
+
+        if (!isFuture) onDen++;
+
+        if (isFuture) {
+          rowList.push({
+            day: dDay.format('ddd'),
+            hours: '—',
+            startTime: '—',
+            endTime: '—',
+            status: null,
+            workMs: 0,
+          });
+          continue;
+        }
+
+        if (!record) {
+          rowList.push({
+            day: dDay.format('ddd'),
+            hours: '—',
+            startTime: '—',
+            endTime: '—',
+            status: null,
+            workMs: 0,
+          });
+          continue;
+        }
+
+        const workMs = calculateAttendanceRecordToTotalWorkTime(record);
+        totalMs += workMs;
+        const hoursDec = workMs / (60 * 60 * 1000);
+        const cardStatus = recordToCardStatus(record);
+        if (!record.isAbsent && record.lateByMinutes === 0) onNum++;
+
+        const startClock = record.startAt
+          ? dayjs(record.startAt).format(TIME_ONLY_FORMAT)
+          : '—';
+        let endClock = '—';
+        if (record.endAt) {
+          endClock = dayjs(record.endAt).format(TIME_ONLY_FORMAT);
+        } else if (record.isOnGoing) {
+          endClock = 'In progress';
+        }
+
+        rowList.push({
+          day: dDay.format('ddd'),
+          hours:
+            workMs > 0
+              ? `Hours: ${hoursDec.toFixed(1)}h`
+              : record.isAbsent
+                ? '—'
+                : 'Hours: 0h',
+          startTime: startClock,
+          endTime: endClock,
+          status: cardStatus,
+          workMs,
+        });
+      }
+
+      const totalHoursDisplay =
+        totalMs > 0 ? `${(totalMs / (60 * 60 * 1000)).toFixed(1)}h` : '0h';
+
+      return {
+        rows: rowList,
+        onTimeCount: onNum,
+        onTimeDenominator: onDen > 0 ? onDen : workWeekDays.length || 5,
+        totalHoursDisplay,
+      };
+    }, [data?.items, weekStart]);
+
   return (
     <Card
       bordered={false}
@@ -127,7 +285,7 @@ export default function ThisWeeksAttendanceReviewCard() {
                 className="text-black font-bold text-base leading-6 tabular-nums"
                 data-cy="this-weeks-attendance-review-on-time-value"
               >
-                3/5
+                {onTimeCount}/{onTimeDenominator}
               </div>
               <div
                 className="text-black/45 font-normal text-xs mt-0.5"
@@ -147,7 +305,7 @@ export default function ThisWeeksAttendanceReviewCard() {
                 className="text-black font-bold text-base leading-6 tabular-nums"
                 data-cy="this-weeks-attendance-review-hours-value"
               >
-                42.8h
+                {totalHoursDisplay}
               </div>
               <div
                 className="text-black/45 font-normal text-xs mt-0.5"
@@ -163,109 +321,123 @@ export default function ThisWeeksAttendanceReviewCard() {
           className="text-right"
           data-cy="this-weeks-attendance-review-view-all-wrap"
         >
-          <div
-            className="text-[#2563EB] font-medium text-[12px]"
+          <Link
+            href="/timesheet/employee-attendance"
+            className="text-[#2563EB] font-medium text-[12px] inline-block"
             data-cy="this-weeks-attendance-review-view-all"
           >
             View All
-          </div>
+          </Link>
         </div>
       </div>
 
       {/* Summary metrics row */}
 
       {/* Rows */}
-      <div className="mt-2" data-cy="this-weeks-attendance-review-rows">
-        {DEFAULT_ROWS.map((row, idx) => {
-          const barWidth = getBarWidth(row.status);
-          return (
-            <div
-              key={`${row.day}-${idx}`}
-              className="flex flex-col mb-3"
-              data-cy={`this-weeks-attendance-review-row-${idx}`}
-            >
+      <Spin spinning={isFetching} size="small">
+        <div className="mt-2" data-cy="this-weeks-attendance-review-rows">
+          {rows.map((row, idx) => {
+            const barWidth = progressPercent(row.status, row.workMs);
+            const dotClass =
+              row.status != null ? statusDotClass[row.status] : 'bg-gray-300';
+            return (
               <div
-                className="py-0 flex items-center justify-between"
-                data-cy={`this-weeks-attendance-review-row-${idx}-content`}
+                key={`${row.day}-${idx}`}
+                className="flex flex-col mb-3"
+                data-cy={`this-weeks-attendance-review-row-${idx}`}
               >
                 <div
-                  className="flex items-center gap-2"
-                  data-cy={`this-weeks-attendance-review-row-${idx}-left`}
+                  className="py-0 flex items-center justify-between"
+                  data-cy={`this-weeks-attendance-review-row-${idx}-content`}
                 >
                   <div
-                    className="flex items-center gap-1"
-                    data-cy={`this-weeks-attendance-review-row-${idx}-day-wrap`}
+                    className="flex items-center gap-2"
+                    data-cy={`this-weeks-attendance-review-row-${idx}-left`}
                   >
-                    <span
-                      className={`w-[5px] h-[5px] rounded-full ${statusDotClass[row.status]}`}
-                      data-cy={`this-weeks-attendance-review-row-${idx}-dot`}
-                    />
                     <div
-                      className="text-gray-500 text-[12px] font-medium w-[20px]"
-                      data-cy={`this-weeks-attendance-review-row-${idx}-day`}
+                      className="flex items-center gap-1"
+                      data-cy={`this-weeks-attendance-review-row-${idx}-day-wrap`}
                     >
-                      {row.day}
+                      <span
+                        className={`w-[5px] h-[5px] rounded-full ${dotClass}`}
+                        data-cy={`this-weeks-attendance-review-row-${idx}-dot`}
+                      />
+                      <div
+                        className="text-gray-500 text-[12px] font-medium w-[28px] capitalize"
+                        data-cy={`this-weeks-attendance-review-row-${idx}-day`}
+                      >
+                        {row.day}
+                      </div>
+                    </div>
+                    <div
+                      className="text-black/10"
+                      data-cy={`this-weeks-attendance-review-row-${idx}-divider`}
+                    >
+                      |
+                    </div>
+                    <div
+                      className="flex items-center gap-3 flex-1 min-w-0"
+                      data-cy={`this-weeks-attendance-review-row-${idx}-hours-wrap`}
+                    >
+                      <div
+                        className="text-gray-600 text-[12px] whitespace-nowrap truncate"
+                        data-cy={`this-weeks-attendance-review-row-${idx}-hours`}
+                      >
+                        {row.hours}
+                      </div>
                     </div>
                   </div>
                   <div
-                    className="text-black/10"
-                    data-cy={`this-weeks-attendance-review-row-${idx}-divider`}
-                  >
-                    |
-                  </div>
-                  <div
-                    className="flex items-center gap-3 flex-1"
-                    data-cy={`this-weeks-attendance-review-row-${idx}-hours-wrap`}
+                    className="flex items-center gap-3 "
+                    data-cy={`this-weeks-attendance-review-row-${idx}-right`}
                   >
                     <div
-                      className="text-gray-600 text-[12px] whitespace-nowrap"
-                      data-cy={`this-weeks-attendance-review-row-${idx}-hours`}
+                      className="text-gray-600 text-[12px] whitespace-nowrap text-right"
+                      data-cy={`this-weeks-attendance-review-row-${idx}-times`}
                     >
-                      {row.hours}
+                      {row.startTime}
+                      <span
+                        className="mx-2 text-gray-400"
+                        data-cy={`this-weeks-attendance-review-row-${idx}-time-sep`}
+                      >
+                        {'>'}
+                      </span>
+                      {row.endTime}
+                    </div>
+                    <div
+                      className="w-[50px] flex justify-start items-center"
+                      data-cy={`this-weeks-attendance-review-row-${idx}-pill-wrap`}
+                    >
+                      {row.status != null ? (
+                        <div
+                          className={`px-2 h-[22px] flex items-center justify-center rounded-md text-[12px] whitespace-nowrap ${statusPillClass[row.status]}`}
+                          aria-label={`${row.day} status ${row.status}`}
+                          data-cy={`this-weeks-attendance-review-row-${idx}-status`}
+                        >
+                          {statusLabel[row.status]}
+                        </div>
+                      ) : (
+                        <span
+                          className="text-gray-400 text-[12px]"
+                          data-cy={`this-weeks-attendance-review-row-${idx}-status`}
+                        >
+                          —
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
-                <div
-                  className="flex items-center gap-3 "
-                  data-cy={`this-weeks-attendance-review-row-${idx}-right`}
-                >
-                  <div
-                    className="text-gray-600 text-[12px] whitespace-nowrap text-right"
-                    data-cy={`this-weeks-attendance-review-row-${idx}-times`}
-                  >
-                    {row.startTime}
-                    <span
-                      className="mx-2 text-gray-400"
-                      data-cy={`this-weeks-attendance-review-row-${idx}-time-sep`}
-                    >
-                      {'>'}
-                    </span>
-                    {row.endTime}
-                  </div>
-                  <div
-                    className="w-[50px] flex justify-start items-center"
-                    data-cy={`this-weeks-attendance-review-row-${idx}-pill-wrap`}
-                  >
-                    <div
-                      className={`px-2 h-[22px] flex items-center justify-center rounded-md text-[12px] whitespace-nowrap ${statusPillClass[row.status]}`}
-                      aria-label={`${row.day} status ${row.status}`}
-                      data-cy={`this-weeks-attendance-review-row-${idx}-status`}
-                    >
-                      {statusLabel[row.status]}
-                    </div>
-                  </div>
-                </div>
+                <Progress
+                  percent={barWidth}
+                  showInfo={false}
+                  strokeColor={'#1E40AF'}
+                  size={{ height: 4 }}
+                />
               </div>
-              <Progress
-                percent={barWidth}
-                showInfo={false}
-                strokeColor={'#1E40AF'}
-                size={{ height: 4 }}
-              />
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </Spin>
     </Card>
   );
 }

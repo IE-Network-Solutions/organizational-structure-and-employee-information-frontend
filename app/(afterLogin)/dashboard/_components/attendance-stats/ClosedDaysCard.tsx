@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from 'antd';
 
 type ClosedDayItem = {
@@ -16,7 +16,11 @@ type ClosedDaysCardProps = {
   icon: React.ReactNode;
   iconBgClassName: string;
   dataCy?: string;
+  carouselIntervalMs?: number;
 };
+
+const slidePercent = (index: number, length: number) =>
+  length > 0 ? (index * 100) / length : 0;
 
 export default function ClosedDaysCard({
   title,
@@ -26,9 +30,23 @@ export default function ClosedDaysCard({
   icon,
   iconBgClassName,
   dataCy,
+  carouselIntervalMs = 3000,
 }: ClosedDaysCardProps) {
-  const first = items?.[0];
   const cy = dataCy ?? 'closed-days-card';
+  const list = items ?? [];
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  useEffect(() => {
+    setSlideIndex(0);
+  }, [list.length]);
+
+  useEffect(() => {
+    if (list.length <= 1) return;
+    const interval = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % list.length);
+    }, carouselIntervalMs);
+    return () => clearInterval(interval);
+  }, [list.length, carouselIntervalMs]);
 
   return (
     <Card
@@ -73,29 +91,63 @@ export default function ClosedDaysCard({
           </div>
         </div>
 
-        <div className="mt-3" data-cy={`${cy}-detail`}>
-          {first ? (
-            <div className="flex flex-col" data-cy={`${cy}-first-item`}>
-              <p
-                className="text-black/70 font-normal text-sm "
-                data-cy={`${cy}-first-date`}
-              >
-                {first.date}
-              </p>
-              <p
-                className="text-black/45 font-normal text-sm "
-                data-cy={`${cy}-first-name`}
-              >
-                {first.name}
-              </p>
-            </div>
-          ) : (
+        <div
+          className="mt-3 overflow-hidden min-h-[2.5rem]"
+          data-cy={`${cy}-detail`}
+        >
+          {list.length === 0 ? (
             <p
               className="text-black/70 font-normal text-sm "
               data-cy={`${cy}-empty`}
             >
               No closed days
             </p>
+          ) : list.length === 1 ? (
+            <div className="flex flex-col" data-cy={`${cy}-first-item`}>
+              <p
+                className="text-black/70 font-normal text-sm "
+                data-cy={`${cy}-first-date`}
+              >
+                {list[0].date}
+              </p>
+              <p
+                className="text-black/45 font-normal text-sm "
+                data-cy={`${cy}-first-name`}
+              >
+                {list[0].name}
+              </p>
+            </div>
+          ) : (
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{
+                width: `${list.length * 100}%`,
+                transform: `translateX(-${slidePercent(slideIndex, list.length)}%)`,
+              }}
+              data-cy={`${cy}-detail-slider`}
+            >
+              {list.map((item, i) => (
+                <div
+                  key={`${item.date}-${item.name}-${i}`}
+                  className="flex shrink-0 flex-col"
+                  style={{ width: `${100 / list.length}%` }}
+                  data-cy={`${cy}-slide-${i}`}
+                >
+                  <p
+                    className="text-black/70 font-normal text-sm "
+                    data-cy={`${cy}-slide-${i}-date`}
+                  >
+                    {item.date}
+                  </p>
+                  <p
+                    className="text-black/45 font-normal text-sm "
+                    data-cy={`${cy}-slide-${i}-name`}
+                  >
+                    {item.name}
+                  </p>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
