@@ -49,7 +49,10 @@ export default function AttendanceSummaryCards() {
       const emptyLeavesSlide: AttendanceStatCarouselSlide = {
         id: 'none',
         value: (
-          <div data-cy="attendance-summary-leaves-taken-value-current-none" className="flex items-center gap-1 flex-wrap">
+          <div
+            data-cy="attendance-summary-leaves-taken-value-current-none"
+            className="flex items-center gap-1 flex-wrap"
+          >
             <span
               className="text-xl text-black font-semibold"
               data-cy="attendance-summary-leaves-taken-value-current-none"
@@ -94,7 +97,10 @@ export default function AttendanceSummaryCards() {
         ? leavesWithTaken.map((leave) => ({
             id: leave.leaveTypeId,
             value: (
-              <div data-cy={`attendance-summary-leaves-taken-value-current-${leave.leaveTypeId}`} className="flex items-center gap-1">
+              <div
+                data-cy={`attendance-summary-leaves-taken-value-current-${leave.leaveTypeId}`}
+                className="flex items-center gap-1"
+              >
                 <span
                   className="text-xl text-black font-semibold"
                   data-cy={`attendance-summary-leaves-taken-value-current-${leave.leaveTypeId}`}
@@ -121,7 +127,10 @@ export default function AttendanceSummaryCards() {
             {
               id: 'none',
               value: (
-                <div data-cy="attendance-summary-leaves-taken-value-current-none" className="flex items-center gap-1 flex-wrap">
+                <div
+                  data-cy="attendance-summary-leaves-taken-value-current-none"
+                  className="flex items-center gap-1 flex-wrap"
+                >
                   <span
                     className="text-xl text-black font-semibold"
                     data-cy="attendance-summary-leaves-taken-value-current-none"
