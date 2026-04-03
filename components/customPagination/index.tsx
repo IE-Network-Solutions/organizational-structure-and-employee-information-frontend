@@ -3,8 +3,6 @@ import { Input, Select } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const { Option } = Select;
-
 const DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 75, 100];
 
 interface CustomPaginationProps {
@@ -17,7 +15,13 @@ interface CustomPaginationProps {
   pageSizeOptions?: number[];
   id?: string;
   'data-cy'?: string;
+  className?: string;
   grayBackground?: boolean; // Only for planning and reporting page
+  showPageSizeChanger?: boolean;
+  /** When true, renders "Go to" section on the right side */
+  goToOnRight?: boolean;
+  /** Placeholder for the go-to page input (e.g. "Input") */
+  goToInputPlaceholder?: string;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -29,7 +33,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   pageSizeOptions,
   id,
   'data-cy': dataCy,
+  className,
   grayBackground = false,
+  // hidePageSizeSelect = false,
+  showPageSizeChanger = true,
+  goToOnRight = false,
+  goToInputPlaceholder,
 }) => {
   const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
   const selectPageSizes = [...new Set([...basePageSizes, pageSize])].sort(
@@ -179,7 +188,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex w-full min-w-0 flex-col md:flex-row md:flex-nowrap items-center justify-between gap-4 md:gap-10 text-sm ${grayBackground ? 'bg-gray-100' : ''}`}
+      className={`flex justify-between items-center py-6 ${
+        grayBackground ? 'bg-gray-100' : ''
+      } ${className ?? ''}`}
     >
       <div
         data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
@@ -210,14 +221,72 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         >
           <RightOutlined className="text-base" />
         </button>
+
+        {!goToOnRight && !isMobile && totalPages > 0 && (
+          <div
+            className="flex items-center gap-2 ml-4"
+            data-cy="pagination-goto"
+          >
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              placeholder={goToInputPlaceholder}
+              className="w-12 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Info and Page Size Selector */}
+      {/* Info and Page Size Selector (or Go to page when hidePageSizeSelect) */}
       <div
         className="flex w-full min-w-0 flex-wrap items-center justify-center gap-6 text-sm text-gray-600 md:ml-auto md:w-auto md:justify-end md:pl-8 lg:pl-12"
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {!isMobile && (
+        {goToOnRight && !isMobile && totalPages > 0 && (
+          <div className="flex items-center gap-2" data-cy="pagination-goto">
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-label"
+            >
+              Go to
+            </span>
+            <Input
+              type="number"
+              min={1}
+              max={totalPages}
+              value={goToPageValue}
+              onChange={(e) => setGoToPageValue(e.target.value)}
+              onPressEnter={handleGoToPage}
+              placeholder={goToInputPlaceholder}
+              className="w-20 h-8 text-center text-sm px-1 border-gray-100"
+              data-cy="pagination-goto-input"
+            />
+            <span
+              className="text-xs text-[#718096]"
+              data-cy="pagination-goto-page-label-number-of-page"
+            >
+              Page
+            </span>
+          </div>
+        )}
+        {/* {!isMobile && (
           <span
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
@@ -275,54 +344,24 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           </span>
         )}
 
-        <Select
-          value={pageSize}
-          className="w-[108px] h-10 text-center text-sm px-1 border-gray-100"
-          size={isMobile ? 'small' : 'middle'}
-          onChange={(value) => handleSizeChange(value)}
-          data-cy="pagination-page-size-select"
-        >
-          {selectPageSizes.map((size) => (
-            <Option key={size} value={size}>
-              <span
-                className="text-xs text-[#111827]"
-                data-cy={`pagination-page-size-option-${size}`}
-              >
-                {isMobile ? String(size) : `Show ${size}`}
-              </span>
-            </Option>
-          ))}
-        </Select>
-
-        {!isMobile && totalPages > 0 && (
-          <div
-            className="flex items-center gap-2 ml-4"
-            data-cy="pagination-goto"
+        {showPageSizeChanger && (
+          <Select
+            value={pageSize}
+            className={isMobile ? 'w-20' : 'w-24'}
+            size={isMobile ? 'small' : 'middle'}
+            onChange={(value) => handleSizeChange(value)}
           >
-            <span
-              className="text-sm text-[#718096]"
-              data-cy="pagination-goto-label"
-            >
-              Go to
-            </span>
-            <Input
-              type="number"
-              placeholder="Input"
-              min={1}
-              max={totalPages}
-              value={goToPageValue}
-              onChange={(e) => setGoToPageValue(e.target.value)}
-              onPressEnter={handleGoToPage}
-              className="w-[75px] h-10 text-center text-sm px-1 border-gray-100"
-              data-cy="pagination-goto-input"
-            />
-            <span
-              className="text-sm text-[#718096]"
-              data-cy="pagination-goto-page-label-number-of-page"
-            >
-              Page
-            </span>
-          </div>
+            {selectPageSizes.map((size) => (
+              <Select.Option key={size} value={size}>
+                <span
+                  className="text-xs text-[#111827]"
+                  data-cy={`pagination-size-option-${size}`}
+                >
+                  {isMobile ? String(size) : `Show ${size}`}
+                </span>
+              </Select.Option>
+            ))}
+          </Select>
         )}
       </div>
     </div>

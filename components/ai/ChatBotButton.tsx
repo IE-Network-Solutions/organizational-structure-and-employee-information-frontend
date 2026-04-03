@@ -5,8 +5,10 @@ import { Button, Badge, Tooltip, Avatar } from 'antd';
 import ChatBot from './ChatBot';
 import { useChatBotStore } from '@/store/uistate/features/chatbot/chatbot';
 import { useChatBotContextCleanup } from '@/hooks/useChatBotContextCleanup';
+import { usePathname } from 'next/navigation';
 
 const ChatBotButton: React.FC = () => {
+  const pathname = usePathname();
   const { isOpen, setIsOpen, chats } = useChatBotStore();
 
   // Initialize context cleanup
@@ -15,6 +17,11 @@ const ChatBotButton: React.FC = () => {
   // Count unread messages (messages in non-current chats)
   const unreadCount =
     chats.filter((chat) => chat.messages.length > 0).length - 1;
+  const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname ?? '');
+
+  if (isPublicSurveyRoute) {
+    return null;
+  }
 
   return (
     <>
