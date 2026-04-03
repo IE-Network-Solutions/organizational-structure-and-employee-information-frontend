@@ -13,6 +13,20 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { MdOutlineFilterAlt } from 'react-icons/md';
+import { useGetRecognitionTypeParentChildById } from '@/store/server/features/CFR/recognition/queries';
+
+function normalizeChildRecognitionTypes(
+  raw: unknown,
+): { id: string; name: string }[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw as { id: string; name: string }[];
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj.items))
+    return obj.items as { id: string; name: string }[];
+  if (Array.isArray(obj.data))
+    return obj.data as { id: string; name: string }[];
+  return [];
+}
 
 const DynamicIncentiveFilter: React.FC = () => {
   const {
@@ -24,18 +38,38 @@ const DynamicIncentiveFilter: React.FC = () => {
     selectedYear,
     setSelectedYear,
     setCurrentPage,
+    selectedRecognition,
   } = useIncentiveStore();
   const [filterPopoverOpen, setFilterPopoverOpen] = React.useState(false);
   const [draftFilters, setDraftFilters] = React.useState<{
     byYear?: string;
     bySession?: string[];
     byMonth?: string;
+    childRecognitionTypeId?: string;
   }>({});
+
+  const parentRecognitionId = selectedRecognition?.id ?? '';
+  const { data: recognitionTypesRaw } =
+    useGetRecognitionTypeParentChildById(parentRecognitionId);
+  const childTypeOptions = React.useMemo(() => {
+    const fromApi = normalizeChildRecognitionTypes(recognitionTypesRaw);
+    if (fromApi.length > 0) return fromApi;
+    return normalizeChildRecognitionTypes(selectedRecognition?.children);
+  }, [recognitionTypesRaw, selectedRecognition?.children]);
 
   const { data: employeeData } = useGetAllUsers();
   const { data: allSessions } = useFetchIncentiveSessions();
   const { data: activeCalender } = useGetActiveFiscalYears();
   const { data: fiscalYear } = useGetAllFiscalYears(pageSize, currentPage);
+
+  const prevParentIdRef = React.useRef<string | undefined>(undefined);
+  React.useEffect(() => {
+    if (!parentRecognitionId) return;
+    if (prevParentIdRef.current === parentRecognitionId) return;
+    prevParentIdRef.current = parentRecognitionId;
+    setSearchParams('byType', '');
+    setCurrentPage(1);
+  }, [parentRecognitionId, setCurrentPage, setSearchParams]);
 
   const activeFiscalYearName = activeCalender
     ? activeCalender?.name
@@ -53,10 +87,10 @@ const DynamicIncentiveFilter: React.FC = () => {
   const onSelectChange = handleSearchCategory;
 
   const handleSearchInput = (
-    value: string,
+    value: string | undefined,
     keyValue: keyof typeof searchParams,
   ) => {
-    const trimmedValue = value.trim();
+    const trimmedValue = (value || '').trim();
     onSearchChange(trimmedValue, keyValue);
   };
 
@@ -110,8 +144,14 @@ const DynamicIncentiveFilter: React.FC = () => {
         ? (searchParams?.bySession as string[])
         : [],
       byMonth: (searchParams?.byMonth as string) || undefined,
+      childRecognitionTypeId: searchParams?.byType || undefined,
     });
-  }, [searchParams?.byYear, searchParams?.bySession, searchParams?.byMonth]);
+  }, [
+    searchParams?.byYear,
+    searchParams?.bySession,
+    searchParams?.byMonth,
+    searchParams?.byType,
+  ]);
 
   const draftSessionMonths = allSessions?.items
     ?.filter((session: CalendarData) =>
@@ -156,12 +196,18 @@ const DynamicIncentiveFilter: React.FC = () => {
             placeholder="Select"
             allowClear
             className="w-full h-10"
+            value={draftFilters?.childRecognitionTypeId || undefined}
             onChange={(value) =>
               setDraftFilters((prev) => ({
                 ...prev,
-                childRecognitionTypeId: value,
+                childRecognitionTypeId: value as string | undefined,
               }))
             }
+            options={childTypeOptions.map((item) => ({
+              key: item.id,
+              value: item.id,
+              label: item.name,
+            }))}
           />
         </div>
         <div data-cy="dynamic-incentive-filter-year-field">
@@ -273,6 +319,7 @@ const DynamicIncentiveFilter: React.FC = () => {
                 ? (searchParams?.bySession as string[])
                 : [],
               byMonth: (searchParams?.byMonth as string) || undefined,
+              childRecognitionTypeId: searchParams?.byType || undefined,
             });
             setFilterPopoverOpen(false);
           }}
@@ -297,6 +344,10 @@ const DynamicIncentiveFilter: React.FC = () => {
 
             handleCreatedBySession(sessionValue);
             handleCreatedByMonth(monthValue);
+            onSelectChange(
+              draftFilters?.childRecognitionTypeId ?? '',
+              'byType',
+            );
             setFilterPopoverOpen(false);
           }}
           className="font-normal h-8"
@@ -360,6 +411,7 @@ const DynamicIncentiveFilter: React.FC = () => {
                   ? (searchParams?.bySession as string[])
                   : [],
                 byMonth: (searchParams?.byMonth as string) || undefined,
+                childRecognitionTypeId: searchParams?.byType || undefined,
               });
             }
           }}

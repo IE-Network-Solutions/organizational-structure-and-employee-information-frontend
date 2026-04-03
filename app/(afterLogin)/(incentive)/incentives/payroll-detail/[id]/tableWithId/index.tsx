@@ -159,6 +159,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     useGetIncentiveDataByRecognitionId(
       recognitionsTypeId,
       searchParams?.employee_name || '',
+      searchParams?.byType || '',
       searchParams?.byYear || ' ',
       searchParams?.bySession,
       searchParams?.byMonth || '',
