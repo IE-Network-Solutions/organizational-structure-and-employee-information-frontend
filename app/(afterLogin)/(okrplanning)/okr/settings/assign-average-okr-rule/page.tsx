@@ -44,12 +44,24 @@ const AssignAverageOkrRulePage: React.FC = () => {
     });
   }, [employeeData?.items]);
 
+  const activeDepartmentLeads = useMemo(
+    () =>
+      activeEmployees.filter((user: any) =>
+        Boolean(
+          user?.employeeJobInformation?.find(
+            (job: any) => job?.isPositionActive,
+          )?.departmentLeadOrNot,
+        ),
+      ),
+    [activeEmployees],
+  );
+
   const filteredEmployees = useMemo(() => {
     if (!filterUserId) {
-      return activeEmployees;
+      return activeDepartmentLeads;
     }
-    return activeEmployees.filter((u: any) => u.id === filterUserId);
-  }, [activeEmployees, filterUserId]);
+    return activeDepartmentLeads.filter((u: any) => u.id === filterUserId);
+  }, [activeDepartmentLeads, filterUserId]);
 
   const userRuleQueries = useQueries(
     filteredEmployees.map((emp: any) => ({
@@ -60,7 +72,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
   );
 
   const getEmployeeLabel = (userId: string) => {
-    const employee = activeEmployees.find((u: any) => u.id === userId);
+    const employee = activeDepartmentLeads.find((u: any) => u.id === userId);
     if (!employee) return '—';
     const firstName = employee?.firstName || '';
     const middleName = employee?.middleName || '';
@@ -121,7 +133,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
 
   const columns: ColumnsType<(typeof dataSource)[0]> = [
     {
-      title: 'Employee',
+      title: 'Department lead',
       dataIndex: 'nameLabel',
       key: 'name',
       sorter: (a, b) => (a.nameLabel || '').localeCompare(b.nameLabel || ''),
@@ -286,7 +298,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
           className="mb-0"
         >
           <Select
-            placeholder="Filter by employee"
+            placeholder="Filter by department lead"
             showSearch
             className="w-60 sm:w-80 h-10"
             allowClear
@@ -295,7 +307,7 @@ const AssignAverageOkrRulePage: React.FC = () => {
               setFilterUserId(value ?? null);
               setPage(1);
             }}
-            options={activeEmployees.map((list: any) => ({
+            options={activeDepartmentLeads.map((list: any) => ({
               value: list?.id,
               label:
                 list.firstName + ' ' + list.middleName + ' ' + list.lastName,
