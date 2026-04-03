@@ -294,10 +294,15 @@ const PayrollApprovalWorkFlowSetting = ({
                       {selectedIds.map((id) => (
                         <Tag
                           key={id}
-                          className="flex items-center gap-1 rounded-md border border-[#D9D9D9] bg-[#F5F5F5] px-2 py-1 text-sm text-[#262626]"
+                          className="m-0 flex items-center gap-1 rounded-md border px-2 py-1 text-sm"
+                          style={{
+                            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                            borderColor: '#D9D9D9',
+                            color: 'rgba(0, 0, 0, 0.7)',
+                          }}
                           closeIcon={
                             <CloseOutlined
-                              style={{ fontSize: 10, color: '#8c8c8c' }}
+                              style={{ fontSize: 10, color: 'rgba(0,0,0,0.45)' }}
                             />
                           }
                           onClose={() => handleRemoveUser(id)}

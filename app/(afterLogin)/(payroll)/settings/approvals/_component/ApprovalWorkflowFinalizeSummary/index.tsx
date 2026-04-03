@@ -81,7 +81,7 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
           </span>
         </div>
         <span
-          className="inline-flex items-center rounded-lg border border-gray-200 bg-[#f7f7f7] px-2 py-0.5 text-sm text-[#4d4d4d]"
+          className="inline-flex items-center rounded-lg border border-[#D9D9D9] bg-[rgba(0,0,0,0.02)] px-2 py-0.5 text-sm text-[rgba(0,0,0,0.7)]"
           data-cy="approval-payroll-workflow-final-level"
           id="approval-payroll-workflow-final-level"
         >
@@ -112,7 +112,7 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
             allAssignedNames.map((name, i) => (
               <span
                 key={`${name}-${i}`}
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-[#f8f8f8] px-2 py-1"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#D9D9D9] bg-[rgba(0,0,0,0.02)] px-2 py-1 text-sm text-[rgba(0,0,0,0.7)]"
                 data-cy={`approval-payroll-workflow-final-assigned-chip-${i}`}
                 id={`approval-payroll-workflow-final-assigned-chip-${i}`}
               >

@@ -18,21 +18,36 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
-const pillStyle: React.CSSProperties = {
+const payPeriodTagTextColor = 'rgba(0, 0, 0, 0.7)';
+const payPeriodTagBackgroundColor = 'rgba(0, 0, 0, 0.02)';
+
+/** Shared dimensions/typography so date-range pill and status chip match height */
+const payPeriodChipLayoutStyle: React.CSSProperties = {
+  boxSizing: 'border-box',
   display: 'inline-flex',
-  flexDirection: 'row',
   alignItems: 'center',
   height: 22,
+  minHeight: 22,
   padding: '1px 8px',
   borderRadius: 4,
   border: '1px solid #D9D9D9',
-  background: '#fff',
   fontSize: 12,
   lineHeight: '18px',
   fontWeight: 400,
-  color: '#595959',
+};
+
+const pillStyle: React.CSSProperties = {
+  ...payPeriodChipLayoutStyle,
+  background: payPeriodTagBackgroundColor,
+  color: payPeriodTagTextColor,
   userSelect: 'none',
   whiteSpace: 'nowrap',
+};
+
+const statusTagStyle: React.CSSProperties = {
+  ...payPeriodChipLayoutStyle,
+  color: payPeriodTagTextColor,
+  backgroundColor: payPeriodTagBackgroundColor,
 };
 
 const editButtonStyle: React.CSSProperties = {
@@ -269,11 +284,8 @@ const PayPeriod = () => {
                       <span
                         id={`payroll-payperiod-card-status-${period.id}`}
                         data-cy={`payroll-payperiod-card-status-${period.id}`}
-                        className={`inline-flex items-center rounded border px-2.5 py-1 text-[11px] font-medium ${
-                          isOpen
-                            ? 'border-green-200 bg-[#F6FFED] text-[#52C41A]'
-                            : 'border-gray-200 bg-gray-50 text-gray-500'
-                        }`}
+                        className="shrink-0"
+                        style={statusTagStyle}
                       >
                         {isOpen ? 'Open' : 'Closed'}
                       </span>

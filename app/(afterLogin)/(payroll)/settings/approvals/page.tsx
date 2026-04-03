@@ -25,8 +25,8 @@ const modalCloseButtonStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   borderRadius: 4,
-  border: '1px solid #D9D9D9',
-  background: '#fff',
+  border: 'none',
+  background: 'transparent',
 };
 
 const Approvals = () => {

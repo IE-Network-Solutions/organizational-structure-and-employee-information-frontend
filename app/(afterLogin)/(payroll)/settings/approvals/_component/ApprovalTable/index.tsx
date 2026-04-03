@@ -218,7 +218,7 @@ const ApprovalTable = () => {
         <span
           id={`settings-payroll-approvals-card-assignees-empty-${itemSlug}`}
           data-cy={`settings-payroll-approvals-card-assignees-empty-${itemSlug}`}
-          className="text-sm font-normal text-[#595959]"
+          className="text-sm font-normal text-[rgba(0,0,0,0.7)]"
         >
           -
         </span>
@@ -259,7 +259,7 @@ const ApprovalTable = () => {
               <div
                 id={`settings-payroll-approvals-card-assignee-chip-${itemSlug}-${empIndex}`}
                 data-cy={`settings-payroll-approvals-card-assignee-chip-${itemSlug}-${empIndex}`}
-                className="flex max-w-full min-w-0 items-center gap-1.5 rounded border border-[#D9D9D9] bg-white px-2 py-1"
+                className="flex max-w-full min-w-0 items-center gap-1.5 rounded border border-[#D9D9D9] bg-[rgba(0,0,0,0.02)] px-2 py-1"
               >
                 {userInfo ? (
                   <UserAvatar userId={employee?.userId} />
@@ -282,7 +282,7 @@ const ApprovalTable = () => {
                 <span
                   id={`settings-payroll-approvals-card-assignee-name-${itemSlug}-${empIndex}`}
                   data-cy={`settings-payroll-approvals-card-assignee-name-${itemSlug}-${empIndex}`}
-                  className="min-w-0 whitespace-normal break-words text-xs font-normal leading-snug text-[#595959] sm:text-sm"
+                  className="min-w-0 whitespace-normal break-words text-xs font-normal leading-snug text-[rgba(0,0,0,0.7)] sm:text-sm"
                 >
                   {fullName}
                 </span>
@@ -400,7 +400,7 @@ const ApprovalTable = () => {
                   <span
                     id={`settings-payroll-approvals-card-level-${itemSlug}`}
                     data-cy={`settings-payroll-approvals-card-level-${itemSlug}`}
-                    className="inline-flex items-center rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal text-[#595959]"
+                    className="box-border inline-flex h-[22px] min-h-[22px] shrink-0 items-center rounded border border-[#D9D9D9] bg-[rgba(0,0,0,0.02)] px-2 py-[1px] text-xs font-normal leading-[18px] text-[rgba(0,0,0,0.7)]"
                   >
                     Levels: {levelCount}
                   </span>

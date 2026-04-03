@@ -30,19 +30,27 @@ import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRul
 //   render?: (notused: any, record: PensionRule) => React.ReactNode;
 // }
 
-const pillStyle: React.CSSProperties = {
+const pensionTagTextColor = 'rgba(0, 0, 0, 0.7)';
+const pensionTagBackgroundColor = 'rgba(0, 0, 0, 0.02)';
+
+const pensionChipLayoutStyle: React.CSSProperties = {
+  boxSizing: 'border-box',
   display: 'inline-flex',
-  flexDirection: 'row',
   alignItems: 'center',
   height: 22,
+  minHeight: 22,
   padding: '1px 8px',
   borderRadius: 4,
   border: '1px solid #D9D9D9',
-  background: '#fff',
   fontSize: 12,
   lineHeight: '18px',
   fontWeight: 400,
-  color: '#595959',
+};
+
+const pillStyle: React.CSSProperties = {
+  ...pensionChipLayoutStyle,
+  background: pensionTagBackgroundColor,
+  color: pensionTagTextColor,
   userSelect: 'none',
   whiteSpace: 'nowrap',
 };
@@ -392,7 +400,7 @@ const Pension = () => {
                             <span
                               id={`payroll-pension-employer-label-${record.id ?? record.key}`}
                               data-cy={`payroll-pension-employer-label-${record.id ?? record.key}`}
-                              className="mr-1 opacity-70"
+                              className="mr-1"
                             >
                               Employer Contribution :
                             </span>
@@ -413,7 +421,7 @@ const Pension = () => {
                             <span
                               id={`payroll-pension-employee-label-${record.id ?? record.key}`}
                               data-cy={`payroll-pension-employee-label-${record.id ?? record.key}`}
-                              className="mr-1 opacity-70"
+                              className="mr-1"
                             >
                               Employee Contribution :
                             </span>
