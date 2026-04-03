@@ -37,8 +37,10 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
-#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+#time-attendance-employee-attendance-table-scroll-wrapper
+  .ant-table-content::-webkit-scrollbar,
+#time-attendance-employee-attendance-table-scroll-wrapper
+  .ant-table-body::-webkit-scrollbar {
   display: none;
 }
 
@@ -1483,14 +1485,17 @@ h6 {
   padding: 8px 12px !important;
   color: #000 !important;
 }
-.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item .ant-dropdown-menu-item-icon {
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item
+  .ant-dropdown-menu-item-icon {
   color: #000 !important;
 }
 /* Remove red danger hover; use greyed-white for all items */
 .recruitment-settings-dropdown-overlay .ant-dropdown-menu-item:hover,
 .recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger:hover,
-.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
-  background: #F3F4F6 !important;
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  background: #f3f4f6 !important;
   color: #000 !important;
 }
 .recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger {
@@ -1501,17 +1506,17 @@ h6 {
 .recruitment-settings-primary-btn.ant-btn-primary,
 .recruitment-settings-primary-btn.ant-btn-primary:hover,
 .recruitment-settings-primary-btn.ant-btn-primary:focus {
-  background: #1E40AF !important;
-  border-color: #1E40AF !important;
+  background: #1e40af !important;
+  border-color: #1e40af !important;
 }
 .recruitment-settings-primary-btn.ant-btn-primary:hover {
-  background: #1D3A9F !important;
-  border-color: #1D3A9F !important;
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
 }
 
 /* Talent acquisition settings: shared design tokens and components (reuse across tabs) */
 :root {
-  --recruitment-settings-border: #D9D9D9;
+  --recruitment-settings-border: #d9d9d9;
   --recruitment-settings-radius: 8px;
   --recruitment-settings-title-size: 14px;
   --recruitment-settings-title-weight: 400;
@@ -1541,7 +1546,7 @@ h6 {
   font-weight: 400;
   color: var(--recruitment-settings-level-color);
   background: rgba(0, 0, 0, 0.02);
-  border: 1px solid #D9D9D9;
+  border: 1px solid #d9d9d9;
 }
 
 /* Define Status: description text (14px, 400, black 45%) */
@@ -1609,9 +1614,9 @@ h6 {
 .recruitment-settings-card-type-pill {
   font-size: 12px;
   font-weight: 400;
-  color: #9CA3AF;
-  background: #F9FAFB;
-  border: 1px solid #D1D5DB;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
 }
 
 /* More (ellipsis) action button - bordered, used on all tabs */
@@ -1630,7 +1635,10 @@ h6 {
   transform-origin: center center;
   opacity: 0.7;
   box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
-  transition: transform 0.2s ease-out, opacity 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out,
+    box-shadow 0.2s ease-out;
 }
 
 /* Define Status: dashed placeholder slot left behind when an item is being dragged */
@@ -1647,11 +1655,13 @@ h6 {
 .recruitment-settings-drag-ghost {
   transform: rotate(3deg);
   transform-origin: center top;
-  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.18), 0 4px 10px -4px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 12px 28px -6px rgba(0, 0, 0, 0.18),
+    0 4px 10px -4px rgba(0, 0, 0, 0.1);
   opacity: 0.95;
   border-radius: 8px;
   background: #fff;
-  border: 1px solid #D9D9D9;
+  border: 1px solid #d9d9d9;
   cursor: grabbing;
 }
 
@@ -1694,9 +1704,9 @@ h6 {
 .recruitment-settings-status-modal .ant-input,
 .recruitment-settings-status-modal .ant-input-affix-wrapper,
 .recruitment-settings-status-modal textarea.ant-input {
-  border-color: #D1D5DB !important;
+  border-color: #d1d5db !important;
   border-radius: 8px !important;
-  border-bottom: 1px solid #D1D5DB !important;
+  border-bottom: 1px solid #d1d5db !important;
 }
 /* Remove any extra bottom-only border that some global styles may add */
 .recruitment-settings-status-modal .ant-input-textarea textarea {
@@ -1706,7 +1716,7 @@ h6 {
 /* Form item wrapper: add visible border with 8px radius around each field */
 .recruitment-settings-status-modal .ant-form-item .ant-input,
 .recruitment-settings-status-modal .ant-form-item textarea.ant-input {
-  border: 1px solid #D1D5DB !important;
+  border: 1px solid #d1d5db !important;
   border-radius: 8px !important;
 }
 
@@ -1718,10 +1728,14 @@ h6 {
 }
 
 /* Required asterisk: hide the default left-side asterisk, add one on the right */
-.recruitment-settings-status-modal .ant-form-item-label > label.ant-form-item-required::before {
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::before {
   display: none !important;
 }
-.recruitment-settings-status-modal .ant-form-item-label > label.ant-form-item-required::after {
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::after {
   display: inline-block !important;
   margin-inline-start: 4px !important;
   color: #ff4d4f !important;
@@ -1734,7 +1748,7 @@ h6 {
 /* Cancel button: 14px, 400 weight, black 70% */
 .recruitment-settings-status-modal .ant-btn-default,
 .recruitment-settings-delete-modal .ant-btn-default {
-  border-color: #D1D5DB !important;
+  border-color: #d1d5db !important;
   background: #fff !important;
   color: rgba(0, 0, 0, 0.7) !important;
   font-size: 14px !important;
@@ -1745,23 +1759,25 @@ h6 {
    so the default Ant Design zoom plays from the modal's actual position. */
 
 /* Primary (Edit/Continue) button: #1E40AF, white text, 14px, 400 */
-.recruitment-settings-status-modal .recruitment-settings-status-primary-btn.ant-btn-primary {
-  background: #1E40AF !important;
-  border-color: #1E40AF !important;
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
   color: #fff !important;
   font-size: 14px !important;
   font-weight: 400 !important;
 }
-.recruitment-settings-status-modal .recruitment-settings-status-primary-btn.ant-btn-primary:hover {
-  background: #1D3A9F !important;
-  border-color: #1D3A9F !important;
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
 }
 
 /* Delete modal: delete button #FF4D4F bg, white text, 14px, 400 */
 .recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
 .recruitment-settings-delete-modal .ant-btn-dangerous {
-  background: #FF4D4F !important;
-  border-color: #FF4D4F !important;
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
   color: #fff !important;
   font-size: 14px !important;
   font-weight: 400 !important;
