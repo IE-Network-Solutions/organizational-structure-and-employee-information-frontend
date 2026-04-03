@@ -180,8 +180,7 @@ const CustomUpload = ({
     >
       <div
         className={classNames(
-          'flex w-full min-w-0 items-center gap-2 rounded-lg border border-solid border-[#D9D9D9] bg-white px-2 py-1.5 transition-colors',
-          'focus-within:border-primary focus-within:shadow-[0_0_0_2px_rgba(5,145,255,0.06)]',
+          'flex w-full min-w-0 items-center gap-2 rounded-lg border border-solid border-[#D9D9D9] bg-white px-2 py-1.5 transition-colors focus-within:border-primary focus-within:shadow-[0_0_0_2px_rgba(5,145,255,0.06)]',
         )}
         data-cy={`tna-custom-upload-link-composite-wrap-${targetState ?? 'default'}`}
       >
@@ -412,7 +411,9 @@ const CustomUpload = ({
       return (
         <div
           data-cy="components-form-customupload-stacked"
-          className={classNames('flex w-full flex-col gap-4', className)}
+          className={classNames('flex w-full flex-col gap-4', {}, [
+            className ?? '',
+          ])}
         >
           {dragger}
           <div

@@ -12,7 +12,7 @@ import {
 } from '@/types/tna/course';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import LessonCard from './lessonCard';
-import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
+import LessonMaterialDrawer from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
 import {
   DndContext,
   DragEndEvent,
@@ -245,7 +245,7 @@ const CourseLesson = () => {
           </div>
         ) : hasLessons ? (
           <div
-            className="flex flex-col gap-3 bg-transparent shadow-none"
+            className="flex flex-col gap-5 bg-transparent shadow-none"
             data-cy="tna-course-lesson-collapse"
           >
             <div data-cy="tna-course-lesson-dnd-context">
@@ -286,7 +286,7 @@ const CourseLesson = () => {
       <CourseAddLessonSidebar data-cy="tna-course-lesson-add-lesson-sidebar" />
 
       {!isShowAddLesson && (
-        <CourseLessonMaterial data-cy="tna-course-lesson-material" />
+        <LessonMaterialDrawer data-cy="tna-course-lesson-material" />
       )}
     </div>
   );

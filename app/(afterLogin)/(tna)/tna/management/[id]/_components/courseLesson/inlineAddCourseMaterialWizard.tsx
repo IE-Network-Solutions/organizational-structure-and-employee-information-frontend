@@ -240,9 +240,11 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
                   }}
                   className={classNames(
                     'flex min-w-0 flex-1 flex-col items-center gap-3 border-0 bg-transparent p-0 outline-none transition-opacity',
-                    canGoToStep
-                      ? 'cursor-pointer hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md'
-                      : 'cursor-not-allowed',
+                    {
+                      'cursor-pointer hover:opacity-90 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md':
+                        canGoToStep,
+                      'cursor-not-allowed': !canGoToStep,
+                    },
                   )}
                   data-cy={`tna-inline-add-material-step-dot-${i}`}
                 >
