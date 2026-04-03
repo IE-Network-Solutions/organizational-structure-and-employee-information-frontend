@@ -14,7 +14,26 @@ import ThisWeeksAttendanceReviewCard from './_components/attendance-review';
 import RecentFeedbacks from './_components/recent-feedbacks';
 import EventsCard from './_components/events';
 import EventEssentials from './_components/event-essentials';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import type { ApiResponse } from '@/types/commons/responseTypes';
+import type { Subscription } from '@/types/tenant-management';
+
+type DashboardPlanView =
+  | 'Performance Plan'
+  | 'Essential Plan '
+  | 'Enterprise Plan';
+
+function dashboardPlanFromSubscription(
+  data: ApiResponse<Subscription> | undefined,
+): DashboardPlanView | undefined {
+  const name = data?.item?.plan?.name;
+  if (name === 'Performance Plan') return 'Performance Plan';
+  if (name === 'Essential Plan ') return 'Essential Plan ';
+  if (name === 'Enterprise Plan') return 'Enterprise Plan';
+  return undefined;
+}
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
@@ -23,14 +42,24 @@ export default function Home() {
     useGetActiveFiscalYears({
       refetchInterval: 30000, // Keep polling for banner display
     });
-
+  const { tenantId } = useAuthenticationStore();
+  const { data: subscriptionData } = useGetSubscriptionByTenant(
+    tenantId,
+    !!tenantId,
+  );
+  console.log(subscriptionData,"subscriptionData");
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
     activeCalender?.endDate &&
     new Date(activeCalender?.endDate) < new Date();
-  const [selectedTenatType, setSelectedTenatType] = useState<
-    'performance' | 'essentials' | 'enterprise'
-  >('performance');
+  const [selectedTenatType, setSelectedTenatType] =
+    useState<DashboardPlanView>(dashboardPlanFromSubscription(subscriptionData) ?? 'Performance Plan');
+
+  useEffect(() => {
+    const plan = dashboardPlanFromSubscription(subscriptionData);
+    if (plan) setSelectedTenatType(plan);
+  }, [subscriptionData]);
+
   const mainLayout = (
     <div className="min-h-screen" data-cy="dashboard-main-layout">
       <div
@@ -48,51 +77,11 @@ export default function Home() {
           className="flex gap-2 items-center"
           data-cy="dashboard-tenant-type-control"
         >
-          <span
-            className="text-sm font-semibold text-gray-700"
-            data-cy="dashboard-tenant-type-label"
-          >
-            View as:
-          </span>
-          <select
-            value={selectedTenatType}
-            onChange={(e) =>
-              setSelectedTenatType(
-                e.target.value as 'performance' | 'essentials' | 'enterprise',
-              )
-            }
-            className="border rounded px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-200"
-            style={{ minWidth: 120 }}
-            data-cy="dashboard-tenant-type-select"
-          >
-            <option
-              value="performance"
-              data-cy="dashboard-tenant-type-performance"
-            >
-              Performance
-            </option>
-            <option
-              value="essentials"
-              data-cy="dashboard-tenant-type-essentials"
-            >
-              Essentials
-            </option>
-            <option
-              value="enterprise"
-              data-cy="dashboard-tenant-type-enterprise"
-            >
-              Enterprise
-            </option>
-          </select>
-          {/* 
-          For now, selection is disabled since TenatType is hard-coded.
-          In a real implementation, you can lift TenatType into useState and
-          update accordingly onChange.
-        */}
+          
         </div>
       </div>
 
-      {selectedTenatType !== 'essentials' ? (
+      {selectedTenatType !== 'Essential Plan ' ? (
         <Header />
       ) : (
         <AttendanceSummaryCards />
@@ -106,7 +95,7 @@ export default function Home() {
             className="md:col-span-7 col-span-12"
             data-cy="dashboard-desktop-leftbar-container"
           >
-            {selectedTenatType !== 'essentials' ? (
+            {selectedTenatType !== 'Essential Plan ' ? (
               <LeftBar />
             ) : (
               <ThisWeeksAttendanceReviewCard />
@@ -116,21 +105,21 @@ export default function Home() {
             className="md:col-span-5 col-span-12"
             data-cy="dashboard-desktop-rightbar-container"
           >
-            {selectedTenatType !== 'essentials' &&
-            selectedTenatType !== 'enterprise' ? (
+            {selectedTenatType !== 'Essential Plan ' &&
+            selectedTenatType !== 'Enterprise Plan' ? (
               <RecentFeedbacks />
             ) : (
               <RightBar type={selectedTenatType} />
             )}
           </div>
         </div>
-        {selectedTenatType !== 'essentials' ? (
+        {selectedTenatType !== 'Essential Plan ' ? (
           <EventsCard />
         ) : (
           <EventEssentials />
         )}
       </div>
-      {selectedTenatType !== 'essentials' && <Calender />}
+      {selectedTenatType !== 'Essential Plan ' && <Calender />}
     </div>
   );
 
