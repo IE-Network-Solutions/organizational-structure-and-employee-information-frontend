@@ -47,7 +47,6 @@ export default function Home() {
     tenantId,
     !!tenantId,
   );
-  console.log(subscriptionData,"subscriptionData");
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
     activeCalender?.endDate &&
