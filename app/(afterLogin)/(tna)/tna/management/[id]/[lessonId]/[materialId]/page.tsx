@@ -238,7 +238,6 @@ const LessonPage = () => {
             }}
             destroyOnClose={false}
             data-cy="tna-lesson-page-sidebar-modal"
-            classNames={{ body: 'tna-lesson-page-sidebar-modal-body' }}
           >
             <LessonMaterialsSidebar
               routeMaterialId={routeMaterialId}

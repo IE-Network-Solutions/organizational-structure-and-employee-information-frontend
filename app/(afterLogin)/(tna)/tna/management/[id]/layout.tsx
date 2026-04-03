@@ -139,6 +139,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
                     ? 'max-w-full overflow-x-auto overflow-y-hidden scrollbar-none'
                     : ''
                 }
+                data-cy="tna-management-layout-breadcrumb-wrap"
               >
                 <Breadcrumb
                   items={breadcrumbItems}
