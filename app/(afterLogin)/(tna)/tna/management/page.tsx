@@ -95,7 +95,7 @@ const TnaManagementPage = () => {
 
   return (
     <div
-      className="page-wrap bg-white -mx-2 w-[calc(100%+1rem)] max-w-none sm:-mx-4 sm:w-[calc(100%+2rem)]"
+      className="tna-page-wrap bg-white -mx-2 w-[calc(100%+1rem)] max-w-none sm:-mx-4 sm:w-[calc(100%+2rem)]"
       id="tnaManagementPageId"
       data-cy="tna-management-page"
     >

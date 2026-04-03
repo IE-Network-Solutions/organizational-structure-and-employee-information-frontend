@@ -532,6 +532,10 @@
     @apply h-auto w-auto pr-6 pb-6 pl-3;
   }
 
+  .tna-page-wrap {
+    @apply h-auto w-auto pb-6;
+  }
+
   .lesson-card .ant-collapse-content {
     border: none !important;
   }
