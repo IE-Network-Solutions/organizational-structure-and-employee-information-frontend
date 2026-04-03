@@ -188,7 +188,9 @@ const AssignAverageOkrRuleDrawer: React.FC<AssignAverageOkrRuleDrawerProps> = ({
         <Form.Item
           name="userIds"
           label="Employees"
-          rules={[{ required: true, message: 'Please select at least one employee' }]}
+          rules={[
+            { required: true, message: 'Please select at least one employee' },
+          ]}
           id="okr-assign-average-okr-rule-drawer-user-field"
           data-cy="okr-assign-average-okr-rule-drawer-user-field"
         >

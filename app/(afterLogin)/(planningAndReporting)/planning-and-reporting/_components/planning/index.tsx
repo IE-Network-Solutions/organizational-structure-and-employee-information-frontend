@@ -359,7 +359,6 @@ function Planning() {
     return !!activeSession;
   };
 
-
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pb-4">
