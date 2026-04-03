@@ -8,6 +8,7 @@ import LeftBar from './_components/leftBar';
 import RightBar from './_components/rightBar';
 import AccessGuard from '@/utils/permissionGuard';
 
+import DashboardSubscriptionSkeleton from './_components/DashboardSubscriptionSkeleton';
 import Calender from './_components/action-plan/calender';
 import AttendanceSummaryCards from './_components/attendance-stats';
 import ThisWeeksAttendanceReviewCard from './_components/attendance-review';
@@ -28,7 +29,7 @@ type DashboardPlanView =
 function dashboardPlanFromSubscription(
   data: ApiResponse<Subscription> | undefined,
 ): DashboardPlanView | undefined {
-  const name = data?.item?.plan?.name;
+  const name = data?.plan?.name;
   if (name === 'Performance Plan') return 'Performance Plan';
   if (name === 'Essential Plan ') return 'Essential Plan ';
   if (name === 'Enterprise Plan') return 'Enterprise Plan';
@@ -43,16 +44,15 @@ export default function Home() {
       refetchInterval: 30000, // Keep polling for banner display
     });
   const { tenantId } = useAuthenticationStore();
-  const { data: subscriptionData } = useGetSubscriptionByTenant(
-    tenantId,
-    !!tenantId,
-  );
+  const { data: subscriptionData, isLoading: isSubscriptionLoading } =
+    useGetSubscriptionByTenant(tenantId, !!tenantId);
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
     activeCalender?.endDate &&
     new Date(activeCalender?.endDate) < new Date();
-  const [selectedTenatType, setSelectedTenatType] =
-    useState<DashboardPlanView>(dashboardPlanFromSubscription(subscriptionData) ?? 'Performance Plan');
+  const [selectedTenatType, setSelectedTenatType] = useState<DashboardPlanView>(
+    dashboardPlanFromSubscription(subscriptionData) ?? 'Performance Plan',
+  );
 
   useEffect(() => {
     const plan = dashboardPlanFromSubscription(subscriptionData);
@@ -75,9 +75,7 @@ export default function Home() {
         <div
           className="flex gap-2 items-center"
           data-cy="dashboard-tenant-type-control"
-        >
-          
-        </div>
+        ></div>
       </div>
 
       {selectedTenatType !== 'Essential Plan ' ? (
@@ -173,7 +171,7 @@ export default function Home() {
           </div>
         </AccessGuard>
       )}
-      {mainLayout}
+      {isSubscriptionLoading ? <DashboardSubscriptionSkeleton /> : mainLayout}
     </div>
   );
 }
