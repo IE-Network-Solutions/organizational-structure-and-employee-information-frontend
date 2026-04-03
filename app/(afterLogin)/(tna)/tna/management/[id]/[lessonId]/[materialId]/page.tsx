@@ -8,6 +8,49 @@ import FileButton from '@/components/common/fileButton';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Modal } from 'antd';
+import { MdPlayArrow } from 'react-icons/md';
+
+const TnaLessonVideoPlayer: FC<{ url: string }> = ({ url }) => {
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    setPlaying(false);
+  }, [url]);
+
+  return (
+    <>
+      <ReactPlayer
+        url={url}
+        width="100%"
+        height="100%"
+        style={{ position: 'absolute', top: 0, left: 0 }}
+        controls
+        playing={playing}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+        id="tnaLessonPageVideoPlayerId"
+        data-cy="tna-lesson-page-video-player"
+      />
+      {!playing && (
+        <div
+          className="pointer-events-none absolute inset-0 z-[2] flex items-center justify-center"
+          data-cy="tna-lesson-page-video-center-play-overlay"
+        >
+          <button
+            type="button"
+            className="pointer-events-auto flex h-[92px] w-[92px] items-center justify-center rounded-full bg-sky-200/95 text-[#1e40af] shadow-md outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            onClick={() => setPlaying(true)}
+            aria-label="Play video"
+            data-cy="tna-lesson-page-video-center-play"
+          >
+            <MdPlayArrow className="ml-1 text-[32px]" aria-hidden />
+          </button>
+        </div>
+      )}
+    </>
+  );
+};
 
 type LessonMaterialsSidebarProps = {
   routeMaterialId?: string;
@@ -284,15 +327,7 @@ const LessonPage = () => {
               data-cy="tna-lesson-page-video-container"
               className="relative w-full aspect-video overflow-hidden bg-black"
             >
-              <ReactPlayer
-                url={lessonMaterial.videos[0]}
-                width="100%"
-                height="100%"
-                style={{ position: 'absolute', top: 0, left: 0 }}
-                controls={true}
-                id="tnaLessonPageVideoPlayerId"
-                data-cy="tna-lesson-page-video-player"
-              />
+              <TnaLessonVideoPlayer url={lessonMaterial.videos[0]} />
             </div>
 
             {lessonMaterial.article && (
