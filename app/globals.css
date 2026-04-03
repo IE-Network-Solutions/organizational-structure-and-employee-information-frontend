@@ -537,12 +537,13 @@
   .ant-menu-item-selected {
     color: #1677ff !important; /* AntD primary blue */
   }
+}
 
-  @media (max-width: 768px) {
-    .ant-pagination.invoice-table .ant-pagination-total-text {
-      bottom: 10px;
-    }
+@media (max-width: 768px) {
+  .ant-pagination.invoice-table .ant-pagination-total-text {
+    bottom: 10px;
   }
+}
 
   .ant-tree-treenode .ant-tree-title {
     height: 2.25rem !important;
