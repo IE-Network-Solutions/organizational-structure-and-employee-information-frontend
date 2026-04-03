@@ -44,7 +44,7 @@ const Page = () => {
             placeholder="Search categories..."
             addonAfter={<SearchOutlined className="text-gray-400" />}
             allowClear
-            className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
+            className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input]:!leading-tight [&_.ant-input-affix-wrapper]:!items-center [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
             onChange={(e) => {
               setSearchParams('category_name', e.target.value);
             }}
