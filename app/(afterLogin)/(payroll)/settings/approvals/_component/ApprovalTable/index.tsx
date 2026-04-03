@@ -1,9 +1,8 @@
 'use client';
 
-import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Dropdown, Skeleton, Tooltip } from 'antd';
+import { Button, Dropdown, Popconfirm, Skeleton, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -21,13 +20,28 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+
+/** First + last name when both exist; otherwise other name parts (no truncation). */
+const getAssigneeFullName = (userInfo: any) => {
+  if (!userInfo) return 'User not found';
+  const firstLast = [userInfo.firstName, userInfo.lastName]
+    .map((s: string) => String(s ?? '').trim())
+    .filter(Boolean)
+    .join(' ');
+  if (firstLast) return firstLast;
+  const fallback = [userInfo.firstName, userInfo.middleName, userInfo.lastName]
+    .map((s: string) => String(s ?? '').trim())
+    .filter(Boolean)
+    .join(' ');
+  return fallback || 'User not found';
+};
 
 const ApprovalTable = () => {
   const {
@@ -51,8 +65,7 @@ const ApprovalTable = () => {
   } = useApprovalBranchStore();
   const { data: employeeData, isLoading: isUserDataLoading } = useGetAllUsers();
   const { isMobile, isTablet } = useIsMobile();
-  const MAX_NAME_LENGTH = 10;
-  //const MAX_EMAIL_LENGTH = 5;
+
   const getEmployeeInformation = (id: string) => {
     const user = employeeData?.items?.find((item: any) => item.id === id);
     return user;
@@ -68,6 +81,7 @@ const ApprovalTable = () => {
       searchParams?.name || '',
       APPROVALTYPES.PAYROLL,
     );
+
   const onPageChange = (page: number, newPageSize?: number) => {
     setUserCurrentPage(page);
     if (newPageSize) {
@@ -84,6 +98,7 @@ const ApprovalTable = () => {
     setUserCurrentPage(page);
     setPageSize(size);
   };
+
   const handleDeleteConfirm = (id: string) => {
     setDeleteModal(false);
     deleteApproval(id);
@@ -203,7 +218,7 @@ const ApprovalTable = () => {
         <span
           id={`settings-payroll-approvals-card-assignees-empty-${itemSlug}`}
           data-cy={`settings-payroll-approvals-card-assignees-empty-${itemSlug}`}
-          className="text-sm text-gray-400"
+          className="text-sm font-normal text-[#595959]"
         >
           -
         </span>
@@ -227,16 +242,7 @@ const ApprovalTable = () => {
       >
         {uniqueApprovers.map((employee: any, empIndex: number) => {
           const userInfo = getEmployeeInformation(employee?.userId);
-          const fullName = userInfo
-            ? `${userInfo.firstName ?? ''} ${userInfo.middleName ?? ''} ${userInfo.lastName ?? ''}`
-                .replace(/\s+/g, ' ')
-                .trim()
-            : 'User not found';
-
-          const displayName =
-            fullName.length > MAX_NAME_LENGTH
-              ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-              : fullName;
+          const fullName = getAssigneeFullName(userInfo);
 
           return (
             <Tooltip
@@ -253,7 +259,7 @@ const ApprovalTable = () => {
               <div
                 id={`settings-payroll-approvals-card-assignee-chip-${itemSlug}-${empIndex}`}
                 data-cy={`settings-payroll-approvals-card-assignee-chip-${itemSlug}-${empIndex}`}
-                className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-md px-2 py-1 shadow-sm"
+                className="flex max-w-full min-w-0 items-center gap-1.5 rounded border border-[#D9D9D9] bg-white px-2 py-1"
               >
                 {userInfo ? (
                   <UserAvatar userId={employee?.userId} />
@@ -261,7 +267,7 @@ const ApprovalTable = () => {
                   <div
                     id={`settings-payroll-approvals-card-assignee-fallback-avatar-${itemSlug}-${empIndex}`}
                     data-cy={`settings-payroll-approvals-card-assignee-fallback-avatar-${itemSlug}-${empIndex}`}
-                    className="relative w-5 h-5 rounded-full overflow-hidden bg-gray-200 border border-gray-200"
+                    className="relative w-6 h-6 rounded-full overflow-hidden bg-[#f0f0f0]"
                   >
                     <Image
                       src={Avatar || '/placeholder.svg'}
@@ -276,9 +282,9 @@ const ApprovalTable = () => {
                 <span
                   id={`settings-payroll-approvals-card-assignee-name-${itemSlug}-${empIndex}`}
                   data-cy={`settings-payroll-approvals-card-assignee-name-${itemSlug}-${empIndex}`}
-                  className="text-sm text-gray-600 truncate"
+                  className="min-w-0 whitespace-normal break-words text-xs font-normal leading-snug text-[#595959] sm:text-sm"
                 >
-                  {displayName}
+                  {fullName}
                 </span>
               </div>
             </Tooltip>
@@ -293,12 +299,6 @@ const ApprovalTable = () => {
       id="settings-payroll-approvals-table-container"
       data-cy="settings-payroll-approvals-table-container"
     >
-      <DeleteModal
-        open={deleteModal}
-        onConfirm={() => handleDeleteConfirm(deletedItem)}
-        onCancel={() => setDeleteModal(false)}
-        data-cy="settings-payroll-approvals-delete-modal"
-      />
       {editModal && (
         <EditWorkFLow data-cy="settings-payroll-approvals-edit-workflow" />
       )}
@@ -308,12 +308,11 @@ const ApprovalTable = () => {
       <div
         id="settings-payroll-approvals-card-shell"
         data-cy="settings-payroll-approvals-card-shell"
-        className="p-6"
       >
         <div
           id="settings-payroll-approvals-card-grid"
           data-cy="settings-payroll-approvals-card-grid"
-          className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4"
         >
           {(allFilterData?.items ?? []).flatMap((item: any, index: number) => {
             const baseSlug = toSlug(item?.id ?? index);
@@ -391,57 +390,90 @@ const ApprovalTable = () => {
                 key={`${item?.id ?? index}`}
                 id={`settings-payroll-approvals-card-${itemSlug}`}
                 data-cy={`settings-payroll-approvals-card-${itemSlug}`}
-                className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex flex-col gap-3"
+                className="flex flex-col gap-3 rounded-[8px] border border-[#D9D9D9] bg-white p-3 shadow-none"
               >
                 <div
                   id={`settings-payroll-approvals-card-top-${itemSlug}`}
                   data-cy={`settings-payroll-approvals-card-top-${itemSlug}`}
-                  className="flex justify-between items-start"
+                  className="flex items-start justify-between gap-2"
                 >
                   <span
                     id={`settings-payroll-approvals-card-level-${itemSlug}`}
                     data-cy={`settings-payroll-approvals-card-level-${itemSlug}`}
-                    className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 px-2 py-1 rounded-md"
+                    className="inline-flex items-center rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-xs font-normal text-[#595959]"
                   >
                     Levels: {levelCount}
                   </span>
 
-                  <AccessGuard
-                    permissions={[
-                      Permissions.UpdateApprover,
-                      Permissions.DeleteApprover,
-                      Permissions.CreateApprover,
-                    ]}
-                    id={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
-                    data-cy={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
+                  <div
+                    className="shrink-0"
+                    data-cy={`settings-payroll-approvals-card-more-slot-${itemSlug}`}
                   >
-                    <Dropdown
-                      menu={{ items: menuItems }}
-                      trigger={['click']}
-                      placement="bottomRight"
-                      data-cy={`settings-payroll-approvals-card-more-dropdown-${itemSlug}`}
+                    <AccessGuard
+                      permissions={[
+                        Permissions.UpdateApprover,
+                        Permissions.DeleteApprover,
+                        Permissions.CreateApprover,
+                      ]}
+                      id={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
+                      data-cy={`settings-payroll-approvals-card-more-guard-${itemSlug}`}
                     >
-                      <button
-                        id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
-                        data-cy={`settings-payroll-approvals-card-more-button-${itemSlug}`}
-                        className="text-gray-800 border border-gray-200 rounded px-2 py-1 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                        type="button"
-                        aria-label="More actions"
+                      <Popconfirm
+                        title={
+                          <span className="text-base font-semibold text-gray-900">
+                            Delete Approval
+                          </span>
+                        }
+                        description="Are you sure you want to delete this approval workflow? This action cannot be undone."
+                        open={deleteModal && deletedItem === item?.id}
+                        onConfirm={() => handleDeleteConfirm(deletedItem)}
+                        onCancel={() => setDeleteModal(false)}
+                        okText="Delete"
+                        cancelText="Cancel"
+                        okButtonProps={{
+                          danger: true,
+                          className: 'px-5 h-9 text-sm font-medium',
+                        }}
+                        cancelButtonProps={{
+                          className:
+                            'px-5 h-9 text-sm font-medium border-gray-300',
+                        }}
+                        placement={isMobile ? 'bottom' : 'bottomLeft'}
+                        icon={null}
+                        overlayStyle={{
+                          width: isMobile ? 'calc(100vw - 32px)' : 420,
+                          maxWidth: 420,
+                        }}
+                        id={`settings-payroll-approvals-card-delete-popconfirm-${itemSlug}`}
+                        data-cy={`settings-payroll-approvals-card-delete-popconfirm-${itemSlug}`}
                       >
-                        <MoreHorizRoundedIcon
-                          id={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
-                          data-cy={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
-                          className="text-[20px] text-gray-800"
-                        />
-                      </button>
-                    </Dropdown>
-                  </AccessGuard>
+                        <Dropdown
+                          menu={{ items: menuItems }}
+                          trigger={['click']}
+                          placement="bottomRight"
+                          data-cy={`settings-payroll-approvals-card-more-dropdown-${itemSlug}`}
+                        >
+                          <Button
+                            type="default"
+                            className="w-8 h-8 border border-[#D9D9D9]"
+                            id={`settings-payroll-approvals-card-more-button-${itemSlug}`}
+                            data-cy={`settings-payroll-approvals-card-more-button-${itemSlug}`}
+                            aria-label="More actions"
+                          >
+                            <MoreHorizIcon
+                              data-cy={`settings-payroll-approvals-card-more-icon-${itemSlug}`}
+                            />
+                          </Button>
+                        </Dropdown>
+                      </Popconfirm>
+                    </AccessGuard>
+                  </div>
                 </div>
 
                 <p
                   id={`settings-payroll-approvals-card-title-${itemSlug}`}
                   data-cy={`settings-payroll-approvals-card-title-${itemSlug}`}
-                  className="mt-3 mb-2 text-[20px] font-semibold text-[#2f2f2f]"
+                  className="mb-2 mt-3 text-base font-normal leading-tight text-black"
                 >
                   {item?.name || '-'}
                 </p>
@@ -449,7 +481,7 @@ const ApprovalTable = () => {
                 <div
                   id={`settings-payroll-approvals-card-divider-${itemSlug}`}
                   data-cy={`settings-payroll-approvals-card-divider-${itemSlug}`}
-                  className="border-t border-gray-100 my-1"
+                  className="border-t border-gray-200 my-1"
                 />
 
                 <div
@@ -460,7 +492,7 @@ const ApprovalTable = () => {
                   <span
                     id={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
                     data-cy={`settings-payroll-approvals-card-assigned-label-${itemSlug}`}
-                    className="text-sm font-medium text-gray-800 mr-1"
+                    className="mr-1 text-sm font-normal text-[#595959]"
                   >
                     Assigned To:
                   </span>
@@ -474,7 +506,7 @@ const ApprovalTable = () => {
             <div
               id="settings-payroll-approvals-empty-state"
               data-cy="settings-payroll-approvals-empty-state"
-              className="col-span-full text-center text-gray-500 py-10"
+              className="col-span-full py-10 text-center text-sm font-normal text-[#595959]"
             >
               No approval workflows found.
             </div>
@@ -484,7 +516,7 @@ const ApprovalTable = () => {
         <div
           id="settings-payroll-approvals-pagination-container"
           data-cy="settings-payroll-approvals-pagination-container"
-          className="border-t border-gray-100 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm"
+          className="mt-4 flex flex-col items-center justify-between gap-4 pt-4 text-sm sm:flex-row"
         >
           {isMobile || isTablet ? (
             <CustomMobilePagination

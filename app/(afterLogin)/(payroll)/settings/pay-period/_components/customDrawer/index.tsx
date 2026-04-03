@@ -9,7 +9,6 @@ import { useChangePayPeriodStatus } from '@/store/server/features/payroll/settin
 import utc from 'dayjs/plugin/utc';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { FaPencil } from 'react-icons/fa6';
 
 dayjs.extend(utc);
 
@@ -251,12 +250,11 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
           data-cy="payroll-payperiod-edit-drawer-submit"
           type="primary"
           className="h-8 rounded-md px-4 text-sm font-normal"
-          icon={<FaPencil className="text-sm" />}
           onClick={() => form.submit()}
           loading={isLoading}
           disabled={isChangingStatus}
         >
-          Edit
+          Update
         </Button>
       </div>
     </Modal>

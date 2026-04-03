@@ -204,7 +204,7 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
         <div
           id="payroll-settings-tabs-row-view-container"
           data-cy="payroll-settings-tabs-row-view-container"
-          className="mt-5 mb-6"
+          className="mt-5 mb-3"
         >
           <div
             id="payroll-settings-tabs-actions-slot-view-container"
@@ -212,9 +212,8 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
             className="w-full"
           >
             {/*
-              Custom tab rail: matches incentives/page.tsx label styling (font-semibold
-              text-md p-3) and tabBar bottom spacing; avoids AntD ink-bar bugs with
-              scroll + tabBarExtraContent.
+              Custom tab rail: active tab uses semibold; inactive uses normal weight.
+              text-md p-3; avoids AntD ink-bar bugs with scroll + tabBarExtraContent.
             */}
             <div
               id="payroll-settings-tabs"
@@ -235,10 +234,10 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
                         id={`payroll-settings-tab-${tab.key}`}
                         data-cy={`payroll-settings-tab-label-${tab.key}`}
                         onClick={() => handleTabChange(tab.key)}
-                        className={`relative shrink-0 border-0 bg-transparent p-3 text-left font-semibold text-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 ${
+                        className={`relative shrink-0 border-0 bg-transparent p-3 text-left text-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 ${
                           isActive
-                            ? 'text-primary'
-                            : 'text-gray-800 hover:text-gray-900'
+                            ? 'font-semibold text-primary'
+                            : 'font-normal text-gray-800 hover:text-gray-900'
                         }`}
                       >
                         {tab.label}
@@ -269,7 +268,7 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
                 </div>
               </div>
               <div
-                className="h-4 shrink-0"
+                className="h-1 shrink-0"
                 aria-hidden
                 data-cy="payroll-settings-tabs-bottom-spacer"
               />

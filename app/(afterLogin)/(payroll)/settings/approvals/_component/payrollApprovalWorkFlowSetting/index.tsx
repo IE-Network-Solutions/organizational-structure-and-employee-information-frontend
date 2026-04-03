@@ -1,8 +1,9 @@
 'use client';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { Select, Button, Form, Input } from 'antd';
+import { Select, Button, Form, Input, Tag } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { IoArrowBack } from 'react-icons/io5';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -38,30 +39,47 @@ const PayrollApprovalWorkFlowSetting = ({
     level,
     setLevel,
     workflowApplies,
-    selections,
     setSelections,
     workflowUserId,
     setDepartmentApproval,
   } = useApprovalStore();
 
-  const handleUserChange = (value: string, index: number) => {
-    const updatedSelections = [...selections.SectionItemType];
-    updatedSelections[index] = { ...updatedSelections[index], user: value };
+  const userLabelMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    users?.items?.forEach((u: User) => {
+      map[u.id] =
+        `${u.firstName || ''} ${u.middleName || ''} ${u.lastName || ''}`.trim();
+    });
+    return map;
+  }, [users]);
+
+  const handleUsersChange = (values: string[]) => {
+    const updatedSelections = values.map((userId) => ({ user: userId }));
     setSelections({ SectionItemType: updatedSelections });
+  };
+
+  const handleRemoveUser = (userId: string) => {
+    const current: string[] = form.getFieldValue('assignedUsers') || [];
+    const updated = current.filter((id) => id !== userId);
+    form.setFieldValue('assignedUsers', updated);
+    handleUsersChange(updated);
   };
   const handleLevelChange = (value: number) => {
     setLevel(value);
     form.setFieldValue('level', value);
-    const updatedSelections = Array.from(
-      { length: value },
-      /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-        _,
-        index,
-      ) => {
-        return selections.SectionItemType[index] || { user: null };
-      },
-    );
-    setSelections({ SectionItemType: updatedSelections });
+
+    const currentUsers: string[] = form.getFieldValue('assignedUsers') || [];
+    if (currentUsers.length > value) {
+      const trimmed = currentUsers.slice(0, value);
+      form.setFieldValue('assignedUsers', trimmed);
+      setSelections({
+        SectionItemType: trimmed.map((userId) => ({ user: userId })),
+      });
+    } else {
+      setSelections({
+        SectionItemType: currentUsers.map((userId) => ({ user: userId })),
+      });
+    }
   };
   const pageSlug = 'approvals-settings';
 
@@ -196,8 +214,7 @@ const PayrollApprovalWorkFlowSetting = ({
                 id="approval-payroll-workflow-setting-number-of-level-select-description"
                 data-cy="approval-payroll-workflow-setting-number-of-level-select-description"
               >
-                Select one assignee for {level} level{level === 1 ? '' : 's'} of
-                approval
+                Select {level} assignee{level > 1 ? 's' : ''} for approval
               </div>
             </div>
 
@@ -206,80 +223,92 @@ const PayrollApprovalWorkFlowSetting = ({
               id="approval-payroll-workflow-setting-assignees"
               data-cy="approval-payroll-workflow-setting-assignees"
             >
-              {Array.from({ length: level }).map(
-                /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
-                  _,
-                  index,
-                ) => (
-                  <div
-                    key={index}
-                    className={index === 0 ? '' : 'mt-3 pt-3 border-t border-gray-200'}
-                    id="approval-payroll-workflow-setting-level"
-                    data-cy="approval-payroll-workflow-setting-level"
-                  >
-                    <div
-                      className="text-sm text-[#4d4d4d]"
-                      id="approval-payroll-workflow-setting-level-title"
-                      data-cy="approval-payroll-workflow-setting-level-title"
-                    >
-                      Level: {index + 1}
-                    </div>
-                    <Form.Item
-                      className="mb-0 mt-2"
-                      name={`assignedUser_${index}`}
-                      label="Assignee"
-                      rules={[
-                        { required: true, message: 'Please select a user!' },
-                        {
-                          /* eslint-disable-next-line @typescript-eslint/naming-convention */
-                          validator: (_, value) => {
-                            /* eslint-enable @typescript-eslint/naming-convention */
+              <Form.Item
+                className="mb-0 mt-2"
+                name="assignedUsers"
+                label="Assignee"
+                rules={[
+                  { required: true, message: 'Please select assignees!' },
+                  {
+                    validator: (_, value) => {
+                      if (!value || value.length === 0) {
+                        return Promise.reject('Please select assignees!');
+                      }
+                      if (value.length !== level) {
+                        return Promise.reject(
+                          `Please select exactly ${level} assignee${level > 1 ? 's' : ''}`,
+                        );
+                      }
+                      if (workflowApplies === 'User' && workflowUserId) {
+                        if (value.includes(workflowUserId)) {
+                          return Promise.reject(
+                            'Cannot select the same user as both workflow target and approver',
+                          );
+                        }
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                id="approval-payroll-workflow-setting-assignee-select"
+                data-cy="approval-payroll-workflow-setting-assignee-select"
+              >
+                <Select
+                  className="w-full"
+                  allowClear={false}
+                  showSearch
+                  optionFilterProp="label"
+                  mode="multiple"
+                  maxCount={level}
+                  maxTagCount={0}
+                  maxTagPlaceholder={() => null}
+                  onChange={handleUsersChange}
+                  placeholder="Select"
+                  options={users?.items
+                    ?.filter(
+                      (user: User) =>
+                        workflowApplies !== 'User' ||
+                        user.id !== workflowUserId,
+                    )
+                    ?.map((list: User) => ({
+                      value: list.id,
+                      label:
+                        `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
+                    }))}
+                  id="approval-payroll-workflow-setting-assignee-select-input"
+                  data-cy="approval-payroll-workflow-setting-assignee-select-input"
+                />
+              </Form.Item>
 
-                            if (
-                              workflowApplies === 'User' &&
-                              value === workflowUserId
-                            ) {
-                              return Promise.reject(
-                                'Cannot select the same user as both workflow target and approver',
-                              );
-                            }
-                            return Promise.resolve();
-                          },
-                        },
-                      ]}
-                      id="approval-payroll-workflow-setting-level-select"
-                      data-cy="approval-payroll-workflow-setting-level-select"
+              <Form.Item shouldUpdate noStyle>
+                {() => {
+                  const selectedIds: string[] =
+                    form.getFieldValue('assignedUsers') || [];
+                  if (selectedIds.length === 0) return null;
+                  return (
+                    <div
+                      className="mt-2 flex flex-wrap gap-2"
+                      data-cy="approval-payroll-workflow-setting-assignee-tags"
                     >
-                      <Select
-                        className="h-10 w-full"
-                        allowClear
-                        showSearch
-                        optionFilterProp="label"
-                        mode={
-                          approverType === 'Parallel' ? 'multiple' : undefined
-                        }
-                        onChange={(value) =>
-                          handleUserChange(value as string, index)
-                        }
-                        placeholder="Select"
-                        options={users?.items
-                          ?.filter(
-                            (user: User) =>
-                              workflowApplies !== 'User' ||
-                              user.id !== workflowUserId,
-                          )
-                          ?.map((list: User) => ({
-                            value: list.id,
-                            label:
-                              `${list.firstName ? list.firstName : ''} ${list.middleName ? list.middleName : ''} ${list.lastName ? list.lastName : ''}`.trim(),
-                          }))}
-                        id="approval-payroll-workflow-setting-level-select"
-                        data-cy="approval-payroll-workflow-setting-level-select"
-                      />
-                    </Form.Item>
-                  </div>
-                ),
-              )}
+                      {selectedIds.map((id) => (
+                        <Tag
+                          key={id}
+                          className="flex items-center gap-1 rounded-md border border-[#D9D9D9] bg-[#F5F5F5] px-2 py-1 text-sm text-[#262626]"
+                          closeIcon={
+                            <CloseOutlined
+                              style={{ fontSize: 10, color: '#8c8c8c' }}
+                            />
+                          }
+                          onClose={() => handleRemoveUser(id)}
+                          data-cy={`approval-payroll-workflow-assignee-tag-${id}`}
+                        >
+                          {userLabelMap[id] || id}
+                        </Tag>
+                      ))}
+                    </div>
+                  );
+                }}
+              </Form.Item>
             </div>
           </div>
         </Form>

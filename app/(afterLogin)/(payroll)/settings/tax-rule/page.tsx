@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { Dropdown, Table, Button } from 'antd';
+import { Dropdown, Table, Button, Popconfirm } from 'antd';
 import type { MenuProps } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -11,7 +11,7 @@ import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/t
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import DeleteModal from '@/components/common/deleteConfirmationModal';
+import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 
 interface TaxRule {
   id: string;
@@ -56,20 +56,29 @@ const TaxRules = () => {
         <span
           id="payroll-tax-rule-name-title"
           data-cy="payroll-tax-rule-name-title"
-          className="text-sm font-bold text-[#4b4b4b]"
+          className="text-base font-bold text-black/70"
         >
           Name
         </span>
       ),
       dataIndex: 'name',
       key: 'name',
+      render: (text: string, record: TaxRule) => (
+        <span
+          id={`payroll-tax-rule-name-cell-${record.id}`}
+          data-cy={`payroll-tax-rule-name-cell-${record.id}`}
+          className="text-sm text-gray-700"
+        >
+          {text}
+        </span>
+      ),
     },
     {
       title: (
         <span
           id="payroll-tax-rule-range-title"
           data-cy="payroll-tax-rule-range-title"
-          className="text-sm font-bold text-[#4b4b4b]"
+          className="text-base font-bold text-black/70"
         >
           Range
         </span>
@@ -82,6 +91,7 @@ const TaxRules = () => {
           <span
             id={`payroll-tax-rule-range-view-text-${record.id}`}
             data-cy={`payroll-tax-rule-range-view-text-${record.id}`}
+            className="text-sm text-gray-700"
           >
             {minIncome} - {maxIncome}
           </span>
@@ -93,33 +103,51 @@ const TaxRules = () => {
         <span
           id="payroll-tax-rule-tax-rate-title"
           data-cy="payroll-tax-rule-tax-rate-title"
-          className="text-sm font-bold text-[#4b4b4b]"
+          className="text-base font-bold text-black/70"
         >
           Tax Rate
         </span>
       ),
       dataIndex: 'rate',
       key: 'rate',
+      render: (text: number, record: TaxRule) => (
+        <span
+          id={`payroll-tax-rule-rate-cell-${record.id}`}
+          data-cy={`payroll-tax-rule-rate-cell-${record.id}`}
+          className="text-sm text-gray-700"
+        >
+          {text}
+        </span>
+      ),
     },
     {
       title: (
         <span
           id="payroll-tax-rule-deduction-title"
           data-cy="payroll-tax-rule-deduction-title"
-          className="text-sm font-bold text-[#4b4b4b]"
+          className="text-base font-bold text-black/70"
         >
           Deduction
         </span>
       ),
       dataIndex: 'deduction',
       key: 'deduction',
+      render: (text: number, record: TaxRule) => (
+        <span
+          id={`payroll-tax-rule-deduction-cell-${record.id}`}
+          data-cy={`payroll-tax-rule-deduction-cell-${record.id}`}
+          className="text-sm text-gray-700"
+        >
+          {text}
+        </span>
+      ),
     },
     {
       title: (
         <span
           id="payroll-tax-rule-action-title"
           data-cy="payroll-tax-rule-action-title"
-          className="text-sm font-bold text-[#4b4b4b]"
+          className="text-base font-bold text-black/70"
         >
           Action
         </span>
@@ -139,6 +167,7 @@ const TaxRules = () => {
             ),
             icon: (
               <EditOutlined
+                style={{ fontSize: 14, color: '#595959' }}
                 data-cy={`payroll-tax-rule-actions-menu-edit-icon-${record.id}`}
               />
             ),
@@ -156,6 +185,7 @@ const TaxRules = () => {
             ),
             icon: (
               <DeleteOutlined
+                style={{ fontSize: 14, color: '#595959' }}
                 data-cy={`payroll-tax-rule-actions-menu-delete-icon-${record.id}`}
               />
             ),
@@ -169,24 +199,55 @@ const TaxRules = () => {
             data-cy={`payroll-tax-rule-actions-view-container-${record.id}`}
             className="flex items-center"
           >
-            <Dropdown
-              menu={{ items: menuItems }}
-              trigger={['click']}
-              placement="bottomRight"
+            <Popconfirm
+              title={
+                <span className="text-base font-semibold text-gray-900">
+                  Delete Tax Rule
+                </span>
+              }
+              description="Are you sure you want to delete this tax rule? This action cannot be undone."
+              open={deleteModalOpen && selectedDeleteId === record.id}
+              onConfirm={handleConfirmDelete}
+              onCancel={() => {
+                setDeleteModalOpen(false);
+                setSelectedDeleteId(null);
+              }}
+              okText="Delete"
+              cancelText="Cancel"
+              okButtonProps={{
+                danger: true,
+                className: 'px-5 h-9 text-sm font-medium',
+              }}
+              cancelButtonProps={{
+                className: 'px-5 h-9 text-sm font-medium border-gray-300',
+              }}
+              placement={isMobile ? 'bottom' : 'bottomLeft'}
+              icon={null}
+              overlayStyle={{
+                width: isMobile ? 'calc(100vw - 32px)' : 420,
+                maxWidth: 420,
+              }}
+              id={`payroll-tax-rule-delete-popconfirm-${record.id}`}
+              data-cy={`payroll-tax-rule-delete-popconfirm-${record.id}`}
             >
-              <button
-                id={`payroll-tax-rule-actions-more-button-${record.id}`}
-                data-cy={`payroll-tax-rule-actions-more-button-${record.id}`}
-                className="px-2 py-1 border border-gray-200 rounded text-gray-800 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                type="button"
-                aria-label="More actions"
+              <Dropdown
+                menu={{ items: menuItems }}
+                trigger={['click']}
+                placement="bottomRight"
               >
-                <MoreHorizIcon
-                  data-cy={`payroll-tax-rule-actions-more-icon-${record.id}`}
-                  className="text-[20px] text-gray-800"
-                />
-              </button>
-            </Dropdown>
+                <Button
+                  type="default"
+                  className="w-8 h-8 border border-[#D9D9D9]"
+                  id={`payroll-tax-rule-actions-more-button-${record.id}`}
+                  data-cy={`payroll-tax-rule-actions-more-button-${record.id}`}
+                  aria-label="More actions"
+                >
+                  <MoreHorizIcon
+                    data-cy={`payroll-tax-rule-actions-more-icon-${record.id}`}
+                  />
+                </Button>
+              </Dropdown>
+            </Popconfirm>
           </div>
         );
       },
@@ -233,11 +294,13 @@ const TaxRules = () => {
   };
 
   return (
-    <div
-      id="payroll-tax-rule-page-view-container"
-      data-cy="payroll-tax-rule-page-view-container"
-      className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden"
-    >
+    <BlockWrapper className="h-auto w-full bg-white px-3 pb-6 pt-3">
+      <div
+        id="payroll-tax-rule-page-view-container"
+        data-cy="payroll-tax-rule-page-view-container"
+        className="overflow-hidden"
+      >
+        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white">
       <div
         id="payroll-tax-rule-header-view-container"
         data-cy="payroll-tax-rule-header-view-container"
@@ -270,11 +333,12 @@ const TaxRules = () => {
         <div
           id="payroll-tax-rule-table-inner-view-container"
           data-cy="payroll-tax-rule-table-inner-view-container"
-          className="w-full"
+          className="w-full bg-white rounded-b-lg"
         >
           <Table
             id="payroll-tax-rule-table-view-table"
             data-cy="payroll-tax-rule-table-view-table"
+            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
             dataSource={paginatedData}
             columns={columns}
             pagination={false}
@@ -282,8 +346,8 @@ const TaxRules = () => {
             bordered={false}
             loading={isLoading}
             rowHoverable={false}
-            rowClassName={(notUsed, index) =>
-              index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+            rowClassName={(_notUsed, index) =>
+              `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
             }
           />
         </div>
@@ -291,7 +355,7 @@ const TaxRules = () => {
       <div
         id="payroll-tax-rule-pagination-footer-view-container"
         data-cy="payroll-tax-rule-pagination-footer-view-container"
-        className="border-t border-gray-100 p-4"
+        className="p-4"
       >
         {isMobile || isTablet ? (
           <CustomMobilePagination
@@ -315,20 +379,10 @@ const TaxRules = () => {
           />
         )}
       </div>
-      <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
-      <DeleteModal
-        open={deleteModalOpen}
-        onConfirm={handleConfirmDelete}
-        onCancel={() => {
-          setDeleteModalOpen(false);
-          setSelectedDeleteId(null);
-        }}
-        deleteMessage="Delete Tax Rule"
-        customMessage="Are you sure you want to delete this tax rule? This action cannot be undone."
-        data-cy="payroll-tax-rule-delete-modal"
-        id="payroll-tax-rule-delete-modal"
-      />
-    </div>
+        </div>
+        <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
+      </div>
+    </BlockWrapper>
   );
 };
 

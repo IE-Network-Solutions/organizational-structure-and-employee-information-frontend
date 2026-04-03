@@ -16,6 +16,18 @@ import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import { useApprovalBranchStore } from '@/store/uistate/features/employees/branchTransfer/workflow';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
+import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+
+const modalCloseButtonStyle: React.CSSProperties = {
+  height: 24,
+  width: 24,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 4,
+  border: '1px solid #D9D9D9',
+  background: '#fff',
+};
 
 const Approvals = () => {
   const {
@@ -172,20 +184,21 @@ const Approvals = () => {
       : undefined;
 
   return (
-    <div
-      className="border border-gray-200 rounded-xl bg-white shadow-sm overflow-hidden"
-      id={`settings-${pageSlug}-container`}
-      data-cy={`settings-${pageSlug}-container`}
-    >
+    <BlockWrapper className="h-auto w-full bg-white px-3 pb-6 pt-3">
       <div
-        id={`settings-${pageSlug}-list`}
-        data-cy={`settings-${pageSlug}-list`}
-        className="pt-0 pb-3"
+        id={`settings-${pageSlug}-container`}
+        data-cy={`settings-${pageSlug}-container`}
+        className="overflow-hidden"
       >
         <div
-          className="flex justify-end items-center pb-0"
+          className="rounded-lg border border-[#D9D9D9] bg-white p-3 shadow-none sm:p-4"
+          id={`settings-${pageSlug}-inner`}
+          data-cy={`settings-${pageSlug}-inner`}
+        >
+        <div
           id={`settings-${pageSlug}-list-header`}
           data-cy={`settings-${pageSlug}-list-header`}
+          className="hidden"
         >
           <PermissionWraper
             permissions={[Permissions.CreateApprover]}
@@ -212,106 +225,103 @@ const Approvals = () => {
         </div>
 
         <div
-          className="flex flex-col gap-2"
-          id={`settings-${pageSlug}-filters`}
-          data-cy={`settings-${pageSlug}-filters`}
-        ></div>
-        <div
-          className="overflow-x-auto w-full"
+          className="w-full overflow-x-auto"
           id={`settings-${pageSlug}-table-wrapper`}
           data-cy={`settings-${pageSlug}-table-wrapper`}
         >
           <ApprovalTable data-cy={`settings-${pageSlug}-table`} />
         </div>
-      </div>
+        </div>
 
-      <Modal
-        open={addDepartmentApproval}
-        onCancel={handleCloseModal}
-        title={
-          <div
-            className="flex w-full items-center justify-between gap-4"
-            data-cy={`settings-${pageSlug}-workflow-modal-title-row`}
-          >
-            <span
-              className="text-lg font-semibold text-[#4d4d4d]"
-              data-cy={`settings-${pageSlug}-workflow-modal-title`}
+        <Modal
+          open={addDepartmentApproval}
+          onCancel={handleCloseModal}
+          title={
+            <div
+              className="flex w-full items-center justify-between gap-4"
+              data-cy={`settings-${pageSlug}-workflow-modal-title-row`}
             >
-              Approval Workflow
-            </span>
-            <button
-              type="button"
-              onClick={handleCloseModal}
-              aria-label="Close"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100"
-              data-cy={`settings-${pageSlug}-workflow-modal-close`}
-            >
-              <CloseOutlined style={{ fontSize: 16, color: '#262626' }} />
-            </button>
-          </div>
-        }
-        footer={
-          <div
-            className="flex justify-end gap-3"
-            data-cy={`settings-${pageSlug}-workflow-modal-footer`}
-          >
-            <Button
-              onClick={handleModalBackOrCancel}
-              className="h-8 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
-              data-cy={`settings-${pageSlug}-workflow-modal-back-btn`}
-              disabled={isCreateLoading}
-            >
-              {workflowStep === 1 ? 'Cancel' : 'Back'}
-            </Button>
-            <Button
-              type="primary"
-              loading={isCreateLoading}
-              className="h-8 font-normal"
-              onClick={handleModalPrimary}
-              data-cy={`settings-${pageSlug}-workflow-modal-primary-btn`}
-              disabled={workflowStep === 1 && !approverType}
-            >
-              {workflowStep === 3 ? 'Create' : 'Continue'}
-            </Button>
-          </div>
-        }
-        centered
-        width={720}
-        destroyOnClose
-        maskClosable={false}
-        closable={false}
-        data-cy={`settings-${pageSlug}-workflow-modal`}
-        styles={{ body: { paddingTop: 8, paddingLeft: 0, paddingRight: 0 } }}
-        zIndex={10002}
-      >
-        <PayrollApprovalWorkFlow
-          onChange={handleApprovalTypeChange}
-          approverType={approverType}
-          currentStep={workflowStep}
-          finalizeContent={
-            workflowStep === 3 ? (
-              <ApprovalWorkflowFinalizeSummary
-                form={form}
-                approverType={approverType}
-                level={level}
-                selections={selections}
-                appliedToLabel={appliedToLabel}
-              />
-            ) : undefined
+              <span
+                className="text-base font-normal leading-tight text-black"
+                data-cy={`settings-${pageSlug}-workflow-modal-title`}
+              >
+                Approval Workflow
+              </span>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                aria-label="Close"
+                className="inline-flex shrink-0 hover:bg-gray-50"
+                style={modalCloseButtonStyle}
+                data-cy={`settings-${pageSlug}-workflow-modal-close`}
+              >
+                <CloseOutlined style={{ fontSize: 14, color: '#595959' }} />
+              </button>
+            </div>
           }
-          data-cy={`settings-${pageSlug}-workflow-config-component`}
+          footer={
+            <div
+              className="flex justify-end gap-3"
+              data-cy={`settings-${pageSlug}-workflow-modal-footer`}
+            >
+              <Button
+                onClick={handleModalBackOrCancel}
+                className="h-8 border border-[#D9D9D9] font-normal text-[#595959]"
+                data-cy={`settings-${pageSlug}-workflow-modal-back-btn`}
+                disabled={isCreateLoading}
+              >
+                {workflowStep === 1 ? 'Cancel' : 'Back'}
+              </Button>
+              <Button
+                type="primary"
+                loading={isCreateLoading}
+                className="h-8 font-normal"
+                onClick={handleModalPrimary}
+                data-cy={`settings-${pageSlug}-workflow-modal-primary-btn`}
+                disabled={workflowStep === 1 && !approverType}
+              >
+                {workflowStep === 3 ? 'Create' : 'Continue'}
+              </Button>
+            </div>
+          }
+          centered
+          width={720}
+          destroyOnClose
+          maskClosable={false}
+          closable={false}
+          data-cy={`settings-${pageSlug}-workflow-modal`}
+          styles={{ body: { paddingTop: 8, paddingLeft: 0, paddingRight: 0 } }}
+          zIndex={10002}
         >
-          <PayrollApprovalWorkFlowSetting
-            handleSubmit={handleSubmit}
-            isSuccess={isSuccess}
-            form={form}
-            title={'Department transfer '}
-            wizardMode
-            data-cy={`settings-${pageSlug}-workflow-setting-component`}
-          />
-        </PayrollApprovalWorkFlow>
-      </Modal>
-    </div>
+          <PayrollApprovalWorkFlow
+            onChange={handleApprovalTypeChange}
+            approverType={approverType}
+            currentStep={workflowStep}
+            finalizeContent={
+              workflowStep === 3 ? (
+                <ApprovalWorkflowFinalizeSummary
+                  form={form}
+                  approverType={approverType}
+                  level={level}
+                  selections={selections}
+                  appliedToLabel={appliedToLabel}
+                />
+              ) : undefined
+            }
+            data-cy={`settings-${pageSlug}-workflow-config-component`}
+          >
+            <PayrollApprovalWorkFlowSetting
+              handleSubmit={handleSubmit}
+              isSuccess={isSuccess}
+              form={form}
+              title={'Department transfer '}
+              wizardMode
+              data-cy={`settings-${pageSlug}-workflow-setting-component`}
+            />
+          </PayrollApprovalWorkFlow>
+        </Modal>
+      </div>
+    </BlockWrapper>
   );
 };
 
