@@ -1,176 +1,212 @@
 import CustomPagination from '@/components/customPagination';
 import { useDeleteFeedback } from '@/store/server/features/feedback/feedback/mutation';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { Button, Card, Popconfirm, Tabs, Input } from 'antd';
-import { Edit2Icon } from 'lucide-react';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { Card, Input, Dropdown, Popconfirm } from 'antd';
 import React from 'react';
-import { BiPlus } from 'react-icons/bi';
-import { MdDeleteOutline } from 'react-icons/md';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
+import { SearchOutlined } from '@ant-design/icons';
+import { BsThreeDots } from 'react-icons/bs';
 
 interface FeedbackTypeDetailProps {
   feedbackTypeDetail: any;
 }
 
 function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
-  const { mutate: deleteFeedback, isLoading: deleteLoading } =
-    useDeleteFeedback();
+  const { isMobile } = useIsMobile();
+  const { mutate: deleteFeedback } = useDeleteFeedback();
 
   const {
-    setVariantType,
-    variantType,
-    setOpen,
     setSelectedFeedback,
     page,
+    variantType,
     setPage,
     pageSize,
-    searchQuery,
-    setSearchQuery,
+    setSearchAppreciationQuery,
+    setSearchReprimandQuery,
+    feedbackOpenDropdownId,
+    setFeedbackOpenDropdownId,
   } = ConversationStore();
-
-  const onChange = (key: string) => {
-    const variantType = key === 'appreciation' ? 'appreciation' : 'reprimand';
-    setVariantType(variantType);
-    setPage(1);
-  };
 
   const handleDelete = (id: string) => {
     deleteFeedback(id);
   };
-  const editHandler = (item: string) => {
+  const handleEdit = (item: any) => {
     setSelectedFeedback(item);
   };
 
-  const renderFeedbackItems = (variant: 'appreciation' | 'reprimand') => {
-    const filteredItems =
-      feedbackTypeDetail?.feedback?.filter((item: any) => {
-        const matchesVariant = item?.variant === variant;
-        const matchesSearch = searchQuery
-          ? item?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            item?.description?.toLowerCase().includes(searchQuery.toLowerCase())
-          : true;
-        return matchesVariant && matchesSearch;
-      }) || [];
+  const searchPlaceholder =
+    variantType === 'appreciation'
+      ? 'Search Appreciation.'
+      : 'Search Reprimand.';
 
-    // Sort by createdAt in descending order (latest first)
-    const sortedItems = [...filteredItems].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedItems = sortedItems.slice(startIndex, endIndex);
-
-    return (
-      <>
+  return (
+    <div
+      className={`rounded-lg border-[1px] border-[#D9D9D9] bg-white shadow-sm ${
+        isMobile ? ' p-3 ' : 'p-2'
+      }`}
+      data-cy={`feedback-type-detail-${variantType}-panel`}
+    >
+      <div
+        className={`flex justify-between overflow-x-auto text-xs ${isMobile ? 'mx-0 mb-3' : 'mx-2'}`}
+        data-cy={`feedback-type-detail-${variantType}-actions`}
+        id={`feedbackTypeDetail${variantType}Actions`}
+      >
         <div
-          className="flex justify-between text-xs mx-2 overflow-x-auto "
-          data-cy={`feedback-type-detail-${variant}-actions`}
-          id={`feedbackTypeDetail${variant}Actions`}
+          className={isMobile ? 'mb-0 w-full' : ''}
+          style={isMobile ? undefined : { marginBottom: 16 }}
+          data-cy={`feedback-type-detail-${variantType}-search-container`}
+          id={`feedbackTypeDetail${variantType}SearchContainer`}
         >
-          <div
-            style={{ marginBottom: 16 }}
-            data-cy={`feedback-type-detail-${variant}-search-container`}
-            id={`feedbackTypeDetail${variant}SearchContainer`}
-          >
-            <Input.Search
-              placeholder="Search feedbacks..."
+          <div data-cy={`feedback-type-detail-${variantType}-search-inner`}>
+            <Input
+              placeholder={searchPlaceholder}
+              addonAfter={<SearchOutlined className="text-gray-400" />}
               allowClear
-              onChange={(e) => setSearchQuery(e.target.value)}
-              // style={{ width: 300 }}
-              className="w-full sm:w-80 md:w-96 lg:w-[300px]"
-              data-cy={`feedback-type-detail-${variant}-search`}
-              id={`feedbackTypeDetail${variant}Search`}
+              className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
+              onChange={(e) =>
+                variantType === 'appreciation'
+                  ? setSearchAppreciationQuery(e.target.value)
+                  : variantType === 'reprimand'
+                    ? setSearchReprimandQuery(e.target.value)
+                    : null
+              }
+              data-cy={`feedback-type-detail-${variantType}-search`}
+              id={`feedbackTypeDetail${variantType}Search`}
             />
           </div>
-          <Button
-            type="primary"
-            htmlType="button"
-            icon={<BiPlus />}
-            title="Add Type"
-            onClick={() => setOpen(true)}
-            data-cy={`feedback-type-detail-${variant}-add-button`}
-            id={`feedbackTypeDetail${variant}AddButton`}
-          >
-            <span
-              className="hidden md:inline"
-              data-cy={`feedback-type-detail-${variant}-add-button-text`}
-              id={`feedbackTypeDetail${variant}AddButtonText`}
-            >
-              {' '}
-              Add Type
-            </span>
-          </Button>
         </div>
-        {paginatedItems.map((item: any) => (
-          <Card
-            className="mx-2 mb-2"
-            key={item.id}
-            data-cy={`feedback-type-detail-${variant}-card-${item.id}`}
-            id={`feedbackTypeDetail${variant}Card${item.id}`}
+      </div>
+      {feedbackTypeDetail?.items?.map((item: any) => (
+        <Card
+          className={`mb-2 border-[#D9D9D9] ${isMobile ? 'mx-0 rounded-lg shadow-none' : 'mx-2'}`}
+          key={item.id}
+          data-cy={`feedback-type-detail-${variantType}-card-${item.id}`}
+          id={`feedbackTypeDetail${variantType}Card${item.id}`}
+        >
+          <div
+            className="flex justify-between gap-2"
+            data-cy={`feedback-type-detail-${variantType}-card-content-${item.id}`}
+            id={`feedbackTypeDetail${variantType}CardContent${item.id}`}
           >
             <div
-              className="flex justify-between"
-              data-cy={`feedback-type-detail-${variant}-card-content-${item.id}`}
-              id={`feedbackTypeDetail${variant}CardContent${item.id}`}
+              className="min-w-0 flex-1"
+              data-cy={`feedback-type-detail-${variantType}-card-info-${item.id}`}
+              id={`feedbackTypeDetail${variantType}CardInfo${item.id}`}
             >
-              <div
-                data-cy={`feedback-type-detail-${variant}-card-info-${item.id}`}
-                id={`feedbackTypeDetail${variant}CardInfo${item.id}`}
-              >
-                <p
-                  data-cy={`feedback-type-detail-${variant}-card-name-${item.id}`}
-                  id={`feedbackTypeDetail${variant}CardName${item.id}`}
-                >
-                  {item?.name}
-                </p>
-                <p
-                  className="text-xs text-gray-500"
-                  data-cy={`feedback-type-detail-${variant}-card-description-${item.id}`}
-                  id={`feedbackTypeDetail${variant}CardDescription${item.id}`}
-                >
-                  {item?.description}
-                </p>
-              </div>
               <p
-                className="flex gap-2"
-                data-cy={`feedback-type-detail-${variant}-card-actions-${item.id}`}
-                id={`feedbackTypeDetail${variant}CardActions${item.id}`}
+                className="font-semibold text-gray-900"
+                data-cy={`feedback-type-detail-${variantType}-card-name-${item.id}`}
+                id={`feedbackTypeDetail${variantType}CardName${item.id}`}
               >
-                <Button
-                  size="small"
-                  onClick={() => editHandler(item)}
-                  icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-                  type="primary"
-                  data-cy={`feedback-type-detail-${variant}-card-edit-button-${item.id}`}
-                  id={`feedbackTypeDetail${variant}CardEditButton${item.id}`}
-                />
-                <Popconfirm
-                  title="Are you sure you want to delete?"
-                  onConfirm={() => handleDelete(item?.id)}
-                  okText="Yes"
-                  cancelText="No"
-                  data-cy={`feedback-type-detail-${variant}-card-delete-confirm-${item.id}`}
-                  id={`feedbackTypeDetail${variant}CardDeleteConfirm${item.id}`}
-                >
-                  <Button
-                    size="small"
-                    loading={deleteLoading}
-                    icon={<MdDeleteOutline />}
-                    danger
-                    type="primary"
-                    data-cy={`feedback-type-detail-${variant}-card-delete-button-${item.id}`}
-                    id={`feedbackTypeDetail${variant}CardDeleteButton${item.id}`}
-                  />
-                </Popconfirm>
+                {item?.name}
+              </p>
+              <p
+                className="mt-0.5 text-xs leading-relaxed text-gray-500"
+                data-cy={`feedback-type-detail-${variantType}-card-description-${item.id}`}
+                id={`feedbackTypeDetail${variantType}CardDescription${item.id}`}
+              >
+                {item?.description}
               </p>
             </div>
-          </Card>
-        ))}
-        {filteredItems.length > pageSize && (
+            <p
+              className="flex shrink-0 gap-2"
+              data-cy={`feedback-type-detail-${variantType}-card-actions-${item.id}`}
+              id={`feedbackTypeDetail${variantType}CardActions${item.id}`}
+            >
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                arrow={false}
+                open={feedbackOpenDropdownId === item.id}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setFeedbackOpenDropdownId(item.id);
+                  } else {
+                    setFeedbackOpenDropdownId(null);
+                  }
+                }}
+                menu={{
+                  onClick: ({ key, domEvent }) => {
+                    if (key === 'delete') {
+                      domEvent.preventDefault();
+                      domEvent.stopPropagation();
+                      setFeedbackOpenDropdownId(item.id);
+                      return;
+                    }
+                    setFeedbackOpenDropdownId(null);
+                  },
+                  items: [
+                    {
+                      key: 'edit',
+                      label: 'Edit',
+                      icon: <MdOutlineEdit className="w-4 h-4 " />,
+                      className: 'text-xs text-gray-600',
+                      onClick: () => {
+                        handleEdit(item);
+                        setFeedbackOpenDropdownId(null);
+                      },
+                    },
+                    {
+                      key: 'delete',
+                      className: 'text-xs text-gray-600',
+                      label: (
+                        <Popconfirm
+                          title="Are you sure you want to delete?"
+                          onConfirm={() => {
+                            handleDelete(item?.id);
+                            setFeedbackOpenDropdownId(null);
+                          }}
+                          onCancel={() => {
+                            setFeedbackOpenDropdownId(null);
+                          }}
+                          okText="Yes"
+                          cancelText="No"
+                          data-cy={`Feedback-type-detail-card-delete-confirm-${item.id}`}
+                          id={`FeedbackTypeDetailCardDeleteConfirm${item.id}`}
+                        >
+                          <span
+                            className="flex items-center gap-2"
+                            data-cy={`feedback-type-detail-delete-option-${item.id}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setFeedbackOpenDropdownId(item.id);
+                            }}
+                          >
+                            <MdOutlineDelete className="w-4 h-4" />
+                            Delete
+                          </span>
+                        </Popconfirm>
+                      ),
+                    },
+                  ],
+                }}
+              >
+                <button
+                  type="button"
+                  className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
+                  data-cy={`settings-define-feedback-perspective-actions-button-${item.id}`}
+                  id={`settingsDefineFeedbackPerspectiveActionsButton${item.id}`}
+                >
+                  <BsThreeDots
+                    id={`settingsDefineFeedbackPerspectiveActions${item.id}`}
+                    data-cy={`settingsDefineFeedbackPerspectiveActions${item.id}`}
+                  />
+                </button>
+              </Dropdown>
+            </p>
+          </div>
+        </Card>
+      ))}
+      {feedbackTypeDetail?.meta && (
+        <div
+          className={isMobile ? 'px-0 pt-1' : ''}
+          data-cy={`feedback-type-detail-${variantType}-pagination-wrap`}
+        >
           <CustomPagination
             current={page}
-            total={filteredItems.length}
+            total={feedbackTypeDetail?.meta?.totalItems}
             pageSize={pageSize}
             onChange={(page) => {
               setPage(page);
@@ -178,39 +214,10 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             onShowSizeChange={() => {
               setPage(1);
             }}
-            data-cy={`feedback-type-detail-${variant}-pagination`}
+            data-cy={`feedback-type-detail-${variantType}-pagination`}
           />
-        )}
-      </>
-    );
-  };
-
-  const tabItems = [
-    {
-      key: 'appreciation',
-      label: 'Appreciation',
-      children: renderFeedbackItems('appreciation'),
-    },
-    {
-      key: 'reprimand',
-      label: 'Reprimand',
-      children: renderFeedbackItems('reprimand'),
-    },
-  ];
-
-  return (
-    <div
-      className="mt-5"
-      data-cy="feedback-type-detail"
-      id="feedbackTypeDetail"
-    >
-      <Tabs
-        activeKey={variantType}
-        items={tabItems}
-        onChange={onChange}
-        data-cy="feedback-type-detail-tabs"
-        id="feedbackTypeDetailTabs"
-      />
+        </div>
+      )}
     </div>
   );
 }

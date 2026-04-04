@@ -45,7 +45,7 @@ const LeaveRequestStatusTag: FC<LeaveRequestStatusTagProps> = ({
     backgroundColor: '#f3f4f6',
     color: '#374151',
     borderColor: '#e5e7eb',
-    label: status?.charAt(0)?.toUpperCase() + (status?.slice(1) ?? '') ?? '',
+    label: status?.charAt(0)?.toUpperCase() + (status?.slice(1) ?? '') || '',
   };
 
   return (

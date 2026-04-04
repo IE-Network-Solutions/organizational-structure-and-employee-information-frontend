@@ -35,6 +35,7 @@ const fetchAllIncentiveData = async (
 const fetchProjectIncentiveData = async (
   recognitionsTypeId: string,
   employeeName: string,
+  childRecognitionTypeId: string,
   year: string,
   session: string | string[],
   month: string,
@@ -42,16 +43,24 @@ const fetchProjectIncentiveData = async (
   current: number,
 ) => {
   const requestHeaders = await requestHeader();
+  const trimmedChildType = (childRecognitionTypeId || '').trim();
+  const data: Record<string, unknown> = {
+    userId: employeeName,
+    year: year?.trim?.() ?? year,
+    sessionId: session ?? [],
+    monthId: month,
+  };
+  // Backend filters use recognitionTypeId (child type); keep legacy `type` for older APIs.
+  if (trimmedChildType) {
+    data.recognitionTypeId = trimmedChildType;
+    data.childRecognitionTypeId = trimmedChildType;
+    data.type = trimmedChildType;
+  }
   return await crudRequest({
     url: `${INCENTIVE_URL}/incentives/all/${recognitionsTypeId}?limit=${page}&page=${current}`,
     method: 'POST',
     headers: requestHeaders,
-    data: {
-      userId: employeeName,
-      year: year,
-      sessionId: session ?? [],
-      monthId: month,
-    },
+    data,
   });
 };
 
@@ -166,8 +175,9 @@ export const useIncentiveCriteria = () => {
 export const useGetIncentiveDataByRecognitionId = (
   recognitionsTypeId: string,
   employeeName: string,
+  type: string,
   year: string,
-  session: string,
+  session: string | string[],
   month: string,
   page: number,
   current: number,
@@ -177,6 +187,7 @@ export const useGetIncentiveDataByRecognitionId = (
       'getAllIncentiveData',
       recognitionsTypeId,
       employeeName,
+      type,
       year,
       session,
       month,
@@ -187,6 +198,7 @@ export const useGetIncentiveDataByRecognitionId = (
       fetchProjectIncentiveData(
         recognitionsTypeId,
         employeeName,
+        type,
         year,
         session,
         month,

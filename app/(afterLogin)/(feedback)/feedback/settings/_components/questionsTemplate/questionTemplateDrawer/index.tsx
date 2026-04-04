@@ -72,6 +72,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
   return (
     isOpen && (
       <CustomDrawerLayout
+        rootClassName="cfr-feedback-settings-drawer"
         open={isOpen}
         onClose={props?.onClose}
         modalHeader={drawerHeader}
@@ -89,6 +90,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
             autoComplete="off"
             style={{ maxWidth: '100%' }}
             layout="vertical"
+            requiredMark={false}
             onValuesChange={() => {
               handleQuestionStateUpdate(form.getFieldsValue());
             }}
@@ -116,7 +118,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                       data-cy="question-template-drawer-title-label"
                       id="questionTemplateDrawerTitleLabel"
                     >
-                      Template Title
+                      Template Title{' '}
+                      <span
+                        style={{ color: 'red' }}
+                        data-cy="question-template-drawer-title-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   data-cy="question-template-drawer-title-field"
@@ -148,7 +156,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           className="text-md font-semibold text-gray-700"
                           data-cy="question-template-drawer-field-type-label"
                         >
-                          Field Type
+                          Field Type{' '}
+                          <span
+                            style={{ color: 'red' }}
+                            data-cy="question-template-drawer-field-type-required"
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       required
@@ -207,7 +221,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                           data-cy="question-template-drawer-question-label"
                           id="questionTemplateDrawerQuestionLabel"
                         >
-                          Question
+                          Question{' '}
+                          <span
+                            style={{ color: 'red' }}
+                            data-cy="question-template-drawer-question-required"
+                          >
+                            *
+                          </span>
                         </span>
                       }
                       required
@@ -382,13 +402,13 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                   id="questionTemplateDrawerFooter"
                 >
                   <div
-                    className="flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8"
+                    className="feedback-settings-modal-actions flex justify-center absolute w-full bg-[#fff] px-6 py-6 gap-8"
                     data-cy="question-template-drawer-actions"
                     id="questionTemplateDrawerActions"
                   >
                     <Button
                       onClick={() => setIsOpen(false)}
-                      className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"
+                      className="flex justify-center text-sm font-medium text-gray-800 bg-white px-6 hover:border-[#D9D9D9] border-[#D9D9D9]"
                       data-cy="question-template-drawer-cancel-button"
                       id="questionTemplateDrawerCancelButton"
                     >
@@ -396,7 +416,7 @@ const QuestionTemplateDrawer: React.FC<any> = (props) => {
                     </Button>
                     <Button
                       htmlType="submit"
-                      className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-12"
+                      className="flex justify-center text-sm font-medium text-white bg-primary px-6"
                       data-cy="question-template-drawer-create-button"
                       id="questionTemplateDrawerCreateButton"
                     >
