@@ -1,12 +1,9 @@
 'use client';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import CustomFieldsDrawer from './customFieldsDrawer';
 import CustomFieldModal from './CustomFieldModal';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import CustomFieldsCard from './customFieldsCard';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import { useSettingsAddButton } from '../SettingsAddButtonContext';
 
 const AVAILABLE_INPUT_TYPES = [
   {
@@ -118,18 +115,6 @@ const CustomAddJobFields: React.FC = () => {
     }
   }, []);
 
-  const { setAddAction, setMobileOnly } = useSettingsAddButton();
-  const canCreate = AccessGuard.checkAccess({
-    permissions: [Permissions.CreateCustomFields],
-  });
-  useEffect(() => {
-    setMobileOnly(true);
-    if (canCreate) setAddAction(() => () => showCreateModal(null));
-    return () => {
-      setAddAction(null);
-      setMobileOnly(false);
-    };
-  }, [setAddAction, setMobileOnly, canCreate, showCreateModal]);
 
   return (
     <div
@@ -190,7 +175,10 @@ const CustomAddJobFields: React.FC = () => {
                 draggable
                 onDragStart={(e) => handleDragStart(e, item.fieldType)}
                 onDragEnd={handleDragEnd}
-                className={`recruitment-settings-card p-4 cursor-grab active:cursor-grabbing transition-all duration-200 ease-out ${
+                onClick={() => {
+                  if (window.innerWidth < 1024) showCreateModal(item.fieldType);
+                }}
+                className={`recruitment-settings-card p-4 lg:cursor-grab lg:active:cursor-grabbing cursor-pointer transition-all duration-200 ease-out ${
                   draggingFieldType === item.fieldType
                     ? 'recruitment-settings-dragging-card'
                     : ''

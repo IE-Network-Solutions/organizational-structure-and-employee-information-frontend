@@ -1,5 +1,5 @@
 'use client';
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -34,6 +34,23 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { addAction, addLabel, mobileOnly } = useSettingsAddButton();
+
+  // Remove the nav content wrapper's horizontal padding so the breadcrumb
+  // border-b can span edge-to-edge. Restored on unmount.
+  useEffect(() => {
+    const el = document.querySelector(
+      '[data-cy="nav-content-inner"]',
+    ) as HTMLElement | null;
+    if (!el) return;
+    const prevPL = el.style.paddingLeft;
+    const prevPR = el.style.paddingRight;
+    el.style.paddingLeft = '0';
+    el.style.paddingRight = '0';
+    return () => {
+      el.style.paddingLeft = prevPL;
+      el.style.paddingRight = prevPR;
+    };
+  }, []);
 
   const isTabActive = (path: string) => {
     return pathname === path || pathname.startsWith(path + '/');
