@@ -407,6 +407,8 @@ h6 {
 
   .ant-form-item-control .control {
     @apply mt-2.5 h-[54px] w-full;
+}
+  }
 
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
@@ -591,6 +593,7 @@ h6 {
     margin: 2rem 0;
   }
 }
+}
 
 .ant-upload {
   width: 100%;
@@ -738,6 +741,7 @@ h6 {
   .ant-menu-item-selected {
     color: #1677ff !important; /* AntD primary blue */
   }
+}
 .ant-pagination.invoice-table .ant-pagination-total-text {
   position: absolute !important;
   right: 130px !important;
@@ -969,6 +973,8 @@ h6 {
   0%,
   100% {
     box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
+}
+  }
 
 .ql-editor {
   min-height: 150px;
@@ -1123,10 +1129,6 @@ h6 {
   }
 }
 
-  50% {
-    box-shadow:
-      0 8px 24px rgba(24, 144, 255, 0.6),
-      0 0 0 8px rgba(24, 144, 255, 0.1);
 /* Mobile optimizations for install button */
 @media (max-width: 768px) {
   .install-button-floating {
@@ -1154,6 +1156,7 @@ h6 {
     height: 48px !important;
     font-size: 14px !important;
     padding: 0 16px !important;
+  }
   /* Hide scrollbars in standalone mode for better app-like experience */
   ::-webkit-scrollbar {
     width: 0px;
@@ -1243,6 +1246,8 @@ h6 {
     to {
       opacity: 0;
       transform: scale(1.05);
+  }
+    }
   /* Hide install buttons when in standalone mode */
   .install-button-floating,
   .install-button-minimal {
@@ -1328,15 +1333,10 @@ h6 {
   @keyframes logoScale {
     0% {
       transform: scale(0) rotate(-180deg);
-    100% {
-      transform: scale(1) rotate(0deg);
     }
-  }
-
     70% {
       transform: scale(1.1) rotate(0deg);
     }
-
     100% {
       transform: scale(1) rotate(0deg);
     }
@@ -1346,6 +1346,8 @@ h6 {
     from {
       opacity: 0;
       transform: translateY(30px);
+  }
+    }
   @keyframes textSlideUp {
     from {
       opacity: 0;
@@ -1461,9 +1463,6 @@ h6 {
     50% {
       transform: translateY(-20px) rotate(180deg);
       opacity: 0.2;
-    50% {
-      transform: translateY(-20px) rotate(180deg);
-      opacity: 0.2;
     }
   }
 
@@ -1538,6 +1537,7 @@ h6 {
     100% {
       transform: scale(1);
       opacity: 0.8;
+    }
     30% {
       transform: scale(1.3);
       opacity: 1;
@@ -1580,9 +1580,6 @@ h6 {
     }
   }
 
-    30% {
-      transform: scale(1.3);
-      opacity: 1;
   @media (prefers-reduced-motion: reduce) {
     .pwa-splash-container,
     .pwa-logo-animation,
@@ -1642,6 +1639,7 @@ h6 {
     }
   }
 }
+}
 
 /* Enhanced PWA app icon animations */
 @media (display-mode: standalone) {
@@ -1672,6 +1670,7 @@ h6 {
       box-shadow: 0 10px 30px rgba(24, 144, 255, 0.4);
     }
   }
+}
 }
 
     .pwa-logo-animation {
@@ -1964,6 +1963,7 @@ h6 {
     padding: 16px;
     border-radius: 8px;
     margin: 16px 0;
+  }
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .install-modal .ant-modal-content,
@@ -1998,6 +1998,8 @@ h6 {
     );
     padding-top: env(titlebar-area-y);
     min-height: env(titlebar-area-height);
+}
+  }
 /* FORCE HIDE URL BAR COMPLETELY - ALLOW SCROLLING */
 @media screen {
   /* Hide all browser UI elements but allow scrolling */
@@ -2032,6 +2034,7 @@ h6 {
   .update-notification,
   .offline-indicator {
     transition: none;
+  }
 /* PWA Mode - Complete URL Bar Removal WITH SCROLLING */
 @media (display-mode: standalone), (display-mode: fullscreen) {
   html,
@@ -2044,6 +2047,7 @@ h6 {
     /* Allow vertical scrolling */
     overflow-y: auto !important;
   }
+}
 }
 
 /* Print styles for PWA */
@@ -2058,6 +2062,7 @@ h6 {
     display: flex;
     flex-direction: column;
   }
+}
 }
 
 /* FORCE HIDE URL BAR COMPLETELY - ALLOW SCROLLING */
@@ -2116,6 +2121,7 @@ h6 {
     height: 100vh;
     height: -webkit-fill-available;
   }
+}
 
 /* Mobile Browser - Force Hide Address Bar WITH SCROLLING */
 @media screen and (max-width: 768px) {
@@ -2766,6 +2772,7 @@ h6 {
   line-height: 1 !important;
   content: '*' !important;
   visibility: visible !important;
+}
 
 /* Leave Management table: thin light gray borders, no vertical lines */
 .leave-management-table .ant-table {
