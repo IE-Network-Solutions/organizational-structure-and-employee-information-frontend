@@ -199,7 +199,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                 onChange={handleStatusChange}
                 disabled={!canEditDelete || keyResult?.isClosed}
                 size="small"
-                suffixIcon={<DownOutlined className="text-gray-400" />}
+                suffixIcon={<DownOutlined className="text-[#374151]" />}
                 className="min-w-[100px]"
               >
                 <Option value="pending">Pending</Option>
@@ -265,11 +265,11 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
               >
                 <button
                   type="button"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-[#374151] transition-colors hover:bg-gray-50"
                   data-cy={`okr-key-result-table-row-actions-button-${keyResult?.id}`}
                 >
                   <MoreHorizIcon
-                    sx={{ width: 24, height: 24 }}
+                    sx={{ width: 24, height: 24, color: '#374151' }}
                     data-cy={`okr-key-result-table-row-actions-icon-${keyResult?.id}`}
                   />
                 </button>

@@ -183,7 +183,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
       {/* Advanced mode: "You Have Selected" badge */}
       {!isBasic && (
         <KeyResultSelectedBadge
-          label={isMobile ? 'Milestone' : `${milestones.length} Milestone`}
+          label="Milestone"
+          count={milestones.length}
           data-cy={`okr-milestone-selected-badge-${index}`}
         />
       )}

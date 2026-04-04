@@ -31,7 +31,7 @@ const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 
 const scoreBoxClassName =
-  'inline-flex items-center justify-center min-w-[3.25rem] px-2.5 py-1 rounded-lg text-xs font-medium border border-gray-200 text-gray-700 bg-white whitespace-nowrap';
+  'inline-flex items-center justify-center min-w-[3.25rem] px-2.5 py-1 rounded-lg text-xs font-medium border border-[#D9D9D9] text-gray-700 bg-white whitespace-nowrap';
 
 // Memoized score tag component — neutral bordered chip (My OKR card style); same thresholds/data-cy for tests
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
@@ -698,7 +698,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
     <div
       id="okr-employee-okr-table-container"
       data-cy={dataCy}
-      className="border border-gray-200 rounded-lg"
+      className="border border-[#D9D9D9] rounded-lg"
     >
       <div className="w-full h-auto" data-cy="employee-okr-table-wrapper">
         {/* Search and Filter Controls — padding aligned with manage-employees table section */}
@@ -757,7 +757,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
                 id="employee-okr-desktop-filter-button"
                 data-cy="employee-okr-desktop-filter-button"
                 type="default"
-                className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
+                className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#D9D9D9] rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
                 icon={<FilterAltOutlinedIcon className="py-1" />}
               >
                 Filter
@@ -773,7 +773,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
                 data-cy="employee-okr-mobile-filter-button"
                 type="default"
                 onClick={() => setIsFilterModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg h-10 flex-shrink-0"
+                className="inline-flex items-center gap-2 px-4 py-2 border border-[#D9D9D9] rounded-lg h-10 flex-shrink-0"
                 icon={<FilterAltOutlinedIcon className="py-1" />}
               >
                 Filter
@@ -832,7 +832,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
         >
           <div className="mt-2" data-cy="employee-okr-table-wrapper-inner">
             <Table
-              className="w-full"
+              className="w-full [&_.ant-table]:!border-[#D9D9D9] [&_.ant-table-thead_.ant-table-cell]:!border-[#D9D9D9] [&_.ant-table-tbody_.ant-table-cell]:!border-[#D9D9D9]"
               id="okr-employee-okr-table"
               data-cy="okr-employee-okr-table"
               columns={columns}

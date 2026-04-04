@@ -143,7 +143,7 @@ const OKR: React.FC<any> = () => {
       <div
         id="okr-page-div-header"
         data-cy="okr-page-div-header"
-        className="flex justify-between items-start mt-5 mb-6"
+        className="flex justify-between items-center mt-5 mb-6"
       >
         <div data-cy="okr-page-header-content">
           <h1
@@ -217,7 +217,7 @@ const OKR: React.FC<any> = () => {
                 className={
                   isMobile
                     ? 'h-8 w-8 min-w-8 p-0 flex items-center justify-center'
-                    : undefined
+                    : 'w-[164px] min-w-[164px] !h-[40px] flex items-center justify-center'
                 }
               >
                 {!isMobile && 'Download'}
@@ -239,7 +239,7 @@ const OKR: React.FC<any> = () => {
               className={
                 isMobile
                   ? 'bg-okr-primary hover:!bg-blue-700 h-8 w-8 min-w-8 p-0 flex items-center justify-center'
-                  : 'bg-okr-primary hover:!bg-blue-700 inline-flex items-center px-4 py-2 rounded-lg shadow-sm !text-[#FFFFFF] hover:!text-[#FFFFFF]'
+                  : 'bg-okr-primary hover:!bg-blue-700 inline-flex items-center justify-center rounded-lg shadow-sm !text-[#FFFFFF] hover:!text-[#FFFFFF] w-[164px] min-w-[164px] !h-[40px]'
               }
             >
               {!isMobile && 'Create Objective'}

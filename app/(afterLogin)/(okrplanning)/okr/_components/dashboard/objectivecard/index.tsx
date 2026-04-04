@@ -207,7 +207,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         <button
                           type="button"
                           onClick={() => toggleExpanded(objectiveIdStr)}
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-gray-400 transition-colors hover:bg-gray-50 sm:-translate-y-4"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-[#374151] transition-colors hover:bg-gray-50 sm:-translate-y-4"
                           data-cy={`okr-objective-expand-${objective?.id}`}
                         >
                           {expanded ? (
@@ -240,11 +240,11 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             >
                               <button
                                 type="button"
-                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-gray-400 hover:text-gray-600"
+                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-[#374151]"
                                 data-cy={`okr-objective-menu-button-${objective?.id}`}
                               >
                                 <MoreHorizIcon
-                                  sx={{ width: 24, height: 24 }}
+                                  sx={{ width: 24, height: 24, color: '#374151' }}
                                   data-cy={`okr-objective-menu-icon-mobile-${objective?.id}`}
                                 />
                               </button>
@@ -330,11 +330,11 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             >
                               <button
                                 type="button"
-                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-gray-400 hover:text-gray-600"
+                                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-[#374151]"
                                 data-cy={`okr-objective-menu-button-desktop-${objective?.id}`}
                               >
                                 <MoreHorizIcon
-                                  sx={{ width: 24, height: 24 }}
+                                  sx={{ width: 24, height: 24, color: '#374151' }}
                                   data-cy={`okr-objective-menu-icon-desktop-${objective?.id}`}
                                 />
                               </button>

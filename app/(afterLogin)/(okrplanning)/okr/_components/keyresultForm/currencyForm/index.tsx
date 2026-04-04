@@ -293,10 +293,10 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             <div
               id={`okr-currency-desktop-values-row-${index}`}
               data-cy={`okr-currency-desktop-values-row-${index}`}
-              className="flex flex-row gap-4 items-center mt-4 mx-4"
+              className="flex flex-row gap-4 items-center mt-4 mx-4 w-full"
             >
               <Form.Item
-                className="w-60 mb-0"
+                className="flex-1 min-w-0 mb-0"
                 name="initialValue"
                 dependencies={['targetValue']}
                 rules={initialValueRules}
@@ -307,14 +307,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   data-cy={`okr-currency-desktop-initial-input-${index}`}
                   min={0}
                   placeholder="Initial Value"
-                  addonAfter={
-                    <span
-                      className="text-base"
-                      data-cy={`okr-currency-desktop-initial-currency-${index}`}
-                    >
-                      $
-                    </span>
-                  }
                   value={keyItem.initialValue ?? 0}
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
@@ -333,7 +325,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 />
               </Form.Item>
               <Form.Item
-                className="w-60 mb-0"
+                className="flex-1 min-w-0 mb-0"
                 name="targetValue"
                 dependencies={['initialValue']}
                 rules={targetValueRules}
@@ -344,14 +336,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   data-cy={`okr-currency-desktop-target-input-${index}`}
                   min={0}
                   placeholder="Target Value"
-                  addonAfter={
-                    <span
-                      className="text-base"
-                      data-cy={`okr-currency-desktop-target-currency-${index}`}
-                    >
-                      $
-                    </span>
-                  }
                   value={keyItem.targetValue ?? 0}
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
@@ -525,7 +509,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className={ADVANCED_VALUES_ROW_CLASS}
                 >
                   <Form.Item
-                    className="w-60 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
@@ -542,13 +526,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-currency-desktop-initial-input-${index}`}
                       min={0}
                       placeholder="Input"
-                      addonAfter={
-                        <span
-                          data-cy={`okr-currency-desktop-initial-currency-${index}`}
-                        >
-                          $
-                        </span>
-                      }
                       value={keyItem.initialValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'initialValue', value)
@@ -567,7 +544,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                   <Form.Item
-                    className="w-60 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="targetValue"
                     label={
                       <KeyResultFieldLabel
@@ -584,13 +561,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-currency-desktop-target-input-${index}`}
                       min={0}
                       placeholder="Input"
-                      addonAfter={
-                        <span
-                          data-cy={`okr-currency-desktop-target-currency-${index}`}
-                        >
-                          $
-                        </span>
-                      }
                       value={keyItem.targetValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'targetValue', value)
@@ -750,10 +720,10 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 <div
                   id={`okr-currency-mobile-values-row-${index}`}
                   data-cy={`okr-currency-mobile-values-row-${index}`}
-                  className="flex gap-4"
+                  className="flex gap-4 w-full"
                 >
                   <Form.Item
-                    className="flex-1 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
@@ -770,14 +740,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-currency-mobile-initial-input-${index}`}
                       min={0}
                       placeholder="Initial Value"
-                      addonAfter={
-                        <span
-                          className="text-base"
-                          data-cy={`okr-currency-mobile-initial-currency-${index}`}
-                        >
-                          $
-                        </span>
-                      }
                       value={keyItem.initialValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'initialValue', value)
@@ -796,7 +758,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                   <Form.Item
-                    className="flex-1 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="targetValue"
                     label={
                       <KeyResultFieldLabel
@@ -813,14 +775,6 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-currency-mobile-target-input-${index}`}
                       min={0}
                       placeholder="Target Value"
-                      addonAfter={
-                        <span
-                          className="text-base"
-                          data-cy={`okr-currency-mobile-target-currency-${index}`}
-                        >
-                          $
-                        </span>
-                      }
                       value={keyItem.targetValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'targetValue', value)

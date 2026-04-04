@@ -227,7 +227,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               <IoIosMore
                 id={`key-result-menu-button-${keyResult?.id}`}
                 data-cy={`okr-key-result-menu-button-${keyResult?.id}`}
-                className="text-gray-500 text-lg cursor-pointer ml-auto"
+                className="text-[#374151] text-lg cursor-pointer ml-auto"
               />
             </Dropdown>
           )}
@@ -417,7 +417,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             value={getKeyResultStatus().value}
             onChange={handleStatusChange}
             disabled={!canEditDelete || keyResult?.isClosed}
-            suffixIcon={<DownOutlined className="text-gray-400" />}
+            suffixIcon={<DownOutlined className="text-[#374151]" />}
             className={`min-w-[120px] ${
               getKeyResultStatus().color === 'yellow'
                 ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300'

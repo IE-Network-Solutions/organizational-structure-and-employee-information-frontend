@@ -47,7 +47,8 @@ export const DEADLINE_TOOLTIP = 'Set the key result deadline';
 /** Layout class names for advanced desktop */
 export const ADVANCED_ROW_CLASS = 'flex flex-row gap-4 items-start';
 export const ADVANCED_WRAPPER_CLASS = 'flex flex-col gap-4 pt-4';
-export const ADVANCED_VALUES_ROW_CLASS = 'flex flex-row gap-4 items-start mt-4';
+export const ADVANCED_VALUES_ROW_CLASS =
+  'flex flex-row gap-4 items-start mt-4 w-full';
 /** Standard input height and radius */
 export const INPUT_CLASS = 'h-10 rounded-lg';
 
@@ -105,7 +106,7 @@ export interface KeyResultRemoveButtonProps {
   'aria-label': string;
   id?: string;
   'data-cy'?: string;
-  /** 'danger' = full red styling; default = gray border like Edit, red X only. */
+  /** 'danger' = red border/icon; default = same as objective card chevron / menu (border-gray-200, #374151 icon). */
   variant?: 'danger' | 'default';
 }
 
@@ -121,11 +122,11 @@ export function KeyResultRemoveButton({
   variant = 'default',
 }: KeyResultRemoveButtonProps) {
   const baseClass =
-    'w-8 h-8 flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 flex-shrink-0';
+    'w-8 h-8 flex items-center justify-center rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 flex-shrink-0 p-1';
   const variantClass =
     variant === 'danger'
-      ? 'border border-red-200 text-red-500 hover:bg-red-50 focus:ring-red-300'
-      : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 focus:ring-gray-300';
+      ? 'border-red-200 text-red-500 hover:bg-red-50 focus:ring-red-300 bg-white'
+      : 'border-gray-200 bg-white text-[#374151] hover:bg-gray-50 focus:ring-gray-300';
 
   return (
     <button
@@ -137,7 +138,11 @@ export function KeyResultRemoveButton({
       data-cy={dataCy}
       className={`${baseClass} ${variantClass}`}
     >
-      <CloseOutlined className="text-xs text-red-500" />
+      <CloseOutlined
+        className={
+          variant === 'danger' ? 'text-xs text-red-500' : 'text-xs text-[#374151]'
+        }
+      />
     </button>
   );
 }
@@ -191,6 +196,8 @@ export function KeyResultSectionCard({
 
 export interface KeyResultSelectedBadgeProps {
   label: string;
+  /** When set (e.g. milestone count), number is shown in its own bordered box beside the label. */
+  count?: number;
   'data-cy'?: string;
 }
 
@@ -199,8 +206,32 @@ export interface KeyResultSelectedBadgeProps {
  */
 export function KeyResultSelectedBadge({
   label,
+  count,
   'data-cy': dataCy,
 }: KeyResultSelectedBadgeProps) {
+  const valueContent =
+    count !== undefined ? (
+      <span
+        className="inline-flex items-center gap-2 px-4 h-8 border border-okr-primary text-okr-primary rounded-lg text-sm font-medium"
+        data-cy="key-result-selected-badge-value"
+      >
+        <span
+          className="inline-flex items-center justify-center min-w-[1.75rem] h-6 px-1 rounded-md border border-okr-primary text-sm font-medium leading-none tabular-nums"
+          data-cy="key-result-selected-badge-count"
+        >
+          {count}
+        </span>
+        <span data-cy="key-result-selected-badge-type-label">{label}</span>
+      </span>
+    ) : (
+      <span
+        className="inline-flex items-center px-4 h-8 border border-okr-primary text-okr-primary rounded-lg text-sm font-medium"
+        data-cy="key-result-selected-badge-value"
+      >
+        {label}
+      </span>
+    );
+
   return (
     <div className="flex items-center gap-2 mb-4" data-cy={dataCy}>
       <span
@@ -209,12 +240,7 @@ export function KeyResultSelectedBadge({
       >
         You Have Selected:
       </span>
-      <span
-        className="inline-flex items-center px-4 h-8 border border-okr-primary text-okr-primary rounded-lg text-sm font-medium"
-        data-cy="key-result-selected-badge-value"
-      >
-        {label}
-      </span>
+      {valueContent}
     </div>
   );
 }

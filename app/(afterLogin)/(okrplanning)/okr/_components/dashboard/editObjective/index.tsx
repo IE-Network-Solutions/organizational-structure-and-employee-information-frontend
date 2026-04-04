@@ -340,7 +340,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         id="okr-edit-objective-cancel-button"
         data-cy="okr-edit-objective-cancel-button"
         onClick={handleModalClose}
-        className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm border-gray-300 text-gray-700 inline-flex items-center justify-center"
       >
         Cancel
       </Button>
@@ -350,7 +350,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         type="primary"
         onClick={onSubmit}
         loading={isLoading}
-        className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm inline-flex items-center justify-center bg-okr-primary border-okr-primary"
       >
         Save
       </Button>

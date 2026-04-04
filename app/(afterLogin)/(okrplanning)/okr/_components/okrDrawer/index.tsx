@@ -297,6 +297,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
   const totalWeight = calculateTotalWeight();
 
+  const isCreateActionEnabled =
+    Boolean(objectiveValue?.title?.trim()) &&
+    Boolean(objectiveValue?.deadline) &&
+    Boolean(objective?.keyResults?.length);
+
   const footer = (
     <div
       id="okr-drawer-modal-footer"
@@ -309,23 +314,23 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         type="default"
         size="middle"
         onClick={handleDrawerClose}
-        className="h-10 px-6 rounded-lg text-sm font-normal border-gray-300 text-gray-700 inline-flex items-center justify-center"
+        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm font-normal border-gray-300 text-gray-700 inline-flex items-center justify-center"
       >
         Cancel
       </Button>
       <Button
         id="okr-drawer-save-button"
         data-cy="okr-drawer-save-button"
-        type="primary"
+        type="default"
         size="middle"
         onClick={onSubmit}
         loading={isLoading}
-        disabled={
-          !objectiveValue?.title?.trim() ||
-          !objectiveValue?.deadline ||
-          !objective?.keyResults?.length
-        }
-        className="h-10 px-6 rounded-lg text-sm font-normal inline-flex items-center justify-center bg-okr-primary border-okr-primary hover:!bg-blue-800 [&.ant-btn-primary:disabled]:!bg-okr-primary [&.ant-btn-primary:disabled]:!text-white [&.ant-btn-primary:disabled]:!border-okr-primary [&.ant-btn-primary:disabled]:!opacity-100"
+        disabled={!isCreateActionEnabled}
+        className={`w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm font-normal inline-flex items-center justify-center ${
+          isCreateActionEnabled
+            ? 'bg-okr-primary border-okr-primary !text-white hover:!bg-blue-800 hover:!text-white'
+            : 'border border-gray-300 text-gray-400 cursor-not-allowed'
+        }`}
       >
         Create
       </Button>
@@ -521,7 +526,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 setShowInlineKeyResultForm(false);
                 setEditingKeyResultIndex(null);
               }}
-              className="h-10 px-6 rounded-lg"
+              className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg inline-flex items-center justify-center"
               data-cy="okr-drawer-cancel-key-result-edit"
             >
               Cancel
@@ -531,7 +536,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             type="primary"
             htmlType="button"
             onClick={handleSaveKeyResultLocal}
-            className="h-10 px-6 rounded-lg bg-okr-primary border-okr-primary"
+            className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg inline-flex items-center justify-center bg-okr-primary border-okr-primary"
             data-cy="okr-drawer-save-key-result"
           >
             Save

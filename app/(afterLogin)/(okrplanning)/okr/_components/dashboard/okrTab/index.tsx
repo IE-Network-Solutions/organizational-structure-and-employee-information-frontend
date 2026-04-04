@@ -503,7 +503,7 @@ export default function OkrTab({
         className={
           isSelected
             ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-okr-primary text-okr-primary !bg-[#FAFAFA] hover:!bg-[#FAFAFA] hover:!border-okr-primary hover:!text-okr-primary'
-            : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-[#FAFAFA] hover:!bg-[#F0F0F0] hover:!border-gray-300 hover:!text-gray-800'
+            : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-[#D9D9D9] text-gray-700 !bg-[#FAFAFA] hover:!bg-[#F0F0F0] hover:!border-[#D9D9D9] hover:!text-gray-800'
         }
       >
         {pill.label}

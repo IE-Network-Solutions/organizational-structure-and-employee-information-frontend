@@ -290,10 +290,10 @@ const PercentageForm: React.FC<OKRFormProps> = ({
             <div
               id={`okr-percentage-desktop-values-row-${index}`}
               data-cy={`okr-percentage-desktop-values-row-${index}`}
-              className="flex flex-row gap-4 items-center mt-4 mx-4"
+              className="flex flex-row gap-4 items-center mt-4 mx-4 w-full"
             >
               <Form.Item
-                className="w-60 mb-0"
+                className="flex-1 min-w-0 mb-0"
                 name="initialValue"
                 dependencies={['targetValue']}
                 rules={initialValueRules}
@@ -304,7 +304,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   data-cy={`okr-percentage-desktop-initial-input-${index}`}
                   min={0}
                   max={100}
-                  placeholder="Initial Value (%)"
+                  placeholder="Initial Value"
                   value={keyItem.initialValue ?? 0}
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
@@ -323,7 +323,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 />
               </Form.Item>
               <Form.Item
-                className="w-60 mb-0"
+                className="flex-1 min-w-0 mb-0"
                 name="targetValue"
                 dependencies={['initialValue']}
                 rules={targetValueRules}
@@ -334,7 +334,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   data-cy={`okr-percentage-desktop-target-input-${index}`}
                   min={0}
                   max={100}
-                  placeholder="Target Value (%)"
+                  placeholder="Target Value"
                   value={keyItem.targetValue ?? 0}
                   onChange={(value) =>
                     updateKeyResult(index, 'targetValue', value)
@@ -508,7 +508,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   className={ADVANCED_VALUES_ROW_CLASS}
                 >
                   <Form.Item
-                    className="w-60 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
@@ -526,7 +526,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       min={0}
                       max={100}
                       placeholder="Input"
-                      suffix="%"
                       value={keyItem.initialValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'initialValue', value)
@@ -545,7 +544,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                   <Form.Item
-                    className="w-60 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="targetValue"
                     label={
                       <KeyResultFieldLabel
@@ -563,7 +562,6 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       min={0}
                       max={100}
                       placeholder="Input"
-                      suffix="%"
                       value={keyItem.targetValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'targetValue', value)
@@ -723,10 +721,10 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 <div
                   id={`okr-percentage-mobile-values-row-${index}`}
                   data-cy={`okr-percentage-mobile-values-row-${index}`}
-                  className="flex gap-4"
+                  className="flex gap-4 w-full"
                 >
                   <Form.Item
-                    className="flex-1 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
@@ -743,7 +741,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-percentage-mobile-initial-input-${index}`}
                       min={0}
                       max={100}
-                      placeholder="Initial Value (%)"
+                      placeholder="Initial Value"
                       value={keyItem.initialValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'initialValue', value)
@@ -762,7 +760,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                   <Form.Item
-                    className="flex-1 mb-0"
+                    className="flex-1 min-w-0 mb-0"
                     name="targetValue"
                     label={
                       <KeyResultFieldLabel
@@ -779,7 +777,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-percentage-mobile-target-input-${index}`}
                       min={0}
                       max={100}
-                      placeholder="Target Value (%)"
+                      placeholder="Target Value"
                       value={keyItem.targetValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'targetValue', value)
