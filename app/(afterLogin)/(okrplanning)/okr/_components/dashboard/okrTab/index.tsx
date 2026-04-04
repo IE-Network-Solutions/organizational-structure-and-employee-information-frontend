@@ -1,5 +1,6 @@
 'use client';
 import { Button, Spin, Tabs } from 'antd';
+import type { RenderTabBar } from 'rc-tabs/es/interface';
 import React, { useEffect, useMemo, useState } from 'react';
 import ObjectiveCard from '../objectivecard';
 import ObjectiveBasic from '../objectiveBasic';
@@ -554,12 +555,9 @@ export default function OkrTab({
     .filter(Boolean)
     .join(' ');
 
-  const renderTabBar = isCompactTabBar
-    ? (
-        tabBarProps: Record<string, unknown>,
-        defaultTabBar: React.ComponentType<Record<string, unknown>>,
-      ) => {
-        const TabNavList = defaultTabBar;
+  const renderTabBar: RenderTabBar | undefined = isCompactTabBar
+    ? (tabBarProps, DefaultTabBar) => {
+        const TabNavList = DefaultTabBar;
         return (
           <div className="w-full min-w-0" data-cy="okr-mobile-tab-bar-stack">
             <TabNavList {...tabBarProps} />
