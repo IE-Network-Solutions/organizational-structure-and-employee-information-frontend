@@ -1356,6 +1356,44 @@
     }
   }
 
+  /* TNA Course Category (...): Edit / Delete — white panel, icons + labels */
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu {
+    background: #ffffff !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow:
+      0 4px 14px rgba(0, 0, 0, 0.12),
+      0 0 1px rgba(0, 0, 0, 0.06) !important;
+    padding: 8px !important;
+    min-width: 132px !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
+    padding: 8px 12px !important;
+    margin: 0 !important;
+    height: auto !important;
+    line-height: 1.4 !important;
+    border-radius: 6px !important;
+    color: #333333 !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown
+    .ant-dropdown-menu-item
+    .ant-dropdown-menu-title-content {
+    width: 100%;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover,
+  .tna-course-category-menu-overlay.ant-dropdown
+    .ant-dropdown-menu-item-active {
+    background-color: #f5f5f5 !important;
+    color: #333333 !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown svg {
+    color: #333333 !important;
+  }
+
   /* Survey Form Card (triple-dot): dropdown panel styling */
   .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu {
     border-radius: 10px !important;

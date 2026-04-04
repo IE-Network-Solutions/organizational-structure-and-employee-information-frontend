@@ -3,6 +3,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CourseCategory } from '@/types/tna/course';
 import AccessGuard from '@/utils/permissionGuard';
 import { Button, Dropdown, MenuProps, Popconfirm } from 'antd';
+import { Pencil, Trash2 } from 'lucide-react';
 import React, { FC } from 'react';
 
 /** Three-dot horizontal icon matching the reference image */
@@ -63,8 +64,13 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
       label: (
         <span
           data-cy={`tna-course-category-menu-edit-${item.id}`}
-          className="text-[14px] font-normal"
+          className="tna-course-category-menu-row flex items-center gap-2.5 text-[14px] font-medium text-[#333333]"
         >
+          <Pencil
+            className="h-4 w-4 shrink-0 text-[#333333]"
+            strokeWidth={1.75}
+            aria-hidden
+          />
           Edit
         </span>
       ),
@@ -86,8 +92,13 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
         >
           <span
             data-cy={`tna-course-category-menu-delete-${item.id}`}
-            className="text-error text-[14px] font-normal"
+            className="tna-course-category-menu-row flex items-center gap-2.5 text-[14px] font-medium text-[#333333]"
           >
+            <Trash2
+              className="h-4 w-4 shrink-0 text-[#333333]"
+              strokeWidth={1.75}
+              aria-hidden
+            />
             Delete
           </span>
         </Popconfirm>
@@ -143,6 +154,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           trigger={['click']}
           menu={{ items: menuItems }}
           placement="bottomRight"
+          overlayClassName="tna-course-category-menu-overlay"
         >
           <Button
             type="text"
