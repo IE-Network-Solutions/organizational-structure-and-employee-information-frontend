@@ -238,7 +238,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     aria-hidden
                     data-cy={`okr-objective-basic-header-spacer-${objective?.id}`}
                   />
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 sm:justify-start">
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 sm:justify-start" data-cy={`okr-objective-basic-progress-cell-container-${objective?.id}`}>
                     <div
                       className="flex-1 sm:flex-none min-w-0"
                       data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}

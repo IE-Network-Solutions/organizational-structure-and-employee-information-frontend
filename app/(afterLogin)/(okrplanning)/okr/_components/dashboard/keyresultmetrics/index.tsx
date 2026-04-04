@@ -224,7 +224,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               placement="bottomRight"
               overlayClassName="okr-actions-dropdown"
             >
-              <span className="ml-auto inline-flex h-6 max-h-6 items-center leading-none">
+              <span className="ml-auto inline-flex h-6 max-h-6 items-center leading-none" data-cy="okr-key-result-actions-dropdown-trigger-${keyResult?.id}">
                 <button
                   type="button"
                   id={`key-result-menu-button-${keyResult?.id}`}
