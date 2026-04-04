@@ -8,7 +8,7 @@ import {
   useKeyResultMetricsStore,
 } from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { IoIosMore } from 'react-icons/io';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {
   useUpdateObjectiveNestedDelete,
   useUpdateKeyResult,
@@ -224,11 +224,19 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               placement="bottomRight"
               overlayClassName="okr-actions-dropdown"
             >
-              <IoIosMore
-                id={`key-result-menu-button-${keyResult?.id}`}
-                data-cy={`okr-key-result-menu-button-${keyResult?.id}`}
-                className="text-[#374151] text-lg cursor-pointer ml-auto"
-              />
+              <span className="ml-auto inline-flex h-6 max-h-6 items-center leading-none">
+                <button
+                  type="button"
+                  id={`key-result-menu-button-${keyResult?.id}`}
+                  data-cy={`okr-key-result-menu-button-${keyResult?.id}`}
+                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
+                >
+                  <MoreHorizIcon
+                    sx={{ width: 14, height: 14, color: '#374151' }}
+                    data-cy={`okr-key-result-menu-icon-${keyResult?.id}`}
+                  />
+                </button>
+              </span>
             </Dropdown>
           )}
       </div>
@@ -417,8 +425,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             value={getKeyResultStatus().value}
             onChange={handleStatusChange}
             disabled={!canEditDelete || keyResult?.isClosed}
-            suffixIcon={<DownOutlined className="text-[#374151]" />}
-            className={`min-w-[120px] ${
+            suffixIcon={
+              <DownOutlined className="text-[#374151] text-[14px]" />
+            }
+            className={`min-w-[120px] [&_.ant-select-suffix]:text-[14px] ${
               getKeyResultStatus().color === 'yellow'
                 ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300'
                 : getKeyResultStatus().color === 'red'

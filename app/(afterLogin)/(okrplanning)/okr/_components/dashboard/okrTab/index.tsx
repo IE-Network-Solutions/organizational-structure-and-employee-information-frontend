@@ -532,7 +532,7 @@ export default function OkrTab({
     >
       {activeKey === '1' ? (
         <div
-          className="flex flex-wrap items-center gap-0.5"
+          className="flex flex-wrap items-center gap-2"
           data-cy="okr-status-pills-row"
         >
           {statusPillButtons}

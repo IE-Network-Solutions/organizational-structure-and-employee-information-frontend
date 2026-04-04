@@ -219,7 +219,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
     >
       {showStatusPills && (
         <div
-          className="flex w-full min-w-0 flex-wrap gap-0.5"
+          className="flex w-full min-w-0 flex-wrap gap-2"
           data-cy="okr-status-pills-row"
         >
           {OKR_STATUS_PILLS.map((pill) => {
