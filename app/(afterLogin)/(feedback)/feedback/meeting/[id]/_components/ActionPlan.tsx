@@ -1,30 +1,127 @@
-import { Button, Card } from 'antd';
+import type { ReactNode } from 'react';
+import { Button, Card, Spin } from 'antd';
 import ActionPlanCard from './ActionPlanCard';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import AddActionPlanDrawer from './AddActionPlan';
+import AddActionPlanModal from './AddActionPlan';
 import { useGetMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/queries';
-// import { useGetMeetingActionPlan } from '@/store/server/features/CFR/meeting/queries';
 
-// components/MeetingDetail/ActionPlan.tsx
 interface ActionPlanProps {
-  meetingId: string; // Replace 'any' with the actual type if available
+  meetingId: string;
   loading: boolean;
   canEdit: boolean;
+  /** Same shell as Agenda / Attendees on meeting detail panel. */
+  variant?: 'default' | 'panel';
 }
 
 export default function ActionPlan({
   meetingId,
-  loading,
+  loading: meetingLoading,
   canEdit,
+  variant = 'default',
 }: ActionPlanProps) {
   const { data: meetingActionPlan, isLoading } =
     useGetMeetingActionPlan(meetingId);
   const { openAddActionPlan, setOpenAddActionPlan } = useMeetingStore();
+
+  const items = meetingActionPlan?.items ?? [];
+  const hasItems = items.length > 0;
+  const showLoading = meetingLoading || isLoading;
+
+  const actionPlanModal = (
+    <AddActionPlanModal
+      meetingId={meetingId}
+      visible={openAddActionPlan}
+      onClose={() => setOpenAddActionPlan(false)}
+      data-cy="feedback-meeting-components-actionplan-modal"
+    />
+  );
+
+  if (variant === 'panel') {
+    const panelFixedHeight = !hasItems;
+    const panelShellClass = [
+      'box-border flex w-full max-w-full min-w-0 shrink-0 flex-col gap-[9px] rounded-[8px] border border-solid border-[#D9D9D9] bg-white pt-2 pr-3 pb-2 pl-3 opacity-100',
+      panelFixedHeight ? 'h-[81px] overflow-hidden' : 'min-h-[81px]',
+    ].join(' ');
+
+    let panelBody: ReactNode;
+    if (showLoading) {
+      panelBody = (
+        <div className="flex min-h-0 flex-1 items-center justify-center">
+          <Spin size="small" data-cy="feedback-meeting-components-actionplan-spin" />
+        </div>
+      );
+    } else if (!hasItems) {
+      panelBody = (
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-1">
+          <p
+            className="m-0 text-center text-[14px] font-bold text-black/70"
+            data-cy="feedback-meeting-components-actionplan-div-empty"
+            id="feedback-meeting-components-actionplan-div-empty"
+          >
+            You have no action plans
+          </p>
+        </div>
+      );
+    } else {
+      panelBody = (
+        <div
+          className="flex min-h-0 flex-1 flex-col gap-[9px] overflow-y-auto scrollbar-none"
+          data-cy="feedback-meeting-components-actionplan-div-list"
+          id="feedback-meeting-components-actionplan-div-list"
+        >
+          {items.map((item: any, index: number) => (
+            <ActionPlanCard
+              canEdit={canEdit}
+              key={item.id ?? index}
+              {...item}
+              data-cy={`feedback-meeting-components-actionplan-item-${index}`}
+              id={`feedback-meeting-components-actionplan-item-${index}`}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div
+          className={panelShellClass}
+          data-cy="feedback-meeting-action-plan-panel"
+          id="feedback-meeting-action-plan-panel"
+        >
+          <div className="flex h-[24px] w-full shrink-0 items-center justify-between">
+            <h2
+              className="m-0 text-[14px] font-normal leading-none text-black"
+              data-cy="feedback-meeting-components-actionplan-heading"
+              id="feedback-meeting-components-actionplan-heading"
+            >
+              Action Plan
+            </h2>
+            {canEdit ? (
+              <Button
+                type="primary"
+                size="small"
+                onClick={() => setOpenAddActionPlan(true)}
+                className="box-border inline-flex !h-[22px] min-h-0 min-w-[52px] items-center justify-center rounded-md px-3 py-0 text-xs font-normal leading-none shadow-none"
+                data-cy="feedback-meeting-components-actionplan-button-add"
+                id="feedback-meeting-components-actionplan-button-add"
+              >
+                Create
+              </Button>
+            ) : null}
+          </div>
+          {panelBody}
+        </div>
+        {actionPlanModal}
+      </>
+    );
+  }
+
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      loading={loading || isLoading}
-      className="border-none p-4"
+      loading={showLoading}
+      className="border-none p-0 shadow-none"
       data-cy="feedback-meeting-components-actionplan-card"
       id="feedback-meeting-components-actionplan-card"
     >
@@ -57,32 +154,27 @@ export default function ActionPlan({
             </Button>
           )}
         </div>
-        {meetingActionPlan?.items?.length <= 0 ? (
+        {!showLoading && items.length <= 0 ? (
           <div
-            className="text-center text-xl font-bold text-[#687588]"
+            className="text-center text-xl font-bold text-black/70"
             data-cy="feedback-meeting-components-actionplan-div-empty"
             id="feedback-meeting-components-actionplan-div-empty"
           >
             You have no action plans
           </div>
-        ) : (
-          meetingActionPlan?.items.map((item: any, index: number) => (
+        ) : !showLoading ? (
+          items.map((item: any, index: number) => (
             <ActionPlanCard
               canEdit={canEdit}
-              key={index}
+              key={item.id ?? index}
               {...item}
               data-cy={`feedback-meeting-components-actionplan-item-${index}`}
               id={`feedback-meeting-components-actionplan-item-${index}`}
             />
           ))
-        )}
+        ) : null}
 
-        <AddActionPlanDrawer
-          meetingId={meetingId}
-          visible={openAddActionPlan}
-          onClose={() => setOpenAddActionPlan(false)}
-          data-cy="feedback-meeting-components-actionplan-drawer"
-        />
+        {actionPlanModal}
       </div>
     </Card>
   );

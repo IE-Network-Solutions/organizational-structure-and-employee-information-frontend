@@ -1,6 +1,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
+import classNames from 'classnames';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
@@ -23,6 +24,12 @@ interface TabLandingLayoutProps {
   buttonDisabled?: boolean;
   handleSearchChange?: () => void;
   permissionsData?: string[];
+  /** Break out of nav inner padding for a full-width divider; header and body use horizontal inset. */
+  flushHorizontal?: boolean;
+  /** Desktop primary action (e.g. Create Meeting): full `className` for `CustomButton`. */
+  primaryActionButtonClassName?: string;
+  /** Label typography on desktop primary `CustomButton` (default semibold). */
+  primaryActionTextClassName?: string;
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -36,18 +43,33 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   buttonDisabled = false,
   children,
   permissionsData = [],
+  flushHorizontal = false,
+  primaryActionButtonClassName,
+  primaryActionTextClassName = 'text-sm font-semibold',
 }) => {
   const { isMobile } = useIsMobile();
+  const desktopPrimaryClass =
+    primaryActionButtonClassName ??
+    'bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-lg border-none';
 
   return (
     <div
-      className="min-h-screen h-auto w-full bg-white p-4"
+      className={classNames(
+        'min-h-screen h-auto bg-white',
+        flushHorizontal
+          ? // Break out of Nav inner padding so the divider is full-width; header/body add their own inset
+            'py-4 px-0 overflow-x-hidden -mx-2 w-[calc(100%+16px)] md:-mx-6 md:w-[calc(100%+48px)]'
+          : 'w-full p-4',
+      )}
       data-cy="tab-landing-layout"
     >
       <BlockWrapper className="bg-white ">
         <div
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48"
-          className="flex justify-between items-start mb-6"
+          className={classNames(
+            'flex justify-between items-start mb-6',
+            flushHorizontal && 'px-2 md:px-6',
+          )}
         >
           <CustomBreadcrumb
             title={title}
@@ -76,8 +98,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                         id={`${id}-createButtonId`}
                         icon={buttonIcon ?? <FaPlus />}
                         onClick={onClickHandler}
-                        className="bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-lg border-none"
-                        textClassName="text-sm font-semibold"
+                        className={desktopPrimaryClass}
+                        textClassName={primaryActionTextClassName}
                       />
                     )}
                   </AccessGuard>
@@ -130,7 +152,11 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
         </div>
         <div
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
-          className="w-full h-auto border-t border-gray-100 pt-6"
+          className={classNames(
+            'w-full h-auto border-t border-gray-100 pt-6',
+            // Match Nav inner horizontal inset (8 / 24) so body aligns with rest of the app
+            flushHorizontal && 'px-2 md:px-6',
+          )}
         >
           {children}
         </div>

@@ -2,6 +2,7 @@ import { Dispatch, FC, ReactNode, SetStateAction, useEffect } from 'react';
 import { RcFile, UploadProps } from 'antd/es/upload';
 // import { fileUpload } from '@/utils/fileUpload';
 import { Button, Flex, Form, Input, Upload } from 'antd';
+import { InboxOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
 import { TbFileUpload } from 'react-icons/tb';
 import { FaRegImage } from 'react-icons/fa6';
@@ -21,6 +22,8 @@ interface CustomUploadProps extends UploadProps {
   children?: ReactNode;
   className?: string;
   mode?: 'default' | 'draggable' | 'dragWithLink';
+  /** Ant Design Dragger look: inbox icon + `title` as main line + hint. */
+  presentation?: 'standard' | 'classic';
   icon?: ReactNode;
   title?: ReactNode;
   setIsLoading?: Dispatch<SetStateAction<boolean>>;
@@ -34,6 +37,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
   children,
   setIsLoading,
   mode = 'default',
+  presentation = 'standard',
   icon = <FaRegImage size={24} />,
   title = 'Upload Your Certification',
   value,
@@ -144,6 +148,18 @@ const CustomUpload: FC<CustomUploadProps> = ({
     triggerChange([]); // Clear the file list on removal
   };
 
+  const classicDraggerContent = (
+    <>
+      <p className="ant-upload-drag-icon">
+        <InboxOutlined />
+      </p>
+      <p className="ant-upload-text">{title}</p>
+      <p className="ant-upload-hint">
+        Support for a single or bulk upload.
+      </p>
+    </>
+  );
+
   switch (mode) {
     case 'draggable':
       return (
@@ -159,29 +175,38 @@ const CustomUpload: FC<CustomUploadProps> = ({
             maxCount={maxCount} // Enforce single file
             {...otherProps}
           >
-            <div
-              data-cy="components-form-customupload-index-tsx-index-div-159"
-              className="flex flex-col items-center p-3 gap-1"
-            >
+            {presentation === 'classic' ? (
               <div
-                data-cy="components-form-customupload-index-tsx-index-div-160"
-                className="text-primary"
+                data-cy="components-form-customupload-classic-dragger"
+                className="py-6"
               >
-                {icon}
+                {classicDraggerContent}
               </div>
+            ) : (
               <div
-                data-cy="components-form-customupload-index-tsx-index-div-161"
-                className="text-xs text-gray-900 font-semibold"
+                data-cy="components-form-customupload-index-tsx-index-div-159"
+                className="flex flex-col items-center p-3 gap-1"
               >
-                {title}
+                <div
+                  data-cy="components-form-customupload-index-tsx-index-div-160"
+                  className="text-primary"
+                >
+                  {icon}
+                </div>
+                <div
+                  data-cy="components-form-customupload-index-tsx-index-div-161"
+                  className="text-xs text-gray-900 font-semibold"
+                >
+                  {title}
+                </div>
+                <div
+                  data-cy="components-form-customupload-index-tsx-index-div-162"
+                  className="text-xs text-gray-500"
+                >
+                  or drag and drop it here
+                </div>
               </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-162"
-                className="text-xs text-gray-500"
-              >
-                or drag and drop it here
-              </div>
-            </div>
+            )}
           </Upload.Dragger>
         </div>
       );
@@ -211,30 +236,42 @@ const CustomUpload: FC<CustomUploadProps> = ({
           >
             <div
               data-cy="components-form-customupload-index-tsx-index-div-190"
-              className="flex flex-col items-center p-3 gap-1 h-max"
+              className={classNames(
+                'flex flex-col items-center h-max w-full',
+                presentation === 'classic' ? 'py-4' : 'p-3 gap-1',
+              )}
             >
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-191"
-                className="text-primary"
-              >
-                {icon}
-              </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-192"
-                className="text-xs text-gray-900 font-semibold"
-              >
-                {title}
-              </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-193"
-                className="text-xs text-gray-500"
-              >
-                or drag and drop it here
-              </div>
+              {presentation === 'classic' ? (
+                <div className="w-full">{classicDraggerContent}</div>
+              ) : (
+                <>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-191"
+                    className="text-primary"
+                  >
+                    {icon}
+                  </div>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-192"
+                    className="text-xs text-gray-900 font-semibold"
+                  >
+                    {title}
+                  </div>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-193"
+                    className="text-xs text-gray-500"
+                  >
+                    or drag and drop it here
+                  </div>
+                </>
+              )}
               <Form
                 form={form}
                 onFinish={onFinishLink}
-                className="mt-2.5 w-full h-10"
+                className={classNames(
+                  'w-full',
+                  presentation === 'classic' ? 'mt-4 pt-0' : 'mt-2.5 h-10',
+                )}
               >
                 <Flex gap={10} align="center" justify="center">
                   <Form.Item

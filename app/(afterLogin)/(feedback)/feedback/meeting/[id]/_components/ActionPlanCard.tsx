@@ -2,7 +2,8 @@ import { useDeleteMeetingActionPlan } from '@/store/server/features/CFR/meeting/
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
-import { Tag, Tooltip, Avatar, Menu, Dropdown, Button } from 'antd';
+import { Dropdown, Button, Avatar, Tooltip } from 'antd';
+import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
 import { FiMoreVertical } from 'react-icons/fi';
 
@@ -13,8 +14,74 @@ interface ActionPlanCardProps {
   deadline: string;
   status: 'Completed' | 'In_Progress' | 'Pending';
   priority: 'High' | 'Medium' | 'Low';
-  responsibleUsers: string[];
+  responsibleUsers: { responsibleId: string }[];
   canEdit: boolean;
+}
+
+function priorityBadgeClass(priority: ActionPlanCardProps['priority']) {
+  switch (priority) {
+    case 'High':
+      return 'border-[#FF4D4F] bg-[#FFF1F0] text-[#FF4D4F]';
+    case 'Medium':
+      return 'border-[#FA8C16] bg-[#FFF7E6] text-[#FA8C16]';
+    default:
+      return 'border-[#1677FF] bg-[#E6F4FF] text-[#1677FF]';
+  }
+}
+
+/** Date + bottom status: 22px height, 1×8px padding, 12px regular @ 70% black */
+const neutralMetaTagClass =
+  'inline-flex h-[22px] shrink-0 items-center justify-center rounded border border-solid border-[#E5E7EB] bg-white px-2 py-px text-[12px] font-normal leading-none text-black/70 box-border';
+
+function ResponsibleOverlapAvatar({
+  empId,
+  zIndex,
+}: {
+  empId: string;
+  zIndex: number;
+}) {
+  const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+
+  if (isLoading) {
+    return (
+      <Avatar
+        size={28}
+        icon={<LoadingOutlined className="text-xs" />}
+        className="shrink-0 border-2 border-solid border-white bg-gray-100"
+        style={{ zIndex }}
+      />
+    );
+  }
+  if (error || !userDetails) {
+    return (
+      <Avatar
+        size={28}
+        icon={<UserOutlined />}
+        className="shrink-0 border-2 border-solid border-white bg-[#E6F4FF] text-[#1677FF]"
+        style={{ zIndex }}
+      />
+    );
+  }
+
+  const userName =
+    `${userDetails?.firstName ?? ''} ${userDetails?.middleName ?? ''} ${userDetails?.lastName ?? ''}`.trim() ||
+    '—';
+  const profileImage = userDetails?.profileImage;
+  const initial = (userName?.charAt(0) || '?').toUpperCase();
+
+  return (
+    <Tooltip title={userName}>
+      <Avatar
+        size={28}
+        src={profileImage || undefined}
+        icon={!profileImage ? <UserOutlined /> : undefined}
+        className="shrink-0 border-2 border-solid border-white bg-gray-100 text-xs font-medium"
+        style={{ zIndex }}
+      >
+        {!profileImage ? initial : null}
+      </Avatar>
+    </Tooltip>
+  );
 }
 
 export default function ActionPlanCard({
@@ -27,10 +94,6 @@ export default function ActionPlanCard({
   responsibleUsers,
   canEdit,
 }: ActionPlanCardProps) {
-  const statusColor = status === 'Completed' ? 'green' : 'orange';
-  const priorityColor =
-    priority === 'High' ? 'red' : priority === 'Medium' ? 'orange' : 'blue';
-
   const { setActionPlanData, setOpenAddActionPlan } = useMeetingStore();
   const { mutate: deleteActionPlan, isLoading } = useDeleteMeetingActionPlan();
 
@@ -39,227 +102,146 @@ export default function ActionPlanCard({
     setOpenAddActionPlan(true);
   };
 
-  const handleDeleteActionPlan = (id: string) => {
-    deleteActionPlan(id);
+  const handleDeleteActionPlan = (planId: string) => {
+    deleteActionPlan(planId);
   };
 
-  const menu = (
-    <Menu>
-      <Menu.Item
-        key="edit"
-        onClick={() =>
-          handleEditActionPlan({
-            id,
-            issue,
-            description,
-            deadline,
-            status,
-            priority,
-            responsibleUsers,
-          })
-        }
-      >
-        Edit
-      </Menu.Item>
-      <Menu.Item key="delete" danger onClick={() => handleDeleteActionPlan(id)}>
-        Delete
-      </Menu.Item>
-    </Menu>
-  );
+  const menuItems: MenuProps['items'] = [
+    {
+      key: 'edit',
+      label: 'Edit',
+      onClick: () =>
+        handleEditActionPlan({
+          id,
+          issue,
+          description,
+          deadline,
+          status,
+          priority,
+          responsibleUsers,
+        }),
+    },
+    {
+      key: 'delete',
+      danger: true,
+      label: 'Delete',
+      onClick: () => handleDeleteActionPlan(id),
+    },
+  ];
 
-  const EmployeeDetails = ({
-    empId,
-    type,
-  }: {
-    empId: string;
-    type: string;
-  }) => {
-    const { data: userDetails, isLoading, error } = useGetEmployee(empId);
+  const isResolved = status === 'Completed';
+  const statusLabel = isResolved ? 'Completed' : 'Unresolved';
+  const statusBadgeClass = isResolved
+    ? 'border-[#52C41A] bg-white text-[#52C41A]'
+    : 'border-[#FAAD14] bg-white text-[#FAAD14]';
 
-    if (isLoading) return <LoadingOutlined />;
-    if (error || !userDetails) return '-';
-
-    const userName =
-      `${userDetails?.firstName} ${userDetails?.middleName} ${userDetails?.lastName}` ||
-      '-';
-    const profileImage = userDetails?.profileImage;
-
-    return (
-      <div
-        className="flex gap-2 items-center"
-        data-cy={`action-plan-card-user-${id}`}
-      >
-        <Tooltip title={type === 'all' ? '' : userName}>
-          <Avatar src={profileImage} icon={<UserOutlined />} />
-        </Tooltip>
-        {type === 'all' && (
-          <div data-cy={`action-plan-card-user-name-${id}`}>{userName}</div>
-        )}
-      </div>
-    );
-  };
+  const bodyText = (description || issue || '—').trim();
 
   return (
     <div
-      className="bg-white border rounded-xl p-4 space-y-3 w-full"
+      className="box-border flex h-[108px] w-full max-w-full min-w-0 shrink-0 flex-col gap-2 overflow-hidden rounded-lg border border-solid border-[#E5E7EB] bg-white p-[10px] opacity-100"
       data-cy={`feedback-meeting-components-actionplancard-card-${id}`}
       id={`feedback-meeting-components-actionplancard-card-${id}`}
     >
-      {/* Header */}
       <div
-        className="flex justify-between items-start"
+        className="flex shrink-0 items-center justify-between gap-2"
         data-cy={`feedback-meeting-components-actionplancard-header-${id}`}
         id={`feedback-meeting-components-actionplancard-header-${id}`}
       >
-        <div
-          className="flex-1"
-          data-cy={`feedback-meeting-components-actionplancard-header-left-${id}`}
-          id={`feedback-meeting-components-actionplancard-header-left-${id}`}
-        >
-          <p
-            className="text-sm font-semibold"
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className="shrink-0 text-[16px] font-extrabold leading-none text-[#111827]"
             data-cy={`feedback-meeting-components-actionplancard-label-issue-${id}`}
             id={`feedback-meeting-components-actionplancard-label-issue-${id}`}
           >
             Issue
-          </p>
-          <p
-            className="text-gray-600 text-sm break-words"
-            data-cy={`feedback-meeting-components-actionplancard-value-issue-${id}`}
-            id={`feedback-meeting-components-actionplancard-value-issue-${id}`}
-          >
-            {issue}
-          </p>
-        </div>
-        {canEdit && (
-          <Dropdown overlay={menu} trigger={['click']}>
-            <Tooltip title="More actions">
-              <Button
-                loading={isLoading}
-                type="text"
-                data-cy={`feedback-meeting-components-actionplancard-button-more-${id}`}
-                icon={
-                  <FiMoreVertical
-                    className="text-gray-500 hover:text-blue-500 cursor-pointer text-lg"
-                    data-cy={`feedback-meeting-components-actionplancard-icon-more-${id}`}
-                    id={`feedback-meeting-components-actionplancard-icon-more-${id}`}
-                  />
-                }
-                id={`feedback-meeting-components-actionplancard-button-more-${id}`}
-              />
-            </Tooltip>
-          </Dropdown>
-        )}
-      </div>
-
-      {/* Content Grid */}
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm pt-2"
-        data-cy={`feedback-meeting-components-actionplancard-grid-${id}`}
-        id={`feedback-meeting-components-actionplancard-grid-${id}`}
-      >
-        {/* Responsible Users */}
-        <div
-          data-cy={`feedback-meeting-components-actionplancard-section-responsible-${id}`}
-          id={`feedback-meeting-components-actionplancard-section-responsible-${id}`}
-        >
-          <p
-            className="font-bold text-gray-700"
-            data-cy={`feedback-meeting-components-actionplancard-label-responsible-${id}`}
-            id={`feedback-meeting-components-actionplancard-label-responsible-${id}`}
-          >
-            Responsible Person
-          </p>
-          {responsibleUsers?.length > 0 ? (
-            <Avatar.Group
-              maxCount={5}
-              maxStyle={{ color: '#000', backgroundColor: '#f0f0f0' }}
-              className="mt-1"
-              data-cy={`feedback-meeting-components-actionplancard-avatar-group-${id}`}
-            >
-              {responsibleUsers.map((res: any) => (
-                <EmployeeDetails
-                  key={res.responsibleId}
-                  type="avatar"
-                  empId={res.responsibleId}
-                  data-cy={`feedback-meeting-components-actionplancard-avatar-${res.responsibleId}`}
-                />
-              ))}
-            </Avatar.Group>
-          ) : (
-            <span
-              className="text-gray-500"
-              data-cy={`feedback-meeting-components-actionplancard-responsible-empty-${id}`}
-              id={`feedback-meeting-components-actionplancard-responsible-empty-${id}`}
-            >
-              -
-            </span>
-          )}
-        </div>
-
-        {/* Deadline */}
-        <div
-          data-cy={`feedback-meeting-components-actionplancard-section-deadline-${id}`}
-          id={`feedback-meeting-components-actionplancard-section-deadline-${id}`}
-        >
-          <p
-            className="font-bold text-gray-700"
-            data-cy={`feedback-meeting-components-actionplancard-label-deadline-${id}`}
-            id={`feedback-meeting-components-actionplancard-label-deadline-${id}`}
-          >
-            Deadline
-          </p>
-          <p
-            data-cy={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
-            id={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
-          >
-            {dayjs(deadline).format('YYYY-MM-DD')}
-          </p>
-        </div>
-
-        {/* Status */}
-        <div
-          data-cy={`feedback-meeting-components-actionplancard-section-status-${id}`}
-          id={`feedback-meeting-components-actionplancard-section-status-${id}`}
-        >
-          <p
-            className="font-bold text-gray-700"
-            data-cy={`feedback-meeting-components-actionplancard-label-status-${id}`}
-            id={`feedback-meeting-components-actionplancard-label-status-${id}`}
-          >
-            Status
-          </p>
-          <Tag
-            className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-            color={statusColor}
-            data-cy={`feedback-meeting-components-actionplancard-tag-status-${id}`}
-            id={`feedback-meeting-components-actionplancard-tag-status-${id}`}
-          >
-            {status}
-          </Tag>
-        </div>
-
-        {/* Priority */}
-        <div
-          data-cy={`feedback-meeting-components-actionplancard-section-priority-${id}`}
-          id={`feedback-meeting-components-actionplancard-section-priority-${id}`}
-        >
-          <p
-            className="font-bold text-gray-700"
-            data-cy={`feedback-meeting-components-actionplancard-label-priority-${id}`}
-            id={`feedback-meeting-components-actionplancard-label-priority-${id}`}
-          >
-            Priority
-          </p>
-          <Tag
-            className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-            color={priorityColor}
+          </span>
+          <span
+            className={`inline-flex h-[22px] shrink-0 items-center justify-center rounded border border-solid px-2 py-px text-[12px] font-medium capitalize leading-none box-border ${priorityBadgeClass(priority)}`}
             data-cy={`feedback-meeting-components-actionplancard-tag-priority-${id}`}
             id={`feedback-meeting-components-actionplancard-tag-priority-${id}`}
           >
-            {priority || 'None'}
-          </Tag>
+            {priority}
+          </span>
         </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <span
+            className={neutralMetaTagClass}
+            data-cy={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
+            id={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
+          >
+            {deadline ? dayjs(deadline).format('MMM D YYYY') : '—'}
+          </span>
+          {canEdit ? (
+            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+              <Tooltip title="More actions">
+                <Button
+                  loading={isLoading}
+                  type="text"
+                  size="small"
+                  className="flex h-[22px] w-[22px] min-w-[22px] items-center justify-center p-0"
+                  data-cy={`feedback-meeting-components-actionplancard-button-more-${id}`}
+                  icon={
+                    <FiMoreVertical
+                      className="text-base text-gray-500"
+                      data-cy={`feedback-meeting-components-actionplancard-icon-more-${id}`}
+                      id={`feedback-meeting-components-actionplancard-icon-more-${id}`}
+                    />
+                  }
+                  id={`feedback-meeting-components-actionplancard-button-more-${id}`}
+                />
+              </Tooltip>
+            </Dropdown>
+          ) : null}
+        </div>
+      </div>
+
+      <p
+        className="min-h-0 flex-1 overflow-hidden text-[14px] font-normal leading-snug text-[#323B49] line-clamp-2"
+        data-cy={`feedback-meeting-components-actionplancard-description-${id}`}
+        id={`feedback-meeting-components-actionplancard-description-${id}`}
+      >
+        {bodyText}
+      </p>
+
+      <div
+        className="flex shrink-0 items-center justify-between gap-2"
+        data-cy={`feedback-meeting-components-actionplancard-footer-${id}`}
+        id={`feedback-meeting-components-actionplancard-footer-${id}`}
+      >
+        <div
+          className="flex min-w-0 items-center pl-0.5"
+          data-cy={`feedback-meeting-components-actionplancard-avatar-row-${id}`}
+        >
+          {responsibleUsers?.length > 0 ? (
+            responsibleUsers.map((res, index) => (
+              <div
+                key={res.responsibleId}
+                className={index === 0 ? 'shrink-0' : 'shrink-0 -ml-2'}
+                data-cy={`feedback-meeting-components-actionplancard-avatar-wrap-${res.responsibleId}`}
+              >
+                <ResponsibleOverlapAvatar
+                  empId={res.responsibleId}
+                  zIndex={responsibleUsers.length - index}
+                />
+              </div>
+            ))
+          ) : (
+            <span
+              className="text-xs text-gray-400"
+              data-cy={`feedback-meeting-components-actionplancard-responsible-empty-${id}`}
+            >
+              —
+            </span>
+          )}
+        </div>
+        <span
+          className={`inline-flex h-[22px] shrink-0 items-center justify-center rounded border border-solid px-2 py-px text-[12px] font-medium capitalize leading-none box-border ${statusBadgeClass}`}
+          data-cy={`feedback-meeting-components-actionplancard-tag-status-${id}`}
+          id={`feedback-meeting-components-actionplancard-tag-status-${id}`}
+        >
+          {statusLabel}
+        </span>
       </div>
     </div>
   );

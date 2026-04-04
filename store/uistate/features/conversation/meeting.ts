@@ -13,6 +13,9 @@ interface MeetingStore {
 
   openAddMeeting: boolean;
   setOpenAddMeeting: (value: boolean) => void;
+  /** Increment to reset the inline (embedded) add-meeting form when "Create Meeting" is clicked on the list view. */
+  addMeetingFormResetNonce: number;
+  bumpAddMeetingFormReset: () => void;
 
   openAddAgenda: boolean;
   setOpenAddAgenda: (value: boolean) => void;
@@ -92,6 +95,9 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   setOpen: (value) => set({ open: value }),
   openAddMeeting: false,
   setOpenAddMeeting: (value) => set({ openAddMeeting: value }),
+  addMeetingFormResetNonce: 0,
+  bumpAddMeetingFormReset: () =>
+    set((s) => ({ addMeetingFormResetNonce: s.addMeetingFormResetNonce + 1 })),
   openAddAgenda: false,
   setOpenAddAgenda: (value) => set({ openAddAgenda: value }),
 
@@ -123,7 +129,7 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   meetingAgenda: null,
   setMeetingAgenda: (template) => set({ meetingAgenda: template }),
   current: 1,
-  pageSize: 9,
+  pageSize: 10,
   setPagesize: (size: number) => set({ pageSize: size }),
   setCurrent: (value: number) => set({ current: value }),
   meetingTypeId: null,

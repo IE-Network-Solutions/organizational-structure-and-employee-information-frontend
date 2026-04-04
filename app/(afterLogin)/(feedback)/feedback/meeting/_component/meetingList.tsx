@@ -1,60 +1,59 @@
 'use client'; // if using Next.js 13+ App Router
 // components/MeetingList.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
-  Input,
-  Select,
-  DatePicker,
-  Card,
   Avatar,
   Tooltip,
   Spin,
-  Modal,
-  Button,
   Timeline,
   Tag,
+  ConfigProvider,
 } from 'antd';
-import {
-  CalendarOutlined,
-  UserOutlined,
-  EnvironmentOutlined,
-  LoadingOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, LoadingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { FiUsers } from 'react-icons/fi';
-import { VscSettings } from 'react-icons/vsc';
 import { useGetMeetings } from '@/store/server/features/CFR/meeting/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import Link from 'next/link';
-import CustomPagination from '@/components/customPagination';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
-import { useGetAllMeetingType } from '@/store/server/features/CFR/meeting/type/queries';
-import { useDebounce } from '../../../../../../utils/useDebounce';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import MeetingListFilters from './meetingListFilters';
+import styles from './meetingList.module.css';
 
-const { RangePicker } = DatePicker;
+const meetingTimelineTheme = {
+  components: {
+    Timeline: {
+      tailWidth: 2,
+      tailColor: 'rgba(0, 0, 0, 0.06)',
+    },
+  },
+};
 
-const MeetingList = () => {
+interface MeetingListProps {
+  selectedMeetingId?: string;
+  /** When true, filters are rendered by the parent (e.g. full width above split layout). */
+  hideFilters?: boolean;
+  /**
+   * When true with a fixed-height parent (e.g. xl split column), list fills height and the
+   * timeline scrolls so it matches the detail / create-meeting panel (720px on desktop).
+   */
+  matchRightPanelHeight?: boolean;
+  'data-cy'?: string;
+}
+
+const MeetingList = ({
+  selectedMeetingId,
+  hideFilters = false,
+  matchRightPanelHeight = false,
+  'data-cy': dataCy,
+}: MeetingListProps) => {
   const {
     pageSize,
-    setPagesize,
     current,
-    setCurrent,
-    setDepartmentId,
     departmentId,
     meetingTypeId,
-    setMeetingTypeId,
     startAt,
-    setStartAt,
     endAt,
-    setEndAt,
     title,
-    setTitle,
   } = useMeetingStore();
-
-  const { isMobile } = useIsMobile();
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   const {
     data: meetings,
@@ -71,7 +70,16 @@ const MeetingList = () => {
   );
   useEffect(() => {
     refetch();
-  }, [pageSize, current, meetingTypeId, departmentId, refetch]);
+  }, [
+    pageSize,
+    current,
+    meetingTypeId,
+    departmentId,
+    startAt,
+    endAt,
+    title,
+    refetch,
+  ]);
   const EmployeeDetails = ({
     empId,
     type,
@@ -116,33 +124,137 @@ const MeetingList = () => {
     );
   };
 
-  const { data: Departments } = useGetUserDepartment();
-  const { data: meetTypes } = useGetAllMeetingType();
+  const timelineItems =
+    meetings?.items?.map((meeting: any) => ({
+      style: { height: '76px', paddingBottom: 0 },
+      dot: (
+        <div className="flex w-[73px] shrink-0 items-center justify-end gap-2">
+          <div className="w-[55px] shrink-0 text-right text-[13px] font-medium leading-none text-black/70 tabular-nums">
+            {dayjs(meeting.createdAt).format('YYYY-M-D')}
+          </div>
+          <div className="size-[10px] shrink-0 rounded-full border-[2px] border-[#1E40AF] bg-white" />
+        </div>
+      ),
+      children: (
+        <Link
+          href={`/feedback/meeting?id=${encodeURIComponent(meeting.id)}`}
+          passHref
+          key={meeting.id}
+          scroll={false}
+          className={`block min-w-0 hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
+            selectedMeetingId === meeting.id
+              ? 'border-[#1E40AF] bg-transparent'
+              : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
+          }`}
+        >
+          <div className="flex h-full w-full items-start justify-between">
+            <div className="flex flex-col gap-1">
+              <span
+                className={`max-w-[500px] truncate text-[15px] font-medium transition-colors ${
+                  selectedMeetingId === meeting.id
+                    ? 'text-[#1E40AF]'
+                    : 'text-black/70 group-hover:text-blue-600'
+                }`}
+              >
+                {meeting.title}
+              </span>
 
-  const departmentOptions = Departments?.map((i) => ({
-    value: i.id,
-    label: i?.name,
-  }));
-  const meetingOptions = meetTypes?.items?.map((i: any) => ({
-    value: i.id,
-    label: i?.name,
-  }));
-  const handleChangeRange = (values: any) => {
-    if (values) {
-      setStartAt(values[0]);
-      setEndAt(values[1]);
-    } else {
-      setStartAt('');
-      setEndAt('');
-    }
-  };
-  const handleTitleChange = (value: any) => {
-    setTitle(value);
-  };
-  const onSearchChange = useDebounce(handleTitleChange, 2000);
-  const handleSearchInput = (value: string) => {
-    onSearchChange(value);
-  };
+              <div className="flex items-center gap-4">
+                <Avatar.Group maxCount={3} size={24} className="border-none">
+                  {meeting.attendees?.slice(0, 3).map((att: any) => (
+                    <EmployeeDetails
+                      key={att.userId}
+                      empId={att.userId}
+                      type="avatar"
+                    />
+                  ))}
+                </Avatar.Group>
+                {meeting.attendees?.length > 3 && (
+                  <span className="text-xs text-black/70">
+                    +{meeting.attendees.length - 3}
+                  </span>
+                )}
+
+                {meeting.virtualLink ||
+                meeting.locationType === 'virtual' ? (
+                  <div
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      window.open(meeting.virtualLink, '_blank');
+                    }}
+                    className="flex cursor-pointer items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-[12px] font-normal text-[#1677FF]"
+                  >
+                    Zoom Meeting
+                  </div>
+                ) : (
+                  <div className="text-xs italic text-black/70">
+                    {meeting.physicalLocation || meeting.locationType}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Tag
+              className="!m-0 !inline-flex !items-center !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-3 !py-1 !text-[12px] !font-normal !text-black/70"
+              data-cy="feedback-meeting-component-meetinglist-time-tag"
+            >
+              {dayjs(meeting.createdAt).format('h:mmA')}
+            </Tag>
+          </div>
+        </Link>
+      ),
+    })) ?? [];
+
+  const timelineClassName = `${styles.meetingTimeline} custom-meeting-timeline ${hideFilters ? 'mt-0' : 'mt-2'}`;
+
+  const timelineNode = (
+    <ConfigProvider theme={meetingTimelineTheme}>
+      <Timeline
+        mode="left"
+        data-cy="feedback-meeting-component-meetinglist-timeline"
+        className={timelineClassName}
+        items={timelineItems}
+      />
+    </ConfigProvider>
+  );
+
+  if (matchRightPanelHeight) {
+    return (
+      <div
+        className="flex w-full max-w-full min-w-0 flex-col xl:h-full xl:min-h-0"
+        data-cy={dataCy ?? 'feedback-meeting-component-meetinglist-div'}
+        id="feedback-meeting-component-meetinglist-div"
+      >
+        {meetingLoading ? (
+          <div className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0">
+            <Spin
+              spinning={true}
+              tip="Loading..."
+              data-cy="feedback-meeting-component-meetinglist-spin"
+            />
+          </div>
+        ) : meetings?.items?.length ? (
+          <div className="flex min-h-0 flex-1 flex-col xl:min-h-0">
+            <div className="min-h-0 flex-1 overflow-y-auto scrollbar-none pt-[2px]">
+              {timelineNode}
+            </div>
+          </div>
+        ) : (
+          <div className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0">
+            <p
+              className="text-xl font-bold text-gray-500"
+              data-cy="feedback-meeting-component-meetinglist-p-no-meetings"
+              id="feedback-meeting-component-meetinglist-p-no-meetings"
+            >
+              You Have No Meetings
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <Spin
       spinning={meetingLoading}
@@ -151,179 +263,18 @@ const MeetingList = () => {
     >
       <div
         className=" space-y-6 "
-        data-cy="feedback-meeting-component-meetinglist-div"
+        data-cy={dataCy ?? 'feedback-meeting-component-meetinglist-div'}
         id="feedback-meeting-component-meetinglist-div"
       >
-        {/* Filters */}
-        <div
-          className=""
-          data-cy="feedback-meeting-component-meetinglist-div-filters"
-          id="feedback-meeting-component-meetinglist-div-filters"
-        >
-          {/* Filter Button for Mobile */}
-          {isMobile && (
-            <div
-              className="flex justify-end items-center gap-2 mb-4"
-              data-cy="feedback-meeting-component-meetinglist-div-mobile-filter"
-              id="feedback-meeting-component-meetinglist-div-mobile-filter"
-            >
-              <div
-                className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg"
-                data-cy="feedback-meeting-component-meetinglist-div-filter-icon-container"
-                id="feedback-meeting-component-meetinglist-div-filter-icon-container"
-              >
-                <VscSettings
-                  size={20}
-                  onClick={() => setIsFilterModalOpen(true)}
-                  data-cy="feedback-meeting-component-meetinglist-icon-settings"
-                  id="feedback-meeting-component-meetinglist-icon-settings"
-                />
-              </div>
-            </div>
-          )}
+        {!hideFilters && <MeetingListFilters />}
 
-          {/* Desktop Filters */}
-          <div
-            className={`grid gap-2 items-center ${isMobile ? 'hidden' : 'grid-cols-12'}`}
-            data-cy="feedback-meeting-component-meetinglist-div-desktop-filters"
-            id="feedback-meeting-component-meetinglist-div-desktop-filters"
-          >
-            <Input
-              allowClear
-              onChange={(e) => handleSearchInput(e.target.value)}
-              placeholder="Search Meeting"
-              className={isMobile ? 'col-span-12' : 'col-span-4 h-12'}
-              data-cy="feedback-meeting-component-meetinglist-input-search"
-              id="feedback-meeting-component-meetinglist-input-search"
-            />
-            <Select
-              showSearch
-              placeholder="Select meeting type"
-              allowClear
-              maxTagCount={1}
-              filterOption={(input: any, option: any) =>
-                (option?.label ?? '')
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              options={meetingOptions}
-              className={isMobile ? 'col-span-12' : 'col-span-2 h-12'}
-              onChange={(value) => setMeetingTypeId(value)}
-              data-cy="feedback-meeting-component-meetinglist-select-meeting-type"
-              id="feedback-meeting-component-meetinglist-select-meeting-type"
-            />
-
-            <Select
-              showSearch
-              placeholder="Select department"
-              allowClear
-              filterOption={(input: any, option: any) =>
-                (option?.label ?? '')
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              mode="multiple"
-              options={departmentOptions}
-              maxTagCount={1}
-              className={isMobile ? 'col-span-12' : 'col-span-2 h-12'}
-              onChange={(value) => setDepartmentId(value)}
-              data-cy="feedback-meeting-component-meetinglist-select-department"
-              id="feedback-meeting-component-meetinglist-select-department"
-            />
-
-            <RangePicker
-              value={[startAt, endAt]}
-              onChange={handleChangeRange}
-              format="DD MMM YYYY"
-              className={isMobile ? 'col-span-12' : 'col-span-4 h-12'}
-              data-cy="feedback-meeting-component-meetinglist-range-picker"
-              id="feedback-meeting-component-meetinglist-range-picker"
-            />
-          </div>
-        </div>
-
-        {/* Meeting Cards */}
         {meetings?.items?.length !== 0 ? (
-          <div className="mt-6">
-            <Timeline
-              mode="left"
-              data-cy="feedback-meeting-component-meetinglist-timeline"
-              className="custom-meeting-timeline ml-[100px] mt-2"
-              items={meetings?.items?.map((meeting: any) => ({
-                style: { height: '76px', paddingBottom: 0 },
-                dot: (
-                  <div className="relative flex items-center justify-center top-1">
-                    <div className="absolute right-6 w-24 text-right text-black/70 text-[13px] font-medium leading-none">
-                      {dayjs(meeting.createdAt).format('YYYY-M-D')}
-                    </div>
-                    <div className="w-3.5 h-3.5 rounded-full border-[2.5px] border-[#1E40AF] bg-white translate-x-[0.5px]" />
-                  </div>
-                ),
-                children: (
-                  <Link
-                    href={`/feedback/meeting/${meeting.id}`}
-                    passHref
-                    key={meeting.id}
-                    className="block hover:no-underline group w-full ml-1 px-4 py-2 border border-transparent rounded-xl hover:border-[#B3D0F6] hover:bg-[#F2F7FF] transition-all -mt-2"
-                  >
-                    <div className="flex items-start justify-between w-full h-full">
-                      <div className="flex flex-col gap-1">
-                        <span className="text-black/70 font-medium text-[15px] max-w-[500px] truncate group-hover:text-blue-600 transition-colors">
-                          {meeting.title}
-                        </span>
-
-                        <div className="flex items-center gap-4">
-                          <Avatar.Group
-                            maxCount={3}
-                            size={24}
-                            className="border-none"
-                          >
-                            {meeting.attendees?.slice(0, 3).map((att: any) => (
-                              <EmployeeDetails
-                                key={att.userId}
-                                empId={att.userId}
-                                type="avatar"
-                              />
-                            ))}
-                          </Avatar.Group>
-                          {meeting.attendees?.length > 3 && (
-                            <span className="text-xs text-black/70">
-                              +{meeting.attendees.length - 3}
-                            </span>
-                          )}
-
-                          {meeting.virtualLink ||
-                          meeting.locationType === 'virtual' ? (
-                            <div
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                window.open(meeting.virtualLink, '_blank');
-                              }}
-                              className="px-3 py-1 bg-[#EBF4FF] text-[#1E57A3] text-[12px] font-medium rounded-md flex items-center gap-2 cursor-pointer hover:bg-blue-100 transition-all border border-[#DFEDFF]"
-                            >
-                              Zoom Meeting
-                            </div>
-                          ) : (
-                            <div className="text-xs text-black/70 italic">
-                              {meeting.physicalLocation || meeting.locationType}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="text-black/70 text-[11px] font-medium px-3 py-1 rounded border border-gray-200 mt-0">
-                        {dayjs(meeting.createdAt).format('h:mmA')}
-                      </div>
-                    </div>
-                  </Link>
-                ),
-              }))}
-            />
+          <div className={hideFilters ? 'mt-[15px]' : 'mt-6'}>
+            {timelineNode}
           </div>
         ) : (
           <div
-            className="flex justify-center items-center h-64"
+            className="flex h-64 items-center justify-center"
             data-cy="feedback-meeting-component-meetinglist-div-no-meetings"
             id="feedback-meeting-component-meetinglist-div-no-meetings"
           >
@@ -336,165 +287,6 @@ const MeetingList = () => {
             </p>
           </div>
         )}
-
-        {meetings?.items?.length !== 0 && (
-          <CustomPagination
-            current={meetings?.meta?.currentPage || 1}
-            total={meetings?.meta?.totalItems || 1}
-            pageSize={pageSize}
-            onChange={(page, pageSize) => {
-              setCurrent(page);
-              setPagesize(pageSize);
-            }}
-            onShowSizeChange={(size) => {
-              setPagesize(size);
-              setCurrent(1);
-            }}
-            data-cy="feedback-meeting-component-meetinglist-pagination"
-          />
-        )}
-
-        {/* Filter Modal for Mobile */}
-        <Modal
-          title="Filters"
-          open={isFilterModalOpen}
-          onCancel={() => setIsFilterModalOpen(false)}
-          footer={
-            <div
-              className="flex justify-end items-center gap-2"
-              data-cy="feedback-meeting-component-meetinglist-modal-footer"
-              id="feedback-meeting-component-meetinglist-modal-footer"
-            >
-              <Button
-                key="cancel"
-                onClick={() => setIsFilterModalOpen(false)}
-                data-cy="feedback-meeting-component-meetinglist-modal-button-cancel"
-                id="feedback-meeting-component-meetinglist-modal-button-cancel"
-              >
-                Cancel
-              </Button>
-              <Button
-                key="apply"
-                type="primary"
-                onClick={() => setIsFilterModalOpen(false)}
-                data-cy="feedback-meeting-component-meetinglist-modal-button-apply"
-                id="feedback-meeting-component-meetinglist-modal-button-apply"
-              >
-                Apply Filters
-              </Button>
-            </div>
-          }
-          width={isMobile ? '95%' : '50%'}
-          centered
-          data-cy="feedback-meeting-component-meetinglist-modal"
-        >
-          <div
-            className="space-y-4"
-            data-cy="feedback-meeting-component-meetinglist-modal-div-fields"
-            id="feedback-meeting-component-meetinglist-modal-div-fields"
-          >
-            <div
-              data-cy="feedback-meeting-component-meetinglist-modal-field-search"
-              id="feedback-meeting-component-meetinglist-modal-field-search"
-            >
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                data-cy="feedback-meeting-component-meetinglist-modal-label-search"
-                id="feedback-meeting-component-meetinglist-modal-label-search"
-              >
-                Search Meeting
-              </label>
-              <Input
-                allowClear
-                onChange={(e) => handleSearchInput(e.target.value)}
-                placeholder="Search Meeting"
-                className="h-12"
-                data-cy="feedback-meeting-component-meetinglist-modal-input-search"
-                id="feedback-meeting-component-meetinglist-modal-input-search"
-              />
-            </div>
-
-            <div
-              data-cy="feedback-meeting-component-meetinglist-modal-field-meeting-type"
-              id="feedback-meeting-component-meetinglist-modal-field-meeting-type"
-            >
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                data-cy="feedback-meeting-component-meetinglist-modal-label-meeting-type"
-                id="feedback-meeting-component-meetinglist-modal-label-meeting-type"
-              >
-                Meeting Type
-              </label>
-              <Select
-                showSearch
-                placeholder="Select meeting type"
-                allowClear
-                maxTagCount={1}
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={meetingOptions}
-                className="w-full h-12"
-                onChange={(value) => setMeetingTypeId(value)}
-                data-cy="feedback-meeting-component-meetinglist-modal-select-meeting-type"
-                id="feedback-meeting-component-meetinglist-modal-select-meeting-type"
-              />
-            </div>
-
-            <div
-              data-cy="feedback-meeting-component-meetinglist-modal-field-department"
-              id="feedback-meeting-component-meetinglist-modal-field-department"
-            >
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                data-cy="feedback-meeting-component-meetinglist-modal-label-department"
-                id="feedback-meeting-component-meetinglist-modal-label-department"
-              >
-                Department
-              </label>
-              <Select
-                showSearch
-                placeholder="Select department"
-                allowClear
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                mode="multiple"
-                options={departmentOptions}
-                maxTagCount={1}
-                className="w-full h-12"
-                onChange={(value) => setDepartmentId(value)}
-                data-cy="feedback-meeting-component-meetinglist-modal-select-department"
-                id="feedback-meeting-component-meetinglist-modal-select-department"
-              />
-            </div>
-
-            <div
-              data-cy="feedback-meeting-component-meetinglist-modal-field-date-range"
-              id="feedback-meeting-component-meetinglist-modal-field-date-range"
-            >
-              <label
-                className="block text-sm font-medium text-gray-700 mb-2"
-                data-cy="feedback-meeting-component-meetinglist-modal-label-date-range"
-                id="feedback-meeting-component-meetinglist-modal-label-date-range"
-              >
-                Date Range
-              </label>
-              <RangePicker
-                value={[startAt, endAt]}
-                onChange={handleChangeRange}
-                format="DD MMM YYYY"
-                className="w-full h-12"
-                data-cy="feedback-meeting-component-meetinglist-modal-range-picker"
-                id="feedback-meeting-component-meetinglist-modal-range-picker"
-              />
-            </div>
-          </div>
-        </Modal>
       </div>
     </Spin>
   );
