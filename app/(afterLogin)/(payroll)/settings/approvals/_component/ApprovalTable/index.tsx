@@ -270,7 +270,7 @@ const ApprovalTable = () => {
                     className="relative w-6 h-6 rounded-full overflow-hidden bg-[#f0f0f0]"
                   >
                     <Image
-                      src={Avatar || '/placeholder.svg'}
+                      src={GENDER_NEUTRAL_AVATAR_URL}
                       alt="Default avatar"
                       layout="fill"
                       className="object-cover"
