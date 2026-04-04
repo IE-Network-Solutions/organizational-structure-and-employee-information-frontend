@@ -612,7 +612,10 @@ const Status: React.FC = () => {
         destroyOnClose
         rootClassName="recruitment-settings-reorder-modal"
         title={
-          <div className="flex items-start gap-2">
+          <div
+            className="flex items-start gap-2"
+            data-cy="talent-acquisition-status-reorder-modal-title"
+          >
             <svg
               width="14"
               height="14"
@@ -620,17 +623,25 @@ const Status: React.FC = () => {
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
               className="flex-shrink-0 mt-[2px]"
+              data-cy="talent-acquisition-status-reorder-modal-icon"
             >
               <path
                 d="M7 0C3.13438 0 0 3.13438 0 7C0 10.8656 3.13438 14 7 14C10.8656 14 14 10.8656 14 7C14 3.13438 10.8656 0 7 0ZM6.5 3.625C6.5 3.55625 6.55625 3.5 6.625 3.5H7.375C7.44375 3.5 7.5 3.55625 7.5 3.625V7.875C7.5 7.94375 7.44375 8 7.375 8H6.625C6.55625 8 6.5 7.94375 6.5 7.875V3.625ZM7 10.5C6.80374 10.496 6.61687 10.4152 6.47948 10.275C6.3421 10.1348 6.26515 9.9463 6.26515 9.75C6.26515 9.5537 6.3421 9.36522 6.47948 9.225C6.61687 9.08478 6.80374 9.00401 7 9C7.19626 9.00401 7.38313 9.08478 7.52052 9.225C7.6579 9.36522 7.73485 9.5537 7.73485 9.75C7.73485 9.9463 7.6579 10.1348 7.52052 10.275C7.38313 10.4152 7.19626 10.496 7 10.5Z"
                 fill="#FAAD14"
+                data-cy="talent-acquisition-status-reorder-modal-icon-path"
               />
             </svg>
-            <div>
-              <div className="text-[14px] font-bold text-black/70 leading-snug">
+            <div data-cy="talent-acquisition-status-reorder-modal-title-text">
+              <div
+                className="text-[14px] font-bold text-black/70 leading-snug"
+                data-cy="talent-acquisition-status-reorder-modal-title-heading"
+              >
                 Confirm Stage Reorder
               </div>
-              <div className="text-[10px] font-normal text-black/70 mt-0.5">
+              <div
+                className="text-[10px] font-normal text-black/70 mt-0.5"
+                data-cy="talent-acquisition-status-reorder-modal-subtitle"
+              >
                 This change will update the recruitment pipeline order.
               </div>
             </div>
@@ -638,10 +649,16 @@ const Status: React.FC = () => {
         }
         data-cy="talent-acquisition-status-reorder-confirm-modal"
       >
-        <div className="mt-4 text-[14px] font-normal text-black/70">
-          <p>
+        <div
+          className="mt-4 text-[14px] font-normal text-black/70"
+          data-cy="talent-acquisition-status-reorder-modal-body"
+        >
+          <p data-cy="talent-acquisition-status-reorder-modal-message">
             Are you sure you want to move{' '}
-            <span className="font-semibold">
+            <span
+              className="font-semibold"
+              data-cy="talent-acquisition-status-reorder-modal-status-name"
+            >
               {pendingReorderInfo?.movedStatus?.title}
             </span>{' '}
             to the{' '}
@@ -651,7 +668,10 @@ const Status: React.FC = () => {
             stage?
           </p>
         </div>
-        <div className="flex justify-end gap-3 mt-6">
+        <div
+          className="flex justify-end gap-3 mt-6"
+          data-cy="talent-acquisition-status-reorder-modal-footer"
+        >
           <Button
             className="recruitment-settings-reorder-cancel-btn px-6 rounded-md"
             onClick={handleCancelReorder}
