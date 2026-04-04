@@ -78,7 +78,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             </span>
             {item?.isDraft && (
               <span
-                className="text-[13px] font-medium leading-none text-[#A6A6A6]"
+                className="text-[12px] font-medium leading-none text-[#000000]"
                 id={`tnaCourseCardDraft${item?.id}Id`}
                 data-cy={`tna-course-card-draft-${item?.id}`}
               >
@@ -156,6 +156,8 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           >
             <ActionButton
               id={item?.id ?? null}
+              triggerSizePx={24}
+              moreMenuIconPx={14}
               onEdit={() => {
                 setCourseId(item?.id);
                 setIsShowCourseSidebar(true);
