@@ -556,6 +556,7 @@ export default function OkrTab({
     .join(' ');
 
   const renderTabBar: RenderTabBar | undefined = isCompactTabBar
+  //eslint-disable-next-line
     ? (tabBarProps, DefaultTabBar) => {
         const TabNavList = DefaultTabBar;
         return (

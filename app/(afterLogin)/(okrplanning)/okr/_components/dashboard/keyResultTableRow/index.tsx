@@ -255,7 +255,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           keyResult?.isClosed === false &&
           Number(keyResult?.progress ?? 0) === 0 &&
           menu ? (
-            <div className="flex min-w-[56px] justify-end">
+            <div className="flex min-w-[56px] justify-end" data-cy={`okr-key-result-table-row-actions-dropdown-container-${keyResult?.id}`}>
               <Dropdown
                 overlay={menu}
                 trigger={['click']}
