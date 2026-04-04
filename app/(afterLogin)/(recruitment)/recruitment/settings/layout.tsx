@@ -70,7 +70,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         <div
           id="talent-acquisition-settings-header"
           data-cy="talent-acquisition-settings-breadcrumb"
-          className="border-b border-[#E5E7EB] px-3 pt-2 pb-4 mb-6"
+          className="border-b border-[#E5E7EB] px-3 pt-6 pb-4 mb-6"
         >
           <h1
             className="text-2xl font-bold text-gray-900 mb-1"

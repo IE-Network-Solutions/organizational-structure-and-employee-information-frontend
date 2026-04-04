@@ -115,7 +115,6 @@ const CustomAddJobFields: React.FC = () => {
     }
   }, []);
 
-
   return (
     <div
       className="py-3 sm:p-5 rounded-2xl bg-white h-full"
