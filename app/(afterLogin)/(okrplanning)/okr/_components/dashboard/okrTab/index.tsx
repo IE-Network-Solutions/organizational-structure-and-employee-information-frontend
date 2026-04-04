@@ -554,17 +554,18 @@ export default function OkrTab({
   ]
     .filter(Boolean)
     .join(' ');
+  //eslint-disable-next-line 
+  const compactRenderTabBar: RenderTabBar = (tabBarProps, DefaultTabBar) => {
+    const TabNavList = DefaultTabBar;
+    return (
+      <div className="w-full min-w-0" data-cy="okr-mobile-tab-bar-stack">
+        <TabNavList {...tabBarProps} />
+      </div>
+    );
+  };
 
   const renderTabBar: RenderTabBar | undefined = isCompactTabBar
-  //eslint-disable-next-line
-    ? (tabBarProps, DefaultTabBar) => {
-        const TabNavList = DefaultTabBar;
-        return (
-          <div className="w-full min-w-0" data-cy="okr-mobile-tab-bar-stack">
-            <TabNavList {...tabBarProps} />
-          </div>
-        );
-      }
+    ? compactRenderTabBar
     : undefined;
 
   return (
