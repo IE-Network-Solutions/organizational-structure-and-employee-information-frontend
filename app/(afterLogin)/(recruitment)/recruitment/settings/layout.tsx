@@ -41,7 +41,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <div
-      className="min-h-screen bg-white p-3"
+      className="min-h-screen bg-white"
       id="talent-acquisition-settings-layout-container"
       data-cy="talent-acquisition-settings-layout-container"
     >
@@ -53,7 +53,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         <div
           id="talent-acquisition-settings-header"
           data-cy="talent-acquisition-settings-breadcrumb"
-          className="border-b border-[#E5E7EB] pt-2 pb-4 mb-6"
+          className="border-b border-[#E5E7EB] px-3 pt-2 pb-4 mb-6"
         >
           <h1
             className="text-2xl font-bold text-gray-900 mb-1"
@@ -87,7 +87,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         </div>
 
         <div
-          className="flex items-stretch gap-0 border-b border-gray-200 mb-4 min-h-0"
+          className="flex items-stretch gap-0 border-b border-gray-200 mb-4 min-h-0 px-3"
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
@@ -154,11 +154,11 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         <div
           id="talent-acquisition-settings-layout-content-wrapper"
           data-cy="talent-acquisition-settings-layout-content-wrapper"
-          className="flex-1"
+          className="flex-1 px-3"
         >
           <BlockWrapper
             padding="0px"
-            className="h-max bg-white overflow-x-auto p-0"
+            className="h-max bg-white overflow-x-hidden p-0"
             data-cy="talent-acquisition-settings-layout-block-wrapper-children"
           >
             {children}

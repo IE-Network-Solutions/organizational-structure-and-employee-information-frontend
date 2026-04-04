@@ -6,10 +6,17 @@ import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitmen
 import { Dropdown, Spin } from 'antd';
 import type { MenuProps } from 'antd';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import CustomFieldsDrawer from '../customFieldsDrawer';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 function fieldTypeToLabel(fieldType: string | undefined): string {
   if (!fieldType) return 'Short text';
@@ -39,6 +46,9 @@ const CustomFieldsCard: React.FC = () => {
     setDeleteModal,
   } = useRecruitmentSettingsStore();
 
+  const [deleteTriggerRect, setDeleteTriggerRect] =
+    useState<TriggerRect | null>(null);
+
   const { data: customFields, isLoading: isCustomFieldsLoading } =
     useGetCustomFieldsTemplate(100, 1);
 
@@ -49,8 +59,22 @@ const CustomFieldsCard: React.FC = () => {
   };
 
   const handleDeleteModalOpen = (questions: any) => {
-    setDeleteModal(true);
+    const btn = document.querySelector<HTMLElement>(
+      `[data-cy="talent-acquisition-custom-fields-card-menu-${questions?.id}"]`,
+    );
+    if (btn) {
+      const r = btn.getBoundingClientRect();
+      setDeleteTriggerRect({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height: r.height,
+      });
+    } else {
+      setDeleteTriggerRect(null);
+    }
     setDeletingQuestionId(questions?.id);
+    setDeleteModal(true);
   };
 
   const handleDelete = () => {
@@ -160,6 +184,13 @@ const CustomFieldsCard: React.FC = () => {
         open={deleteModal}
         onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
+        onAfterClose={() => setDeleteTriggerRect(null)}
+        title="Delete Question"
+        deleteMessage="Are you sure you want to delete this question?"
+        hideImage
+        danger
+        modalClassName="recruitment-settings-delete-modal"
+        triggerRect={deleteTriggerRect ?? undefined}
       />
       {editCustomFieldsModalOpen && (
         <CustomFieldsDrawer

@@ -34,7 +34,14 @@ export function SettingsAddButtonProvider({
     setMobileOnlyState(value);
   }, []);
   const value = React.useMemo(
-    () => ({ addAction, addLabel, mobileOnly, setAddAction, setAddLabel, setMobileOnly }),
+    () => ({
+      addAction,
+      addLabel,
+      mobileOnly,
+      setAddAction,
+      setAddLabel,
+      setMobileOnly,
+    }),
     [addAction, addLabel, mobileOnly, setAddAction, setAddLabel, setMobileOnly],
   );
   return (

@@ -1,5 +1,5 @@
 'use client';
-import { Dropdown } from 'antd';
+import { Button, Dropdown, Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -31,6 +31,19 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { MoreHorizontal, Pencil, Trash2, GripVertical } from 'lucide-react';
 import { useSettingsAddButton } from '../SettingsAddButtonContext';
+
+function formatOrdinal(n: number): string {
+  if (n === 1) return '1st';
+  if (n === 2) return '2nd';
+  if (n === 3) return '3rd';
+  return `${n}th`;
+}
+
+interface PendingReorderInfo {
+  newOrder: any[];
+  movedStatus: any;
+  movedToStage: number;
+}
 
 const STATUS_LIST_LIMIT = 100;
 
@@ -165,7 +178,7 @@ function SortableStatusCard({
       style={style}
       data-status-card
       data-status-id={status.id}
-      className="recruitment-settings-card relative p-4 min-h-[80px] flex items-center gap-3 w-full"
+      className="recruitment-settings-card relative p-4 min-h-[80px] flex items-center gap-0 w-full"
       data-cy="recruitment-settings-status-card"
     >
       {isDragging && (
@@ -177,7 +190,7 @@ function SortableStatusCard({
       <div
         {...attributes}
         {...listeners}
-        className="flex items-center justify-center shrink-0 w-10 h-10 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none"
+        className="flex items-center justify-center shrink-0 w-6 h-10 mr-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none select-none"
         data-cy="talent-acquisition-status-drag-handle"
       >
         <GripVertical
@@ -210,7 +223,7 @@ function StaticStatusCard({
 
   return (
     <div
-      className="recruitment-settings-card relative p-4 min-h-[80px] flex items-center gap-3 w-full"
+      className="recruitment-settings-card relative p-4 min-h-[80px] flex items-center w-full"
       data-cy="recruitment-settings-status-card"
     >
       <StatusCardContent
@@ -232,12 +245,12 @@ function DragGhostCard({
   const { menuItems } = useStatusCardActions(status, true, () => {});
   return (
     <div
-      className="recruitment-settings-card recruitment-settings-drag-ghost p-4 min-h-[80px] flex items-center gap-3 w-full"
+      className="recruitment-settings-card recruitment-settings-drag-ghost p-4 min-h-[80px] flex items-center gap-0 w-full"
       style={{ cursor: 'grabbing' }}
       data-cy="talent-acquisition-status-drag-ghost"
     >
       <div
-        className="flex items-center justify-center shrink-0 w-10 h-10 text-gray-400"
+        className="flex items-center justify-center shrink-0 w-6 h-10 text-gray-400"
         data-cy="talent-acquisition-status-drag-ghost-handle"
       >
         <GripVertical size={24} strokeWidth={2} />
@@ -333,6 +346,10 @@ const Status: React.FC = () => {
 
   const [deleteTriggerRect, setDeleteTriggerRect] =
     useState<TriggerRect | null>(null);
+
+  const [pendingReorderInfo, setPendingReorderInfo] =
+    useState<PendingReorderInfo | null>(null);
+  const [isReorderConfirmOpen, setIsReorderConfirmOpen] = useState(false);
 
   const { data: recruitmentStatus, isLoading: fetchLoading } =
     useGetRecruitmentStatuses(STATUS_LIST_LIMIT, 1);
@@ -447,18 +464,38 @@ const Status: React.FC = () => {
       if (oldIndex === -1 || newIndex === -1) return;
 
       const newOrder = arrayMove(orderedMiddleItems, oldIndex, newIndex);
-      setOrderedMiddleItems(newOrder);
+      const movedStatus = orderedMiddleItems[oldIndex];
+      const initialCount = initialStatuses.length;
+      const movedToStage = initialCount + 1 + newIndex;
 
-      const ids = newOrder.map((s: any) => s.id);
-      if (ids.length > 0) reorderStatuses(ids);
+      setPendingReorderInfo({
+        newOrder,
+        movedStatus,
+        movedToStage,
+      });
+      setIsReorderConfirmOpen(true);
     },
-    [orderedMiddleItems, reorderStatuses],
+    [orderedMiddleItems, initialStatuses.length],
   );
+
+  const handleConfirmReorder = useCallback(() => {
+    if (!pendingReorderInfo) return;
+    setOrderedMiddleItems(pendingReorderInfo.newOrder);
+    const ids = pendingReorderInfo.newOrder.map((s: any) => s.id);
+    if (ids.length > 0) reorderStatuses(ids);
+    setIsReorderConfirmOpen(false);
+    setPendingReorderInfo(null);
+  }, [pendingReorderInfo, reorderStatuses]);
+
+  const handleCancelReorder = useCallback(() => {
+    setIsReorderConfirmOpen(false);
+    setPendingReorderInfo(null);
+  }, []);
 
   if (fetchLoading) {
     return (
       <div
-        className="p-5 rounded-2xl bg-white h-full"
+        className="py-3 sm:p-5 rounded-2xl bg-white h-full"
         data-cy="talent-acquisition-status-page-container"
       >
         <SkeletonLoading
@@ -473,7 +510,7 @@ const Status: React.FC = () => {
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
+      className="py-3 sm:p-5 rounded-2xl bg-white h-full"
       data-cy="talent-acquisition-status-page-container"
     >
       <div
@@ -564,6 +601,74 @@ const Status: React.FC = () => {
         modalClassName="recruitment-settings-delete-modal"
         triggerRect={deleteTriggerRect ?? undefined}
       />
+
+      <Modal
+        open={isReorderConfirmOpen}
+        onCancel={handleCancelReorder}
+        footer={null}
+        closable
+        centered
+        width={480}
+        destroyOnClose
+        rootClassName="recruitment-settings-reorder-modal"
+        title={
+          <div className="flex items-start gap-2">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="flex-shrink-0 mt-[2px]"
+            >
+              <path
+                d="M7 0C3.13438 0 0 3.13438 0 7C0 10.8656 3.13438 14 7 14C10.8656 14 14 10.8656 14 7C14 3.13438 10.8656 0 7 0ZM6.5 3.625C6.5 3.55625 6.55625 3.5 6.625 3.5H7.375C7.44375 3.5 7.5 3.55625 7.5 3.625V7.875C7.5 7.94375 7.44375 8 7.375 8H6.625C6.55625 8 6.5 7.94375 6.5 7.875V3.625ZM7 10.5C6.80374 10.496 6.61687 10.4152 6.47948 10.275C6.3421 10.1348 6.26515 9.9463 6.26515 9.75C6.26515 9.5537 6.3421 9.36522 6.47948 9.225C6.61687 9.08478 6.80374 9.00401 7 9C7.19626 9.00401 7.38313 9.08478 7.52052 9.225C7.6579 9.36522 7.73485 9.5537 7.73485 9.75C7.73485 9.9463 7.6579 10.1348 7.52052 10.275C7.38313 10.4152 7.19626 10.496 7 10.5Z"
+                fill="#FAAD14"
+              />
+            </svg>
+            <div>
+              <div className="text-[14px] font-bold text-black/70 leading-snug">
+                Confirm Stage Reorder
+              </div>
+              <div className="text-[10px] font-normal text-black/70 mt-0.5">
+                This change will update the recruitment pipeline order.
+              </div>
+            </div>
+          </div>
+        }
+        data-cy="talent-acquisition-status-reorder-confirm-modal"
+      >
+        <div className="mt-4 text-[14px] font-normal text-black/70">
+          <p>
+            Are you sure you want to move{' '}
+            <span className="font-semibold">
+              {pendingReorderInfo?.movedStatus?.title}
+            </span>{' '}
+            to the{' '}
+            {pendingReorderInfo
+              ? formatOrdinal(pendingReorderInfo.movedToStage)
+              : ''}{' '}
+            stage?
+          </p>
+        </div>
+        <div className="flex justify-end gap-3 mt-6">
+          <Button
+            className="recruitment-settings-reorder-cancel-btn px-6 rounded-md"
+            onClick={handleCancelReorder}
+            data-cy="talent-acquisition-status-reorder-cancel"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            className="recruitment-settings-reorder-confirm-btn px-6 rounded-md"
+            onClick={handleConfirmReorder}
+            data-cy="talent-acquisition-status-reorder-confirm"
+          >
+            Confirm
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

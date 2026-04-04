@@ -133,7 +133,7 @@ const CustomAddJobFields: React.FC = () => {
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
+      className="py-3 sm:p-5 rounded-2xl bg-white h-full"
       data-cy="talent-acquisition-custom-fields-page-container"
     >
       {/* <div

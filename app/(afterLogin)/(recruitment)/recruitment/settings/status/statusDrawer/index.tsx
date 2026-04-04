@@ -38,7 +38,7 @@ const RecruitmentStatusDrawer: React.FC = () => {
         ...(isEditMode ? { updatedBy: userId } : { createdBy: userId }),
       };
       if (!isEditMode) {
-        payload.level = values?.level;
+        payload.level = Number(values?.level);
       }
       if (isEditMode) {
         updateRecruitmentStatus({

@@ -1832,9 +1832,9 @@ h6 {
   border-bottom: 1px solid #f0f0f0;
 }
 .recruitment-settings-status-modal .ant-modal-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
 }
 .recruitment-settings-delete-modal .ant-modal-title {
   font-size: 16px;
@@ -1864,9 +1864,24 @@ h6 {
 
 /* Labels */
 .recruitment-settings-status-modal .ant-form-item-label > label {
-  font-size: 14px;
-  font-weight: 400;
-  color: #374151;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #030712 !important;
+}
+
+/* Increase spacing between label and input field */
+.recruitment-settings-status-modal .ant-form-item-label {
+  padding-bottom: 6px !important;
+}
+
+/* Placeholder text: 14px, 400, black 25% */
+.recruitment-settings-status-modal .ant-input::placeholder,
+.recruitment-settings-status-modal textarea.ant-input::placeholder,
+.recruitment-settings-status-modal .ant-input-affix-wrapper input::placeholder,
+.recruitment-settings-status-modal .ant-select-selection-placeholder {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Required asterisk: hide the default left-side asterisk, add one on the right */
@@ -1899,6 +1914,34 @@ h6 {
 
 /* Anchored delete modals keep their triggerRect alive until afterClose fires,
    so the default Ant Design zoom plays from the modal's actual position. */
+
+/* Stage reorder confirmation modal */
+.recruitment-settings-reorder-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-reorder-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+/* Cancel button */
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-cancel-btn.ant-btn,
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-cancel-btn.ant-btn:hover {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+/* Confirm button */
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-confirm-btn.ant-btn-primary,
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-confirm-btn.ant-btn-primary:hover {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
 
 /* Primary (Edit/Continue) button: #1E40AF, white text, 14px, 400 */
 .recruitment-settings-status-modal
