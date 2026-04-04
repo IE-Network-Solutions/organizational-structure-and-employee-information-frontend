@@ -10,10 +10,7 @@ import {
   Col,
   Avatar,
 } from 'antd';
-import {
-  CloseOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { CloseOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { MdClose } from 'react-icons/md';
@@ -36,10 +33,7 @@ function FormFieldLabel({
     <div className="flex items-center gap-1">
       <span className="text-[14px] font-normal text-[#030712]">{children}</span>
       {required ? (
-        <span
-          className="text-[14px] leading-none text-[#ff4d4f]"
-          aria-hidden
-        >
+        <span className="text-[14px] leading-none text-[#ff4d4f]" aria-hidden>
           *
         </span>
       ) : null}
@@ -314,7 +308,9 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
           padding-bottom: 8px !important;
           line-height: 1.4 !important;
         }
-        .meeting-action-plan-modal .custom-centered-select-wrapper .ant-select-selector {
+        .meeting-action-plan-modal
+          .custom-centered-select-wrapper
+          .ant-select-selector {
           display: flex !important;
           align-items: center !important;
           height: 40px !important;
@@ -437,7 +433,9 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                   <Form.Item
                     {...restField}
                     label={
-                      <FormFieldLabel required>Action to be taken</FormFieldLabel>
+                      <FormFieldLabel required>
+                        Action to be taken
+                      </FormFieldLabel>
                     }
                     name={[name, 'description']}
                     rules={[
@@ -461,7 +459,9 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                   <Form.Item
                     {...restField}
                     label={
-                      <FormFieldLabel required>Responsible Person</FormFieldLabel>
+                      <FormFieldLabel required>
+                        Responsible Person
+                      </FormFieldLabel>
                     }
                     name={[name, 'responsibleUsers']}
                     rules={[
@@ -480,11 +480,16 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                     />
                   </Form.Item>
 
-                  <Row gutter={24} data-cy={`feedback-meeting-components-addactionplan-priority-deadline-row-${key}`}>
+                  <Row
+                    gutter={24}
+                    data-cy={`feedback-meeting-components-addactionplan-priority-deadline-row-${key}`}
+                  >
                     <Col span={12}>
                       <Form.Item
                         {...restField}
-                        label={<FormFieldLabel required>Priority</FormFieldLabel>}
+                        label={
+                          <FormFieldLabel required>Priority</FormFieldLabel>
+                        }
                         name={[name, 'priority']}
                         rules={[
                           {
@@ -515,7 +520,9 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                     <Col span={12}>
                       <Form.Item
                         {...restField}
-                        label={<FormFieldLabel required>Deadline</FormFieldLabel>}
+                        label={
+                          <FormFieldLabel required>Deadline</FormFieldLabel>
+                        }
                         name={[name, 'deadline']}
                         rules={[
                           {

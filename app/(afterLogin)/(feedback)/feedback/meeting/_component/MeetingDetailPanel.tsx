@@ -18,7 +18,9 @@ export interface MeetingDetailPanelProps {
   meetingId: string;
 }
 
-export default function MeetingDetailPanel({ meetingId }: MeetingDetailPanelProps) {
+export default function MeetingDetailPanel({
+  meetingId,
+}: MeetingDetailPanelProps) {
   const { data: meeting, isLoading } = useGetMeetingsById(meetingId);
   const { userId } = useAuthenticationStore();
   const [otherDetailsEditTrigger, setOtherDetailsEditTrigger] = useState(0);
@@ -41,9 +43,7 @@ export default function MeetingDetailPanel({ meetingId }: MeetingDetailPanelProp
           meetingTitle={meeting?.title}
           meetingData={meeting}
           canEdit={canEdit}
-          onEditDetails={() =>
-            setOtherDetailsEditTrigger((n) => n + 1)
-          }
+          onEditDetails={() => setOtherDetailsEditTrigger((n) => n + 1)}
         />
       </div>
 

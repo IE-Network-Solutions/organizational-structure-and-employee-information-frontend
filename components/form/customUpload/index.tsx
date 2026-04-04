@@ -150,11 +150,22 @@ const CustomUpload: FC<CustomUploadProps> = ({
 
   const classicDraggerContent = (
     <>
-      <p className="ant-upload-drag-icon">
+      <p
+        className="ant-upload-drag-icon"
+        data-cy="components-form-customupload-classic-drag-icon"
+      >
         <InboxOutlined />
       </p>
-      <p className="ant-upload-text">{title}</p>
-      <p className="ant-upload-hint">
+      <p
+        className="ant-upload-text"
+        data-cy="components-form-customupload-classic-drag-text"
+      >
+        {title}
+      </p>
+      <p
+        className="ant-upload-hint"
+        data-cy="components-form-customupload-classic-drag-hint"
+      >
         Support for a single or bulk upload.
       </p>
     </>
@@ -242,7 +253,12 @@ const CustomUpload: FC<CustomUploadProps> = ({
               )}
             >
               {presentation === 'classic' ? (
-                <div className="w-full">{classicDraggerContent}</div>
+                <div
+                  className="w-full"
+                  data-cy="components-form-customupload-dragwithlink-classic-inner"
+                >
+                  {classicDraggerContent}
+                </div>
               ) : (
                 <>
                   <div

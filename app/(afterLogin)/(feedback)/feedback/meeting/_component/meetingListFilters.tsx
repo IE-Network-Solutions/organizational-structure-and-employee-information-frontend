@@ -33,10 +33,12 @@ export default function MeetingListFilters() {
     value: i.id,
     label: i?.name,
   }));
-  const meetingOptions = meetTypes?.items?.map((i: { id: string; name: string }) => ({
-    value: i.id,
-    label: i.name,
-  }));
+  const meetingOptions = meetTypes?.items?.map(
+    (i: { id: string; name: string }) => ({
+      value: i.id,
+      label: i.name,
+    }),
+  );
 
   const handleChangeRange = (
     values: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null,
@@ -112,9 +114,7 @@ export default function MeetingListFilters() {
                 : [departmentId]
           }
           onChange={(value) =>
-            setDepartmentId(
-              value?.length ? (value as unknown as string) : null,
-            )
+            setDepartmentId(value?.length ? (value as unknown as string) : null)
           }
           data-cy="feedback-meeting-component-meetinglist-select-department"
           id="feedback-meeting-component-meetinglist-select-department"
@@ -156,10 +156,7 @@ export default function MeetingListFilters() {
           data-cy="feedback-meeting-component-meetinglist-input-search"
           id="feedback-meeting-component-meetinglist-input-search"
         />
-        <div
-          className="w-px shrink-0 self-stretch bg-gray-300"
-          aria-hidden
-        />
+        <div className="w-px shrink-0 self-stretch bg-gray-300" aria-hidden />
         <button
           type="button"
           className="flex h-8 w-8 shrink-0 items-center justify-center border-0 bg-white text-gray-600 hover:bg-gray-50"

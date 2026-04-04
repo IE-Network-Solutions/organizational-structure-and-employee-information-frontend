@@ -47,7 +47,10 @@ export default function ActionPlan({
     if (showLoading) {
       panelBody = (
         <div className="flex min-h-0 flex-1 items-center justify-center">
-          <Spin size="small" data-cy="feedback-meeting-components-actionplan-spin" />
+          <Spin
+            size="small"
+            data-cy="feedback-meeting-components-actionplan-spin"
+          />
         </div>
       );
     } else if (!hasItems) {

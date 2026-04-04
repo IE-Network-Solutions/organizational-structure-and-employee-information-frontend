@@ -171,13 +171,7 @@ export default function AddNewMeetingForm({
         );
     }
     return [q1, q2, q3, q4].filter(Boolean).length;
-  }, [
-    chairpersonIdW,
-    facilitatorIdW,
-    attendeeIdsW,
-    allowGuests,
-    guestsW,
-  ]);
+  }, [chairpersonIdW, facilitatorIdW, attendeeIdsW, allowGuests, guestsW]);
 
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
@@ -452,18 +446,16 @@ export default function AddNewMeetingForm({
       >
         {/* Step 1 — Tailwind `important: true` overrides inline display:none; use `hidden` */}
         <div
-          className={
-            step === 1
-              ? 'flex flex-col gap-[15px]'
-              : 'hidden'
-          }
+          className={step === 1 ? 'flex flex-col gap-[15px]' : 'hidden'}
           data-cy="add-meeting-form-step-1-content"
           id="addMeetingFormStep1Content"
         >
           <Form.Item
             label="Meeting Name"
             name="title"
-            rules={[{ required: true, message: 'Please input the meeting name' }]}
+            rules={[
+              { required: true, message: 'Please input the meeting name' },
+            ]}
             className="!mb-0"
             data-cy="add-meeting-form-title-field"
             id="addMeetingFormTitleField"
@@ -685,11 +677,7 @@ export default function AddNewMeetingForm({
 
         {/* Step 2 — Attendees */}
         <div
-          className={
-            step === 2
-              ? 'flex flex-col gap-[15px]'
-              : 'hidden'
-          }
+          className={step === 2 ? 'flex flex-col gap-[15px]' : 'hidden'}
           data-cy="add-meeting-form-step-2-content"
           id="addMeetingFormStep2Content"
         >
@@ -914,7 +902,7 @@ export default function AddNewMeetingForm({
                       </div>
                     ))}
                     <div
-                        className="flex justify-end"
+                      className="flex justify-end"
                       data-cy="add-meeting-form-add-guest-button-container"
                       id="addMeetingFormAddGuestButtonContainer"
                     >
@@ -937,11 +925,7 @@ export default function AddNewMeetingForm({
 
         {/* Step 3 — Additional information */}
         <div
-          className={
-            step === 3
-              ? 'flex flex-col gap-[15px]'
-              : 'hidden'
-          }
+          className={step === 3 ? 'flex flex-col gap-[15px]' : 'hidden'}
           data-cy="add-meeting-form-step-3-content"
           id="addMeetingFormStep3Content"
         >

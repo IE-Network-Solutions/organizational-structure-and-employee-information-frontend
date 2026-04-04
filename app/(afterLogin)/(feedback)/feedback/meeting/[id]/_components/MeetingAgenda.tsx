@@ -107,7 +107,10 @@ export default function MeetingAgenda({
                 id={`feedback-meeting-components-meetingagenda-icon-delete-${index}`}
                 aria-label="Delete agenda"
               >
-                <CloseOutlined className="text-[12px] leading-none" aria-hidden />
+                <CloseOutlined
+                  className="text-[12px] leading-none"
+                  aria-hidden
+                />
               </button>
             </Popconfirm>
           </div>
@@ -164,7 +167,10 @@ export default function MeetingAgenda({
     if (isLoading) {
       panelBody = (
         <div className="flex min-h-0 flex-1 items-center justify-center">
-          <Spin size="small" data-cy="feedback-meeting-components-meetingagenda-spin" />
+          <Spin
+            size="small"
+            data-cy="feedback-meeting-components-meetingagenda-spin"
+          />
         </div>
       );
     } else if (!hasAgendaItems) {

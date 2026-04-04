@@ -107,9 +107,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
   const showDocumentSection = Boolean(documentUrl || canEdit);
   const showUploadSection = showAudioSection || showDocumentSection;
   const uploadButtonLoading =
-    isLoading ||
-    isFileUploadLoading?.audio ||
-    isFileUploadLoading?.document;
+    isLoading || isFileUploadLoading?.audio || isFileUploadLoading?.document;
 
   if (variant === 'panel') {
     if (!showUploadSection) {

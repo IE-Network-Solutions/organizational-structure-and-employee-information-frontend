@@ -47,9 +47,7 @@ function locationSummaryText(meeting?: Meeting | null): string {
 }
 
 function ChairPersonSummary({ chairpersonId }: { chairpersonId?: string }) {
-  const { data: userDetails, isLoading } = useGetEmployee(
-    chairpersonId ?? '',
-  );
+  const { data: userDetails, isLoading } = useGetEmployee(chairpersonId ?? '');
   const name = userDetails
     ? `${userDetails?.firstName ?? ''} ${userDetails?.middleName ?? ''} ${userDetails?.lastName ?? ''}`.trim() ||
       '—'
@@ -185,9 +183,7 @@ export default function OtherDetails({
               >
                 <GoClock className="text-lg text-black/45 mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs text-black/45 mb-0.5">
-                    Start Time
-                  </div>
+                  <div className="text-xs text-black/45 mb-0.5">Start Time</div>
                   <div className="text-[15px] font-medium text-[#262626]">
                     {formatTimeDisplay(meeting?.startAt)}
                   </div>

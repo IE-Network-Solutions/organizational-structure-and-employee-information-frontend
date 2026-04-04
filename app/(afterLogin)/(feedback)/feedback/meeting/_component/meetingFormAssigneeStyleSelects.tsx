@@ -227,16 +227,14 @@ export const MeetingFormUserSingleSelect = forwardRef<
       <div className="mt-2 flex flex-wrap gap-2">
         {id ? (
           <TagChip
-            label={
-              (() => {
-                const u = allUsers?.items?.find(
-                  (x: any) => String(x.id) === String(id),
-                );
-                return u
-                  ? `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || id
-                  : id;
-              })()
-            }
+            label={(() => {
+              const u = allUsers?.items?.find(
+                (x: any) => String(x.id) === String(id),
+              );
+              return u
+                ? `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || id
+                : id;
+            })()}
             onRemove={() => setId(undefined)}
             data-cy={`${dataCy}-tag`}
           />

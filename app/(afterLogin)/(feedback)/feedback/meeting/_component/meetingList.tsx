@@ -1,14 +1,7 @@
 'use client'; // if using Next.js 13+ App Router
 // components/MeetingList.tsx
 import React, { useEffect } from 'react';
-import {
-  Avatar,
-  Tooltip,
-  Spin,
-  Timeline,
-  Tag,
-  ConfigProvider,
-} from 'antd';
+import { Avatar, Tooltip, Spin, Timeline, Tag, ConfigProvider } from 'antd';
 import { UserOutlined, LoadingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useGetMeetings } from '@/store/server/features/CFR/meeting/queries';
@@ -175,8 +168,7 @@ const MeetingList = ({
                   </span>
                 )}
 
-                {meeting.virtualLink ||
-                meeting.locationType === 'virtual' ? (
+                {meeting.virtualLink || meeting.locationType === 'virtual' ? (
                   <div
                     onClick={(e) => {
                       e.preventDefault();
