@@ -798,14 +798,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             >
               {isBasic ? (
                 <Button
-                  type="default"
+                  type="primary"
                   id="desktop-add-keyresult-button"
                   data-cy="okr-edit-objective-desktop-add-keyresult-button"
                   disabled={isEditDisabled}
                   className={
                     isMobile
-                      ? 'bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg'
-                      : 'bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm px-4 py-2 rounded-lg'
+                      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg !text-white hover:!text-white'
+                      : 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg !text-white hover:!text-white'
                   }
                   aria-label="Add Key Result"
                   onClick={handleAddBasicKeyResult}
@@ -832,14 +832,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 </Button>
               ) : (
                 <Button
-                  type="default"
+                  type="primary"
                   id="desktop-add-keyresult-button"
                   data-cy="okr-edit-objective-desktop-add-keyresult-button"
                   disabled={isEditDisabled}
                   className={
                     isMobile
-                      ? 'bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg'
-                      : 'bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm px-4 py-2 rounded-lg'
+                      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg !text-white hover:!text-white'
+                      : 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center gap-2 text-sm px-4 py-2 rounded-lg !text-white hover:!text-white'
                   }
                   aria-label="Add Key Result"
                   onClick={() => setShowMetricSelector(!showMetricSelector)}

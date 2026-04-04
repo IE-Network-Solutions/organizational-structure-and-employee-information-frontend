@@ -229,76 +229,74 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 data-cy={`okr-objective-basic-card-content-${objective?.id}`}
               >
                 <div
-                  id={`okr-objective-basic-header-${objective?.id}`}
-                  data-cy={`okr-objective-basic-header-${objective?.id}`}
-                  className="flex flex-wrap items-center gap-x-0 gap-y-2 mb-3 sm:mb-0.5"
-                >
-                  <div
-                    className="w-6 shrink-0 mr-5"
-                    aria-hidden
-                    data-cy={`okr-objective-basic-header-spacer-${objective?.id}`}
-                  />
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 sm:justify-start" data-cy={`okr-objective-basic-progress-cell-container-${objective?.id}`}>
-                    <div
-                      className="flex-1 sm:flex-none min-w-0"
-                      data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}
-                    >
-                      <span
-                        className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
-                        data-cy={`okr-objective-progress-badge-${objective?.id}`}
-                      >
-                        {Number(objective?.objectiveProgress)?.toLocaleString()}%
-                        Objective Progress
-                      </span>
-                    </div>
-                    <div
-                      className="flex-1 sm:flex-none min-w-0 flex flex-wrap items-center justify-end sm:justify-start gap-2"
-                      data-cy={`okr-objective-basic-kr-count-cell-${objective?.id}`}
-                    >
-                      <span
-                        className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
-                        data-cy={`okr-objective-basic-kr-count-badge-${objective?.id}`}
-                      >
-                        {completedKeyResults} - {totalKeyResults} Key Results Done
-                      </span>
-                      <span
-                        className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
-                        id={`objective-basic-status-${objective?.id}`}
-                        data-cy={`okr-objective-basic-days-left-badge-${objective?.id}`}
-                      >
-                        {objective?.daysLeft ?? '—'} Days Left
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4"
+                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                   data-cy={`okr-objective-basic-title-actions-row-${objective?.id}`}
                 >
                   <div
-                    className="min-w-0 order-1 sm:flex-1"
-                    data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
+                    className="flex min-w-0 flex-1 items-center gap-5"
+                    data-cy={`okr-objective-basic-title-block-${objective?.id}`}
                   >
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(objectiveIdStr)}
+                      className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
+                      data-cy={`okr-objective-basic-expand-${objective?.id}`}
+                    >
+                      {expanded ? (
+                        <MdKeyboardArrowUp size={14} />
+                      ) : (
+                        <MdKeyboardArrowDown size={14} />
+                      )}
+                    </button>
                     <div
-                      className="flex min-h-8 items-center justify-between gap-2"
-                      data-cy={`okr-objective-basic-title-row-${objective?.id}`}
+                      className="flex min-w-0 flex-1 flex-col gap-y-1"
+                      data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
                     >
                       <div
-                        className="flex min-h-8 min-w-0 items-center gap-5"
-                        data-cy={`okr-objective-basic-title-flex-${objective?.id}`}
+                        id={`okr-objective-basic-header-${objective?.id}`}
+                        className="flex flex-wrap items-center gap-x-0 gap-y-2"
+                        data-cy={`okr-objective-basic-header-${objective?.id}`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => toggleExpanded(objectiveIdStr)}
-                          className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
-                          data-cy={`okr-objective-basic-expand-${objective?.id}`}
+                        <div
+                          className="flex min-w-0 flex-1 flex-wrap items-center justify-start gap-2"
+                          data-cy={`okr-objective-basic-progress-cell-container-${objective?.id}`}
                         >
-                          {expanded ? (
-                            <MdKeyboardArrowUp size={14} />
-                          ) : (
-                            <MdKeyboardArrowDown size={14} />
-                          )}
-                        </button>
+                          <div
+                            className="min-w-0 shrink-0"
+                            data-cy={`okr-objective-basic-progress-cell-${objective?.id}`}
+                          >
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
+                              data-cy={`okr-objective-progress-badge-${objective?.id}`}
+                            >
+                              {Number(objective?.objectiveProgress)?.toLocaleString()}%
+                              Objective Progress
+                            </span>
+                          </div>
+                          <div
+                            className="min-w-0 flex flex-wrap items-center justify-start gap-2"
+                            data-cy={`okr-objective-basic-kr-count-cell-${objective?.id}`}
+                          >
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
+                              data-cy={`okr-objective-basic-kr-count-badge-${objective?.id}`}
+                            >
+                              {completedKeyResults} - {totalKeyResults} Key Results Done
+                            </span>
+                            <span
+                              className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
+                              id={`objective-basic-status-${objective?.id}`}
+                              data-cy={`okr-objective-basic-days-left-badge-${objective?.id}`}
+                            >
+                              {objective?.daysLeft ?? '—'} Days Left
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        className="flex min-h-8 items-center justify-between gap-2"
+                        data-cy={`okr-objective-basic-title-row-${objective?.id}`}
+                      >
                         <h2
                           id={`objective-basic-title-${objective?.id}`}
                           data-cy={`okr-objective-basic-title-${objective?.id}`}
@@ -306,54 +304,49 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         >
                           {objective?.title}
                         </h2>
-                      </div>
-                      {objective?.isClosed === false &&
-                        Number(objective?.objectiveProgress ?? 0) !== 100 &&
-                        menu && (
-                          <Dropdown
-                            data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
-                            overlay={menu}
-                            trigger={['click']}
-                            placement="bottomRight"
-                            overlayClassName="okr-actions-dropdown"
-                          >
-                            <span
-                              className="inline-flex h-6 max-h-6 items-center leading-none sm:hidden"
-                              data-cy={`okr-objective-basic-menu-trigger-mobile-${objective?.id}`}
+                        {objective?.isClosed === false &&
+                          Number(objective?.objectiveProgress ?? 0) !== 100 &&
+                          menu && (
+                            <Dropdown
+                              data-cy={`okr-objective-basic-actions-dropdown-${objective?.id}`}
+                              overlay={menu}
+                              trigger={['click']}
+                              placement="bottomRight"
+                              overlayClassName="okr-actions-dropdown"
                             >
-                              <button
-                                type="button"
-                                className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151]"
-                                data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
+                              <span
+                                className="inline-flex h-6 max-h-6 items-center leading-none sm:hidden"
+                                data-cy={`okr-objective-basic-menu-trigger-mobile-${objective?.id}`}
                               >
-                                <MoreHorizIcon
-                                  sx={{ width: 14, height: 14, color: '#374151' }}
-                                  data-cy={`okr-objective-basic-menu-icon-mobile-${objective?.id}`}
-                                />
-                              </button>
-                            </span>
-                          </Dropdown>
-                        )}
-                    </div>
-                    <div
-                      className="mt-1 flex items-center text-sm text-gray-500 sm:hidden"
-                      data-cy={`okr-objective-basic-days-left-mobile-${objective?.id}`}
-                    >
-                      <span
-                        className="w-6 shrink-0 mr-5"
-                        aria-hidden
-                        data-cy={`okr-objective-basic-days-left-mobile-spacer-${objective?.id}`}
-                      />
-                      <PiCalendarBold className="mr-2 flex-shrink-0 text-lg text-gray-400" />
-                      <span
-                        data-cy={`okr-objective-basic-days-left-mobile-text-${objective?.id}`}
+                                <button
+                                  type="button"
+                                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151]"
+                                  data-cy={`okr-objective-basic-menu-button-mobile-${objective?.id}`}
+                                >
+                                  <MoreHorizIcon
+                                    sx={{ width: 14, height: 14, color: '#374151' }}
+                                    data-cy={`okr-objective-basic-menu-icon-mobile-${objective?.id}`}
+                                  />
+                                </button>
+                              </span>
+                            </Dropdown>
+                          )}
+                      </div>
+                      <div
+                        className="flex items-center text-sm text-gray-500 sm:hidden"
+                        data-cy={`okr-objective-basic-days-left-mobile-${objective?.id}`}
                       >
-                        {objective?.daysLeft ?? '—'} Days Left
-                      </span>
+                        <PiCalendarBold className="mr-2 flex-shrink-0 text-lg text-gray-400" />
+                        <span
+                          data-cy={`okr-objective-basic-days-left-mobile-text-${objective?.id}`}
+                        >
+                          {objective?.daysLeft ?? '—'} Days Left
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div
-                    className="order-2 flex flex-shrink-0 items-center justify-end gap-3 sm:ml-auto"
+                    className="flex flex-shrink-0 items-center justify-end gap-3 sm:ml-auto"
                     data-cy={`okr-objective-basic-actions-cell-${objective?.id}`}
                   >
                     {!myOkr && objective?.user && (
@@ -563,51 +556,46 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         )}
                       </div>
                       <div
-                        className="flex items-center gap-2 flex-shrink-0 w-[200px] min-w-[200px]"
+                        className="flex flex-shrink-0 items-center gap-2"
                         data-cy={`okr-key-result-basic-details-${keyResult.id}`}
                       >
-                        {isResolved && (
-                          <span
-                            className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white ${
-                              isAchieved ? 'bg-green-500' : 'bg-red-500'
-                            }`}
-                            data-cy={`okr-key-result-basic-status-icon-${keyResult.id}`}
-                          >
-                            {isAchieved ? (
-                              <CheckOutlined className="text-xs" />
-                            ) : (
-                              <CloseOutlined className="text-xs" />
-                            )}
-                          </span>
-                        )}
                         <span
-                          className="text-xs text-gray-600 border border-gray-200 px-2 py-1 rounded bg-white group-hover:border-gray-300"
+                          className="shrink-0 whitespace-nowrap text-xs text-gray-600 border border-gray-200 px-2 py-1 rounded bg-white group-hover:border-gray-300"
                           data-cy={`okr-key-result-basic-weight-${keyResult.id}`}
                         >
                           Weight: {keyResult?.weight ?? '—'}
                         </span>
-                        {keyResultMenu &&
-                          Number(keyResult?.progress ?? 0) === 0 && (
-                            <Dropdown
-                              data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
-                              overlay={keyResultMenu}
-                              trigger={['click']}
-                              placement="bottomRight"
-                              overlayClassName="okr-actions-dropdown"
-                            >
-                              <button
-                                type="button"
-                                className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
-                                data-cy={`okr-key-result-basic-actions-button-${keyResult.id}`}
+                        <div
+                          className="flex min-h-6 min-w-[56px] w-[56px] shrink-0 items-center justify-end"
+                          data-cy={`okr-key-result-basic-actions-column-${keyResult.id}`}
+                        >
+                          {keyResultMenu &&
+                            Number(keyResult?.progress ?? 0) === 0 && (
+                              <Dropdown
+                                data-cy={`okr-key-result-basic-actions-dropdown-${keyResult.id}`}
+                                overlay={keyResultMenu}
+                                trigger={['click']}
+                                placement="bottomRight"
+                                overlayClassName="okr-actions-dropdown"
                               >
-                                <MoreHorizIcon
-                                  sx={{ width: 14, height: 14, color: '#374151' }}
-                                  id={`key-result-basic-menu-button-${keyResult.id}`}
-                                  data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
-                                />
-                              </button>
-                            </Dropdown>
-                          )}
+                                <button
+                                  type="button"
+                                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
+                                  data-cy={`okr-key-result-basic-actions-button-${keyResult.id}`}
+                                >
+                                  <MoreHorizIcon
+                                    sx={{
+                                      width: 14,
+                                      height: 14,
+                                      color: '#374151',
+                                    }}
+                                    id={`key-result-basic-menu-button-${keyResult.id}`}
+                                    data-cy={`okr-key-result-basic-menu-button-${keyResult.id}`}
+                                  />
+                                </button>
+                              </Dropdown>
+                            )}
+                        </div>
                       </div>
                     </div>
                   );

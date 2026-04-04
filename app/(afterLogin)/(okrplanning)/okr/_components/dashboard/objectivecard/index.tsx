@@ -155,74 +155,72 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 data-cy={`okr-objective-card-content-${objective?.id}`}
               >
                 <div
-                  className="flex flex-wrap items-center gap-x-0 gap-y-2 mb-3 sm:mb-0.5"
-                  data-cy={`okr-objective-card-header-${objective?.id}`}
-                >
-                  <div
-                    className="w-6 shrink-0 mr-5"
-                    aria-hidden
-                    data-cy={`okr-objective-card-header-spacer-${objective?.id}`}
-                  />
-                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2 sm:justify-start" data-cy={`okr-objective-card-progress-cell-container-${objective?.id}`}>
-                    <div
-                      className="flex-1 sm:flex-none min-w-0"
-                      data-cy={`okr-objective-card-progress-cell-${objective?.id}`}
-                    >
-                      <span
-                        className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
-                        data-cy={`okr-objective-progress-badge-${objective?.id}`}
-                      >
-                        {Number(objective?.objectiveProgress)?.toLocaleString()}%
-                        Objective Progress
-                      </span>
-                    </div>
-                    <div
-                      className="flex-1 sm:flex-none min-w-0 flex flex-wrap items-center justify-end sm:justify-start gap-2"
-                      data-cy={`okr-objective-card-kr-count-cell-${objective?.id}`}
-                    >
-                      <span
-                        className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
-                        data-cy={`okr-objective-card-kr-count-badge-${objective?.id}`}
-                      >
-                        {completedKeyResults} - {totalKeyResults} Key Results Done
-                      </span>
-                      <span
-                        className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
-                        data-cy={`okr-objective-card-days-left-badge-${objective?.id}`}
-                      >
-                        {objective?.daysLeft ?? '—'} Days Left
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div
-                  className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4"
+                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                   data-cy={`okr-objective-card-row-${objective?.id}`}
                 >
                   <div
-                    className="min-w-0 order-1 sm:flex-1"
-                    data-cy={`okr-objective-card-title-section-${objective?.id}`}
+                    className="flex min-w-0 flex-1 items-center gap-5"
+                    data-cy={`okr-objective-card-title-block-${objective?.id}`}
                   >
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(objectiveIdStr)}
+                      className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
+                      data-cy={`okr-objective-expand-${objective?.id}`}
+                    >
+                      {expanded ? (
+                        <MdKeyboardArrowUp size={14} />
+                      ) : (
+                        <MdKeyboardArrowDown size={14} />
+                      )}
+                    </button>
                     <div
-                      className="flex min-h-8 items-center justify-between gap-2"
-                      data-cy={`okr-objective-card-title-row-${objective?.id}`}
+                      className="flex min-w-0 flex-1 flex-col gap-y-1"
+                      data-cy={`okr-objective-card-title-section-${objective?.id}`}
                     >
                       <div
-                        className="flex min-h-8 min-w-0 items-center gap-5"
-                        data-cy={`okr-objective-card-title-flex-${objective?.id}`}
+                        className="flex flex-wrap items-center gap-x-0 gap-y-2"
+                        data-cy={`okr-objective-card-header-${objective?.id}`}
                       >
-                        <button
-                          type="button"
-                          onClick={() => toggleExpanded(objectiveIdStr)}
-                          className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
-                          data-cy={`okr-objective-expand-${objective?.id}`}
+                        <div
+                          className="flex min-w-0 flex-1 flex-wrap items-center justify-start gap-2"
+                          data-cy={`okr-objective-card-progress-cell-container-${objective?.id}`}
                         >
-                          {expanded ? (
-                            <MdKeyboardArrowUp size={14} />
-                          ) : (
-                            <MdKeyboardArrowDown size={14} />
-                          )}
-                        </button>
+                          <div
+                            className="min-w-0 shrink-0"
+                            data-cy={`okr-objective-card-progress-cell-${objective?.id}`}
+                          >
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
+                              data-cy={`okr-objective-progress-badge-${objective?.id}`}
+                            >
+                              {Number(objective?.objectiveProgress)?.toLocaleString()}%
+                              Objective Progress
+                            </span>
+                          </div>
+                          <div
+                            className="min-w-0 flex flex-wrap items-center justify-start gap-2"
+                            data-cy={`okr-objective-card-kr-count-cell-${objective?.id}`}
+                          >
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
+                              data-cy={`okr-objective-card-kr-count-badge-${objective?.id}`}
+                            >
+                              {completedKeyResults} - {totalKeyResults} Key Results Done
+                            </span>
+                            <span
+                              className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
+                              data-cy={`okr-objective-card-days-left-badge-${objective?.id}`}
+                            >
+                              {objective?.daysLeft ?? '—'} Days Left
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        className="flex min-h-8 items-center justify-between gap-2"
+                        data-cy={`okr-objective-card-title-row-${objective?.id}`}
+                      >
                         <h2
                           id={`objective-title-${objective?.id}`}
                           data-cy={`okr-objective-title-${objective?.id}`}
@@ -230,54 +228,49 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         >
                           {objective?.title}
                         </h2>
-                      </div>
-                      {objective?.isClosed === false &&
-                        Number(objective?.objectiveProgress ?? 0) !== 100 &&
-                        menu && (
-                          <Dropdown
-                            overlay={menu}
-                            trigger={['click']}
-                            placement="bottomRight"
-                            overlayClassName="okr-actions-dropdown"
-                            data-cy={`okr-objective-menu-dropdown-mobile-${objective?.id}`}
-                          >
-                            <span
-                              className="inline-flex h-6 max-h-6 items-center leading-none sm:hidden"
-                              data-cy={`okr-objective-menu-trigger-mobile-${objective?.id}`}
+                        {objective?.isClosed === false &&
+                          Number(objective?.objectiveProgress ?? 0) !== 100 &&
+                          menu && (
+                            <Dropdown
+                              overlay={menu}
+                              trigger={['click']}
+                              placement="bottomRight"
+                              overlayClassName="okr-actions-dropdown"
+                              data-cy={`okr-objective-menu-dropdown-mobile-${objective?.id}`}
                             >
-                              <button
-                                type="button"
-                                className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151]"
-                                data-cy={`okr-objective-menu-button-${objective?.id}`}
+                              <span
+                                className="inline-flex h-6 max-h-6 items-center leading-none sm:hidden"
+                                data-cy={`okr-objective-menu-trigger-mobile-${objective?.id}`}
                               >
-                                <MoreHorizIcon
-                                  sx={{ width: 14, height: 14, color: '#374151' }}
-                                  data-cy={`okr-objective-menu-icon-mobile-${objective?.id}`}
-                                />
-                              </button>
-                            </span>
-                          </Dropdown>
-                        )}
-                    </div>
-                    <div
-                      className="mt-1 flex items-center text-sm text-gray-500 sm:hidden"
-                      data-cy={`okr-objective-card-days-left-mobile-${objective?.id}`}
-                    >
-                      <span
-                        className="w-6 shrink-0 mr-5"
-                        aria-hidden
-                        data-cy={`okr-objective-card-days-left-mobile-spacer-${objective?.id}`}
-                      />
-                      <PiCalendarBold className="mr-2 flex-shrink-0 text-lg text-gray-400" />
-                      <span
-                        data-cy={`okr-objective-card-days-left-mobile-text-${objective?.id}`}
+                                <button
+                                  type="button"
+                                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151]"
+                                  data-cy={`okr-objective-menu-button-${objective?.id}`}
+                                >
+                                  <MoreHorizIcon
+                                    sx={{ width: 14, height: 14, color: '#374151' }}
+                                    data-cy={`okr-objective-menu-icon-mobile-${objective?.id}`}
+                                  />
+                                </button>
+                              </span>
+                            </Dropdown>
+                          )}
+                      </div>
+                      <div
+                        className="flex items-center text-sm text-gray-500 sm:hidden"
+                        data-cy={`okr-objective-card-days-left-mobile-${objective?.id}`}
                       >
-                        {objective?.daysLeft ?? '—'} Days Left
-                      </span>
+                        <PiCalendarBold className="mr-2 flex-shrink-0 text-lg text-gray-400" />
+                        <span
+                          data-cy={`okr-objective-card-days-left-mobile-text-${objective?.id}`}
+                        >
+                          {objective?.daysLeft ?? '—'} Days Left
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div
-                    className="order-2 flex flex-shrink-0 items-center justify-end gap-3 sm:ml-auto"
+                    className="flex flex-shrink-0 items-center justify-end gap-3 sm:ml-auto"
                     data-cy={`okr-objective-card-actions-${objective?.id}`}
                   >
                     {!myOkr && objective?.user && (
