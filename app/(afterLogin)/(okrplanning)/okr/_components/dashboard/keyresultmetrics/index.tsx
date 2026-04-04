@@ -16,7 +16,8 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
-import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DownOutlined, DeleteOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import RecentModesTimelineModal from '../../recentModesTimelineModal';
@@ -99,7 +100,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
       items={[
         {
           key: '1',
-          icon: <EditOutlined className="text-gray-700" />,
+          icon: <EditOutlinedIcon className="text-gray-700" />,
           label: 'Edit Key Result',
           onClick: showDrawer,
         },

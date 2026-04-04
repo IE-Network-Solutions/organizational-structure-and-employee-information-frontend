@@ -47,7 +47,9 @@ const getKeyResultByUser = async (
 
         // If we get a proper response with items, return it
         if (response && (response.items || Array.isArray(response))) {
-          return Array.isArray(response) ? { items: response } : { items: response.items ?? [] };
+          return Array.isArray(response)
+            ? { items: response }
+            : { items: response.items ?? [] };
         }
         return { items: [] };
       } catch (encryptionError) {}
@@ -70,7 +72,9 @@ const getKeyResultByUser = async (
         }
         // Normalize: API may return message/other shape when no data
         if (response && (response.items || Array.isArray(response))) {
-          return Array.isArray(response) ? { items: response } : { items: response.items ?? [] };
+          return Array.isArray(response)
+            ? { items: response }
+            : { items: response.items ?? [] };
         }
         return { items: [] };
       } catch (fallbackError) {
@@ -91,7 +95,8 @@ export const useGetUserKeyResult = (
 ) =>
   useQuery<ResponseData>(
     ['ObjectiveInformation', postId, fiscalYearId, sessionId],
-    () => getKeyResultByUser(postId as number | string, fiscalYearId, sessionId),
+    () =>
+      getKeyResultByUser(postId as number | string, fiscalYearId, sessionId),
     {
       keepPreviousData: true,
       enabled: !!postId, // Only fetch when we have a user id (e.g. reportsToId)

@@ -303,6 +303,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               }
               .okr-settings-modal .ant-modal-content {
                 padding: 0 !important;
+                border-radius: 8px !important;
               }
               .okr-settings-modal .ant-modal-header {
                 padding: 20px 24px 8px 24px !important;

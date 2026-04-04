@@ -1,10 +1,7 @@
 import React from 'react';
 import { Tooltip } from 'antd';
-import {
-  QuestionCircleOutlined,
-  CloseOutlined,
-  EditOutlined,
-} from '@ant-design/icons';
+import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 /** Shared tooltip content for Key Result field */
 export const KEY_RESULT_TOOLTIP = (
@@ -108,8 +105,8 @@ export interface KeyResultRemoveButtonProps {
   'aria-label': string;
   id?: string;
   'data-cy'?: string;
-  /** 'danger' = red border/icon (32x32), used for advanced key result and milestone remove */
-  variant?: 'danger';
+  /** 'danger' = full red styling; default = gray border like Edit, red X only. */
+  variant?: 'danger' | 'default';
 }
 
 /**
@@ -121,14 +118,14 @@ export function KeyResultRemoveButton({
   'aria-label': ariaLabel,
   id,
   'data-cy': dataCy,
-  variant = 'danger',
+  variant = 'default',
 }: KeyResultRemoveButtonProps) {
   const baseClass =
-    'w-8 h-8 flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-300';
+    'w-8 h-8 flex items-center justify-center rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 flex-shrink-0';
   const variantClass =
     variant === 'danger'
-      ? 'border border-red-200 text-red-500 hover:bg-red-50'
-      : 'border border-red-200 text-red-500 hover:bg-red-50';
+      ? 'border border-red-200 text-red-500 hover:bg-red-50 focus:ring-red-300'
+      : 'bg-gray-100 border border-gray-200 hover:bg-gray-200 focus:ring-gray-300';
 
   return (
     <button
@@ -140,7 +137,7 @@ export function KeyResultRemoveButton({
       data-cy={dataCy}
       className={`${baseClass} ${variantClass}`}
     >
-      <CloseOutlined className="text-xs" />
+      <CloseOutlined className="text-xs text-red-500" />
     </button>
   );
 }
@@ -284,7 +281,7 @@ export function KeyResultSavedCard({
             aria-label="Edit key result"
             data-cy={dataCy ? `${dataCy}-edit` : undefined}
           >
-            <EditOutlined className="text-xs" />
+            <EditOutlinedIcon className="text-xs" />
           </button>
         </Tooltip>
       </div>

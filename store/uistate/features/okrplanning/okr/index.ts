@@ -456,6 +456,9 @@ export const useOKRStore = create<OKRState>()(
       set({ employeeCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
+    okrStatusPillId: null,
+    setOkrStatusPillId: (okrStatusPillId: string | null) =>
+      set({ okrStatusPillId }),
     alignment: false,
     setAlignment: (alignment: boolean) => set({ alignment }),
     fiscalYearId: '',

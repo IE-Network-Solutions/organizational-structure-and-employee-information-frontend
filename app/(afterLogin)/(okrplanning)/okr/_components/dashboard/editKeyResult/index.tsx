@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Form, Tooltip, Button } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import KeyResultForm from '../../keyresultForm';
 import { KeyResultSelectedBadge } from '../../keyresultForm/_ui';
 import {
@@ -219,10 +219,11 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
       }
       bodyStyle={{
-        padding: isMobile ? 12 : 24,
+        padding: isMobile ? '24px 24px' : 24,
         maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
         overflowY: isMobile ? 'auto' : undefined,
       }}
+      styles={{ content: { borderRadius: 8 } }}
       style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
       destroyOnClose
@@ -327,11 +328,11 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
                     aria-label="Edit key result"
                     data-cy="okr-edit-key-result-kr-card-edit"
                   >
-                    <EditOutlined className="text-sm" />
+                    <EditOutlinedIcon className="text-sm" />
                   </button>
                 </Tooltip>
               </div>

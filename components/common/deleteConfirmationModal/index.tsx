@@ -54,7 +54,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     : undefined;
 
   const messageContent =
-    customMessage ?? deleteMessage ?? 'Are you sure you want to delete this item?';
+    customMessage ??
+    deleteMessage ??
+    'Are you sure you want to delete this item?';
 
   const deleteModalFooter = (
     <div

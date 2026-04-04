@@ -9,7 +9,7 @@ import {
   Modal,
   Tooltip,
 } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import dayjs from 'dayjs';
@@ -505,10 +505,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
       }
       bodyStyle={{
-        padding: isMobile ? 12 : 24,
+        padding: isMobile ? '24px 24px' : 24,
         maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
         overflowY: isMobile ? 'auto' : undefined,
       }}
+      styles={{ content: { borderRadius: 8 } }}
       style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
       destroyOnClose
@@ -1160,11 +1161,11 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                       <button
                         type="button"
                         onClick={() => setEditingKeyResultIndex(listIndex)}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
                         aria-label="Edit key result"
                         data-cy={`okr-edit-objective-kr-card-edit-${listIndex}`}
                       >
-                        <EditOutlined className="text-sm" />
+                        <EditOutlinedIcon className="text-sm" />
                       </button>
                     </Tooltip>
                   </div>

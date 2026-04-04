@@ -45,7 +45,7 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
       styles={{
         content: {
           padding: '32px',
-          borderRadius: 12,
+          borderRadius: 8,
           minWidth: 0,
           maxWidth: '100%',
           boxSizing: 'border-box',

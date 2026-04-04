@@ -1,6 +1,6 @@
 'use client';
 import { Button, Spin, Tabs } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ObjectiveCard from '../objectivecard';
 import ObjectiveBasic from '../objectiveBasic';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -20,6 +20,10 @@ import EmployeeOKRTable from '../EmployeeOkr';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import {
+  OKR_STATUS_PILLS,
+  toKeyResultDeadlineFilter,
+} from '../../../_constants/okrStatusPills';
 
 const TAB_CONFIG = [
   { key: '1', label: 'My OKR' },
@@ -27,14 +31,6 @@ const TAB_CONFIG = [
   { key: '3', label: 'Company OKR' },
   { key: '4', label: 'All Employees OKR' },
 ];
-
-const OKR_STATUS_PILLS = [
-  { id: 'due-soon', label: 'Due Soon' },
-  { id: 'not-started', label: 'Not Started' },
-  { id: 'on-progress', label: 'On progress' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'overdue', label: 'Overdue' },
-] as const;
 
 interface OkrTabProps {
   filterComponent?: React.ReactNode;
@@ -47,9 +43,6 @@ export default function OkrTab({
 }: OkrTabProps) {
   const [isMounted, setIsMounted] = useState(false);
   const [activeKey, setActiveKey] = useState<string>('1');
-  const [selectedStatusPill, setSelectedStatusPill] = useState<string | null>(
-    null,
-  );
   const { userId } = useAuthenticationStore();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
@@ -78,12 +71,28 @@ export default function OkrTab({
     companyPageSize,
     okrTab,
     setOkrTab,
+    okrStatusPillId,
+    setOkrStatusPillId,
   } = useOKRStore();
   const { isMobile, isTablet } = useIsMobile();
   const usersInDepartment =
     departmentUsers
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
       ?.users?.map((user: any) => user.id) || [];
+
+  const keyResultDeadlineFilter = useMemo(
+    () =>
+      String(okrTab) === '1'
+        ? toKeyResultDeadlineFilter(okrStatusPillId)
+        : undefined,
+    [okrStatusPillId, okrTab],
+  );
+
+  useEffect(() => {
+    if (String(okrTab) !== '1') {
+      setOkrStatusPillId(null);
+    }
+  }, [okrTab, setOkrStatusPillId]);
 
   const {
     data: userObjectives,
@@ -97,6 +106,7 @@ export default function OkrTab({
     searchObjParams?.metricTypeId,
     fiscalYearId,
     sessionIds,
+    keyResultDeadlineFilter,
   );
   const {
     data: teamObjective,
@@ -478,8 +488,92 @@ export default function OkrTab({
     children: contentByKey.get(tab.key) ?? null,
   }));
 
+  const statusPillButtons = OKR_STATUS_PILLS.map((pill) => {
+    const isSelected = okrStatusPillId === pill.id;
+    return (
+      <Button
+        key={pill.id}
+        type="default"
+        size="small"
+        data-cy={`okr-status-pill-${pill.id}`}
+        onClick={() =>
+          setOkrStatusPillId(okrStatusPillId === pill.id ? null : pill.id)
+        }
+        className={
+          isSelected
+            ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-okr-primary text-okr-primary !bg-[#FAFAFA] hover:!bg-[#FAFAFA] hover:!border-okr-primary hover:!text-okr-primary'
+            : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-[#FAFAFA] hover:!bg-[#F0F0F0] hover:!border-gray-300 hover:!text-gray-800'
+        }
+      >
+        {pill.label}
+      </Button>
+    );
+  });
+
+  const isCompactTabBar = isMobile || isTablet;
+
+  /** Mobile/tablet: same pattern as employee settings — scrollable tabs + filter only in `right` extra (always visible). */
+  const compactTabBarExtra =
+    activeKey !== '4' && filterComponent ? (
+      <div className="ml-4 flex shrink-0" data-cy="okr-filter-inline-container">
+        {filterComponent}
+      </div>
+    ) : null;
+
+  const tabBarExtraContent = isCompactTabBar ? (
+    compactTabBarExtra ? (
+      { right: compactTabBarExtra }
+    ) : undefined
+  ) : (
+    <div
+      className="flex max-w-full flex-wrap items-center justify-end gap-1"
+      data-cy="okr-tab-bar-extra"
+    >
+      {activeKey === '1' ? (
+        <div
+          className="flex flex-wrap items-center gap-0.5"
+          data-cy="okr-status-pills-row"
+        >
+          {statusPillButtons}
+        </div>
+      ) : null}
+      {activeKey !== '4' ? (
+        <div className="flex-shrink-0" data-cy="okr-filter-inline-container">
+          {filterComponent}
+        </div>
+      ) : null}
+    </div>
+  );
+
+  const tabsClassName = [
+    '[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6',
+    isCompactTabBar
+      ? '[&_.ant-tabs-nav]:min-w-0 [&_.ant-tabs-nav-wrap]:min-w-0 [&_.ant-tabs-nav-list]:!flex-nowrap [&_.ant-tabs-nav-wrap]:overflow-x-auto [&_.ant-tabs-nav-wrap]:scrollbar-none [&_.ant-tabs-extra-content]:!shrink-0'
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const renderTabBar = isCompactTabBar
+    ? (
+        tabBarProps: Record<string, unknown>,
+        defaultTabBar: React.ComponentType<Record<string, unknown>>,
+      ) => {
+        const TabNavList = defaultTabBar;
+        return (
+          <div className="w-full min-w-0" data-cy="okr-mobile-tab-bar-stack">
+            <TabNavList {...tabBarProps} />
+          </div>
+        );
+      }
+    : undefined;
+
   return (
-    <div id="okr-tab-container" data-cy={dataCy || 'okr-tab-container'}>
+    <div
+      id="okr-tab-container"
+      data-cy={dataCy || 'okr-tab-container'}
+      className={isCompactTabBar ? 'min-w-0 w-full' : undefined}
+    >
       <Tabs
         activeKey={activeKey}
         onChange={handleTabChange}
@@ -491,50 +585,9 @@ export default function OkrTab({
           paddingLeft: 0,
           paddingRight: 0,
         }}
-        tabBarExtraContent={
-          <div
-            className="flex flex-wrap items-center justify-end gap-1 max-w-full"
-            data-cy="okr-tab-bar-extra"
-          >
-            <div
-              className="flex flex-wrap items-center gap-0.5"
-              data-cy="okr-status-pills-row"
-            >
-              {OKR_STATUS_PILLS.map((pill) => {
-                const isSelected = selectedStatusPill === pill.id;
-                return (
-                  <Button
-                    key={pill.id}
-                    type="default"
-                    size="small"
-                    data-cy={`okr-status-pill-${pill.id}`}
-                    onClick={() =>
-                      setSelectedStatusPill((prev) =>
-                        prev === pill.id ? null : pill.id,
-                      )
-                    }
-                    className={
-                      isSelected
-                        ? '!rounded-md !h-7 !min-h-0 !px-2 !py-0 !leading-none border-okr-primary text-okr-primary !bg-[#FAFAFA] hover:!bg-[#FAFAFA] hover:!border-okr-primary hover:!text-okr-primary'
-                        : '!rounded-md !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-[#FAFAFA] hover:!bg-[#F0F0F0] hover:!border-gray-300 hover:!text-gray-800'
-                    }
-                  >
-                    {pill.label}
-                  </Button>
-                );
-              })}
-            </div>
-            {activeKey !== '4' ? (
-              <div
-                className="flex-shrink-0"
-                data-cy="okr-filter-inline-container"
-              >
-                {filterComponent}
-              </div>
-            ) : null}
-          </div>
-        }
-        className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6"
+        tabBarExtraContent={tabBarExtraContent}
+        renderTabBar={renderTabBar}
+        className={tabsClassName}
         data-cy="okr-tabs"
         id="okr-tabs"
         destroyInactiveTabPane={false}

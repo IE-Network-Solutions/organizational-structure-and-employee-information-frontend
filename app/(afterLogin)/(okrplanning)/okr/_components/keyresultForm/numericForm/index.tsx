@@ -8,7 +8,7 @@ import {
   InputNumber,
   Tooltip,
 } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import {
@@ -56,8 +56,12 @@ const NumericForm: React.FC<OKRFormProps> = ({
   );
   const initialValueRules = [
     { required: true, message: 'Please enter the initial value' },
-    ({ getFieldValue }: { getFieldValue: (name: string) => number | undefined }) => ({
-      //eslint-disable-next-line 
+    ({
+      getFieldValue,
+    }: {
+      getFieldValue: (name: string) => number | undefined;
+    }) => ({
+      //eslint-disable-next-line
       validator(_: unknown, value: number | undefined) {
         const targetValue = getFieldValue('targetValue');
         if (
@@ -75,8 +79,12 @@ const NumericForm: React.FC<OKRFormProps> = ({
   ];
   const targetValueRules = [
     { required: true, message: 'Please enter the target value' },
-    ({ getFieldValue }: { getFieldValue: (name: string) => number | undefined }) => ({
-      //eslint-disable-next-line 
+    ({
+      getFieldValue,
+    }: {
+      getFieldValue: (name: string) => number | undefined;
+    }) => ({
+      //eslint-disable-next-line
       validator(_: unknown, value: number | undefined) {
         const initialValue = getFieldValue('initialValue');
         if (
@@ -87,7 +95,9 @@ const NumericForm: React.FC<OKRFormProps> = ({
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error('Target value must be greater than or equal to initial value'),
+          new Error(
+            'Target value must be greater than or equal to initial value',
+          ),
         );
       },
     }),
@@ -103,7 +113,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
     <div
       id={`okr-numeric-form-container-${index}`}
       data-cy={`okr-numeric-form-container-${index}`}
-      className={`relative mb-4 ${isBasic ? 'bg-gray-50 rounded-xl border-none p-6' : 'border border-gray-200 rounded-lg p-6'}`}
+      className={`relative mb-4 ${isBasic ? `bg-gray-50 rounded-xl border-none ${isMobile ? 'p-3' : 'p-6'}` : `border border-gray-200 rounded-lg ${isMobile ? 'p-3' : 'p-6'}`}`}
     >
       {!hideRemoveButton && (isBasic || !isCardView) ? (
         <div
@@ -624,7 +634,7 @@ const NumericForm: React.FC<OKRFormProps> = ({
                         aria-label="Edit key result"
                         data-cy={`okr-numeric-mobile-saved-card-${index}-edit`}
                       >
-                        <EditOutlined className="text-xs" />
+                        <EditOutlinedIcon className="text-xs" />
                       </button>
                     </Tooltip>
                   </div>

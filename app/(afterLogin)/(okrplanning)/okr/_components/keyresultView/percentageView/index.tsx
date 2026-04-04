@@ -76,7 +76,7 @@ const PercentageView: React.FC<OKRProps> = ({
             <Button
               type="text"
               icon={<VscClose />}
-              className="absolute top-2 right-2 rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
+              className="absolute top-2 right-2 rounded-lg w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
               id={`${viewPrefix}-remove-button`}
               data-cy={`${viewPrefix}-remove-button`}
             />

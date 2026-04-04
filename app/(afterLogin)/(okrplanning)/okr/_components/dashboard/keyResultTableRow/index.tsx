@@ -11,7 +11,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useIsBasicOkr } from '../../../_utils/okrMode';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IoCheckmarkCircle } from 'react-icons/io5';
-import { DownOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DownOutlined, DeleteOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Select } from 'antd';
 
 const { Option } = Select;
@@ -74,7 +75,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       items={[
         {
           key: '1',
-          icon: <EditOutlined className="text-gray-700" />,
+          icon: <EditOutlinedIcon className="text-gray-700" />,
           label: 'Edit Key Result',
           onClick: showDrawer,
         },
@@ -247,30 +248,33 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           </div>
         </td>
         <td
-          className="px-6 py-4 whitespace-nowrap min-w-[56px]"
+          className="px-6 py-4 whitespace-nowrap min-w-[56px] text-right"
           data-cy={`okr-key-result-table-row-actions-${keyResult?.id}`}
         >
           {canShowActionsMenu &&
           keyResult?.isClosed === false &&
           Number(keyResult?.progress ?? 0) === 0 &&
           menu ? (
-            <Dropdown
-              overlay={menu}
-              trigger={['click']}
-              placement="bottomRight"
-              overlayClassName="okr-actions-dropdown"
-            >
-              <button
-                type="button"
-                className="text-gray-400 hover:text-gray-600 border border-gray-200 rounded p-1"
-                data-cy={`okr-key-result-table-row-actions-button-${keyResult?.id}`}
+            <div className="flex min-w-[56px] justify-end">
+              <Dropdown
+                overlay={menu}
+                trigger={['click']}
+                placement="bottomRight"
+                overlayClassName="okr-actions-dropdown"
+                data-cy={`okr-key-result-table-row-actions-dropdown-${keyResult?.id}`}
               >
-                <MoreHorizIcon
-                  sx={{ width: 24, height: 24 }}
-                  data-cy={`okr-key-result-table-row-actions-icon-${keyResult?.id}`}
-                />
-              </button>
-            </Dropdown>
+                <button
+                  type="button"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 p-1 text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
+                  data-cy={`okr-key-result-table-row-actions-button-${keyResult?.id}`}
+                >
+                  <MoreHorizIcon
+                    sx={{ width: 24, height: 24 }}
+                    data-cy={`okr-key-result-table-row-actions-icon-${keyResult?.id}`}
+                  />
+                </button>
+              </Dropdown>
+            </div>
           ) : null}
         </td>
       </tr>

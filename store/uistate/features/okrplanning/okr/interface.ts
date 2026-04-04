@@ -198,6 +198,9 @@ export interface OKRState {
   setEmployeeCurrentPage: (employeeCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
+  /** Quick status filter chips (desktop tab bar + mobile filter modal). Not wired to API yet. */
+  okrStatusPillId: string | null;
+  setOkrStatusPillId: (id: string | null) => void;
   alignment: boolean;
   setAlignment: (alignment: boolean) => void;
   fiscalYearId: string;

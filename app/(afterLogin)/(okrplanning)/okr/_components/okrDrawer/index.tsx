@@ -10,11 +10,8 @@ import {
   Modal,
   Tooltip,
 } from 'antd';
-import {
-  QuestionCircleOutlined,
-  PlusOutlined,
-  EditOutlined,
-} from '@ant-design/icons';
+import { QuestionCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import KeyResultForm from '../keyresultForm';
 import {
   KeyResultFieldLabel,
@@ -309,8 +306,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       <Button
         id="okr-drawer-cancel-button"
         data-cy="okr-drawer-cancel-button"
+        type="default"
+        size="middle"
         onClick={handleDrawerClose}
-        className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+        className="h-10 px-6 rounded-lg text-sm font-normal border-gray-300 text-gray-700 inline-flex items-center justify-center"
       >
         Cancel
       </Button>
@@ -318,14 +317,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
         id="okr-drawer-save-button"
         data-cy="okr-drawer-save-button"
         type="primary"
+        size="middle"
         onClick={onSubmit}
         loading={isLoading}
         disabled={
-          !objectiveValue?.title ||
+          !objectiveValue?.title?.trim() ||
           !objectiveValue?.deadline ||
           !objective?.keyResults?.length
         }
-        className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+        className="h-10 px-6 rounded-lg text-sm font-normal inline-flex items-center justify-center bg-okr-primary border-okr-primary hover:!bg-blue-800 [&.ant-btn-primary:disabled]:!bg-okr-primary [&.ant-btn-primary:disabled]:!text-white [&.ant-btn-primary:disabled]:!border-okr-primary [&.ant-btn-primary:disabled]:!opacity-100"
       >
         Create
       </Button>
@@ -551,12 +551,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       centered={!isMobile}
       width={isMobile ? '100%' : 1200}
       zIndex={12000}
-      wrapClassName={isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'}
+      wrapClassName={
+        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
+      }
       bodyStyle={{
-        padding: isMobile ? 12 : 24,
+        padding: isMobile ? '24px 24px' : 24,
         maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
         overflowY: isMobile ? 'auto' : undefined,
       }}
+      styles={{ content: { borderRadius: 8 } }}
       style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
       destroyOnClose
@@ -1042,7 +1045,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   type="default"
                   id="okr-drawer-desktop-add-keyresult-button"
                   data-cy="okr-drawer-desktop-add-keyresult-button"
-                  className={`w-10 h-10 flex items-center justify-center p-0 rounded-full ${
+                  className={`w-10 h-10 flex items-center justify-center p-0 rounded-lg ${
                     objectiveValue?.title && objectiveValue.title.trim() !== ''
                       ? 'bg-okr-primary border-okr-primary text-white hover:bg-blue-800'
                       : 'border border-gray-300 text-gray-400 cursor-not-allowed'
@@ -1173,85 +1176,88 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             data-cy="okr-drawer-key-results-list"
           >
             {objective?.keyResults?.length > 0 &&
-              objective?.keyResults.map((keyItem: any, index: number) =>
-                isBasic ? (
-                  index === editingKeyResultIndex ? (
-                    <Form
-                      key={index}
-                      form={krForm}
-                      layout="vertical"
-                      requiredMark={false}
-                      className="mb-3"
-                      data-cy={`okr-drawer-edit-key-result-form-${index}`}
-                    >
-                      <div
-                        data-cy={`okr-drawer-edit-key-result-form-content-${index}`}
+              [...objective.keyResults]
+                .reverse()
+                .map((keyItem: any, reverseIdx: number) => {
+                  const index = objective.keyResults.length - 1 - reverseIdx;
+                  return isBasic ? (
+                    index === editingKeyResultIndex ? (
+                      <Form
+                        key={index}
+                        form={krForm}
+                        layout="vertical"
+                        requiredMark={false}
+                        className="mb-3"
+                        data-cy={`okr-drawer-edit-key-result-form-${index}`}
                       >
-                        {renderBasicKrFormContent()}
-                      </div>
-                    </Form>
-                  ) : (
-                    <div
-                      key={index}
-                      id={`okr-drawer-saved-kr-${index}`}
-                      data-cy={`okr-drawer-saved-kr-${index}`}
-                      className="mb-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4"
-                    >
-                      <div
-                        className="flex items-start justify-between gap-3 mb-2"
-                        data-cy={`okr-drawer-saved-kr-header-${index}`}
-                      >
-                        <span
-                          className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0"
-                          data-cy={`okr-drawer-saved-kr-weight-${index}`}
+                        <div
+                          data-cy={`okr-drawer-edit-key-result-form-content-${index}`}
                         >
-                          Weight {keyItem?.weight ?? 0}%
-                        </span>
-                        <Tooltip title="Edit">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingKeyResultIndex(index);
-                              setShowInlineKeyResultForm(true);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-md bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
-                            aria-label="Edit key result"
-                            data-cy={`okr-drawer-saved-kr-edit-${index}`}
-                          >
-                            <EditOutlined className="text-sm" />
-                          </button>
-                        </Tooltip>
-                      </div>
-                      <p
-                        className="text-base font-bold text-gray-900 leading-snug break-words"
-                        data-cy={`okr-drawer-saved-kr-title-${index}`}
+                          {renderBasicKrFormContent()}
+                        </div>
+                      </Form>
+                    ) : (
+                      <div
+                        key={index}
+                        id={`okr-drawer-saved-kr-${index}`}
+                        data-cy={`okr-drawer-saved-kr-${index}`}
+                        className="mb-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4"
                       >
-                        {keyItem?.title?.trim() ? (
-                          keyItem.title
-                        ) : (
+                        <div
+                          className="flex items-start justify-between gap-3 mb-2"
+                          data-cy={`okr-drawer-saved-kr-header-${index}`}
+                        >
                           <span
-                            className="text-gray-400 italic font-normal"
-                            data-cy={`okr-drawer-saved-kr-untitled-${index}`}
+                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0"
+                            data-cy={`okr-drawer-saved-kr-weight-${index}`}
                           >
-                            Untitled key result
+                            Weight {keyItem?.weight ?? 0}%
                           </span>
-                        )}
-                      </p>
-                    </div>
-                  )
-                ) : (
-                  <KeyResultForm
-                    data-cy="okr-drawer-key-result-form"
-                    key={index}
-                    keyItem={keyItem}
-                    index={index}
-                    updateKeyResult={updateKeyResult}
-                    removeKeyResult={removeKeyResult}
-                    addKeyResultValue={addKeyResultValue}
-                    embedInOkrSheet={isMobile}
-                  />
-                ),
-              )}
+                          <Tooltip title="Edit">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingKeyResultIndex(index);
+                                setShowInlineKeyResultForm(true);
+                              }}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
+                              aria-label="Edit key result"
+                              data-cy={`okr-drawer-saved-kr-edit-${index}`}
+                            >
+                              <EditOutlinedIcon className="text-sm" />
+                            </button>
+                          </Tooltip>
+                        </div>
+                        <p
+                          className="text-base font-bold text-gray-900 leading-snug break-words"
+                          data-cy={`okr-drawer-saved-kr-title-${index}`}
+                        >
+                          {keyItem?.title?.trim() ? (
+                            keyItem.title
+                          ) : (
+                            <span
+                              className="text-gray-400 italic font-normal"
+                              data-cy={`okr-drawer-saved-kr-untitled-${index}`}
+                            >
+                              Untitled key result
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    )
+                  ) : (
+                    <KeyResultForm
+                      data-cy="okr-drawer-key-result-form"
+                      key={index}
+                      keyItem={keyItem}
+                      index={index}
+                      updateKeyResult={updateKeyResult}
+                      removeKeyResult={removeKeyResult}
+                      addKeyResultValue={addKeyResultValue}
+                      embedInOkrSheet={isMobile}
+                    />
+                  );
+                })}
           </div>
 
           {/* Total Weight Display */}

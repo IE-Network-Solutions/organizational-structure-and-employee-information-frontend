@@ -53,7 +53,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
     <div
       id={`okr-achieve-form-container-${index}`}
       data-cy={`okr-achieve-form-container-${index}`}
-      className={`relative mb-4 ${isBasic ? 'bg-white border border-gray-200 rounded-lg p-6' : 'border border-gray-200 rounded-lg p-6'}`}
+      className={`relative mb-4 ${isBasic ? `bg-white border border-gray-200 rounded-lg ${isMobile ? 'p-3' : 'p-6'}` : `border border-gray-200 rounded-lg ${isMobile ? 'p-3' : 'p-6'}`}`}
     >
       {!hideRemoveButton && (isBasic || !isCardView) ? (
         <div

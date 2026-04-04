@@ -1705,12 +1705,16 @@
     pointer-events: auto;
   }
 
+  /* Remove Ant Design horizontal padding on .ant-modal-content (paddingContentHorizontalLG) so it
+     does not stack with the 24px on header/body/footer — single 24px gutter to the fields. */
   .okr-mobile-bottom-sheet .ant-modal-content {
-    border-radius: 16px 16px 0 0;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
-    max-height: 50vh;
+    max-height: 85vh;
     display: flex;
     flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .okr-mobile-bottom-sheet .ant-modal-body {
@@ -1718,6 +1722,13 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-header,
+  .okr-mobile-bottom-sheet .ant-modal-body,
+  .okr-mobile-bottom-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
   }
 
   /* Mobile filter modal – bottom sheet, rounded top, full width (My/Team/Company/All Employees OKR).
@@ -1740,11 +1751,13 @@
   }
 
   .okr-mobile-filter-sheet .ant-modal-content {
-    border-radius: 16px 16px 0 0;
+    border-radius: 8px 8px 0 0;
     overflow: hidden;
     max-height: 85vh;
     display: flex;
     flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .okr-mobile-filter-sheet .ant-modal-body {
@@ -1752,6 +1765,14 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+  }
+
+  /* Match theme paddingLG (24px) with OKR objective bottom sheets */
+  .okr-mobile-filter-sheet .ant-modal-header,
+  .okr-mobile-filter-sheet .ant-modal-body,
+  .okr-mobile-filter-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
   }
 
   /* Ensure hidden modal wrap and mask do not block clicks (fix for stuck UI on mobile) */

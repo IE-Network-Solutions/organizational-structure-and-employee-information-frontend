@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Drawer } from 'antd';
-import { EditOutlined, ThunderboltFilled } from '@ant-design/icons';
+import { ThunderboltFilled } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import MilestoneForm from './milestoneForm';
 import AchiveOrNot from './achiveOrNot';
 import CurrencyForm from './currencyForm';
@@ -184,7 +185,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
             type="button"
             id={`okr-key-result-mobile-open-button-${index}`}
             data-cy={`okr-key-result-mobile-open-button-${index}`}
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-white shadow-sm hover:shadow-md transition-shadow flex items-center justify-between text-left"
+            className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-white shadow-sm hover:shadow-md transition-shadow flex items-center justify-between text-left"
             onClick={() => setSheetOpen(storeKey, true)}
           >
             <div
@@ -208,7 +209,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
               className="text-okr-primary flex items-center gap-1 text-sm font-medium"
               data-cy={`okr-key-result-mobile-open-button-edit-${index}`}
             >
-              <EditOutlined />
+              <EditOutlinedIcon />
               Edit
             </span>
           </button>

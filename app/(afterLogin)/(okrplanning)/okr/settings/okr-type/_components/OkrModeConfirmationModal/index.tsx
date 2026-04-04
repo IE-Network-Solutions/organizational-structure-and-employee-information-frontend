@@ -36,6 +36,7 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
       styles={{
         content: {
           padding: '20px 24px',
+          borderRadius: 8,
           minHeight: 276,
           minWidth: 0,
           maxWidth: '100%',

@@ -1,4 +1,9 @@
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useCallback,
+  useState,
+} from 'react';
 import { Table, Button, Popover, Modal, Select } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
@@ -17,6 +22,7 @@ import {
   useGetAllFiscalYears,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import { toKeyResultDeadlineFilter } from '../../../_constants/okrStatusPills';
 
 const { Option } = Select;
 
@@ -25,7 +31,7 @@ const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 
 const scoreBoxClassName =
-  'inline-flex items-center justify-center min-w-[3.25rem] px-2.5 py-1 rounded-md text-xs font-medium border border-gray-200 text-gray-700 bg-white whitespace-nowrap';
+  'inline-flex items-center justify-center min-w-[3.25rem] px-2.5 py-1 rounded-lg text-xs font-medium border border-gray-200 text-gray-700 bg-white whitespace-nowrap';
 
 // Memoized score tag component — neutral bordered chip (My OKR card style); same thresholds/data-cy for tests
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
@@ -121,10 +127,7 @@ const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
   const sessionName = `${session?.name}` || '-';
 
   return (
-    <span
-      className={tableCellClassName}
-      data-cy="employee-okr-session-name"
-    >
+    <span className={tableCellClassName} data-cy="employee-okr-session-name">
       {sessionName}
     </span>
   );
@@ -149,7 +152,17 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
     employeeFiscalYearId,
     setEmployeeFiscalYearId,
     setEmployeeSessionIds,
+    okrStatusPillId,
+    okrTab,
   } = useOKRStore();
+
+  const keyResultDeadlineFilter = useMemo(
+    () =>
+      String(okrTab) === '1'
+        ? toKeyResultDeadlineFilter(okrStatusPillId)
+        : undefined,
+    [okrStatusPillId, okrTab],
+  );
 
   const {
     data: employeeOkr,
@@ -160,6 +173,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
     employeeSearchObjParams,
     employeePageSize,
     employeeCurrentPage,
+    keyResultDeadlineFilter,
   );
 
   const { isMobile, isTablet } = useIsMobile();
@@ -321,7 +335,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
             data-cy="employee-okr-employee-select"
             showSearch
             placeholder="Select a person"
-            className="w-full h-10 rounded-md"
+            className="w-full h-10 rounded-lg"
             allowClear
             value={employeeSearchObjParams.userId}
             onChange={(value) => handleFilter(value, 'userId')}
@@ -354,7 +368,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
             id="employee-okr-department-select"
             data-cy="employee-okr-department-select"
             placeholder="Filter by Department"
-            className="w-full h-10 rounded-md"
+            className="w-full h-10 rounded-lg"
             allowClear
             showSearch
             value={employeeSearchObjParams.departmentId}
@@ -408,15 +422,16 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
               (fy: any) => fy?.id === value,
             );
             const allSessionIds =
-              selectedFiscalYear?.sessions?.map((session: any) => session?.id) ||
-              [];
+              selectedFiscalYear?.sessions?.map(
+                (session: any) => session?.id,
+              ) || [];
 
             setEmployeeFiscalYearId(value || '');
             setEmployeeSessionIds(allSessionIds);
           }}
           allowClear
           showSearch
-          className="w-full h-10 rounded-md"
+          className="w-full h-10 rounded-lg"
           optionFilterProp="children"
           filterOption={(input, option) =>
             (option?.children as any)
@@ -461,7 +476,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           id="employee-okr-session-select"
           data-cy="employee-okr-session-select"
           placeholder="Filter by Session"
-          className="w-full min-h-[40px] rounded-md"
+          className="w-full min-h-[40px] rounded-lg"
           allowClear
           showSearch
           maxTagCount="responsive"
@@ -518,15 +533,12 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           id="employee-okr-metric-type-select"
           data-cy="employee-okr-metric-type-select"
           placeholder="Filter by Metric Type"
-          className="w-full h-10 rounded-md"
+          className="w-full h-10 rounded-lg"
           allowClear
           value={employeeSearchObjParams.metricTypeId}
           onChange={(value) => handleFilter(value, 'metricTypeId')}
         >
-          <Option
-            data-cy="employee-okr-metric-type-select-option-all"
-            value=""
-          >
+          <Option data-cy="employee-okr-metric-type-select-option-all" value="">
             All
           </Option>
           {Metrics?.items?.map((metric: any) => (
@@ -559,7 +571,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           id="employee-okr-filter-reset-button"
           data-cy="employee-okr-filter-reset-button"
           onClick={handleReset}
-          className="h-8 px-4 rounded-md text-xs text-gray-700 border-gray-300"
+          className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
         >
           Reset
         </Button>
@@ -568,7 +580,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           data-cy="employee-okr-filter-save-button"
           type="primary"
           onClick={() => setIsFilterModalOpen(false)}
-          className="h-8 px-4 rounded-md text-xs bg-okr-primary border-okr-primary"
+          className="h-8 px-4 rounded-lg text-xs bg-okr-primary border-okr-primary"
         >
           Save Filter
         </Button>
@@ -695,111 +707,118 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           data-cy="employee-okr-search-filter-container"
           className="flex justify-between items-center gap-3 mb-2 px-3 pt-3"
         >
-        {/* Search Input */}
-        <div
-          id="employee-okr-search-input-container"
-          data-cy="employee-okr-search-input-container"
-          className="flex-1 sm:flex-none min-w-0"
-        >
-          <Select
-            id="employee-okr-search-input"
-            data-cy="employee-okr-search-input"
-            showSearch
-            allowClear
-            placeholder="Search Employee"
-            value={employeeSearchObjParams.userId || undefined}
-            onChange={(value) => handleFilter(value || '', 'userId')}
-            className="h-10 w-full sm:w-[300px]"
-            filterOption={(input: any, option: any) =>
-              (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
-            }
-            options={allUsers?.items?.map((item: any) => ({
-              ...item,
-              value: item?.id,
-              label:
-                item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
-            }))}
-          />
-        </div>
-
-        {/* Filter Button - Desktop */}
-        {!isMobile && !isTablet && (
-          <Popover
-            content={filterPopoverContent}
-            title={filterPopoverTitle}
-            trigger="click"
-            open={isFilterModalOpen}
-            onOpenChange={(visible) => setIsFilterModalOpen(visible)}
-            placement="bottomRight"
-            overlayClassName="employee-okr-filter-popover"
-            overlayStyle={{ width: 500 }}
-            arrow={false}
+          {/* Search Input */}
+          <div
+            id="employee-okr-search-input-container"
+            data-cy="employee-okr-search-input-container"
+            className="flex-1 sm:flex-none min-w-0"
           >
-            <Button
-              id="employee-okr-desktop-filter-button"
-              data-cy="employee-okr-desktop-filter-button"
-              type="default"
-              className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
-              icon={<FilterAltOutlinedIcon className="py-1" />}
-            >
-              Filter
-            </Button>
-          </Popover>
-        )}
-
-        {/* Filter Button - Mobile */}
-        {(isMobile || isTablet) && (
-          <>
-            <Button
-              id="employee-okr-mobile-filter-button"
-              data-cy="employee-okr-mobile-filter-button"
-              type="default"
-              onClick={() => setIsFilterModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg h-10 flex-shrink-0"
-              icon={<FilterAltOutlinedIcon className="py-1" />}
-            >
-              Filter
-            </Button>
-            <Modal
-              data-cy="employee-okr-mobile-filter-modal"
-              open={isFilterModalOpen}
-              onCancel={() => setIsFilterModalOpen(false)}
-              title={mobileModalHeader}
-              closable={false}
-              wrapClassName="okr-mobile-filter-sheet"
-              footer={
-                <div
-                  id="employee-okr-mobile-filter-modal-footer"
-                  data-cy="employee-okr-mobile-filter-modal-footer"
-                  className="flex justify-end gap-3 pt-4"
-                >
-                  <Button
-                    id="employee-okr-mobile-filter-reset-button"
-                    data-cy="employee-okr-mobile-filter-reset-button"
-                    onClick={handleReset}
-                    className="px-6 rounded-lg text-sm text-gray-700 border border-gray-300 bg-white hover:bg-gray-50"
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    id="employee-okr-mobile-filter-save-button"
-                    data-cy="employee-okr-mobile-filter-save-button"
-                    type="primary"
-                    onClick={() => setIsFilterModalOpen(false)}
-                    className="px-6 rounded-lg text-sm bg-okr-primary border-okr-primary"
-                  >
-                    Save Filter
-                  </Button>
-                </div>
+            <Select
+              id="employee-okr-search-input"
+              data-cy="employee-okr-search-input"
+              showSearch
+              allowClear
+              placeholder="Search Employee"
+              value={employeeSearchObjParams.userId || undefined}
+              onChange={(value) => handleFilter(value || '', 'userId')}
+              className="h-10 w-full sm:w-[300px]"
+              filterOption={(input: any, option: any) =>
+                (option?.label ?? '')
+                  ?.toLowerCase()
+                  .includes(input.toLowerCase())
               }
-              className="md:hidden"
-              width="100%"
-              style={{ maxWidth: '100%', paddingBottom: 0 }}
+              options={allUsers?.items?.map((item: any) => ({
+                ...item,
+                value: item?.id,
+                label:
+                  item?.firstName +
+                  ' ' +
+                  item?.middleName +
+                  ' ' +
+                  item?.lastName,
+              }))}
+            />
+          </div>
+
+          {/* Filter Button - Desktop */}
+          {!isMobile && !isTablet && (
+            <Popover
+              content={filterPopoverContent}
+              title={filterPopoverTitle}
+              trigger="click"
+              open={isFilterModalOpen}
+              onOpenChange={(visible) => setIsFilterModalOpen(visible)}
+              placement="bottomRight"
+              overlayClassName="employee-okr-filter-popover"
+              overlayStyle={{ width: 500 }}
+              arrow={false}
             >
-              <FilterContent />
-            </Modal>
-          </>
-        )}
+              <Button
+                id="employee-okr-desktop-filter-button"
+                data-cy="employee-okr-desktop-filter-button"
+                type="default"
+                className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
+                icon={<FilterAltOutlinedIcon className="py-1" />}
+              >
+                Filter
+              </Button>
+            </Popover>
+          )}
+
+          {/* Filter Button - Mobile */}
+          {(isMobile || isTablet) && (
+            <>
+              <Button
+                id="employee-okr-mobile-filter-button"
+                data-cy="employee-okr-mobile-filter-button"
+                type="default"
+                onClick={() => setIsFilterModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 border rounded-lg h-10 flex-shrink-0"
+                icon={<FilterAltOutlinedIcon className="py-1" />}
+              >
+                Filter
+              </Button>
+              <Modal
+                data-cy="employee-okr-mobile-filter-modal"
+                open={isFilterModalOpen}
+                onCancel={() => setIsFilterModalOpen(false)}
+                title={mobileModalHeader}
+                closable={false}
+                wrapClassName="okr-mobile-filter-sheet"
+                footer={
+                  <div
+                    id="employee-okr-mobile-filter-modal-footer"
+                    data-cy="employee-okr-mobile-filter-modal-footer"
+                    className="flex justify-end gap-3 pt-4"
+                  >
+                    <Button
+                      id="employee-okr-mobile-filter-reset-button"
+                      data-cy="employee-okr-mobile-filter-reset-button"
+                      onClick={handleReset}
+                      className="px-6 rounded-lg text-sm text-gray-700 border border-gray-300 bg-white hover:bg-gray-50"
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      id="employee-okr-mobile-filter-save-button"
+                      data-cy="employee-okr-mobile-filter-save-button"
+                      type="primary"
+                      onClick={() => setIsFilterModalOpen(false)}
+                      className="px-6 rounded-lg text-sm bg-okr-primary border-okr-primary"
+                    >
+                      Save Filter
+                    </Button>
+                  </div>
+                }
+                className="md:hidden"
+                width="100%"
+                styles={{ content: { borderRadius: 8 } }}
+                style={{ maxWidth: '100%', paddingBottom: 0 }}
+              >
+                <FilterContent />
+              </Modal>
+            </>
+          )}
         </div>
 
         <div

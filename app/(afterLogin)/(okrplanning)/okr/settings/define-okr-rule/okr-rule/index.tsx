@@ -237,6 +237,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
         <style jsx global data-cy="okr-rule-modal-styles">{`
           .okr-settings-modal .ant-modal-content {
             padding: 0 !important;
+            border-radius: 8px !important;
           }
           .okr-settings-modal .ant-modal-title {
           }

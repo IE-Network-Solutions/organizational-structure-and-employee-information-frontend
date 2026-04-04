@@ -349,7 +349,7 @@ const MilestoneView: React.FC<OKRProps> = ({
             <Button
               type="text"
               icon={<VscClose />}
-              className="absolute top-2 right-2 rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
+              className="absolute top-2 right-2 rounded-lg w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white flex items-center justify-center p-0"
               id={`okr-key-result-view-milestone-remove-button-${index}`}
               data-cy={`okr-key-result-view-milestone-remove-button-${index}`}
             />
@@ -799,7 +799,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                           disabled={milestone?.status === 'Completed'}
                           id={`remove-milestone-${index}-${mindex}`}
                           icon={<VscClose size={12} className="text-white" />}
-                          className="rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
+                          className="rounded-lg w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
                           type="primary"
                         />
                       </Tooltip>
@@ -878,7 +878,7 @@ const MilestoneView: React.FC<OKRProps> = ({
                   <Button
                     id={`okr-key-result-view-milestone-mobile-milestone-remove-button-${index}`}
                     data-cy={`okr-key-result-view-milestone-mobile-milestone-remove-button-${index}`}
-                    className="rounded-full w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
+                    className="rounded-lg w-6 h-6 bg-[#2B3CF1] hover:bg-[#1d2bb8] border-none flex items-center justify-center"
                     disabled
                   >
                     <VscClose size={12} className="text-white" />

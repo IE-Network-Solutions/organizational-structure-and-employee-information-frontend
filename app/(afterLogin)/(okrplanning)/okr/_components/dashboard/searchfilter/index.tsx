@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Select, Modal, Button, Popover } from 'antd';
+import { OKR_STATUS_PILLS } from '../../../_constants/okrStatusPills';
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
@@ -52,8 +53,11 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
     fiscalYearId,
     setSessionIds,
     sessionIds,
+    okrStatusPillId,
+    setOkrStatusPillId,
   } = useOKRStore();
 
+  const isMyOkrTab = String(okrTab) === '1';
   const treatAsAllEmployeeTab = allEmployeeLayout || okrTab == 4;
   /** Send all FY sessions only for OKR tab 4 / legacy all-employee toolbar. Performance employees (`filterInPopover`) uses the active session only. */
   const useAllSessionsForEmployeeOkr =
@@ -197,17 +201,52 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
   const handleReset = () => {
     setFiscalYearId('');
     setSessionIds([]);
+    setOkrStatusPillId(null);
     handleFilter('', 'metricTypeId');
     handleFilter('', 'userId');
     handleFilter('', 'departmentId');
   };
 
-  const MobileFilterContent = () => (
+  const MobileFilterContent = ({
+    showStatusPills = false,
+  }: {
+    showStatusPills?: boolean;
+  }) => (
     <div
       id="mobile-filter-content"
       data-cy="okr-mobile-filter-content"
       className="flex flex-col gap-4"
     >
+      {showStatusPills && (
+        <div
+          className="flex w-full min-w-0 flex-wrap gap-0.5"
+          data-cy="okr-status-pills-row"
+        >
+          {OKR_STATUS_PILLS.map((pill) => {
+            const isSelected = okrStatusPillId === pill.id;
+            return (
+              <Button
+                key={pill.id}
+                type="default"
+                size="small"
+                data-cy={`okr-status-pill-${pill.id}`}
+                onClick={() =>
+                  setOkrStatusPillId(
+                    okrStatusPillId === pill.id ? null : pill.id,
+                  )
+                }
+                className={
+                  isSelected
+                    ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-okr-primary text-okr-primary !bg-white hover:!bg-[#FAFAFA] hover:!border-okr-primary hover:!text-okr-primary'
+                    : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-white hover:!bg-gray-50 hover:!border-gray-300 hover:!text-gray-800'
+                }
+              >
+                {pill.label}
+              </Button>
+            );
+          })}
+        </div>
+      )}
       {/* Employee – full width, label above (same fields as desktop) */}
       {showUserAndDepartmentFilters && (
         <div
@@ -458,7 +497,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       data-cy="okr-filter-popover-content"
       className="w-[460px]"
     >
-      <MobileFilterContent data-cy="okr-filter-popover-fields" />
+      <MobileFilterContent showStatusPills={false} />
       <div
         id="filter-popover-footer"
         data-cy="okr-filter-popover-footer"
@@ -567,12 +606,14 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               id="desktop-filter-button"
               data-cy="okr-desktop-filter-button"
               type="default"
+              aria-label="Filter"
+              title="Filter"
               onClick={openFilterModal}
-              className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              icon={<FilterAltOutlinedIcon className="py-1" sx={{ fontSize: 22 }} />}
-            >
-              Filter
-            </Button>
+              className="flex h-10 w-10 min-h-10 min-w-[40px] shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white p-0 shadow-sm hover:bg-gray-50"
+              icon={
+                <FilterAltOutlinedIcon className="py-1" sx={{ fontSize: 22 }} />
+              }
+            />
             <Modal
               data-cy="okr-mobile-filter-modal"
               open={isModalOpen}
@@ -586,6 +627,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               closable={false}
               wrapClassName="okr-mobile-filter-sheet"
               width="100%"
+              styles={{ content: { borderRadius: 8 } }}
               style={{ maxWidth: '100%', paddingBottom: 0 }}
               footer={
                 <div
@@ -613,7 +655,9 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                 </div>
               }
             >
-              <MobileFilterContent data-cy="okr-mobile-filter-content" />
+              <MobileFilterContent
+                showStatusPills={isMobileView && isMyOkrTab}
+              />
             </Modal>
           </>
         ) : (
@@ -632,8 +676,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
               id="desktop-filter-button"
               data-cy="okr-desktop-filter-button"
               type="default"
-              className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              icon={<FilterAltOutlinedIcon className="py-1" sx={{ fontSize: 22 }} />}
+              className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              icon={
+                <FilterAltOutlinedIcon className="py-1" sx={{ fontSize: 22 }} />
+              }
             >
               Filter
             </Button>
@@ -726,7 +772,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                     </div>
                     <button
                       type="button"
-                      className="flex h-8 w-8 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                       aria-label="Close"
                       data-cy="okr-performance-filter-popover-close"
                       onClick={() => setFilterPopoverOpen(false)}
@@ -1257,9 +1303,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
           }
           className="md:hidden"
           width="100%"
+          styles={{ content: { borderRadius: 8 } }}
           style={{ maxWidth: '100%', paddingBottom: 0 }}
         >
-          <MobileFilterContent data-cy="okr-mobile-filter-content" />
+          <MobileFilterContent showStatusPills={isMyOkrTab} />
         </Modal>
       </div>
     </>

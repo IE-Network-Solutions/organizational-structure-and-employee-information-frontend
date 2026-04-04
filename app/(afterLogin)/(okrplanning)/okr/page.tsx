@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
@@ -15,6 +15,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import OkrModeSelectionModal from './_components/okrModeSelectionModal';
 import { Button, Divider, Spin } from 'antd';
+import { toKeyResultDeadlineFilter } from './_constants/okrStatusPills';
 
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
@@ -26,7 +27,18 @@ const OKR: React.FC<any> = () => {
     employeeSearchObjParams,
     okrTab,
     employeeSessionIds,
+    okrStatusPillId,
+    fiscalYearId,
+    sessionIds,
   } = useOKRStore();
+
+  const keyResultDeadlineFilter = useMemo(
+    () =>
+      String(okrTab) === '1'
+        ? toKeyResultDeadlineFilter(okrStatusPillId)
+        : undefined,
+    [okrStatusPillId, okrTab],
+  );
 
   // OKR Mode Selection Integration
   const {
@@ -56,6 +68,9 @@ const OKR: React.FC<any> = () => {
     pageSize,
     currentPage,
     searchObjParams?.metricTypeId,
+    fiscalYearId,
+    sessionIds,
+    keyResultDeadlineFilter,
   );
 
   const { isMobile } = useIsMobile();
@@ -123,7 +138,7 @@ const OKR: React.FC<any> = () => {
     <div
       id="okr-page-div-container"
       data-cy="okr-page-div-container"
-      className="h-auto w-full pb-4 md:pb-6"
+      className="h-auto min-w-0 w-full overflow-x-hidden pb-4 md:pb-6"
     >
       <div
         id="okr-page-div-header"
@@ -217,15 +232,14 @@ const OKR: React.FC<any> = () => {
                 <AddIcon
                   id="okr-page-button-create-user-icon"
                   data-cy="okr-page-button-create-user-icon"
-                  sx={{ fontSize: isMobile ? 14 : 20 }}
-                  className="text-white"
+                  sx={{ fontSize: isMobile ? 14 : 20, color: '#1E40AF' }}
                 />
               }
               onClick={showDrawer}
               className={
                 isMobile
                   ? 'bg-okr-primary hover:!bg-blue-700 h-8 w-8 min-w-8 p-0 flex items-center justify-center'
-                  : 'bg-okr-primary hover:!bg-blue-700 inline-flex items-center px-4 py-2 rounded-md shadow-sm'
+                  : 'bg-okr-primary hover:!bg-blue-700 inline-flex items-center px-4 py-2 rounded-lg shadow-sm !text-[#FFFFFF] hover:!text-[#FFFFFF]'
               }
             >
               {!isMobile && 'Create Objective'}
@@ -233,7 +247,10 @@ const OKR: React.FC<any> = () => {
           </div>
         ) : null}
       </div>
-      <Divider className="!my-0 !border-gray-200" data-cy="okr-header-divider" />
+      <Divider
+        className="!my-0 !border-gray-200"
+        data-cy="okr-header-divider"
+      />
       {/* Future: Conditional Rendering Based on OKR Mode
           When implementing conditional rendering:
           - Use okrMode from store to show/hide features
