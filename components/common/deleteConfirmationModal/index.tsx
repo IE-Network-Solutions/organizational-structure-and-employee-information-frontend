@@ -46,7 +46,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
     ? {
         position: 'fixed',
         top: triggerRect!.top + triggerRect!.height + 8,
-        left: triggerRect!.left,
+        left: triggerRect!.left + triggerRect!.width - 420,
         margin: 0,
         paddingBottom: 0,
         maxHeight: `calc(100vh - ${triggerRect!.top + triggerRect!.height + 8}px)`,
@@ -91,6 +91,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       onCancel={onCancel}
       footer={deleteModalFooter}
       centered={!isPositioned}
+      {...(isPositioned && { transitionName: '', maskTransitionName: '' })}
       {...(modalStyle !== undefined && { style: modalStyle })}
       title={
         <span

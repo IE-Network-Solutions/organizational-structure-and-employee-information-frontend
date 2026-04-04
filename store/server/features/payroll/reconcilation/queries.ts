@@ -1,8 +1,9 @@
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 
 export interface ReconciliationDetailParams {
   previousPayPeriodId?: string;
@@ -20,7 +21,7 @@ export interface ReconciliationDetailResponse<T = any> {
   currentPage: number;
 }
 
-interface ReconciliationParams {
+export interface ReconciliationParams {
   previousPayPeriodId?: string;
   currentPayPeriodId?: string;
 }
@@ -61,6 +62,52 @@ const getReconciliation = async ({
     },
   });
 };
+
+const exportReconciliation = async ({
+  previousPayPeriodId,
+  currentPayPeriodId,
+}: ReconciliationParams) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const blob = await crudRequest({
+    url: `${PAYROLL_URL}/payroll/reconciliation/export?previousPayPeriodId=${previousPayPeriodId}&currentPayPeriodId=${currentPayPeriodId}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId,
+    },
+    skipEncryption: true,
+    responseType: 'blob',
+  });
+
+  const fileBlob =
+    blob instanceof Blob
+      ? blob
+      : new Blob([blob], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+  const url = window.URL.createObjectURL(fileBlob);
+  const link = document.createElement('a');
+  const fileName = 'Payroll Reconciliation Export.xlsx';
+
+  link.href = url;
+  link.setAttribute('download', fileName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+export const useExportReconciliation = () =>
+  useMutation(exportReconciliation, {
+    onSuccess: () => {
+      NotificationMessage.success({
+        message: 'Export completed',
+        description: 'Payroll reconciliation has been exported successfully.',
+      });
+    },
+  });
 
 export const useGetReconciliation = ({
   previousPayPeriodId,
