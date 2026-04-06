@@ -12,6 +12,8 @@ interface WhatYouNeedProps {
   pill?: boolean;
   /** Optional wrapper className used by parent layouts */
   className?: string;
+  /** Stretch to parent width (e.g. job details toolbar) */
+  fullWidth?: boolean;
 }
 
 const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
@@ -19,6 +21,7 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
   embeddedInBar = false,
   pill = false,
   className = '',
+  fullWidth = false,
 }) => {
   const { searchParams, setSearchParams } = useCandidateState();
 
@@ -41,9 +44,13 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
 
   const containerClassName = embeddedInBar
     ? 'w-full flex-1'
-    : 'w-full sm:w-[360px]';
+    : fullWidth
+      ? 'w-full min-w-0'
+      : 'w-full sm:w-[360px]';
   const wrapperClassName = `${containerClassName} ${className}`.trim();
-  const inputShapeClass = pill ? 'rounded-md' : 'rounded-lg border-gray-300';
+  const inputShapeClass = pill
+    ? 'rounded-md'
+    : 'rounded-[6px] !border-[#D9D9D9] hover:!border-[#D9D9D9]';
 
   return (
     <div
@@ -56,14 +63,14 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
         data-cy="talent-acquisition-job-candidate-search-input"
         placeholder={placeholder}
         onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className={`w-full h-11 ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : inputShapeClass}`}
+        className={`ta-candidate-search-input w-full !h-10 [&_.ant-input]:!h-10 [&_.ant-input]:!text-[14px] [&_.ant-input]:placeholder:!text-[rgba(0,0,0,0.25)] ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : inputShapeClass}`}
         allowClear
         suffix={
           <span
-            className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0"
+            className="inline-flex h-10 items-center border-l border-[#D9D9D9] pl-2.5 pr-0.5"
             data-cy="talent-acquisition-job-candidate-search-input-suffix"
           >
-            <AiOutlineSearch className="text-gray-400 w-4 h-4 shrink-0" />
+            <AiOutlineSearch className="h-4 w-4 shrink-0 text-[rgba(0,0,0,0.45)]" />
           </span>
         }
       />

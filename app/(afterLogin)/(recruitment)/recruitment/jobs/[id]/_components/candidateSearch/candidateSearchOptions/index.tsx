@@ -16,7 +16,8 @@ import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../whatYouNeed';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { LuSettings2, LuFilter } from 'react-icons/lu';
+import { LuSettings2 } from 'react-icons/lu';
+import { FunnelFilterIcon } from '../../../../../_components/recruitmentIcons';
 import { LocationType } from '@/types/enumTypes';
 import { CloseOutlined } from '@ant-design/icons';
 
@@ -206,7 +207,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
       <Button
         type="primary"
         onClick={handleSaveFilter}
-        className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
+        className="!border-[#1E40AF] !bg-[#1E40AF] hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
         data-cy="talent-acquisition-jobs-filter-modal-save"
       >
         Save Filter
@@ -327,8 +328,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
           {isMobile || isTablet ? (
             <>
               <Button
-                icon={<LuFilter className="w-4 h-4" />}
-                className="!h-11 !border-gray-300 text-gray-700"
+                icon={
+                  <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
+                }
+                className="!inline-flex !h-10 !items-center !gap-2 !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
                 onClick={openFilter}
                 data-cy="talent-acquisition-job-candidate-search-button-filter"
               >
@@ -382,7 +385,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
                         handleSaveFilter();
                         setFilterModalOpen(false);
                       }}
-                      className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
+                      className="!border-[#1E40AF] !bg-[#1E40AF] hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
                       data-cy="talent-acquisition-jobs-filter-modal-save"
                     >
                       Save Filter
@@ -392,8 +395,10 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
               }
             >
               <Button
-                icon={<LuFilter className="w-4 h-4" />}
-                className="!h-11 !border-gray-300 text-gray-700"
+                icon={
+                  <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
+                }
+                className="!inline-flex !h-10 !items-center !gap-2 !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
                 onClick={() => setFilterModalOpen(true)}
                 data-cy="talent-acquisition-job-candidate-search-button-filter"
               >

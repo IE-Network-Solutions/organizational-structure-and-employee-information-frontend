@@ -19,6 +19,8 @@ interface CustomPaginationProps {
   'data-cy'?: string;
   grayBackground?: boolean; // Only for planning and reporting page
   showGoToPage?: boolean; // Show "Go to" + input + "Page" on the right (design like recruitment)
+  /** When set, overrides the active page number button styles (e.g. TA primary blue). */
+  activePageButtonClassName?: string;
 }
 
 const CustomPagination: React.FC<CustomPaginationProps> = ({
@@ -32,6 +34,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   'data-cy': dataCy,
   grayBackground = false,
   showGoToPage = false,
+  activePageButtonClassName,
 }) => {
   const [goToPageValue, setGoToPageValue] = useState<string>(String(current));
   const { isMobile } = useIsMobile();
@@ -61,9 +64,11 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     }
   };
 
-  const activeButtonClass = showGoToPage
-    ? '!bg-[#6366F1] !text-white hover:!bg-[#4F46E5]'
-    : 'bg-[#F8F8F8] text-[#111827]';
+  const activeButtonClass =
+    activePageButtonClassName ??
+    (showGoToPage
+      ? '!bg-[#6366F1] !text-white hover:!bg-[#4F46E5]'
+      : 'bg-[#F8F8F8] text-[#111827]');
   const inactiveButtonClass = 'bg-white text-[#111827] hover:bg-gray-100';
 
   const renderPageNumbers = () => {
@@ -177,7 +182,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex flex-wrap justify-between items-center gap-4 py-6 ${grayBackground ? 'bg-gray-100' : ''}`}
+      className={`flex flex-wrap justify-between items-center gap-4 border-t border-[#E5E7EB] py-4 ${grayBackground ? 'bg-gray-100' : 'bg-white'}`}
     >
       <div
         id="pagination-nav"

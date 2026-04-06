@@ -18,7 +18,7 @@ import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { FaEye, FaTrashAlt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-import { FaEllipsisVertical } from 'react-icons/fa6';
+import { BsThreeDots } from 'react-icons/bs';
 import { MdOutlineFileDownload, MdModeEdit } from 'react-icons/md';
 import {
   useChangeCandidateStatus,
@@ -105,7 +105,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
     {
-      title: 'Phone Number',
+      title: 'Phone',
       dataIndex: 'phoneNumber',
       ellipsis: true,
     },
@@ -135,7 +135,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         val ? (
           <a
             href={`mailto:${val}`}
-            className="text-blue-600 hover:underline"
+            className="text-[#1E40AF] hover:underline"
             data-cy="talent-acquisition-job-candidate-table-email-link"
           >
             {val}
@@ -201,25 +201,23 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         <div
           id={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
           data-cy={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
-          className="flex items-center justify-between "
+          className={`flex items-center justify-center ${item?.resumeUrl ? '' : 'opacity-40'}`}
         >
-          <span
-            className="text-xs font-semibold cursor-pointer"
-            title={item?.documentName ?? 'CV.pdf'}
-            data-cy={`talent-acquisition-job-candidate-table-cv-filename-${item?.id}`}
-          >
-            {item?.documentName?.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (item?.documentName ?? 'CV.pdf')}{' '}
-          </span>
-          <div
+          <button
+            type="button"
             id={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
             data-cy={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
-            className="cursor-pointer"
+            className="flex h-9 w-9 items-center justify-center rounded border-0 bg-transparent text-[#1E40AF] hover:bg-[#EFF6FF] disabled:pointer-events-none"
+            disabled={!item?.resumeUrl}
+            aria-label={
+              item?.documentName
+                ? `Download ${item.documentName}`
+                : 'Download CV'
+            }
             onClick={handleDownload}
           >
-            <MdOutlineFileDownload size={20} />
-          </div>
+            <MdOutlineFileDownload size={22} className="text-[#1E40AF]" />
+          </button>
         </div>
       ),
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
@@ -230,7 +228,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           defaultValue={item?.jobCandidate?.map(
             (e: any) => e?.applicantStatusStage?.title ?? '--',
           )}
-          style={{ width: 120 }}
+          className="ta-candidate-stage-select min-w-[128px] max-w-[200px] [&_.ant-select-selector]:!h-auto [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-[4px] [&_.ant-select-selector]:!border [&_.ant-select-selector]:!border-solid [&_.ant-select-selector]:!border-[#1E40AF] [&_.ant-select-selector]:!bg-[#EFF6FF] [&_.ant-select-selector]:!py-0.5 [&_.ant-select-selector]:!px-2 [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[#1E40AF]"
+          popupClassName="ta-candidate-stage-dropdown"
           onChange={(value) =>
             handleStageChange(
               value,
@@ -337,11 +336,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
               >
                 <button
                   type="button"
-                  className="flex items-center justify-center w-8 h-8 rounded text-gray-500 hover:bg-gray-100 border-0 bg-transparent cursor-pointer"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:border-[#1E40AF] hover:text-[#1E40AF]"
                   aria-label="Actions"
                   data-cy={`talent-acquisition-job-candidate-table-action-button-${item?.id}`}
                 >
-                  <FaEllipsisVertical className="text-lg" />
+                  <BsThreeDots className="text-base" />
                 </button>
               </Dropdown>
             </span>
@@ -370,15 +369,20 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     <div
       id="talent-acquisition-job-candidate-table-div-container"
       data-cy="talent-acquisition-job-candidate-table-div-container"
+      className="min-w-0 overflow-x-auto"
     >
       <Table
-        className="w-full"
+        className="ta-job-detail-candidate-table w-full min-w-[960px] [&_.ant-table]:rounded-none [&_.ant-table-container]:!border-x-0 [&_.ant-table-cell]:!px-3 [&_.ant-table-cell]:!py-3 [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#E5E7EB] [&_.ant-table-thead>tr>th]:!bg-[#F3F4F6] [&_.ant-table-thead>tr>th]:!py-3 [&_.ant-table-thead>tr>th]:!text-[14px] [&_.ant-table-thead>tr>th]:!font-semibold [&_.ant-table-thead>tr>th]:!text-[rgba(0,0,0,0.65)] [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#F3F4F6]"
         columns={columns}
         dataSource={data}
         loading={isResponseLoading}
-        scroll={{ x: 1000 }}
+        scroll={{ x: 'max-content', y: 480 }}
         rowSelection={rowSelection}
         pagination={false}
+        rowClassName={(record, index) => {
+          void record;
+          return index % 2 === 1 ? '!bg-[#F9FAFB]' : '!bg-white';
+        }}
         data-cy="talent-acquisition-job-candidate-table"
       />
 
@@ -398,6 +402,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           onChange={onPageChange}
           onShowSizeChange={onSizeChange}
           showGoToPage
+          activePageButtonClassName="!border !border-[#1E40AF] !bg-[#1E40AF] !text-white hover:!bg-[#1D4ED8] hover:!border-[#1D4ED8]"
           data-cy="talent-acquisition-candidate-table-pagination"
         />
       )}

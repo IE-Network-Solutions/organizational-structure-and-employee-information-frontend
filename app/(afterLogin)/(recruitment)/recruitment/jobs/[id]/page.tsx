@@ -1,7 +1,6 @@
 'use client';
 /* eslint-disable local-rules/data-cy-required */
 
-import CustomButton from '@/components/common/buttons/customButton';
 import React, { useEffect, useState } from 'react';
 import { FaUserPlus, FaTimes, FaCheck } from 'react-icons/fa';
 import { MdOutlineFileDownload, MdModeEdit } from 'react-icons/md';
@@ -335,18 +334,45 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     <div
       id="talent-acquisition-job-detail-page-div-container"
       data-cy="talent-acquisition-job-detail-page-div-container"
-      className="min-h-screen w-full p-4 sm:p-6 bg-[#f9fafb]"
+      className="min-h-screen w-full bg-white p-4 sm:p-6"
     >
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+          .talent-acquisition-job-detail-tabs .ant-tabs-nav { margin-bottom: 0; }
+          .talent-acquisition-job-detail-tabs .ant-tabs-nav::before {
+            border-bottom: 1px solid #E5E7EB;
+          }
+          .talent-acquisition-job-detail-tabs .ant-tabs-tab {
+            padding: 12px 0;
+            margin: 0 28px 0 0;
+            font-size: 16px;
+            font-weight: 400;
+          }
+          .talent-acquisition-job-detail-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+            color: #1E40AF !important;
+            text-shadow: none;
+          }
+          .talent-acquisition-job-detail-tabs .ant-tabs-ink-bar {
+            background: #1E40AF;
+            height: 2px;
+          }
+          .talent-acquisition-job-detail-tabs .ant-tabs-tab:not(.ant-tabs-tab-active) .ant-tabs-tab-btn {
+            color: rgba(0, 0, 0, 0.65);
+          }
+        `,
+        }}
+      />
       {/* Header: back + title + breadcrumb */}
-      <div className="flex items-center gap-3 mb-2">
+      <div className="mb-6 flex items-center gap-3 border-b border-[#E5E7EB] pb-4">
         <button
           type="button"
           onClick={handleBackClick}
-          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 shrink-0"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
           data-cy="talent-acquisition-job-detail-button-back"
           aria-label="Back to jobs"
         >
-          <IoIosArrowBack className="w-5 h-5" />
+          <IoIosArrowBack className="h-5 w-5" />
         </button>
         <div className="flex flex-col min-w-0">
           <h1
@@ -514,10 +540,10 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             >
               <span
                 id="job-detail-status-badge"
-                className={`inline-flex items-center text-xs font-medium rounded-md px-3 py-1 ${
+                className={`inline-flex items-center rounded-[4px] border border-solid px-3 py-1 text-[12px] font-normal ${
                   displayStatus === 'Closed'
-                    ? 'bg-gray-200 text-gray-600'
-                    : 'bg-emerald-100 text-emerald-700'
+                    ? 'border-gray-200 bg-gray-100 text-gray-600'
+                    : 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]'
                 }`}
                 data-cy="talent-acquisition-job-detail-status"
               >
@@ -574,87 +600,74 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
         )}
       </div>
 
-      {/* Tabs + action buttons */}
+      {/* Tabs — action buttons sit below tab ink bar on Candidates */}
       <div className="mb-4">
         <Tabs
           activeKey={activeTabKey}
           onChange={setActiveTabKey}
           className="talent-acquisition-job-detail-tabs"
-          tabBarExtraContent={
-            <div className="flex items-center gap-2">
-              <Button
-                type="default"
-                icon={
-                  <MdOutlineFileDownload
-                    size={18}
-                    className="text-gray-600 opacity-90"
-                  />
-                }
-                onClick={handleDownloadExcel}
-                loading={isDownloading}
-                className="!h-11 !rounded-lg !bg-white !border-gray-300 !text-gray-700 hover:!border-gray-400 hover:!text-gray-800"
-                data-cy="talent-acquisition-job-detail-button-download-excel"
-              >
-                Download
-              </Button>
-              <Button
-                type="primary"
-                icon={<FaUserPlus size={12} />}
-                onClick={showDrawer}
-                className="!h-11 !rounded-lg !bg-[#6366F1] hover:!bg-[#4F46E5] !border-0 !text-white"
-                data-cy="talent-acquisition-job-detail-button-add-candidate"
-              >
-                Add Candidate
-              </Button>
-            </div>
-          }
           items={[
             {
               key: 'candidates',
               label: (
                 <span
-                  className="flex items-center gap-2"
+                  className="inline-flex items-center gap-2"
                   data-cy="talent-acquisition-job-detail-tab-candidates"
                 >
                   Candidates
-                  <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
+                  <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-[4px] border border-solid border-[#1E40AF] px-1.5 text-[12px] font-normal text-[#1E40AF]">
                     {candidateCount}
                   </span>
                 </span>
               ),
               children: (
-                <div className="pt-4">
-                  {/* Search + Filter row: search left, Filter button right */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                    <div className="flex-1 max-w-md">
-                      <WhatYouNeed placeholder="Search Employee" />
+                <div className="pt-0">
+                  <div className="mt-6 flex flex-wrap items-center justify-end gap-2">
+                    {selectedCandidate?.length > 0 && (
+                      <Button
+                        type="primary"
+                        icon={<IoIosShareAlt className="text-base" />}
+                        onClick={handleMoveToTalentsPool}
+                        className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+                        data-cy="talent-acquisition-job-detail-button-move-talent-pool"
+                      >
+                        {isMobile || isTablet ? 'Move' : 'Move to Talent Pool'}
+                      </Button>
+                    )}
+                    <Button
+                      type="default"
+                      icon={
+                        <MdOutlineFileDownload
+                          size={18}
+                          className="text-[rgba(0,0,0,0.45)]"
+                        />
+                      }
+                      onClick={handleDownloadExcel}
+                      loading={isDownloading}
+                      className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
+                      data-cy="talent-acquisition-job-detail-button-download-excel"
+                    >
+                      Download
+                    </Button>
+                    <Button
+                      type="primary"
+                      icon={<FaUserPlus size={14} />}
+                      onClick={showDrawer}
+                      className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+                      data-cy="talent-acquisition-job-detail-button-add-candidate"
+                    >
+                      Add Candidate
+                    </Button>
+                  </div>
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <WhatYouNeed fullWidth placeholder="Search Employee" />
                     </div>
-                    <div className="flex items-center justify-end sm:shrink-0">
+                    <div className="flex shrink-0 items-center justify-end">
                       <SearchOptions jobId={id} />
                     </div>
                   </div>
-                  {/* Move to Talent Pool when selection */}
-                  {selectedCandidate?.length > 0 && (
-                    <div className="mb-3">
-                      <CustomButton
-                        title={
-                          !(isMobile || isTablet) && (
-                            <span className="hidden sm:inline">
-                              Move to Talent Pool
-                            </span>
-                          )
-                        }
-                        id="createUserButton"
-                        data-cy="talent-acquisition-job-detail-button-move-talent-pool"
-                        icon={
-                          <IoIosShareAlt className="md:mr-0 ml-2" size={20} />
-                        }
-                        onClick={handleMoveToTalentsPool}
-                        className="!bg-gray-100 !text-gray-700 hover:!bg-gray-200 border border-gray-200"
-                      />
-                    </div>
-                  )}
-                  <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <div className="mt-4 overflow-hidden rounded-lg border border-solid border-[#E5E7EB] bg-white">
                     <CandidateTable
                       data-cy="talent-acquisition-job-detail-candidate-table"
                       jobId={id}
