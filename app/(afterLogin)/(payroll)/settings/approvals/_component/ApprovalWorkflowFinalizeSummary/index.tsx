@@ -38,7 +38,9 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
     return m;
   }, [users]);
 
-  const workflowName = form.getFieldValue('workFlownName') as string | undefined;
+  const workflowName = form.getFieldValue('workFlownName') as
+    | string
+    | undefined;
   void approverType;
 
   const assignedByLevel = useMemo(() => {
@@ -107,7 +109,12 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
           id="approval-payroll-workflow-final-assigned-list"
         >
           {allAssignedNames.length === 0 ? (
-            <span className="text-sm text-gray-400" data-cy="approval-payroll-workflow-final-assigned-list-empty">-</span>
+            <span
+              className="text-sm text-gray-400"
+              data-cy="approval-payroll-workflow-final-assigned-list-empty"
+            >
+              -
+            </span>
           ) : (
             allAssignedNames.map((name, i) => (
               <span

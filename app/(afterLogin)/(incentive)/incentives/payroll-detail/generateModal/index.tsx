@@ -17,7 +17,8 @@ const GenerateModal: React.FC = () => {
   const { data: payPeriodData } = useFetchAllPayPeriod();
   const { data: allSessions } = useFetchIncentiveSessions();
 
-  const { mutate: generateIncentive, isLoading: submitPending } = useGenerateIncentive();
+  const { mutate: generateIncentive, isLoading: submitPending } =
+    useGenerateIncentive();
 
   const resetFormAfterClose = () => {
     form.resetFields();
@@ -111,7 +112,6 @@ const GenerateModal: React.FC = () => {
           valuePropName="checked"
           name="generateAll"
         >
-
           <Checkbox
             id="generate-modal-form-generate-all-checkbox"
             data-cy="generate-modal-form-generate-all-checkbox"
