@@ -20,7 +20,7 @@ const CoursePage = () => {
         data-cy="tna-course-curriculum-wrapper"
       >
         <div
-          className="bg-white border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900"
+          className="border-b border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900"
           id="tnaCourseCurriculumTitleId"
           data-cy="tna-course-curriculum-title"
         >
