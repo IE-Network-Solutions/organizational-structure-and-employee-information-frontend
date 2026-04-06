@@ -204,11 +204,6 @@ const LessonMaterialArticleBlock: FC<{
     setExpanded(false);
   }, [materialKey, articleHtml]);
 
-  const videoUrls =
-    lessonMaterial?.videos.filter((url): url is string =>
-      Boolean(url && String(url).trim()),
-    ) ?? [];
-
   return (
     <div
       className="lesson-material-article "

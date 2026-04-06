@@ -1,5 +1,5 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 import { useParams, useRouter } from 'next/navigation';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
@@ -15,9 +15,7 @@ interface TnaManagementLayoutProps {
 const MOBILE_PAGE_HEADER_MAX_LEN = 22;
 
 const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
-  const [breadcrumbItems, setBreadcrumbItems] = useState<
-    BreadcrumbProps['items']
-  >([]);
+  const breadcrumbItems: BreadcrumbProps['items'] = [];
   const { isMobile } = useIsMobile();
   const { id, lessonId, materialId } = useParams();
   const router = useRouter();
@@ -28,7 +26,6 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
     setRefetchCourse,
     setLessonMaterial,
     lessonMaterial,
-    lesson,
     setLesson,
     isLessonPageSidebarOpen,
     setLessonPageSidebarOpen,
