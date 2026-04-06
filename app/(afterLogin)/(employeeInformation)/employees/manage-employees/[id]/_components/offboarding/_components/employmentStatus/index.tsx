@@ -5,7 +5,7 @@ import { useFetchOffboardItems } from '@/store/server/features/employees/offboar
 import OffboardingFormControl from '../offboardingFormControl';
 import { Col, Row } from 'antd';
 import Image from 'next/image';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
+import avatar from '@/public/gender_neutral_avatar.jpg';
 
 const EmploymentStatus: React.FC = () => {
   const { data: employeeData } = useFetchOffboardItems();
@@ -28,7 +28,7 @@ const EmploymentStatus: React.FC = () => {
           data-cy="offboarding-employment-status-avatar-col"
         >
           <Image
-            src={employeeData?.avatar || GENDER_NEUTRAL_AVATAR_URL}
+            src={employeeData?.avatar || avatar}
             alt={employeeData?.name || 'Employee'}
             width={40}
             height={40}
