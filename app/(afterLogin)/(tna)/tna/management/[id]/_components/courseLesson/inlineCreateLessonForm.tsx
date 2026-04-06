@@ -2,11 +2,48 @@
 
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { LessonTitleDescriptionFormItems } from './lessonTitleDescriptionFields';
+import InlineAddCourseMaterialWizard, {
+  type NestedLessonMaterialDraftPayload,
+} from './inlineAddCourseMaterialWizard';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
 import { CourseLesson } from '@/types/tna/course';
 import { Button, Form } from 'antd';
-import { useCallback, type FC } from 'react';
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useCallback, useMemo, useState, type FC } from 'react';
+import SortablePendingLessonMaterialRow from './lessonCard/sortablePendingLessonMaterialRow';
+
+type LessonCreatePayload = Partial<CourseLesson> & {
+  courseLessonMaterials?: NestedLessonMaterialDraftPayload[];
+};
+
+type PendingMaterialRow = NestedLessonMaterialDraftPayload & {
+  clientId: string;
+};
+
+const DRAFT_LESSON_ID = '__inline_create_lesson_draft__';
+
+function newPendingClientId(): string {
+  return globalThis.crypto?.randomUUID?.() ?? `p-${Date.now()}-${Math.random()}`;
+}
+
+function trimToNull(v: string | undefined | null): string | null {
+  const s = String(v ?? '').trim();
+  return s === '' ? null : s;
+}
 
 const getLessonOrderForInsert = (
   courseLessons: CourseLesson[],
@@ -33,38 +70,144 @@ const getLessonOrderForInsert = (
 /** Same as drawer "Create at the end" (select value 0). */
 const INSERT_NEW_LESSON_AT_END = 0;
 
+const sortPendingMaterialsStable = (rows: PendingMaterialRow[]) =>
+  [...rows].sort(
+    (a, b) =>
+      a.order - b.order ||
+      a.title.localeCompare(b.title) ||
+      a.clientId.localeCompare(b.clientId),
+  );
+
 const InlineCreateLessonForm: FC = () => {
   const { course, refetchCourse, setIsShowAddLesson, setLesson } =
     useTnaManagementCoursePageStore();
   const { mutate: setLessons, isLoading } = useSetCourseLesson();
   const [form] = Form.useForm();
+  const [pendingMaterials, setPendingMaterials] = useState<PendingMaterialRow[]>(
+    [],
+  );
+  const [materialWizardOpen, setMaterialWizardOpen] = useState(false);
+  const [materialWizardMountKey, setMaterialWizardMountKey] = useState(0);
+  const [pendingMaterialEditClientId, setPendingMaterialEditClientId] = useState<
+    string | null
+  >(null);
+
+  const draftLessonForWizard = useMemo((): CourseLesson => {
+    return {
+      id: DRAFT_LESSON_ID,
+      courseId: course?.id ?? '',
+      title: '',
+      description: null,
+      order: 0,
+      tenantId: '',
+      createdAt: '',
+      updatedAt: '',
+      deletedAt: '',
+      createdBy: '',
+      updatedBy: '',
+      deletedBy: null,
+      courseLessonMaterials: [],
+    };
+  }, [course?.id]);
+
+  const draftMaterialOrders = useMemo(
+    () => pendingMaterials.map((m) => m.order),
+    [pendingMaterials],
+  );
+
+  const sortedPendingMaterials = useMemo(
+    () => sortPendingMaterialsStable(pendingMaterials),
+    [pendingMaterials],
+  );
+
+  const pendingMaterialSortableIds = useMemo(
+    () => sortedPendingMaterials.map((m) => m.clientId),
+    [sortedPendingMaterials],
+  );
+
+  const editingDraftPayload = useMemo((): NestedLessonMaterialDraftPayload | null => {
+    if (!pendingMaterialEditClientId) {
+      return null;
+    }
+    const row = pendingMaterials.find(
+      (m) => m.clientId === pendingMaterialEditClientId,
+    );
+    if (!row) {
+      return null;
+    }
+    const { clientId: _c, ...payload } = row;
+    return payload;
+  }, [pendingMaterialEditClientId, pendingMaterials]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
+    setPendingMaterials([]);
+    setPendingMaterialEditClientId(null);
+    setMaterialWizardOpen(false);
     setLesson(null);
     setIsShowAddLesson(false);
   }, [form, setIsShowAddLesson, setLesson]);
+
+  const removePendingMaterial = useCallback((clientId: string) => {
+    setPendingMaterials((prev) =>
+      prev
+        .filter((m) => m.clientId !== clientId)
+        .map((m, i) => ({ ...m, order: i })),
+    );
+  }, []);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handlePendingMaterialsDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) {
+      return;
+    }
+    setPendingMaterials((prev) => {
+      const sorted = sortPendingMaterialsStable(prev);
+      const oldIndex = sorted.findIndex((m) => m.clientId === active.id);
+      const newIndex = sorted.findIndex((m) => m.clientId === over.id);
+      if (oldIndex < 0 || newIndex < 0) {
+        return prev;
+      }
+      const next = arrayMove(sorted, oldIndex, newIndex);
+      return next.map((m, i) => ({ ...m, order: i }));
+    });
+  }, []);
 
   const onFinish = (values: { title: string; description: string }) => {
     const courseLessons = course?.courseLessons ?? [];
     const resolvedOrder =
       getLessonOrderForInsert(courseLessons, INSERT_NEW_LESSON_AT_END) || 0;
-    setLessons(
-      [
-        {
-          title: values.title,
-          order: resolvedOrder,
-          description: values.description,
-          courseId: course?.id ?? '',
-        },
-      ],
-      {
-        onSuccess: () => {
-          handleClose();
-          void refetchCourse?.();
-        },
+
+    const payload: LessonCreatePayload = {
+      title: values.title,
+      order: resolvedOrder,
+      description: trimToNull(values.description),
+      courseId: course?.id ?? '',
+    };
+
+    if (pendingMaterials.length) {
+      payload.courseLessonMaterials = pendingMaterials.map(
+        ({ clientId: _c, ...m }) => ({
+          ...m,
+          description: trimToNull(m.description),
+          article: trimToNull(m.article),
+        }),
+      );
+    }
+
+    setLessons([payload as unknown as Partial<CourseLesson>], {
+      onSuccess: () => {
+        handleClose();
+        void refetchCourse?.();
       },
-    );
+    });
   };
 
   return (
@@ -73,12 +216,6 @@ const InlineCreateLessonForm: FC = () => {
       className="mb-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
       data-cy="tna-inline-create-lesson"
     >
-      <div
-        className="mb-4 text-base font-semibold text-gray-900"
-        data-cy="tna-inline-create-lesson-heading"
-      >
-        Add lesson
-      </div>
       <Form
         layout="vertical"
         form={form}
@@ -88,32 +225,131 @@ const InlineCreateLessonForm: FC = () => {
         id="tnaInlineCreateLessonForm"
         data-cy="tna-inline-create-lesson-form"
       >
-        <LessonTitleDescriptionFormItems dataCyPrefix="tna-inline-create-lesson" />
+        <div
+          className={materialWizardOpen ? 'hidden' : undefined}
+          aria-hidden={materialWizardOpen}
+          data-cy="tna-inline-create-lesson-lesson-fields"
+        >
+          <LessonTitleDescriptionFormItems dataCyPrefix="tna-inline-create-lesson" />
+        </div>
       </Form>
-      <div
-        className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-2.5 sm:flex-row sm:items-center sm:justify-end"
-        data-cy="tna-inline-create-lesson-footer"
-      >
-        <Button
-          size="middle"
-          className="w-full !border-[#D9D9D9] !font-normal !text-black/70 hover:!border-[#D9D9D9] hover:!text-black/70 sm:w-auto"
-          onClick={handleClose}
-          disabled={isLoading}
-          data-cy="tna-inline-create-lesson-cancel"
+
+      {pendingMaterials.length > 0 && !materialWizardOpen ? (
+        <div
+          className="mt-3 flex flex-col gap-2"
+          data-cy="tna-inline-create-lesson-pending-materials"
         >
-          Cancel
-        </Button>
-        <Button
-          type="primary"
-          size="middle"
-          className="w-full !font-normal sm:w-auto"
-          loading={isLoading}
-          onClick={() => form.submit()}
-          data-cy="tna-inline-create-lesson-submit"
+          <DndContext
+            sensors={sensors}
+            onDragEnd={handlePendingMaterialsDragEnd}
+          >
+            <SortableContext
+              items={pendingMaterialSortableIds}
+              strategy={verticalListSortingStrategy}
+            >
+              {sortedPendingMaterials.map((material) => (
+                <SortablePendingLessonMaterialRow
+                  key={material.clientId}
+                  material={{
+                    clientId: material.clientId,
+                    title: material.title,
+                    timeToFinishMinutes: material.timeToFinishMinutes,
+                  }}
+                  onEdit={(clientId) => {
+                    setMaterialWizardMountKey((k) => k + 1);
+                    setPendingMaterialEditClientId(clientId);
+                    setMaterialWizardOpen(true);
+                  }}
+                  onRemove={removePendingMaterial}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+      ) : null}
+
+      {materialWizardOpen ? (
+        <div className="mt-4">
+          <InlineAddCourseMaterialWizard
+            key={materialWizardMountKey}
+            lesson={draftLessonForWizard}
+            draftMode
+            draftMaterialOrders={draftMaterialOrders}
+            editingDraft={editingDraftPayload}
+            draftEditingClientId={pendingMaterialEditClientId}
+            onDraftMaterialCommit={(material, replaceClientId) => {
+              if (replaceClientId) {
+                setPendingMaterials((prev) =>
+                  prev.map((m) =>
+                    m.clientId === replaceClientId
+                      ? { ...material, clientId: replaceClientId }
+                      : m,
+                  ),
+                );
+              } else {
+                setPendingMaterials((prev) => [
+                  ...prev,
+                  { ...material, clientId: newPendingClientId() },
+                ]);
+              }
+            }}
+            onClose={() => {
+              setPendingMaterialEditClientId(null);
+              setMaterialWizardOpen(false);
+            }}
+            onMaterialCreated={() => {
+              setPendingMaterialEditClientId(null);
+              setMaterialWizardOpen(false);
+            }}
+          />
+        </div>
+      ) : null}
+
+      {!materialWizardOpen ? (
+        <div
+          className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-2.5 sm:flex-row sm:items-center sm:justify-between"
+          data-cy="tna-inline-create-lesson-footer"
         >
-          Create
-        </Button>
-      </div>
+          <Button
+            type="primary"
+            size="middle"
+            className="w-full !font-normal sm:w-auto"
+            disabled={isLoading}
+            onClick={() => {
+              setPendingMaterialEditClientId(null);
+              setMaterialWizardMountKey((k) => k + 1);
+              setMaterialWizardOpen(true);
+            }}
+            data-cy="tna-inline-create-lesson-add-course-material"
+          >
+            Add Course Material
+          </Button>
+          <div
+            className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:justify-end"
+            data-cy="tna-inline-create-lesson-actions"
+          >
+            <Button
+              size="middle"
+              className="w-full !border-[#D9D9D9] !font-normal !text-black/70 hover:!border-[#D9D9D9] hover:!text-black/70 sm:w-auto"
+              onClick={handleClose}
+              disabled={isLoading}
+              data-cy="tna-inline-create-lesson-cancel"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              size="middle"
+              className="w-full !font-normal sm:w-auto"
+              loading={isLoading}
+              onClick={() => form.submit()}
+              data-cy="tna-inline-create-lesson-submit"
+            >
+              Create
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

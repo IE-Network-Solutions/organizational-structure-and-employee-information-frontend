@@ -245,10 +245,13 @@ const CourseLesson = () => {
           </div>
         ) : hasLessons ? (
           <div
-            className="flex flex-col gap-5 bg-transparent shadow-none"
+            className="flex flex-col bg-transparent shadow-none"
             data-cy="tna-course-lesson-collapse"
           >
-            <div data-cy="tna-course-lesson-dnd-context">
+            <div
+              className="flex flex-col gap-3 sm:gap-4"
+              data-cy="tna-course-lesson-dnd-context"
+            >
               <DndContext
                 sensors={lessonSensors}
                 onDragEnd={handleLessonDragEnd}

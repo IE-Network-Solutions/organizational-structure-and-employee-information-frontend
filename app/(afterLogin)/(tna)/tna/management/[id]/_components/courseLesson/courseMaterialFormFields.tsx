@@ -5,6 +5,7 @@ import CustomUpload from '@/components/form/customUpload';
 import { InboxOutlined } from '@ant-design/icons';
 import { Form, Input, InputNumber } from 'antd';
 import type { FormItemProps } from 'antd';
+import type { NamePath } from 'antd/es/form/interface';
 import type { Rule } from 'antd/es/form';
 import { type FC, type ReactNode } from 'react';
 
@@ -125,6 +126,8 @@ export interface CourseMaterialTimeFormItemProps {
   itemDataCy: string;
   /** Wizard: native `Input type="number"` (matches `getFieldsValue` parsing). Drawer: `InputNumber`. */
   variant: 'native' | 'inputNumber';
+  /** Defaults to `timeToFinishMinutes` */
+  name?: NamePath;
   rules?: Rule[];
   label?: string;
   formItemClassName?: string;
@@ -142,6 +145,7 @@ export const CourseMaterialTimeFormItem: FC<
 > = ({
   itemDataCy,
   variant,
+  name: fieldName = 'timeToFinishMinutes',
   rules,
   label = 'Estimated Time to Finish',
   formItemClassName,
@@ -155,7 +159,7 @@ export const CourseMaterialTimeFormItem: FC<
 }) => (
   <Form.Item
     {...formItemProps}
-    name="timeToFinishMinutes"
+    name={fieldName}
     label={label}
     rules={rules}
     className={mergeItemClass(formItemClassName)}

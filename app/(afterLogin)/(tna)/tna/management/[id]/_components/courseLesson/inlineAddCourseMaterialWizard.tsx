@@ -26,25 +26,48 @@ const STEP_LABELS = [
   'Attachments',
 ] as const;
 
+/** Payload shape for nested `courseLessonMaterials` on lesson create/update. */
+export type NestedLessonMaterialDraftPayload = {
+  title: string;
+  description: string | null;
+  article: string | null;
+  videos: string[];
+  attachments: string[];
+  order: number;
+  timeToFinishMinutes: number;
+};
+
 interface InlineAddCourseMaterialWizardProps {
   lesson: CourseLesson;
   /** When set, the wizard updates this material (same stepper as add). */
   editingMaterial?: CourseLessonMaterial | null;
+  /** When `draftMode`, pre-fill from a pending nested payload (inline lesson create). */
+  editingDraft?: NestedLessonMaterialDraftPayload | null;
+  /** With `editingDraft`, commit passes this id to `onDraftMaterialCommit` so the parent can replace the row. */
+  draftEditingClientId?: string | null;
   onClose: () => void;
   /** After successful create or update; wizard is closed first. */
   onMaterialCreated?: () => void;
+  /**
+   * When true, Finish does not call the material API — calls `onDraftMaterialCommit`
+   * (e.g. lesson not persisted yet; materials sent with lesson PUT).
+   */
+  draftMode?: boolean;
+  /** `order` values of materials already queued in this draft session (for next order). */
+  draftMaterialOrders?: number[];
+  /** When editing a pending row, `replaceClientId` is the stable client id for that row. */
+  onDraftMaterialCommit?: (
+    material: NestedLessonMaterialDraftPayload,
+    replaceClientId?: string,
+  ) => void;
 }
 
 /** New inline materials sort first in the list (`LessonCard` uses ascending `order`). */
-const getNewMaterialOrderForTop = (
-  courseLessonMaterials: CourseLessonMaterial[],
-): number => {
-  if (!courseLessonMaterials.length) {
+const getNewMaterialOrderForTop = (orders: number[]): number => {
+  if (!orders.length) {
     return 0;
   }
-  const minOrder = Math.min(
-    ...courseLessonMaterials.map((material) => material.order),
-  );
+  const minOrder = Math.min(...orders);
   if (minOrder > 0) {
     return minOrder / 2;
   }
@@ -57,12 +80,19 @@ const getNewMaterialOrderForTop = (
 const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
   lesson,
   editingMaterial = null,
+  editingDraft = null,
+  draftEditingClientId = null,
   onClose,
   onMaterialCreated,
+  draftMode = false,
+  draftMaterialOrders = [],
+  onDraftMaterialCommit,
 }) => {
   const { refetchCourse, isFileUploadLoading } =
     useTnaManagementCoursePageStore();
-  const { mutate: setMaterial, isLoading } = useSetCourseLessonMaterial();
+  const { mutate: setMaterial, isLoading: isSavingMaterial } =
+    useSetCourseLessonMaterial();
+  const apiLoading = draftMode ? false : isSavingMaterial;
   const [form] = Form.useForm();
   const [step, setStep] = useState(0);
 
@@ -82,8 +112,21 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
           ? editingMaterial.attachments.map((a) => formatLinkToUploadFile(a))
           : undefined,
       });
+    } else if (editingDraft) {
+      form.setFieldsValue({
+        title: editingDraft.title,
+        description: editingDraft.description ?? '',
+        article: editingDraft.article ?? '',
+        timeToFinishMinutes: editingDraft.timeToFinishMinutes ?? undefined,
+        videos: editingDraft.videos?.length
+          ? editingDraft.videos.map((v) => formatLinkToUploadFile(v))
+          : undefined,
+        attachments: editingDraft.attachments?.length
+          ? editingDraft.attachments.map((a) => formatLinkToUploadFile(a))
+          : undefined,
+      });
     }
-  }, [lesson.id, editingMaterial, form]);
+  }, [lesson.id, editingMaterial, editingDraft, form]);
 
   const handleFinish = useCallback(() => {
     // `true` = full store; unmounted steps stay out of default getFieldsValue() even with preserve.
@@ -104,6 +147,45 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
       return;
     }
 
+    const ordersForNew = draftMode
+      ? draftMaterialOrders
+      : (courseLessonMaterials ?? []).map((m) => m.order);
+
+    const order = editingMaterial
+      ? editingMaterial.order
+      : editingDraft
+        ? editingDraft.order
+        : getNewMaterialOrderForTop(ordersForNew);
+
+    const videos =
+      values.videos?.map((video: { response?: string }) => video.response) ??
+      [];
+    const attachments =
+      values.attachments?.map((a: { response?: string }) => a.response) ??
+      [];
+
+    if (draftMode) {
+      const strOrNull = (v: unknown) => {
+        const s = String(v ?? '').trim();
+        return s === '' ? null : s;
+      };
+      onDraftMaterialCommit?.(
+        {
+          title,
+          description: strOrNull(values.description),
+          article: strOrNull(values.article),
+          timeToFinishMinutes,
+          order,
+          videos,
+          attachments,
+        },
+        draftEditingClientId ?? undefined,
+      );
+      onMaterialCreated?.();
+      onClose();
+      return;
+    }
+
     setMaterial(
       [
         {
@@ -112,17 +194,10 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
           description: values.description,
           article: values.article,
           timeToFinishMinutes,
-          order: editingMaterial
-            ? editingMaterial.order
-            : getNewMaterialOrderForTop(courseLessonMaterials),
+          order,
           courseLessonId: lesson.id,
-          videos:
-            values.videos?.map(
-              (video: { response?: string }) => video.response,
-            ) ?? [],
-          attachments:
-            values.attachments?.map((a: { response?: string }) => a.response) ??
-            [],
+          videos,
+          attachments,
         },
       ],
       {
@@ -134,10 +209,15 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
       },
     );
   }, [
+    draftMode,
+    draftEditingClientId,
+    draftMaterialOrders,
+    editingDraft,
     editingMaterial,
     lesson.id,
     lesson.courseLessonMaterials,
     onClose,
+    onDraftMaterialCommit,
     onMaterialCreated,
     refetchCourse,
     setMaterial,
@@ -186,9 +266,13 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
     <div
       className="mb-3 rounded-lg bg-white p-4 shadow-sm"
       data-cy={
-        editingMaterial
-          ? `tna-inline-edit-material-wizard-${editingMaterial.id}`
-          : `tna-inline-add-material-wizard-${lesson.id}`
+        draftMode && draftEditingClientId
+          ? `tna-inline-add-material-wizard-draft-edit-${draftEditingClientId}`
+          : draftMode
+            ? 'tna-inline-add-material-wizard-draft-lesson'
+            : editingMaterial
+              ? `tna-inline-edit-material-wizard-${editingMaterial.id}`
+              : `tna-inline-add-material-wizard-${lesson.id}`
       }
     >
       <nav
@@ -297,8 +381,12 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
         form={form}
         preserve
         requiredMark={CustomLabel}
-        disabled={isLoading}
-        id={`tnaInlineAddMaterialForm-${lesson.id}`}
+        disabled={apiLoading}
+        id={
+          draftMode
+            ? 'tnaInlineAddMaterialForm-draft-lesson'
+            : `tnaInlineAddMaterialForm-${lesson.id}`
+        }
         data-cy="tna-inline-add-material-form"
       >
         {step === 0 ? (
@@ -358,7 +446,7 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
               size="middle"
               className="w-full !border-[#D9D9D9] !font-normal !text-black/70 hover:!border-[#D9D9D9] hover:!text-black/70 sm:w-auto"
               onClick={handleCancel}
-              disabled={isLoading}
+              disabled={apiLoading}
               data-cy="tna-inline-add-material-cancel"
             >
               Cancel
@@ -368,11 +456,11 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
                 type="primary"
                 size="middle"
                 className="w-full !font-normal sm:w-auto"
-                loading={isLoading}
+                loading={apiLoading}
                 onClick={handleCreate}
                 data-cy="tna-inline-add-material-create"
               >
-                {editingMaterial ? 'Update' : 'Finish'}
+                {editingMaterial || editingDraft ? 'Update' : 'Finish'}
               </Button>
             ) : (
               <Button
