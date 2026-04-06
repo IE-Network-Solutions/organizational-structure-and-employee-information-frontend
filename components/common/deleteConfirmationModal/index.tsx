@@ -82,7 +82,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       onCancel={onCancel}
       footer={deleteModalFooter}
       centered={!isPositioned}
-      {...(isPositioned && { transitionName: '', maskTransitionName: '' })}
       {...(modalStyle !== undefined && { style: modalStyle })}
       title={
         <span
