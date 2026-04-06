@@ -104,68 +104,70 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         </div>
 
         <div
-          className="flex items-stretch gap-0 border-b border-gray-200 mb-4 min-h-0 px-3"
+          className="mb-4 min-h-0 px-3"
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
-          <div
-            className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden"
-            data-cy="talent-acquisition-settings-tabs-scroll"
-          >
+          <div className="flex items-stretch gap-0 border-b border-gray-200 min-h-0">
             <div
-              className="flex gap-0 border-b-0 w-max min-h-full"
-              data-cy="talent-acquisition-settings-tabs-inner"
+              className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden"
+              data-cy="talent-acquisition-settings-tabs-scroll"
             >
-              {TABS.map((tab) => {
-                const active = isTabActive(tab.path);
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() => router.push(tab.path)}
-                    data-cy={`talent-acquisition-settings-tab-${tab.key}`}
-                    className={`px-4 py-3 text-base border-b-2 -mb-px flex-shrink-0 whitespace-nowrap transition-colors ${
-                      active
-                        ? 'font-bold text-[#1E40AF] border-[#1E40AF]'
-                        : 'font-normal text-black/70 border-transparent hover:text-black/80'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
+              <div
+                className="flex gap-0 border-b-0 w-max min-h-full"
+                data-cy="talent-acquisition-settings-tabs-inner"
+              >
+                {TABS.map((tab) => {
+                  const active = isTabActive(tab.path);
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      onClick={() => router.push(tab.path)}
+                      data-cy={`talent-acquisition-settings-tab-${tab.key}`}
+                      className={`px-4 py-3 text-base border-b-2 -mb-px flex-shrink-0 whitespace-nowrap transition-colors ${
+                        active
+                          ? 'font-bold text-[#1E40AF] border-[#1E40AF]'
+                          : 'font-normal text-black/70 border-transparent hover:text-black/80'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {addAction && (
-            <>
-              {!mobileOnly && (
+            {addAction && (
+              <>
+                {!mobileOnly && (
+                  <button
+                    type="button"
+                    onClick={() => addAction()}
+                    className="hidden md:flex flex-shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-[#1E40AF] text-white text-base font-normal ml-4 self-center mb-1"
+                    data-cy="talent-acquisition-settings-desktop-add-button"
+                  >
+                    <UserPlus size={16} />
+                    {addLabel && (
+                      <span data-cy="talent-acquisition-settings-desktop-add-button-label">
+                        {addLabel}
+                      </span>
+                    )}
+                  </button>
+                )}
+                {/* Mobile: circular icon-only button */}
                 <button
                   type="button"
                   onClick={() => addAction()}
-                  className="hidden md:flex flex-shrink-0 items-center justify-center gap-2 h-9 px-4 rounded-lg bg-[#1E40AF] text-white text-base font-normal ml-4 self-center mb-1"
-                  data-cy="talent-acquisition-settings-desktop-add-button"
+                  className="md:hidden flex-shrink-0 h-10 px-4 rounded-lg bg-[#1E40AF] text-white flex items-center justify-center gap-1.5 ml-2 -mb-px"
+                  data-cy="talent-acquisition-settings-mobile-add-button"
+                  aria-label="Add"
                 >
-                  <UserPlus size={16} />
-                  {addLabel && (
-                    <span data-cy="talent-acquisition-settings-desktop-add-button-label">
-                      {addLabel}
-                    </span>
-                  )}
+                  <UserPlus size={20} />
                 </button>
-              )}
-              {/* Mobile: circular icon-only button */}
-              <button
-                type="button"
-                onClick={() => addAction()}
-                className="md:hidden flex-shrink-0 h-10 px-4 rounded-lg bg-[#1E40AF] text-white flex items-center justify-center gap-1.5 ml-2 -mb-px"
-                data-cy="talent-acquisition-settings-mobile-add-button"
-                aria-label="Add"
-              >
-                <UserPlus size={20} />
-              </button>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
 
         <div
