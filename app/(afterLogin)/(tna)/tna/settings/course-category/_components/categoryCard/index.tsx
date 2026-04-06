@@ -1,10 +1,48 @@
 import { useDeleteCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { CourseCategory } from '@/types/tna/course';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
 import AccessGuard from '@/utils/permissionGuard';
-import { Button, Dropdown, MenuProps, Popconfirm } from 'antd';
-import { Pencil, Trash2 } from 'lucide-react';
-import React, { FC } from 'react';
+import { Button, Dropdown, MenuProps } from 'antd';
+import React, { FC, useState } from 'react';
+
+/** Edit row icon (spec SVG) */
+const CourseCategoryMenuEditIcon = () => (
+  <svg
+    data-cy="tna-course-category-menu-edit-icon"
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <path
+      data-cy="tna-course-category-menu-edit-icon-path"
+      d="M11.8067 2.69333C12.0667 2.43333 12.0667 2.01333 11.8067 1.75333L10.2467 0.193333C10.1133 0.06 9.94667 0 9.77333 0C9.6 0 9.43333 0.0666666 9.30667 0.193333L8.08667 1.41333L10.5867 3.91333L11.8067 2.69333V2.69333ZM0 9.5V12H2.5L9.87333 4.62667L7.37333 2.12667L0 9.5ZM1.94667 10.6667H1.33333V10.0533L7.37333 4.01333L7.98667 4.62667L1.94667 10.6667Z"
+      fill="#323232"
+    />
+  </svg>
+);
+
+/** Delete row icon (spec SVG) */
+const CourseCategoryMenuDeleteIcon = () => (
+  <svg
+    data-cy="tna-course-category-menu-delete-icon"
+    width="10"
+    height="12"
+    viewBox="0 0 10 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <path
+      data-cy="tna-course-category-menu-delete-icon-path"
+      d="M0.666667 10.6667C0.666667 11.4 1.26667 12 2 12H7.33333C8.06667 12 8.66667 11.4 8.66667 10.6667V2.66667H0.666667V10.6667ZM2 4H7.33333V10.6667H2V4ZM7 0.666667L6.33333 0H3L2.33333 0.666667H0V2H9.33333V0.666667H7Z"
+      fill="#323232"
+    />
+  </svg>
+);
 
 /** Three-dot icon — artwork fits in 14×14 px */
 const DotsIcon = () => (
@@ -57,6 +95,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
   'data-cy': dataCy,
 }) => {
   const { mutate: deleteCategory, isLoading } = useDeleteCourseCategory();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const menuItems: MenuProps['items'] = [
     {
@@ -64,13 +103,14 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
       label: (
         <span
           data-cy={`tna-course-category-menu-edit-${item.id}`}
-          className="tna-course-category-menu-row flex items-center gap-2.5 text-[13px] lg:text-[14px] font-medium text-[#333333]"
+          className="tna-course-category-menu-row flex items-center gap-2 text-[14px] font-normal leading-none text-black/70"
         >
-          <Pencil
-            className="h-3.5 w-3.5 lg:h-4 lg:w-4 shrink-0 text-[#333333]"
-            strokeWidth={1.75}
-            aria-hidden
-          />
+          <span
+            className="shrink-0 w-3 h-3 flex items-center justify-center"
+            data-cy={`tna-course-category-menu-edit-icon-wrap-${item.id}`}
+          >
+            <CourseCategoryMenuEditIcon />
+          </span>
           Edit
         </span>
       ),
@@ -79,30 +119,20 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
     {
       key: 'delete',
       label: (
-        <Popconfirm
-          title="Are you sure you want to delete?"
-          okText="Yes"
-          cancelText="No"
-          onConfirm={() => {
-            deleteCategory([item.id], {
-              onSuccess: () => onDeleted?.(item.id),
-            });
-          }}
-          disabled={isLoading}
+        <span
+          data-cy={`tna-course-category-menu-delete-${item.id}`}
+          className="tna-course-category-menu-row flex items-center gap-2 text-[14px] font-normal leading-none text-black/70"
         >
           <span
-            data-cy={`tna-course-category-menu-delete-${item.id}`}
-            className="tna-course-category-menu-row flex items-center gap-2.5 text-[13px] lg:text-[14px] font-medium text-[#333333]"
+            className="shrink-0 w-3 h-3 flex items-center justify-center"
+            data-cy={`tna-course-category-menu-delete-icon-wrap-${item.id}`}
           >
-            <Trash2
-              className="h-3.5 w-3.5 lg:h-4 lg:w-4 shrink-0 text-[#333333]"
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            Delete
+            <CourseCategoryMenuDeleteIcon />
           </span>
-        </Popconfirm>
+          Delete
+        </span>
       ),
+      onClick: () => setDeleteModalOpen(true),
     },
   ];
 
@@ -159,7 +189,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           <Button
             type="text"
             disabled={isLoading}
-            className="!w-6 !h-6 !min-w-6 !min-h-6 !p-0 flex items-center justify-center border border-[#D9D9D9] rounded-lg hover:!bg-gray-50 shrink-0"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !p-0 flex items-center justify-center border border-[#D9D9D9] rounded-[4px] hover:!bg-gray-50 shrink-0"
             id={`tna-course-category-card-menu-btn-${item.id}`}
             data-cy={`tna-course-category-card-menu-btn-${item.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -173,6 +203,23 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           </Button>
         </Dropdown>
       </AccessGuard>
+
+      <DeleteModal
+        open={deleteModalOpen}
+        loading={isLoading}
+        onCancel={() => setDeleteModalOpen(false)}
+        onConfirm={() => {
+          deleteCategory([item.id], {
+            onSuccess: () => {
+              onDeleted?.(item.id);
+              setDeleteModalOpen(false);
+            },
+          });
+        }}
+        customMessage="Are you sure you want to delete this item?"
+        data-cy={`tna-course-category-delete-confirmation-modal-${item.id}`}
+        id={`tnaCourseCategoryDeleteModal${item.id}Id`}
+      />
     </div>
   );
 };
