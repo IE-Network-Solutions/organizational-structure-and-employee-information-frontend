@@ -28,16 +28,15 @@ function Page(): JSX.Element {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#1E40AF',
+          colorPrimary: '#254ec2',
         },
         components: {
           Tabs: {
-            titleFontSize: 16,
-            // Vertical padding only so the ink bar width matches the label text (not the padded hit area).
-            horizontalItemPadding: '12px 0',
-            itemHoverColor: '#1E40AF',
-            itemSelectedColor: '#1E40AF',
-            inkBarColor: '#1E40AF',
+            titleFontSize: 14,
+            horizontalItemPadding: '12px 16px',
+            itemHoverColor: '#254ec2',
+            itemSelectedColor: '#254ec2',
+            inkBarColor: '#254ec2',
           },
         },
       }}
@@ -46,34 +45,41 @@ function Page(): JSX.Element {
         data-cy="weekly-priority-page"
         className="min-h-screen bg-white font-sans"
       >
-        <div className="py-4 md:py-6" data-cy="weekly-priority-content">
+        <div
+          className="px-4 md:pl-4 md:pr-8 py-4 md:py-6"
+          data-cy="weekly-priority-content"
+        >
           {/* Header */}
           <div
             className="flex justify-between items-start md:items-center mb-4 md:mb-6"
             data-cy="weekly-priority-header"
           >
-            <div
-              className="flex flex-col gap-2"
-              data-cy="weekly-priority-header-title"
-            >
+            <div data-cy="weekly-priority-header-title">
               <h1
-                className="text-[24px] font-bold text-gray-900 leading-tight m-0"
+                className="text-[24px] md:text-[28px] font-bold text-gray-900 mb-0.5 md:mb-1 leading-tight"
                 data-cy="weekly-priority-title"
               >
                 Weekly priority
               </h1>
               <div
-                className="text-[14px] text-gray-400"
+                className="flex items-center gap-1 text-[12px] md:text-[13px] text-gray-400"
                 data-cy="weekly-priority-breadcrumb"
               >
-                OKR / objective
+                <span data-cy="weekly-priority-breadcrumb-okr">OKR</span>
+                <span data-cy="weekly-priority-breadcrumb-separator">/</span>
+                <span
+                  className="text-gray-400"
+                  data-cy="weekly-priority-breadcrumb-current"
+                >
+                  Weekly priority
+                </span>
               </div>
             </div>
             <Button
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => setModalOpen(true)}
-              className="!bg-[#1E40AF] hover:!bg-[#1b376e] h-[40px] md:h-[44px] w-[40px] md:w-auto px-0 md:px-6 rounded-[8px] flex items-center justify-center text-[16px] font-normal text-white border-none [&_.anticon]:text-white"
+              className="bg-[#254ec2] hover:bg-[#1e3e9a] h-[40px] md:h-[44px] w-[40px] md:w-auto px-0 md:px-6 rounded-[8px] flex items-center justify-center text-sm font-semibold border-none"
               data-cy="weekly-priority-create-button"
             >
               <span
@@ -85,9 +91,9 @@ function Page(): JSX.Element {
             </Button>
           </div>
 
-          {/* Header Divider — cancel nav-content-inner horizontal padding so line meets sidebar edge */}
+          {/* Header Divider */}
           <div
-            className="h-px bg-gray-100 mb-4 md:mb-6 -mx-2 md:-mx-6"
+            className="h-[1px] bg-gray-100 -mx-4 md:-ml-4 md:-mr-8 mb-4 md:mb-6"
             data-cy="weekly-priority-header-divider"
           />
 

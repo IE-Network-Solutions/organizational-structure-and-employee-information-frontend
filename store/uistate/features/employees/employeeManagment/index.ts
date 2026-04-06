@@ -202,6 +202,9 @@ interface UserState {
 
   tempAllowances: any[];
   setTempAllowances: (tempAllowances: any[]) => void;
+
+  employeeDetailActiveTab: string;
+  setEmployeeDetailActiveTab: (employeeDetailActiveTab: string) => void;
 }
 
 export const useEmployeeManagementStore = create<UserState>()(
@@ -381,5 +384,9 @@ export const useEmployeeManagementStore = create<UserState>()(
       })),
     tempAllowances: [],
     setTempAllowances: (tempAllowances: any[]) => set({ tempAllowances }),
+
+    employeeDetailActiveTab: '1',
+    setEmployeeDetailActiveTab: (employeeDetailActiveTab: string) =>
+      set({ employeeDetailActiveTab }),
   })),
 );

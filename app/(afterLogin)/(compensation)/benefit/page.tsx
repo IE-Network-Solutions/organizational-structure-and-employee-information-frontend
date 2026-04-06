@@ -6,7 +6,7 @@ import BenefitTypeCardGrid from '../compensationSetting/benefitType/_components/
 
 const BenefitPage = () => {
   return (
-    <BlockWrapper className="h-auto w-full bg-white px-3 pb-6 pt-4 sm:px-4">
+    <BlockWrapper className="h-auto w-full bg-white px-4 pb-6 pt-4 sm:px-6">
       <BenefitTypeCardGrid data-cy="compensation-benefit-type-card-grid" />
     </BlockWrapper>
   );

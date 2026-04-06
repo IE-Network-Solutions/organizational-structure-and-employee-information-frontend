@@ -1,23 +1,15 @@
 import { useMoveToTalentPool } from '@/store/server/features/recruitment/candidate/mutation';
-import {
-  useGetCandidatesForMoveToTalentPool,
-  useGetTalentPoolCategory,
-} from '@/store/server/features/recruitment/candidate/queries';
+import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/candidate/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { Button, Form, Modal, Select } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const { Option } = Select;
 
-const candidateIdKey = (id: unknown) => String(id);
-
 const MoveToTalentPool: React.FC = () => {
   const [form] = Form.useForm();
-  const [candidateSelectOpen, setCandidateSelectOpen] = useState(false);
-  const [candidateSelectFocused, setCandidateSelectFocused] = useState(false);
 
   const { data: talentPool } = useGetTalentPoolCategory();
 
@@ -29,45 +21,17 @@ const MoveToTalentPool: React.FC = () => {
     setSelectedRowKeys,
   } = useCandidateState();
 
-  const { data: candidatesForPool, isLoading: isCandidatesLoading } =
-    useGetCandidatesForMoveToTalentPool(Boolean(moveToTalentPoolModal));
-
   const createdBy = useAuthenticationStore.getState().userId;
 
   const { mutate: moveToTalentPool, isLoading } = useMoveToTalentPool();
 
-  const candidateOptionsSource = useMemo(() => {
-    const apiItems = candidatesForPool?.items ?? [];
-    const selectedArr = Array.isArray(selectedCandidate)
-      ? selectedCandidate
-      : [];
-    const byId = new Map<string, any>();
-    for (const item of apiItems) {
-      if (item?.id != null) {
-        byId.set(candidateIdKey(item.id), item);
-      }
-    }
-    for (const item of selectedArr) {
-      if (item?.id != null) {
-        byId.set(candidateIdKey(item.id), item);
-      }
-    }
-    return Array.from(byId.values()).sort((a, b) => {
-      const an =
-        a?.fullName ??
-        a?.name ??
-        [a?.firstName, a?.lastName].filter(Boolean).join(' ') ??
-        '';
-      const bn =
-        b?.fullName ??
-        b?.name ??
-        [b?.firstName, b?.lastName].filter(Boolean).join(' ') ??
-        '';
-      return String(an).localeCompare(String(bn), undefined, {
-        sensitivity: 'base',
-      });
-    });
-  }, [candidatesForPool?.items, selectedCandidate]);
+  const [candidateSelectOpen, setCandidateSelectOpen] = useState(false);
+  const [candidateSelectFocused, setCandidateSelectFocused] = useState(false);
+
+  const candidateOptions = Array.isArray(selectedCandidate)
+    ? selectedCandidate
+    : [];
+
   useEffect(() => {
     const candidateArray = Array.isArray(selectedCandidate)
       ? selectedCandidate
@@ -112,41 +76,14 @@ const MoveToTalentPool: React.FC = () => {
       });
   };
 
-  const candidateDisplayName = (item: any) =>
-    item?.fullName ??
-    item?.name ??
-    [item?.firstName, item?.lastName].filter(Boolean).join(' ') ??
-    String(item?.id ?? '');
-
-  const handleChange = (values: (string | number)[]) => {
-    const valueKeys = values.map((v) => candidateIdKey(v));
-    const byId = new Map<string, any>();
-    for (const item of candidatesForPool?.items ?? []) {
-      if (item?.id != null) {
-        byId.set(candidateIdKey(item.id), item);
-      }
-    }
-    const prev = Array.isArray(selectedCandidate) ? selectedCandidate : [];
-    for (const item of prev) {
-      if (item?.id != null) {
-        byId.set(candidateIdKey(item.id), item);
-      }
-    }
-    const selectedOptions = valueKeys.map((k) => byId.get(k)).filter(Boolean);
-    setSelectedCandidate(selectedOptions);
-  };
-
-  const removeCandidate = (id: unknown) => {
+  const handleChange = (values: string[]) => {
     const candidateArray = Array.isArray(selectedCandidate)
       ? selectedCandidate
       : [];
-    const next = candidateArray.filter(
-      (c: any) => candidateIdKey(c.id) !== candidateIdKey(id),
+    const selectedOptions = candidateArray.filter((item: any) =>
+      values.includes(item.id),
     );
-    setSelectedCandidate(next);
-    form.setFieldsValue({
-      jobCandidateInformationId: next.map((c: any) => c.id),
-    });
+    setSelectedCandidate(selectedOptions);
   };
 
   const handleCancel = () => {
@@ -163,7 +100,7 @@ const MoveToTalentPool: React.FC = () => {
         open={moveToTalentPoolModal}
         onCancel={handleCancel}
         footer={null}
-        width={705}
+        width={630}
         title={
           <div
             id="talent-acquisition-move-talent-pool-div-header"
@@ -252,8 +189,7 @@ const MoveToTalentPool: React.FC = () => {
                       className="w-full always-show-placeholder"
                       placeholder=""
                       popupClassName="org-structure-branch-select-dropdown"
-                      loading={isCandidatesLoading}
-                      value={selectedCandidate.map((item: any) => item.id)}
+                      value={candidateOptions.map((item: any) => item.id)}
                       showSearch
                       optionFilterProp="label"
                       maxTagCount={0}
@@ -263,16 +199,20 @@ const MoveToTalentPool: React.FC = () => {
                       onFocus={() => setCandidateSelectFocused(true)}
                       onBlur={() => setCandidateSelectFocused(false)}
                     >
-                      {candidateOptionsSource.map((item: any) => {
+                      {candidateOptions.map((item: any) => {
                         const label =
-                          candidateDisplayName(item) || candidateIdKey(item.id);
+                          item.fullName ??
+                          ([item.firstName, item.middleName, item.lastName]
+                            .filter(Boolean)
+                            .join(' ') ||
+                            String(item.id));
                         return (
                           <Option
-                            key={candidateIdKey(item.id)}
+                            key={item.id}
                             value={item.id}
                             label={label}
-                            id={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
-                            data-cy={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
+                            id={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
+                            data-cy={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
                           >
                             {label}
                           </Option>
@@ -281,64 +221,14 @@ const MoveToTalentPool: React.FC = () => {
                     </Select>
                     {!candidateSelectOpen && !candidateSelectFocused ? (
                       <span
-                        className="pointer-events-none absolute left-3 top-1/2 z-[1] -translate-y-1/2 text-sm text-[#bfbfbf]"
                         data-cy="talent-acquisition-move-talent-pool-candidate-placeholder"
+                        id="talent-acquisition-move-talent-pool-div-candidate-info"
+                        className="pointer-events-none absolute left-3 right-3 top-0 flex h-full items-center text-sm text-gray-400"
                       >
                         Select candidate
                       </span>
                     ) : null}
                   </div>
-                  <div
-                    className="mt-2 flex flex-wrap gap-2"
-                    data-cy="talent-acquisition-move-talent-pool-candidate-chips"
-                  >
-                    {(Array.isArray(selectedCandidate)
-                      ? selectedCandidate
-                      : []
-                    ).map((item: any) => {
-                      const id = item?.id;
-                      if (id == null) return null;
-                      return (
-                        <span
-                          key={candidateIdKey(id)}
-                          id={`talent-acquisition-move-talent-pool-div-candidate-option-${candidateIdKey(id)}`}
-                          data-cy={`talent-acquisition-move-talent-pool-chip-${candidateIdKey(id)}`}
-                          className="inline-flex items-center gap-1.5 rounded border border-gray-200 bg-gray-100 px-2 py-0.5 text-sm text-gray-800"
-                        >
-                          <span
-                            id={`talent-acquisition-move-talent-pool-div-candidate-info-${candidateIdKey(id)}`}
-                            data-cy={`talent-acquisition-move-talent-pool-div-candidate-info-${candidateIdKey(id)}`}
-                          >
-                            {candidateDisplayName(item)}
-                          </span>
-                          <CloseOutlined
-                            role="button"
-                            tabIndex={0}
-                            aria-label="Remove candidate"
-                            className="cursor-pointer text-xs text-gray-400 hover:text-gray-600"
-                            onClick={() => removeCandidate(id)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                removeCandidate(id);
-                              }
-                            }}
-                          />
-                        </span>
-                      );
-                    })}
-                  </div>
-                  <style
-                    data-cy="talent-acquisition-move-talent-pool-candidate-field-style"
-                    jsx
-                    global
-                  >{`
-                    .move-talent-pool-candidate-field
-                      .always-show-placeholder
-                      .ant-select-selection-placeholder {
-                      display: none !important;
-                    }
-                  `}</style>
                 </div>
               </Form.Item>
 
@@ -425,7 +315,7 @@ const MoveToTalentPool: React.FC = () => {
                   id="talent-acquisition-move-talent-pool-textarea-reason"
                   data-cy="talent-acquisition-move-talent-pool-textarea-reason"
                   rows={3}
-                  placeholder="please provide your reason for moving to the talent pool"
+                  placeholder="Please provide your reason for moving to the talent pool."
                   className="text-sm"
                 />
               </Form.Item>
@@ -448,15 +338,15 @@ const MoveToTalentPool: React.FC = () => {
                 Cancel
               </Button>
               <Button
-                id="talent-acquisition-move-talent-pool-button-continue"
-                data-cy="talent-acquisition-move-talent-pool-button-continue"
+                id="talent-acquisition-move-talent-pool-button-add"
+                data-cy="talent-acquisition-move-talent-pool-button-add"
                 type="primary"
                 className="flex justify-center text-sm font-medium text-white bg-primary px-3 h-8 border-none hover:bg-[#4096FF]"
                 onClick={handleSubmit}
                 loading={isLoading}
                 disabled={isLoading}
               >
-                Continue
+                Add
               </Button>
             </div>
           </Form.Item>
