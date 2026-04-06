@@ -1,7 +1,7 @@
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { Button, Modal, Result } from 'antd';
 import React from 'react';
-import { SUCCESS_RESULT_IMAGE_URL } from '@/constants/publicImageUrls';
+import SuccessResult from '@/public/image/successResult.png';
 import Image from 'next/image';
 
 const AddFormResult: React.FC = () => {
@@ -31,7 +31,7 @@ const AddFormResult: React.FC = () => {
               className="flex items-center justify-center"
             >
               <Image
-                src={SUCCESS_RESULT_IMAGE_URL}
+                src={SuccessResult}
                 alt="Success result Image"
                 width={120}
                 height={120}
