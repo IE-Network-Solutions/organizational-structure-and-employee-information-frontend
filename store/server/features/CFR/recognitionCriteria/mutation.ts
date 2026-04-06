@@ -28,10 +28,12 @@ const updateRecognitionCriteria = async (data: any) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+  const body = { ...data };
+  delete body.method;
   return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-criterias/${data?.id}`,
     method: 'patch',
-    data,
+    data: body,
     headers,
   });
 };
