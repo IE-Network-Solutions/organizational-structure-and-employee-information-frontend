@@ -35,7 +35,10 @@ export default function PreviousMeeting({
     let panelBody: ReactNode;
     if (meetingLoading) {
       panelBody = (
-        <div className="flex min-h-0 flex-1 items-center justify-center">
+        <div
+          className="flex min-h-0 flex-1 items-center justify-center"
+          data-cy="feedback-meeting-previous-panel-loading"
+        >
           <Spin
             size="small"
             data-cy="feedback-meeting-components-previousmeeting-spin"
@@ -44,7 +47,10 @@ export default function PreviousMeeting({
       );
     } else if (!hasItems) {
       panelBody = (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-1">
+        <div
+          className="flex min-h-0 flex-1 flex-col items-center justify-center px-1"
+          data-cy="feedback-meeting-previous-panel-empty-wrap"
+        >
           <p
             className="m-0 text-center text-[14px] font-bold text-black/70"
             data-cy="feedback-meeting-components-previousmeeting-empty"
@@ -87,7 +93,10 @@ export default function PreviousMeeting({
         data-cy={dataCy ?? 'feedback-meeting-previous-meeting-panel'}
         id="feedback-meeting-previous-meeting-panel"
       >
-        <div className="flex h-[24px] w-full shrink-0 items-center justify-between">
+        <div
+          className="flex h-[24px] w-full shrink-0 items-center justify-between"
+          data-cy="feedback-meeting-previous-panel-header-row"
+        >
           <h2
             className="m-0 text-[14px] font-normal leading-none text-black"
             data-cy="feedback-meeting-components-previousmeeting-heading"

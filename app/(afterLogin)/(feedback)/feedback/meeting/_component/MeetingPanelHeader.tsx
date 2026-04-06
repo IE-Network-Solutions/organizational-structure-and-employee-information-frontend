@@ -55,8 +55,14 @@ export default function MeetingPanelHeader({
       className="!my-0 border-none shadow-none"
       data-cy="feedback-meeting-panel-header-card"
     >
-      <div className="flex flex-row items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+      <div
+        className="flex flex-row items-start justify-between gap-3"
+        data-cy="feedback-meeting-panel-header-row"
+      >
+        <div
+          className="min-w-0 flex-1"
+          data-cy="feedback-meeting-panel-header-title-col"
+        >
           <Link
             href="/feedback/meeting"
             className="inline-block min-w-0 hover:opacity-80"
@@ -70,7 +76,10 @@ export default function MeetingPanelHeader({
             </span>
           </Link>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div
+          className="flex items-center gap-2 shrink-0"
+          data-cy="feedback-meeting-panel-header-actions"
+        >
           {canEdit && onEditDetails ? (
             <button
               type="button"

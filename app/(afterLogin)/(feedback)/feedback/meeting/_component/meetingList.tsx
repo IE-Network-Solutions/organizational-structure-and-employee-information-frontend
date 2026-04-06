@@ -121,11 +121,20 @@ const MeetingList = ({
     meetings?.items?.map((meeting: any) => ({
       style: { height: '76px', paddingBottom: 0 },
       dot: (
-        <div className="flex w-[73px] shrink-0 items-center justify-end gap-2">
-          <div className="w-[55px] shrink-0 text-right text-[13px] font-medium leading-none text-black/70 tabular-nums">
+        <div
+          className="flex w-[73px] shrink-0 items-center justify-end gap-2"
+          data-cy="feedback-meeting-meetinglist-timeline-dot-wrap"
+        >
+          <div
+            className="w-[55px] shrink-0 text-right text-[13px] font-medium leading-none text-black/70 tabular-nums"
+            data-cy="feedback-meeting-meetinglist-timeline-date"
+          >
             {dayjs(meeting.createdAt).format('YYYY-M-D')}
           </div>
-          <div className="size-[10px] shrink-0 rounded-full border-[2px] border-[#1E40AF] bg-white" />
+          <div
+            className="size-[10px] shrink-0 rounded-full border-[2px] border-[#1E40AF] bg-white"
+            data-cy="feedback-meeting-meetinglist-timeline-node"
+          />
         </div>
       ),
       children: (
@@ -140,19 +149,29 @@ const MeetingList = ({
               : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
           }`}
         >
-          <div className="flex h-full w-full items-start justify-between">
-            <div className="flex flex-col gap-1">
+          <div
+            className="flex h-full w-full items-start justify-between"
+            data-cy="feedback-meeting-meetinglist-card-inner"
+          >
+            <div
+              className="flex flex-col gap-1"
+              data-cy="feedback-meeting-meetinglist-card-main"
+            >
               <span
                 className={`max-w-[500px] truncate text-[15px] font-medium transition-colors ${
                   selectedMeetingId === meeting.id
                     ? 'text-[#1E40AF]'
                     : 'text-black/70 group-hover:text-blue-600'
                 }`}
+                data-cy="feedback-meeting-meetinglist-card-title"
               >
                 {meeting.title}
               </span>
 
-              <div className="flex items-center gap-4">
+              <div
+                className="flex items-center gap-4"
+                data-cy="feedback-meeting-meetinglist-card-meta"
+              >
                 <Avatar.Group maxCount={3} size={24} className="border-none">
                   {meeting.attendees?.slice(0, 3).map((att: any) => (
                     <EmployeeDetails
@@ -163,7 +182,10 @@ const MeetingList = ({
                   ))}
                 </Avatar.Group>
                 {meeting.attendees?.length > 3 && (
-                  <span className="text-xs text-black/70">
+                  <span
+                    className="text-xs text-black/70"
+                    data-cy="feedback-meeting-meetinglist-attendees-more"
+                  >
                     +{meeting.attendees.length - 3}
                   </span>
                 )}
@@ -176,11 +198,15 @@ const MeetingList = ({
                       window.open(meeting.virtualLink, '_blank');
                     }}
                     className="flex cursor-pointer items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-[12px] font-normal text-[#1677FF]"
+                    data-cy="feedback-meeting-meetinglist-virtual-link"
                   >
                     Zoom Meeting
                   </div>
                 ) : (
-                  <div className="text-xs italic text-black/70">
+                  <div
+                    className="text-xs italic text-black/70"
+                    data-cy="feedback-meeting-meetinglist-location-text"
+                  >
                     {meeting.physicalLocation || meeting.locationType}
                   </div>
                 )}
@@ -219,7 +245,10 @@ const MeetingList = ({
         id="feedback-meeting-component-meetinglist-div"
       >
         {meetingLoading ? (
-          <div className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0">
+          <div
+            className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0"
+            data-cy="feedback-meeting-meetinglist-loading-wrap"
+          >
             <Spin
               spinning={true}
               tip="Loading..."
@@ -227,13 +256,22 @@ const MeetingList = ({
             />
           </div>
         ) : meetings?.items?.length ? (
-          <div className="flex min-h-0 flex-1 flex-col xl:min-h-0">
-            <div className="min-h-0 flex-1 overflow-y-auto scrollbar-none pt-[2px]">
+          <div
+            className="flex min-h-0 flex-1 flex-col xl:min-h-0"
+            data-cy="feedback-meeting-meetinglist-timeline-wrap"
+          >
+            <div
+              className="min-h-0 flex-1 overflow-y-auto scrollbar-none pt-[2px]"
+              data-cy="feedback-meeting-meetinglist-timeline-scroll"
+            >
               {timelineNode}
             </div>
           </div>
         ) : (
-          <div className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0">
+          <div
+            className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0"
+            data-cy="feedback-meeting-meetinglist-empty-wrap"
+          >
             <p
               className="text-xl font-bold text-gray-500"
               data-cy="feedback-meeting-component-meetinglist-p-no-meetings"
@@ -261,7 +299,10 @@ const MeetingList = ({
         {!hideFilters && <MeetingListFilters />}
 
         {meetings?.items?.length !== 0 ? (
-          <div className={hideFilters ? 'mt-[15px]' : 'mt-6'}>
+          <div
+            className={hideFilters ? 'mt-[15px]' : 'mt-6'}
+            data-cy="feedback-meeting-meetinglist-timeline-outer"
+          >
             {timelineNode}
           </div>
         ) : (

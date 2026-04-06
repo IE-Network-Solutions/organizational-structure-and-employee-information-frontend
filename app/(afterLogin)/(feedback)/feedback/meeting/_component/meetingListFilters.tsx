@@ -156,7 +156,11 @@ export default function MeetingListFilters() {
           data-cy="feedback-meeting-component-meetinglist-input-search"
           id="feedback-meeting-component-meetinglist-input-search"
         />
-        <div className="w-px shrink-0 self-stretch bg-gray-300" aria-hidden />
+        <div
+          className="w-px shrink-0 self-stretch bg-gray-300"
+          aria-hidden
+          data-cy="feedback-meeting-filters-search-divider"
+        />
         <button
           type="button"
           className="flex h-8 w-8 shrink-0 items-center justify-center border-0 bg-white text-gray-600 hover:bg-gray-50"

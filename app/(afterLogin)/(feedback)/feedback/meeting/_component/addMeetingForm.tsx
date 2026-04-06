@@ -407,12 +407,15 @@ export default function AddNewMeetingForm({
               }),
             } as React.CSSProperties
           }
+          data-cy="add-meeting-form-steps-progress-wrap"
         >
           <Steps
             current={step - 1}
             size="small"
             labelPlacement="vertical"
-            progressDot={(_dot, { status }) => (
+            progressDot={(stepDot, { status }) => {
+              void stepDot;
+              return (
               <span
                 aria-hidden
                 className="mx-auto block shrink-0 rounded-full"
@@ -422,8 +425,10 @@ export default function AddNewMeetingForm({
                   backgroundColor:
                     status === 'wait' ? '#d1d5db' : STEPPER_ACTIVE,
                 }}
+                data-cy="add-meeting-form-steps-progress-dot"
               />
-            )}
+              );
+            }}
             className="add-meeting-form-steps w-full max-w-xl"
             items={[
               { title: 'Meeting Information' },
@@ -753,7 +758,10 @@ export default function AddNewMeetingForm({
                 data-cy="add-meeting-form-allow-guests-checkbox"
                 id="addMeetingFormAllowGuestsCheckbox"
               >
-                <span className="inline-block pl-2">
+                <span
+                  className="inline-block pl-2"
+                  data-cy="add-meeting-form-allow-guests-text-wrap"
+                >
                   <span
                     className="font-semibold text-[#262626]"
                     data-cy="add-meeting-form-allow-guests-label"
@@ -761,7 +769,10 @@ export default function AddNewMeetingForm({
                   >
                     Allow Guests
                   </span>
-                  <div className="mt-1 text-sm font-normal text-gray-600">
+                  <div
+                    className="mt-1 text-sm font-normal text-gray-600"
+                    data-cy="add-meeting-form-allow-guests-description"
+                  >
                     People that are not users of selamnew workspace can attend
                     this meeting.
                   </div>
@@ -968,7 +979,10 @@ export default function AddNewMeetingForm({
             data-cy="add-meeting-form-agenda-items-list"
           >
             {(fields, { remove }) => (
-              <div className="flex flex-col gap-[15px]">
+              <div
+                className="flex flex-col gap-[15px]"
+                data-cy="add-meeting-form-agenda-items-wrap"
+              >
                 {fields.map(({ key, name, ...restField }) => (
                   <div
                     key={key}
@@ -1022,10 +1036,18 @@ export default function AddNewMeetingForm({
         >
           Create Meeting
         </h2>
-        <div className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:scrollbar-none">
+        <div
+          className="flex min-w-0 flex-col xl:min-h-0 xl:flex-1 xl:overflow-y-auto xl:scrollbar-none"
+          data-cy="add-meeting-form-embedded-body-scroll"
+        >
           {formBody}
         </div>
-        <div className="shrink-0">{footer}</div>
+        <div
+          className="shrink-0"
+          data-cy="add-meeting-form-embedded-footer-wrap"
+        >
+          {footer}
+        </div>
       </div>
     );
   }
@@ -1035,7 +1057,10 @@ export default function AddNewMeetingForm({
       open={openAddMeeting}
       onClose={handleClose}
       modalHeader={
-        <div className="w-full text-left">
+        <div
+          className="w-full text-left"
+          data-cy="add-meeting-form-drawer-header-wrap"
+        >
           <h2
             className="text-base font-normal text-black/70"
             data-cy="add-meeting-form-header"

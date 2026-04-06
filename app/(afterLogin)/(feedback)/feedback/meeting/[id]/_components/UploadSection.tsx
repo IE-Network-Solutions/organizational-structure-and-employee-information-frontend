@@ -128,8 +128,14 @@ const UploadSection: React.FC<UploadSectionProps> = ({
           data-cy="feedback-meeting-components-uploadsection-section-audio-document"
           id="feedback-meeting-components-uploadsection-section-audio-document"
         >
-          <div className="flex h-[24px] w-full shrink-0 items-center justify-between">
-            <h2 className="m-0 text-[14px] font-normal leading-none text-black">
+          <div
+            className="flex h-[24px] w-full shrink-0 items-center justify-between"
+            data-cy="feedback-meeting-uploadsection-audio-doc-header-row"
+          >
+            <h2
+              className="m-0 text-[14px] font-normal leading-none text-black"
+              data-cy="feedback-meeting-uploadsection-audio-doc-heading"
+            >
               Audio &amp; document
             </h2>
             {canEdit ? (
@@ -152,7 +158,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               data-cy="feedback-meeting-components-uploadsection-section-audio"
               id="feedback-meeting-components-uploadsection-section-audio"
             >
-              <h3 className="m-0 text-[13px] font-normal leading-none text-black/70">
+              <h3
+                className="m-0 text-[13px] font-normal leading-none text-black/70"
+                data-cy="feedback-meeting-uploadsection-audio-subheading"
+              >
                 Audio
               </h3>
               {audioUrl ? (
@@ -160,7 +169,9 @@ const UploadSection: React.FC<UploadSectionProps> = ({
                   className="flex w-full items-center justify-between gap-2 rounded-md border border-blue-400 bg-white p-2 text-sm text-blue-500"
                   data-cy="feedback-meeting-components-uploadsection-div-audio-player"
                 >
-                  <span>Meeting Recording</span>
+                  <span data-cy="feedback-meeting-uploadsection-audio-label">
+                    Meeting Recording
+                  </span>
                   <audio
                     controls
                     src={audioUrl}
@@ -172,8 +183,14 @@ const UploadSection: React.FC<UploadSectionProps> = ({
 
               {canEdit ? (
                 <>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-normal text-black">
+                  <div
+                    className="flex flex-col gap-1"
+                    data-cy="feedback-meeting-uploadsection-audio-link-field"
+                  >
+                    <span
+                      className="text-sm font-normal text-black"
+                      data-cy="feedback-meeting-uploadsection-audio-link-label"
+                    >
                       Audio Link
                     </span>
                     <Input
@@ -234,7 +251,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               className="flex flex-col gap-[9px]"
               data-cy="feedback-meeting-components-uploadsection-section-document"
             >
-              <h3 className="m-0 text-[13px] font-normal leading-none text-black/70">
+              <h3
+                className="m-0 text-[13px] font-normal leading-none text-black/70"
+                data-cy="feedback-meeting-uploadsection-document-subheading"
+              >
                 Document
               </h3>
               {documentUrl ? (
@@ -247,15 +267,23 @@ const UploadSection: React.FC<UploadSectionProps> = ({
                     data-cy="feedback-meeting-components-uploadsection-link-document"
                   >
                     <FaRegFileLines />
-                    <span>Meeting Details PDF File</span>
+                    <span data-cy="feedback-meeting-uploadsection-document-link-text">
+                      Meeting Details PDF File
+                    </span>
                   </a>
                 </div>
               ) : null}
 
               {canEdit ? (
                 <>
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-normal text-black">
+                  <div
+                    className="flex flex-col gap-1"
+                    data-cy="feedback-meeting-uploadsection-document-link-field"
+                  >
+                    <span
+                      className="text-sm font-normal text-black"
+                      data-cy="feedback-meeting-uploadsection-document-link-label"
+                    >
                       Document Link
                     </span>
                     <Input
@@ -489,7 +517,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
         )}
 
         {canEdit && (
-          <div className="mt-4 flex w-full max-w-full justify-end">
+          <div
+            className="mt-4 flex w-full max-w-full justify-end"
+            data-cy="feedback-meeting-uploadsection-footer-actions"
+          >
             <Button
               loading={uploadButtonLoading}
               type="primary"

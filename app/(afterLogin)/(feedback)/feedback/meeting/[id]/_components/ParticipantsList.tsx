@@ -709,7 +709,10 @@ export default function ParticipantsList({
           data-cy={`feedback-meeting-components-participantslist-employee-details-${i}`}
         />
       </div>
-      <div className="shrink-0 flex items-start pt-0.5">
+      <div
+        className="shrink-0 flex items-start pt-0.5"
+        data-cy={`feedback-meeting-participants-row-status-wrap-${i}`}
+      >
         {renderParticipantStatus(p, i)}
       </div>
     </div>
@@ -723,14 +726,20 @@ export default function ParticipantsList({
           data-cy="feedback-meeting-participants-panel"
           id="feedback-meeting-participants-panel"
         >
-          <div className="flex justify-between items-center w-full h-[24px]">
+          <div
+            className="flex justify-between items-center w-full h-[24px]"
+            data-cy="feedback-meeting-participants-panel-header-row"
+          >
             <h2
               className="text-[14px] font-normal text-black m-0 leading-none"
               data-cy="feedback-meeting-participants-panel-heading"
             >
               Attendees
             </h2>
-            <div className="flex items-center gap-3 shrink-0">
+            <div
+              className="flex items-center gap-3 shrink-0"
+              data-cy="feedback-meeting-participants-panel-header-actions"
+            >
               {attendeeItems.length > 0 ? (
                 <button
                   type="button"
@@ -759,7 +768,10 @@ export default function ParticipantsList({
               <Spin />
             </div>
           ) : (
-            <div className="flex flex-wrap gap-[9px] items-center h-[28px] overflow-hidden">
+            <div
+              className="flex flex-wrap gap-[9px] items-center h-[28px] overflow-hidden"
+              data-cy="feedback-meeting-participants-panel-avatars-row"
+            >
               {attendeeItems.slice(0, 16).map((p: any, i: number) => (
                 <ParticipantPreviewAvatar
                   key={p.id ?? i}
@@ -773,7 +785,10 @@ export default function ParticipantsList({
 
         <Modal
           title={
-            <span className="text-base font-semibold text-[#262626]">
+            <span
+              className="text-base font-semibold text-[#262626]"
+              data-cy="feedback-meeting-participants-view-all-modal-title"
+            >
               Attendees
             </span>
           }
@@ -785,7 +800,10 @@ export default function ParticipantsList({
           centered
           data-cy="feedback-meeting-participants-view-all-modal"
         >
-          <div className="max-h-[65vh] overflow-y-auto space-y-3 pt-1 pr-1">
+          <div
+            className="max-h-[65vh] overflow-y-auto space-y-3 pt-1 pr-1"
+            data-cy="feedback-meeting-participants-view-all-modal-body"
+          >
             {attendeeItems.map((p: any, i: number) =>
               renderParticipantRow(
                 p,

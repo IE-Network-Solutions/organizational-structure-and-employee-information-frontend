@@ -37,11 +37,18 @@ export const ADD_MEETING_ASSIGNEE_SELECT_STYLES = `
   }
 `;
 
-function HintOverlay({ text }: { text: string }) {
+function HintOverlay({
+  text,
+  'data-cy': hintDataCy = 'meeting-form-assignee-hint-overlay',
+}: {
+  text: string;
+  'data-cy'?: string;
+}) {
   return (
     <span
       className="pointer-events-none absolute left-3 z-10 font-normal text-[#8c8c8c]"
       style={{ lineHeight: '40px' }}
+      data-cy={hintDataCy}
     >
       {text}
     </span>
@@ -62,7 +69,12 @@ function TagChip({
       className="flex items-center gap-2 rounded-[6px] border border-[#d9d9d9] bg-[rgba(0,0,0,0.02)] px-2 py-[1px]"
       data-cy={dataCy}
     >
-      <span className="text-[14px] text-[#595959]">{label}</span>
+      <span
+        className="text-[14px] text-[#595959]"
+        data-cy={dataCy ? `${dataCy}-label` : 'meeting-form-tag-chip-label'}
+      >
+        {label}
+      </span>
       <CloseOutlined
         className="cursor-pointer text-[10px] text-[#8c8c8c] hover:text-red-500"
         onClick={onRemove}
@@ -90,7 +102,10 @@ export const MeetingFormUserMultiSelect = forwardRef<
 
   return (
     <div ref={ref} data-cy={dataCy}>
-      <div className="custom-centered-select-wrapper always-show-placeholder-wrap relative">
+      <div
+        className="custom-centered-select-wrapper always-show-placeholder-wrap relative"
+        data-cy={dataCy ? `${dataCy}-select-wrap` : 'meeting-form-user-multi-select-wrap'}
+      >
         <Select
           mode="multiple"
           showSearch
@@ -116,18 +131,46 @@ export const MeetingFormUserMultiSelect = forwardRef<
               value={user.id}
               label={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()}
             >
-              <div className="flex items-center gap-3 py-1">
+              <div
+                className="flex items-center gap-3 py-1"
+                data-cy={
+                  dataCy
+                    ? `${dataCy}-option-${user.id}`
+                    : `meeting-form-user-multi-option-${user.id}`
+                }
+              >
                 <Avatar
                   size={28}
                   src={user.profileImage}
                   icon={!user.profileImage && <UserOutlined />}
                 />
-                <div className="flex flex-col">
-                  <span className="text-[14px] font-medium text-[#262626]">
+                <div
+                  className="flex flex-col"
+                  data-cy={
+                    dataCy
+                      ? `${dataCy}-option-meta-${user.id}`
+                      : `meeting-form-user-multi-meta-${user.id}`
+                  }
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy={
+                      dataCy
+                        ? `${dataCy}-option-name-${user.id}`
+                        : `meeting-form-user-multi-name-${user.id}`
+                    }
+                  >
                     {user?.firstName} {user?.middleName} {user?.lastName}
                   </span>
                   {user?.email ? (
-                    <span className="text-[12px] text-[#8c8c8c]">
+                    <span
+                      className="text-[12px] text-[#8c8c8c]"
+                      data-cy={
+                        dataCy
+                          ? `${dataCy}-option-email-${user.id}`
+                          : `meeting-form-user-multi-email-${user.id}`
+                      }
+                    >
                       {user.email}
                     </span>
                   ) : null}
@@ -136,9 +179,15 @@ export const MeetingFormUserMultiSelect = forwardRef<
             </Option>
           ))}
         </Select>
-        <HintOverlay text={hint} />
+        <HintOverlay
+          text={hint}
+          data-cy={dataCy ? `${dataCy}-hint` : undefined}
+        />
       </div>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div
+        className="mt-2 flex flex-wrap gap-2"
+        data-cy={dataCy ? `${dataCy}-tags` : 'meeting-form-user-multi-tags'}
+      >
         {ids.map((id) => {
           const user = allUsers?.items?.find(
             (u: any) => String(u.id) === String(id),
@@ -178,7 +227,12 @@ export const MeetingFormUserSingleSelect = forwardRef<
 
   return (
     <div ref={ref} data-cy={dataCy}>
-      <div className="custom-centered-select-wrapper always-show-placeholder-wrap relative">
+      <div
+        className="custom-centered-select-wrapper always-show-placeholder-wrap relative"
+        data-cy={
+          dataCy ? `${dataCy}-select-wrap` : 'meeting-form-user-single-select-wrap'
+        }
+      >
         <Select
           showSearch
           allowClear
@@ -202,18 +256,46 @@ export const MeetingFormUserSingleSelect = forwardRef<
               value={user.id}
               label={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()}
             >
-              <div className="flex items-center gap-3 py-1">
+              <div
+                className="flex items-center gap-3 py-1"
+                data-cy={
+                  dataCy
+                    ? `${dataCy}-option-${user.id}`
+                    : `meeting-form-user-single-option-${user.id}`
+                }
+              >
                 <Avatar
                   size={28}
                   src={user.profileImage}
                   icon={!user.profileImage && <UserOutlined />}
                 />
-                <div className="flex flex-col">
-                  <span className="text-[14px] font-medium text-[#262626]">
+                <div
+                  className="flex flex-col"
+                  data-cy={
+                    dataCy
+                      ? `${dataCy}-option-meta-${user.id}`
+                      : `meeting-form-user-single-meta-${user.id}`
+                  }
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy={
+                      dataCy
+                        ? `${dataCy}-option-name-${user.id}`
+                        : `meeting-form-user-single-name-${user.id}`
+                    }
+                  >
                     {user?.firstName} {user?.middleName} {user?.lastName}
                   </span>
                   {user?.email ? (
-                    <span className="text-[12px] text-[#8c8c8c]">
+                    <span
+                      className="text-[12px] text-[#8c8c8c]"
+                      data-cy={
+                        dataCy
+                          ? `${dataCy}-option-email-${user.id}`
+                          : `meeting-form-user-single-email-${user.id}`
+                      }
+                    >
                       {user.email}
                     </span>
                   ) : null}
@@ -222,9 +304,15 @@ export const MeetingFormUserSingleSelect = forwardRef<
             </Option>
           ))}
         </Select>
-        <HintOverlay text={hint} />
+        <HintOverlay
+          text={hint}
+          data-cy={dataCy ? `${dataCy}-hint` : undefined}
+        />
       </div>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div
+        className="mt-2 flex flex-wrap gap-2"
+        data-cy={dataCy ? `${dataCy}-tags` : 'meeting-form-user-single-tags'}
+      >
         {id ? (
           <TagChip
             label={(() => {
@@ -264,7 +352,14 @@ export const MeetingFormOptionsMultiSelect = forwardRef<
 
   return (
     <div ref={ref} data-cy={dataCy}>
-      <div className="custom-centered-select-wrapper always-show-placeholder-wrap relative">
+      <div
+        className="custom-centered-select-wrapper always-show-placeholder-wrap relative"
+        data-cy={
+          dataCy
+            ? `${dataCy}-select-wrap`
+            : 'meeting-form-options-multi-select-wrap'
+        }
+      >
         <Select
           mode="multiple"
           showSearch
@@ -284,9 +379,15 @@ export const MeetingFormOptionsMultiSelect = forwardRef<
           dropdownClassName="custom-assignee-dropdown"
           options={options}
         />
-        <HintOverlay text={hint} />
+        <HintOverlay
+          text={hint}
+          data-cy={dataCy ? `${dataCy}-hint` : undefined}
+        />
       </div>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div
+        className="mt-2 flex flex-wrap gap-2"
+        data-cy={dataCy ? `${dataCy}-tags` : 'meeting-form-options-multi-tags'}
+      >
         {ids.map((id) => {
           const opt = options.find((o) => String(o.value) === String(id));
           return (
@@ -323,7 +424,14 @@ export const MeetingFormOptionsSingleSelect = forwardRef<
 
   return (
     <div ref={ref} data-cy={dataCy}>
-      <div className="custom-centered-select-wrapper always-show-placeholder-wrap relative">
+      <div
+        className="custom-centered-select-wrapper always-show-placeholder-wrap relative"
+        data-cy={
+          dataCy
+            ? `${dataCy}-select-wrap`
+            : 'meeting-form-options-single-select-wrap'
+        }
+      >
         <Select
           showSearch
           allowClear
@@ -341,9 +449,15 @@ export const MeetingFormOptionsSingleSelect = forwardRef<
           dropdownClassName="custom-assignee-dropdown"
           options={options}
         />
-        <HintOverlay text={hint} />
+        <HintOverlay
+          text={hint}
+          data-cy={dataCy ? `${dataCy}-hint` : undefined}
+        />
       </div>
-      <div className="mt-2 flex flex-wrap gap-2">
+      <div
+        className="mt-2 flex flex-wrap gap-2"
+        data-cy={dataCy ? `${dataCy}-tags` : 'meeting-form-options-single-tags'}
+      >
         {id ? (
           <TagChip
             label={

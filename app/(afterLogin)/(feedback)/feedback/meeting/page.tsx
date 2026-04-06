@@ -26,8 +26,14 @@ function MeetingsSplitContent() {
         data-cy="feedback-meeting-page-split"
       >
         <MeetingListFilters />
-        <div className="flex w-full min-w-0 flex-col items-stretch gap-6 xl:flex-row xl:items-stretch">
-          <div className="flex w-full min-w-0 flex-col xl:h-[720px] xl:min-h-0 xl:flex-1 xl:basis-0 xl:overflow-hidden">
+        <div
+          className="flex w-full min-w-0 flex-col items-stretch gap-6 xl:flex-row xl:items-stretch"
+          data-cy="feedback-meeting-page-split-columns"
+        >
+          <div
+            className="flex w-full min-w-0 flex-col xl:h-[720px] xl:min-h-0 xl:flex-1 xl:basis-0 xl:overflow-hidden"
+            data-cy="feedback-meeting-page-list-column"
+          >
             <MeetingList
               hideFilters
               matchRightPanelHeight
@@ -35,7 +41,10 @@ function MeetingsSplitContent() {
               data-cy="feedback-meeting-page-meeting-list"
             />
           </div>
-          <div className="flex w-full min-w-0 flex-col xl:h-[720px] xl:min-h-0 xl:flex-1 xl:basis-0">
+          <div
+            className="flex w-full min-w-0 flex-col xl:h-[720px] xl:min-h-0 xl:flex-1 xl:basis-0"
+            data-cy="feedback-meeting-page-detail-column"
+          >
             {selectedId ? (
               <MeetingDetailPanel meetingId={selectedId} />
             ) : (
@@ -77,12 +86,22 @@ function MeetingMeetingsPageInner() {
       primaryActionTextClassName="text-sm font-normal"
       title="Meetings"
       subtitle={
-        <p className="flex items-center gap-1.5 text-slate-400 text-sm font-normal">
-          <span>CFR</span>
-          <span>/</span>
-          <span>Conversation</span>
-          <span>/</span>
-          <span className="text-slate-700 font-medium">Meeting</span>
+        <p
+          className="flex items-center gap-1.5 text-slate-400 text-sm font-normal"
+          data-cy="feedback-meeting-page-breadcrumb-subtitle"
+        >
+          <span data-cy="feedback-meeting-page-breadcrumb-cfr">CFR</span>
+          <span data-cy="feedback-meeting-page-breadcrumb-sep-1">/</span>
+          <span data-cy="feedback-meeting-page-breadcrumb-conversation">
+            Conversation
+          </span>
+          <span data-cy="feedback-meeting-page-breadcrumb-sep-2">/</span>
+          <span
+            className="text-slate-700 font-medium"
+            data-cy="feedback-meeting-page-breadcrumb-meeting"
+          >
+            Meeting
+          </span>
         </p>
       }
       buttonTitle={selectedId ? 'Create Meeting' : undefined}
@@ -116,7 +135,10 @@ export default function Index() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-[40vh] justify-center items-center">
+        <div
+          className="flex min-h-[40vh] justify-center items-center"
+          data-cy="feedback-meeting-page-root-suspense-fallback"
+        >
           <Spin size="large" />
         </div>
       }

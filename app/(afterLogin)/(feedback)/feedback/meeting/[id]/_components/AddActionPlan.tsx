@@ -30,10 +30,22 @@ function FormFieldLabel({
   required?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-1">
-      <span className="text-[14px] font-normal text-[#030712]">{children}</span>
+    <div
+      className="flex items-center gap-1"
+      data-cy="feedback-meeting-addactionplan-form-field-label-wrap"
+    >
+      <span
+        className="text-[14px] font-normal text-[#030712]"
+        data-cy="feedback-meeting-addactionplan-form-field-label-text"
+      >
+        {children}
+      </span>
       {required ? (
-        <span className="text-[14px] leading-none text-[#ff4d4f]" aria-hidden>
+        <span
+          className="text-[14px] leading-none text-[#ff4d4f]"
+          aria-hidden
+          data-cy="feedback-meeting-addactionplan-form-field-label-required"
+        >
           *
         </span>
       ) : null}
@@ -61,7 +73,10 @@ const ResponsiblePersonAssigneeSelect = forwardRef<
   };
 
   return (
-    <div ref={ref}>
+    <div
+      ref={ref}
+      data-cy={`feedback-meeting-components-addactionplan-responsible-root-${listFieldKey}`}
+    >
       <div
         className="custom-centered-select-wrapper relative"
         data-cy={`feedback-meeting-components-addactionplan-responsible-wrapper-${listFieldKey}`}
@@ -93,18 +108,30 @@ const ResponsiblePersonAssigneeSelect = forwardRef<
               value={user.id}
               label={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()}
             >
-              <div className="flex items-center gap-3 py-1">
+              <div
+                className="flex items-center gap-3 py-1"
+                data-cy={`feedback-meeting-addactionplan-responsible-option-${user.id}`}
+              >
                 <Avatar
                   size={28}
                   src={user.profileImage}
                   icon={!user.profileImage && <UserOutlined />}
                 />
-                <div className="flex flex-col">
-                  <span className="text-[14px] font-medium text-[#262626]">
+                <div
+                  className="flex flex-col"
+                  data-cy={`feedback-meeting-addactionplan-responsible-option-meta-${user.id}`}
+                >
+                  <span
+                    className="text-[14px] font-medium text-[#262626]"
+                    data-cy={`feedback-meeting-addactionplan-responsible-option-name-${user.id}`}
+                  >
                     {user?.firstName} {user?.middleName} {user?.lastName}
                   </span>
                   {user?.email ? (
-                    <span className="text-[12px] text-[#8c8c8c]">
+                    <span
+                      className="text-[12px] text-[#8c8c8c]"
+                      data-cy={`feedback-meeting-addactionplan-responsible-option-email-${user.id}`}
+                    >
                       {user.email}
                     </span>
                   ) : null}
@@ -134,7 +161,10 @@ const ResponsiblePersonAssigneeSelect = forwardRef<
               className="flex items-center gap-2 rounded-[6px] border border-[#d9d9d9] bg-[rgba(0,0,0,0.02)] px-2 py-[1px]"
               data-cy={`feedback-meeting-components-addactionplan-responsible-tag-${id}`}
             >
-              <span className="text-[14px] text-[#595959]">
+              <span
+                className="text-[14px] text-[#595959]"
+                data-cy={`feedback-meeting-addactionplan-responsible-tag-name-${id}`}
+              >
                 {user.firstName}
               </span>
               <CloseOutlined
@@ -284,7 +314,12 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
       className="okr-settings-modal meeting-action-plan-modal"
       data-cy={dataCy ?? 'feedback-meeting-components-addactionplan-modal'}
     >
-      <style jsx global>{`
+      <style
+        jsx
+        global
+        data-cy="feedback-meeting-addactionplan-modal-global-styles"
+      >
+        {`
         .meeting-action-plan-modal .ant-modal-body {
           max-height: min(70vh, 640px);
           overflow-y: auto;
@@ -501,7 +536,10 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                         data-cy={`feedback-meeting-components-addactionplan-priority-${key}`}
                         id={`feedback-meeting-components-addactionplan-priority-select-${key}`}
                       >
-                        <div className="custom-centered-select-wrapper relative">
+                        <div
+                          className="custom-centered-select-wrapper relative"
+                          data-cy={`feedback-meeting-addactionplan-priority-wrap-${key}`}
+                        >
                           <Select
                             placeholder="Select"
                             className="custom-modal-select h-10 w-full"
@@ -556,7 +594,10 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                       data-cy={`feedback-meeting-components-addactionplan-status-${key}`}
                       id={`feedback-meeting-components-addactionplan-status-select-${key}`}
                     >
-                      <div className="custom-centered-select-wrapper relative">
+                      <div
+                        className="custom-centered-select-wrapper relative"
+                        data-cy={`feedback-meeting-addactionplan-status-wrap-${key}`}
+                      >
                         <Select
                           placeholder="Select status"
                           className="custom-modal-select h-10 w-full"

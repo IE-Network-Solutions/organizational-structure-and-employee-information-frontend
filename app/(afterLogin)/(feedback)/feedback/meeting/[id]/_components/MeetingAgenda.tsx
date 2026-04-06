@@ -166,7 +166,10 @@ export default function MeetingAgenda({
     let panelBody: ReactNode;
     if (isLoading) {
       panelBody = (
-        <div className="flex min-h-0 flex-1 items-center justify-center">
+        <div
+          className="flex min-h-0 flex-1 items-center justify-center"
+          data-cy="feedback-meeting-agenda-panel-loading"
+        >
           <Spin
             size="small"
             data-cy="feedback-meeting-components-meetingagenda-spin"
@@ -175,7 +178,10 @@ export default function MeetingAgenda({
       );
     } else if (!hasAgendaItems) {
       panelBody = (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-1">
+        <div
+          className="flex min-h-0 flex-1 flex-col items-center justify-center px-1"
+          data-cy="feedback-meeting-agenda-panel-empty-wrap"
+        >
           <p
             className="m-0 text-center text-[14px] font-bold text-black/70"
             data-cy="feedback-meeting-agenda-panel-empty"
@@ -203,7 +209,10 @@ export default function MeetingAgenda({
           data-cy="feedback-meeting-agenda-panel"
           id="feedback-meeting-agenda-panel"
         >
-          <div className="flex h-[24px] w-full shrink-0 items-center justify-between">
+          <div
+            className="flex h-[24px] w-full shrink-0 items-center justify-between"
+            data-cy="feedback-meeting-agenda-panel-header-row"
+          >
             <h2
               className="m-0 text-[14px] font-normal leading-none text-black"
               data-cy="feedback-meeting-components-meetingagenda-heading"

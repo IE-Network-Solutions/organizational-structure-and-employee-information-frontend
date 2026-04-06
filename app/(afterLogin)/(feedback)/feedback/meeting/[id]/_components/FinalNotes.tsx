@@ -113,7 +113,10 @@ export default function FinalNotes({
     let panelBody: ReactNode;
     if (loading) {
       panelBody = (
-        <div className="flex min-h-0 flex-1 items-center justify-center">
+        <div
+          className="flex min-h-0 flex-1 items-center justify-center"
+          data-cy="feedback-meeting-finalnotes-panel-loading"
+        >
           <Spin
             size="small"
             data-cy="feedback-meeting-components-finalnotes-spin"
@@ -124,7 +127,10 @@ export default function FinalNotes({
       panelBody = editFormBlock;
     } else if (!hasNote) {
       panelBody = (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-1">
+        <div
+          className="flex min-h-0 flex-1 flex-col items-center justify-center px-1"
+          data-cy="feedback-meeting-finalnotes-panel-empty-wrap"
+        >
           <p
             className="m-0 text-center text-[14px] font-bold text-black/70"
             data-cy="feedback-meeting-components-finalnotes-panel-empty"
@@ -149,7 +155,12 @@ export default function FinalNotes({
           data-cy="feedback-meeting-components-finalnotes-div-display"
           id="feedback-meeting-components-finalnotes-div-display"
         >
-          <span className="whitespace-pre-wrap">{finalNote}</span>
+          <span
+            className="whitespace-pre-wrap"
+            data-cy="feedback-meeting-components-finalnotes-text"
+          >
+            {finalNote}
+          </span>
         </div>
       );
     }
@@ -160,7 +171,10 @@ export default function FinalNotes({
         data-cy="feedback-meeting-final-notes-panel"
         id="feedback-meeting-final-notes-panel"
       >
-        <div className="flex h-[24px] w-full shrink-0 items-center justify-between">
+        <div
+          className="flex h-[24px] w-full shrink-0 items-center justify-between"
+          data-cy="feedback-meeting-finalnotes-panel-header-row"
+        >
           <h2
             className="m-0 text-[14px] font-normal leading-none text-black"
             data-cy="feedback-meeting-components-finalnotes-heading"

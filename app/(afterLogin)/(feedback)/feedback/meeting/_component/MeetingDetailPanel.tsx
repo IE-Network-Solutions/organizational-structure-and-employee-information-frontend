@@ -37,7 +37,10 @@ export default function MeetingDetailPanel({
       data-cy={`feedback-meeting-detail-panel-${meetingId}`}
       id={`feedback-meeting-detail-panel-${meetingId}`}
     >
-      <div className="shrink-0">
+      <div
+        className="shrink-0"
+        data-cy="feedback-meeting-detail-panel-header-wrap"
+      >
         <MeetingPanelHeader
           loading={isLoading}
           meetingTitle={meeting?.title}

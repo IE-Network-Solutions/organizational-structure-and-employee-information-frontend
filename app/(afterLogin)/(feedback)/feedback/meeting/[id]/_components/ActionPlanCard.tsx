@@ -148,7 +148,10 @@ export default function ActionPlanCard({
         data-cy={`feedback-meeting-components-actionplancard-header-${id}`}
         id={`feedback-meeting-components-actionplancard-header-${id}`}
       >
-        <div className="flex min-w-0 items-center gap-2">
+        <div
+          className="flex min-w-0 items-center gap-2"
+          data-cy={`feedback-meeting-components-actionplancard-issue-col-${id}`}
+        >
           <span
             className="shrink-0 text-[16px] font-extrabold leading-none text-[#111827]"
             data-cy={`feedback-meeting-components-actionplancard-label-issue-${id}`}
@@ -164,7 +167,10 @@ export default function ActionPlanCard({
             {priority}
           </span>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div
+          className="flex shrink-0 items-center gap-2"
+          data-cy={`feedback-meeting-components-actionplancard-meta-col-${id}`}
+        >
           <span
             className={neutralMetaTagClass}
             data-cy={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
