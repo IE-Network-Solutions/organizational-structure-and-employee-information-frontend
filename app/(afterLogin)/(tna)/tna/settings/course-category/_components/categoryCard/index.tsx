@@ -4,7 +4,14 @@ import { CourseCategory } from '@/types/tna/course';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import AccessGuard from '@/utils/permissionGuard';
 import { Button, Dropdown, MenuProps } from 'antd';
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 /** Edit row icon (spec SVG) */
 const CourseCategoryMenuEditIcon = () => (
@@ -96,6 +103,26 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
 }) => {
   const { mutate: deleteCategory, isLoading } = useDeleteCourseCategory();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteTriggerRect, setDeleteTriggerRect] =
+    useState<TriggerRect | null>(null);
+
+  const openDeleteModalAnchored = useCallback(() => {
+    const btn = document.querySelector<HTMLElement>(
+      `[data-cy="tna-course-category-card-menu-btn-${item.id}"]`,
+    );
+    if (btn) {
+      const r = btn.getBoundingClientRect();
+      setDeleteTriggerRect({
+        top: r.top,
+        left: r.left,
+        width: r.width,
+        height: r.height,
+      });
+    } else {
+      setDeleteTriggerRect(null);
+    }
+    setDeleteModalOpen(true);
+  }, [item.id]);
 
   const menuItems: MenuProps['items'] = [
     {
@@ -132,7 +159,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           Delete
         </span>
       ),
-      onClick: () => setDeleteModalOpen(true),
+      onClick: () => openDeleteModalAnchored(),
     },
   ];
 
@@ -207,7 +234,13 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
       <DeleteModal
         open={deleteModalOpen}
         loading={isLoading}
+        title="Delete"
+        deleteMessage="Are you sure you want to delete this course category?"
+        hideImage
+        danger
+        triggerRect={deleteTriggerRect ?? undefined}
         onCancel={() => setDeleteModalOpen(false)}
+        onAfterClose={() => setDeleteTriggerRect(null)}
         onConfirm={() => {
           deleteCategory([item.id], {
             onSuccess: () => {
@@ -216,7 +249,6 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
             },
           });
         }}
-        customMessage="Are you sure you want to delete this item?"
         data-cy={`tna-course-category-delete-confirmation-modal-${item.id}`}
         id={`tnaCourseCategoryDeleteModal${item.id}Id`}
       />
