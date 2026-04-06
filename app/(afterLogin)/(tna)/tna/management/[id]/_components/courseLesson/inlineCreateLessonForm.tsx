@@ -34,10 +34,26 @@ type PendingMaterialRow = NestedLessonMaterialDraftPayload & {
   clientId: string;
 };
 
+function pendingRowToNestedPayload(
+  row: PendingMaterialRow,
+): NestedLessonMaterialDraftPayload {
+  return {
+    title: row.title,
+    description: row.description,
+    article: row.article,
+    videos: row.videos,
+    attachments: row.attachments,
+    order: row.order,
+    timeToFinishMinutes: row.timeToFinishMinutes,
+  };
+}
+
 const DRAFT_LESSON_ID = '__inline_create_lesson_draft__';
 
 function newPendingClientId(): string {
-  return globalThis.crypto?.randomUUID?.() ?? `p-${Date.now()}-${Math.random()}`;
+  return (
+    globalThis.crypto?.randomUUID?.() ?? `p-${Date.now()}-${Math.random()}`
+  );
 }
 
 function trimToNull(v: string | undefined | null): string | null {
@@ -83,14 +99,13 @@ const InlineCreateLessonForm: FC = () => {
     useTnaManagementCoursePageStore();
   const { mutate: setLessons, isLoading } = useSetCourseLesson();
   const [form] = Form.useForm();
-  const [pendingMaterials, setPendingMaterials] = useState<PendingMaterialRow[]>(
-    [],
-  );
+  const [pendingMaterials, setPendingMaterials] = useState<
+    PendingMaterialRow[]
+  >([]);
   const [materialWizardOpen, setMaterialWizardOpen] = useState(false);
   const [materialWizardMountKey, setMaterialWizardMountKey] = useState(0);
-  const [pendingMaterialEditClientId, setPendingMaterialEditClientId] = useState<
-    string | null
-  >(null);
+  const [pendingMaterialEditClientId, setPendingMaterialEditClientId] =
+    useState<string | null>(null);
 
   const draftLessonForWizard = useMemo((): CourseLesson => {
     return {
@@ -125,19 +140,19 @@ const InlineCreateLessonForm: FC = () => {
     [sortedPendingMaterials],
   );
 
-  const editingDraftPayload = useMemo((): NestedLessonMaterialDraftPayload | null => {
-    if (!pendingMaterialEditClientId) {
-      return null;
-    }
-    const row = pendingMaterials.find(
-      (m) => m.clientId === pendingMaterialEditClientId,
-    );
-    if (!row) {
-      return null;
-    }
-    const { clientId: _c, ...payload } = row;
-    return payload;
-  }, [pendingMaterialEditClientId, pendingMaterials]);
+  const editingDraftPayload =
+    useMemo((): NestedLessonMaterialDraftPayload | null => {
+      if (!pendingMaterialEditClientId) {
+        return null;
+      }
+      const row = pendingMaterials.find(
+        (m) => m.clientId === pendingMaterialEditClientId,
+      );
+      if (!row) {
+        return null;
+      }
+      return pendingRowToNestedPayload(row);
+    }, [pendingMaterialEditClientId, pendingMaterials]);
 
   const handleClose = useCallback(() => {
     form.resetFields();
@@ -193,13 +208,14 @@ const InlineCreateLessonForm: FC = () => {
     };
 
     if (pendingMaterials.length) {
-      payload.courseLessonMaterials = pendingMaterials.map(
-        ({ clientId: _c, ...m }) => ({
-          ...m,
-          description: trimToNull(m.description),
-          article: trimToNull(m.article),
-        }),
-      );
+      payload.courseLessonMaterials = pendingMaterials.map((m) => {
+        const nested = pendingRowToNestedPayload(m);
+        return {
+          ...nested,
+          description: trimToNull(nested.description),
+          article: trimToNull(nested.article),
+        };
+      });
     }
 
     setLessons([payload as unknown as Partial<CourseLesson>], {
@@ -269,7 +285,10 @@ const InlineCreateLessonForm: FC = () => {
       ) : null}
 
       {materialWizardOpen ? (
-        <div className="mt-4">
+        <div
+          className="mt-4"
+          data-cy="tna-inline-create-lesson-material-wizard-wrap"
+        >
           <InlineAddCourseMaterialWizard
             key={materialWizardMountKey}
             lesson={draftLessonForWizard}

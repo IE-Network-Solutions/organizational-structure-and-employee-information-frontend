@@ -47,7 +47,10 @@ const SortablePendingLessonMaterialRow: FC<
       className="flex items-start justify-between gap-3 rounded-lg px-3 py-3"
       data-cy={`tna-inline-create-pending-material-${item.clientId}`}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-3">
+      <div
+        className="flex min-w-0 flex-1 items-center gap-3"
+        data-cy={`tna-inline-create-pending-material-main-${item.clientId}`}
+      >
         <button
           type="button"
           className="mt-0.5 inline-flex h-8 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 outline-none hover:bg-gray-50 active:cursor-grabbing"
@@ -57,16 +60,30 @@ const SortablePendingLessonMaterialRow: FC<
         >
           <LuGripVertical size={16} className="block shrink-0" aria-hidden />
         </button>
-        <div className="min-w-0 flex-1">
-          <span className="block text-sm text-black/70">{item.title}</span>
-          <div className="mt-1 text-xs text-black/70">
+        <div
+          className="min-w-0 flex-1"
+          data-cy={`tna-inline-create-pending-material-body-${item.clientId}`}
+        >
+          <span
+            className="block text-sm text-black/70"
+            data-cy={`tna-inline-create-pending-material-title-${item.clientId}`}
+          >
+            {item.title}
+          </span>
+          <div
+            className="mt-1 text-xs text-black/70"
+            data-cy={`tna-inline-create-pending-material-duration-${item.clientId}`}
+          >
             {item.timeToFinishMinutes != null
               ? `${item.timeToFinishMinutes} minutes`
               : '—'}
           </div>
         </div>
       </div>
-      <div className="mt-0.5 flex shrink-0 items-center gap-1">
+      <div
+        className="mt-0.5 flex shrink-0 items-center gap-1"
+        data-cy={`tna-inline-create-pending-material-actions-${item.clientId}`}
+      >
         <Button
           type="text"
           size="small"

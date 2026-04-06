@@ -161,8 +161,7 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
       values.videos?.map((video: { response?: string }) => video.response) ??
       [];
     const attachments =
-      values.attachments?.map((a: { response?: string }) => a.response) ??
-      [];
+      values.attachments?.map((a: { response?: string }) => a.response) ?? [];
 
     if (draftMode) {
       const strOrNull = (v: unknown) => {
