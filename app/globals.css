@@ -272,6 +272,12 @@
   /* Safari and Chrome */
 }
 
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Safari and Chrome */
+}
+
 /* Stronger hide on small viewports (Ant Design modal body, iOS) */
 @media (max-width: 639px) {
   .hide-scrollbar-mobile {
@@ -399,6 +405,94 @@ h6 {
     list-style-type: disc;
   }
 
+  .ant-form-item-control .control {
+    @apply mt-2.5 h-[54px] w-full;
+}
+  }
+
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* Internet Explorer 10+ */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  /* Safari and Chrome */
+}
+
+/* Ensure Ant Design Sider children allow for flex scrolling */
+.ant-layout-sider-children {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: visible !important;
+}
+
+.ant-popconfirm-message {
+  display: block !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Calibre', sans-serif;
+}
+
+h1 {
+  font-size: 48px !important;
+  font-weight: bold !important;
+}
+
+h2 {
+  font-size: 40px !important;
+  font-weight: bold !important;
+}
+
+h3 {
+  font-size: 32px !important;
+  font-weight: bold !important;
+}
+
+h4 {
+  font-size: 24px !important;
+  font-weight: bold !important;
+}
+
+h5 {
+  font-size: 20px !important;
+  font-weight: bold !important;
+}
+
+h6 {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
+.tiptap {
+  :first-child {
+    margin-top: 0;
+  }
+
+  /* List styles */
+  ul,
+  ol {
+    padding: 0 1rem;
+    margin: 0.25rem 1rem 0.25rem 0.4rem;
+
+    li p {
+      margin-top: 0.25em;
+      margin-bottom: 0.25em;
+    }
+  }
+
+  ul {
+    list-style-type: disc;
+  }
+
   ol {
     list-style-type: decimal;
   }
@@ -433,6 +527,29 @@ h6 {
     font-size: 1.1rem;
   }
 
+  .form-item {
+    font-weight: 600;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  /* Code and preformatted text styles */
+  code {
+    background-color: #f5eeff;
+    border-radius: 0.4rem;
+    color: black;
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+  }
+
+  pre {
+    background: black;
+    border-radius: 0.5rem;
+    color: white;
+    font-family: 'JetBrainsMono', monospace;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1rem;
+
   h4,
   h5,
   h6 {
@@ -463,6 +580,73 @@ h6 {
       padding: 0;
     }
   }
+
+  blockquote {
+    border-left: 3px solid grey;
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid grey;
+    margin: 2rem 0;
+  }
+}
+}
+
+.ant-upload {
+  width: 100%;
+}
+
+.ql-container.ql-snow {
+  border: none !important;
+  font-family: 'Calibre', sans-serif;
+  @apply text-gray-900 font-medium text-sm;
+}
+
+.ql-container.ql-snow h3 {
+  font-size: 24px !important;
+}
+
+.ql-container .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.35);
+  @apply font-medium text-sm;
+}
+
+.ant-form-item-control .control {
+  @apply mt-2.5 h-[54px] w-full;
+}
+
+.ant-form-item-control .control-number {
+  @apply mt-2.5 py-[11px] w-full;
+}
+
+.ant-form-item-control .control-tarea {
+  @apply w-full py-4 px-5 mt-2.5;
+}
+
+.ant-tree-treenode .ant-tree-title {
+  height: 2.25rem !important;
+  width: 14rem !important;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.menu-item-label {
+  @apply font-bold text-sm;
+}
+
+.menu-item-icon {
+  @apply text-[#4DAEF0] !important;
+}
+
+/* Quill Editor styles */
+.quill-editor-container {
+  min-height: 200px;
 
   blockquote {
     border-left: 3px solid grey;
@@ -552,6 +736,17 @@ h6 {
   gap: 8px !important;
 }
 
+@media (max-width: 640px) {
+  /* Ant Design menu active item (mobile) */
+  .ant-menu-item-selected {
+    color: #1677ff !important; /* AntD primary blue */
+  }
+}
+.ant-pagination.invoice-table .ant-pagination-total-text {
+  position: absolute !important;
+  right: 130px !important;
+  margin: 0 !important;
+}
   .ant-form-item-control .control-tarea {
     @apply w-full py-4 px-5 mt-2.5;
   }
@@ -828,6 +1023,153 @@ h6 {
   0%,
   100% {
     box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
+}
+  }
+
+.ql-editor {
+  min-height: 150px;
+  font-family: 'Calibre', sans-serif;
+  font-size: 16px;
+}
+
+.ql-toolbar.ql-snow {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid #e2e8f0 !important;
+  border-top: none !important;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  font-family: 'Calibre', sans-serif;
+  @apply text-gray-900 font-medium text-sm;
+}
+
+.ql-container.ql-snow h3 {
+  font-size: 24px !important;
+}
+
+.ql-container .ql-editor.ql-blank::before {
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.35);
+  @apply font-medium text-sm;
+}
+
+/* Mention styles */
+.ql-mention-list-container {
+  z-index: 9999;
+}
+
+.ql-mention-list {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ql-mention-list-item {
+  padding: 8px 12px;
+  font-family: 'Calibre', sans-serif;
+}
+
+.ql-mention-list-item.selected {
+  background-color: #e9f5ff;
+}
+
+.mention {
+  color: black;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.ProseMirror {
+  min-height: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.ProseMirror:focus {
+  outline: none !important;
+}
+
+.ProseMirror p.is-empty::before {
+  content: attr(data-placeholder);
+  color: #999;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.custom-timepicker .ant-picker-input input {
+  font-size: 12px !important;
+}
+
+.custom-timepicker .ant-picker-suffix {
+  font-size: 12px !important;
+}
+
+/* PWA Specific Styles */
+
+/* Install prompt styles */
+.install-modal .ant-modal-content {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.install-modal .ant-modal-header {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  color: white;
+  border: none;
+}
+
+.install-modal .ant-modal-title {
+  color: white !important;
+}
+
+.install-modal .ant-modal-close {
+  color: white;
+}
+
+.install-button-minimal {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  border-radius: 50px;
+  height: 48px;
+  padding: 0 20px;
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.3);
+  border: none;
+}
+
+/* Enhanced Floating Install Button */
+.install-button-floating {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 1000 !important;
+  border-radius: 50px !important;
+  box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4) !important;
+  border: none !important;
+  animation: floatPulse 3s ease-in-out infinite !important;
+  transition: all 0.3s ease !important;
+}
+
+.install-button-floating:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 32px rgba(24, 144, 255, 0.5) !important;
+}
+
+.install-button-floating:active {
+  transform: translateY(0) !important;
+}
+
+/* Floating button animation */
+@keyframes floatPulse {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px rgba(24, 144, 255, 0.4);
   }
 
   50% {
@@ -845,6 +1187,30 @@ h6 {
     height: 48px !important;
     font-size: 14px !important;
     padding: 0 16px !important;
+  }
+}
+
+/* Standalone mode adjustments */
+@media (display-mode: standalone) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* Mobile optimizations for install button */
+@media (max-width: 768px) {
+  .install-button-floating {
+    bottom: 16px !important;
+    right: 16px !important;
+    height: 48px !important;
+    font-size: 14px !important;
+    padding: 0 16px !important;
+  }
+  /* Hide scrollbars in standalone mode for better app-like experience */
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
   }
 }
 
@@ -930,6 +1296,77 @@ h6 {
     to {
       opacity: 0;
       transform: scale(1.05);
+  }
+    }
+  /* Hide install buttons when in standalone mode */
+  .install-button-floating,
+  .install-button-minimal {
+    display: none !important;
+  }
+
+  /* Add safe area padding for devices with notches */
+  .main-content {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* PWA-specific splash screen styles */
+  .pwa-splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 50%, #0050b3 100%);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: splashFadeIn 0.5s ease-out;
+  }
+
+  .pwa-splash-container.exiting {
+    animation: splashFadeOut 0.5s ease-in forwards;
+  }
+
+  .pwa-logo-animation {
+    transform: scale(0);
+    animation: logoScale 1s ease-out 0.3s forwards;
+  }
+
+  .pwa-text-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: textSlideUp 0.8s ease-out 1s forwards;
+  }
+
+  .pwa-loading-animation {
+    opacity: 0;
+    animation: loadingFadeIn 0.5s ease-out 1.5s forwards;
+  }
+
+  /* Keyframe animations for PWA splash */
+  @keyframes splashFadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes splashFadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: scale(1.05);
     }
   }
 
@@ -941,12 +1378,26 @@ h6 {
     70% {
       transform: scale(1.1) rotate(0deg);
     }
+  }
 
+  @keyframes logoScale {
+    0% {
+      transform: scale(0) rotate(-180deg);
+    }
+    70% {
+      transform: scale(1.1) rotate(0deg);
+    }
     100% {
       transform: scale(1) rotate(0deg);
     }
   }
 
+  @keyframes textSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+  }
+    }
   @keyframes textSlideUp {
     from {
       opacity: 0;
@@ -966,6 +1417,57 @@ h6 {
 
     to {
       opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes loadingFadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Floating background elements */
+  .pwa-floating-element {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .pwa-floating-element:nth-child(1) {
+    width: 200px;
+    height: 200px;
+    top: 10%;
+    left: -100px;
+    animation-delay: 0s;
+  }
+
+  .pwa-floating-element:nth-child(2) {
+    width: 150px;
+    height: 150px;
+    top: 60%;
+    right: -75px;
+    animation-delay: 2s;
+  }
+
+  .pwa-floating-element:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.1;
     }
   }
 
@@ -1049,7 +1551,43 @@ h6 {
       transform: scale(1);
       opacity: 0.8;
     }
+  }
 
+  /* Loading dots animation */
+  .pwa-loading-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .pwa-loading-dot {
+    width: 8px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: dotBounce 1.4s infinite ease-in-out;
+  }
+
+  .pwa-loading-dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+
+  .pwa-loading-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .pwa-loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes dotBounce {
+    0%,
+    60%,
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
     30% {
       transform: scale(1.3);
       opacity: 1;
@@ -1102,6 +1640,88 @@ h6 {
     .pwa-progress-fill {
       animation: none !important;
     }
+  }
+
+  /* Progress bar animation */
+  .pwa-progress-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+
+  .pwa-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ffffff, #f0f9ff);
+    border-radius: 2px;
+    width: 0;
+    animation: progressFill 2.5s ease-out 1.8s forwards;
+  }
+
+  @keyframes progressFill {
+    to {
+      width: 100%;
+    }
+  }
+
+  /* Responsive adjustments for PWA splash */
+  @media (max-width: 768px) {
+    .pwa-floating-element {
+      display: none;
+      /* Hide floating elements on mobile for better performance */
+    }
+
+    .pwa-logo-animation {
+      transform: scale(0.8);
+    .pwa-logo-animation {
+      transform: scale(1);
+    }
+
+    .pwa-text-animation {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pwa-loading-animation {
+      opacity: 1;
+    }
+  }
+}
+}
+
+/* Enhanced PWA app icon animations */
+@media (display-mode: standalone) {
+  .pwa-app-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: iconGlow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes iconGlow {
+    from {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pwa-splash-container,
+    .pwa-logo-animation,
+    .pwa-text-animation,
+    .pwa-loading-animation,
+    .pwa-floating-element,
+    .pwa-loading-dot,
+    .pwa-progress-fill {
+      animation: none !important;
+    to {
+      box-shadow: 0 10px 30px rgba(24, 144, 255, 0.4);
+    }
+  }
+}
+}
 
     .pwa-logo-animation {
       transform: scale(1);
@@ -1115,6 +1735,29 @@ h6 {
     .pwa-loading-animation {
       opacity: 1;
     }
+/* Mobile PWA optimizations */
+@media (max-width: 768px) {
+  /* Touch target sizes for better mobile interaction */
+  .ant-btn {
+    min-height: 32px;
+    min-width: 32px;
+  }
+
+  /* Org Structure page: let modals control button height (32px) */
+  #org-structure-layout .ant-btn {
+    min-height: 32px;
+    min-width: auto;
+  }
+
+  .ant-menu-item {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Better mobile scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -1164,6 +1807,42 @@ h6 {
     -webkit-overflow-scrolling: touch;
   }
 
+  /* Prevent zoom on input focus */
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='url'],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Galaxy Fold / very narrow screens: prevent tabs + extra button overlap */
+@media (max-width: 320px) {
+  .org-settings-tabs-foldfix .ant-tabs-nav {
+    flex-wrap: wrap !important;
+    row-gap: 8px;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-nav-wrap {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-nav-list {
+    max-width: 100% !important;
+    overflow-x: auto;
+  }
+
+  .org-settings-tabs-foldfix .ant-tabs-extra-content {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-left: 0 !important;
   /* Prevent zoom on input focus */
   input[type='text'],
   input[type='email'],
@@ -1284,6 +1963,57 @@ h6 {
   }
 }
 
+  .org-settings-tabs-foldfix .ant-tabs-extra-content .ant-btn {
+    margin-left: 0 !important;
+  }
+}
+
+/* Offline indicator styles */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #faad14;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.offline-indicator.hidden {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* App update notification */
+.update-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: #1890ff;
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* iOS specific adjustments */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific styles */
+  .ios-install-instructions {
+    background: #f0f8ff;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 16px 0;
+  }
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .install-modal .ant-modal-content,
@@ -1302,6 +2032,24 @@ h6 {
   }
 }
 
+  /* Fix for iOS viewport height issues */
+  .full-height {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
+
+/* Desktop PWA window controls overlay */
+@media (display-mode: window-controls-overlay) {
+  .app-header {
+    padding-left: env(titlebar-area-x);
+    padding-right: calc(
+      100vw - env(titlebar-area-x) - env(titlebar-area-width)
+    );
+    padding-top: env(titlebar-area-y);
+    min-height: env(titlebar-area-height);
+}
+  }
 /* FORCE HIDE URL BAR COMPLETELY - ALLOW SCROLLING */
 @media screen {
   /* Hide all browser UI elements but allow scrolling */
@@ -1309,6 +2057,76 @@ h6 {
     width: 100%;
     height: 100%;
   }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .install-modal .ant-modal-content {
+    border: 2px solid currentColor;
+  body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    /* Remove position fixed to allow scrolling */
+  }
+}
+
+  .install-button-minimal {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .install-modal .ant-modal-content,
+  .update-notification,
+  .offline-indicator {
+    transition: none;
+  }
+/* PWA Mode - Complete URL Bar Removal WITH SCROLLING */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  html,
+  body {
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    /* Allow vertical scrolling */
+    overflow-y: auto !important;
+  }
+}
+}
+
+/* Print styles for PWA */
+@media print {
+  .install-button-minimal,
+  .offline-indicator,
+  .update-notification {
+    display: none !important;
+  /* Ensure main content can scroll */
+  #__next {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+}
+
+/* FORCE HIDE URL BAR COMPLETELY - ALLOW SCROLLING */
+@media screen {
+  /* Hide all browser UI elements but allow scrolling */
+  html {
+    width: 100%;
+    height: 100%;
+  main {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
 
   body {
     width: 100vw;
@@ -1344,6 +2162,14 @@ h6 {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Mobile Browser - Force Hide Address Bar WITH SCROLLING */
+@media screen and (max-width: 768px) {
+  html {
+    height: 100vh;
+    height: -webkit-fill-available;
   }
 }
 
@@ -1606,6 +2432,23 @@ h6 {
   left: -10px !important;
 }
 
+
+/* For mobile */
+.mobile-switcher .ant-tree-switcher {
+  width: 24px !important;
+}
+
+.mobile-switcher .ant-tree-switcher-leaf-line {
+  left: -14px !important;
+}
+
+.mobile-switcher
+  .ant-tree-switcher-open
+  .ant-tree-node-content-wrapper
+  .ant-tree-node-content-wrapper-open {
+  left: -10px !important;
+}
+
 /* Align parent task icon with tree lines in mobile view */
 @media (max-width: 768px) {
   .mobile-switcher
@@ -1682,6 +2525,101 @@ h6 {
   width: 30px !important;
 }
 
+/* Talent acquisition settings: context menu (Edit/Delete) - white card, rounded corners */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu {
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px 0 !important;
+  min-width: 120px;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item {
+  padding: 8px 12px !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item
+  .ant-dropdown-menu-item-icon {
+  color: #000 !important;
+}
+/* Remove red danger hover; use greyed-white for all items */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item:hover,
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger:hover,
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  background: #f3f4f6 !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger {
+  color: #000 !important;
+}
+
+/* Talent acquisition settings: primary button blue #1E40AF */
+.recruitment-settings-primary-btn.ant-btn-primary,
+.recruitment-settings-primary-btn.ant-btn-primary:hover,
+.recruitment-settings-primary-btn.ant-btn-primary:focus {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+}
+.recruitment-settings-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
+}
+
+/* Talent acquisition settings: shared design tokens and components (reuse across tabs) */
+:root {
+  --recruitment-settings-border: #d9d9d9;
+  --recruitment-settings-radius: 8px;
+  --recruitment-settings-title-size: 14px;
+  --recruitment-settings-title-weight: 400;
+  --recruitment-settings-level-size: 12px;
+  --recruitment-settings-level-color: rgba(0, 0, 0, 0.7);
+  --recruitment-settings-description-size: 14px;
+  --recruitment-settings-description-color: rgba(0, 0, 0, 0.45);
+}
+
+/* Card container: border, radius, background (Define Status, Talent Pool Category, Template Questions cards) */
+.recruitment-settings-card {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: #ffffff;
+}
+
+/* Define Status / Template Questions: card title (14px, 400, black) */
+.recruitment-settings-card-title {
+  font-size: var(--recruitment-settings-title-size);
+  font-weight: var(--recruitment-settings-title-weight);
+  color: #000;
+}
+
+/* Define Status: level label pill - bg black 2%, border #D9D9D9, text 12px 400 black 70% */
+.recruitment-settings-card-level {
+  font-size: var(--recruitment-settings-level-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-level-color);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #d9d9d9;
+}
+
+/* Define Status: description text (14px, 400, black 45%) */
+.recruitment-settings-card-description {
+  font-size: var(--recruitment-settings-description-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-description-color);
+}
+
+/* Template Questions: input type description (12px, black 45%) */
+.recruitment-settings-input-type-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+
+.action-button-delete {
+  height: 30px !important;
+  width: 30px !important;
+}
+
 /* Candidate table action dropdown: white panel, normal-weight text */
 .talent-acquisition-candidate-table-action-dropdown.ant-dropdown
   .ant-dropdown-menu {
@@ -1698,6 +2636,192 @@ h6 {
     min-height: unset !important;
     min-width: unset !important;
   }
+}
+
+/* Leave Management table: thin light gray borders, no vertical lines */
+.leave-management-table .ant-table {
+  border: none !important;
+}
+
+.leave-management-table .ant-table-thead > tr > th {
+  background: #f9fafb !important;
+  color: #374151;
+  font-weight: 700 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+
+.leave-management-table .ant-table-thead > tr > th,
+.leave-management-table .ant-table-thead > tr > th * {
+  font-weight: 700 !important;
+}
+
+.leave-management-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+
+/* Employee names in first column: not bold (override UserCard font-semibold) */
+.leave-management-table .ant-table-tbody td:first-child .font-semibold,
+.leave-management-table
+  .ant-table-tbody
+  td:first-child
+  [data-cy='components-common-usercard-usercard-tsx-usercard-div-38'] {
+  font-weight: 400 !important;
+}
+
+.leave-management-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Template Questions: type pill on question cards - border #D1D5DB, bg #F9FAFB, text #9CA3AF 12px 400 */
+.recruitment-settings-card-type-pill {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+}
+
+/* More (ellipsis) action button - bordered, used on all tabs */
+.recruitment-settings-more-btn {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+.recruitment-settings-more-btn:hover {
+  background: rgb(243 244 246);
+}
+
+/* Template Questions: drag source card animation when dragging */
+/* Source card when dragging: subtle rotation and fade */
+.recruitment-settings-dragging-card {
+  transform: scale(0.98) rotate(8deg);
+  transform-origin: center center;
+  opacity: 0.7;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+/* Define Status: dashed placeholder slot left behind when an item is being dragged */
+.recruitment-settings-status-drag-placeholder {
+  background: rgba(0, 0, 0, 0.02);
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* Define Status: DragOverlay ghost — tilted card that follows the cursor.
+   Works identically in Chrome, Firefox and Safari because @dnd-kit uses
+   pointer events rather than the native HTML5 drag API. */
+.recruitment-settings-drag-ghost {
+  transform: rotate(3deg);
+  transform-origin: center top;
+  box-shadow:
+    0 12px 28px -6px rgba(0, 0, 0, 0.18),
+    0 4px 10px -4px rgba(0, 0, 0, 0.1);
+  opacity: 0.95;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  cursor: grabbing;
+}
+
+/* Outer panel for Template Questions left/right columns */
+.recruitment-settings-panel {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: #ffffff;
+}
+
+/* Template Questions: existing question card title (16px, 400, black) */
+.recruitment-settings-question-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+}
+
+/* Define Status / Edit Status / Delete Status modals - match design */
+.recruitment-settings-status-modal .ant-modal-content,
+.recruitment-settings-delete-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-status-modal .ant-modal-header,
+.recruitment-settings-delete-modal .ant-modal-header {
+  border-bottom: none;
+}
+.recruitment-settings-status-modal .ant-modal-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+}
+.recruitment-settings-delete-modal .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Fields: 8px border radius, visible border */
+.recruitment-settings-status-modal .ant-input,
+.recruitment-settings-status-modal .ant-input-affix-wrapper,
+.recruitment-settings-status-modal textarea.ant-input {
+  border-color: #d1d5db !important;
+  border-radius: 8px !important;
+  border-bottom: 1px solid #d1d5db !important;
+}
+/* Remove any extra bottom-only border that some global styles may add */
+.recruitment-settings-status-modal .ant-input-textarea textarea {
+  border-radius: 8px !important;
+}
+
+/* Form item wrapper: add visible border with 8px radius around each field */
+.recruitment-settings-status-modal .ant-form-item .ant-input,
+.recruitment-settings-status-modal .ant-form-item textarea.ant-input {
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+}
+
+/* Labels */
+.recruitment-settings-status-modal .ant-form-item-label > label {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #030712 !important;
+}
+
+/* Increase spacing between label and input field */
+.recruitment-settings-status-modal .ant-form-item-label {
+  padding-bottom: 6px !important;
+}
+
+/* Placeholder text: 14px, 400, black 25% */
+.recruitment-settings-status-modal .ant-input::placeholder,
+.recruitment-settings-status-modal textarea.ant-input::placeholder,
+.recruitment-settings-status-modal .ant-input-affix-wrapper input::placeholder,
+.recruitment-settings-status-modal .ant-select-selection-placeholder {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Required asterisk: hide the default left-side asterisk, add one on the right */
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::before {
+  display: none !important;
+}
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::after {
+  display: inline-block !important;
+  margin-inline-start: 4px !important;
+  color: #ff4d4f !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  content: '*' !important;
+  visibility: visible !important;
 }
 
 /* Leave Management table: thin light gray borders, no vertical lines */
@@ -1816,27 +2940,76 @@ h6 {
   margin: 0 !important;
 }
 
-/* Payroll page table styles */
-.payroll-table .ant-table-thead > tr > th {
-  background-color: #fafafa !important;
-  color: #4b5563 !important;
-  font-weight: 600 !important;
-  font-size: 13px !important;
-  border-bottom: 1px solid #e5e7eb !important;
+/* Cancel button: 14px, 400 weight, black 70% */
+.recruitment-settings-status-modal .ant-btn-default,
+.recruitment-settings-delete-modal .ant-btn-default {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
-.payroll-table .ant-table-tbody > tr > td {
-  padding: 14px 16px !important;
-  border-bottom: 1px solid #f3f4f6 !important;
-  color: #4b5563;
+/* Anchored delete modals keep their triggerRect alive until afterClose fires,
+   so the default Ant Design zoom plays from the modal's actual position. */
+
+/* Stage reorder confirmation modal */
+.recruitment-settings-reorder-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-reorder-modal .ant-modal-header {
+  border-bottom: none;
+}
+/* Cancel button */
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-cancel-btn.ant-btn,
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-cancel-btn.ant-btn:hover {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+/* Confirm button */
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-confirm-btn.ant-btn-primary,
+.recruitment-settings-reorder-modal .recruitment-settings-reorder-confirm-btn.ant-btn-primary:hover {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
 }
 
-.payroll-table .ant-table-tbody > tr:hover > td {
-  background-color: #f0f4f8 !important;
+/* Primary (Edit/Continue) button: #1E40AF, white text, 14px, 400 */
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
 }
 
-.payroll-zebra-row > td {
-  background-color: #fafafa !important;
+/* Delete modal: delete button #FF4D4F bg, white text, 14px, 400 */
+.recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
+.recruitment-settings-delete-modal .ant-btn-dangerous {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* Org Structure: Add/Edit/Delete Department modals close button position */
+.org-structure-department-modal.ant-modal .ant-modal-close {
+  top: 15px !important;
+  right: 16px !important;
+  color: #00000073 !important;
 }
 
 .payroll-zebra-row:hover > td {
