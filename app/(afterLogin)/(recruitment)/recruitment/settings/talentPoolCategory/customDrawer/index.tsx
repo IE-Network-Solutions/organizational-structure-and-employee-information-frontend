@@ -1,18 +1,19 @@
 'use client';
-
+import CustomButton from '@/components/common/buttons/customButton';
+import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateTalentPoolCategory,
   useUpdateTalentPoolCategory,
 } from '@/store/server/features/recruitment/tallentPoolCategory/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useTalentPoolSettingsStore } from '@/store/uistate/features/recruitment/settings/talentPoolCategory';
-import { Button, Form, Input, Modal } from 'antd';
+import { Form, Input } from 'antd';
 import React, { useEffect } from 'react';
 
 const TalentPoolDrawer: React.FC = () => {
-  const [form] = Form.useForm();
   const { isOpen, selectedTalentPool, closeDrawer, isEditMode } =
     useTalentPoolSettingsStore();
+
   const { userId } = useAuthenticationStore();
 
   const { mutate: createTalentPoolCategory } = useCreateTalentPoolCategory();
@@ -20,7 +21,6 @@ const TalentPoolDrawer: React.FC = () => {
 
   const handleCancel = () => {
     closeDrawer();
-    form.resetFields();
   };
 
   const handleSubmit = () => {
@@ -32,7 +32,7 @@ const TalentPoolDrawer: React.FC = () => {
             category: {
               ...values,
               updatedBy: userId,
-            } as any,
+            },
           },
           {
             onSuccess: () => {
@@ -58,34 +58,69 @@ const TalentPoolDrawer: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      if (isEditMode && selectedTalentPool) {
-        form.setFieldsValue({
-          title: selectedTalentPool?.title,
-          description: selectedTalentPool?.description ?? '',
-        });
-      } else {
-        form.resetFields();
-      }
-    }
-  }, [isOpen, isEditMode, selectedTalentPool, form]);
+  const [form] = Form.useForm();
 
-  const modalTitle = isEditMode ? 'Edit Category' : 'Add Category';
-  const primaryButtonText = isEditMode ? 'Edit' : 'Continue';
+  useEffect(() => {
+    if (isEditMode && selectedTalentPool) {
+      form.setFieldsValue({
+        title: selectedTalentPool?.title,
+        description: selectedTalentPool.description,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [isEditMode, selectedTalentPool, form]);
 
   return (
-    <Modal
-      data-cy="talent-acquisition-talent-pool-category-modal"
+    <CustomDrawerLayout
+      data-cy="talent-acquisition-talent-pool-category-drawer"
+      modalHeader={
+        <h1
+          id="talent-acquisition-talent-pool-category-editmode"
+          data-cy="talent-acquisition-talent-pool-category-editmode"
+          className=" flex justify-start text-xl font-extrabold text-gray-800 py-6"
+        >
+          {isEditMode
+            ? 'Edit Talent Pool Category'
+            : 'New Talent Pool Category'}
+        </h1>
+      }
+      onClose={handleCancel}
       open={isOpen}
-      title={modalTitle}
-      onCancel={handleCancel}
-      footer={null}
-      closable
-      centered
-      width={480}
-      destroyOnClose
-      rootClassName="recruitment-settings-status-modal"
+      width="40%"
+      footer={
+        <div
+          data-cy="settings-talentpoolcategory-customdrawer-index-tsx-index-div-92"
+          className="flex justify-center items-center w-full space-x-5 p-4"
+        >
+          <div
+            data-cy="settings-talentpoolcategory-customdrawer-index-tsx-index-div-93"
+            className="flex justify-between items-center gap-4"
+          >
+            <CustomButton
+              id="talent-acquisition-talent-pool-category-button-cancel"
+              data-cy="talent-acquisition-talent-pool-category-button-cancel"
+              title="Cancel"
+              onClick={handleCancel}
+              type="default"
+            />
+            <CustomButton
+              id={
+                isEditMode
+                  ? 'talent-acquisition-talent-pool-category-button-update'
+                  : 'talent-acquisition-talent-pool-category-button-create'
+              }
+              data-cy={
+                isEditMode
+                  ? 'talent-acquisition-talent-pool-category-button-update'
+                  : 'talent-acquisition-talent-pool-category-button-create'
+              }
+              title={isEditMode ? 'Update' : 'Create'}
+              onClick={handleSubmit}
+            />
+          </div>
+        </div>
+      }
     >
       <Form
         id="talent-acquisition-talent-pool-category-form"
@@ -93,67 +128,33 @@ const TalentPoolDrawer: React.FC = () => {
         form={form}
         layout="vertical"
       >
-        <div
-          className="border border-[#D1D5DB] rounded-[8px] px-4 pt-4 pb-1 mb-6"
-          data-cy="talent-acquisition-talent-pool-category-form-fields-container"
+        <Form.Item
+          label="Name"
+          name="title"
+          rules={[{ required: true, message: 'Please enter a title' }]}
         >
-          <Form.Item
-            label="Category Name"
-            name="title"
-            rules={[{ required: true, message: 'Please enter category name' }]}
-            required
-          >
-            <Input
-              id="talent-acquisition-talent-pool-category-input-title"
-              data-cy="talent-acquisition-talent-pool-category-input-title"
-              className="h-10 rounded-md"
-              placeholder="Category name"
-            />
-          </Form.Item>
+          <Input
+            id="talent-acquisition-talent-pool-category-input-title"
+            data-cy="talent-acquisition-talent-pool-category-input-title"
+            className="h-12"
+            placeholder="Enter the category title"
+          />
+        </Form.Item>
 
-          <Form.Item label="Description" name="description" className="mb-3">
-            <Input.TextArea
-              id="talent-acquisition-talent-pool-category-textarea-description"
-              data-cy="talent-acquisition-talent-pool-category-textarea-description"
-              rows={4}
-              className="rounded-md"
-              placeholder="Category Description"
-            />
-          </Form.Item>
-        </div>
-
-        <div
-          className="flex justify-end gap-3"
-          data-cy="talent-acquisition-talent-pool-category-drawer-actions"
+        <Form.Item
+          label="Description"
+          name="description"
+          rules={[{ required: false }]}
         >
-          <Button
-            id="talent-acquisition-talent-pool-category-button-cancel"
-            data-cy="talent-acquisition-talent-pool-category-button-cancel"
-            className="px-6 py-2 rounded-md"
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            id={
-              isEditMode
-                ? 'talent-acquisition-talent-pool-category-button-update'
-                : 'talent-acquisition-talent-pool-category-button-create'
-            }
-            data-cy={
-              isEditMode
-                ? 'talent-acquisition-talent-pool-category-button-update'
-                : 'talent-acquisition-talent-pool-category-button-create'
-            }
-            type="primary"
-            className="recruitment-settings-status-primary-btn px-6 py-2 rounded-md"
-            onClick={handleSubmit}
-          >
-            {primaryButtonText}
-          </Button>
-        </div>
+          <Input.TextArea
+            id="talent-acquisition-talent-pool-category-textarea-description"
+            data-cy="talent-acquisition-talent-pool-category-textarea-description"
+            rows={6}
+            placeholder="Enter the category description"
+          />
+        </Form.Item>
       </Form>
-    </Modal>
+    </CustomDrawerLayout>
   );
 };
 

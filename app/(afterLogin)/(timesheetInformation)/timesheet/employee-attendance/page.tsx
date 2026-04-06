@@ -217,7 +217,6 @@ const EmployeeAttendance = () => {
   return (
     <>
       <style data-cy="time-attendance-employee-attendance-page-styles">{`
-        @media (min-width: 640px) {
      .full-bleed-header-divider {
           width: calc(100% + 48px) !important;
           margin-left: -24px !important;
@@ -229,7 +228,6 @@ const EmployeeAttendance = () => {
             width: calc(100% + 48px) !important;
             margin-left: -24px !important;
             margin-right: -24px !important;
-          }
           }
         }
       `}</style>

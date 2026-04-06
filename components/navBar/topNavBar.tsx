@@ -10,7 +10,7 @@ import { usePWA } from '@/hooks/usePWA';
 import { DownloadOutlined } from '@ant-design/icons';
 import { FiSearch, FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
+import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
@@ -175,7 +175,11 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
           >
             <Avatar
               size={36}
-              src={employeeData?.profileImage || GENDER_NEUTRAL_AVATAR_URL}
+              src={
+                employeeData?.profileImage ||
+                (DefaultAvatar as any).src ||
+                (DefaultAvatar as unknown as string)
+              }
               className="border-2 border-white shadow-sm transition-transform group-hover:scale-105"
             />
             <div

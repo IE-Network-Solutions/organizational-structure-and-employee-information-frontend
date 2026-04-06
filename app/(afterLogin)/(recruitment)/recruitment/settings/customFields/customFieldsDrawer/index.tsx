@@ -25,13 +25,6 @@ import { FieldType } from '@/types/enumTypes';
 
 const { Option } = Select;
 
-const FIELD_VALIDATION_OPTIONS = [
-  { label: 'Multiple choice', value: 'multiple_choice' },
-  { label: 'Checkbox', value: 'checkbox' },
-  { label: 'Short text', value: 'short_text' },
-  { label: 'Paragraph', value: 'paragraph' },
-];
-
 const CustomFieldsDrawer: React.FC<{
   question?: any;
   onClose: () => void;
@@ -94,92 +87,18 @@ const CustomFieldsDrawer: React.FC<{
 
   useEffect(() => {
     if (isEdit && question) {
-      const questionForm = question?.form?.[0] ?? question?.form ?? {};
-      const fieldOptions = questionForm?.field?.map((e: any) => e.value) || [];
+      const title = question?.title;
+      const questionForm = question?.form?.[0] || {};
       const formValues = {
-        title: question?.title || '',
+        title: title || '',
         fieldType: questionForm?.fieldType,
         question: questionForm?.question,
         required: questionForm?.required || false,
-        field: fieldOptions,
-        fieldName: questionForm?.question || question?.title || '',
-        fieldValidation: questionForm?.fieldType,
-        fieldMode: questionForm?.required ? 'required' : 'active',
+        field: questionForm?.field?.map((e: any) => e.value) || [],
       };
       form.setFieldsValue(formValues);
     }
   }, [isEdit, question, form]);
-
-  const buildFieldOptions = (
-    fieldType: string,
-    optionValues: string[] | undefined,
-  ): { id: string; value: string }[] => {
-    if (fieldType !== 'multiple_choice' && fieldType !== 'checkbox') {
-      return [];
-    }
-    const values =
-      optionValues?.filter((v) => v != null && String(v).trim() !== '') ?? [];
-    if (values.length < 2) return [];
-    const existingFields =
-      question?.form?.[0]?.field ?? question?.form?.field ?? [];
-    return values.map((value, index) => ({
-      id: existingFields[index]?.id ?? uuidv4(),
-      value: String(value).trim(),
-    }));
-  };
-
-  const handleEditSubmit = () => {
-    form
-      .validateFields(['fieldName', 'fieldValidation', 'fieldMode', 'field'])
-      .then((values) => {
-        const fieldType = values.fieldValidation;
-        const required = values.fieldMode === 'required';
-        const optionValues = values.field as string[] | undefined;
-        const field = buildFieldOptions(fieldType, optionValues);
-
-        if (
-          (fieldType === 'multiple_choice' || fieldType === 'checkbox') &&
-          field.length < 2
-        ) {
-          form.setFields([
-            {
-              name: 'field',
-              errors: ['At least 2 options are required'],
-            },
-          ]);
-          return;
-        }
-
-        const formattedValue = {
-          title: values.fieldName,
-          createdBy: userId,
-          updatedBy: userId,
-          questions: [
-            {
-              id:
-                question?.form?.[0]?.id ??
-                question?.questions?.[0]?.id ??
-                uuidv4(),
-              fieldType,
-              question: values.fieldName,
-              required,
-              field,
-            },
-          ],
-        };
-
-        try {
-          updateQuestions({ id: question?.id, data: formattedValue });
-          onClose();
-          form.resetFields();
-        } catch (error) {
-          NotificationMessage.error({
-            message: 'Update Failed',
-            description: 'There was an error updating the template.',
-          });
-        }
-      });
-  };
 
   const renderOptionInput = (type: any) => {
     switch (type) {
@@ -191,244 +110,6 @@ const CustomFieldsDrawer: React.FC<{
         return null;
     }
   };
-
-  const renderEditFormContent = () => (
-    <Form
-      form={form}
-      layout="vertical"
-      onFinish={handleEditSubmit}
-      initialValues={{ fieldMode: 'active' }}
-      onValuesChange={(changedValues, allValues) => {
-        const isOptionsType =
-          allValues.fieldValidation === 'multiple_choice' ||
-          allValues.fieldValidation === 'checkbox';
-        const optionsChanged = 'field' in changedValues;
-        const switchedAwayFromOptions =
-          'fieldValidation' in changedValues && !isOptionsType;
-        if ((optionsChanged && isOptionsType) || switchedAwayFromOptions) {
-          form.setFields([{ name: 'field', errors: [] }]);
-        }
-      }}
-      data-cy="custom-field-form"
-    >
-      <div
-        className="border border-[#D1D5DB] rounded-[8px] px-4 pt-4 pb-1 mb-6"
-        data-cy="custom-field-edit-form-fields-container"
-      >
-        <Form.Item
-          name="fieldName"
-          label="Field Name"
-          rules={[{ required: true, message: 'Please enter field name' }]}
-          required
-          data-cy="custom-field-input-name"
-        >
-          <Input
-            placeholder="Input"
-            className="h-10 rounded-md"
-            data-cy="custom-field-input-name"
-          />
-        </Form.Item>
-
-        <Form.Item
-          name="fieldValidation"
-          label="Field Validation"
-          rules={[
-            { required: true, message: 'Please select field validation' },
-          ]}
-          required
-          data-cy="custom-field-select-validation"
-        >
-          <Select
-            placeholder="Select"
-            className="h-10 rounded-md w-full"
-            options={FIELD_VALIDATION_OPTIONS}
-            data-cy="custom-field-select-validation"
-          />
-        </Form.Item>
-        <p
-          className="text-sm text-gray-500 -mt-2 mb-4"
-          data-cy="custom-field-validation-description"
-        >
-          Select a field validation type.
-        </p>
-
-        <Form.Item
-          noStyle
-          shouldUpdate={(prev, curr) =>
-            prev?.fieldValidation !== curr?.fieldValidation
-          }
-          data-cy="custom-field-options-container"
-        >
-          {() => {
-            const fieldType = form.getFieldValue('fieldValidation');
-            const showOptions =
-              fieldType === 'multiple_choice' || fieldType === 'checkbox';
-            if (!showOptions) return null;
-            return (
-              <Form.List
-                name="field"
-                initialValue={[]}
-                data-cy="custom-field-options-list"
-              >
-                {(fields, { add, remove }, { errors }) => (
-                  <div
-                    className="mb-4"
-                    data-cy="custom-field-options-container"
-                  >
-                    <p
-                      className="text-sm font-medium text-gray-700 mb-2"
-                      data-cy="custom-field-options-title"
-                    >
-                      Options
-                    </p>
-                    <Form.Item
-                      className="mb-2"
-                      style={{ marginBottom: errors.length ? undefined : 0 }}
-                    >
-                      <Form.ErrorList errors={errors} />
-                    </Form.Item>
-                    {fields.map((field) => (
-                      <Form.Item
-                        data-cy={`custom-field-option-item-${field.key}`}
-                        key={field.key}
-                        required={false}
-                        className="mb-2"
-                      >
-                        <div
-                          className="flex items-center gap-3"
-                          data-cy={`custom-field-option-row-${field.key}`}
-                        >
-                          {renderOptionInput(fieldType)}
-                          <Form.Item
-                            {...field}
-                            noStyle
-                            rules={[
-                              {
-                                required: true,
-                                message: 'Please input an option!',
-                              },
-                            ]}
-                            data-cy="custom-field-input-option"
-                          >
-                            <Input
-                              placeholder="Option"
-                              className="h-10 rounded-md flex-1"
-                              data-cy={`custom-field-input-option-${field.name}`}
-                            />
-                          </Form.Item>
-                          {fields.length > 0 && (
-                            <MinusCircleOutlined
-                              className="dynamic-delete-button text-red-500 cursor-pointer text-lg"
-                              onClick={() => remove(field.name)}
-                              data-cy={`custom-field-button-remove-option-${field.name}`}
-                            />
-                          )}
-                        </div>
-                      </Form.Item>
-                    ))}
-                    <Form.Item
-                      className="mb-0"
-                      data-cy="custom-field-options-add-form-item"
-                    >
-                      <div
-                        className="flex flex-col items-center justify-center py-2"
-                        data-cy="custom-field-options-add-wrapper"
-                      >
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => add()}
-                          onKeyDown={(e) =>
-                            e.key === 'Enter' && (e.preventDefault(), add())
-                          }
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-primary cursor-pointer hover:opacity-90"
-                          data-cy="custom-field-button-add-option"
-                        >
-                          <PlusOutlined
-                            className="text-white text-lg"
-                            data-cy="custom-field-button-add-option-icon"
-                          />
-                        </div>
-                        <p
-                          className="text-xs font-light text-gray-400 mt-1"
-                          data-cy="custom-field-options-add-text"
-                        >
-                          + Add options
-                        </p>
-                      </div>
-                    </Form.Item>
-                  </div>
-                )}
-              </Form.List>
-            );
-          }}
-        </Form.Item>
-
-        <Form.Item
-          name="fieldMode"
-          label={null}
-          data-cy="custom-field-field-mode"
-        >
-          <Radio.Group className="w-full" data-cy="custom-field-radio-group">
-            <div className="mb-3" data-cy="custom-field-radio-active-wrapper">
-              <Radio value="active" data-cy="custom-field-radio-active">
-                <span
-                  className="font-medium text-gray-900"
-                  data-cy="custom-field-radio-active-label"
-                >
-                  Active
-                </span>
-              </Radio>
-              <p
-                className="text-sm text-gray-500 ml-6 mt-0.5"
-                data-cy="custom-field-radio-active-description"
-              >
-                If the field is active will show.
-              </p>
-            </div>
-            <div data-cy="custom-field-radio-required-wrapper">
-              <Radio value="required" data-cy="custom-field-radio-required">
-                <span
-                  className="font-medium text-gray-900"
-                  data-cy="custom-field-radio-required-label"
-                >
-                  Required
-                </span>
-              </Radio>
-              <p
-                className="text-sm text-gray-500 ml-6 mt-0.5"
-                data-cy="custom-field-radio-required-description"
-              >
-                If selected it must be filled.
-              </p>
-            </div>
-          </Radio.Group>
-        </Form.Item>
-      </div>
-
-      <div
-        className="flex justify-end gap-3"
-        data-cy="custom-field-modal-actions"
-      >
-        <Button
-          type="default"
-          className="px-6 py-2 rounded-md"
-          onClick={onClose}
-          data-cy="custom-field-button-cancel"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="primary"
-          className="recruitment-settings-status-primary-btn px-6 py-2 rounded-md"
-          htmlType="submit"
-          data-cy="custom-field-button-update"
-        >
-          Update Field
-        </Button>
-      </div>
-    </Form>
-  );
 
   const renderFormContent = () => (
     <Form
@@ -663,7 +344,7 @@ const CustomFieldsDrawer: React.FC<{
       data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-322"
       className="flex justify-center text-xl font-extrabold text-gray-800 px-4 py-2"
     >
-      {isEdit ? 'Edit Question' : 'Custom Field'}
+      {isEdit ? 'Edit Question' : 'Create New Field'}
     </div>
   );
 
@@ -671,17 +352,31 @@ const CustomFieldsDrawer: React.FC<{
     return (
       <Modal
         data-cy="talent-acquisition-custom-fields-modal-edit"
-        title="Custom Field"
+        centered
+        title="Edit Question"
         open={true}
         onCancel={onClose}
-        footer={null}
-        closable
-        centered
-        width={480}
-        destroyOnClose
-        rootClassName="recruitment-settings-status-modal"
+        footer={
+          <div
+            data-cy="settings-customfields-customfieldsdrawer-index-tsx-index-div-336"
+            className="flex justify-center w-full space-x-5 p-4"
+          >
+            <Button
+              className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+              onClick={onClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+              onClick={() => form.submit()}
+            >
+              Update
+            </Button>
+          </div>
+        }
       >
-        {renderEditFormContent()}
+        {renderFormContent()}
       </Modal>
     );
   }
@@ -721,7 +416,7 @@ const CustomFieldsDrawer: React.FC<{
               className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
               onClick={() => form.submit()}
             >
-              {isEdit ? 'Update' : 'Create Field'}
+              {isEdit ? 'Update Template' : 'Create'}
             </Button>
           </div>
         }

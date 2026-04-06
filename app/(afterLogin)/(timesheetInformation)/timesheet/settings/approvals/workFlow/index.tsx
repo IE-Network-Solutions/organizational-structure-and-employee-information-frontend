@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useCreateApproverMutation } from '@/store/server/features/approver/mutation';
 import { useApprovalStore } from '@/store/uistate/features/approval';
@@ -395,7 +395,6 @@ const ApprovalWorkFlowModal = ({
       destroyOnClose
       styles={{ body: { paddingTop: 8, paddingLeft: 0, paddingRight: 0 } }}
       zIndex={10002}
-      centered
     >
       <div className="mb-8" data-cy="approval-work-flow-steps-container">
         <ApprovalWorkflowSteps current={current} />
@@ -790,7 +789,7 @@ const ApprovalWorkFlowModal = ({
                       data-cy={`approval-workflow-final-assigned-avatar-wrap-${idx}`}
                     >
                       <Image
-                        src={GENDER_NEUTRAL_AVATAR_URL}
+                        src={Avatar}
                         alt="avatar"
                         fill
                         className="object-cover"

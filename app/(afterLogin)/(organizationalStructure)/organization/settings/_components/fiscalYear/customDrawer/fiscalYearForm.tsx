@@ -216,9 +216,9 @@ const FiscalYearForm: React.FC = () => {
       const checkFormValidity = () => {
         const isValid = Boolean(
           formValidation.fiscalYearName &&
-          formValidation.fiscalYearStartDate &&
-          formValidation.fiscalYearEndDate &&
-          calendarType,
+            formValidation.fiscalYearStartDate &&
+            formValidation.fiscalYearEndDate &&
+            calendarType,
         );
         setIsFormValid(isValid);
       };

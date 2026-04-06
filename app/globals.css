@@ -1087,20 +1087,21 @@ h6 {
       /* Hide floating elements on mobile for better performance */
     }
 
-    .pwa-logo-animation {
-      transform: scale(0.8);
-    }
+  .pwa-loading-dot:nth-child(3) {
+    animation-delay: 0.4s;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .pwa-splash-container,
-    .pwa-logo-animation,
-    .pwa-text-animation,
-    .pwa-loading-animation,
-    .pwa-floating-element,
-    .pwa-loading-dot,
-    .pwa-progress-fill {
-      animation: none !important;
+  @keyframes dotBounce {
+    0%,
+    60%,
+    100% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+
+    30% {
+      transform: scale(1.3);
+      opacity: 1;
     }
 
     .pwa-logo-animation {

@@ -6,7 +6,7 @@ import { useCandidateState } from '@/store/uistate/features/recruitment/candidat
 import TextArea from 'antd/es/input/TextArea';
 import Dragger from 'antd/es/upload/Dragger';
 import Image from 'next/image';
-import { CV_UPLOAD_IMAGE_URL } from '@/constants/publicImageUrls';
+import cvUpload from '@/public/image/cvUpload.png';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useGetJobsByID } from '@/store/server/features/recruitment/job/queries';
 import CustomJobQuestionsDisplay from '../customJobQuestions';
@@ -147,12 +147,7 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             data-cy="-jobid-components-externalapplicant-index-tsx-index-div-141"
             className="flex items-center justify-center"
           >
-            <Image
-              src={CV_UPLOAD_IMAGE_URL}
-              alt="Upload"
-              width={30}
-              height={30}
-            />
+            <Image src={cvUpload.src} alt="Upload" width={30} height={30} />
           </div>
           <div
             data-cy="-jobid-components-externalapplicant-index-tsx-index-div-144"

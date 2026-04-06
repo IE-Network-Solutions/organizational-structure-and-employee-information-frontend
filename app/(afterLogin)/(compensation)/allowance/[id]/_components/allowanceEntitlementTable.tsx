@@ -1,8 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { Dropdown, Popover, Skeleton, Spin, Table } from 'antd';
-import type { MenuProps } from 'antd';
-import { HiOutlineDotsHorizontal } from 'react-icons/hi';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Spin, Table } from 'antd';
+import { TableColumnsType } from '@/types/table/table';
+import ActionButtons from '@/components/common/actionButton/actionButtons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
@@ -10,413 +8,225 @@ import AllowanceEntitlementSideBar from './allowanceEntitlementSidebar';
 import { useFetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
+import { EmployeeDetails } from '../../../_components/employeeDetails';
+import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 
-const dotsButtonStyle: React.CSSProperties = {
-  height: 24,
-  width: 24,
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 4,
-  border: '1px solid #D9D9D9',
-  background: '#fff',
-};
-
-type DeleteModalRecord = { id: string; userId: string } | null;
-
-type AllowanceEntitlementTableProps = {
-  title: string;
-  compact?: boolean;
-  isGlobal?: boolean;
-};
-
-const RateAmountCell = ({
-  employeeId,
-  ratePercent,
-}: {
-  employeeId: string;
-  ratePercent: number;
-}) => {
-  const { data, error } = useGetBasicSalaryById(employeeId);
-  if (error || !data) {
-    return (
-      <span data-cy="compensation-allowance-entitlement-rate-amount-dash">
-        -
-      </span>
-    );
-  }
-  const employeeBasicSalary =
-    Number((data as any[]).find((item: any) => item.status)?.basicSalary) || 0;
-  const calculated =
-    employeeBasicSalary > 0
-      ? (employeeBasicSalary * Number(ratePercent || 0)) / 100
-      : 0;
-  return (
-    <span
-      className="text-[13px] text-[#434343]"
-      data-cy="compensation-allowance-entitlement-rate-amount"
-    >
-      {calculated ? calculated : '-'}
-    </span>
-  );
-};
-
-const AllowanceEntitlementTable: React.FC<AllowanceEntitlementTableProps> = ({
-  title,
-  compact = true,
-}) => {
-  void title;
-  const [deleteModalRecord, setDeleteModalRecord] =
-    useState<DeleteModalRecord>(null);
-  const { currentPage, pageSize, setCurrentPage, setPageSize, searchText } =
+const AllowanceEntitlementTable = () => {
+  const { currentPage, pageSize, setCurrentPage, searchQuery, setPageSize } =
     useAllowanceEntitlementStore();
-
   const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
   const { id } = useParams();
-  const { data: allowanceEntitlementData, isLoading: entitlementLoading } =
-    useFetchAllowanceEntitlements(id);
-  const { data: employeeData, isLoading: employeeLoading } = useGetAllUsers();
-
-  const getEmployeeName = (userId: string) => {
-    const emp = employeeData?.items?.find((e: any) => e.id === userId);
-    return emp
-      ? `${emp?.firstName ?? ''} ${emp?.lastName ?? ''}`.trim() || '—'
-      : '—';
-  };
-
-  const handleDelete = (entitlementId: string) => {
-    deleteAllowanceEntitlement(entitlementId);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (deleteModalRecord) {
-      handleDelete(deleteModalRecord.id);
-      setDeleteModalRecord(null);
-    }
-  };
-
-  const transformedSource = useMemo(
-    () =>
-      Array.isArray(allowanceEntitlementData)
-        ? allowanceEntitlementData.map((item: any) => ({
-            id: item.id,
-            userId: item.employeeId,
-            isRate: item.compensationItem?.isRate === true,
-            Amount: item.totalAmount,
-            defaultAmount: item.compensationItem?.defaultAmount,
-            ApplicableTo: item.compensationItem?.applicableTo,
-            mode: item.compensationItem?.mode,
-            isPeriodic: item.compensationItem?.isPeriodic,
-          }))
-        : [],
-    [allowanceEntitlementData],
-  );
-
-  const filteredDataSource = useMemo(() => {
-    let data = transformedSource;
-    if (compact && searchText.trim()) {
-      const searchLower = searchText.toLowerCase().trim();
-      const employeeItems = employeeData?.items ?? [];
-      const matchingIds = new Set(
-        employeeItems
-          .filter((e: any) =>
-            `${e?.firstName ?? ''} ${e?.middleName ?? ''} ${e?.lastName ?? ''}`
-              .toLowerCase()
-              .includes(searchLower),
-          )
-          .map((e: any) => e.id),
+  const {
+    data: allowanceEntitlementData,
+    isLoading: fiscalActiveYearFetchLoading,
+  } = useFetchAllowanceEntitlements(id);
+  const EmployeeBasicSalary = ({
+    id,
+    amount,
+  }: {
+    id: string;
+    amount: string;
+  }) => {
+    const { data, error } = useGetBasicSalaryById(id);
+    if (error || !data) {
+      return (
+        <span
+          data-testid="basic-salary-error"
+          id="compensation-allowance-basic-salary-error-text"
+          data-cy="compensation-allowance-basic-salary-error-text"
+        >
+          --
+        </span>
       );
-      data = data.filter((row: any) => matchingIds.has(row.userId));
     }
-    return data;
-  }, [compact, employeeData?.items, searchText, transformedSource]);
+    const employeeBasicSalary =
+      Number(data.find((item: any) => item.status)?.basicSalary) || '--';
+    const calculatedSalary =
+      typeof employeeBasicSalary === 'number'
+        ? (employeeBasicSalary * Number(amount)) / 100
+        : '--';
+    return (
+      <span
+        data-testid={`basic-salary-${id}`}
+        id={`compensation-allowance-basic-salary-value-${id}`}
+        data-cy={`compensation-allowance-basic-salary-value-${id}`}
+      >
+        {calculatedSalary}
+      </span>
+    );
+  };
 
-  const paginatedData = filteredDataSource.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
+  const transformedData =
+    allowanceEntitlementData?.map((item: any) => ({
+      id: item.id,
+      userId: item.employeeId,
+      isRate: item.compensationItem.isRate,
+      Amount: item.totalAmount,
+      defaultAmount: item.compensationItem?.defaultAmount,
+      ApplicableTo: item.compensationItem.applicableTo,
+    })) || [];
 
-  const columnsCompact: any[] = [
+  const handleDelete = (id: string) => {
+    deleteAllowanceEntitlement(id);
+  };
+
+  const columns: TableColumnsType<any> = [
     {
       title: 'Employee',
       dataIndex: 'userId',
       key: 'userId',
-      width: '40%',
-      minWidth: isMobile ? 180 : 200,
-      ellipsis: true,
-      render: (cellValue: any, record: any) => {
-        void cellValue;
-        return (
-          <div
-            className="truncate text-[13px] text-[#262626]"
-            data-cy="compensation-allowance-entitlement-compact-employee-cell"
-          >
-            <span
-              className="truncate block"
-              data-cy="compensation-allowance-entitlement-compact-employee-name"
-            >
-              {employeeLoading ? (
-                <Skeleton.Input
-                  active
-                  size="small"
-                  style={{ width: 120, height: 16 }}
-                />
-              ) : (
-                getEmployeeName(record?.userId)
-              )}
-            </span>
-          </div>
-        );
-      },
+      sorter: true,
+      render: (userId: string) => (
+        <div
+          data-testid={`entitlement-employee-${userId}`}
+          id={`compensation-allowance-entitlement-employee-${userId}`}
+          data-cy={`compensation-allowance-entitlement-employee-${userId}`}
+        >
+          <EmployeeDetails
+            data-cy="compensation-allowance-entitlement-employee-details"
+            empId={userId}
+          />
+        </div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'isRate',
-      key: 'type',
-      width: isMobile ? 110 : 120,
-      render: (isRate: boolean) => (
-        <span
-          className="text-[13px] text-[#434343]"
-          data-cy="compensation-allowance-entitlement-compact-type-cell"
+      key: 'isRate',
+      sorter: true,
+      render: (isRate: string) => (
+        <div
+          data-testid="entitlement-type"
+          id="compensation-allowance-entitlement-type-display"
+          data-cy="compensation-allowance-entitlement-type-display"
         >
           {isRate ? 'Rate' : 'Fixed'}
-        </span>
+        </div>
       ),
     },
     {
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
-      width: isMobile ? 140 : 130,
-      render: (amount: any, record: any) => {
-        if (record?.isRate) {
-          const ratePercent = Number(record?.defaultAmount || 0);
-          return (
-            <RateAmountCell
-              employeeId={record?.userId}
-              ratePercent={ratePercent}
-            />
-          );
-        }
-        return amount != null && amount !== '' ? (
-          <span
-            className="text-[13px] text-[#434343]"
-            data-cy="compensation-allowance-entitlement-compact-amount"
+      sorter: true,
+      render: (text: string, record: any) =>
+        !record.isRate ? (
+          <div
+            data-testid={`entitlement-amount-${record.id}`}
+            id={`compensation-allowance-entitlement-amount-${record.id}`}
+            data-cy={`compensation-allowance-entitlement-amount-${record.id}`}
           >
-            {amount} ETB
-          </span>
+            {text ? `${text} ETB` : '-'}
+          </div>
         ) : (
-          <span data-cy="compensation-allowance-entitlement-compact-amount-dash">
-            -
-          </span>
-        );
-      },
+          <EmployeeBasicSalary
+            data-cy="compensation-allowance-entitlement-basic-salary"
+            id={record?.userId}
+            amount={record?.defaultAmount}
+          />
+        ),
     },
     {
       title: 'Action',
+      dataIndex: 'action',
       key: 'action',
-      width: isMobile ? 72 : 84,
-      align: 'left' as const,
-      render: (cellValue: any, record: any) => {
-        void cellValue;
-        const hasAmount =
-          record.Amount != null &&
-          record.Amount !== '' &&
-          Number(record.Amount) > 0;
-        const menuItems: MenuProps['items'] = [];
-        void hasAmount;
-        menuItems.push({
-          key: 'delete',
-          icon: <DeleteOutlined style={{ fontSize: 14, color: '#595959' }} />,
-          label: 'Delete',
-          onClick: () =>
-            setDeleteModalRecord({ id: record.id, userId: record.userId }),
-        });
-        const deletePopoverOpen = deleteModalRecord?.id === record.id;
-        return (
-          <AccessGuard
-            permissions={[
-              Permissions.UpdateAllowanceEntitlement,
-              Permissions.DeleteAllowanceEntitlement,
-            ]}
+      render: (rule: any, record: any) => (
+        <AccessGuard
+          data-cy="compensation-allowance-entitlement-actions-access-guard"
+          permissions={[Permissions.DeleteAllowanceEntitlement]}
+        >
+          <div
+            data-testid={`entitlement-actions-${record.id}`}
+            id={`compensation-allowance-entitlement-actions-${record.id}`}
+            data-cy={`compensation-allowance-entitlement-actions-${record.id}`}
           >
-            <Dropdown
-              menu={{ items: menuItems }}
-              trigger={['click']}
-              placement="bottomRight"
-              overlayStyle={{
-                borderRadius: 8,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              }}
-            >
-              <Popover
-                open={deletePopoverOpen}
-                onOpenChange={(open) => {
-                  if (!open) setDeleteModalRecord(null);
-                }}
-                trigger={['click']}
-                placement="bottomRight"
-                zIndex={10250}
-                getPopupContainer={() => document.body}
-                overlayStyle={{ maxWidth: 'calc(100vw - 32px)' }}
-                overlayInnerStyle={{ width: 320, maxWidth: '100%' }}
-                title={
-                  <span
-                    className="text-base font-semibold text-gray-900"
-                    data-cy="compensation-allowance-delete-employee-popover-title"
-                  >
-                    Delete Employee
-                  </span>
-                }
-                content={
-                  <div
-                    className="pt-2"
-                    data-cy="compensation-allowance-delete-employee-popover-body"
-                  >
-                    <p
-                      className="text-gray-800 text-sm font-normal m-0 leading-normal"
-                      data-cy="compensation-allowance-delete-employee-popover-message"
-                    >
-                      Are you Sure you want to remove{' '}
-                      <strong data-cy="compensation-allowance-delete-employee-popover-name">
-                        {deleteModalRecord
-                          ? getEmployeeName(deleteModalRecord.userId)
-                          : ''}
-                      </strong>{' '}
-                      from this allowance type ?
-                    </p>
-                    <div
-                      className="flex justify-end gap-2 mt-4"
-                      data-cy="compensation-allowance-delete-employee-popover-actions"
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteModalRecord(null);
-                        }}
-                        className="h-10 px-4 rounded-md border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
-                        data-cy="compensation-allowance-delete-employee-popover-cancel"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteConfirm();
-                        }}
-                        className="h-10 px-4 rounded-md border-0 bg-red-500 text-white text-sm font-medium hover:bg-red-600"
-                        data-cy="compensation-allowance-delete-employee-popover-confirm"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                }
-              >
-                <button
-                  type="button"
-                  style={dotsButtonStyle}
-                  onClick={(e) => e.stopPropagation()}
-                  data-cy="compensation-allowance-entitlement-compact-actions-menu"
-                >
-                  <HiOutlineDotsHorizontal size={16} />
-                </button>
-              </Popover>
-            </Dropdown>
-          </AccessGuard>
-        );
-      },
+            <ActionButtons
+              data-cy="compensation-allowance-entitlement-actions-button"
+              id={record?.id ?? null}
+              onDelete={() => handleDelete(record.id)}
+            />
+          </div>
+        </AccessGuard>
+      ),
     },
   ];
 
+  const filteredDataSource = searchQuery
+    ? transformedData.filter(
+        (employee: any) =>
+          employee.userId?.toLowerCase() === searchQuery?.toLowerCase(),
+      )
+    : transformedData;
+
+  const paginatedData = filteredDataSource.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
   return (
     <div
-      id="compensation-allowance-entitlement-table-container"
-      data-cy="compensation-allowance-entitlement-table-container"
+      data-testid="allowance-entitlement-table-container"
+      id="compensation-allowance-table-container"
+      data-cy="compensation-allowance-table-container"
     >
       <Spin
+        spinning={fiscalActiveYearFetchLoading}
+        data-testid="entitlement-table-loading"
         data-cy="compensation-allowance-entitlement-table-loading"
-        spinning={entitlementLoading}
       >
-        <>
-          <div
-            className="overflow-hidden [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-title]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-footer]:!rounded-none [&_.ant-table-footer]:!rounded-es-none [&_.ant-table-footer]:!rounded-ee-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-ss-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-se-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-es-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-ee-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
-            id="compensation-allowance-entitlement-table-scroll"
-            data-cy="compensation-allowance-entitlement-table-scroll"
-          >
-            <Table
-              data-cy="compensation-allowance-entitlement-table"
-              className={`benefit-entitlement-table !shadow-none ${
-                compact ? '' : 'mt-6'
-              } ${
-                compact
-                  ? '[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
-                  : '[&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:font-bold'
-              }`}
-              columns={columnsCompact}
-              dataSource={paginatedData}
-              rowKey="id"
-              rowHoverable={false}
-              rowClassName={(unusedRow: any, rowIndex: number) => {
-                void unusedRow;
-                return rowIndex % 2 === 0
-                  ? 'benefit-row-even'
-                  : 'benefit-row-odd';
-              }}
-              pagination={false}
-              scroll={
-                compact && (isMobile || isTablet) ? { x: 620 } : undefined
-              }
-            />
-          </div>
-          {isMobile || isTablet ? (
-            <div
-              className="mt-3 px-0"
-              data-cy="compensation-allowance-entitlement-mobile-pagination-wrap"
-            >
-              <CustomMobilePagination
-                data-cy="compensation-allowance-entitlement-mobile-pagination"
-                totalResults={filteredDataSource.length}
-                pageSize={pageSize}
-                currentPage={currentPage}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-              />
-            </div>
-          ) : (
-            <CustomPagination
-              data-cy="compensation-allowance-entitlement-pagination"
-              current={currentPage}
-              total={filteredDataSource.length}
-              pageSize={pageSize}
-              onChange={(page, size) => {
-                setCurrentPage(page);
-                setPageSize(size);
-              }}
-              onShowSizeChange={(size) => {
-                setPageSize(size);
-                setCurrentPage(1);
-              }}
-            />
-          )}
-        </>
+        <div
+          className="overflow-x-auto"
+          id="compensation-allowance-table-scroll-container"
+          data-cy="compensation-allowance-table-scroll-container"
+        >
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={paginatedData}
+            pagination={false}
+            data-testid="entitlement-table"
+            id="compensation-allowance-table-display"
+            data-cy="compensation-allowance-table-display"
+          />
+        </div>
+        {isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="compensation-allowance-entitlement-mobile-pagination"
+            totalResults={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="compensation-allowance-entitlement-pagination"
+            current={currentPage}
+            total={filteredDataSource.length}
+            pageSize={pageSize}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              setPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+          />
+        )}
+
+        <AllowanceEntitlementSideBar data-cy="compensation-allowance-entitlement-sidebar" />
       </Spin>
-      <AllowanceEntitlementSideBar data-cy="compensation-allowance-entitlement-sidebar" />
     </div>
   );
 };

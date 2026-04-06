@@ -8,7 +8,7 @@ import { Button, Tooltip, Skeleton } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { FaPlus } from 'react-icons/fa';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { APPROVALTYPES } from '@/types/enumTypes';
@@ -118,7 +118,7 @@ const ApprovalTable = () => {
 
     const getImageSrc = () => {
       if (imageError || !userInfo?.profileImage) {
-        return GENDER_NEUTRAL_AVATAR_URL;
+        return Avatar;
       }
 
       if (typeof userInfo.profileImage === 'string') {
@@ -126,14 +126,14 @@ const ApprovalTable = () => {
           const parsed = JSON.parse(userInfo.profileImage);
           return parsed.url && parsed.url.startsWith('http')
             ? parsed.url
-            : GENDER_NEUTRAL_AVATAR_URL;
+            : Avatar;
         } catch {
           return userInfo.profileImage.startsWith('http')
             ? userInfo.profileImage
-            : GENDER_NEUTRAL_AVATAR_URL;
+            : Avatar;
         }
       }
-      return GENDER_NEUTRAL_AVATAR_URL;
+      return Avatar;
     };
 
     return (
@@ -208,7 +208,7 @@ const ApprovalTable = () => {
                       data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
                     >
                       <Image
-                        src={GENDER_NEUTRAL_AVATAR_URL || '/placeholder.svg'}
+                        src={Avatar || '/placeholder.svg'}
                         alt="Default avatar"
                         layout="fill"
                         className="object-cover"

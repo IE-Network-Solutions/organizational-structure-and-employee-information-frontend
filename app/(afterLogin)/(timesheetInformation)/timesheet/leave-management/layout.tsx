@@ -11,7 +11,7 @@ const NewSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     <div
       id="time-attendance-leave-management-layout-container"
       data-cy="time-attendance-leave-management-layout-container"
-      className="h-auto bg-[#F5F5F5] sm:bg-white pb-6"
+      className="h-auto w-auto bg-[#F5F5F5] sm:bg-white px-6 pb-6 sm:px-3"
     >
       <BlockWrapper
         data-cy="time-attendance-leave-management-layout-block-wrapper"

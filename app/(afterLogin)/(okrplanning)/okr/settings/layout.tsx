@@ -15,30 +15,7 @@ interface OkrSettingsLayoutProps {
   children: React.ReactNode;
 }
 
-function TabContentSkeleton({ activeTab }: { activeTab: string }) {
-  const getSkeletonGridClass = () => {
-    if (activeTab === 'okr-rules') {
-      return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
-    }
-    return 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6';
-  };
-
-  const getSkeletonCardClass = () => {
-    if (activeTab === 'planning-assignation') {
-      return '!py-2 !px-4 min-h-[80px] rounded-[8px] border border-[#d9d9d9]';
-    }
-    if (activeTab === 'criteria-management') {
-      return '!py-3 !px-4 min-h-[78px] rounded-[8px] border border-[#d9d9d9]';
-    }
-    if (activeTab === 'target-assignment') {
-      return '!py-2 !px-4 min-h-[112px] rounded-[8px] border border-[#d9d9d9]';
-    }
-    if (activeTab === 'okr-rules') {
-      return '!py-3 !px-4 min-h-[78px] min-w-[323px] rounded-[8px] border border-[#d9d9d9]';
-    }
-    return '!p-5 rounded-[12px] border border-[#f0f0f0]';
-  };
-
+function TabContentSkeleton() {
   return (
     <div
       className="w-full border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
@@ -61,7 +38,7 @@ function TabContentSkeleton({ activeTab }: { activeTab: string }) {
         />
       </div>
       <div
-        className={getSkeletonGridClass()}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         data-cy="okr-settings-tab-loading-skeleton-cards-grid"
       >
         {[1, 2, 3, 4].map((i) => (
@@ -69,7 +46,7 @@ function TabContentSkeleton({ activeTab }: { activeTab: string }) {
             key={i}
             active
             paragraph={{ rows: 3 }}
-            className={getSkeletonCardClass()}
+            className="!p-5 rounded-[12px] border border-[#f0f0f0]"
             data-cy={`okr-settings-tab-loading-skeleton-card-${i}`}
           />
         ))}
@@ -133,6 +110,10 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   ];
 
   useEffect(() => {
+    const pathSegments = pathname.split('/').filter(Boolean);
+    const lastKey = pathSegments[pathSegments.length - 1];
+
+    // Map pathname to tab key
     const tabMap: Record<string, string> = {
       'okr-type': 'okr-type',
       'planning-assignation': 'planning-assignation',
@@ -140,12 +121,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       'target-assignment': 'target-assignment',
       'define-okr-rule': 'okr-rules',
     };
-
-    // While router.push is in flight, pathname is still the previous route; use the
-    // pending URL so the clicked tab stays highlighted with the skeleton.
-    const pathForActiveTab =
-      pendingTabPath && pathname !== pendingTabPath ? pendingTabPath : pathname;
-    const lastKey = pathForActiveTab.split('/').filter(Boolean).pop() ?? '';
 
     if (tabMap[lastKey]) {
       setActiveTab(tabMap[lastKey]);
@@ -173,7 +148,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       data-cy="okr-settings-layout-container-display-div"
     >
       <div
-        className="w-full h-auto bg-white py-6 px-0"
+        className="w-full h-auto bg-white p-6"
         id="okr-settings-layout-wrapper-display-div"
         data-cy="okr-settings-layout-wrapper-display-div"
       >
@@ -210,7 +185,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
               data-cy="okr-settings-tab-container"
             >
               <div
-                className="flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide custom-tabs-scroll"
+                className="flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide pr-4 custom-tabs-scroll"
                 data-cy="okr-settings-tabs-wrapper"
               >
                 {tabs.map((tab) => {
@@ -239,15 +214,9 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                 })}
               </div>
               <div
-                className="flex-shrink-0 ml-2 min-h-[52px] flex items-end"
+                className="flex-shrink-0 ml-2"
                 data-cy="okr-settings-tab-actions"
               >
-                {activeTab === 'okr-type' && (
-                  <div
-                    className="h-[40px] mb-3 px-3 sm:px-6 rounded-lg invisible"
-                    data-cy="okr-settings-tab-actions-placeholder"
-                  />
-                )}
                 {isPlanningAssignation && (
                   <AccessGuard
                     permissions={[Permissions.AssignPlanningPeriod]}
@@ -357,11 +326,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           id="okr-settings-layout-children-wrapper-display-div"
           data-cy="okr-settings-layout-children-wrapper-display-div"
         >
-          {isTabLoading ? (
-            <TabContentSkeleton activeTab={activeTab} />
-          ) : (
-            children
-          )}
+          {isTabLoading ? <TabContentSkeleton /> : children}
         </div>
       </div>
     </div>
