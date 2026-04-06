@@ -326,6 +326,7 @@ const QuestionSetForm = () => {
 
   return (
     <CustomDrawerLayout
+      rootClassName="cfr-feedback-settings-drawer"
       open={open && activeTabName !== ''}
       onClose={() => setOpen(false)}
       modalHeader={modalHeader}
@@ -390,11 +391,22 @@ const QuestionSetForm = () => {
         layout="vertical"
         form={form}
         onFinish={handleSubmit}
+        requiredMark={false}
         data-cy="question-set-form"
         id="questionSetForm"
       >
         <Form.Item
-          label="Name"
+          label={
+            <span data-cy="question-set-form-name-label">
+              Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="question-set-form-name-required"
+              >
+                *
+              </span>
+            </span>
+          }
           name="name"
           rules={[{ required: true, message: 'Please enter a name' }]}
           data-cy="question-set-form-name-field"
@@ -432,7 +444,17 @@ const QuestionSetForm = () => {
         )}
 
         <Form.Item
-          label="Is Active"
+          label={
+            <span data-cy="question-set-form-active-label">
+              Is Active{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="question-set-form-active-required"
+              >
+                *
+              </span>
+            </span>
+          }
           name="active"
           initialValue={true}
           rules={[
@@ -452,7 +474,17 @@ const QuestionSetForm = () => {
         </Form.Item>
 
         <Form.Item
-          label="Questions"
+          label={
+            <span data-cy="question-set-form-questions-label">
+              Questions{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="question-set-form-questions-required"
+              >
+                *
+              </span>
+            </span>
+          }
           name="questions"
           required
           rules={[{ validator: checkQuestions }]}
@@ -573,16 +605,22 @@ const QuestionSetForm = () => {
             </div>
           ))}
 
-          <Button
-            type="dashed"
-            onClick={handleAddQuestion}
-            icon={<PlusOutlined />}
-            style={{ width: '100%' }}
-            data-cy="question-set-form-add-question-button"
-            id="questionSetFormAddQuestionButton"
+          <div
+            className="feedback-settings-modal-actions w-full"
+            data-cy="question-set-form-add-question-button-container"
+            id="questionSetFormAddQuestionButtonContainer"
           >
-            Add Question
-          </Button>
+            <Button
+              type="dashed"
+              onClick={handleAddQuestion}
+              icon={<PlusOutlined />}
+              className="w-full"
+              data-cy="question-set-form-add-question-button"
+              id="questionSetFormAddQuestionButton"
+            >
+              Add Question
+            </Button>
+          </div>
         </Form.Item>
       </Form>
     </CustomDrawerLayout>

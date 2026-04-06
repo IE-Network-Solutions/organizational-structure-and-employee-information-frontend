@@ -24,20 +24,23 @@ const exportData = async (data: any) => {
     //   updatedBy: logUserId,
     //   createdBy: logUserId,
     // };
-    const response = await crudRequest({
+    // Axios default responseType parses the body as text/JSON, which corrupts binary xlsx.
+    const blob = await crudRequest({
       url: `${INCENTIVE_URL}/incentives/export/incentive-data`,
       method: 'POST',
       data,
       headers: requestHeaders,
       skipEncryption: true, // Skip encryption for file downloads
+      responseType: 'blob',
     });
 
-    // Note: crudRequest returns the data directly, so we need to handle blob differently
-    // This might need adjustment based on how the API returns file data
-    const blob = new Blob([response], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    const url = window.URL.createObjectURL(blob);
+    const fileBlob =
+      blob instanceof Blob
+        ? blob
+        : new Blob([blob], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
+    const url = window.URL.createObjectURL(fileBlob);
     const link = document.createElement('a');
     const fileName = 'Incentive Data Export.xlsx';
 
