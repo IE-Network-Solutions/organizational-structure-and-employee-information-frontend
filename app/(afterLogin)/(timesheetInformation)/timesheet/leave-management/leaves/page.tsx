@@ -1,17 +1,8 @@
 'use client';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import CustomBreadcrumb from '@/components/common/breadCramp';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
 import LeaveManagementTable from './_components/leaveManagementTable';
-import {
-  Breadcrumb,
-  Button,
-  Divider,
-  Modal,
-  Popover,
-  Space,
-  Tooltip,
-} from 'antd';
-import Link from 'next/link';
+import { Button, Modal, Popover, Space, Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import LeaveRequestDetailModal from './_components/leaveRequestDetailModal';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
@@ -99,23 +90,6 @@ const LeaveManagement = () => {
 
   return (
     <>
-      <style data-cy="time-attendance-leave-management-leaves-page-styles">{`
-        @media (min-width: 640px) {
-     .full-bleed-header-divider {
-          width: calc(100% + 48px) !important;
-          margin-left: -24px !important;
-          margin-right: -24px !important;
-          min-width: calc(100% + 48px) !important;
-        }
-        @media (max-width: 768px) {
-          .full-bleed-header-divider {
-            width: calc(100% + 48px) !important;
-            margin-left: -24px !important;
-            margin-right: -24px !important;
-          }
-          }
-        }
-      `}</style>
       <div
         className="h-auto w-auto pb-6 bg-white rounded-lg"
         id="time-attendance-leave-management-page-container"
@@ -123,52 +97,14 @@ const LeaveManagement = () => {
       >
         <BlockWrapper
           data-cy="time-attendance-leave-management-block-wrapper"
-          className="bg-white"
+          className="bg-white p-2"
         >
-          <div
-            className="flex  justify-between items-center gap-3"
-            id="time-attendance-leave-management-header"
+          <PageHeader
             data-cy="time-attendance-leave-management-header"
+            title="Leave Management"
+            description="Time and Attendance / Leave Management"
+            horizontalPadding="px-0"
           >
-            <CustomBreadcrumb
-              title={
-                <span
-                  className="text-xl"
-                  data-cy="time-attendance-leave-management-breadcrumb-title"
-                >
-                  Leave Management
-                </span>
-              }
-              subtitle={
-                <Breadcrumb
-                  data-cy="time-attendance-leave-management-breadcrumb"
-                  items={[
-                    {
-                      title: (
-                        <span
-                          className="text-xs"
-                          data-cy="time-attendance-leave-management-breadcrumb-time-and-attendance"
-                        >
-                          Time and Attendance
-                        </span>
-                      ),
-                    },
-                    {
-                      title: (
-                        <Link
-                          className="text-xs"
-                          data-cy="time-attendance-leave-management-breadcrumb-leave-management-link"
-                          href="/timesheet/leave-management/leaves"
-                        >
-                          Leave Management
-                        </Link>
-                      ),
-                    },
-                  ]}
-                />
-              }
-              data-cy="time-attendance-leave-management-custom-breadcrumb"
-            />
             <Space
               size={20}
               id="time-attendance-leave-management-header-actions"
@@ -279,13 +215,7 @@ const LeaveManagement = () => {
                 </Button>
               </Popover>
             </Space>
-          </div>
-
-          <Divider
-            className="full-bleed-header-divider"
-            style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
-            data-cy="time-attendance-leave-management-leaves-header-divider"
-          />
+          </PageHeader>
 
           <LeaveManagementTable
             data-cy="time-attendance-leave-management-table"

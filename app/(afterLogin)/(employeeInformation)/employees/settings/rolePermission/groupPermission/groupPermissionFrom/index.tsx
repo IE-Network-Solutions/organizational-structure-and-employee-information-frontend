@@ -218,7 +218,10 @@ const GroupPermission = () => {
   const renderStepContent = () => {
     if (currentStep === 0) {
       return (
-        <div data-cy="settings-group-permission-form-step-0" className="">
+        <div
+          data-cy="settings-group-permission-form-step-0"
+          className="sm:px-10"
+        >
           <div
             className="grid gap-4 border border-[#d9d9d9] rounded-md p-4"
             id="settings-group-permission-form-div"
@@ -234,15 +237,9 @@ const GroupPermission = () => {
               label={
                 <span
                   data-cy="settings-group-permission-name-label"
-                  className="text-sm font-normal text-black mb-1"
+                  className="text-gray-700 font-medium"
                 >
-                  Name{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy={`settings-group-permission-name-required`}
-                  >
-                    *
-                  </span>
+                  Name
                 </span>
               }
               rules={[{ required: true, message: 'Enter group name!' }]}
@@ -253,17 +250,7 @@ const GroupPermission = () => {
                 data-cy="settings-group-permission-name-input"
               />
             </Form.Item>
-            <Form.Item
-              name="description"
-              label={
-                <span
-                  data-cy="settings-group-permission-description-label"
-                  className="text-sm font-normal text-black mb-1"
-                >
-                  Description
-                </span>
-              }
-            >
+            <Form.Item name="description" label="Description">
               <Input.TextArea
                 placeholder="Add Description"
                 rows={3}
@@ -523,8 +510,6 @@ const GroupPermission = () => {
       >
         {isStep0 && (
           <Button
-            type="default"
-            className="h-8 font-normal border border-[#D9D9D9]"
             onClick={handleCancel}
             data-cy="settings-group-permission-cancel-btn"
           >
@@ -533,8 +518,6 @@ const GroupPermission = () => {
         )}
         {(isStep1 || isStep2) && (
           <Button
-            type="default"
-            className="h-8 font-normal border border-[#D9D9D9]"
             onClick={handleBack}
             data-cy="settings-group-permission-back-btn"
           >
@@ -542,11 +525,7 @@ const GroupPermission = () => {
           </Button>
         )}
         {isStep0 || isStep1 ? (
-          <Button
-            className="h-8 font-normal"
-            type="primary"
-            onClick={handleContinue}
-          >
+          <Button type="primary" onClick={handleContinue}>
             Continue
           </Button>
         ) : (
@@ -555,7 +534,6 @@ const GroupPermission = () => {
             loading={isEdit ? updateLoaing : createLoading}
             onClick={handleCreate}
             data-cy="settings-group-permission-submit-btn"
-            className="h-8 font-normal"
           >
             {isEdit ? 'Update' : 'Create'}
           </Button>
@@ -580,7 +558,6 @@ const GroupPermission = () => {
       onCancel={handleCancel}
       data-cy="settings-group-permission-modal"
       zIndex={10002}
-      centered
     >
       <style data-cy="user-sidebar-steps-style">{`
               /* Keep step labels on a single line */
@@ -615,7 +592,6 @@ const GroupPermission = () => {
         id="settings-group-permission-form"
         data-cy="settings-group-permission-form"
         className="mt-10"
-        requiredMark={false}
       >
         <div
           data-cy="settings-group-permission-form-content"

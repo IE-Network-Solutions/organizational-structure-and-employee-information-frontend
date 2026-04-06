@@ -1,7 +1,8 @@
 'use client';
 import React, { useState } from 'react';
 import { Spin, Dropdown, MenuProps, Tag } from 'antd';
-import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import AssignTargetModal from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
@@ -87,12 +88,12 @@ function Page() {
             data-cy={`okr-target-card-edit-access-guard-${group.key}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
+              className="flex items-center gap-3 py-1"
               onClick={() => handleEditClick(firstId)}
               id={`okr-target-card-edit-menu-item-${group.key}`}
               data-cy={`okr-target-card-edit-menu-item-${group.key}`}
             >
-              <MdOutlineEdit className="text-[#595959] text-xl" />
+              <MdModeEditOutline className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-target-card-edit-text-${group.key}`}
@@ -114,12 +115,12 @@ function Page() {
             data-cy={`okr-target-card-delete-access-guard-${group.key}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+              className="flex items-center gap-3 py-1 text-red-600"
               onClick={() => handleDelete(firstId)}
               id={`okr-target-card-delete-menu-item-${group.key}`}
               data-cy={`okr-target-card-delete-menu-item-${group.key}`}
             >
-              <MdDeleteOutline className="text-xl" />
+              <MdDeleteForever className="text-xl" />
               <span
                 className="text-[15px]"
                 data-cy={`okr-target-card-delete-text-${group.key}`}
@@ -171,17 +172,17 @@ function Page() {
             {groupedData.map((group: any) => (
               <div
                 key={group.key}
-                className="bg-white border border-[#d9d9d9] rounded-[8px] py-2 px-4 min-h-[112px] hover:shadow-sm transition-shadow relative flex flex-col justify-between"
+                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
                 id={`okr-target-card-${group.key}`}
                 data-cy={`okr-target-card-${group.key}`}
               >
                 {/* Top Row: Criteria Name and Menu */}
                 <div
-                  className="flex justify-between items-start mb-0"
+                  className="flex justify-between items-start mb-2"
                   data-cy={`okr-target-card-header-${group.key}`}
                 >
                   <p
-                    className="text-[14px] font-normal text-black flex-1 mr-2 leading-tight"
+                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
                     id={`okr-target-card-title-${group.key}`}
                     data-cy={`okr-target-card-title-${group.key}`}
                   >
@@ -195,43 +196,13 @@ function Page() {
                       menu={{ items: getMenuItems(group) }}
                       trigger={['click']}
                       placement="bottomRight"
-                      overlayClassName="okr-settings-menu-dropdown"
                     >
                       <button
-                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
+                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-target-card-menu-button-${group.key}`}
                       >
-                        <svg
-                          width="14"
-                          height="4"
-                          viewBox="0 0 14 4"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          data-cy={`okr-target-card-menu-svg-${group.key}`}
-                        >
-                          <circle
-                            cx="2.5"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-target-card-menu-circle-1-${group.key}`}
-                          />
-                          <circle
-                            cx="7"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-target-card-menu-circle-2-${group.key}`}
-                          />
-                          <circle
-                            cx="11.5"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-target-card-menu-circle-3-${group.key}`}
-                          />
-                        </svg>
+                        <EllipsisOutlined className="text-lg" />
                       </button>
                     </Dropdown>
                   </div>
@@ -239,11 +210,11 @@ function Page() {
 
                 {/* Second Row: Department Tag */}
                 <div
-                  className="mb-0"
+                  className="mb-4"
                   data-cy={`okr-target-card-dept-wrapper-${group.key}`}
                 >
                   <Tag
-                    className="h-[22px] px-2 py-0 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa] inline-flex items-center"
+                    className="px-2 py-0.5 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa]"
                     id={`okr-target-card-dept-${group.key}`}
                     data-cy={`okr-target-card-dept-${group.key}`}
                   >
@@ -253,17 +224,17 @@ function Page() {
 
                 {/* Divider Line */}
                 <div
-                  className="h-[1px] bg-[#f0f0f0] mb-0"
+                  className="h-[1px] bg-[#f0f0f0] mb-4"
                   data-cy={`okr-target-card-divider-${group.key}`}
                 />
 
                 {/* Bottom Row: Month Targets */}
                 <div
-                  className="flex items-center gap-[8px] overflow-x-auto scrollbar-none pb-1"
+                  className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1"
                   data-cy={`okr-target-card-targets-${group.key}`}
                 >
                   <span
-                    className="text-[14px] font-normal text-black whitespace-nowrap"
+                    className="text-[13px] font-bold text-[#262626] whitespace-nowrap"
                     data-cy={`okr-target-card-targets-label-${group.key}`}
                   >
                     Target
@@ -271,7 +242,7 @@ function Page() {
                   {group.targets.map((t: any) => (
                     <Tag
                       key={t.id}
-                      className="h-[22px] px-2 py-0 text-[12px] font-medium text-[rgba(0,0,0,0.7)] border-[#d9d9d9] rounded-[4px] bg-[rgba(0,0,0,0.02)] whitespace-nowrap m-0 inline-flex items-center"
+                      className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] rounded-[4px] bg-white whitespace-nowrap m-0"
                       data-cy={`okr-target-card-target-item-${group.key}-${t.id}`}
                     >
                       {t.month} : {Math.round(parseFloat(t.target))}

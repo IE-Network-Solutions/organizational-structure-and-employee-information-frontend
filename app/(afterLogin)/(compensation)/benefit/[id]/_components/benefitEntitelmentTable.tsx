@@ -35,15 +35,12 @@ const dotsButtonStyle: React.CSSProperties = {
 type BenefitPropTypes = {
   title: string;
   compact?: boolean;
-  /** Deduction detail: Employee / Type / Amount / Action (plain type & amounts, action right) */
-  deductionDetailLayout?: boolean;
 };
 type DeleteModalRecord = { id: string; userId: string } | null;
 
 const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
   title,
   compact = false,
-  deductionDetailLayout = false,
 }) => {
   const [deleteModalRecord, setDeleteModalRecord] =
     useState<DeleteModalRecord>(null);
@@ -117,12 +114,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
         void cellValue;
         return (
           <div
-            onClick={
-              deductionDetailLayout
-                ? undefined
-                : () => handleEmployeeData(record)
-            }
-            className={`truncate text-[13px] text-[#262626]${deductionDetailLayout ? '' : ' cursor-pointer'}`}
+            onClick={() => handleEmployeeData(record)}
+            className="cursor-pointer truncate text-[13px] text-[#262626]"
             data-cy="compensation-benefit-entitlement-compact-employee-cell"
           >
             <span
@@ -144,71 +137,39 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       },
     },
     {
-      title: deductionDetailLayout ? 'Type' : 'Mode',
-      dataIndex: deductionDetailLayout ? 'isRate' : 'mode',
-      key: deductionDetailLayout ? 'type' : 'mode',
-      width: deductionDetailLayout
-        ? isMobile
-          ? 110
-          : 120
-        : isMobile
-          ? 220
-          : 200,
-      render: deductionDetailLayout
-        ? (isRate: boolean) => (
+      title: 'Mode',
+      dataIndex: 'mode',
+      key: 'mode',
+      width: isMobile ? 220 : 200,
+      render: (mode: string, record: any) => (
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-cy="compensation-benefit-entitlement-compact-mode-cell"
+        >
+          <span
+            className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap"
+            data-cy="compensation-benefit-entitlement-compact-mode-primary-pill"
+          >
+            {formatModePills(mode, record?.isPeriodic).modeLabel}
+          </span>
+          {formatModePills(mode, record?.isPeriodic).periodicLabel && (
             <span
-              className="text-[13px] text-[#434343]"
-              data-cy="compensation-benefit-entitlement-compact-type-cell"
+              className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap"
+              data-cy="compensation-benefit-entitlement-compact-mode-periodic-pill"
             >
-              {isRate ? 'Rate' : 'Fixed'}
+              {formatModePills(mode, record?.isPeriodic).periodicLabel}
             </span>
-          )
-        : (mode: string, record: any) => (
-            <div
-              className="flex flex-wrap items-center gap-2"
-              data-cy="compensation-benefit-entitlement-compact-mode-cell"
-            >
-              <span
-                className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap"
-                data-cy="compensation-benefit-entitlement-compact-mode-primary-pill"
-              >
-                {formatModePills(mode, record?.isPeriodic).modeLabel}
-              </span>
-              {formatModePills(mode, record?.isPeriodic).periodicLabel && (
-                <span
-                  className="inline-flex rounded border border-[#D9D9D9] bg-white px-2 py-0.5 text-[13px] font-normal leading-[18px] text-[#595959] whitespace-nowrap"
-                  data-cy="compensation-benefit-entitlement-compact-mode-periodic-pill"
-                >
-                  {formatModePills(mode, record?.isPeriodic).periodicLabel}
-                </span>
-              )}
-            </div>
-          ),
+          )}
+        </div>
+      ),
     },
     {
       title: 'Amount',
       dataIndex: 'Amount',
       key: 'Amount',
       width: isMobile ? 140 : 130,
-      render: (amount: string, record: any) => {
-        if (deductionDetailLayout) {
-          if (amount == null || amount === '') {
-            return (
-              <span data-cy="compensation-benefit-entitlement-compact-amount-dash">
-                -
-              </span>
-            );
-          }
-          return (
-            <span
-              className="text-[13px] text-[#434343]"
-              data-cy="compensation-benefit-entitlement-compact-amount"
-            >
-              {record?.isRate ? `${amount}%` : amount}
-            </span>
-          );
-        }
-        return amount ? (
+      render: (amount: string) =>
+        amount ? (
           <span
             className="text-[13px] text-[#434343]"
             data-cy="compensation-benefit-entitlement-compact-amount"
@@ -219,8 +180,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
           <span data-cy="compensation-benefit-entitlement-compact-amount-dash">
             -
           </span>
-        );
-      },
+        ),
     },
     {
       title: 'Action',
@@ -250,7 +210,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
             setDeleteModalRecord({ id: record.id, userId: record.userId }),
         });
         const deletePopoverOpen = deleteModalRecord?.id === record.id;
-        const actionInner = (
+        return (
           <AccessGuard
             permissions={[
               Permissions.UpdateBenefitEntitlement,
@@ -344,7 +304,6 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
             </Dropdown>
           </AccessGuard>
         );
-        return actionInner;
       },
     },
   ];
@@ -358,10 +317,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       width: 220,
       render: (rule: any, record: any) => (
         <div
-          onClick={
-            deductionDetailLayout ? undefined : () => handleEmployeeData(record)
-          }
-          className={deductionDetailLayout ? undefined : 'cursor-pointer'}
+          onClick={() => handleEmployeeData(record)}
           id={`compensation-benefit-entitlement-employee-${record?.userId}`}
           data-cy={`compensation-benefit-entitlement-employee-${record?.userId}`}
         >
@@ -531,7 +487,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
       >
         <>
           <div
-            className="overflow-hidden [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-title]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-footer]:!rounded-none [&_.ant-table-footer]:!rounded-es-none [&_.ant-table-footer]:!rounded-ee-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-ss-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-se-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-es-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-ee-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
+            className="overflow-hidden [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
             id="compensation-benefit-entitlement-table-scroll"
             data-cy="compensation-benefit-entitlement-table-scroll"
           >
@@ -539,8 +495,8 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
               data-cy="compensation-benefit-entitlement-table"
               className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
                 compact
-                  ? '[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
-                  : '[&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:font-bold'
+                  ? '[&_.ant-table]:text-sm [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
+                  : '[&_.ant-table-thead>tr>th]:font-bold'
               }`}
               columns={compact ? columnsCompact : columns}
               dataSource={paginatedData}
@@ -602,9 +558,7 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
           )}
         </>
       </Spin>
-      {!deductionDetailLayout && (
-        <BenefitTracking data-cy="compensation-benefit-tracking" />
-      )}
+      <BenefitTracking data-cy="compensation-benefit-tracking" />
       <div
         id="compensation-benefit-sidebar-create"
         data-cy="compensation-benefit-sidebar-create"
@@ -612,7 +566,6 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
         <BenefitEntitlementSideBar
           data-cy="compensation-benefit-sidebar-create"
           title={title}
-          forDeductionDetail={deductionDetailLayout}
         />
       </div>
       <div
@@ -622,7 +575,6 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
         <BenefitEntitlementSideBarEdit
           data-cy="compensation-benefit-sidebar-edit"
           title={title}
-          forDeductionDetail={deductionDetailLayout}
         />
       </div>
 

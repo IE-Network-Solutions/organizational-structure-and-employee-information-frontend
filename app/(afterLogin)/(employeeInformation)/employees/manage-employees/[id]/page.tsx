@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Tabs, Button, Modal, Form, Breadcrumb, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
@@ -38,8 +38,8 @@ interface EmployeeDetailsProps {
 }
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState('1');
   const [form] = Form.useForm();
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
 
   const { setIsEmploymentFormVisible } = useOffboardingStore();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
@@ -53,6 +53,8 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     reHireModal,
     setReHireModalVisible,
     setUserToRehire,
+    employeeDetailActiveTab,
+    setEmployeeDetailActiveTab,
   } = useEmployeeManagementStore();
 
   const { mutate: employeeDeleteMutation } = useDeleteEmployee();
@@ -67,7 +69,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     sendResignationID(resignationId, {
       onSuccess: () => {
         refetchEmployee();
-        setActiveTab('5');
+        setEmployeeDetailActiveTab('5');
       },
     });
   };
@@ -145,14 +147,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
               style={{ fontSize: '18px' }}
             />
           ),
-          onClick: () => {
-            Modal.confirm({
-              title: 'Are you sure you want to Deactivate Employee?',
-              okText: 'Confirm',
-              cancelText: 'Cancel',
-              onOk: handleDeleteConfirm,
-            });
-          },
+          onClick: () => setDeactivateModalOpen(true),
         });
       } else {
         menuItems.push({
@@ -189,14 +184,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             />
           ),
           onClick: () => {
-            Modal.confirm({
-              title:
-                'Are you sure you want to Initiate the resignation process?',
-              okText: 'Confirm',
-              cancelText: 'Cancel',
-              onOk: () => handleConfirmResignation(activeJob?.id),
-            });
+            setIsEmploymentFormVisible(true);
+            handleConfirmResignation;
           },
+
           disabled: offboardingTermination?.isActive,
         });
       } else if (resignationSubmittedDate !== null) {
@@ -348,8 +339,8 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           > */}
       <div data-cy="employee-detail-tabs-wrapper">
         <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
+          activeKey={employeeDetailActiveTab}
+          onChange={setEmployeeDetailActiveTab}
           items={items}
           tabBarGutter={16}
           size="small"
@@ -361,6 +352,54 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         userId={id}
         data-cy="employee-detail-offboarding-form-control"
       />
+      <Modal
+        title={
+          <span
+            data-cy="employee-detail-deactivate-modal-title"
+            className="font-bold text-base text-black opacity-70"
+          >
+            Deactivate Employee
+          </span>
+        }
+        open={deactivateModalOpen}
+        centered
+        onCancel={() => setDeactivateModalOpen(false)}
+        width={350}
+        footer={
+          <div
+            data-cy="employee-detail-deactivate-modal-footer"
+            className="flex justify-end gap-2"
+          >
+            <Button
+              onClick={() => setDeactivateModalOpen(false)}
+              id="employee-detail-deactivate-cancel-btn"
+              data-cy="employee-detail-deactivate-cancel-btn"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              danger
+              onClick={() => {
+                handleDeleteConfirm();
+                setDeactivateModalOpen(false);
+              }}
+              id="employee-detail-deactivate-confirm-btn"
+              data-cy="employee-detail-deactivate-confirm-btn"
+            >
+              Deactivate
+            </Button>
+          </div>
+        }
+        data-cy="employee-detail-deactivate-modal"
+      >
+        <p
+          data-cy="employee-detail-deactivate-modal-content"
+          className="text-black opacity-70 font-normal text-sm"
+        >
+          Are you sure you want to deactivate the employee?
+        </p>
+      </Modal>
       <Modal
         open={reHireModal}
         onCancel={() => {

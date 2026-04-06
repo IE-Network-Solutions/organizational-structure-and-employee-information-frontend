@@ -19,10 +19,10 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-/** Breaks out of Nav content padding (navBar `px-2` / `sm:px-6`) for a full-width rule. */
+/** Full-bleed horizontal rule so the line always spans the header block edge-to-edge */
 const BreadcrumbRule = () => (
   <div
-    className="pointer-events-none box-border max-w-none shrink-0 border-0 border-t border-solid border-gray-200 -mx-2 w-[calc(100%+1rem)] sm:-mx-6 sm:w-[calc(100%+3rem)]"
+    className="w-full min-w-0 shrink-0 border-0 border-t border-solid border-gray-200"
     aria-hidden
     data-cy="compensation-benefit-breadcrumb-rule"
   />
@@ -42,7 +42,7 @@ const BenefitDetailHeader = () => {
   return (
     <>
       <div
-        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
+        className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 sm:border-b sm:border-gray-200"
         id="compensation-benefit-detail-header"
         data-cy="compensation-benefit-detail-header"
       >
@@ -154,6 +154,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
       >
         {isDetailPage ? (
           <>
+            <BreadcrumbRule />
             <BenefitDetailHeader />
             <BreadcrumbRule />
           </>
@@ -161,7 +162,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           <>
             {/* Mobile page header */}
             <div
-              className="block sm:hidden px-3 pt-4 pb-3"
+              className="block sm:hidden px-4 pt-4 pb-3"
               id="compensation-benefit-layout-page-header"
               data-cy="compensation-benefit-layout-page-header"
             >
@@ -223,7 +224,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             {/* Desktop page header */}
             <BlockWrapper className="h-auto w-full min-w-0 bg-white hidden sm:block">
               <div
-                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-6 pt-5 pb-3 sm:px-6"
+                className="flex flex-wrap justify-between items-start gap-x-4 gap-y-3 px-6 pt-5 pb-3 sm:px-6"
                 id="compensation-benefit-layout-page-header-desktop"
                 data-cy="compensation-benefit-layout-page-header-desktop"
               >
@@ -267,7 +268,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   />
                 </div>
                 <div
-                  className="flex flex-shrink-0 flex-wrap items-center justify-end gap-4 mr-3"
+                  className="flex flex-shrink-0 flex-wrap justify-end items-center gap-4 self-start pt-0.5 mr-3"
                   id="compensation-benefit-layout-actions"
                   data-cy="compensation-benefit-layout-actions"
                 >
@@ -295,7 +296,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           <BlockWrapper
             data-cy="compensation-benefit-layout-block-wrapper-content"
             withBackground={false}
-            className="w-full h-max overflow-x-auto bg-white pr-0 sm:pr-2"
+            className="w-full h-max overflow-x-auto bg-white pr-0 sm:pr-4"
           >
             {children}
           </BlockWrapper>
