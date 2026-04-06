@@ -4,15 +4,7 @@
 // } from '@/components/common/customDrawer/customDrawerFooterButton';
 // import CustomDrawerLayout from '@/components/common/customDrawer';
 // import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import {
-  Form,
-  Select,
-  Spin,
-  DatePicker,
-  Button,
-  Modal,
-  Radio,
-} from 'antd';
+import { Form, Select, Spin, DatePicker, Button, Modal, Radio } from 'antd';
 import { CalendarOutlined, CloseOutlined } from '@ant-design/icons';
 import { IoIosArrowBack } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -38,9 +30,9 @@ const PayPeriodSideBar = () => {
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
   const [step, setStep] = useState<1 | 2>(1);
-  const [divisionErrors, setDivisionErrors] = useState<
-    Record<number, string>
-  >({});
+  const [divisionErrors, setDivisionErrors] = useState<Record<number, string>>(
+    {},
+  );
 
   const {
     isPayPeriodSidebarVisible,
@@ -133,7 +125,6 @@ const PayPeriodSideBar = () => {
     form.setFieldsValue(fields);
   }, [divisions, form]);
 
-
   // const allMonths = selectedFiscalYear?.sessions?.flatMap(
   //   (session) => session.months,
   // );
@@ -196,7 +187,7 @@ const PayPeriodSideBar = () => {
 
     if (errors.length > 0) {
       const errorMap: Record<number, string> = {};
-      //eslint-disable-next-line 
+      //eslint-disable-next-line
       divisions.forEach((_unused, index) => {
         const fieldErrors = errors.filter((err) =>
           err.includes(`Pay period ${index + 1}`),
@@ -374,10 +365,7 @@ const PayPeriodSideBar = () => {
           newDivisions[index + 1][0] = dayjs(end).add(1, 'day');
           const nextRules = getSpanRulesForMode(payPeriodMode);
           const nextStartDate = dayjs(end).add(1, 'day');
-          const nextMaxAllowedEnd = nextStartDate.add(
-            nextRules.max - 1,
-            'day',
-          );
+          const nextMaxAllowedEnd = nextStartDate.add(nextRules.max - 1, 'day');
           const nextEndDate = dayjs(newDivisions[index + 1][1]);
           if (nextEndDate.isAfter(nextMaxAllowedEnd)) {
             newDivisions[index + 1][1] = nextMaxAllowedEnd;
@@ -570,7 +558,10 @@ const PayPeriodSideBar = () => {
                     name="fiscalYear"
                     label="Fiscal Year"
                     rules={[
-                      { required: true, message: 'Please select a fiscal year' },
+                      {
+                        required: true,
+                        message: 'Please select a fiscal year',
+                      },
                     ]}
                   >
                     <Select
@@ -655,7 +646,10 @@ const PayPeriodSideBar = () => {
                       key={index}
                       className="flex flex-col gap-1"
                     >
-                      <div className="flex items-center gap-2" data-cy={`payroll-payperiod-sidebar-division-${index}`}>
+                      <div
+                        className="flex items-center gap-2"
+                        data-cy={`payroll-payperiod-sidebar-division-${index}`}
+                      >
                         <span
                           className="w-[190px] shrink-0 rounded border border-gray-300 bg-gray-50 px-2.5 py-2 text-xs text-gray-700 text-center whitespace-nowrap"
                           data-cy={`payroll-payperiod-sidebar-division-label-${index}`}

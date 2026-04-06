@@ -14,6 +14,7 @@ import {
 
 import React, { useEffect } from 'react';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
+import { FaInfoCircle } from 'react-icons/fa';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { InboxOutlined } from '@ant-design/icons';
 import { PhoneInput } from 'react-international-phone';
@@ -192,7 +193,7 @@ const EditCandidate: React.FC = () => {
         <div
           id="talent-acquisition-edit-candidate-div-header"
           data-cy="talent-acquisition-edit-candidate-div-header"
-          className="flex flex-col"
+          className="text-lg font-semibold text-gray-900"
         >
           Edit Candidate
         </div>
@@ -202,13 +203,9 @@ const EditCandidate: React.FC = () => {
       styles={{
         body: {
           backgroundColor: '#FFFFFF',
-          padding: '4px 4px',
+          padding: 16,
         },
       }}
-      classNames={{
-        body: 'py-2 px-2 md:py-4 md:px-[70px]',
-      }}
-      className="gb-bg-white"
       data-cy="talent-acquisition-edit-candidate-modal"
       zIndex={10002}
     >
@@ -224,11 +221,11 @@ const EditCandidate: React.FC = () => {
         }}
       >
         <div
-          className="bg-white border border-[#D9D9D9] rounded-lg  sm:mx-0 mx-auto"
+          className="bg-white border border-[#D9D9D9] rounded-lg -mx-3 sm:mx-0"
           data-cy="talent-acquisition-edit-candidate-form-container"
         >
           <div
-            className="p-4"
+            className="px-3 sm:px-4 py-2"
             data-cy="talent-acquisition-edit-candidate-form-inner"
           >
             <Form.Item
@@ -348,9 +345,19 @@ const EditCandidate: React.FC = () => {
                 >
                   <PhoneInput
                     defaultCountry="et"
-                    inputClassName="ant-input"
-                    className="w-full [&_.react-international-phone-input-container]:!w-full [&_.react-international-phone-input-container]:!rounded-[6px] [&_.react-international-phone-country-selector-button]:!rounded-l-[6px] [&_.react-international-phone-input]:!rounded-r-[6px] [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden [&_.react-international-phone-country-selector-button]:!h-[40px] [&_.react-international-phone-input]:!h-[40px] [&_.react-international-phone-input]:!flex-1"
-                    data-cy={`talent-acquisition-job-edit-candidate-input-phone`}
+                    placeholder="Input"
+                    className="!rounded-lg !bg-gray-100 !border-gray-300 w-full [&_.react-international-phone-input-container]:!rounded-lg [&_.react-international-phone-input-container]:!bg-gray-100 [&_.react-international-phone-input-container]:!border-gray-300 [&_.react-international-phone-country-selector-button__flag-emoji]:!hidden [&_.react-international-phone-country-selector-dropdown__list-item-flag-emoji]:!hidden"
+                    style={
+                      {
+                        '--react-international-phone-height': '40px',
+                        '--react-international-phone-background-color':
+                          '#f5f5f5',
+                        '--react-international-phone-border-radius': '8px',
+                        '--react-international-phone-border-color': '#d9d9d9',
+                      } as React.CSSProperties
+                    }
+                    inputClassName="!bg-transparent !border-0 text-sm placeholder:text-gray-400 focus:!shadow-none"
+                    data-cy="talent-acquisition-edit-candidate-input-phone"
                   />
                 </Form.Item>
               </Col>
@@ -410,13 +417,16 @@ const EditCandidate: React.FC = () => {
                   id="cgpaId"
                   name="CGPA"
                   label={
-                    <span
-                      className="text-sm font-medium text-gray-700"
+                    <div
+                      className="flex items-center justify-between"
                       data-cy="talent-acquisition-edit-candidate-cgpa-label"
                     >
-                      <span data-cy="talent-acquisition-edit-candidate-cgpa-label-text">
+                      <span
+                        data-cy="talent-acquisition-edit-candidate-cgpa-label-text"
+                        className="text-sm font-medium text-gray-700"
+                      >
                         CGPA
-                      </span>{' '}
+                      </span>
                       <span
                         className="text-red-500"
                         aria-hidden
@@ -424,40 +434,9 @@ const EditCandidate: React.FC = () => {
                       >
                         *
                       </span>
-                    </span>
+                    </div>
                   }
-                  extra={
-                    <span
-                      data-cy="talent-acquisition-edit-candidate-cgpa-info"
-                      className="text-xs text-gray-500"
-                    >
-                      Put your point 4.0 scale
-                    </span>
-                  }
-                  rules={[
-                    { required: true, message: 'Please input CGPA' },
-                    {
-                      validator: async (rule, value) => {
-                        void rule;
-                        if (
-                          value === undefined ||
-                          value === null ||
-                          value === ''
-                        )
-                          return;
-                        const num = Number(value);
-                        if (!Number.isFinite(num)) return;
-                        if (num > 4)
-                          throw new Error(
-                            'CGPA must be less than or equal to 4',
-                          );
-                        if (num < 0)
-                          throw new Error(
-                            'CGPA must be greater than or equal to 0',
-                          );
-                      },
-                    },
-                  ]}
+                  rules={[{ required: true, message: 'Please input CGPA' }]}
                 >
                   <div
                     data-cy="talent-acquisition-job-edit-candidate-input-cgpa-container"
@@ -475,6 +454,20 @@ const EditCandidate: React.FC = () => {
                     />
                   </div>
                 </Form.Item>
+                <div
+                  id="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"
+                  data-cy="talent-acquisition-edit-candidate-div-cgpa-info-wrapper"
+                  className="flex items-center justify-start gap-1 ml-1"
+                >
+                  <FaInfoCircle />
+                  <div
+                    id="talent-acquisition-edit-candidate-div-cgpa-info"
+                    data-cy="talent-acquisition-edit-candidate-div-cgpa-info"
+                    className="text-xs text-gray-500"
+                  >
+                    Put your point 4.0 scale
+                  </div>
+                </div>
               </Col>
             </Row>
 
@@ -544,7 +537,7 @@ const EditCandidate: React.FC = () => {
                 </div>
               </Dragger>
             </Form.Item>
-            {/* <Form.Item
+            <Form.Item
               id="resumeUrlId"
               name="resumeUrl"
               label={
@@ -578,7 +571,7 @@ const EditCandidate: React.FC = () => {
                   No resume uploaded
                 </span>
               )}
-            </Form.Item> */}
+            </Form.Item>
           </div>
         </div>
         <Form.Item>

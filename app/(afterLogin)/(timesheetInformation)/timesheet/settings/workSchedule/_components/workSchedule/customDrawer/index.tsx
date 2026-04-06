@@ -217,6 +217,7 @@ const CustomWorkingScheduleDrawer = () => {
       onCancel={handleCancel}
       open={isOpen}
       width={720}
+      styles={{ body: { padding: 16 } }}
       footer={
         <div
           className="flex justify-end items-center w-full pt-3"
@@ -230,7 +231,7 @@ const CustomWorkingScheduleDrawer = () => {
           >
             <Button
               type="default"
-              className="font-normal h-8 border border-[#D9D9D9] text-[#4d4d4d]"
+              className="font-medium h-10 px-5 rounded-lg"
               onClick={handleCancel}
               data-cy="org-settings-work-schedule-drawer-cancel-btn"
               id="org-settings-work-schedule-drawer-cancel-btn"
@@ -239,7 +240,7 @@ const CustomWorkingScheduleDrawer = () => {
             </Button>
             <Button
               type="primary"
-              className="font-normal h-8"
+              className="font-medium h-10 px-5 rounded-lg"
               onClick={handleSubmit}
               loading={isUpdateLoading || isCreateLoading}
               data-cy="org-settings-work-schedule-drawer-submit-btn"
@@ -356,7 +357,7 @@ const CustomWorkingScheduleDrawer = () => {
                 return (
                   <div
                     key={record.day}
-                    className="border border-gray-300 rounded-xl p-2 sm:p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+                    className="border border-gray-300 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
                     data-cy={`org-settings-work-schedule-daily-card-${dayKey}`}
                   >
                     <div
@@ -390,7 +391,7 @@ const CustomWorkingScheduleDrawer = () => {
                       data-cy={`org-settings-work-schedule-time-duration-wrap-${dayKey}`}
                     >
                       <div
-                        className="h-10 px-3 rounded-lg border border-gray-300 bg-white inline-flex items-center gap-2"
+                        className="h-10 px-3 rounded-lg border border-gray-300 bg-[#f8f8f8] inline-flex items-center gap-2"
                         data-cy={`org-settings-work-schedule-time-box-${dayKey}`}
                       >
                         <Form.Item
@@ -405,7 +406,6 @@ const CustomWorkingScheduleDrawer = () => {
                             bordered={false}
                             inputReadOnly
                             className="custom-timepicker"
-                            suffixIcon={null}
                             onChange={(time) =>
                               setDetail(record.day, {
                                 startTime: time
@@ -418,7 +418,6 @@ const CustomWorkingScheduleDrawer = () => {
                         </Form.Item>
                         <span
                           data-cy={`org-settings-work-schedule-time-separator-${dayKey}`}
-                          className="text-[#d9d9d9]"
                         >
                           →
                         </span>
@@ -434,7 +433,6 @@ const CustomWorkingScheduleDrawer = () => {
                             bordered={false}
                             inputReadOnly
                             className="custom-timepicker"
-                            suffixIcon={null}
                             onChange={(time) =>
                               setDetail(record.day, {
                                 endTime: time
@@ -451,7 +449,7 @@ const CustomWorkingScheduleDrawer = () => {
                         />
                       </div>
                       <span
-                        className="h-10 px-1 sm:px-4 rounded-lg border border-[#91caff] bg-[#e6f4ff] text-[#1677ff] inline-flex items-center text-sm text-nowrap"
+                        className="h-10 px-4 rounded-lg border border-[#91caff] bg-[#e6f4ff] text-[#1677ff] inline-flex items-center text-base"
                         data-cy={`org-settings-work-schedule-duration-${dayKey}`}
                       >
                         {`${hours}h ${minutes.toString().padStart(2, '0')}m`}

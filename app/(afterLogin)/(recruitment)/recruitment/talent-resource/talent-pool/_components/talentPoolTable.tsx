@@ -53,7 +53,7 @@ const TalentPoolTable: React.FC<any> = () => {
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-name"
           data-cy="talent-acquisition-talent-pool-table-column-name"
         >
@@ -66,28 +66,35 @@ const TalentPoolTable: React.FC<any> = () => {
         <div
           id="talent-acquisition-talent-pool-table-cell-name"
           data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}
-          className="flex flex-col gap-1"
         >
-          <span
-            className="text-sm font-normal text-black text-nowrap"
-            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
+          <p
+            className="font-bold text-sm text-[#4b4b4b]"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-${record?.jobCandidateInformation?.id || record?.id}`}
           >
-            {record?.jobCandidateInformation?.fullName ?? '-'}
-          </span>
-
-          <span
-            className="text-xs font-normal text-black opacity-45"
-            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            <span
+              className="text-sm text-[#4b4b4b]"
+              data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            >
+              {record?.jobCandidateInformation?.fullName ?? '-'}
+            </span>
+          </p>
+          <p
+            className="text-gray-500 text-sm"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-${record?.jobCandidateInformation?.id || record?.id}`}
           >
-            {record?.jobCandidateInformation?.email ?? '-'}
-          </span>
+            <span
+              data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
+            >
+              {record?.jobCandidateInformation?.email ?? '-'}
+            </span>
+          </p>
         </div>
       ),
     },
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-phone"
           data-cy="talent-acquisition-talent-pool-table-column-phone"
         >
@@ -101,7 +108,7 @@ const TalentPoolTable: React.FC<any> = () => {
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b] text-nowrap"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-talent-pool-category"
           data-cy="talent-acquisition-talent-pool-table-column-talent-pool-category"
         >
@@ -111,12 +118,12 @@ const TalentPoolTable: React.FC<any> = () => {
       dataIndex: ['talentPoolCategory', 'title'],
       key: 'title',
       className: 'text-sm text-[#4b4b4b]',
-      width: 250,
+      width: 200,
     },
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-reason"
           data-cy="talent-acquisition-talent-pool-table-column-reason"
         >
@@ -131,7 +138,7 @@ const TalentPoolTable: React.FC<any> = () => {
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-cv"
           data-cy="talent-acquisition-talent-pool-table-column-cv"
         >
@@ -167,7 +174,7 @@ const TalentPoolTable: React.FC<any> = () => {
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b] text-nowrap"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-moved-in-date"
           data-cy="talent-acquisition-talent-pool-table-column-moved-in-date"
         >
@@ -185,12 +192,12 @@ const TalentPoolTable: React.FC<any> = () => {
           {dayjs(text).format('DD/MMM/YYYY')}
         </div>
       ),
-      width: 170,
+      width: 150,
     },
     {
       title: (
         <span
-          className="font-bold text-sm text-[#4b4b4b]"
+          className="font-bold text-base text-[#4b4b4b]"
           id="talent-acquisition-talent-pool-table-column-action"
           data-cy="talent-acquisition-talent-pool-table-column-action"
         >
@@ -208,7 +215,7 @@ const TalentPoolTable: React.FC<any> = () => {
           >
             <div
               data-cy="talent-resource-talent-pool-components-talentpooltable-tsx-talentpooltable-div-153"
-              className="text-[#1e40af] text-xs font-normal"
+              className="text-[#1e40af] text-sm"
             >
               Add to Candidates
             </div>
@@ -247,24 +254,15 @@ const TalentPoolTable: React.FC<any> = () => {
           />
         </div>
       ) : (
-        <div
-          data-cy="talent-acquisition-talent-pool-table-container"
-          className=" overflow-x-auto scrollbar-none"
-        >
-          <Table
-            data-cy="talent-acquisition-talent-pool-table"
-            dataSource={filteredItems}
-            columns={columns}
-            pagination={false}
-            loading={responseLoading}
-            rowKey="id"
-            rowHoverable={false}
-            rowClassName={(notUsed, index) => {
-              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-              return base;
-            }}
-          />
-        </div>
+        <Table
+          data-cy="talent-acquisition-talent-pool-table"
+          dataSource={filteredItems}
+          columns={columns}
+          pagination={false}
+          loading={responseLoading}
+          scroll={{ x: 1000 }}
+          rowKey="id"
+        />
       )}
 
       {isMobile || isTablet ? (

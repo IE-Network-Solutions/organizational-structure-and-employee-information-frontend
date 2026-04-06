@@ -1,50 +1,54 @@
 import { FC } from 'react';
-import { DatePicker, Form, Select, Row, Col, Button, Modal } from 'antd';
+import { DatePicker, Form, Row, Col, Select } from 'antd';
 import { MdKeyboardArrowDown } from 'react-icons/md';
-import { LuSettings2 } from 'react-icons/lu';
 
-import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { DATE_FORMAT } from '@/utils/constants';
-import { useState } from 'react';
 import { Dayjs } from 'dayjs';
 
 interface FilterFormValues {
   dateRange?: [Dayjs, Dayjs];
+  /** Mobile: separate start/end pickers (same API filter when both set). */
+  date?: [Dayjs | null | undefined, Dayjs | null | undefined];
   type?: string;
-  status?: string;
 }
 
 interface HistoryTableFilterProps {
   onChange: (val: FilterFormValues) => void;
 }
 
+/** Mobile stacked row (matches attendance mobile treatment). */
+const selectFieldClassName =
+  'w-full [&_.ant-select-selector]:min-h-[44px] [&_.ant-select-selector]:rounded-lg [&_.ant-select-selector]:border-gray-200 [&_.ant-select-selector]:bg-white [&_.ant-select-selection-placeholder]:text-gray-500 [&_.ant-select-selection-item]:text-gray-700';
+
+// const rangePickerClassName =
+//   'w-full min-h-[44px] rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+
+const compositeSegmentPickerClassName =
+  'w-full min-h-[44px] border-0 bg-transparent shadow-none rounded-none [&_.ant-picker]:border-0 [&_.ant-picker]:shadow-none [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+
+const desktopSelectClassName =
+  'h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50';
+
+const desktopRangePickerClassName =
+  'h-8 w-full rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+
+const desktopSuffixIcon = (
+  <MdKeyboardArrowDown
+    size={16}
+    className="text-gray-900"
+    data-cy="time-attendance-history-table-filter-type-select-icon"
+    aria-hidden
+  />
+);
+
 const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
   const { leaveTypes } = useMyTimesheetStore();
   const [form] = Form.useForm();
-  const [mobileForm] = Form.useForm();
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  const handleSubmit = () => {
-    const values = mobileForm.getFieldsValue();
-    if (values.startDate && values.endDate) {
-      values.dateRange = [values.startDate, values.endDate];
-    }
-    onChange(values);
-    form.setFieldsValue(values); // Sync with desktop form
-    setIsFilterOpen(false);
-  };
-
-  const handleReset = () => {
-    mobileForm.resetFields();
-    form.resetFields();
-    onChange({});
-    setIsFilterOpen(false);
-  };
 
   /* eslint-disable @typescript-eslint/naming-convention */
-  const validateDateRange = (_: any, value: [Dayjs, Dayjs]) => {
+  const validateDateRange = (_: unknown, value: [Dayjs, Dayjs]) => {
     /* eslint-enable @typescript-eslint/naming-convention */
 
     if (value && value[0].isAfter(value[1])) {
@@ -63,257 +67,185 @@ const HistoryTableFilter: FC<HistoryTableFilterProps> = ({ onChange }) => {
       id="time-attendance-history-table-filter-form"
       data-cy="time-attendance-history-table-filter-form"
     >
-      <Row gutter={[16, 16]} className="w-full">
-        <Col xs={24} md={8}>
+      {/* Mobile */}
+      <Row
+        gutter={[0, 24]}
+        className="w-full sm:hidden"
+        id="time-attendance-history-table-filter-row-mobile"
+        data-cy="time-attendance-history-table-filter-row-mobile"
+      >
+        <Col span={24}>
           <Form.Item
-            id="time-attendance-history-table-filter-date-range"
-            data-cy="time-attendance-history-table-filter-date-range"
-            name="dateRange"
-            className="mb-0"
-            rules={[{ validator: validateDateRange }]}
-          >
-            {/* <DatePicker.RangePicker
-              className="w-full h-[40px]"
-              separator={'-'}
-              format={DATE_FORMAT}
-              id="time-attendance-history-table-filter-date-range-picker"
-              data-cy="time-attendance-history-table-filter-date-range-picker"
-            /> */}
-          </Form.Item>
-        </Col>
-        <Col xs={24} md={8}>
-          <Form.Item
-            id="time-attendance-history-table-filter-type"
-            data-cy="time-attendance-history-table-filter-type"
+            id="time-attendance-history-table-filter-type-mobile"
+            data-cy="time-attendance-history-table-filter-type-mobile"
             name="type"
-            className="mb-0"
+            className="mb-0 w-full"
           >
             <Select
-              placeholder="Select Type"
-              className="w-full h-[40px]"
-              allowClear={true}
+              placeholder="Filter Type"
+              className={selectFieldClassName}
+              allowClear
               suffixIcon={
                 <MdKeyboardArrowDown
-                  data-cy="time-attendance-history-table-filter-type-select-icon"
-                  size={16}
-                  className="text-gray-900"
+                  size={18}
+                  className="text-gray-500"
+                  aria-hidden
                 />
               }
               options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
-              id="time-attendance-history-table-filter-type-select"
-              data-cy="time-attendance-history-table-filter-type-select"
+              id="time-attendance-history-table-filter-type-select-mobile"
+              data-cy="time-attendance-history-table-filter-type-select-mobile"
             />
           </Form.Item>
         </Col>
-        <Col xs={24} md={8}>
-          <Form.Item
-            id="time-attendance-history-table-filter-status"
-            data-cy="time-attendance-history-table-filter-status"
-            name="status"
-            className="mb-0"
+        <Col span={24}>
+          <div
+            className="flex w-full min-h-[44px] items-stretch overflow-hidden rounded-lg border border-gray-200 bg-white"
+            id="time-attendance-history-table-filter-date-mobile-shell"
+            data-cy="time-attendance-history-table-filter-date-mobile-shell"
           >
-            <Select
-              placeholder="Select Status"
-              className="w-full h-[40px]"
-              allowClear={true}
-              suffixIcon={
-                <MdKeyboardArrowDown
-                  data-cy="time-attendance-history-table-filter-status-select-icon"
-                  size={16}
-                  className="text-gray-900"
+            <div
+              className="flex min-w-0 flex-1 border-r border-gray-200"
+              data-cy="time-attendance-history-table-filter-date-from-mobile-segment"
+            >
+              <Form.Item
+                className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
+                id="time-attendance-history-table-filter-date-from-mobile"
+                data-cy="time-attendance-history-table-filter-date-from-mobile"
+                name={['date', 0]}
+                dependencies={[['date', 1]]}
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(rule, value: Dayjs | null | undefined) {
+                      void rule;
+                      const end = getFieldValue(['date', 1]) as
+                        | Dayjs
+                        | null
+                        | undefined;
+                      if (value && end && value.isAfter(end, 'day')) {
+                        return Promise.reject(
+                          new Error('Start date must be on or before end date'),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker
+                  className={compositeSegmentPickerClassName}
+                  style={{ width: '100%' }}
+                  format={DATE_FORMAT}
+                  placeholder="Start date"
+                  allowClear
+                  id="time-attendance-history-table-filter-date-start-mobile"
+                  data-cy="time-attendance-history-table-filter-date-start-mobile"
                 />
-              }
-              options={LeaveRequestStatusOption}
-              id="time-attendance-history-table-filter-status-select"
-              data-cy="time-attendance-history-table-filter-status-select"
-            />
-          </Form.Item>
+              </Form.Item>
+            </div>
+            <span
+              className="flex shrink-0 items-center px-1.5 text-sm text-gray-400"
+              aria-hidden
+              data-cy="time-attendance-history-table-filter-date-range-separator-mobile"
+            >
+              →
+            </span>
+            <div
+              className="flex min-w-0 flex-1"
+              data-cy="time-attendance-history-table-filter-date-to-mobile-segment"
+            >
+              <Form.Item
+                className="mb-0 w-full [&_.ant-form-item-row]:h-full [&_.ant-form-item-control-input]:min-h-[44px] [&_.ant-form-item-control-input-content]:flex [&_.ant-form-item-control-input-content]:h-full [&_.ant-form-item-control-input-content]:items-center"
+                id="time-attendance-history-table-filter-date-to-mobile"
+                data-cy="time-attendance-history-table-filter-date-to-mobile"
+                name={['date', 1]}
+                dependencies={[['date', 0]]}
+                rules={[
+                  ({ getFieldValue }) => ({
+                    validator(rule, value: Dayjs | null | undefined) {
+                      void rule;
+                      const start = getFieldValue(['date', 0]) as
+                        | Dayjs
+                        | null
+                        | undefined;
+                      if (start && value && value.isBefore(start, 'day')) {
+                        return Promise.reject(
+                          new Error('End date must be on or after start date'),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker
+                  className={compositeSegmentPickerClassName}
+                  style={{ width: '100%' }}
+                  format={DATE_FORMAT}
+                  placeholder="End date"
+                  allowClear
+                  id="time-attendance-history-table-filter-date-end-mobile"
+                  data-cy="time-attendance-history-table-filter-date-end-mobile"
+                />
+              </Form.Item>
+            </div>
+          </div>
         </Col>
       </Row>
+
+      {/* Desktop: fixed-width group — same pattern as attendance filters */}
+      <div
+        id="time-attendance-history-table-filter-row-desktop"
+        data-cy="time-attendance-history-table-filter-row-desktop"
+        className="hidden w-full sm:flex sm:w-auto sm:flex-nowrap sm:items-end sm:gap-4"
+      >
+        <Form.Item
+          name="type"
+          className="mb-0 w-[220px] shrink-0"
+          id="time-attendance-history-table-filter-type"
+          data-cy="time-attendance-history-table-filter-type"
+        >
+          <Select
+            placeholder="Filter Type"
+            allowClear
+            className={desktopSelectClassName}
+            style={{ width: '100%' }}
+            suffixIcon={desktopSuffixIcon}
+            options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
+            id="time-attendance-history-table-filter-type-select"
+            data-cy="time-attendance-history-table-filter-type-select"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="dateRange"
+          className="mb-0 w-[360px] shrink-0 md:w-[376px]"
+          rules={[{ validator: validateDateRange }]}
+          id="time-attendance-history-table-filter-date-range"
+          data-cy="time-attendance-history-table-filter-date-range"
+        >
+          <DatePicker.RangePicker
+            className={desktopRangePickerClassName}
+            style={{ width: '100%' }}
+            separator="→"
+            format={DATE_FORMAT}
+            placeholder={['Start date', 'End date']}
+            id="time-attendance-history-table-filter-date-range-picker"
+            data-cy="time-attendance-history-table-filter-date-range-picker"
+          />
+        </Form.Item>
+      </div>
     </Form>
   );
 
   return (
-    <>
-      {/* Desktop Filters */}
-      <div
-        id="time-attendance-history-table-filter-desktop-container"
-        data-cy="time-attendance-history-table-filter-desktop-container"
-        className="hidden sm:block"
-      >
-        <FilterContent data-cy="time-attendance-history-table-filter-desktop-content" />
-      </div>
-
-      {/* Mobile Filter Button */}
-      <div
-        className="sm:hidden mb-4"
-        id="time-attendance-history-table-filter-mobile-container"
-        data-cy="time-attendance-history-table-filter-mobile-container"
-      >
-        <Button
-          type="default"
-          icon={
-            <LuSettings2
-              data-cy="time-attendance-history-table-filter-mobile-button-icon"
-              className="text-gray-600"
-            />
-          }
-          onClick={() => {
-            mobileForm.setFieldsValue(form.getFieldsValue());
-            setIsFilterOpen(true);
-          }}
-          className="flex justify-center w-10 h-10 hover:bg-gray-50 border-gray-200"
-          id="time-attendance-history-table-filter-mobile-button"
-          data-cy="time-attendance-history-table-filter-mobile-button"
-        />
-        <Modal
-          centered
-          title="Filter Employees"
-          open={isFilterOpen}
-          onCancel={handleReset}
-          width="85%"
-          data-cy="time-attendance-history-table-filter-mobile-modal"
-          footer={
-            <div
-              className="flex justify-center items-center space-x-4"
-              id="time-attendance-history-table-filter-mobile-modal-footer"
-              data-cy="time-attendance-history-table-filter-mobile-modal-footer"
-            >
-              <Button
-                type="default"
-                className="px-3"
-                onClick={handleReset}
-                id="time-attendance-history-table-filter-mobile-reset-button"
-                data-cy="time-attendance-history-table-filter-mobile-reset-button"
-              >
-                Reset
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                type="primary"
-                className="px-3"
-                id="time-attendance-history-table-filter-mobile-filter-button"
-                data-cy="time-attendance-history-table-filter-mobile-filter-button"
-              >
-                Filter
-              </Button>
-            </div>
-          }
-        >
-          <Form<FilterFormValues>
-            form={mobileForm}
-            className="w-full"
-            layout="vertical"
-            id="time-attendance-history-table-filter-mobile-form"
-            data-cy="time-attendance-history-table-filter-mobile-form"
-          >
-            <Form.Item
-              label="Start Date"
-              name="startDate"
-              id="time-attendance-history-table-filter-mobile-start-date"
-              data-cy="time-attendance-history-table-filter-mobile-start-date"
-              rules={[
-                ({ getFieldValue }) => ({
-                  /* eslint-disable @typescript-eslint/naming-convention */
-                  validator(_, value) {
-                    /* eslint-enable @typescript-eslint/naming-convention */
-                    if (
-                      !value ||
-                      !getFieldValue('endDate') ||
-                      value.isBefore(getFieldValue('endDate'))
-                    ) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject('Start date must be before end date');
-                  },
-                }),
-              ]}
-            >
-              <DatePicker
-                className="w-full h-[40px]"
-                placeholder="Start Date"
-                format={DATE_FORMAT}
-                id="time-attendance-history-table-filter-mobile-start-date-picker"
-                data-cy="time-attendance-history-table-filter-mobile-start-date-picker"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="End Date"
-              name="endDate"
-              id="time-attendance-history-table-filter-mobile-end-date"
-              data-cy="time-attendance-history-table-filter-mobile-end-date"
-              rules={[
-                ({ getFieldValue }) => ({
-                  /* eslint-disable @typescript-eslint/naming-convention */
-                  validator(_, value) {
-                    /* eslint-enable @typescript-eslint/naming-convention */
-
-                    if (
-                      !value ||
-                      !getFieldValue('startDate') ||
-                      value.isAfter(getFieldValue('startDate'))
-                    ) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject('End date must be after start date');
-                  },
-                }),
-              ]}
-            >
-              <DatePicker
-                className="w-full h-[40px]"
-                placeholder="End Date"
-                format={DATE_FORMAT}
-                id="time-attendance-history-table-filter-mobile-end-date-picker"
-                data-cy="time-attendance-history-table-filter-mobile-end-date-picker"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label="Type"
-              name="type"
-              id="time-attendance-history-table-filter-mobile-type"
-              data-cy="time-attendance-history-table-filter-mobile-type"
-            >
-              <Select
-                placeholder="Select Type"
-                className="w-full h-[40px]"
-                allowClear={true}
-                suffixIcon={
-                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
-                }
-                options={formatToOptions(leaveTypes ?? [], 'title', 'id')}
-                id="time-attendance-history-table-filter-mobile-type-select"
-                data-cy="time-attendance-history-table-filter-mobile-type-select"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Status"
-              name="status"
-              id="time-attendance-history-table-filter-mobile-status"
-              data-cy="time-attendance-history-table-filter-mobile-status"
-            >
-              <Select
-                placeholder="Select Status"
-                className="w-full h-[40px]"
-                allowClear={true}
-                suffixIcon={
-                  <MdKeyboardArrowDown
-                    data-cy="time-attendance-history-table-filter-mobile-status-select-icon"
-                    size={16}
-                    className="text-gray-900"
-                  />
-                }
-                options={LeaveRequestStatusOption}
-                id="time-attendance-history-table-filter-mobile-status-select"
-                data-cy="time-attendance-history-table-filter-mobile-status-select"
-              />
-            </Form.Item>
-          </Form>
-        </Modal>
-      </div>
-    </>
+    <div
+      id="time-attendance-history-table-filter-container"
+      data-cy="time-attendance-history-table-filter-container"
+      className="w-full sm:w-auto sm:min-w-0"
+    >
+      <FilterContent />
+    </div>
   );
 };
 

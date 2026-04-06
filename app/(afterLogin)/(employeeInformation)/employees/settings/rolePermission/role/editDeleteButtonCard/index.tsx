@@ -85,14 +85,14 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
             className="flex flex-wrap gap-2 mt-3"
           >
             <Tag
-              className="rounded-md border border-[#d9d9d9] text-xs font-normal text-[#9ca3af] py-1 px-2"
+              className="rounded-sm border border-[#d9d9d9] text-xs font-normal text-[#9ca3af]"
               id={`settings-role-card-permissions-pill-${props?.item?.id}`}
               data-cy={`settings-role-card-permissions-pill-${props?.item?.id}`}
             >
               {permissionCount} Permission{permissionCount !== 1 ? 's' : ''}
             </Tag>
             <Tag
-              className="rounded-md border border-[#d9d9d9] text-xs font-normal text-[#9ca3af] py-1 px-2"
+              className="rounded-sm border border-[#d9d9d9] text-xs font-normal text-[#9ca3af]"
               id={`settings-role-card-groups-pill-${props?.item?.id}`}
               data-cy={`settings-role-card-groups-pill-${props?.item?.id}`}
             >

@@ -6,9 +6,6 @@ export const validateField = (
   if (!value || value === '' || value === null || value === undefined) {
     return null;
   }
-  if (Array.isArray(value)) {
-    return null;
-  }
 
   switch (fieldValidation) {
     case 'number':

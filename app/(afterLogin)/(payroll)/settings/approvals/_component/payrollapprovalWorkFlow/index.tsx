@@ -70,7 +70,10 @@ export const PayrollApprovalWorkFlow: React.FC<
       data-cy="approval-payroll-workflow-component"
       className={className ?? 'w-full'}
     >
-      <div id="approval-payroll-workflow-modal-body" data-cy="approval-payroll-workflow-modal-body">
+      <div
+        id="approval-payroll-workflow-modal-body"
+        data-cy="approval-payroll-workflow-modal-body"
+      >
         <style data-cy="approval-payroll-workflow-steps-style">{`
           .approval-payroll-workflow-steps .ant-steps-item-title {
             white-space: nowrap !important;
@@ -84,7 +87,10 @@ export const PayrollApprovalWorkFlow: React.FC<
           }
         `}</style>
 
-        <div className="mb-8" data-cy="approval-payroll-workflow-steps-container">
+        <div
+          className="mb-8"
+          data-cy="approval-payroll-workflow-steps-container"
+        >
           <Steps
             responsive={false}
             labelPlacement="vertical"
@@ -121,7 +127,10 @@ export const PayrollApprovalWorkFlow: React.FC<
                   className="flex items-start gap-3"
                   data-cy="approval-workflow-sequential-row"
                 >
-                  <Radio value="Sequential" data-cy="approval-workflow-sequential-radio" />
+                  <Radio
+                    value="Sequential"
+                    data-cy="approval-workflow-sequential-radio"
+                  />
                   <div
                     className="flex flex-col gap-1"
                     data-cy="approval-workflow-sequential-text-block"
@@ -136,8 +145,8 @@ export const PayrollApprovalWorkFlow: React.FC<
                       className="text-sm text-gray-500 font-normal"
                       data-cy="approval-workflow-sequential-description"
                     >
-                      Approval happen in a strict order, with each approver signing
-                      off one after another
+                      Approval happen in a strict order, with each approver
+                      signing off one after another
                     </span>
                   </div>
                 </div>
@@ -155,7 +164,10 @@ export const PayrollApprovalWorkFlow: React.FC<
                   className="flex items-start gap-3"
                   data-cy="approval-workflow-parallel-row"
                 >
-                  <Radio value="Parallel" data-cy="approval-workflow-parallel-radio" />
+                  <Radio
+                    value="Parallel"
+                    data-cy="approval-workflow-parallel-radio"
+                  />
                   <div
                     className="flex flex-col gap-1"
                     data-cy="approval-workflow-parallel-text-block"
@@ -170,8 +182,8 @@ export const PayrollApprovalWorkFlow: React.FC<
                       className="text-sm text-gray-500 font-normal"
                       data-cy="approval-workflow-parallel-description"
                     >
-                      multi approvers can approve at the same time without any specific
-                      order
+                      multi approvers can approve at the same time without any
+                      specific order
                     </span>
                   </div>
                 </div>

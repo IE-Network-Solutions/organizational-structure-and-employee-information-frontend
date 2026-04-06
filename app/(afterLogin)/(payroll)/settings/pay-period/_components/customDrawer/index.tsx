@@ -30,7 +30,8 @@ const CustomDrawer: React.FC<CustomDrawerProps> = ({
 
   const [form] = Form.useForm();
   const { isMobile, isTablet } = useIsMobile();
-  const modalWidth = width || (isMobile ? '100%' : isTablet ? '600px' : '720px');
+  const modalWidth =
+    width || (isMobile ? '100%' : isTablet ? '600px' : '720px');
 
   useEffect(() => {
     form.setFieldsValue({

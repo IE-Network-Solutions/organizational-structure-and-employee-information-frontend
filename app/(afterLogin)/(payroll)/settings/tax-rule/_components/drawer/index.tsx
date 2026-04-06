@@ -129,184 +129,184 @@ const Drawer: React.FC = () => {
               onFinish={onFinish}
               requiredMark={CustomLabel}
             >
-            <Form.Item
-              id="payroll-tax-rule-name-view-formitem"
-              data-cy="payroll-tax-rule-name-view-formitem"
-              label="Name"
-              name="name"
-              rules={[{ required: true, message: 'Please input the name!' }]}
-            >
-              <Input
-                id="payroll-tax-rule-name-view-input"
-                data-cy="payroll-tax-rule-name-view-input"
-                placeholder="Rule name"
-                className="h-10 mt-1"
-              />
-            </Form.Item>
+              <Form.Item
+                id="payroll-tax-rule-name-view-formitem"
+                data-cy="payroll-tax-rule-name-view-formitem"
+                label="Name"
+                name="name"
+                rules={[{ required: true, message: 'Please input the name!' }]}
+              >
+                <Input
+                  id="payroll-tax-rule-name-view-input"
+                  data-cy="payroll-tax-rule-name-view-input"
+                  placeholder="Rule name"
+                  className="h-10 mt-1"
+                />
+              </Form.Item>
 
-            <Form.Item
-              id="payroll-tax-rule-minimum-income-view-formitem"
-              data-cy="payroll-tax-rule-minimum-income-view-formitem"
-              label="Minimum Income"
-              name="minimum-income"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input the minimum income!',
-                },
-                {
-                  validator: (rule, value) => {
-                    const maxIncome = form.getFieldValue('maximum-income');
-                    if (
-                      value &&
-                      maxIncome &&
-                      Number(value) >= Number(maxIncome)
-                    ) {
-                      return Promise.reject(
-                        new Error(
-                          'Minimum Income must be less than Maximum Income',
-                        ),
-                      );
-                    }
-                    return Promise.resolve();
+              <Form.Item
+                id="payroll-tax-rule-minimum-income-view-formitem"
+                data-cy="payroll-tax-rule-minimum-income-view-formitem"
+                label="Minimum Income"
+                name="minimum-income"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please input the minimum income!',
                   },
-                },
-              ]}
-              valuePropName="value"
-              getValueFromEvent={(value) =>
-                value === null || value === undefined || value === ''
-                  ? undefined
-                  : value
-              }
-            >
-              <InputNumber
-                id="payroll-tax-rule-minimum-income-view-input"
-                data-cy="payroll-tax-rule-minimum-income-view-input"
-                className="h-10 mt-1 w-full input-number-mobile"
-                placeholder="Input minimum Income"
-                min={0}
-                step={1}
-                controls={true}
-                addonAfter={null}
-              />
-            </Form.Item>
-
-            <Form.Item
-              id="payroll-tax-rule-maximum-income-view-formitem"
-              data-cy="payroll-tax-rule-maximum-income-view-formitem"
-              label="Maximum Income"
-              name="maximum-income"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please input the maximum income!',
-                },
-                {
-                  validator: (rule, value) => {
-                    const minIncome = form.getFieldValue('minimum-income');
-                    if (
-                      value &&
-                      minIncome &&
-                      Number(value) <= Number(minIncome)
-                    ) {
-                      return Promise.reject(
-                        new Error(
-                          'Maximum Income must be greater than Minimum Income',
-                        ),
-                      );
-                    }
-                    return Promise.resolve();
+                  {
+                    validator: (rule, value) => {
+                      const maxIncome = form.getFieldValue('maximum-income');
+                      if (
+                        value &&
+                        maxIncome &&
+                        Number(value) >= Number(maxIncome)
+                      ) {
+                        return Promise.reject(
+                          new Error(
+                            'Minimum Income must be less than Maximum Income',
+                          ),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
                   },
-                },
-              ]}
-              valuePropName="value"
-              getValueFromEvent={(value) =>
-                value === null || value === undefined || value === ''
-                  ? undefined
-                  : value
-              }
-            >
-              <InputNumber
-                id="payroll-tax-rule-maximum-income-view-input"
-                data-cy="payroll-tax-rule-maximum-income-view-input"
-                className="h-10 mt-1 w-full input-number-mobile"
-                placeholder="Input maximum Income"
-                min={0}
-                step={1}
-                controls={true}
-                addonAfter={null}
-              />
-            </Form.Item>
-
-            <Form.Item
-              id="payroll-tax-rule-rate-view-formitem"
-              data-cy="payroll-tax-rule-rate-view-formitem"
-              label="Rate in %"
-              name="rate"
-              rules={[
-                {
-                  type: 'number',
-                  required: true,
-                  message: 'Please input the tax rate!',
-                },
-              ]}
-              valuePropName="value"
-              getValueFromEvent={(value) =>
-                value === null || value === undefined || value === ''
-                  ? undefined
-                  : value
-              }
-            >
-              <InputNumber
-                id="payroll-tax-rule-rate-view-input"
-                data-cy="payroll-tax-rule-rate-view-input"
-                className="w-full h-10 mt-1 input-number-mobile"
-                min={0}
-                max={100}
-                step={0.01}
-                placeholder="Input tax rate"
-                controls={true}
-                addonAfter={
-                  <span
-                    data-cy="tax-rule-components-drawer-index-tsx-index-span-270"
-                    style={{ color: '#bdbdbd', fontWeight: 600 }}
-                  >
-                    %
-                  </span>
+                ]}
+                valuePropName="value"
+                getValueFromEvent={(value) =>
+                  value === null || value === undefined || value === ''
+                    ? undefined
+                    : value
                 }
-              />
-            </Form.Item>
+              >
+                <InputNumber
+                  id="payroll-tax-rule-minimum-income-view-input"
+                  data-cy="payroll-tax-rule-minimum-income-view-input"
+                  className="h-10 mt-1 w-full input-number-mobile"
+                  placeholder="Input minimum Income"
+                  min={0}
+                  step={1}
+                  controls={true}
+                  addonAfter={null}
+                />
+              </Form.Item>
 
-            <Form.Item
-              id="payroll-tax-rule-deduction-view-formitem"
-              data-cy="payroll-tax-rule-deduction-view-formitem"
-              label="Deduction"
-              name="deduction"
-              rules={[
-                {
-                  type: 'number',
-                  required: true,
-                  message: 'Please input the deduction!',
-                },
-              ]}
-              valuePropName="value"
-              getValueFromEvent={(value) =>
-                value === null || value === undefined || value === ''
-                  ? undefined
-                  : value
-              }
-            >
-              <InputNumber
-                id="payroll-tax-rule-deduction-view-input"
-                data-cy="payroll-tax-rule-deduction-view-input"
-                className="w-full h-10 mt-1 input-number-mobile"
-                min={0}
-                step={1}
-                placeholder="0"
-                controls={true}
-                addonAfter={null}
-              />
-            </Form.Item>
+              <Form.Item
+                id="payroll-tax-rule-maximum-income-view-formitem"
+                data-cy="payroll-tax-rule-maximum-income-view-formitem"
+                label="Maximum Income"
+                name="maximum-income"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please input the maximum income!',
+                  },
+                  {
+                    validator: (rule, value) => {
+                      const minIncome = form.getFieldValue('minimum-income');
+                      if (
+                        value &&
+                        minIncome &&
+                        Number(value) <= Number(minIncome)
+                      ) {
+                        return Promise.reject(
+                          new Error(
+                            'Maximum Income must be greater than Minimum Income',
+                          ),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+                valuePropName="value"
+                getValueFromEvent={(value) =>
+                  value === null || value === undefined || value === ''
+                    ? undefined
+                    : value
+                }
+              >
+                <InputNumber
+                  id="payroll-tax-rule-maximum-income-view-input"
+                  data-cy="payroll-tax-rule-maximum-income-view-input"
+                  className="h-10 mt-1 w-full input-number-mobile"
+                  placeholder="Input maximum Income"
+                  min={0}
+                  step={1}
+                  controls={true}
+                  addonAfter={null}
+                />
+              </Form.Item>
+
+              <Form.Item
+                id="payroll-tax-rule-rate-view-formitem"
+                data-cy="payroll-tax-rule-rate-view-formitem"
+                label="Rate in %"
+                name="rate"
+                rules={[
+                  {
+                    type: 'number',
+                    required: true,
+                    message: 'Please input the tax rate!',
+                  },
+                ]}
+                valuePropName="value"
+                getValueFromEvent={(value) =>
+                  value === null || value === undefined || value === ''
+                    ? undefined
+                    : value
+                }
+              >
+                <InputNumber
+                  id="payroll-tax-rule-rate-view-input"
+                  data-cy="payroll-tax-rule-rate-view-input"
+                  className="w-full h-10 mt-1 input-number-mobile"
+                  min={0}
+                  max={100}
+                  step={0.01}
+                  placeholder="Input tax rate"
+                  controls={true}
+                  addonAfter={
+                    <span
+                      data-cy="tax-rule-components-drawer-index-tsx-index-span-270"
+                      style={{ color: '#bdbdbd', fontWeight: 600 }}
+                    >
+                      %
+                    </span>
+                  }
+                />
+              </Form.Item>
+
+              <Form.Item
+                id="payroll-tax-rule-deduction-view-formitem"
+                data-cy="payroll-tax-rule-deduction-view-formitem"
+                label="Deduction"
+                name="deduction"
+                rules={[
+                  {
+                    type: 'number',
+                    required: true,
+                    message: 'Please input the deduction!',
+                  },
+                ]}
+                valuePropName="value"
+                getValueFromEvent={(value) =>
+                  value === null || value === undefined || value === ''
+                    ? undefined
+                    : value
+                }
+              >
+                <InputNumber
+                  id="payroll-tax-rule-deduction-view-input"
+                  data-cy="payroll-tax-rule-deduction-view-input"
+                  className="w-full h-10 mt-1 input-number-mobile"
+                  min={0}
+                  step={1}
+                  placeholder="0"
+                  controls={true}
+                  addonAfter={null}
+                />
+              </Form.Item>
             </Form>
           </div>
         </div>

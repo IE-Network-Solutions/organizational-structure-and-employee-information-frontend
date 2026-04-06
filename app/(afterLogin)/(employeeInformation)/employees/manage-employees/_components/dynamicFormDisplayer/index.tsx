@@ -5,7 +5,6 @@ import {
   Select,
   DatePicker,
   Checkbox,
-  Radio,
   Switch,
   Row,
   Col,
@@ -16,15 +15,7 @@ const { Option } = Select;
 
 interface FormField {
   id: string;
-  fieldType:
-    | 'input'
-    | 'textArea'
-    | 'select'
-    | 'datePicker'
-    | 'checkbox'
-    | 'radio'
-    | 'dropdown'
-    | 'toggle';
+  fieldType: 'input' | 'select' | 'datePicker' | 'checkbox' | 'toggle';
   isActive: boolean;
   fieldName: string;
   fieldValidation: string;
@@ -92,23 +83,7 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
             />
           </Form.Item>
         );
-      case 'textArea':
-        return (
-          <Form.Item
-            key={field.fieldName}
-            {...commonProps}
-            id={`${formTitle}-${field.fieldName}-textarea-form-item`}
-            data-cy={`${formTitle}-${field.fieldName}-textarea-form-item`}
-          >
-            <Input.TextArea
-              rows={4}
-              id={`${formTitle}-${field.fieldName}-textarea`}
-              data-cy={`${formTitle}-${field.fieldName}-textarea`}
-            />
-          </Form.Item>
-        );
       case 'select':
-      case 'dropdown':
         return (
           <Form.Item
             key={field.fieldName}
@@ -170,30 +145,6 @@ const DynamicFormFields: React.FC<DynamicFormFieldsProps> = ({
                 </Checkbox>
               ))}
             </Checkbox.Group>
-          </Form.Item>
-        );
-      case 'radio':
-        return (
-          <Form.Item
-            key={field.fieldName}
-            {...commonProps}
-            id={`${formTitle}-${field.fieldName}-radio-group-form-item`}
-            data-cy={`${formTitle}-${field.fieldName}-radio-group-form-item`}
-          >
-            <Radio.Group
-              data-cy={`${formTitle}-${field.fieldName}-radio-group`}
-            >
-              {field.options?.map((option) => (
-                <Radio
-                  key={option}
-                  value={option}
-                  id={`${formTitle}-${field.fieldName}-radio-${option}`}
-                  data-cy={`${formTitle}-${field.fieldName}-radio-${option}`}
-                >
-                  {option}
-                </Radio>
-              ))}
-            </Radio.Group>
           </Form.Item>
         );
       case 'toggle':
