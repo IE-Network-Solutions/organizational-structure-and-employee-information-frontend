@@ -79,7 +79,22 @@ const RECENT_HR_ACTIONS: RecentHrAction[] = [
   },
 ];
 
-export default function RecentHrActions() {
+/** Prefill audit log module filter when opening “View all” from the HR dashboard. */
+const RECENT_HR_ACTIONS_AUDIT_MODULES = ['OrgAndEmpAuditLog'];
+
+type RecentHrActionsProps = {
+  /** When set, “View all” opens audit log filtered to these modules (e.g. payroll vs OKR dashboards). */
+  auditLogModules?: string[];
+};
+
+export default function RecentHrActions({
+  auditLogModules,
+}: RecentHrActionsProps = {}) {
+  const modulesForAuditLink =
+    auditLogModules && auditLogModules.length > 0
+      ? auditLogModules
+      : RECENT_HR_ACTIONS_AUDIT_MODULES;
+
   return (
     <div
       className="border border-gray-200 rounded-lg p-4 bg-white md:h-[490px] min-h-[430px]"
@@ -112,7 +127,7 @@ export default function RecentHrActions() {
         </div>
 
         <Link
-          href={`/audit-log?modules=${encodeURIComponent(auditLogModules?.join(',') ?? '')}`}
+          href={`/audit-log?modules=${encodeURIComponent(modulesForAuditLink.join(','))}`}
           className="text-sm font-normal text-primary "
           id="recent-hr-actions-view-all"
           data-cy="recent-hr-actions-view-all"

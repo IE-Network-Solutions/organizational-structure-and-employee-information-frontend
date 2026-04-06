@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useGetAllRecognitionIds,
+  useGetAllRecognitionIdsByParentType,
   useGetRecognitionById,
   useGetRecognitionsByParentRecognitionType,
   useGetRecognitionTypeParentChildById,
@@ -28,7 +28,7 @@ import {
   TableColumnsType,
 } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
 import {
@@ -86,7 +86,33 @@ function DetailPage() {
 
   const searchParams = useSearchParams();
 
-  const { refetch: fetchAllIds } = useGetAllRecognitionIds(searchValue, false);
+  const allRecognitionIdsParams = useMemo(() => {
+    if (!searchValue?.recognitionTypeId) return null;
+    return {
+      parentRecognitionTypeId: searchValue.recognitionTypeId ?? '',
+      calendarId: searchValue?.calendarId ?? '',
+      sessionId: searchValue?.sessionId ?? '',
+      monthId: searchValue?.monthId ?? '',
+      recognitionTypeId: searchValue?.childRecognitionTypeId ?? '',
+      userId: searchValue?.userId ?? '',
+      current,
+      pageSize,
+    };
+  }, [
+    searchValue?.recognitionTypeId,
+    searchValue?.calendarId,
+    searchValue?.sessionId,
+    searchValue?.monthId,
+    searchValue?.childRecognitionTypeId,
+    searchValue?.userId,
+    current,
+    pageSize,
+  ]);
+
+  const { refetch: fetchAllIds } = useGetAllRecognitionIdsByParentType(
+    allRecognitionIdsParams,
+    false,
+  );
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionTypes } = useGetRecognitionTypeParentChildById(
     searchValue?.recognitionTypeId ?? '',

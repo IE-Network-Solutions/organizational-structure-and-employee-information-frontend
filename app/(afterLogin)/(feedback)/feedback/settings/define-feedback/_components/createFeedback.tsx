@@ -55,24 +55,32 @@ const CreateFeedback: React.FC = () => {
     departmentId?: string;
   }) => {
     if (settingActiveTab === 'perspective') {
-      const payload = {
-        id: selectedFeedback?.id,
-        name: values.name,
-        description: values.description,
-        departmentId: values.departmentId as string,
+      const onPerspectiveSuccess = () => {
+        form.resetFields();
+        setSelectedFeedback(null);
+        setOpen(false);
       };
 
-      const mutation = selectedFeedback?.id
-        ? updatePerspective
-        : addPerspective;
-
-      mutation(payload, {
-        onSuccess: () => {
-          form.resetFields();
-          setSelectedFeedback(null);
-          setOpen(false);
-        },
-      });
+      if (selectedFeedback?.id) {
+        updatePerspective(
+          {
+            id: selectedFeedback.id,
+            name: values.name,
+            description: values.description,
+            departmentId: values.departmentId as string,
+          },
+          { onSuccess: onPerspectiveSuccess },
+        );
+      } else {
+        addPerspective(
+          {
+            name: values.name,
+            description: values.description,
+            departmentId: values.departmentId as string,
+          },
+          { onSuccess: onPerspectiveSuccess },
+        );
+      }
       return;
     }
 
