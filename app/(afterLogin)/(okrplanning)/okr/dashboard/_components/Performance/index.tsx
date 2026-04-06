@@ -4,7 +4,7 @@ import { Select, Spin, DatePicker, Button, Pagination } from 'antd';
 import type React from 'react';
 import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
+import Avatar from '@/public/gender_neutral_avatar.jpg';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKRDashboardStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/dashboard';
 import { CalendarOutlined, DownOutlined } from '@ant-design/icons';
@@ -613,7 +613,7 @@ const Performance: React.FC = () => {
                       data-cy={`okr-performance-admin-employee-avatar-wrapper-${employee.id}`}
                     >
                       <Image
-                        src={employee.profileImage || GENDER_NEUTRAL_AVATAR_URL}
+                        src={employee.profileImage || Avatar}
                         alt="Employee profile"
                         layout="fill"
                         className="object-cover"
