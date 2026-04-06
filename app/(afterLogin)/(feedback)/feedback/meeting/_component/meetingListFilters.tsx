@@ -148,11 +148,10 @@ export default function MeetingListFilters() {
           variant="borderless"
           onChange={(e) => handleSearchInput(e.target.value)}
           placeholder="search meeting"
+          className="flex-1 text-sm !h-8 !min-h-8 rounded-none border-0 bg-transparent shadow-none"
           classNames={{
-            affixWrapper:
-              '!h-8 !min-h-8 flex-1 rounded-none border-0 bg-transparent shadow-none [&_input]:h-8 [&_input]:py-0',
+            input: '!h-8 !min-h-8 !py-0',
           }}
-          className="flex-1 text-sm"
           data-cy="feedback-meeting-component-meetinglist-input-search"
           id="feedback-meeting-component-meetinglist-input-search"
         />

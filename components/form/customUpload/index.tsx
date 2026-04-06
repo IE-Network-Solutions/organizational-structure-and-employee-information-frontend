@@ -249,7 +249,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
               data-cy="components-form-customupload-index-tsx-index-div-190"
               className={classNames(
                 'flex flex-col items-center h-max w-full',
-                presentation === 'classic' ? 'py-4' : 'p-3 gap-1',
+                {
+                  'py-4': presentation === 'classic',
+                  'p-3 gap-1': presentation !== 'classic',
+                },
               )}
             >
               {presentation === 'classic' ? (
@@ -284,10 +287,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
               <Form
                 form={form}
                 onFinish={onFinishLink}
-                className={classNames(
-                  'w-full',
-                  presentation === 'classic' ? 'mt-4 pt-0' : 'mt-2.5 h-10',
-                )}
+                className={classNames('w-full', {
+                  'mt-4 pt-0': presentation === 'classic',
+                  'mt-2.5 h-10': presentation !== 'classic',
+                })}
               >
                 <Flex gap={10} align="center" justify="center">
                   <Form.Item

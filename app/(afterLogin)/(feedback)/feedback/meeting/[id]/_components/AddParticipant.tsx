@@ -79,7 +79,6 @@ const AddParticipantsPopconfirm = ({
       </Button>
 
       <Modal
-        id="feedback-meeting-components-addparticipant-modal"
         title="Add attendees"
         open={visible}
         onCancel={() => setVisible(false)}
