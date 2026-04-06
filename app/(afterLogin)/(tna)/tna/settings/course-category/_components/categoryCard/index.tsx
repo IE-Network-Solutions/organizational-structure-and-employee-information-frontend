@@ -6,34 +6,34 @@ import { Button, Dropdown, MenuProps, Popconfirm } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
 import React, { FC } from 'react';
 
-/** Three-dot horizontal icon matching the reference image */
+/** Three-dot icon — artwork fits in 14×14 px */
 const DotsIcon = () => (
   <svg
     data-cy="tna-course-category-dots-icon"
     width="14"
-    height="4"
-    viewBox="0 0 14 4"
+    height="14"
+    viewBox="0 0 14 14"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
     <circle
       data-cy="tna-dots-circle-1"
       cx="2.5"
-      cy="2"
+      cy="7"
       r="1.5"
       fill="currentColor"
     />
     <circle
       data-cy="tna-dots-circle-2"
       cx="7"
-      cy="2"
+      cy="7"
       r="1.5"
       fill="currentColor"
     />
     <circle
       data-cy="tna-dots-circle-3"
       cx="11.5"
-      cy="2"
+      cy="7"
       r="1.5"
       fill="currentColor"
     />
@@ -64,10 +64,10 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
       label: (
         <span
           data-cy={`tna-course-category-menu-edit-${item.id}`}
-          className="tna-course-category-menu-row flex items-center gap-2.5 text-[14px] font-medium text-[#333333]"
+          className="tna-course-category-menu-row flex items-center gap-2.5 text-[13px] lg:text-[14px] font-medium text-[#333333]"
         >
           <Pencil
-            className="h-4 w-4 shrink-0 text-[#333333]"
+            className="h-3.5 w-3.5 lg:h-4 lg:w-4 shrink-0 text-[#333333]"
             strokeWidth={1.75}
             aria-hidden
           />
@@ -92,10 +92,10 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
         >
           <span
             data-cy={`tna-course-category-menu-delete-${item.id}`}
-            className="tna-course-category-menu-row flex items-center gap-2.5 text-[14px] font-medium text-[#333333]"
+            className="tna-course-category-menu-row flex items-center gap-2.5 text-[13px] lg:text-[14px] font-medium text-[#333333]"
           >
             <Trash2
-              className="h-4 w-4 shrink-0 text-[#333333]"
+              className="h-3.5 w-3.5 lg:h-4 lg:w-4 shrink-0 text-[#333333]"
               strokeWidth={1.75}
               aria-hidden
             />
@@ -111,7 +111,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
   return (
     <div
       className={[
-        'flex items-center justify-between px-4 py-3 border rounded-lg bg-white',
+        'flex items-center justify-between px-3 py-2.5 lg:px-4 lg:py-3 border rounded-lg bg-white',
         isActive ? 'border-[#1677FF]' : 'border-[#D9D9D9]',
       ].join(' ')}
       id={`tnaCourseCategoryCard${item.id}Id`}
@@ -123,7 +123,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
         className="flex-1 min-w-0 pr-3 flex flex-col gap-1"
       >
         <div
-          className="text-[14px] font-normal text-black leading-snug truncate"
+          className="text-[13px] lg:text-[14px] font-semibold text-black leading-snug truncate lg:font-normal"
           id={`tnaCourseCategoryCardTitle${item.id}Id`}
           data-cy={`tna-course-category-card-title-${item.id}`}
         >
@@ -132,7 +132,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
 
         {hasDescription && (
           <div
-            className="text-[14px] font-normal leading-snug truncate"
+            className="text-[13px] lg:text-[14px] font-normal leading-snug truncate"
             style={{ color: 'rgba(0,0,0,0.45)' }}
             data-cy={`tna-course-category-card-description-${item.id}`}
           >
@@ -159,7 +159,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           <Button
             type="text"
             disabled={isLoading}
-            className="!w-8 !h-8 !min-w-8 !min-h-8 flex items-center justify-center border border-[#D9D9D9] rounded-lg hover:!bg-gray-50 shrink-0"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !p-0 flex items-center justify-center border border-[#D9D9D9] rounded-lg hover:!bg-gray-50 shrink-0"
             id={`tna-course-category-card-menu-btn-${item.id}`}
             data-cy={`tna-course-category-card-menu-btn-${item.id}`}
             onClick={(e) => e.stopPropagation()}
