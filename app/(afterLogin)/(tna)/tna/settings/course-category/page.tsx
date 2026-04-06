@@ -99,6 +99,12 @@ const TnaCourseCategoryPage = () => {
   }, [isLgUp]);
 
   useEffect(() => {
+    if (isLgUp) {
+      setSearch('');
+    }
+  }, [isLgUp]);
+
+  useEffect(() => {
     if (
       !isLgUp &&
       courseCategoryCreateRequestedAt > 0 &&
@@ -271,7 +277,7 @@ const TnaCourseCategoryPage = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             suffix={<SearchOutlined className="text-[rgba(0,0,0,0.45)]" />}
-            className="mb-3 rounded-md text-[13px] lg:text-[14px]"
+            className="mb-3 rounded-md text-[13px] lg:hidden"
             data-cy="tna-course-category-search-input"
             id="tnaCourseCategorySearchInputId"
           />
