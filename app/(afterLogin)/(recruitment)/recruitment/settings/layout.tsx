@@ -1,5 +1,5 @@
 'use client';
-import { FC, ReactNode, useEffect } from 'react';
+import { FC, ReactNode } from 'react';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -35,23 +35,6 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
   const { addAction, addLabel, mobileOnly } = useSettingsAddButton();
 
-  // Remove the nav content wrapper's horizontal padding so the breadcrumb
-  // border-b can span edge-to-edge. Restored on unmount.
-  useEffect(() => {
-    const el = document.querySelector(
-      '[data-cy="nav-content-inner"]',
-    ) as HTMLElement | null;
-    if (!el) return;
-    const prevPL = el.style.paddingLeft;
-    const prevPR = el.style.paddingRight;
-    el.style.paddingLeft = '0';
-    el.style.paddingRight = '0';
-    return () => {
-      el.style.paddingLeft = prevPL;
-      el.style.paddingRight = prevPR;
-    };
-  }, []);
-
   const isTabActive = (path: string) => {
     return pathname === path || pathname.startsWith(path + '/');
   };
@@ -70,41 +53,46 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         <div
           id="talent-acquisition-settings-header"
           data-cy="talent-acquisition-settings-breadcrumb"
-          className="border-b border-[#E5E7EB] px-3 pt-6 pb-4 mb-6"
+          className="-ml-2 -mr-2 box-border w-[calc(100%+16px)] border-b border-[#E5E7EB] pt-6 pb-4 mb-6 md:-ml-6 md:mr-0 md:w-[calc(100%+72px)]"
         >
-          <h1
-            className="text-2xl font-bold text-gray-900 mb-1"
-            data-cy="talent-acquisition-settings-title"
-          >
-            Settings
-          </h1>
           <div
-            className="flex items-center gap-1 text-[14px] font-normal"
-            data-cy="talent-acquisition-settings-breadcrumb-path"
+            className="px-5 md:px-9"
+            data-cy="talent-acquisition-settings-breadcrumb-inner"
           >
-            <span
-              className="text-black/45"
-              data-cy="talent-acquisition-settings-breadcrumb-parent"
-            >
-              Talent Acquisition
-            </span>
-            <span
-              className="text-black/45"
-              data-cy="talent-acquisition-settings-breadcrumb-separator"
-            >
-              /
-            </span>
-            <span
-              className="text-black/70"
-              data-cy="talent-acquisition-settings-breadcrumb-current"
+            <h1
+              className="text-2xl font-bold text-gray-900 mb-1"
+              data-cy="talent-acquisition-settings-title"
             >
               Settings
-            </span>
+            </h1>
+            <div
+              className="flex items-center gap-1 text-[14px] font-normal"
+              data-cy="talent-acquisition-settings-breadcrumb-path"
+            >
+              <span
+                className="text-black/45"
+                data-cy="talent-acquisition-settings-breadcrumb-parent"
+              >
+                Talent Acquisition
+              </span>
+              <span
+                className="text-black/45"
+                data-cy="talent-acquisition-settings-breadcrumb-separator"
+              >
+                /
+              </span>
+              <span
+                className="text-black/70"
+                data-cy="talent-acquisition-settings-breadcrumb-current"
+              >
+                Settings
+              </span>
+            </div>
           </div>
         </div>
 
         <div
-          className="mb-4 min-h-0 px-3"
+          className="mb-4 min-h-0 px-3 sm:px-8"
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
