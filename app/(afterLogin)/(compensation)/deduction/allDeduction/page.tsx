@@ -1,50 +1,66 @@
 'use client';
-
-import { SearchOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
-import { useState } from 'react';
+import React from 'react';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
+import { Button } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import AllDeductionTable from './_components/allDeductionTable';
+import { FaPlus } from 'react-icons/fa';
 
-const AllDeductionPage = () => {
-  const [searchText, setSearchText] = useState('');
-
+const AllAllowancePage = () => {
   return (
     <div
-      className="px-3 pb-2 pt-4 sm:pt-5"
-      id="compensation-deduction-all-page-wrapper"
-      data-cy="compensation-deduction-all-page-wrapper"
+      className="bg-white rounded-lg px-1 py-4 sm:p-6"
+      id="compensation-deduction-all-wrapper"
+      data-cy="compensation-deduction-all-wrapper"
     >
       <div
-        className="bg-white border border-gray-200 rounded-lg overflow-hidden !shadow-none"
-        id="compensation-deduction-all-inner"
-        data-cy="compensation-deduction-all-inner"
+        className="flex justify-between items-center"
+        id="compensation-deduction-all-header"
+        data-cy="compensation-deduction-all-header"
       >
-        <div
-          className="px-2 sm:px-3 pt-3 sm:pt-4 pb-1"
-          id="compensation-deduction-all-search-wrapper"
-          data-cy="compensation-deduction-all-search-wrapper"
+        <PageHeader
+          title="All Deductions"
+          size="small"
+          horizontalPadding="px-0"
+          data-cy="compensation-deduction-all-page-header"
+        />
+        <AccessGuard
+          permissions={[Permissions.CreateAllowanceEntitlement]}
+          data-cy="compensation-deduction-all-create-access-guard"
+          id="compensation-deduction-all-create-access-guard"
         >
-          <Input
-            placeholder="Search Employee"
-            addonAfter={<SearchOutlined className="text-gray-400" />}
-            allowClear
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
-            data-cy="compensation-deduction-all-search-employee"
-          />
-        </div>
+          <Button
+            size="large"
+            type="primary"
+            id="createNewClosedHolidayFieldId"
+            icon={
+              <FaPlus data-cy="compensation-deduction-all-create-button-icon" />
+            }
+            onClick={() => {}}
+            className="h-10 w-10 sm:w-auto"
+            disabled
+            data-cy="compensation-deduction-all-create-button"
+          >
+            <span
+              className="hidden sm:inline"
+              id="compensation-deduction-all-create-button-text"
+              data-cy="compensation-deduction-all-create-button-text"
+            >
+              Employees
+            </span>
+          </Button>
+        </AccessGuard>
+      </div>
 
-        <div
-          className="px-2 sm:px-3 pb-3 sm:pb-4 pt-1 min-w-0"
-          id="compensation-deduction-all-table-wrapper"
-          data-cy="compensation-deduction-all-table-wrapper"
-        >
-          <AllDeductionTable searchText={searchText} />
-        </div>
+      <div
+        id="compensation-deduction-all-table-wrapper"
+        data-cy="compensation-deduction-all-table-wrapper"
+      >
+        <AllDeductionTable data-cy="compensation-deduction-all-table" />
       </div>
     </div>
   );
 };
 
-export default AllDeductionPage;
+export default AllAllowancePage;

@@ -23,6 +23,13 @@ interface CustomUploadProps extends UploadProps {
   mode?: 'default' | 'draggable' | 'dragWithLink';
   icon?: ReactNode;
   title?: ReactNode;
+  subtitle?: ReactNode;
+  /** `mode="draggable"` only: extra classes for the title row */
+  dragTitleClassName?: string;
+  /** `mode="draggable"` only: extra classes for the subtitle row */
+  dragSubtitleClassName?: string;
+  /** `mode="draggable"` only: when false, subtitle row is omitted */
+  showDragSubtitle?: boolean;
   setIsLoading?: Dispatch<SetStateAction<boolean>>;
   onAddLink?: (link: string) => void;
   value?: UploadFile[];
@@ -36,6 +43,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
   mode = 'default',
   icon = <FaRegImage size={24} />,
   title = 'Upload Your Certification',
+  subtitle = 'or drag and drop it here',
+  dragTitleClassName,
+  dragSubtitleClassName,
+  showDragSubtitle = true,
   value,
   onChange,
   maxCount = 1, // Enforce single file for both video and attachment
@@ -171,16 +182,28 @@ const CustomUpload: FC<CustomUploadProps> = ({
               </div>
               <div
                 data-cy="components-form-customupload-index-tsx-index-div-161"
-                className="text-xs text-gray-900 font-semibold"
+                className={classNames(
+                  'text-[14px] leading-[22px] text-gray-900 font-normal',
+                  {},
+                  dragTitleClassName ? [dragTitleClassName] : [],
+                )}
+                style={{ fontFamily: 'Calibri' }}
               >
                 {title}
               </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-162"
-                className="text-xs text-gray-500"
-              >
-                or drag and drop it here
-              </div>
+              {showDragSubtitle ? (
+                <div
+                  data-cy="components-form-customupload-index-tsx-index-div-162"
+                  className={classNames(
+                    'text-[14px] leading-[22px] text-gray-500 font-normal',
+                    {},
+                    dragSubtitleClassName ? [dragSubtitleClassName] : [],
+                  )}
+                  style={{ fontFamily: 'Calibri' }}
+                >
+                  {subtitle}
+                </div>
+              ) : null}
             </div>
           </Upload.Dragger>
         </div>

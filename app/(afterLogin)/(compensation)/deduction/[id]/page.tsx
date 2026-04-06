@@ -1,108 +1,178 @@
 'use client';
-
 import React, { useEffect } from 'react';
-import { Input } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import BenefitEntitlementTable from '../../benefit/[id]/_components/benefitEntitelmentTable';
-import DeductionEntitlementTable from './_components/deductionEntitlementTable';
-import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
+import PageHeader from '@/components/common/pageHeader/pageHeader';
 import { useParams } from 'next/navigation';
-import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
+import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
+import { Button, Select } from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
+import { FaPlus } from 'react-icons/fa';
+import { Permissions } from '@/types/commons/permissionEnum';
+import DeductionEntitlementTable from './_components/deductionEntitlementTable';
+import BenefitEntitlementTable from '../../benefit/[id]/_components/benefitEntitelmentTable';
+import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 
-const DeductionEntitlementPage = () => {
+const SingleDeductionPage = () => {
   const { id } = useParams();
   const { data: deductionData } = useFetchAllowance(id);
   const {
-    setBenefitMode,
-    setBenefitDefaultAmount,
-    setBenefitApplicableTo,
-    setEmployeeBenefitData,
-    setCurrentPage,
-    setDetailCurrentPage,
-  } = useBenefitEntitlementStore();
-  const { setSearchText, setCurrentPage: setAllowanceTablePage } =
-    useAllowanceEntitlementStore();
+    setIsAllowanceGlobal,
+    isAllowanceGlobal,
+    setIsAllowanceEntitlementSidebarOpen,
+  } = useAllowanceEntitlementStore();
+  const { setIsBenefitEntitlementSidebarOpen, employeeBenefitData } =
+    useBenefitEntitlementStore();
 
+  // Check if deduction type is rate-based
   const isRateBased = deductionData?.isRate === true;
 
   useEffect(() => {
-    setEmployeeBenefitData(null);
-    setCurrentPage(1);
-    setDetailCurrentPage(1);
-    setSearchText('');
-    setAllowanceTablePage(1);
-  }, [
-    id,
-    setEmployeeBenefitData,
-    setCurrentPage,
-    setDetailCurrentPage,
-    setSearchText,
-    setAllowanceTablePage,
-  ]);
-
-  useEffect(() => {
-    setBenefitMode(deductionData?.mode);
-    setBenefitApplicableTo(deductionData?.applicableTo);
-    if (deductionData?.mode == 'CREDIT') {
-      setBenefitDefaultAmount(deductionData?.defaultAmount);
+    if (deductionData?.applicableTo === 'GLOBAL') {
+      setIsAllowanceGlobal(true);
+    } else {
+      setIsAllowanceGlobal(false);
     }
-  }, [
-    deductionData,
-    setBenefitMode,
-    setBenefitApplicableTo,
-    setBenefitDefaultAmount,
-  ]);
+  }, [deductionData, setIsAllowanceGlobal]);
+
+  const handleAddEmployee = () => {
+    if (isRateBased) {
+      // Rate-based: Use the new Deduction sidebar
+      setIsAllowanceEntitlementSidebarOpen(true);
+    } else {
+      // Non-rate: Use the original Benefit sidebar
+      setIsBenefitEntitlementSidebarOpen(true);
+    }
+  };
 
   return (
     <div
-      className="px-3 pb-2 pt-4 sm:pt-5"
+      className="bg-white rounded-lg px-1 py-4 sm:p-6"
       id="compensation-deduction-single-wrapper"
       data-cy="compensation-deduction-single-wrapper"
     >
       <div
-        className="bg-white border border-gray-200 rounded-lg overflow-hidden !shadow-none"
         id="compensation-deduction-single-inner"
         data-cy="compensation-deduction-single-inner"
       >
-        <div
-          className="px-2 sm:px-3 pt-3 sm:pt-4 pb-1"
-          id="compensation-deduction-search-wrapper"
-          data-cy="compensation-deduction-search-wrapper"
-        >
-          <Input
-            placeholder="Search Employee"
-            addonAfter={<SearchOutlined className="text-gray-400" />}
-            allowClear
-            className="w-full max-w-[280px] h-10 rounded-md text-sm [&_.ant-input]:!text-sm [&_.ant-input-group-addon]:!px-3 [&_.ant-input-group-addon]:!bg-white"
-            onChange={(e) => setSearchText(e.target.value)}
-            data-cy="compensation-deduction-search-employee"
-          />
-        </div>
+        {employeeBenefitData == null && (
+          <div
+            id="compensation-deduction-single-header-section"
+            data-cy="compensation-deduction-single-header-section"
+          >
+            {/* PageHeader for mobile */}
+            <div
+              className="block sm:hidden mb-4"
+              id="compensation-deduction-mobile-header-wrapper"
+              data-cy="compensation-deduction-mobile-header-wrapper"
+            >
+              <PageHeader
+                data-cy="compensation-deduction-mobile-page-header"
+                title={
+                  deductionData?.name
+                    ? deductionData?.name.length > 15
+                      ? deductionData?.name.slice(0, 15) + '...'
+                      : deductionData?.name
+                    : ''
+                }
+                size="small"
+                toolTip={deductionData?.name}
+                horizontalPadding="px-0"
+              />
+            </div>
 
-        <div
-          className="overflow-x-auto px-2 sm:px-3 pb-3 sm:pb-4 pt-1"
-          id="compensation-deduction-table-wrapper"
-          data-cy="compensation-deduction-table-wrapper"
-        >
-          {isRateBased ? (
-            <DeductionEntitlementTable
-              compact
-              title={deductionData?.name ?? ''}
-              data-cy="compensation-deduction-entitlement-table"
-            />
-          ) : (
-            <BenefitEntitlementTable
-              title={deductionData?.name ?? ''}
-              compact
-              deductionDetailLayout
-              data-cy="compensation-deduction-entitlement-table"
-            />
-          )}
-        </div>
+            {/* Main layout for larger screens */}
+            <div
+              className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-3"
+              id="compensation-deduction-desktop-header-row"
+              data-cy="compensation-deduction-desktop-header-row"
+            >
+              <div
+                className="hidden sm:block"
+                id="compensation-deduction-desktop-header-wrapper"
+                data-cy="compensation-deduction-desktop-header-wrapper"
+              >
+                <PageHeader
+                  data-cy="compensation-deduction-desktop-page-header"
+                  title={
+                    deductionData?.name
+                      ? deductionData?.name.length > 15
+                        ? deductionData?.name.slice(0, 15) + '...'
+                        : deductionData?.name
+                      : ''
+                  }
+                  size="small"
+                  toolTip={deductionData?.name}
+                  horizontalPadding="px-0"
+                />
+              </div>
+              <div
+                className="flex w-full sm:w-auto sm:flex-row sm:gap-4"
+                id="compensation-deduction-actions-row"
+                data-cy="compensation-deduction-actions-row"
+              >
+                <div
+                  className="w-5/6 sm:w-72 mr-2"
+                  id="compensation-deduction-search-wrapper"
+                  data-cy="compensation-deduction-search-wrapper"
+                >
+                  <Select
+                    showSearch
+                    allowClear
+                    className="h-10 w-full"
+                    placeholder="Search by name"
+                    id="compensation-deduction-search-select"
+                    data-cy="compensation-deduction-search-select"
+                  />
+                </div>
+                <div
+                  className="w-auto"
+                  id="compensation-deduction-create-button-wrapper"
+                  data-cy="compensation-deduction-create-button-wrapper"
+                >
+                  <AccessGuard
+                    data-cy="compensation-deduction-create-button-access-guard"
+                    permissions={[Permissions.CreateAllowanceEntitlement]}
+                    id="compensation-deduction-create-button-access-guard"
+                  >
+                    <Button
+                      size="large"
+                      type="primary"
+                      id="createNewClosedHolidayFieldId"
+                      className="h-10 w-10 sm:w-full"
+                      data-cy="compensation-deduction-create-button"
+                      icon={
+                        <FaPlus data-cy="compensation-deduction-create-button-icon" />
+                      }
+                      onClick={handleAddEmployee}
+                      disabled={isAllowanceGlobal}
+                    >
+                      <span
+                        className="hidden sm:inline"
+                        id="compensation-deduction-create-button-text"
+                        data-cy="compensation-deduction-create-button-text"
+                      >
+                        Employees
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Conditionally render table based on isRate */}
+        {isRateBased ? (
+          <DeductionEntitlementTable data-cy="compensation-deduction-entitlement-table" />
+        ) : (
+          <BenefitEntitlementTable
+            title={deductionData?.name ? deductionData?.name : ''}
+            data-cy="compensation-deduction-entitlement-table"
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default DeductionEntitlementPage;
+export default SingleDeductionPage;

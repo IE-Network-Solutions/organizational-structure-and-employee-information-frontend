@@ -51,7 +51,7 @@ const BenefitEntitlementPage = () => {
 
   return (
     <div
-      className="px-3 pb-2 pt-4 sm:pt-5"
+      className="px-4 pb-2 pt-4 sm:pt-5"
       id="compensation-benefit-single-wrapper"
       data-cy="compensation-benefit-single-wrapper"
     >
@@ -61,7 +61,7 @@ const BenefitEntitlementPage = () => {
         data-cy="compensation-benefit-single-inner"
       >
         <div
-          className="px-2 sm:px-3 pt-3 sm:pt-4 pb-1"
+          className="px-3 sm:px-4 pt-3 sm:pt-4 pb-1"
           id="compensation-benefit-search-wrapper"
           data-cy="compensation-benefit-search-wrapper"
         >
@@ -76,7 +76,7 @@ const BenefitEntitlementPage = () => {
         </div>
 
         <div
-          className="overflow-x-auto px-2 sm:px-3 pb-3 sm:pb-4 pt-1"
+          className="overflow-x-auto px-3 sm:px-4 pb-3 sm:pb-4 pt-1"
           id="compensation-benefit-table-wrapper"
           data-cy="compensation-benefit-table-wrapper"
         >

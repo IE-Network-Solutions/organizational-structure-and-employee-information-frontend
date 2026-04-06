@@ -199,7 +199,7 @@ const PayrollApprovalWorkFlowSetting = ({
                   className="h-10"
                   onChange={handleLevelChange}
                   placeholder="Select"
-                  // eslint-disable-next-line 
+                  // eslint-disable-next-line
                   options={Array.from({ length: 9 }, (_, i) => ({
                     value: i + 1,
                     label: `${i + 1}`,
@@ -230,7 +230,7 @@ const PayrollApprovalWorkFlowSetting = ({
                 rules={[
                   { required: true, message: 'Please select assignees!' },
                   {
-                    // eslint-disable-next-line 
+                    // eslint-disable-next-line
                     validator: (_, value) => {
                       if (!value || value.length === 0) {
                         return Promise.reject('Please select assignees!');
@@ -302,7 +302,10 @@ const PayrollApprovalWorkFlowSetting = ({
                           }}
                           closeIcon={
                             <CloseOutlined
-                              style={{ fontSize: 10, color: 'rgba(0,0,0,0.45)' }}
+                              style={{
+                                fontSize: 10,
+                                color: 'rgba(0,0,0,0.45)',
+                              }}
                             />
                           }
                           onClose={() => handleRemoveUser(id)}
