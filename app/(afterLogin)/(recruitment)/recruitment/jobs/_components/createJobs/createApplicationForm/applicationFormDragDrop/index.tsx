@@ -16,6 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { IoClose } from 'react-icons/io5';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { TaRequiredMark } from '../../../../../_components/taRequiredMark';
 
 const FIELD_TYPES = [
   {
@@ -493,16 +494,11 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               name="fieldName"
               label={
                 <span
-                  className="text-sm font-semibold text-gray-700"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
                   data-cy="talent-acquisition-create-job-custom-field-name-label"
                 >
-                  Field Name{' '}
-                  <span
-                    className="text-red-500"
-                    data-cy="talent-acquisition-create-job-custom-field-name-required"
-                  >
-                    *
-                  </span>
+                  Field Name
+                  <TaRequiredMark data-cy="talent-acquisition-create-job-custom-field-name-required" />
                 </span>
               }
               rules={[
@@ -535,16 +531,11 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                   name="fieldValidation"
                   label={
                     <span
-                      className="text-sm font-semibold text-gray-700"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
                       data-cy="talent-acquisition-create-job-custom-field-validation-label"
                     >
-                      Field Validation{' '}
-                      <span
-                        className="text-red-500"
-                        data-cy="talent-acquisition-create-job-custom-field-validation-required"
-                      >
-                        *
-                      </span>
+                      Field Validation
+                      <TaRequiredMark data-cy="talent-acquisition-create-job-custom-field-validation-required" />
                     </span>
                   }
                   rules={[

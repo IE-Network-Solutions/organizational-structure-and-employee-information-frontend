@@ -13,8 +13,8 @@ import {
 } from 'antd';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { EmploymentType, LocationType, JobStatus } from '@/types/enumTypes';
-import { CloseOutlined } from '@ant-design/icons';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TalentAcqSelectChevronSuffix } from '../../../../_components/recruitmentIcons';
 
 const { Option } = Select;
 
@@ -61,22 +61,19 @@ const FilterFormContent: React.FC<{
 
   return (
     <>
-      <Form form={form} layout="vertical" className="mt-2">
-        <Row gutter={16}>
+      <Form
+        form={form}
+        layout="vertical"
+        className="mt-2 max-w-full overflow-x-hidden [&_.ant-row]:max-w-full"
+      >
+        <Row gutter={16} wrap className="max-w-full">
           <Col xs={24} sm={12}>
             <Form.Item name="department" label="Department">
               <Select
                 placeholder="Select department"
                 allowClear
                 loading={isDepartmentLoading}
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-department"
               >
                 {departments?.map((dep: { id: string; name: string }) => (
@@ -92,14 +89,7 @@ const FilterFormContent: React.FC<{
               <Select
                 placeholder="Select employment type"
                 allowClear
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-employment-type"
               >
                 {Object.values(EmploymentType).map((type) => (
@@ -115,14 +105,7 @@ const FilterFormContent: React.FC<{
               <Select
                 placeholder="Select status"
                 allowClear
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-status"
               >
                 <Option value={JobStatus.OPEN}>{JobStatus.OPEN}</Option>
@@ -135,14 +118,7 @@ const FilterFormContent: React.FC<{
               <Select
                 placeholder="Select location"
                 allowClear
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-location"
               >
                 {Object.values(LocationType).map((type) => (
@@ -174,13 +150,13 @@ const FilterFormContent: React.FC<{
         </Row>
       </Form>
       <div
-        className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200"
+        className="flex justify-end gap-2 mt-4"
         data-cy="talent-acquisition-jobs-filter-modal-footer-actions"
       >
         <Button
           type="default"
           onClick={handleReset}
-          className="border-gray-300 text-gray-700"
+          className="!h-9 !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] !border-[#D9D9D9] !bg-white hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
           data-cy="talent-acquisition-jobs-filter-modal-reset"
         >
           Reset
@@ -188,7 +164,7 @@ const FilterFormContent: React.FC<{
         <Button
           type="primary"
           onClick={handleSaveFilter}
-          className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
+          className="!h-9 !px-4 !text-[14px] !font-normal !text-white !bg-[#1E40AF] hover:!bg-[#1D4ED8] !border !border-solid !border-[#1E40AF] hover:!border-[#1D4ED8]"
           data-cy="talent-acquisition-jobs-filter-modal-save"
         >
           Save Filter
@@ -217,16 +193,44 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
     form.setFieldsValue(initialValues ?? {});
   }, [form, initialValues]);
 
-  const header = (
-    <div data-cy="talent-acquisition-jobs-filter-modal-header-wrap">
+  const renderFilterHeader = (onHeaderClose: () => void) => (
+    <div
+      className="relative"
+      data-cy="talent-acquisition-jobs-filter-modal-header-wrap"
+    >
+      <button
+        type="button"
+        className="absolute right-0 top-0 z-10 flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+        onClick={onHeaderClose}
+        aria-label="Close filter"
+        data-cy="talent-acquisition-jobs-filter-modal-close"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden
+          data-cy="talent-acquisition-jobs-filter-modal-close-icon"
+        >
+          <path
+            d="M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5"
+            stroke="currentColor"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            data-cy="talent-acquisition-jobs-filter-modal-close-icon-path"
+          />
+        </svg>
+      </button>
       <div
-        className="text-lg font-semibold text-gray-900"
+        className="pr-10 text-lg font-semibold text-gray-900"
         data-cy="talent-acquisition-jobs-filter-modal-header-title"
       >
         Filter
       </div>
       <div
-        className="text-sm font-normal text-gray-500 mt-0.5"
+        className="mt-0.5 text-sm font-normal text-gray-500"
         data-cy="talent-acquisition-jobs-filter-modal-header-subtitle"
       >
         Select All filters that apply
@@ -261,10 +265,11 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
           </div>
           <Modal
             data-cy="talent-acquisition-jobs-filter-modal"
-            title={header}
+            title={renderFilterHeader(onClose)}
             open={open}
             onCancel={onClose}
             centered
+            closable={false}
             width="calc(100vw - 2rem)"
             style={{ maxWidth: 560, top: 20 }}
             styles={{
@@ -273,6 +278,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
+                overflowX: 'hidden',
               },
               body: {
                 overflowY: 'auto',
@@ -280,8 +286,10 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
                 minHeight: 0,
                 overflowX: 'hidden',
               },
+              header: {
+                overflowX: 'hidden',
+              },
             }}
-            closeIcon={<CloseOutlined className="text-gray-500" />}
             footer={null}
           >
             {content}
@@ -300,12 +308,22 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
         trigger="click"
         placement="bottomLeft"
         align={{ offset: [0, 4] }}
+        styles={{
+          body: {
+            padding: 0,
+            overflowX: 'hidden',
+            maxWidth: 'min(560px, calc(100vw - 2rem))',
+          },
+        }}
         content={
           <div
-            className="w-full max-w-[min(560px,calc(100vw-2rem))] overflow-auto"
+            className="w-full max-w-[min(560px,calc(100vw-2rem))] max-h-[min(80vh,720px)] overflow-x-hidden overflow-y-auto px-4 pb-4 pt-3"
             data-cy="talent-acquisition-jobs-filter-popover-content"
           >
-            {header}
+            {renderFilterHeader(() => {
+              onOpenChange?.(false);
+              onClose();
+            })}
             {content}
           </div>
         }
@@ -318,12 +336,18 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
   return (
     <Modal
       data-cy="talent-acquisition-jobs-filter-modal"
-      title={header}
+      title={renderFilterHeader(onClose)}
       open={open}
       onCancel={onClose}
       centered
+      closable={false}
       width={560}
-      closeIcon={<CloseOutlined className="text-gray-500" />}
+      styles={{
+        content: { overflowX: 'hidden' },
+        body: { overflowX: 'hidden' },
+        header: { overflowX: 'hidden' },
+        footer: { borderTop: 'none' },
+      }}
       footer={
         <div
           className="flex justify-end gap-2"
@@ -335,7 +359,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               form.resetFields();
               onResetFilter?.();
             }}
-            className="border-gray-300 text-gray-700"
+            className="!h-9 !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] !border-[#D9D9D9] !bg-white hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
             data-cy="talent-acquisition-jobs-filter-modal-reset"
           >
             Reset
@@ -351,7 +375,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
                 // validation failed
               }
             }}
-            className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
+            className="!h-9 !px-4 !text-[14px] !font-normal !text-white !bg-[#1E40AF] hover:!bg-[#1D4ED8] !border !border-solid !border-[#1E40AF] hover:!border-[#1D4ED8]"
             data-cy="talent-acquisition-jobs-filter-modal-save"
           >
             Save Filter
@@ -359,22 +383,19 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
         </div>
       }
     >
-      <Form form={form} layout="vertical" className="mt-2">
-        <Row gutter={16}>
+      <Form
+        form={form}
+        layout="vertical"
+        className="mt-2 max-w-full overflow-x-hidden [&_.ant-row]:max-w-full"
+      >
+        <Row gutter={16} wrap className="max-w-full">
           <Col xs={24} sm={12}>
             <Form.Item name="department" label="Department">
               <Select
                 placeholder="Select department"
                 allowClear
                 loading={isDepartmentLoading}
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-department"
               >
                 {departments?.map((dep: { id: string; name: string }) => (
@@ -390,14 +411,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               <Select
                 placeholder="Select employment type"
                 allowClear
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-employment-type"
               >
                 {Object.values(EmploymentType).map((type) => (
@@ -413,14 +427,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               <Select
                 placeholder="Select status"
                 allowClear
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-status"
               >
                 <Option value={JobStatus.OPEN}>{JobStatus.OPEN}</Option>
@@ -433,14 +440,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
               <Select
                 placeholder="Select location"
                 allowClear
-                suffixIcon={
-                  <span
-                    className="text-gray-400"
-                    data-cy="talent-acquisition-jobs-filter-select-suffix"
-                  >
-                    ▼
-                  </span>
-                }
+                suffixIcon={TalentAcqSelectChevronSuffix}
                 data-cy="talent-acquisition-jobs-filter-location"
               >
                 {Object.values(LocationType).map((type) => (

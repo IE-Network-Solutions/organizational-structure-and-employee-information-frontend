@@ -59,7 +59,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
             onClick={() => handlePageChange(i)}
             className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
               current === i
-                ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+                ? 'border-2 border-[#1E40AF] text-[#1E40AF] bg-transparent hover:bg-[#EFF6FF]'
                 : 'text-gray-600 bg-white hover:bg-gray-50'
             }`}
           >
@@ -77,7 +77,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           onClick={() => handlePageChange(1)}
           className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
             current === 1
-              ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+              ? 'border-2 border-[#1E40AF] text-[#1E40AF] bg-transparent hover:bg-[#EFF6FF]'
               : 'text-gray-600 bg-white hover:bg-gray-50'
           }`}
         >
@@ -94,7 +94,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
             onClick={() => handlePageChange(i)}
             className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
               current === i
-                ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+                ? 'border-2 border-[#1E40AF] text-[#1E40AF] bg-transparent hover:bg-[#EFF6FF]'
                 : 'text-gray-600 bg-white hover:bg-gray-50'
             }`}
           >
@@ -120,7 +120,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           onClick={() => handlePageChange(totalPages)}
           className={`min-w-[2rem] h-8 flex items-center justify-center rounded-lg text-sm font-medium ${
             current === totalPages
-              ? 'border-2 border-[#6366F1] text-[#6366F1] bg-transparent hover:bg-[#EEF2FF]'
+              ? 'border-2 border-[#1E40AF] text-[#1E40AF] bg-transparent hover:bg-[#EFF6FF]'
               : 'text-gray-600 bg-white hover:bg-gray-50'
           }`}
         >
@@ -183,7 +183,7 @@ const RecruitmentPagination: React.FC<FeedbackPaginationProps> = ({
           value={goToPageInput}
           onChange={(e) => setGoToPageInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleGoToPage()}
-          className="w-14 h-8 rounded border border-gray-300 text-center text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#6366F1]/20 focus:border-[#6366F1]"
+          className="w-14 h-8 rounded border border-gray-300 text-center text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#1E40AF]/20 focus:border-[#1E40AF]"
           data-cy="talent-acquisition-pagination-go-to-input"
         />
         <button

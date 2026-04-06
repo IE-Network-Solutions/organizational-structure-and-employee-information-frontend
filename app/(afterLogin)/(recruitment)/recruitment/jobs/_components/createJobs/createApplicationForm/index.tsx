@@ -85,12 +85,12 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
 
       <Form.Item className="mb-0">
         <div
-          className="flex flex-col sm:flex-row justify-end gap-3 bg-white pt-4"
+          className="flex flex-col justify-end gap-2 bg-white pt-4 sm:flex-row"
           data-cy="talent-acquisition-create-application-form-actions"
         >
           <Button
             onClick={() => stepChange(1)}
-            className="h-11 w-full sm:min-w-[100px] sm:w-auto rounded-lg border-gray-300 text-gray-700"
+            className="!h-9 w-full !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] sm:w-auto sm:min-w-[100px]"
             disabled={isLoading}
             data-cy="talent-acquisition-create-application-form-button-cancel"
           >
@@ -99,7 +99,7 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
           <Button
             htmlType="submit"
             type="primary"
-            className="h-11 w-full sm:min-w-[100px] sm:w-auto rounded-lg !bg-[#6366F1] hover:!bg-[#4F46E5]"
+            className="!h-9 w-full !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8] sm:w-auto sm:min-w-[100px]"
             loading={isLoading}
             disabled={isLoading}
             data-cy="talent-acquisition-create-application-form-button-publish"

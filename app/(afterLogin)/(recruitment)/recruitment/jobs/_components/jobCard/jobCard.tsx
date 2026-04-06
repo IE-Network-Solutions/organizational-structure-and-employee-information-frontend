@@ -3,8 +3,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dropdown, Tooltip, Spin, Popover, Button } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';
-import { IoShareSocialOutline } from 'react-icons/io5';
-import { AiOutlineClockCircle } from 'react-icons/ai';
+import { CloseOutlined, DeleteOutlined, SwapOutlined } from '@ant-design/icons';
+import {
+  ClockAnalogIcon,
+  ShareNetworkIcon,
+} from '../../../_components/recruitmentIcons';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
 import {
@@ -25,126 +28,57 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 
-const aiGradient = 'linear-gradient(180deg, #1E40AF 0%, #91CAFF 100%)';
-
-const FRAME_WIDTH = 30.6;
-const FRAME_HEIGHT = 29.6;
-const FRAME_RADIUS = 8;
-const FRAME_BORDER = 1;
-const FRAME_PADDING = 2; // marginXXS
-const FRAME_GAP = 2;
-const VECTOR_WIDTH = 22.6;
-const VECTOR_HEIGHT = 21.6;
-const VECTOR_PADDING = 3;
-const AI_ICON_WIDTH = 16.6;
-const AI_ICON_HEIGHT = 15.6;
-
-const AIcon: React.FC<{ className?: string }> = ({ className }) => {
-  const gradientId = `ai-star-${React.useId().replace(/:/g, '')}`;
+const JobCardAiMark: React.FC = () => {
+  const uid = React.useId().replace(/:/g, '');
+  const gid = `ai_linear_${uid}`;
   return (
-    <span
-      className={`inline-flex items-center justify-center flex-shrink-0 ${className ?? ''}`}
-      style={{
-        width: FRAME_WIDTH,
-        height: FRAME_HEIGHT,
-        borderRadius: FRAME_RADIUS,
-        background: aiGradient,
-        padding: FRAME_BORDER,
-        boxSizing: 'border-box',
-      }}
+    <svg
+      width="17"
+      height="16"
+      viewBox="0 0 17 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="shrink-0"
+      aria-hidden
     >
-      <span
-        className="flex items-center justify-center bg-white"
-        style={{
-          width: '100%',
-          height: '100%',
-          borderRadius: FRAME_RADIUS - FRAME_BORDER,
-          padding: FRAME_PADDING,
-          boxSizing: 'border-box',
-        }}
-      >
-        <span
-          className="flex items-center justify-center"
-          style={{
-            width: VECTOR_WIDTH,
-            height: VECTOR_HEIGHT,
-            padding: VECTOR_PADDING,
-            boxSizing: 'border-box',
-          }}
+      <defs>
+        <linearGradient
+          id={gid}
+          x1="8.30013"
+          y1="0"
+          x2="8.30013"
+          y2="15.6003"
+          gradientUnits="userSpaceOnUse"
         >
-          <span
-            className="inline-flex items-center leading-none font-extrabold"
-            style={{
-              width: AI_ICON_WIDTH,
-              height: AI_ICON_HEIGHT,
-              gap: FRAME_GAP,
-              boxSizing: 'border-box',
-            }}
-          >
-            <span
-              style={{
-                background: aiGradient,
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent',
-                fontSize: '14px',
-                lineHeight: 1,
-                fontWeight: 800,
-              }}
-            >
-              A
-            </span>
-            <span
-              className="flex flex-col items-center justify-center font-extrabold"
-              style={{
-                lineHeight: 1,
-                marginTop: '-3px',
-                alignSelf: 'flex-start',
-              }}
-            >
-              <svg
-                className="pointer-events-none shrink-0"
-                width="6"
-                height="6"
-                viewBox="0 0 8 8"
-                fill="none"
-              >
-                <defs>
-                  <linearGradient
-                    id={gradientId}
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop offset="0%" stopColor="#1E40AF" />
-                    <stop offset="100%" stopColor="#91CAFF" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M4 0L4.5 2.5L7 3L5 5L5.5 7.5L4 6L2.5 7.5L3 5L1 3L3.5 2.5L4 0Z"
-                  fill={`url(#${gradientId})`}
-                />
-              </svg>
-              <span
-                style={{
-                  background: aiGradient,
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  color: 'transparent',
-                  fontSize: '9px',
-                  lineHeight: 1,
-                  marginTop: '1px',
-                  fontWeight: 800,
-                }}
-              >
-                i
-              </span>
-            </span>
-          </span>
-        </span>
-      </span>
-    </span>
+          <stop offset="0.413462" stopColor="#1E40AF" />
+          <stop offset="1" stopColor="#91CAFF" />
+        </linearGradient>
+      </defs>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M13.0003 0C13.2585 0 13.4878 0.165258 13.5695 0.410263L14.2246 2.37566L16.19 3.03079C16.435 3.11246 16.6003 3.34174 16.6003 3.6C16.6003 3.85826 16.435 4.08754 16.19 4.16921L14.2246 4.82434L13.5695 6.78974C13.4878 7.03474 13.2585 7.2 13.0003 7.2C12.742 7.2 12.5127 7.03474 12.431 6.78974L11.7759 4.82434L9.81052 4.16921C9.56551 4.08754 9.40026 3.85826 9.40026 3.6C9.40026 3.34174 9.56551 3.11246 9.81052 3.03079L11.7759 2.37566L12.431 0.410263C12.5127 0.165258 12.742 0 13.0003 0Z"
+        fill={`url(#${gid})`}
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M13.0003 8.6C13.5525 8.6 14.0003 9.04772 14.0003 9.6V14.6C14.0003 15.1523 13.5525 15.6 13.0003 15.6C12.448 15.6 12.0003 15.1523 12.0003 14.6V9.6C12.0003 9.04772 12.448 8.6 13.0003 8.6Z"
+        fill={`url(#${gid})`}
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3.14911 3.32785C3.27089 2.89727 3.66389 2.6 4.11136 2.6H5.88914C6.33661 2.6 6.72962 2.89727 6.85139 3.32786L9.9624 14.3279C10.1127 14.8593 9.80373 15.412 9.27229 15.5623C8.74085 15.7126 8.18819 15.4036 8.03789 14.8721L5.13273 4.6H4.86776L1.96251 14.8722C1.8122 15.4036 1.25954 15.7126 0.728104 15.5623C0.196665 15.4119 -0.112304 14.8593 0.038002 14.3278L3.14911 3.32785Z"
+        fill={`url(#${gid})`}
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M1.00026 11.6C1.00026 11.0477 1.44797 10.6 2.00026 10.6H8.00026C8.55254 10.6 9.00026 11.0477 9.00026 11.6C9.00026 12.1523 8.55254 12.6 8.00026 12.6H2.00026C1.44797 12.6 1.00026 12.1523 1.00026 11.6Z"
+        fill={`url(#${gid})`}
+      />
+    </svg>
   );
 };
 
@@ -160,13 +94,11 @@ const JobCard: React.FC = () => {
     setChangeStatusModalVisible,
     selectedJobId,
     setSelectedJobId,
-    setEditModalVisible,
     currentPage,
     pageSize,
     setCurrentPage,
     setPageSize,
     setShareModalOpen,
-    setSelectedJob,
   } = useJobState();
   const { deleteModal, setDeleteModal } = CategoriesManagementStore();
 
@@ -191,11 +123,11 @@ const JobCard: React.FC = () => {
 
   const isAnyFilterSet = Boolean(
     filters.department ||
-      filters.employmentType ||
-      filters.status ||
-      filters.location ||
-      filters.createdDate ||
-      filters.closedDate,
+    filters.employmentType ||
+    filters.status ||
+    filters.location ||
+    filters.createdDate ||
+    filters.closedDate,
   );
 
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs(
@@ -298,12 +230,6 @@ const JobCard: React.FC = () => {
     return department ? department.name : '';
   };
 
-  const handleEditModalVisible = (job: any) => {
-    setEditModalVisible(true);
-    setSelectedJobId(job?.id);
-    setSelectedJob(job);
-  };
-
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);
     setSelectedJobId(jobId);
@@ -348,6 +274,7 @@ const JobCard: React.FC = () => {
   );
 
   const handleStatusChange = (job: any) => {
+    setDeleteModal(false);
     setChangeStatusModalVisible(true);
     setSelectedJobId(job?.id);
   };
@@ -368,27 +295,18 @@ const JobCard: React.FC = () => {
             const jobStatus = isDeadlinePassed ? 'Closed' : job?.jobStatus;
             const applicantCount = job?.jobCandidate?.length ?? 0;
 
-            const items = [
+            const menuItemsConfig = [
               {
-                label: 'Change Status',
-                key: '1',
+                label: 'Change status',
+                key: 'change-status',
+                icon: <SwapOutlined className="!text-base text-gray-700" />,
                 onClick: () => handleStatusChange(job),
                 permissions: [Permissions.UpdateJobDescription],
               },
               {
-                label: 'Share',
-                key: '2',
-                onClick: () => handleShareModalVisible(job?.id),
-              },
-              {
-                label: 'Edit',
-                key: '3',
-                onClick: () => handleEditModalVisible(job),
-                permissions: [Permissions.UpdateJobDescription],
-              },
-              {
                 label: 'Delete',
-                key: '4',
+                key: 'delete',
+                icon: <DeleteOutlined className="!text-base text-gray-700" />,
                 onClick: () => {
                   handleDeleteJob(job?.id);
                   setDeleteModal(true);
@@ -397,21 +315,34 @@ const JobCard: React.FC = () => {
               },
             ];
 
-            const filteredItems = items.filter((item) => {
-              const { permissions } = item;
-              return AccessGuard.checkAccess({ permissions });
-            });
+            const filteredMenuItems = menuItemsConfig
+              .filter((item) =>
+                AccessGuard.checkAccess({ permissions: item.permissions }),
+              )
+              .map(({ key, label, icon, onClick }) => ({
+                key,
+                label,
+                icon,
+                onClick,
+              }));
 
             const actionIconsTop = (
-              <div className="flex items-center gap-1 shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <Tooltip title="Job matching">
                   <Link
                     href={`/recruitment/ai-job-matching/${job?.id}`}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg hover:opacity-90 shrink-0 transition-opacity"
+                    className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg p-px hover:opacity-95 transition-opacity"
+                    style={{
+                      background:
+                        'linear-gradient(180deg, #1E40AF 0%, #91CAFF 100%)',
+                      borderRadius: 8,
+                    }}
                     data-cy={`talent-acquisition-job-card-link-applicants-${job?.id}`}
                     aria-label="Job matching (AI)"
                   >
-                    <AIcon className="w-8 h-8" />
+                    <span className="flex h-full w-full items-center justify-center rounded-[7px] bg-white">
+                      <JobCardAiMark />
+                    </span>
                   </Link>
                 </Tooltip>
                 <Tooltip title="Share">
@@ -421,10 +352,10 @@ const JobCard: React.FC = () => {
                       e.preventDefault();
                       handleShareModalVisible(job?.id);
                     }}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0"
+                    className="flex items-center justify-center w-8 h-8 rounded-lg text-[#111827] hover:bg-gray-50 shrink-0"
                     data-cy={`talent-acquisition-job-card-share-${job?.id}`}
                   >
-                    <IoShareSocialOutline className="w-4 h-4" />
+                    <ShareNetworkIcon className="shrink-0" />
                   </button>
                 </Tooltip>
               </div>
@@ -441,22 +372,43 @@ const JobCard: React.FC = () => {
                 align={{ offset: [0, 4] }}
                 content={
                   <div className="w-[320px]">
-                    <div className="text-base font-semibold text-gray-900 mb-2">
-                      Delete Job
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div
+                        className="text-[16px] font-bold text-[rgba(0,0,0,0.7)]"
+                        data-cy="talent-acquisition-job-card-delete-popover-title"
+                      >
+                        Delete job
+                      </div>
+                      <button
+                        type="button"
+                        className="-mr-1 -mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md hover:bg-gray-100"
+                        aria-label="Close"
+                        data-cy="talent-acquisition-job-card-delete-popover-close"
+                        onClick={() => setDeleteModal(false)}
+                      >
+                        <CloseOutlined
+                          className="text-[14px]"
+                          style={{ color: 'rgba(0, 0, 0, 0.45)' }}
+                        />
+                      </button>
                     </div>
-                    <p className="text-gray-500 text-sm mb-4">
+                    <p
+                      className="mb-4 text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                      data-cy="talent-acquisition-job-card-delete-popover-body"
+                    >
                       Are you sure you want to delete this job?
                     </p>
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex justify-end gap-2">
                       <Button
-                        className="border-gray-300 text-gray-700"
+                        className="!h-9 !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
+                        data-cy="talent-acquisition-job-card-delete-popover-cancel"
                         onClick={() => setDeleteModal(false)}
                       >
                         Cancel
                       </Button>
                       <Button
-                        type="primary"
-                        className="!bg-red-600 hover:!bg-red-700 !border-0"
+                        className="!h-9 !border-0 !bg-[#FF4D4F] !px-4 !text-[14px] !font-normal !text-white hover:!bg-[#E64548]"
+                        data-cy="talent-acquisition-job-card-delete-popover-confirm"
                         loading={isLoading}
                         onClick={() => handleDeleteModal()}
                       >
@@ -469,20 +421,14 @@ const JobCard: React.FC = () => {
                 <div>
                   <Dropdown
                     data-cy={`talent-acquisition-job-card-dropdown-${job?.id}`}
-                    menu={{
-                      items: filteredItems.map(({ label, key, onClick }) => ({
-                        label,
-                        key,
-                        onClick,
-                      })),
-                    }}
+                    menu={{ items: filteredMenuItems }}
                     trigger={['click']}
                   >
                     <button
                       type="button"
                       id={`talent-acquisition-job-card-button-menu-${job?.id}`}
                       data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
-                      className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 shrink-0 border-0 cursor-pointer bg-transparent"
+                      className="flex items-center justify-center w-8 h-8 rounded-[6px] text-gray-600 hover:bg-gray-50 shrink-0 border border-solid border-[#D9D9D9] bg-white cursor-pointer"
                     >
                       <BsThreeDots className="w-4 h-4" />
                     </button>
@@ -496,22 +442,21 @@ const JobCard: React.FC = () => {
                 key={job?.id ?? index}
                 id={`talent-acquisition-job-card-div-card-${index}`}
                 data-cy={`talent-acquisition-job-card-div-card-${index}`}
-                className="bg-white rounded-xl shadow-sm border border-gray-300 p-5 flex flex-col relative"
+                className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col relative"
               >
-                {/* Same order on mobile and desktop: status + deadline | actions → title → department • applicants → location/type pills → created */}
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                     <span
-                      className={`inline-flex items-center text-xs font-medium rounded-md border px-3 py-1.5 ${
+                      className={`inline-flex items-center rounded-[4px] border border-solid px-3 py-1 text-[12px] font-normal ${
                         jobStatus === 'Closed'
-                          ? 'border-gray-200 bg-white text-gray-600'
-                          : 'border-emerald-200 bg-white text-emerald-700'
+                          ? 'border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]'
+                          : 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]'
                       }`}
                       data-cy={`talent-acquisition-job-card-div-status-${index}`}
                     >
                       {displayStatus(jobStatus)}
                     </span>
-                    <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700 whitespace-nowrap">
+                    <span className="inline-flex items-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 py-1 text-[12px] font-normal text-[rgba(0,0,0,0.7)] whitespace-nowrap">
                       Deadline:{' '}
                       {job?.jobDeadline
                         ? dayjs(job.jobDeadline).format('DD MMMM YYYY')
@@ -528,7 +473,7 @@ const JobCard: React.FC = () => {
                     className="flex-1 min-w-0"
                   >
                     <Tooltip title={job?.jobTitle}>
-                      <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
+                      <h3 className="font-bold text-[20px] leading-tight text-black truncate pr-2">
                         {job?.jobTitle}
                       </h3>
                     </Tooltip>
@@ -539,32 +484,35 @@ const JobCard: React.FC = () => {
                   href={`/recruitment/jobs/${job?.id}`}
                   className="block flex-1 min-w-0"
                 >
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+                  <div className="flex items-center gap-1.5 text-[12px] font-normal text-[rgba(0,0,0,0.65)] mb-3">
                     <span
                       id={`talent-acquisition-job-departmentId-${index}`}
                       data-cy={`talent-acquisition-job-departmentId-${index}`}
                     >
                       {getDepartmentName(job?.departmentId) || '—'}
                     </span>
-                    <span className="text-gray-300">•</span>
+                    <span className="text-[rgba(0,0,0,0.25)]">•</span>
                     <span>{applicantCount} Applicants</span>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {job?.jobLocation && (
-                      <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700">
+                      <span className="inline-flex items-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 py-1 text-[12px] font-normal text-[rgba(0,0,0,0.7)]">
                         {job.jobLocation}
                       </span>
                     )}
                     {job?.employmentType && (
-                      <span className="inline-flex items-center text-xs font-medium rounded-md border border-gray-200 bg-white px-3 py-1.5 text-gray-700">
+                      <span className="inline-flex items-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 py-1 text-[12px] font-normal text-[rgba(0,0,0,0.7)]">
                         {job.employmentType}
                       </span>
                     )}
                   </div>
                 </Link>
-                <div className="flex items-center justify-end gap-1.5 text-sm text-gray-400 mt-auto pt-2 border-t border-gray-100">
-                  <AiOutlineClockCircle className="w-4 h-4 shrink-0" />
-                  <span suppressHydrationWarning>
+                <div className="flex items-center justify-end gap-1.5 mt-auto pt-3 border-t border-gray-200">
+                  <ClockAnalogIcon className="w-4 h-4 shrink-0 text-black" />
+                  <span
+                    className="text-[12px] font-normal text-black"
+                    suppressHydrationWarning
+                  >
                     Created{' '}
                     {job?.createdAt
                       ? dayjs(job.createdAt).fromNow()

@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import ForwardIcon from '@mui/icons-material/Forward';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import CreateCandidate from '../jobs/[id]/_components/createCandidate';
@@ -19,6 +18,7 @@ import { useGetStages } from '@/store/server/features/recruitment/candidate/quer
 import dayjs, { Dayjs } from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { MdClose } from 'react-icons/md';
+import { FunnelFilterIcon } from '../_components/recruitmentIcons';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -392,7 +392,7 @@ const AllCandidates: React.FC = () => {
     <div
       id="talent-acquisition-candidate-page-div-container"
       data-cy="talent-acquisition-candidate-page-div-container"
-      className="h-auto w-full"
+      className="h-auto w-full min-h-screen bg-white"
     >
       <Card
         data-cy="talent-acquisition-candidate-card"
@@ -600,26 +600,20 @@ const AllCandidates: React.FC = () => {
               >
                 <Button
                   type="default"
-                  icon={
-                    <FilterAltOutlinedIcon
-                      style={{ fontSize: 14 }}
-                      className="text-gray-600"
-                    />
-                  }
-                  className="h-8 flex items-center gap-2 rounded-lg border text-gray-700 bg-white text-xs sm:text-sm transition-colors shrink-0"
+                  icon={<FunnelFilterIcon className="shrink-0" />}
+                  className="h-8 sm:h-11 flex items-center gap-2 rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[14px] font-normal text-[rgba(0,0,0,0.7)] transition-colors shrink-0 !shadow-none"
                   id="talent-acquisition-candidate-page-filter-button"
                   data-cy="talent-acquisition-candidate-page-filter-button"
                   style={{
-                    borderColor: token.colorBorder,
                     boxShadow: 'none',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = token.colorPrimaryHover;
-                    e.currentTarget.style.color = token.colorPrimaryHover;
+                    e.currentTarget.style.borderColor = '#1E40AF';
+                    e.currentTarget.style.color = '#1E40AF';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = token.colorBorder;
-                    e.currentTarget.style.color = token.colorText;
+                    e.currentTarget.style.borderColor = '#D9D9D9';
+                    e.currentTarget.style.color = '#374151';
                   }}
                 >
                   {!(isMobile || isTablet) && (

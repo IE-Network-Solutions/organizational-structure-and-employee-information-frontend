@@ -3,6 +3,7 @@
 import React from 'react';
 import { Button, Form, FormInstance, InputNumber, Radio } from 'antd';
 import { EmploymentType } from '@/types/enumTypes';
+import { TaRequiredMark } from '../../../../_components/taRequiredMark';
 
 interface HiringOfferStepProps {
   form: FormInstance;
@@ -43,16 +44,11 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
             name="employmentType"
             label={
               <span
-                className="text-sm font-semibold text-gray-700"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
                 data-cy="talent-acquisition-create-job-label-job-type"
               >
-                Job Type{' '}
-                <span
-                  className="text-red-500"
-                  data-cy="talent-acquisition-create-job-required-job-type"
-                >
-                  *
-                </span>
+                Job Type
+                <TaRequiredMark data-cy="talent-acquisition-create-job-required-job-type" />
               </span>
             }
             rules={[{ required: true, message: 'Please select job type!' }]}
@@ -70,16 +66,11 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
             name="quantity"
             label={
               <span
-                className="text-sm font-semibold text-gray-700"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
                 data-cy="talent-acquisition-create-job-label-quantity"
               >
-                Quantity{' '}
-                <span
-                  className="text-red-500"
-                  data-cy="talent-acquisition-create-job-required-quantity"
-                >
-                  *
-                </span>
+                Quantity
+                <TaRequiredMark data-cy="talent-acquisition-create-job-required-quantity" />
               </span>
             }
             rules={[{ required: true, message: 'Please input quantity!' }]}
@@ -96,16 +87,11 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
             name="yearOfExperience"
             label={
               <span
-                className="text-sm font-semibold text-gray-700"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
                 data-cy="talent-acquisition-create-job-label-years-experience"
               >
-                Years of experience{' '}
-                <span
-                  className="text-red-500"
-                  data-cy="talent-acquisition-create-job-required-years"
-                >
-                  *
-                </span>
+                Years of experience
+                <TaRequiredMark data-cy="talent-acquisition-create-job-required-years" />
               </span>
             }
             rules={[
@@ -128,16 +114,11 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
             name="compensation"
             label={
               <span
-                className="text-sm font-semibold text-gray-700"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
                 data-cy="talent-acquisition-create-job-label-compensation"
               >
-                Compensation{' '}
-                <span
-                  className="text-red-500"
-                  data-cy="talent-acquisition-create-job-required-compensation"
-                >
-                  *
-                </span>
+                Compensation
+                <TaRequiredMark data-cy="talent-acquisition-create-job-required-compensation" />
               </span>
             }
             rules={[{ required: true, message: 'Please input compensation!' }]}
@@ -153,12 +134,12 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
       </div>
 
       <div
-        className="mt-6 flex justify-end gap-3"
+        className="mt-6 flex justify-end gap-2"
         data-cy="talent-acquisition-create-job-hiring-offer-actions"
       >
         <Button
           onClick={handleBack}
-          className="h-11 min-w-[100px] rounded-lg border-gray-300 text-gray-700"
+          className="!h-9 min-w-[100px] !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
           data-cy="talent-acquisition-create-job-button-back"
         >
           Back
@@ -166,7 +147,7 @@ const HiringOfferStep: React.FC<HiringOfferStepProps> = ({
         <Button
           type="primary"
           onClick={handleContinue}
-          className="h-11 min-w-[100px] rounded-lg !bg-[#6366F1] hover:!bg-[#4F46E5]"
+          className="!h-9 min-w-[100px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
           data-cy="talent-acquisition-create-job-button-continue-step2"
         >
           Continue

@@ -83,7 +83,7 @@ const CreateJobs: React.FC = () => {
               data-cy={`talent-acquisition-create-jobs-step-${index}`}
             >
               <div
-                className={`h-3 w-3 shrink-0 rounded-full ${currentStep >= index ? 'bg-[#6366F1]' : 'bg-gray-300'}`}
+                className={`h-3 w-3 shrink-0 rounded-full ${currentStep >= index ? 'bg-[#1E40AF]' : 'bg-gray-300'}`}
                 data-cy={`talent-acquisition-create-jobs-step-dot-${index}`}
               />
               <span
@@ -97,7 +97,7 @@ const CreateJobs: React.FC = () => {
               <div
                 className="mx-1 sm:mx-2 h-0.5 min-w-[12px] sm:min-w-[24px] flex-1 shrink min-w-0"
                 style={{
-                  backgroundColor: currentStep > index ? '#6366F1' : '#d1d5db',
+                  backgroundColor: currentStep > index ? '#1E40AF' : '#d1d5db',
                 }}
                 aria-hidden
                 data-cy={`talent-acquisition-create-jobs-step-connector-${index}`}
@@ -191,6 +191,7 @@ const CreateJobs: React.FC = () => {
         id="talent-acquisition-create-jobs-form"
         form={form}
         layout="vertical"
+        requiredMark={false}
         onValuesChange={() => handleAddJobStateUpdate(form.getFieldsValue())}
         onFinish={handlePublish}
       >

@@ -1,11 +1,11 @@
 import React from 'react';
 import { Modal, Button, Select, Form } from 'antd';
-import type { SelectProps } from 'antd';
-import { CheckOutlined } from '@ant-design/icons';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useUpdateJobStatus } from '@/store/server/features/recruitment/job/mutation';
 import { JobStatus } from '@/types/enumTypes';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { TalentAcqSelectChevronSuffix } from '../../../../_components/recruitmentIcons';
+import { TaRequiredMark } from '../../../../_components/taRequiredMark';
 
 const ChangeStatusModal: React.FC = () => {
   const [form] = Form.useForm();
@@ -41,8 +41,6 @@ const ChangeStatusModal: React.FC = () => {
     );
   };
 
-  const currentStatus = Form.useWatch('status', form);
-
   React.useEffect(() => {
     if (selectedJob) {
       form.setFieldsValue({
@@ -53,25 +51,11 @@ const ChangeStatusModal: React.FC = () => {
 
   const modalTitle = (
     <span
-      className="text-lg font-semibold text-gray-900"
+      className="text-lg font-bold text-black"
       data-cy="talent-acquisition-change-job-status-modal-title"
     >
       Change Job Status
     </span>
-  );
-
-  const optionRender: SelectProps['optionRender'] = (option) => (
-    <div
-      className="flex items-center justify-between w-full"
-      data-cy="talent-acquisition-change-job-status-option"
-    >
-      <span data-cy="talent-acquisition-change-job-status-option-label">
-        {option.label}
-      </span>
-      {option.value === currentStatus && (
-        <CheckOutlined className="text-[#6366F1] text-sm shrink-0 ml-2" />
-      )}
-    </div>
   );
 
   return (
@@ -97,7 +81,7 @@ const ChangeStatusModal: React.FC = () => {
             background-color: #EFF6FF !important;
           }
           #change-job-status-modal .ant-select-item-option-selected .ant-select-item-option-state {
-            color: #6366F1;
+            color: #1E40AF;
           }
         `}</style>
         <Modal
@@ -108,6 +92,10 @@ const ChangeStatusModal: React.FC = () => {
           centered
           footer={null}
           classNames={{ content: 'rounded-lg' }}
+          styles={{
+            content: { overflowX: 'hidden' },
+            body: { overflowX: 'hidden', paddingTop: 8 },
+          }}
         >
           <div
             id="change-job-status-modal"
@@ -119,74 +107,81 @@ const ChangeStatusModal: React.FC = () => {
               form={form}
               layout="vertical"
               onFinish={handleStatusUpdate}
-              className="border border-gray-200 rounded-lg p-4"
+              requiredMark={false}
+              className="max-w-full overflow-x-hidden"
             >
-              <Form.Item
-                name="status"
-                label="Job Status"
-                rules={[
-                  { required: true, message: 'Please select the job status!' },
-                ]}
-                className="mb-6 mt-2"
+              <div
+                className="rounded-lg border border-solid border-gray-200 p-4"
+                data-cy="talent-acquisition-change-job-status-field-box"
               >
-                <Select
-                  id="talent-acquisition-change-job-status-select"
-                  data-cy="talent-acquisition-change-job-status-select"
-                  placeholder="Open"
-                  style={{ width: '100%' }}
-                  suffixIcon={
+                <Form.Item
+                  name="status"
+                  label={
                     <span
-                      className="text-gray-400"
-                      data-cy="talent-acquisition-change-job-status-select-suffix"
+                      className="inline-flex items-center gap-1.5 font-normal text-black"
+                      data-cy="talent-acquisition-change-job-status-label"
                     >
-                      ▼
+                      Job Status
+                      <TaRequiredMark data-cy="talent-acquisition-change-job-status-required-mark" />
                     </span>
                   }
-                  getPopupContainer={() =>
-                    document.getElementById('change-job-status-modal') ||
-                    document.body
-                  }
-                  optionRender={optionRender}
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select the job status!',
+                    },
+                  ]}
+                  className="mb-0 [&_.ant-form-item-label]:!pb-3"
                 >
-                  {JobStatus &&
-                    Object?.values(JobStatus).map((status) => (
-                      <Select.Option
-                        key={status}
-                        value={status}
-                        id={`talent-acquisition-change-job-status-option-${status}`}
-                        data-cy={`talent-acquisition-change-job-status-option-${status}`}
-                      >
-                        {status}
-                      </Select.Option>
-                    ))}
-                </Select>
-              </Form.Item>
+                  <Select
+                    id="talent-acquisition-change-job-status-select"
+                    data-cy="talent-acquisition-change-job-status-select"
+                    placeholder="Open"
+                    className="w-full"
+                    suffixIcon={TalentAcqSelectChevronSuffix}
+                    getPopupContainer={() =>
+                      document.getElementById('change-job-status-modal') ||
+                      document.body
+                    }
+                  >
+                    {JobStatus &&
+                      Object?.values(JobStatus).map((status) => (
+                        <Select.Option
+                          key={status}
+                          value={status}
+                          id={`talent-acquisition-change-job-status-option-${status}`}
+                          data-cy={`talent-acquisition-change-job-status-option-${status}`}
+                        >
+                          {status}
+                        </Select.Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              </div>
 
-              <Form.Item className="mb-0">
-                <div
-                  data-cy="-components-modals-changejobstatus-index-tsx-index-div-97"
-                  className="flex gap-3 justify-end"
+              <div
+                className="mt-4 flex justify-end gap-2"
+                data-cy="talent-acquisition-change-job-status-modal-footer-actions"
+              >
+                <Button
+                  id="talent-acquisition-change-job-status-button-cancel"
+                  data-cy="talent-acquisition-change-job-status-button-cancel"
+                  type="default"
+                  onClick={handleChangeStatusModalClose}
+                  className="!h-9 !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] !border-[#D9D9D9] !bg-white hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
                 >
-                  <Button
-                    id="talent-acquisition-change-job-status-button-cancel"
-                    data-cy="talent-acquisition-change-job-status-button-cancel"
-                    key="cancel"
-                    onClick={handleChangeStatusModalClose}
-                    className="border-gray-300 text-gray-700"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    id="talent-acquisition-change-job-status-button-submit"
-                    data-cy="talent-acquisition-change-job-status-button-submit"
-                    htmlType="submit"
-                    type="primary"
-                    className="!bg-[#6366F1] hover:!bg-[#4F46E5] border-0"
-                  >
-                    Change
-                  </Button>
-                </div>
-              </Form.Item>
+                  Cancel
+                </Button>
+                <Button
+                  id="talent-acquisition-change-job-status-button-submit"
+                  data-cy="talent-acquisition-change-job-status-button-submit"
+                  htmlType="submit"
+                  type="primary"
+                  className="!h-9 !px-4 !text-[14px] !font-normal !text-white !bg-[#1E40AF] hover:!bg-[#1D4ED8] !border !border-solid !border-[#1E40AF] hover:!border-[#1D4ED8]"
+                >
+                  Change
+                </Button>
+              </div>
             </Form>
           </div>
         </Modal>
