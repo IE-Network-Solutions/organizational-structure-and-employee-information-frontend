@@ -3,9 +3,8 @@ import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { Button, Form, Modal, Select } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
 import TextArea from 'antd/es/input/TextArea';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const { Option } = Select;
 
@@ -25,6 +24,13 @@ const MoveToTalentPool: React.FC = () => {
   const createdBy = useAuthenticationStore.getState().userId;
 
   const { mutate: moveToTalentPool, isLoading } = useMoveToTalentPool();
+
+  const [candidateSelectOpen, setCandidateSelectOpen] = useState(false);
+  const [candidateSelectFocused, setCandidateSelectFocused] = useState(false);
+
+  const candidateOptions = Array.isArray(selectedCandidate)
+    ? selectedCandidate
+    : [];
 
   useEffect(() => {
     const candidateArray = Array.isArray(selectedCandidate)
@@ -183,8 +189,7 @@ const MoveToTalentPool: React.FC = () => {
                       className="w-full always-show-placeholder"
                       placeholder=""
                       popupClassName="org-structure-branch-select-dropdown"
-                      loading={isCandidatesLoading}
-                      value={selectedCandidate.map((item: any) => item.id)}
+                      value={candidateOptions.map((item: any) => item.id)}
                       showSearch
                       optionFilterProp="label"
                       maxTagCount={0}
@@ -194,16 +199,20 @@ const MoveToTalentPool: React.FC = () => {
                       onFocus={() => setCandidateSelectFocused(true)}
                       onBlur={() => setCandidateSelectFocused(false)}
                     >
-                      {candidateOptionsSource.map((item: any) => {
+                      {candidateOptions.map((item: any) => {
                         const label =
-                          candidateDisplayName(item) || candidateIdKey(item.id);
+                          item.fullName ??
+                          ([item.firstName, item.middleName, item.lastName]
+                            .filter(Boolean)
+                            .join(' ') ||
+                            String(item.id));
                         return (
                           <Option
-                            key={candidateIdKey(item.id)}
+                            key={item.id}
                             value={item.id}
                             label={label}
-                            id={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
-                            data-cy={`talent-acquisition-move-talent-pool-option-candidate-${candidateIdKey(item.id)}`}
+                            id={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
+                            data-cy={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
                           >
                             {label}
                           </Option>
@@ -212,42 +221,15 @@ const MoveToTalentPool: React.FC = () => {
                     </Select>
                     {!candidateSelectOpen && !candidateSelectFocused ? (
                       <span
-                        data-cy="-components-modals-movetotalentpool-index-tsx-index-span-188"
+                        data-cy="talent-acquisition-move-talent-pool-candidate-placeholder"
                         id="talent-acquisition-move-talent-pool-div-candidate-info"
+                        className="pointer-events-none absolute left-3 right-3 top-0 flex h-full items-center text-sm text-gray-400"
                       >
                         Select candidate
                       </span>
-                      {closable && (
-                        <CloseOutlined
-                          role="button"
-                          tabIndex={0}
-                          className="text-gray-400 hover:text-gray-600 cursor-pointer text-xs"
-                          onClick={onClose}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              onClose();
-                            }
-                          }}
-                        />
-                      )}
-                    </span>
-                  )}
-                >
-                  {(Array.isArray(selectedCandidate)
-                    ? selectedCandidate
-                    : []
-                  ).map((item: any) => (
-                    <Option
-                      key={item.id}
-                      value={item.id}
-                      id={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
-                      data-cy={`talent-acquisition-move-talent-pool-option-candidate-${item.id}`}
-                    >
-                      {item.fullName}
-                    </Option>
-                  ))}
-                </Select>
+                    ) : null}
+                  </div>
+                </div>
               </Form.Item>
 
               <Form.Item

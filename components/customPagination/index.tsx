@@ -201,8 +201,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
       id={id}
       data-cy={dataCy}
       className={`flex justify-between items-center py-6 ${
-        grayBackground ? 'bg-gray-100' : ''
-      } ${className ?? ''}`}
+        wrapMainRow ? 'flex-wrap gap-x-4 gap-y-4' : ''
+      } ${grayBackground ? 'bg-gray-100' : ''} ${className ?? ''}`}
     >
       <div
         data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"

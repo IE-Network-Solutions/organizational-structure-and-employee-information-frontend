@@ -131,7 +131,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className="w-full rounded-lg border border-gray-200 bg-white px-2 py-3 sm:px-3"
+      className={`w-full rounded-lg border border-gray-200 bg-white px-2 py-3 sm:px-3 ${className ?? ''}`}
     >
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"

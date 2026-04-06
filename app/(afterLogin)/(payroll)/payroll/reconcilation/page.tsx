@@ -177,7 +177,7 @@
 //     });
 
 //   const { data: employeeData } = useGetAllUsers();
-   
+
 //   const formatNumber = (value: number | string | undefined | null): string => {
 //     if (value === undefined || value === null || value === '') return '0';
 //     const num = typeof value === 'string' ? Number(value) : value;
@@ -1290,7 +1290,6 @@
 // };
 
 // export default PayrollReconcilation;
-
 
 'use client';
 

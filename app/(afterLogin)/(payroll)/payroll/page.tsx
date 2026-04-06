@@ -37,10 +37,7 @@ import {
 } from 'antd';
 
 const { Text } = Typography;
-import {
-  SearchOutlined,
-  FileSyncOutlined,
-} from '@ant-design/icons';
+import { SearchOutlined, FileSyncOutlined } from '@ant-design/icons';
 
 import { Workbook } from 'exceljs';
 
@@ -90,10 +87,7 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import {
-  MdAttachMoney,
-  MdCardGiftcard,
-} from 'react-icons/md';
+import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1611,7 +1605,9 @@ const Payroll = () => {
               title="Total Amount"
               data-cy="payroll-summary-card-total-amount-view-component"
               value={payrollForExport?.totalGrossPaymentAmount}
-              icon={<MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />}
+              icon={
+                <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
+              }
               iconBg="bg-[#E6F4FF]"
               iconText="text-[#1E40AF]"
             />
