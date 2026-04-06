@@ -82,9 +82,16 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         </div>
       </div>
 
+      {/* Full viewport–width rule under breadcrumbs (tab strip bottom rule stays padded below) */}
+      <div
+        className="mt-5 relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-b border-[#D9D9D9]"
+        data-cy="tna-settings-breadcrumb-fullbleed-divider"
+        aria-hidden="true"
+      />
+
       {/* Horizontal tab bar — scroll on small screens; + add on Course Category (mobile) */}
       <div
-        className="px-3 sm:px-6 mt-5 border-b border-[#D9D9D9]"
+        className="px-3 sm:px-6 pt-3 border-b border-[#D9D9D9]"
         data-cy="tna-settings-tabs"
       >
         <div
