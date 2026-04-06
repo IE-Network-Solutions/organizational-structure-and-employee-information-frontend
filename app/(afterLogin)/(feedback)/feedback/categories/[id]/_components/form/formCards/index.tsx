@@ -2,11 +2,13 @@
 /* eslint-disable local-rules/data-cy-required, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Dropdown, Modal, Divider } from 'antd';
-import { ListChecks, CheckCheck, Copy } from 'lucide-react';
+import { ListChecks, CheckCheck, Copy, Share2 } from 'lucide-react';
 import { MdMoreHoriz } from 'react-icons/md';
 import { MdEvent } from 'react-icons/md';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useGetFormsByCategoryID } from '@/store/server/features/feedback/form/queries';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
@@ -391,17 +393,32 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                         items: [
                           {
                             key: 'copy',
-                            label: 'Copy Question URL',
+                            label: (
+                              <span className="form-card-menu-item flex items-center gap-3 text-[#374151]">
+                                <Share2 className="h-5 w-5" />
+                                <span>Share Survey</span>
+                              </span>
+                            ),
                             onClick: () => handleMenuClick('copy', form),
                           },
                           {
                             key: 'edit',
-                            label: 'Edit',
+                            label: (
+                              <span className="form-card-menu-item flex items-center gap-3 text-[#374151]">
+                                <EditOutlinedIcon fontSize="small" />
+                                <span>Edit</span>
+                              </span>
+                            ),
                             onClick: () => handleMenuClick('edit', form),
                           },
                           {
                             key: 'delete',
-                            label: 'Delete',
+                            label: (
+                              <span className="form-card-menu-item form-card-menu-item-delete flex items-center gap-3 text-red-500">
+                                <DeleteOutlineOutlinedIcon fontSize="small" />
+                                <span>Delete</span>
+                              </span>
+                            ),
                             onClick: () => handleMenuClick('delete', form),
                           },
                         ],
@@ -409,6 +426,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                       trigger={['click']}
                       placement="bottomRight"
                       data-cy="form-card-menu"
+                      overlayClassName="form-card-menu-overlay"
                     >
                       <button
                         type="button"
@@ -416,7 +434,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                         data-cy="form-card-menu-trigger"
                         aria-label="More options"
                       >
-                        <MdMoreHoriz className="text-[20px] leading-none" />
+                        <MdMoreHoriz className="text-[24px] leading-none" />
                       </button>
                     </Dropdown>
                   </div>
@@ -559,7 +577,7 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
         data-cy="form-card-delete-modal"
       />
       <Modal
-        title="Copy Question URL"
+        title="Share Survey"
         data-cy="form-card-copy-modal"
         open={isCopyURLModalOpen}
         onCancel={() => setIsCopyModalOpen(false)}

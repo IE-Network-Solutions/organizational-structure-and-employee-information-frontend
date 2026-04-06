@@ -56,7 +56,7 @@ function Page() {
       ),
       children: (
         <div
-          className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden"
+          className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden px-4 lg:px-0"
           data-cy="survey-detail-tab-content-insights"
         >
           <SurveyInsights formId={slug} />
@@ -75,7 +75,7 @@ function Page() {
       ),
       children: (
         <div
-          className="flex h-full min-h-0 flex-col overflow-hidden"
+          className="flex h-full min-h-0 flex-col overflow-hidden px-4 lg:px-0"
           data-cy="survey-detail-tab-content-questions"
         >
           <Questions id={slug} />
@@ -94,7 +94,7 @@ function Page() {
       ),
       children: (
         <div
-          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide"
+          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide px-4 lg:px-0"
           data-cy="survey-detail-tab-content-responses"
         >
           <IndividualResponses id={slug} />
@@ -113,7 +113,7 @@ function Page() {
       ),
       children: (
         <div
-          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide"
+          className="h-full min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide px-4 lg:px-0"
           data-cy="survey-detail-tab-content-action-plans"
         >
           <ActionPlans id={slug} />
@@ -141,7 +141,7 @@ function Page() {
       className="box-border flex h-[calc(100dvh-74px)] w-full min-h-0 flex-col overflow-hidden bg-white pt-5 md:pt-6"
     >
       <div
-        className="mb-4 w-full min-w-0 shrink-0 bg-white md:mb-6"
+        className="mb-4 w-full min-w-0 shrink-0 bg-white px-4 md:mb-6 lg:px-0"
         data-cy="survey-detail-header-block"
       >
         <CustomBreadcrumb
@@ -264,23 +264,29 @@ function Page() {
           onChange={setActiveTab}
           tabBarExtraContent={
             activeTab === '4' ? (
-              <button
-                type="button"
-                id="survey-detail-create-action-button"
-                data-cy="survey-detail-create-action-button"
-                onClick={showDrawer}
-                className="inline-flex items-center gap-2 rounded-md bg-[#1E40AF] px-4 py-2 text-sm font-semibold text-white shadow-none transition-colors hover:bg-[#1E3A8A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF] focus-visible:ring-offset-2"
+              <div
+                className="flex shrink-0 items-center"
+                data-cy="survey-detail-create-action-wrap"
               >
-                <PlusOutlined
-                  id="survey-detail-create-action-icon"
-                  data-cy="survey-detail-create-action-icon"
-                  className="text-base"
-                />
-                New Action Plan
-              </button>
+                <button
+                  type="button"
+                  id="survey-detail-create-action-button"
+                  data-cy="survey-detail-create-action-button"
+                  onClick={showDrawer}
+                  aria-label="New Action Plan"
+                  title="New Action Plan"
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#1E40AF] text-white shadow-none transition-colors hover:bg-[#1E3A8A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF] focus-visible:ring-offset-2"
+                >
+                  <PlusOutlined
+                    id="survey-detail-create-action-icon"
+                    data-cy="survey-detail-create-action-icon"
+                    className="text-lg text-white"
+                  />
+                </button>
+              </div>
             ) : null
           }
-          className="survey-detail-tabs mt-0 flex !h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white [&_.ant-tabs-content-holder]:!mt-0 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:!px-0 [&_.ant-tabs-content-holder]:!pt-3 [&_.ant-tabs-content-holder]:overflow-hidden [&_.ant-tabs-content-holder]:scrollbar-hide [&_.ant-tabs-content]:!m-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-content]:min-h-0 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:bg-white [&_.ant-tabs-nav]:before:border-slate-200 [&_.ant-tabs-nav]:!px-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-tab]:pb-2 [&_.ant-tabs-tab]:text-slate-600 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-[#1E40AF] [&_.ant-tabs-tab_.survey-detail-tab-label]:font-normal [&_.ant-tabs-tab-active_.survey-detail-tab-label]:font-bold [&_.ant-tabs-ink-bar]:bg-[#1E40AF] [&_.ant-tabs-tabpane]:!m-0 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:min-h-0 [&_.ant-tabs-tabpane]:!p-0 [&_.ant-tabs-tabpane]:overflow-hidden [&_.ant-tabs-tabpane]:scrollbar-hide"
+          className="survey-detail-tabs mt-0 flex !h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-white [&_.ant-tabs-content-holder]:!mt-0 [&_.ant-tabs-content-holder]:min-h-0 [&_.ant-tabs-content-holder]:flex-1 [&_.ant-tabs-content-holder]:!px-0 [&_.ant-tabs-content-holder]:!pt-6 [&_.ant-tabs-content-holder]:lg:!pt-3 [&_.ant-tabs-content-holder]:overflow-hidden [&_.ant-tabs-content-holder]:scrollbar-hide [&_.ant-tabs-content]:!m-0 [&_.ant-tabs-content]:h-full [&_.ant-tabs-content]:min-h-0 [&_.ant-tabs-extra-content]:flex [&_.ant-tabs-extra-content]:items-center [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav]:shrink-0 [&_.ant-tabs-nav]:bg-white [&_.ant-tabs-nav]:before:border-slate-200 [&_.ant-tabs-nav]:!px-4 [&_.ant-tabs-nav]:lg:!px-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-tab]:pb-2 [&_.ant-tabs-tab]:text-slate-600 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:text-[#1E40AF] [&_.ant-tabs-tab_.survey-detail-tab-label]:font-normal [&_.ant-tabs-tab-active_.survey-detail-tab-label]:font-bold [&_.ant-tabs-ink-bar]:bg-[#1E40AF] [&_.ant-tabs-tabpane]:!m-0 [&_.ant-tabs-tabpane]:h-full [&_.ant-tabs-tabpane]:min-h-0 [&_.ant-tabs-tabpane]:!p-0 [&_.ant-tabs-tabpane]:overflow-hidden [&_.ant-tabs-tabpane]:scrollbar-hide"
           items={items}
         />
       </div>

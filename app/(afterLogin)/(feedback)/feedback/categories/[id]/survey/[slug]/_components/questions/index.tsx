@@ -155,7 +155,7 @@ function QuestionsDropZone({
       ref={setNodeRef}
       data-cy="survey-questions-drop-zone"
       className={`min-h-[200px] rounded-md transition-colors ${
-        isEmptyVisual ? 'min-h-[280px]' : ''
+        isEmptyVisual ? 'min-h-[280px] h-full flex flex-col' : ''
       } ${isOver ? 'bg-[#E6F4FF]/40 ring-2 ring-[#4096ff]/30' : ''}`}
     >
       {showInsertionAtStart ? <SurveyDropInsertionLine /> : null}
@@ -615,17 +615,17 @@ const Questions = ({ id }: Params) => {
     </div>
   ) : showEmptyState ? (
     <div
-      className="flex h-[606px] w-full flex-col rounded-[8px] bg-white"
+      className="flex h-full min-h-0 w-full flex-1 flex-col rounded-[8px] bg-white lg:h-[606px]"
       data-cy="questions-empty"
     >
       <p
-        className="w-full text-left text-[16px] font-medium text-gray-700"
+        className="w-full shrink-0 text-left text-[15px] font-normal leading-normal text-gray-900 lg:text-[16px] lg:font-medium lg:text-gray-700"
         data-cy="questions-empty-title"
       >
         Question List
       </p>
       <p
-        className="mx-auto flex h-full w-full flex-1 items-center justify-center text-center text-[24px] font-bold text-gray-900"
+        className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-2 text-center text-[15px] font-bold leading-snug text-gray-900 lg:px-0 lg:text-[24px] lg:leading-normal"
         data-cy="questions-empty-text"
       >
         Drag and drop a question from the question list to continue
@@ -701,31 +701,31 @@ const Questions = ({ id }: Params) => {
         onDragCancel={handleDragCancel}
       >
         <div
-          className="flex min-h-0 min-w-0 flex-1 flex-col"
+          className="flex min-h-0 min-w-0 flex-1 flex-col pb-4 pt-0 lg:pb-0"
           data-cy="survey-questions-dnd-inner"
         >
           <div
-            className="flex min-h-0 w-full flex-1 flex-col gap-6 lg:flex-row lg:gap-8"
+            className="flex min-h-0 w-full flex-1 flex-col gap-4 lg:flex-row lg:gap-8"
             data-cy="survey-questions-layout-row"
           >
             <div
               data-cy="survey-questions-palette-col"
-              className="box-border flex h-fit w-full max-w-[232px] shrink-0 flex-col rounded-md border border-gray-200 bg-white px-3 pb-3 pt-3 opacity-100 lg:w-[232px] lg:min-w-[232px] lg:max-w-[232px] lg:self-start"
+              className="box-border flex h-fit w-full shrink-0 flex-col bg-transparent lg:w-[232px] lg:min-w-[232px] lg:max-w-[232px] lg:self-start lg:rounded-md lg:border lg:border-gray-200 lg:bg-white lg:px-3 lg:pb-3 lg:pt-3"
             >
               <h3
-                className="mb-0 text-base font-semibold text-gray-900"
+                className="mb-0 hidden text-base font-semibold text-gray-900 lg:block"
                 data-cy="survey-palette-heading"
               >
                 Supported types
               </h3>
               <p
-                className="mb-0 mt-2 text-[11px] leading-snug text-gray-500"
+                className="mb-0 mt-2 hidden text-[11px] leading-snug text-gray-500 lg:block"
                 data-cy="survey-palette-drag-hint"
               >
                 Drag a type into the Questions column to add
               </p>
               <div
-                className="mt-3 flex w-full flex-col gap-4"
+                className="mt-0 grid w-full grid-cols-2 gap-3 lg:mt-3 lg:flex lg:flex-col lg:gap-4"
                 data-cy="survey-palette-list"
               >
                 {PALETTE.map((p) => (
@@ -745,7 +745,7 @@ const Questions = ({ id }: Params) => {
 
             <div
               data-cy="survey-questions-builder-col"
-              className="flex min-h-0 min-w-0 flex-1 flex-col gap-3"
+              className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:min-h-0"
             >
               {!showEmptyState ? (
                 <h3
@@ -757,8 +757,10 @@ const Questions = ({ id }: Params) => {
               ) : null}
               <div
                 ref={questionsScrollAreaRef}
-                className={`overflow-y-auto overscroll-y-contain rounded-md border border-gray-200 bg-white px-3 py-3 scrollbar-hide ${
-                  showEmptyState ? 'h-[606px]' : 'min-h-0 flex-1'
+                className={`overflow-y-auto overscroll-y-contain rounded-md border border-[#E5E7EB] bg-white px-3 py-3 scrollbar-hide ${
+                  showEmptyState
+                    ? 'flex h-[min(52vh,560px)] min-h-[min(52vh,560px)] flex-shrink-0 flex-col lg:h-[606px] lg:min-h-[606px]'
+                    : 'min-h-0 flex-1'
                 }`}
                 data-cy="survey-questions-scroll-area"
               >
@@ -766,7 +768,14 @@ const Questions = ({ id }: Params) => {
                   isEmptyVisual={showEmptyState}
                   showInsertionAtStart={emptyPaletteInsertion}
                 >
-                  <div data-cy="survey-questions-dnd-wrapper">
+                  <div
+                    className={
+                      showEmptyState
+                        ? 'flex h-full min-h-0 flex-1 flex-col'
+                        : ''
+                    }
+                    data-cy="survey-questions-dnd-wrapper"
+                  >
                     {builderContent}
                   </div>
                 </QuestionsDropZone>

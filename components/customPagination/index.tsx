@@ -41,6 +41,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   'data-cy': dataCy,
   className,
   grayBackground = false,
+  // hidePageSizeSelect = false,
   showPageSizeChanger = true,
   goToOnRight = false,
   goToInputPlaceholder,
@@ -137,7 +138,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         pageNumbers.push(
           <span
             key="leftEllipsis"
-            className="px-2"
+            className="inline-flex min-w-8 justify-center text-[#111827]"
             data-cy="pagination-ellipsis"
           >
             ...
@@ -168,7 +169,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         pageNumbers.push(
           <span
             key="rightEllipsis"
-            className="px-2"
+            className="inline-flex min-w-8 justify-center text-[#111827]"
             data-cy="pagination-ellipsis"
           >
             ...
@@ -206,7 +207,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     >
       <div
         data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-div-171"
-        className="flex items-center space-x-2"
+        className="flex shrink-0 flex-wrap items-center gap-6 md:gap-8 text-sm text-gray-500"
       >
         <button
           type="button"
@@ -219,7 +220,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               : 'text-[#111827] hover:bg-gray-50 active:bg-gray-100'
           }`}
         >
-          <LeftOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
+          <LeftOutlined className="text-base" />
         </button>
         {renderPageNumbers()}
         <button
@@ -233,7 +234,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               : 'text-[#111827] hover:bg-gray-50 active:bg-gray-100'
           }`}
         >
-          <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
+          <RightOutlined className="text-base" />
         </button>
 
         {!goToOnRight && !isMobile && totalPages > 0 && (
@@ -268,11 +269,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         )}
       </div>
 
-      {/* Info and Page Size Selector */}
+      {/* Info and Page Size Selector (or Go to page when hidePageSizeSelect) */}
       <div
-        className={`flex items-center ${
-          isMobile ? 'justify-between order-2' : 'justify-end'
-        }`}
+        className="flex w-full min-w-0 flex-wrap items-center justify-center gap-6 text-sm text-gray-600 md:ml-auto md:w-auto md:justify-end md:pl-8 lg:pl-12"
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
         {goToOnRight && !isMobile && totalPages > 0 && (
@@ -307,9 +306,27 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
           >
-            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
-            {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
-            entries
+            Showing{' '}
+            <span
+              className="inline-flex items-center gap-1.5 mx-0.5"
+              data-cy="pagination-desktop-showing-range"
+            >
+              <span data-cy="pagination-desktop-range-start">
+                {Math.min(total, (current - 1) * pageSize + 1) || 0}
+              </span>
+              <span
+                className="select-none"
+                aria-hidden="true"
+                data-cy="pagination-desktop-range-separator"
+              >
+                -
+              </span>
+              <span data-cy="pagination-desktop-range-end">
+                {Math.min(total, current * pageSize) || 0}
+              </span>
+            </span>
+            {' '}
+            out of {total || 0} entries
           </span>
         )}
 
@@ -319,8 +336,26 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-215"
             className="text-sm text-[#718096] mr-2"
           >
-            {Math.min(total, (current - 1) * pageSize + 1) || 0}-
-            {Math.min(total, current * pageSize) || 0} of {total || 0}
+            <span
+              className="inline-flex items-center gap-1"
+              data-cy="pagination-mobile-showing-range"
+            >
+              <span data-cy="pagination-mobile-range-start">
+                {Math.min(total, (current - 1) * pageSize + 1) || 0}
+              </span>
+              <span
+                className="select-none"
+                aria-hidden="true"
+                data-cy="pagination-mobile-range-separator"
+              >
+                -
+              </span>
+              <span data-cy="pagination-mobile-range-end">
+                {Math.min(total, current * pageSize) || 0}
+              </span>
+            </span>
+            {' '}
+            of {total || 0}
           </span>
         )}
 

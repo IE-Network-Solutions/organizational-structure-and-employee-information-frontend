@@ -1306,7 +1306,10 @@ import {
   useGetActivePayroll,
 } from '@/store/server/features/payroll/payroll/queries';
 import dayjs from 'dayjs';
-import { useGetReconciliation } from '@/store/server/features/payroll/reconcilation/queries';
+import {
+  useExportReconciliation,
+  useGetReconciliation,
+} from '@/store/server/features/payroll/reconcilation/queries';
 import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { useRouter } from 'next/navigation';
@@ -1335,6 +1338,10 @@ const PayrollReconcilation = () => {
     previousPayPeriodId,
     currentPayPeriodId,
   });
+
+  const { mutate: exportReconciliation, isLoading: isExporting } =
+    useExportReconciliation();
+
   const { data: payPeriodData } = useGetPayPeriod();
   const { pageSize: employeePageSize, currentPage: employeeCurrentPage } =
     useEmployeeStore();
@@ -1605,10 +1612,18 @@ const PayrollReconcilation = () => {
             className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
           >
             <Button
-              type="primary"
-              size="large"
-              className="h-10 w-10 sm:w-auto"
-              icon={<PiExportLight />}
+              type="default"
+              size="small"
+              className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
+              icon={<SaveAltIcon className="text-sm" />}
+              loading={isExporting}
+              disabled={!previousPayPeriodId || !currentPayPeriodId}
+              onClick={() =>
+                exportReconciliation({
+                  previousPayPeriodId,
+                  currentPayPeriodId,
+                })
+              }
             >
               <span
                 data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"

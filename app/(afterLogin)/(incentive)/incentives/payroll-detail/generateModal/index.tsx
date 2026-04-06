@@ -4,7 +4,8 @@ import {
   useFetchIncentiveSessions,
 } from '@/store/server/features/incentive/project/queries';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
-import { Button, Form, Modal, Select, Switch } from 'antd';
+import { Button, Checkbox, Form, Modal, Select } from 'antd';
+import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -16,18 +17,23 @@ const GenerateModal: React.FC = () => {
   const { data: payPeriodData } = useFetchAllPayPeriod();
   const { data: allSessions } = useFetchIncentiveSessions();
 
-  const { mutate: generateIncentive } = useGenerateIncentive();
+  const { mutate: generateIncentive, isLoading: submitPending } = useGenerateIncentive();
+
+  const resetFormAfterClose = () => {
+    form.resetFields();
+    setIsSwitchOn(false);
+  };
 
   const handleModalClose = () => {
     setShowGenerateModal(false);
-    form.resetFields();
   };
 
-  const handleSwitchChange = (checked: boolean) => {
+  const handleSwitchChange = (e: CheckboxChangeEvent) => {
+    const checked = e.target.checked;
     setIsSwitchOn(checked);
-    if (checked) {
-      form.resetFields(['selectSession']);
-    }
+    form.setFieldsValue({
+      generateAll: checked,
+    });
   };
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
@@ -46,11 +52,13 @@ const GenerateModal: React.FC = () => {
   return (
     <Modal
       data-cy="generate-modal"
+      destroyOnClose
+      afterClose={resetFormAfterClose}
       title={
         <div
           id="generate-modal-title"
           data-cy="generate-modal-title"
-          className="font-semibold text-md"
+          className="font-bold text-black opacity-70 text-base"
         >
           Generate Incentive
         </div>
@@ -58,18 +66,19 @@ const GenerateModal: React.FC = () => {
       open={showGenerateModal}
       onCancel={handleModalClose}
       centered
-      closable={false}
+      closable
       footer={
         <div
           id="generate-modal-footer"
           data-cy="generate-modal-footer"
-          className="flex items-center justify-center gap-3 mt-2"
+          className="flex justify-end gap-2"
         >
           <Button
+            type="default"
             id="generate-modal-cancel-button"
             data-cy="generate-modal-cancel-button"
             onClick={handleModalClose}
-            className="bg-[#f5f5f5] text-[#000] my-3 px-5 font-medium"
+            className="font-normal border border-[#D9D9D9]"
           >
             Cancel
           </Button>
@@ -77,8 +86,9 @@ const GenerateModal: React.FC = () => {
             id="generate-modal-submit-button"
             data-cy="generate-modal-submit-button"
             type="primary"
-            className="px-5 my-3 font-medium shadow-none"
-            onClick={handleSubmit}
+            className="font-normal"
+            onClick={() => form.submit()}
+            loading={submitPending}
           >
             Generate
           </Button>
@@ -92,29 +102,30 @@ const GenerateModal: React.FC = () => {
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
-        className="my-4"
         initialValues={{ generateAll: false }}
       >
         <Form.Item
           id="generate-modal-form-generate-all"
           data-cy="generate-modal-form-generate-all"
-          label={
-            <div
-              id="generate-modal-form-generate-all-label"
-              data-cy="generate-modal-form-generate-all-label"
-              className="text-medium font-md"
-            >
-              Generate for all unpaid Incentives
-            </div>
-          }
+          className="border border-[#D9D9D9] rounded-lg p-2"
           valuePropName="checked"
           name="generateAll"
         >
-          <Switch
-            id="generate-modal-form-generate-all-switch"
-            data-cy="generate-modal-form-generate-all-switch"
+
+          <Checkbox
+            id="generate-modal-form-generate-all-checkbox"
+            data-cy="generate-modal-form-generate-all-checkbox"
+            className="text-sm font-normal text-black opacity-70"
             onChange={handleSwitchChange}
-          />
+          >
+            Generate for unpaid incentive
+          </Checkbox>
+          <p
+            data-cy="generate-modal-form-generate-all-description"
+            className="text-xs text-black opacity-45 px-6"
+          >
+            Generate incentive for unpaid recognition
+          </p>
         </Form.Item>
 
         <Form.Item
@@ -128,9 +139,9 @@ const GenerateModal: React.FC = () => {
             <span
               id="generate-modal-form-session-label"
               data-cy="generate-modal-form-session-label"
-              className="font-semibold"
+              className="font-normal text-sm mb-1 text-black"
             >
-              Select Session
+              Select Session{' '}
               <span
                 id="generate-modal-form-session-required"
                 data-cy="generate-modal-form-session-required"
@@ -148,7 +159,7 @@ const GenerateModal: React.FC = () => {
               id="generate-modal-form-session-select-disabled"
               data-cy="generate-modal-form-session-select-disabled"
               disabled
-              size="large"
+              className="h-10"
               placeholder="You are generating all unpaid incentives."
             />
           ) : (
@@ -156,7 +167,7 @@ const GenerateModal: React.FC = () => {
               id="generate-modal-form-session-select"
               data-cy="generate-modal-form-session-select"
               mode="multiple"
-              size="large"
+              className="h-10"
               placeholder="Select session"
             >
               {allSessions?.items?.map((session: any) => (
@@ -180,9 +191,9 @@ const GenerateModal: React.FC = () => {
             <span
               id="generate-modal-form-pay-period-label"
               data-cy="generate-modal-form-pay-period-label"
-              className="font-semibold"
+              className="font-normal text-sm mb-1 text-black"
             >
-              Pay Period
+              Pay Period{' '}
               <span
                 id="generate-modal-form-pay-period-required"
                 data-cy="generate-modal-form-pay-period-required"
@@ -199,8 +210,7 @@ const GenerateModal: React.FC = () => {
           <Select
             id="generate-modal-form-pay-period-select"
             data-cy="generate-modal-form-pay-period-select"
-            size="large"
-            className="font-normal text-sm mb-8"
+            className="h-10"
             placeholder="select pay period"
             allowClear
           >
