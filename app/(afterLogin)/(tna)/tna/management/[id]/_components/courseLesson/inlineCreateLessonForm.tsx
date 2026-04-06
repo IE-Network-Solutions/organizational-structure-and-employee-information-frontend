@@ -26,7 +26,10 @@ import {
 import { useCallback, useMemo, useState, type FC } from 'react';
 import SortablePendingLessonMaterialRow from './lessonCard/sortablePendingLessonMaterialRow';
 
-type LessonCreatePayload = Partial<CourseLesson> & {
+type LessonCreatePayload = Omit<
+  Partial<CourseLesson>,
+  'courseLessonMaterials'
+> & {
   courseLessonMaterials?: NestedLessonMaterialDraftPayload[];
 };
 
