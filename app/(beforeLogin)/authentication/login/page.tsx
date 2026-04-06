@@ -16,12 +16,6 @@ import Link from 'next/link';
 import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
-// Images from local _assets (bundled by Next.js)
-import imgGroup2 from './_assets/Group2.png';
-import imgGroup3 from './_assets/Group3.png';
-import img14 from './_assets/image14.png';
-import img15 from './_assets/image15.png';
-import img16 from './_assets/image16.png';
 
 type FieldType = {
   email: string;
