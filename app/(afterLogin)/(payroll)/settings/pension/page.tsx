@@ -275,7 +275,10 @@ const Pension = () => {
                                   min={0}
                                   value={editedData.employer}
                                   onChange={(e) =>
-                                    handleInputChange('employer', e.target.value)
+                                    handleInputChange(
+                                      'employer',
+                                      e.target.value,
+                                    )
                                   }
                                   className="h-10 w-full"
                                 />
@@ -307,7 +310,10 @@ const Pension = () => {
                                   min={0}
                                   value={editedData.employee}
                                   onChange={(e) =>
-                                    handleInputChange('employee', e.target.value)
+                                    handleInputChange(
+                                      'employee',
+                                      e.target.value,
+                                    )
                                   }
                                   className="h-10 w-full"
                                 />

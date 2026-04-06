@@ -108,7 +108,10 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
-          <div className="flex items-stretch gap-0 border-b border-gray-200 min-h-0">
+          <div
+            className="flex items-stretch gap-0 border-b border-gray-200 min-h-0"
+            data-cy="talent-acquisition-settings-tabs-row"
+          >
             <div
               className="flex-1 min-w-0 overflow-x-auto overflow-y-hidden"
               data-cy="talent-acquisition-settings-tabs-scroll"
