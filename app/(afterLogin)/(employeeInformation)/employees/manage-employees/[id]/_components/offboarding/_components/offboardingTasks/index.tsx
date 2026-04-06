@@ -450,15 +450,21 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                           id={`offboarding-task-checkbox-${taskSlug}`}
                           data-cy={`offboarding-task-checkbox-${taskSlug}`}
                         />
-                        <div data-cy="offboarding-task-info-title-wrapper" className="flex flex-col gap-2">
+                        <div
+                          data-cy="offboarding-task-info-title-wrapper"
+                          className="flex flex-col gap-2"
+                        >
                           <span
-                            className={
-                              ` text-sm font-normal ${task?.isCompleted
+                            className={` text-sm font-normal ${
+                              task?.isCompleted
                                 ? 'line-through text-gray-500'
-                                : 'text-black'}`}
+                                : 'text-black'
+                            }`}
                             id={`offboarding-task-title-${taskSlug}`}
                             data-cy={`offboarding-task-title-${taskSlug}`}
-                          >{task.title}</span>
+                          >
+                            {task.title}
+                          </span>
                           {task.approver && (
                             <span
                               className="flex items-center gap-2 text-sm text-gray-500"
@@ -469,11 +475,15 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                                 icon={<UserOutlined />}
                                 className="flex-shrink-0 "
                               />
-                              <span data-cy="offboarding-task-approver-name-wrapper" className="text-xs font-normal text-[#949494]">
-                              {task.approver.firstName || task.approver.lastName
-                                ? `${task.approver.firstName || ''} ${task.approver.middleName || ''} ${task.approver.lastName || ''}`.trim()
-                                : 'Approver Person'}
-                                </span>
+                              <span
+                                data-cy="offboarding-task-approver-name-wrapper"
+                                className="text-xs font-normal text-[#949494]"
+                              >
+                                {task.approver.firstName ||
+                                task.approver.lastName
+                                  ? `${task.approver.firstName || ''} ${task.approver.middleName || ''} ${task.approver.lastName || ''}`.trim()
+                                  : 'Approver Person'}
+                              </span>
                             </span>
                           )}
                           {task.isCompleted &&

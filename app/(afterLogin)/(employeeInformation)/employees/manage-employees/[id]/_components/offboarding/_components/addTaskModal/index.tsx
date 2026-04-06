@@ -177,7 +177,10 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
           data-cy="offboarding-add-task-main-form"
           requiredMark={false}
         >
-          <div data-cy="offboarding-task-main-form-items-wrapper" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div
+            data-cy="offboarding-task-main-form-items-wrapper"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+          >
             <Form.Item
               label={
                 <span
@@ -185,7 +188,13 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
                   className="mb-1"
                 >
                   <span data-cy="offboarding-task-title-form-label-text">
-                    Task Name <span data-cy="offboarding-task-title-form-label-text-required" className="text-[#ff4d4f]">*</span>
+                    Task Name{' '}
+                    <span
+                      data-cy="offboarding-task-title-form-label-text-required"
+                      className="text-[#ff4d4f]"
+                    >
+                      *
+                    </span>
                   </span>
                 </span>
               }
@@ -214,7 +223,13 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
                     className="mb-1"
                   >
                     <span data-cy="offboarding-task-approver-form-label-text">
-                      Approver <span data-cy="offboarding-task-approver-form-label-text-required" className="text-[#ff4d4f]">*</span>
+                      Approver{' '}
+                      <span
+                        data-cy="offboarding-task-approver-form-label-text-required"
+                        className="text-[#ff4d4f]"
+                      >
+                        *
+                      </span>
                     </span>
                   </span>
                 }
@@ -267,7 +282,12 @@ export const AddTaskModal: React.FC<Ids> = ({ id: id }) => {
               >
                 <span data-cy="offboarding-task-description-form-label-text">
                   Description{' '}
-                  <span data-cy="offboarding-task-description-form-label-text-optional" className="text-gray-400 font-normal">(optional)</span>
+                  <span
+                    data-cy="offboarding-task-description-form-label-text-optional"
+                    className="text-gray-400 font-normal"
+                  >
+                    (optional)
+                  </span>
                 </span>
               </span>
             }
