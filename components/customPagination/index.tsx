@@ -353,8 +353,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
               <span data-cy="pagination-mobile-range-end">
                 {Math.min(total, current * pageSize) || 0}
               </span>
-            </span>
-            {' '}
+            </span>{' '}
             of {total || 0}
           </span>
         )}
