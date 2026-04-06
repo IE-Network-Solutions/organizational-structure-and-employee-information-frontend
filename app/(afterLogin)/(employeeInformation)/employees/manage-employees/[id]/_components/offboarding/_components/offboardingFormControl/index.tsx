@@ -4,9 +4,9 @@ import { useAddOffboardingItem } from '@/store/server/features/employees/offboar
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import { Form, DatePicker, Select, Button, Modal, Input, Row } from 'antd';
 import React from 'react';
-import TextArea from 'antd/es/input/TextArea';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import dayjs from 'dayjs';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 const { Option } = Select;
 
 const OffboardingFormControl: React.FC<any> = ({
@@ -32,6 +32,8 @@ const OffboardingFormControl: React.FC<any> = ({
     addCustomTerminationOption,
   } = useOffboardingStore();
 
+  const { setEmployeeDetailActiveTab } = useEmployeeManagementStore();
+
   const handleAddTerminationReason = () => {
     if (newTerminationOption) {
       addCustomTerminationOption(newTerminationOption);
@@ -47,11 +49,33 @@ const OffboardingFormControl: React.FC<any> = ({
 
     values['jobInformationId'] = employeeData.employeeJobInformation[0].id;
     setIsEmploymentFormVisible(false);
-    createOffboardingItem(values);
+    createOffboardingItem(values, {
+      onSuccess: () => {
+        setEmployeeDetailActiveTab('5');
+      },
+    });
   };
   return (
     <Modal
-      title="Add Employment Status"
+      title={
+        <div
+          data-cy="offboarding-employment-modal-title"
+          className="flex flex-col gap-1"
+        >
+          <span
+            data-cy="offboarding-employment-modal-title-text"
+            className="text-[#FF4D4F] text-base font-bold"
+          >
+            Initiate Termination
+          </span>
+          <span
+            data-cy="offboarding-employment-modal-title-description"
+            className="text-[#FFA39E] text-sm font-normal"
+          >
+            You must enter all the information to Initiate Termination
+          </span>
+        </div>
+      }
       open={isEmploymentFormVisible}
       footer={false}
       onCancel={() => setIsEmploymentFormVisible(false)}
@@ -63,23 +87,50 @@ const OffboardingFormControl: React.FC<any> = ({
         layout="vertical"
         id="offboarding-employment-form"
         data-cy="offboarding-employment-form"
+        requiredMark={false}
       >
         <Form.Item
           name="effectiveDate"
-          label="Effective Date"
+          label={
+            <span
+              data-cy={`offboarding-effective-date-label`}
+              className="mb-1 text-sm font-normal"
+            >
+              Effective Date{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`job-timeline-effective-start-date-required`}
+              >
+                *
+              </span>
+            </span>
+          }
           rules={[{ required: true, message: 'Effective Date is Required' }]}
           id="offboarding-effective-date-form-item"
           data-cy="offboarding-effective-date-form-item"
         >
           <DatePicker
-            className="w-full"
+            className="w-full h-10"
             id="offboarding-effective-date-picker"
             data-cy="offboarding-effective-date-picker"
           />
         </Form.Item>
         <Form.Item
           name="type"
-          label="Termination Type"
+          label={
+            <span
+              data-cy={`offboarding-termination-type-label`}
+              className="mb-1 text-sm font-normal"
+            >
+              Termination Type{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`job-timeline-effective-start-date-required`}
+              >
+                *
+              </span>
+            </span>
+          }
           rules={[{ required: true, message: 'Termination Type is Required ' }]}
           id="offboarding-termination-type-form-item"
           data-cy="offboarding-termination-type-form-item"
@@ -87,7 +138,7 @@ const OffboardingFormControl: React.FC<any> = ({
           <Select
             id="selectTerminationType"
             allowClear
-            className="w-full"
+            className="w-full h-10"
             data-cy="offboarding-termination-type-select"
           >
             <Option
@@ -113,25 +164,23 @@ const OffboardingFormControl: React.FC<any> = ({
             </Option>
           </Select>
         </Form.Item>
-        <Form.Item
-          name="reason"
-          label="Termination Reason"
-          rules={[
-            { required: true, message: 'Termination Reason is Required ' },
-          ]}
-          id="offboarding-termination-reason-form-item"
-          data-cy="offboarding-termination-reason-form-item"
-        >
-          <Input
-            id="selectTerminationReason"
-            allowClear
-            className="w-full"
-            data-cy="offboarding-termination-reason-input"
-          />
-        </Form.Item>
+
         <Form.Item
           name="eligibleForRehire"
-          label="Eligible for Rehire"
+          label={
+            <span
+              data-cy={`offboarding-eligible-for-rehire-label`}
+              className="mb-1 text-sm font-normal"
+            >
+              Eligible for Rehire{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`job-timeline-effective-start-date-required`}
+              >
+                *
+              </span>
+            </span>
+          }
           rules={[
             { required: true, message: 'Eligible for Rehire is Required ' },
           ]}
@@ -141,7 +190,7 @@ const OffboardingFormControl: React.FC<any> = ({
           <Select
             id="selectEligibleForHire"
             allowClear
-            className="w-full"
+            className="w-full h-10"
             data-cy="offboarding-eligible-select"
           >
             <Option
@@ -161,38 +210,48 @@ const OffboardingFormControl: React.FC<any> = ({
           </Select>
         </Form.Item>
         <Form.Item
-          name="comment"
-          label="Comment"
-          id="offboarding-comment-form-item"
-          data-cy="offboarding-comment-form-item"
+          name="reason"
+          label={
+            <span
+              data-cy={`offboarding-termination-reason-label`}
+              className="mb-1 text-sm font-normal"
+            >
+              Termination Reason{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy={`job-timeline-effective-start-date-required`}
+              >
+                *
+              </span>
+            </span>
+          }
+          rules={[
+            { required: true, message: 'Termination Reason is Required ' },
+          ]}
+          id="offboarding-termination-reason-form-item"
+          data-cy="offboarding-termination-reason-form-item"
         >
-          <TextArea
-            rows={4}
-            id="offboarding-comment-textarea"
-            data-cy="offboarding-comment-textarea"
+          <Input.TextArea
+            placeholder="Enter termination reason"
+            id="selectTerminationReason"
+            allowClear
+            className="w-full h-[52px]"
+            data-cy="offboarding-termination-reason-input"
           />
         </Form.Item>
+
         <Form.Item
           id="offboarding-employment-form-buttons"
           data-cy="offboarding-employment-form-buttons"
         >
           <Row
-            className="flex justify-end gap-3"
+            className="flex justify-end gap-3 mt-3"
             id="offboarding-employment-form-row"
             data-cy="offboarding-employment-form-row"
           >
             <Button
-              type="primary"
-              htmlType="submit"
-              value={'submit'}
-              name="submit"
-              id="offboarding-employment-submit-btn"
-              data-cy="offboarding-employment-submit-btn"
-            >
-              Submit
-            </Button>
-            <Button
-              className="text-indigo-500"
+              type="default"
+              className="border border-[#D9D9D9] h-8 font-normal"
               htmlType="button"
               value={'cancel'}
               name="cancel"
@@ -200,7 +259,18 @@ const OffboardingFormControl: React.FC<any> = ({
               id="offboarding-employment-cancel-btn"
               data-cy="offboarding-employment-cancel-btn"
             >
-              Cancel{' '}
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              htmlType="submit"
+              value={'submit'}
+              name="submit"
+              id="offboarding-employment-submit-btn"
+              data-cy="offboarding-employment-submit-btn"
+              className="h-8 font-normal bg-[#FF4D4F] text-white"
+            >
+              Initiate Termination
             </Button>
           </Row>
         </Form.Item>

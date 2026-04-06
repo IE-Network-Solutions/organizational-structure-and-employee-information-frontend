@@ -17,19 +17,23 @@ const GenerateModal: React.FC = () => {
   const { data: payPeriodData } = useFetchAllPayPeriod();
   const { data: allSessions } = useFetchIncentiveSessions();
 
-  const { mutate: generateIncentive } = useGenerateIncentive();
+  const { mutate: generateIncentive, isLoading: submitPending } = useGenerateIncentive();
+
+  const resetFormAfterClose = () => {
+    form.resetFields();
+    setIsSwitchOn(false);
+  };
 
   const handleModalClose = () => {
     setShowGenerateModal(false);
-    form.resetFields();
   };
 
   const handleSwitchChange = (e: CheckboxChangeEvent) => {
     const checked = e.target.checked;
     setIsSwitchOn(checked);
-    if (checked) {
-      form.resetFields(['selectSession']);
-    }
+    form.setFieldsValue({
+      generateAll: checked,
+    });
   };
   const handleSubmit = () => {
     const formValues = form.getFieldsValue();
@@ -48,6 +52,8 @@ const GenerateModal: React.FC = () => {
   return (
     <Modal
       data-cy="generate-modal"
+      destroyOnClose
+      afterClose={resetFormAfterClose}
       title={
         <div
           id="generate-modal-title"
@@ -81,7 +87,8 @@ const GenerateModal: React.FC = () => {
             data-cy="generate-modal-submit-button"
             type="primary"
             className="font-normal"
-            onClick={handleSubmit}
+            onClick={() => form.submit()}
+            loading={submitPending}
           >
             Generate
           </Button>
@@ -104,11 +111,6 @@ const GenerateModal: React.FC = () => {
           valuePropName="checked"
           name="generateAll"
         >
-          {/* <Switch
-            id="generate-modal-form-generate-all-switch"
-            data-cy="generate-modal-form-generate-all-switch"
-            onChange={handleSwitchChange}
-          /> */}
 
           <Checkbox
             id="generate-modal-form-generate-all-checkbox"

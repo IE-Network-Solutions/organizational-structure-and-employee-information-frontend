@@ -747,6 +747,56 @@ h6 {
   right: 130px !important;
   margin: 0 !important;
 }
+  .ant-form-item-control .control-tarea {
+    @apply w-full py-4 px-5 mt-2.5;
+  }
+
+  .form-item {
+    @apply font-semibold text-xs;
+  }
+
+  .menu-item-label {
+    @apply font-bold text-sm;
+  }
+
+  .menu-item-icon {
+    @apply text-[#4DAEF0] !important;
+  }
+
+  .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+    align-items: center !important;
+  }
+
+  .page-wrap {
+    @apply h-auto w-auto pr-6 pb-6 pl-3;
+  }
+
+  .tna-page-wrap {
+    @apply h-auto w-auto pb-6;
+  }
+
+  .lesson-card .ant-collapse-content {
+    border: none !important;
+  }
+
+  .lesson-material-article {
+    @apply text-gray-600 text-base;
+  }
+
+  .lesson-material-article h3 {
+    @apply text-gray-900 text-[24px];
+  }
+
+  .ant-pagination.invoice-table {
+    display: flex !important;
+  }
+
+  .ant-pagination.invoice-table .ant-pagination-options {
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
 
 @media (max-width: 768px) {
   .ant-pagination.invoice-table .ant-pagination-total-text {
