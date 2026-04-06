@@ -90,7 +90,7 @@ function TemplateTaskDraggable({
       {...listeners}
       {...attributes}
       className={`bg-white rounded-lg border border-gray-200 p-3 mb-2 shadow-sm ${
-        isDragging ? 'opacity-90 shadow-md z-10' : ''
+        isDragging ? 'opacity-90 shadow-md relative z-[100]' : ''
       }`}
       id={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
       data-cy={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
@@ -250,8 +250,12 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   if (error)
     return <div data-cy="offboarding-tasks-error">Error loading tasks</div>;
 
-  const resignationSubmittedDate =
-    employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
+  // const resignationSubmittedDate =
+  //   employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
+
+  const resignationDate = employeeData.employeeJobInformation.find(
+    (job: any) => job.isPositionActive === true,
+  )?.resignationSubmittedDate;
 
   // Check if all tasks are completed
   const allTasksCompleted =
@@ -276,7 +280,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           {/* Left panel: Core Offboarding Tasks */}
           <Card
             title="Core Offboarding Tasks"
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 relative z-10 overflow-visible [&_.ant-card-body]:overflow-visible"
             id="core-offboarding-tasks-card"
             data-cy="core-offboarding-tasks-card"
           >
@@ -313,7 +317,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           {/* Right panel: Off-boarding Tasks */}
           <Card
             title="Off-boarding Tasks"
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 relative z-0"
             id="offboarding-tasks-card"
             data-cy="offboarding-tasks-card"
             extra={
@@ -331,7 +335,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     type="primary"
                     icon={<PlusOutlined />}
                     onClick={handleAddTaskClick}
-                    disabled={resignationSubmittedDate === null}
+                    disabled={resignationDate === null}
                     id="offboarding-add-task-btn"
                     data-cy="offboarding-add-task-btn"
                   >

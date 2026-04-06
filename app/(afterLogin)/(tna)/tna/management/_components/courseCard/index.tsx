@@ -37,7 +37,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
     <Spin spinning={isLoading} data-cy={`tna-course-card-spinner-${item?.id}`}>
       <div
         className={classNames(
-          'relative flex flex-col w-[348px] h-[295px] rounded-[8px] border border-gray-200 bg-white overflow-hidden cursor-pointer hover:shadow-md transition-shadow group pt-[1px] pb-[12px] gap-[13px]',
+          'group relative flex h-[295px] min-w-0 w-full cursor-pointer flex-col gap-0 overflow-hidden rounded-[8px] border border-[#D9D9D9] bg-white pb-3 transition-shadow hover:shadow-md md:border-gray-200',
           { 'opacity-70': item?.isDraft },
           [className],
         )}
@@ -46,30 +46,31 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
         data-cy={`tna-course-card-${item?.id}`}
       >
         <div
-          className="relative w-[348px] h-[159px] shrink-0"
+          className="relative h-[159px] w-full shrink-0 overflow-hidden leading-none"
           data-cy={`tna-course-card-thumbnail-wrap-${item?.id}`}
         >
           <Image
             alt={item?.title || 'thumbnail'}
             src={item?.thumbnail || '/default-thumbnail.png'}
             fill
-            className="object-cover"
+            sizes="(max-width: 767px) 380px, (max-width: 1279px) 50vw, 33vw"
+            className="!object-cover object-center"
             id={`tnaCourseCardThumbnail${item?.id}Id`}
             data-cy={`tna-course-card-thumbnail-${item?.id}`}
           />
         </div>
 
         <div
-          className="flex flex-col w-[320px] mx-auto gap-[8px] flex-1 min-h-0"
+          className="flex min-h-0 flex-1 flex-col gap-2 px-[15px] pt-3 md:gap-[8px] md:px-4 md:pt-[13px]"
           id={`tnaCourseCardContent${item?.id}Id`}
           data-cy={`tna-course-card-content-${item?.id}`}
         >
           <div
-            className="flex justify-between items-center"
+            className="flex items-center justify-between"
             data-cy={`tna-course-card-category-row-${item?.id}`}
           >
             <span
-              className="text-[13px] font-bold text-gray-900 leading-none"
+              className="text-[13px] font-bold leading-none text-gray-900 max-md:text-xs max-md:leading-5 max-md:text-black md:leading-none"
               id={`tnaCourseCardCategory${item?.id}Id`}
               data-cy={`tna-course-card-category-${item?.id}`}
             >
@@ -77,7 +78,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             </span>
             {item?.isDraft && (
               <span
-                className="text-[13px] text-[#A6A6A6] font-medium leading-none"
+                className="text-[12px] font-medium leading-none text-[#000000]"
                 id={`tnaCourseCardDraft${item?.id}Id`}
                 data-cy={`tna-course-card-draft-${item?.id}`}
               >
@@ -87,7 +88,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           </div>
 
           <h3
-            className="text-base font-bold text-gray-900 line-clamp-1 leading-tight m-0"
+            className="m-0 line-clamp-1 text-base font-bold leading-tight text-gray-900 max-md:text-sm max-md:leading-[22px] max-md:text-black"
             id={`tnaCourseCardTitle${item?.id}Id`}
             data-cy={`tna-course-card-title-${item?.id}`}
           >
@@ -95,7 +96,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           </h3>
 
           <p
-            className="text-[13px] text-[#A6A6A6] line-clamp-2 leading-[18px] m-0"
+            className="m-0 line-clamp-3 text-[13px] leading-[18px] text-[#A6A6A6] max-md:line-clamp-2 max-md:text-xs max-md:leading-5 max-md:text-black/45 md:line-clamp-2"
             id={`tnaCourseCardDescription${item?.id}Id`}
             data-cy={`tna-course-card-description-${item?.id}`}
           >
@@ -105,17 +106,17 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           </p>
 
           <div
-            className="flex items-center gap-4 mt-auto pt-1"
+            className="mt-auto flex items-center gap-4 pt-1 max-md:gap-3"
             id={`tnaCourseCardFooter${item?.id}Id`}
             data-cy={`tna-course-card-footer-${item?.id}`}
           >
             <div
-              className="flex items-center gap-1.5 text-[#A6A6A6] text-xs font-medium"
+              className="flex items-center gap-1.5 text-xs font-medium text-[#A6A6A6] max-md:gap-2 max-md:font-normal max-md:leading-5 max-md:text-black/45"
               data-cy={`tna-course-card-courses-stat-${item?.id}`}
             >
               <LuLayers
                 size={14}
-                className="text-[#A6A6A6]"
+                className="text-[#A6A6A6] max-md:text-black/45"
                 data-cy={`tna-course-card-courses-icon-${item?.id}`}
               />
               <span data-cy={`tna-course-card-courses-count-${item?.id}`}>
@@ -123,12 +124,11 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               </span>
             </div>
             <div
-              className="flex items-center gap-1.5 text-[#A6A6A6] text-xs font-medium"
+              className="flex items-center gap-1.5 text-xs font-medium text-[#A6A6A6] max-md:gap-2 max-md:font-normal max-md:leading-5 max-md:text-black/45"
               data-cy={`tna-course-card-lessons-stat-${item?.id}`}
             >
               <FaRegFileAlt
-                size={13}
-                className="text-[#A6A6A6]"
+                className="h-[13px] w-[13px] shrink-0 text-[#A6A6A6] max-md:h-3.5 max-md:w-3.5 max-md:text-black/45"
                 data-cy={`tna-course-card-lessons-icon-${item?.id}`}
               />
               <span data-cy={`tna-course-card-lessons-count-${item?.id}`}>
@@ -156,6 +156,8 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           >
             <ActionButton
               id={item?.id ?? null}
+              triggerSizePx={24}
+              moreMenuIconPx={14}
               onEdit={() => {
                 setCourseId(item?.id);
                 setIsShowCourseSidebar(true);

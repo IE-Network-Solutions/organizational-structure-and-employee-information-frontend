@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { useGetCombinedHrDashboard } from '@/store/server/features/employees/approval/queries';
@@ -12,30 +12,10 @@ import EmployeeLeave from './_components/employee-leave';
 import { Breadcrumb } from 'antd';
 import Link from 'next/link';
 import RecentHrActions from './_components/recent-hr-actions';
-import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 
 export default function EmployeeDashboardPage() {
   const { data: combinedHrData, isLoading: combinedHrLoading } =
     useGetCombinedHrDashboard();
-  const modules = [
-    'OrgAndEmpAuditLog',
-    'RecruitmentAuditLog',
-    'TimesheetAuditLog',
-  ];
-  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
-    useGetAggregateAuditPostLogs(
-      {
-        modules: modules,
-        page: 1,
-        limit: 5,
-        orderBy: 'performedAt',
-        orderDirection: 'DESC',
-      },
-      true,
-    );
-  const auditLogsData = useMemo(() => {
-    return auditLogs?.items ?? [];
-  }, [auditLogs]);
   return (
     <div
       className="h-auto w-full md:pr-2 pr-0"
@@ -101,33 +81,28 @@ export default function EmployeeDashboardPage() {
             </div>
 
             <div
-              className="md:mt-2 mt-2 md:col-span-3 col-span-12"
+              className="md:mt-6 mt-2 md:col-span-3 col-span-12"
               data-cy="employee-dashboard-hiring-funnel-section"
             >
               <EmployeeHiringFunnelCard />
             </div>
             <div
-              className="md:mt-2 mt-2 md:col-span-9 col-span-12"
+              className="md:mt-6 mt-2 md:col-span-9 col-span-12"
               data-cy="employee-dashboard-hire-vs-resignation-section"
             >
               <HireVsResignationTrendChart />
             </div>
             <div
-              className="md:mt-2 mt-2 md:col-span-8 col-span-12"
+              className="md:mt-6 mt-2 md:col-span-8 col-span-12"
               data-cy="employee-dashboard-leave-section"
             >
               <EmployeeLeave />
             </div>
             <div
-              className="md:mt-2 mt-2 md:col-span-4 col-span-12"
+              className="md:mt-6 mt-2 md:col-span-4 col-span-12"
               data-cy="employee-dashboard-recent-hr-actions-section"
             >
-              <RecentHrActions
-                auditLogs={auditLogsData}
-                isLoading={isLoadingAuditLogs}
-                auditLogModules={modules}
-                height="490px"
-              />
+              <RecentHrActions />
             </div>
           </div>
         </div>

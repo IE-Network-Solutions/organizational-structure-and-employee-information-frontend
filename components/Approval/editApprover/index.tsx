@@ -2,6 +2,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { Button, Form, Input, Modal, Radio, Row, Select, Tooltip } from 'antd';
 import React, { useEffect } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import CustomLabel from '@/components/form/customLabel/customLabel';
 
 const EditApproverComponent = ({
   editModal,
@@ -21,6 +22,8 @@ const EditApproverComponent = ({
   deletedApprover,
   setDeleteModal,
   setDeletedApprover,
+  hideWorkflowAppliesSection = false,
+  disableNameAndDescription = false,
 }: {
   editModal: any;
   customFieldsDrawerHeader: any;
@@ -30,9 +33,9 @@ const EditApproverComponent = ({
   selectedItem: any;
   department: any;
   users: any;
-  level: any;
+  level?: any;
   workflowApplies: any;
-  initialValues: any;
+  initialValues?: any;
   approverType: any;
   handleDeselect: (value: string, index: number) => void;
   handleUserChange: (value: string, index: number) => void;
@@ -41,6 +44,8 @@ const EditApproverComponent = ({
   deletedApprover: any;
   setDeleteModal: (id: boolean) => void;
   setDeletedApprover: (id: string) => void;
+  hideWorkflowAppliesSection?: boolean;
+  disableNameAndDescription?: boolean;
 }) => {
   useEffect(() => {
     // Prepare approvers data for Form.List
@@ -87,7 +92,12 @@ const EditApproverComponent = ({
       centered
     >
       <div data-cy="components-approval-editapprover-index-tsx-index-div-89">
-        <Form form={form} onFinish={handleSubmit} layout="vertical">
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          layout="vertical"
+          requiredMark={CustomLabel}
+        >
           <Form.Item
             name="workFlownName"
             label="Workflow Name"
@@ -99,6 +109,7 @@ const EditApproverComponent = ({
             <Input
               placeholder="Enter Workflow Name"
               className="h-10 rounded-md"
+              disabled={disableNameAndDescription}
             />
           </Form.Item>
 
@@ -108,55 +119,60 @@ const EditApproverComponent = ({
             className="mt-3 mb-1"
             rules={[{ required: true, message: 'Please enter a description!' }]}
           >
-            <Input.TextArea placeholder="Enter Description" />
+            <Input.TextArea
+              placeholder="Enter Description"
+              disabled={disableNameAndDescription}
+            />
           </Form.Item>
 
-          <div
-            id="components-approval-editapprover-index-tsx-index-div-100"
-            data-cy="components-approval-editapprover-index-tsx-index-div-100"
-            className="border border-gray-200 rounded-xl p-3 my-3"
-          >
+          {!hideWorkflowAppliesSection && (
             <div
-              className="my-1 flex flex-col sm:flex-row gap-4 items-center"
-              data-cy="approval-workflow-applies-section-edit"
+              id="components-approval-editapprover-index-tsx-index-div-100"
+              data-cy="components-approval-editapprover-index-tsx-index-div-100"
+              className="border border-gray-200 rounded-xl p-3 my-3"
             >
-              <span
-                id="components-approval-editapprover-index-tsx-index-label-workflow-applies-to"
-                data-cy="components-approval-editapprover-index-tsx-index-label-workflow-applies-to"
-                className="text-sm text-[#4d4d4d]"
+              <div
+                className="my-1 flex flex-col sm:flex-row gap-4 items-center"
+                data-cy="approval-workflow-applies-section-edit"
               >
-                Workflow Applies to
-              </span>
-              <Form.Item
-                name="workflowAppliesType"
-                className="mb-0 mt-1"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select a workflow option!',
-                  },
-                ]}
-              >
-                <Radio.Group>
-                  <Radio value="Department">Department</Radio>
-                  <Radio disabled value="Hierarchy">
-                    Hierarchy
-                  </Radio>
-                  <Radio value="User">User</Radio>
-                </Radio.Group>
+                <span
+                  id="components-approval-editapprover-index-tsx-index-label-workflow-applies-to"
+                  data-cy="components-approval-editapprover-index-tsx-index-label-workflow-applies-to"
+                  className="text-sm text-[#4d4d4d]"
+                >
+                  Workflow Applies to
+                </span>
+                <Form.Item
+                  name="workflowAppliesType"
+                  className="mb-0 mt-1"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select a workflow option!',
+                    },
+                  ]}
+                >
+                  <Radio.Group>
+                    <Radio value="Department">Department</Radio>
+                    <Radio disabled value="Hierarchy">
+                      Hierarchy
+                    </Radio>
+                    <Radio value="User">User</Radio>
+                  </Radio.Group>
+                </Form.Item>
+              </div>
+
+              <Form.Item name="workflowAppliesId" className="mb-0">
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  className="h-10"
+                  allowClear
+                  placeholder={`Select ${workflowApplies ? workflowApplies : ''}`}
+                />
               </Form.Item>
             </div>
-
-            <Form.Item name="workflowAppliesId" className="mb-0">
-              <Select
-                showSearch
-                optionFilterProp="label"
-                className="h-10"
-                allowClear
-                placeholder={`Select ${workflowApplies ? workflowApplies : ''}`}
-              />
-            </Form.Item>
-          </div>
+          )}
 
           <div
             className="rounded-xl border border-gray-200 p-3 mb-3 flex flex-col gap-2"

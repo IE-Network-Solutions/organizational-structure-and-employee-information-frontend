@@ -17,6 +17,10 @@ export interface ActionButtonProps {
   onCancelDelete?: (e?: any) => void;
   className?: string;
   id?: any;
+  /** Square trigger button size in px (e.g. 24). Omit for default sizing. */
+  triggerSizePx?: number;
+  /** MoreHoriz icon font size in px. Use with `triggerSizePx` when the glyph should differ from the button. */
+  moreMenuIconPx?: number;
 }
 
 const ActionButton: FC<ActionButtonProps> = ({
@@ -28,6 +32,8 @@ const ActionButton: FC<ActionButtonProps> = ({
   onCancelDelete,
   className = '',
   id,
+  triggerSizePx,
+  moreMenuIconPx,
 }) => {
   const [open, setOpen] = useState(false);
   const items: MenuProps['items'] = [];
@@ -147,14 +153,30 @@ const ActionButton: FC<ActionButtonProps> = ({
     >
       <Button
         type="default"
-        className="border border-[#D9D9D9] h-7 w-6"
+        style={
+          triggerSizePx != null
+            ? {
+                width: triggerSizePx,
+                height: triggerSizePx,
+                minWidth: triggerSizePx,
+                padding: 0,
+              }
+            : undefined
+        }
+        className={classNames(
+          'border border-[#D9D9D9] flex items-center justify-center',
+          {},
+          triggerSizePx == null ? ['h-7 w-6'] : ['p-0'],
+        )}
         id={`${id}buttonDropDownActionId`}
         onClick={(e) => {
           e.stopPropagation();
           setOpen(true);
         }}
       >
-        <MoreHorizIcon />
+        <MoreHorizIcon
+          sx={moreMenuIconPx != null ? { fontSize: moreMenuIconPx } : undefined}
+        />
       </Button>
     </Dropdown>
   );

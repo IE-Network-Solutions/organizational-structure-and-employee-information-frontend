@@ -1,12 +1,15 @@
 import React, { FC } from 'react';
+import dayjs from 'dayjs';
 import { TbFileDownload } from 'react-icons/tb';
 import { classNames } from '@/utils/classNames';
 import { IoClose } from 'react-icons/io5';
+import { MdOutlineFileDownload } from 'react-icons/md';
 interface FileButtonProps {
   isPreview?: boolean;
   fileName: string;
   link?: string;
   className?: string;
+  createdAt?: string;
   onRemove?: (e: any) => void;
 }
 
@@ -15,6 +18,7 @@ const FileButton: FC<FileButtonProps> = ({
   fileName,
   link,
   className = '',
+  createdAt,
   onRemove,
 }) => {
   return isPreview ? (
@@ -46,25 +50,43 @@ const FileButton: FC<FileButtonProps> = ({
       )}
     </button>
   ) : (
-    <a
-      href={link}
-      target="_blank"
+    <div
       id="fileOpenLinkId"
       data-cy="components-common-filebutton-index-tsx-index-a-49"
       className={classNames(
-        'flex items-center rounded-lg border border-gray-200 py-2 px-6 w-max gap-1 text-gray-900',
+        'flex items-center justify-between rounded-lg border border-gray-200 py-2 px-4 w-full h-[60px]',
         undefined,
         [className],
       )}
     >
-      <TbFileDownload size={16} />
-      <span
-        data-cy="components-common-filebutton-index-tsx-index-span-55"
-        className="text-xs"
+      <div data-cy="file-button-content" className="font-normal">
+        <div data-cy="file-button-content-name" className="text-sm">
+          {fileName}
+        </div>
+        {createdAt && (
+          <div
+            data-cy="file-button-content-date"
+            className="text-xs text-gray-600"
+          >
+            {dayjs(createdAt).isValid()
+              ? dayjs(createdAt).format('D MMM YYYY')
+              : createdAt}
+          </div>
+        )}
+      </div>
+
+      <a
+        data-cy="file-button-download-link"
+        target="_blank"
+        href={link}
+        className="border border-[#D9D9D9] rounded-lg h-8 w-8 flex items-center justify-center"
       >
-        {fileName}
-      </span>
-    </a>
+        <MdOutlineFileDownload
+          className="w-3 h-3"
+          data-cy="file-button-download-icon"
+        />
+      </a>
+    </div>
   );
 };
 

@@ -489,7 +489,7 @@ const CourseCategorySidebar = () => {
         onCancel={() => onClose()}
         title={
           <span
-            className="text-[16px] leading-[24px] font-bold text-black/70"
+            className="font-[Calibri,sans-serif] text-[16px] font-bold leading-6 text-black/70 md:text-[16px]"
             data-cy="tna-course-sidebar-modal-title"
           >
             {courseId ? 'Edit Course' : 'Add Course'}
@@ -499,6 +499,14 @@ const CourseCategorySidebar = () => {
         centered
         width={655}
         footer={null}
+        rootClassName="tna-course-sidebar-modal-root max-md:[&_.ant-modal]:!top-[10vh] max-md:[&_.ant-modal]:!mx-auto max-md:[&_.ant-modal]:!w-[calc(100%-16px)] max-md:[&_.ant-modal]:!max-w-[404px] max-md:[&_.ant-modal-close]:!flex max-md:[&_.ant-modal-close]:!h-[22px] max-md:[&_.ant-modal-close]:!w-[22px] max-md:[&_.ant-modal-close]:!items-center max-md:[&_.ant-modal-close]:!justify-center max-md:[&_.ant-modal-close]:rounded max-md:[&_.ant-modal-content]:!max-h-[min(696px,92dvh)] max-md:[&_.ant-modal-content]:!flex max-md:[&_.ant-modal-content]:!flex-col"
+        classNames={{
+          header:
+            '!mb-0 !flex !h-14 !min-h-14 !items-center !rounded-t-lg border-0 !px-6 !py-4',
+          body: '!m-0 !p-0 max-md:!flex max-md:!min-h-0 max-md:!flex-1 max-md:!flex-col max-md:!overflow-hidden',
+          content:
+            'overflow-hidden !p-0 max-md:!flex max-md:!max-h-[min(696px,92dvh)] max-md:!flex-col',
+        }}
         styles={{
           content: {
             borderRadius: 8,
@@ -509,6 +517,7 @@ const CourseCategorySidebar = () => {
           header: {
             padding: '16px 24px',
             marginBottom: 0,
+            flex: 'none',
           },
           body: {
             padding: 0,
@@ -517,293 +526,336 @@ const CourseCategorySidebar = () => {
         data-cy="tna-course-sidebar-drawer"
       >
         <div
-          className="max-h-[783px] overflow-y-auto px-6"
-          data-cy="tna-course-sidebar-scroll-body"
+          className="flex flex-col gap-3 max-md:min-h-0 max-md:flex-1 max-md:pt-3 md:gap-0 md:pt-0"
+          data-cy="tna-course-sidebar-modal-main-column"
         >
           <div
-            className="w-[607px] border border-[#D9D9D9] rounded-[8px] p-4"
-            data-cy="tna-course-sidebar-form-frame"
+            className="max-h-[564px] min-h-0 overflow-y-auto px-4 max-md:flex-1 md:max-h-[783px] md:px-6"
+            data-cy="tna-course-sidebar-scroll-body"
           >
-            <Form
-              layout="vertical"
-              form={form}
-              disabled={isLoading || isFetching}
-              onFinish={onFinish}
-              className="p-0 w-[575px]"
-              requiredMark={CustomLabel}
-              id="tnaCourseSidebarFormId"
-              data-cy="tna-course-sidebar-form"
+            <div
+              className="box-border w-full max-w-full rounded-[8px] border border-[#D9D9D9] p-4 md:w-[607px]"
+              data-cy="tna-course-sidebar-form-frame"
             >
-              <Form.Item
-                name="title"
-                label="TNA name"
-                rules={[{ required: true, message: 'Required' }]}
-                className="form-item"
-                id="tnaCourseSidebarTitleItemId"
-                data-cy="tna-course-sidebar-title-item"
+              <Form
+                layout="vertical"
+                form={form}
+                disabled={isLoading || isFetching}
+                onFinish={onFinish}
+                className="w-full max-w-full p-0 md:w-[575px] [&_input]:placeholder:font-normal [&_textarea]:placeholder:font-normal [&_.ant-select-selection-placeholder]:!font-light [&_.ant-select-selection-placeholder]:text-[16px] [&_.ant-select-selection-placeholder]:!text-[#000000] max-md:[&_.ant-form-item-label>div>span:first-child]:!text-[#030712] max-md:[&_.ant-form-item]:mb-4 max-md:[&_.ant-form-item:last-child]:mb-0"
+                requiredMark={CustomLabel}
+                id="tnaCourseSidebarFormId"
+                data-cy="tna-course-sidebar-form"
               >
-                <Input
-                  id="tnaCourseNameFieldId"
-                  data-cy="tna-course-name-field"
-                  className="h-[40px] rounded-[6px]"
-                  placeholder="First Name"
-                />
-              </Form.Item>
-              <Form.Item
-                name="courseCategoryId"
-                label="Category"
-                rules={[{ required: true, message: 'Required' }]}
-                className="form-item"
-                id="tnaCourseSidebarCategoryItemId"
-                data-cy="tna-course-sidebar-category-item"
-              >
-                <Select
-                  id="tnaCourseCategoryFieldId"
-                  data-cy="tna-course-category-field"
-                  className="h-[40px]"
-                  placeholder="Select Category"
-                  options={formatToOptions(courseCategory, 'title', 'id')}
-                />
-              </Form.Item>
-              <Form.Item
-                name="thumbnail"
-                label="Thumbnail"
-                id="tnaCourseThumbnailFieldId"
-                data-cy="tna-course-thumbnail-field"
-                className="form-item"
-                valuePropName="fileList"
-                rules={[{ required: true, message: 'Required' }]}
-                getValueFromEvent={(e) => {
-                  return Array.isArray(e) ? e : e && e.fileList;
-                }}
-              >
-                <CustomUpload
-                  mode="draggable"
-                  id="tnaCourseThumbnailFieldId"
-                  data-cy="tna-course-thumbnail-upload"
-                  className="w-full mt-2"
-                  listType="picture"
-                  accept="image/*"
-                  icon={
-                    <InboxOutlined
-                      style={{ fontSize: 48, color: '#1E40AF' }}
-                      data-cy="tna-course-thumbnail-inbox-icon"
-                    />
+                <Form.Item
+                  name="title"
+                  label={
+                    <span
+                      className="text-[14px] font-normal"
+                      data-cy="tna-course-sidebar-label-tna-name"
+                    >
+                      TNA name
+                    </span>
                   }
-                  title="Click or drag file to this area to upload"
-                  subtitle="Support for a single or bulk upload."
-                  maxCount={1}
-                />
-              </Form.Item>
-              <Form.Item
-                name="overview"
-                label="Overview"
-                rules={[{ required: true, message: 'Required' }]}
-                className="form-item"
-                id="tnaCourseSidebarOverviewItemId"
-                data-cy="tna-course-sidebar-overview-item"
-              >
-                <Input.TextArea
-                  id="tnaCourseDescriptionFieldId"
-                  data-cy="tna-course-description-field"
-                  className="rounded-[6px]"
-                  rows={2}
-                  placeholder="Textarea"
-                />
-              </Form.Item>
-              <Form.Item
-                name="department"
-                label="Department"
-                rules={[
-                  { required: courseId ? false : true, message: 'Required' },
-                ]}
-                className="form-item"
-                id="tnaCourseSidebarDepartmentItemId"
-                data-cy="tna-course-sidebar-department-item"
-              >
-                <Spin spinning={isDepartmentLoading}>
-                  <TreeSelect
-                    treeData={departmentTreeData}
-                    treeCheckable
-                    showCheckedStrategy={TreeSelect.SHOW_CHILD}
-                    className="min-h-[40px] [&_.ant-select-selector]:!min-h-[40px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!py-[4px] [&_.ant-select-selector]:!px-[11px] [&_.ant-select-selection-overflow-item]:!hidden [&_.ant-select-selection-overflow-item-suffix]:!hidden"
-                    id="tnaCourseSidebarDepartmentSelectId"
-                    data-cy="tna-course-sidebar-department-select"
-                    value={selectedDepartmentIds}
-                    onChange={(value) =>
-                      handleDepartmentChange((value as string[]) ?? [])
-                    }
-                    placeholder="Select"
-                    disabled={isDepartmentSelectDisabled}
-                    maxTagCount={0}
-                    maxTagPlaceholder={() => null}
-                  />
-                  {selectedDepartmentIds.length > 0 && (
-                    <div
-                      className="flex flex-wrap gap-1 mt-1.5"
-                      data-cy="tna-course-sidebar-department-tags"
-                    >
-                      {selectedDepartmentIds.map((deptId) => (
-                        <span
-                          key={deptId}
-                          className="inline-flex items-center h-6 px-2 rounded-[4px] border border-[#D9D9D9] bg-black/[0.02] text-[12px] text-black/70 leading-[22px]"
-                          data-cy={`tna-course-sidebar-department-tag-${deptId}`}
-                        >
-                          {departmentTitleMap.get(String(deptId)) ?? deptId}
-                          <button
-                            type="button"
-                            className="ml-1 text-black/70 leading-none"
-                            data-cy={`tna-course-sidebar-department-tag-remove-${deptId}`}
-                            onClick={() =>
-                              handleRemoveDepartment(String(deptId))
-                            }
-                          >
-                            x
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </Spin>
-              </Form.Item>
-              <div
-                data-cy="management-components-coursesidebar-index-tsx-index-div-619"
-                className="space-y-[9px] border-t border-[#D9D9D9] pt-4"
-                id="tnaCourseSidebarAssignmentSectionId"
-              >
-                <div
-                  data-cy="management-components-coursesidebar-index-tsx-index-div-620"
-                  className="flex items-center justify-between"
+                  rules={[{ required: true, message: 'Required' }]}
+                  className="form-item"
+                  id="tnaCourseSidebarTitleItemId"
+                  data-cy="tna-course-sidebar-title-item"
                 >
-                  <div
-                    data-cy="management-components-coursesidebar-index-tsx-index-div-621"
-                    className="text-[14px] leading-[22px] font-bold text-black"
-                  >
-                    Employees Selected ({selectedUserIds.length})
-                  </div>
-                  <div
-                    data-cy="management-components-coursesidebar-index-tsx-index-div-624"
-                    className="flex gap-2"
-                  >
-                    <Button
-                      type="link"
-                      size="small"
-                      onClick={handleSelectAllUsers}
-                      disabled={!availableUsers.length}
+                  <Input
+                    id="tnaCourseNameFieldId"
+                    data-cy="tna-course-name-field"
+                    className="h-[40px] rounded-[6px]"
+                    placeholder="First Name"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="courseCategoryId"
+                  label={
+                    <span
+                      className="text-[14px] font-normal"
+                      data-cy="tna-course-sidebar-label-category"
                     >
-                      Select All
-                    </Button>
-                    <Button
-                      type="link"
-                      size="small"
-                      onClick={handleClearUsers}
-                      disabled={!selectedUserIds.length}
+                      Category
+                    </span>
+                  }
+                  rules={[{ required: true, message: 'Required' }]}
+                  className="form-item"
+                  id="tnaCourseSidebarCategoryItemId"
+                  data-cy="tna-course-sidebar-category-item"
+                >
+                  <Select
+                    id="tnaCourseCategoryFieldId"
+                    data-cy="tna-course-category-field"
+                    className="h-[40px] [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!h-10"
+                    placeholder="Select Category"
+                    options={formatToOptions(courseCategory, 'title', 'id')}
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="thumbnail"
+                  label={
+                    <span
+                      className="text-[14px] font-normal"
+                      data-cy="tna-course-sidebar-label-thumbnail"
                     >
-                      Clear
-                    </Button>
-                  </div>
-                </div>
-                <Spin spinning={isUsersLoading}>
-                  {!selectedDepartmentIds.length ? (
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="Select a department to load employees"
-                      className="my-6"
+                      Thumbnail
+                    </span>
+                  }
+                  id="tnaCourseThumbnailFieldId"
+                  data-cy="tna-course-thumbnail-field"
+                  className="form-item"
+                  valuePropName="fileList"
+                  rules={[{ required: true, message: 'Required' }]}
+                  getValueFromEvent={(e) => {
+                    return Array.isArray(e) ? e : e && e.fileList;
+                  }}
+                >
+                  <CustomUpload
+                    mode="draggable"
+                    id="tnaCourseThumbnailFieldId"
+                    data-cy="tna-course-thumbnail-upload"
+                    className="w-full mt-2"
+                    listType="picture"
+                    accept="image/*"
+                    icon={
+                      <InboxOutlined
+                        style={{ fontSize: 48, color: '#1E40AF' }}
+                        data-cy="tna-course-thumbnail-inbox-icon"
+                      />
+                    }
+                    title="Click or drag file to this area to upload"
+                    subtitle="Support for a single or bulk upload."
+                    maxCount={1}
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="overview"
+                  label={
+                    <span
+                      className="text-[14px] font-normal"
+                      data-cy="tna-course-sidebar-label-overview"
+                    >
+                      Overview
+                    </span>
+                  }
+                  rules={[{ required: true, message: 'Required' }]}
+                  className="form-item"
+                  id="tnaCourseSidebarOverviewItemId"
+                  data-cy="tna-course-sidebar-overview-item"
+                >
+                  <Input.TextArea
+                    id="tnaCourseDescriptionFieldId"
+                    data-cy="tna-course-description-field"
+                    className="min-h-[52px] rounded-[6px] max-md:!min-h-[52px]"
+                    rows={2}
+                    placeholder="Textarea"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="department"
+                  label={
+                    <span
+                      className="text-[14px] font-normal"
+                      data-cy="tna-course-sidebar-label-department"
+                    >
+                      Department
+                    </span>
+                  }
+                  rules={[
+                    { required: courseId ? false : true, message: 'Required' },
+                  ]}
+                  className="form-item"
+                  id="tnaCourseSidebarDepartmentItemId"
+                  data-cy="tna-course-sidebar-department-item"
+                >
+                  <Spin spinning={isDepartmentLoading}>
+                    <TreeSelect
+                      treeData={departmentTreeData}
+                      treeCheckable
+                      showCheckedStrategy={TreeSelect.SHOW_CHILD}
+                      className="min-h-[40px] [&_.ant-select-selector]:!min-h-[40px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!py-[4px] [&_.ant-select-selector]:!px-[11px] [&_.ant-select-selection-overflow-item]:!hidden [&_.ant-select-selection-overflow-item-suffix]:!hidden"
+                      id="tnaCourseSidebarDepartmentSelectId"
+                      data-cy="tna-course-sidebar-department-select"
+                      value={selectedDepartmentIds}
+                      onChange={(value) =>
+                        handleDepartmentChange((value as string[]) ?? [])
+                      }
+                      placeholder="Select"
+                      disabled={isDepartmentSelectDisabled}
+                      maxTagCount={0}
+                      maxTagPlaceholder={() => null}
                     />
-                  ) : availableUsers.length === 0 ? (
-                    <Empty
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                      description="No employees found in the selected departments"
-                      className="my-6"
-                    />
-                  ) : (
-                    <div
-                      data-cy="management-components-coursesidebar-index-tsx-index-div-662"
-                      className="max-h-[126px] overflow-y-auto space-y-[9px]"
-                    >
-                      <Checkbox.Group
-                        value={selectedUserIds}
-                        onChange={handleUserSelectionChange}
-                        className="flex flex-col gap-[9px]"
+                    {selectedDepartmentIds.length > 0 && (
+                      <div
+                        className="flex flex-wrap gap-1 mt-1.5"
+                        data-cy="tna-course-sidebar-department-tags"
                       >
-                        {availableUsers.map((user) => (
-                          <Checkbox
-                            key={user.id}
-                            value={String(user.id)}
-                            className="w-full m-0 rounded-[6px] bg-black/[0.06] px-3 py-1"
+                        {selectedDepartmentIds.map((deptId) => (
+                          <span
+                            key={deptId}
+                            className="inline-flex items-center h-6 px-2 rounded-[4px] border border-[#D9D9D9] bg-black/[0.02] text-[12px] text-black/70 leading-[22px]"
+                            data-cy={`tna-course-sidebar-department-tag-${deptId}`}
                           >
-                            <div
-                              data-cy="management-components-coursesidebar-index-tsx-index-div-670"
-                              className="flex flex-col leading-[22px]"
+                            {departmentTitleMap.get(String(deptId)) ?? deptId}
+                            <button
+                              type="button"
+                              className="ml-1 text-black/70 leading-none"
+                              data-cy={`tna-course-sidebar-department-tag-remove-${deptId}`}
+                              onClick={() =>
+                                handleRemoveDepartment(String(deptId))
+                              }
                             >
-                              <span
-                                data-cy="management-components-coursesidebar-index-tsx-index-span-671"
-                                className="text-[14px] font-normal text-black/70"
-                              >
-                                {getEmployeeName(user)}
-                              </span>
-                              {user?.email && (
-                                <span
-                                  data-cy="management-components-coursesidebar-index-tsx-index-span-675"
-                                  className="text-[14px] text-black/45"
-                                >
-                                  {user.email}
-                                </span>
-                              )}
-                            </div>
-                          </Checkbox>
+                              x
+                            </button>
+                          </span>
                         ))}
-                      </Checkbox.Group>
+                      </div>
+                    )}
+                  </Spin>
+                </Form.Item>
+                {selectedDepartmentIds.length > 0 && (
+                  <div
+                    data-cy="management-components-coursesidebar-index-tsx-index-div-619"
+                    className="space-y-[9px] border-t border-[#D9D9D9] pt-4"
+                    id="tnaCourseSidebarAssignmentSectionId"
+                  >
+                    <div
+                      data-cy="management-components-coursesidebar-index-tsx-index-div-620"
+                      className="flex items-center justify-between"
+                    >
+                      <div
+                        data-cy="management-components-coursesidebar-index-tsx-index-div-621"
+                        className="text-[14px] leading-[22px] font-bold text-black"
+                      >
+                        Employees Selected ({selectedUserIds.length})
+                      </div>
+                      <div
+                        data-cy="management-components-coursesidebar-index-tsx-index-div-624"
+                        className="flex gap-2"
+                      >
+                        <Button
+                          type="link"
+                          size="small"
+                          className="!text-[14px] !font-normal !text-[#1E40AF] hover:!text-[#1E40AF]"
+                          onClick={handleSelectAllUsers}
+                          disabled={!availableUsers.length}
+                        >
+                          Select All
+                        </Button>
+                        <Button
+                          type="link"
+                          size="small"
+                          className="!text-[14px] !font-normal !text-[#1E40AF] hover:!text-[#1E40AF]"
+                          onClick={handleClearUsers}
+                          disabled={!selectedUserIds.length}
+                        >
+                          Clear
+                        </Button>
+                      </div>
                     </div>
-                  )}
-                </Spin>
-              </div>
-            </Form>
+                    <Spin spinning={isUsersLoading}>
+                      {!isUsersLoading && availableUsers.length === 0 ? (
+                        <Empty
+                          image={Empty.PRESENTED_IMAGE_SIMPLE}
+                          description="No employees found in the selected departments"
+                          className="my-6"
+                        />
+                      ) : availableUsers.length > 0 ? (
+                        <div
+                          data-cy="management-components-coursesidebar-index-tsx-index-div-662"
+                          className="max-h-[126px] overflow-y-auto space-y-[9px]"
+                        >
+                          <Checkbox.Group
+                            value={selectedUserIds}
+                            onChange={handleUserSelectionChange}
+                            className="flex flex-col gap-[9px]"
+                          >
+                            {availableUsers.map((user) => (
+                              <Checkbox
+                                key={user.id}
+                                value={String(user.id)}
+                                className="w-full m-0 rounded-[6px] bg-black/[0.06] px-3 py-1"
+                              >
+                                <div
+                                  data-cy="management-components-coursesidebar-index-tsx-index-div-670"
+                                  className="flex flex-col leading-[22px]"
+                                >
+                                  <span
+                                    data-cy="management-components-coursesidebar-index-tsx-index-span-671"
+                                    className="text-[14px] font-normal text-black/70"
+                                  >
+                                    {getEmployeeName(user)}
+                                  </span>
+                                  {user?.email && (
+                                    <span
+                                      data-cy="management-components-coursesidebar-index-tsx-index-span-675"
+                                      className="text-[14px] text-black/45"
+                                    >
+                                      {user.email}
+                                    </span>
+                                  )}
+                                </div>
+                              </Checkbox>
+                            ))}
+                          </Checkbox.Group>
+                        </div>
+                      ) : (
+                        <div
+                          className="min-h-[126px]"
+                          data-cy="tna-course-sidebar-employees-placeholder"
+                        />
+                      )}
+                    </Spin>
+                  </div>
+                )}
+              </Form>
+            </div>
           </div>
-        </div>
-        <div
-          className="flex items-center justify-between px-6 pt-2 pb-5"
-          data-cy="tna-course-sidebar-footer-actions"
-        >
-          <Button
-            type="primary"
-            htmlType="button"
-            id="tnaCourseSubmitButtonId"
-            data-cy="tna-course-submit-button"
-            loading={isLoading}
-            className="h-[32px] rounded-[8px] px-4 bg-[#1E40AF] border-[#1E40AF]"
-            onClick={() => {
-              setIsDraft(true);
-              form.submit();
-            }}
-          >
-            Save Draft
-          </Button>
           <div
-            className="flex items-center gap-3"
-            data-cy="tna-course-sidebar-footer-right-buttons"
+            className="flex min-h-[52px] shrink-0 items-center justify-between gap-2 px-6 pb-5 pt-0 font-[Calibri,sans-serif] md:pt-2"
+            data-cy="tna-course-sidebar-footer-actions"
           >
-            <Button
-              htmlType="button"
-              className="h-[32px] rounded-[6px] px-4 border-[#D9D9D9] text-black/70 shadow-sm"
-              data-cy="tna-course-sidebar-cancel-button"
-              onClick={() => onClose()}
-            >
-              Cancel
-            </Button>
             <Button
               type="primary"
               htmlType="button"
-              className="h-[32px] rounded-[8px] px-4 bg-[#1E40AF] border-[#1E40AF]"
-              data-cy="tna-course-sidebar-save-button"
-              loading={isLoading || isFetching}
+              id="tnaCourseSubmitButtonId"
+              data-cy="tna-course-submit-button"
+              loading={isLoading}
+              className="h-8 min-h-8 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4 !text-sm !font-normal leading-[22px] text-white"
               onClick={() => {
-                setIsDraft(false);
+                setIsDraft(true);
                 form.submit();
               }}
             >
-              Save
+              Save Draft
             </Button>
+            <div
+              className="flex items-center gap-2 md:gap-3"
+              data-cy="tna-course-sidebar-footer-right-buttons"
+            >
+              <Button
+                htmlType="button"
+                className="h-8 min-h-8 rounded-md border-[#D9D9D9] px-[15px] !text-sm !font-normal leading-[22px] text-black/70 shadow-[0px_2px_0px_rgba(0,0,0,0.02)]"
+                data-cy="tna-course-sidebar-cancel-button"
+                onClick={() => onClose()}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                htmlType="button"
+                className="h-8 min-h-8 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4 !text-sm !font-normal leading-[22px] text-white"
+                data-cy="tna-course-sidebar-save-button"
+                loading={isLoading || isFetching}
+                onClick={() => {
+                  setIsDraft(false);
+                  form.submit();
+                }}
+              >
+                Save
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>

@@ -12,8 +12,7 @@ export const useCurrentLeaveApprovalStore = create<UserState>()(
   devtools((set) => ({
     userCurrentPage: 1,
     setUserCurrentPage: (userCurrentPage: number) => set({ userCurrentPage }),
-    pageSize: 5,
+    pageSize: 10,
     setPageSize: (pageSize: number) => set({ pageSize }),
-    branchRequestSidebarData: '',
   })),
 );

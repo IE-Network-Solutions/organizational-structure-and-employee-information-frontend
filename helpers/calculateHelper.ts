@@ -44,3 +44,15 @@ export const calculateAttendanceRecordToTotalWorkTime = (
     return 0;
   }
 };
+
+/** Total break time in milliseconds for an attendance record (sum of all break durations). */
+export const calculateAttendanceRecordToTotalBreakTimeMs = (
+  item: AttendanceRecord,
+): number => {
+  if (!item.attendanceBreaks?.length) return 0;
+  return item.attendanceBreaks.reduce((acc, b) => {
+    const start = new Date(b.startAt).getTime();
+    const end = b.endAt ? new Date(b.endAt).getTime() : Date.now();
+    return acc + (end - start);
+  }, 0);
+};
