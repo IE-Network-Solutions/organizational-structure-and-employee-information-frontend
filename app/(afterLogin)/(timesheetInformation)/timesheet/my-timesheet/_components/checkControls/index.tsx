@@ -17,8 +17,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { IoLocationOutline } from 'react-icons/io5';
-import { MdOutlineLocationOn } from 'react-icons/md';
+import { CiLogin, CiLogout } from 'react-icons/ci';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -145,17 +144,10 @@ const CheckControl = () => {
             size="large"
             type="primary"
             icon={
-              isMobile ? (
-                <IoLocationOutline
-                  data-cy="time-attendance-check-controls-check-in-button-icon"
-                  size={20}
-                />
-              ) : (
-                <MdOutlineLocationOn
-                  data-cy="time-attendance-check-controls-check-in-button-icon"
-                  size={16}
-                />
-              )
+              <CiLogin
+                data-cy="time-attendance-check-controls-check-in-button-icon"
+                size={isMobile ? 20 : 16}
+              />
             }
             loading={isLoading || isFetching}
             onClick={() => {
@@ -212,7 +204,7 @@ const CheckControl = () => {
                     id="time-attendance-check-controls-check-out-button"
                     data-cy="time-attendance-check-controls-check-out-button"
                     icon={
-                      <GoClock
+                      <CiLogout
                         data-cy="time-attendance-check-controls-check-out-button-icon"
                         size={20}
                       />
@@ -244,7 +236,7 @@ const CheckControl = () => {
                   id="time-attendance-check-controls-mobile-check-out-button"
                   data-cy="time-attendance-check-controls-mobile-check-out-button"
                   icon={
-                    <IoLocationOutline
+                    <CiLogout
                       data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
                       size={20}
                     />
@@ -282,17 +274,10 @@ const CheckControl = () => {
               id="time-attendance-check-controls-break-check-in-button"
               data-cy="time-attendance-check-controls-break-check-in-button"
               icon={
-                isMobile ? (
-                  <IoLocationOutline
-                    data-cy="time-attendance-check-controls-break-check-in-button-icon"
-                    size={30}
-                  />
-                ) : (
-                  <GoClock
-                    data-cy="time-attendance-check-controls-break-check-in-button-clock-icon"
-                    size={30}
-                  />
-                )
+                <CiLogin
+                  data-cy="time-attendance-check-controls-break-check-in-button-icon"
+                  size={30}
+                />
               }
               loading={isLoading || isFetching}
               onClick={() => {

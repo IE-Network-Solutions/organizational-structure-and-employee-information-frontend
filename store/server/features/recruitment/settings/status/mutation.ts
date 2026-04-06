@@ -50,21 +50,6 @@ const deleteRecruitmentStatus = async (id: string) => {
   });
 };
 
-const reorderRecruitmentStatuses = async (ids: string[]) => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const headers = {
-    tenantId: tenantId,
-    Authorization: `Bearer ${token}`,
-  };
-  return await crudRequest({
-    method: 'PATCH',
-    url: `${RECRUITMENT_URL}/applicant-status-stages/reorder`,
-    data: { ids },
-    headers,
-  });
-};
-
 export const useCreateRecruitmentStatus = () => {
   const queryClient = useQueryClient();
   return useMutation(createRecruitmentStatus, {
@@ -103,19 +88,6 @@ export const useDeleteRecruitmentStatus = () => {
       NotificationMessage.success({
         message: 'Recruitment Status deleted successfully!',
         description: 'Recruitment status has been successfully deleted',
-      });
-    },
-  });
-};
-
-export const useReorderRecruitmentStatuses = () => {
-  const queryClient = useQueryClient();
-  return useMutation((ids: string[]) => reorderRecruitmentStatuses(ids), {
-    onSuccess: () => {
-      queryClient.invalidateQueries('recruitmentStatuses');
-      NotificationMessage.success({
-        message: 'Status order updated',
-        description: 'Applicant status stages have been reordered successfully',
       });
     },
   });

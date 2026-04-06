@@ -124,7 +124,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-employee-name"
         >
           Employee Name
@@ -144,7 +145,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-type"
         >
           Type
@@ -165,7 +167,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-from"
         >
           From
@@ -186,7 +189,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-to"
         >
           To
@@ -229,7 +233,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-status"
         >
           Status
@@ -254,7 +259,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-available"
         >
           Available
@@ -276,7 +282,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     {
       title: (
         <span
-          className="text-base font-bold text-black/70"
+          className="text-base"
+          style={{ fontWeight: 600 }}
           data-cy="time-attendance-leave-management-column-title-requested-at"
         >
           Requested At
@@ -287,7 +294,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       className: 'text-base',
       render: (date: string) => (
         <div
-          className="text-sm font-normal text-black/70"
+          className="text-base"
           data-cy="time-attendance-leave-management-cell-requested-at"
         >
           {date ? dayjs(date).format(DATE_FORMAT) : '-'}
@@ -382,7 +389,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       data-cy="time-attendance-leave-management-table-wrapper"
     >
       <div
-        className="px-4 py-4 bg-white"
+        className="px-4 py-4 border-b border-gray-100 bg-white"
         id="time-attendance-leave-management-table-toolbar"
         data-cy="time-attendance-leave-management-table-toolbar"
       >
@@ -392,7 +399,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
         />
       </div>
       <div
-        className="pb-4"
+        className="px-4 pb-4"
         id="time-attendance-leave-management-table-container"
         data-cy="time-attendance-leave-management-table-container"
       >
@@ -402,10 +409,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           data-cy="time-attendance-leave-management-table-scroll-wrapper"
         >
           <Table
-            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_tr.ant-table-row-selected>td]:!bg-transparent [&_tr.ant-table-row-selected:hover>td]:!bg-transparent"
-            rowClassName={(record, index) =>
-              `h-[60px] cursor-pointer${index % 2 === 1 ? ' bg-gray-50' : ''}`
-            }
+            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
+            rowClassName={() => 'h-[60px] cursor-pointer'}
             scroll={{ x: 'max-content' }}
             columns={columns}
             dataSource={tableData}

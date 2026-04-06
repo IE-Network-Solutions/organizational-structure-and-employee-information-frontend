@@ -58,8 +58,6 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
   // Use refs to track previous values and prevent infinite loops
   const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
   const prevOkrTabRef = useRef<number | string>(okrTab);
-  /** `false` initial value so mounting with `allEmployeeLayout` true is treated as a layout change (e.g. Performance employees after visiting OKR). */
-  const prevAllEmployeeLayoutRef = useRef<boolean>(false);
   const initializedRef = useRef<boolean>(false);
 
   // Only sync fiscal year and sessions on mount or when okrTab/fiscalYearId changes
@@ -74,8 +72,6 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
     const fiscalYearChangedExternally =
       prevFiscalYearIdRef.current !== fiscalYearId;
     const okrTabChanged = prevOkrTabRef.current !== okrTab;
-    const allEmployeeLayoutChanged =
-      prevAllEmployeeLayoutRef.current !== allEmployeeLayout;
 
     // If fiscal year was changed externally, update sessions for that fiscal year
     if (fiscalYearChangedExternally && fiscalYearId) {
@@ -100,7 +96,6 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       // Update refs after handling the change
       prevFiscalYearIdRef.current = fiscalYearId;
       prevOkrTabRef.current = okrTab;
-      prevAllEmployeeLayoutRef.current = allEmployeeLayout;
       return;
     }
 
@@ -131,13 +126,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       setFiscalYearId(newFiscalYearId);
       prevFiscalYearIdRef.current = newFiscalYearId;
       prevOkrTabRef.current = okrTab;
-      prevAllEmployeeLayoutRef.current = allEmployeeLayout;
       initializedRef.current = true;
       return;
     }
 
-    // If okrTab or employee-perf layout changed, update sessions for current fiscal year
-    if ((okrTabChanged || allEmployeeLayoutChanged) && fiscalYearId) {
+    // If okrTab changed, update sessions for current fiscal year
+    if (okrTabChanged && fiscalYearId) {
       const selectedFiscalYear = getAllFiscalYears?.items?.find(
         (i) => i?.id == fiscalYearId,
       );
@@ -158,10 +152,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       }
       // Update ref after handling the change
       prevOkrTabRef.current = okrTab;
-      prevAllEmployeeLayoutRef.current = allEmployeeLayout;
     }
-
-    prevAllEmployeeLayoutRef.current = allEmployeeLayout;
   }, [
     getAllFiscalYears?.items,
     getActiveFisicalYear,
@@ -290,7 +281,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       </div>
 
       {/* Department */}
-      {showUserAndDepartmentFilters && (
+      {okrTab != 1 && (
         <div
           id="mobile-department-field"
           data-cy="okr-mobile-department-field"
@@ -332,7 +323,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       )}
 
       {/* Metric Type */}
-      {showMetricTypeFilter && (
+      {okrTab != 4 && (
         <div
           id="mobile-metric-type-field"
           data-cy="okr-mobile-metric-type-field"
@@ -891,7 +882,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
           data-cy="okr-mobile-search-controls"
           className="flex justify-between gap-4 w-full"
         >
-          {showUserAndDepartmentFilters && (
+          {okrTab != 1 && (
             <div className="flex-1" data-cy="okr-mobile-user-select-container">
               <Select
                 id="mobile-user-select"
@@ -920,7 +911,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
             </div>
           )}
           <div
-            className={`${okrTab == 1 && !allEmployeeLayout ? 'ml-auto' : ''}`}
+            className={`${okrTab == 1 ? 'ml-auto' : ''}`}
             data-cy="okr-mobile-filter-button-container"
           >
             <CustomButton
