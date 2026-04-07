@@ -4,7 +4,6 @@ import {
   Tag,
   Button,
   Space,
-  Spin,
   Avatar,
   Typography,
   Breadcrumb,
@@ -26,6 +25,7 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import PayrollTableSkeleton from '../_components/PayrollTableSkeleton';
 
 const { Title, Text } = Typography;
 
@@ -374,6 +374,7 @@ const EmployeeInformation = () => {
   const filteredData = dataSource.filter((item) =>
     searchValue ? item.key === searchValue : true,
   );
+  const isLoading = responseLoading || Loading;
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * pageSize,
@@ -514,58 +515,59 @@ const EmployeeInformation = () => {
         bodyStyle={{ padding: '24px' }}
         data-cy="payroll-employee-information-card"
       >
-        <div
-          className="filter-container"
-          data-cy="payroll-employee-information-filter-container"
-        >
-          <Filters
-            data-cy="payroll-employee-information-filter-interact-component"
-            onSearch={handleSearch}
-          />
-        </div>
+        {isLoading ? (
+          <PayrollTableSkeleton />
+        ) : (
+          <>
+            <div
+              className="filter-container"
+              data-cy="payroll-employee-information-filter-container"
+            >
+              <Filters
+                data-cy="payroll-employee-information-filter-interact-component"
+                onSearch={handleSearch}
+              />
+            </div>
 
-        <Spin
-          spinning={responseLoading || Loading}
-          data-cy="payroll-employee-information-loading-view-spin"
-        >
-          <Table
-            id="payroll-employee-information-view-table"
-            data-cy="payroll-employee-information-view-table"
-            dataSource={paginatedData}
-            columns={columns}
-            rowClassName={(record, index) =>
-              index % 2 !== 0 ? 'table-row-gray' : ''
-            }
-            onRow={(record) => ({
-              onClick: () => handleDetail(record),
-              style: { cursor: 'pointer' },
-            })}
-            pagination={false}
-            scroll={{ x: 'max-content' }}
-            style={{ marginBottom: '24px' }}
-          />
-
-          <div
-            className="pagination-container"
-            style={{ marginTop: '24px' }}
-            data-cy="payroll-employee-information-pagination-wrapper"
-          >
-            <Pagination
-              className="custom-pagination"
-              current={currentPage}
-              total={filteredData?.length || 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              showSizeChanger={false}
-              showQuickJumper
-              itemRender={(page, type, originalElement) => {
-                if (type === 'jump-prev' || type === 'jump-next') return '...';
-                return originalElement;
-              }}
-              data-cy="payroll-employee-information-pagination"
+            <Table
+              id="payroll-employee-information-view-table"
+              data-cy="payroll-employee-information-view-table"
+              dataSource={paginatedData}
+              columns={columns}
+              rowClassName={(record, index) =>
+                index % 2 !== 0 ? 'table-row-gray' : ''
+              }
+              onRow={(record) => ({
+                onClick: () => handleDetail(record),
+                style: { cursor: 'pointer' },
+              })}
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              style={{ marginBottom: '24px' }}
             />
-          </div>
-        </Spin>
+
+            <div
+              className="pagination-container"
+              style={{ marginTop: '24px' }}
+              data-cy="payroll-employee-information-pagination-wrapper"
+            >
+              <Pagination
+                className="custom-pagination"
+                current={currentPage}
+                total={filteredData?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                showSizeChanger={false}
+                showQuickJumper
+                itemRender={(page, type, originalElement) => {
+                  if (type === 'jump-prev' || type === 'jump-next') return '...';
+                  return originalElement;
+                }}
+                data-cy="payroll-employee-information-pagination"
+              />
+            </div>
+          </>
+        )}
       </Card>
       <Drawer data-cy="payroll-employee-information-drawer-view-component" />
     </div>

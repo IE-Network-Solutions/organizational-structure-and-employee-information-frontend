@@ -348,6 +348,34 @@ body {
   font-family: 'Calibre', sans-serif;
 }
 
+/* Global overflow guard: prevent page-level horizontal scroll everywhere */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#__next {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* Hard global override to stop horizontal page scroll */
+html,
+body,
+#__next,
+#__next > div {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+:root {
+  overflow-x: hidden !important;
+}
+
 h1 {
   font-size: 48px !important;
   font-weight: bold !important;
@@ -1314,7 +1342,7 @@ h6 {
   }
 
   body {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     margin: 0;
     padding: 0;
