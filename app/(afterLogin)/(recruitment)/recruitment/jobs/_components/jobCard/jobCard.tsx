@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Card, Dropdown, Button, Tooltip, Spin, Avatar } from 'antd';
+import { Avatar, Button, Card, Dropdown, Skeleton, Tooltip } from 'antd';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
@@ -85,9 +85,33 @@ const JobCard: React.FC = () => {
       <div
         id="talent-acquisition-job-card-div-loading"
         data-cy="talent-acquisition-job-card-div-loading"
-        className="flex justify-center items-center h-64"
+        className="w-full"
       >
-        <Spin data-cy="talent-acquisition-job-card-spin-loading" size="large" />
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Card
+            key={index}
+            className="mb-4 rounded-lg w-full"
+            id={`talent-acquisition-job-card-skeleton-${index}`}
+            data-cy={`talent-acquisition-job-card-skeleton-${index}`}
+            headStyle={{ borderBottom: 'none', padding: 0 }}
+            bodyStyle={{ padding: 0 }}
+          >
+            <div className="p-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3">
+                <Skeleton.Input active className="!h-7 !w-56" />
+                <Skeleton.Button active size="small" />
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+                <Skeleton.Input active className="!h-4 !w-44" />
+                <Skeleton.Input active className="!h-4 !w-36" />
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <Skeleton.Input active className="!h-4 !w-40" />
+                <Skeleton.Input active className="!h-4 !w-28" />
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     );
 

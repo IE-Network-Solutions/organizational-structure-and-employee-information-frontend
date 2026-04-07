@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Input, Spin, Empty, Card } from 'antd';
+import { Card, Empty, Input, Skeleton } from 'antd';
 import {
   SearchOutlined,
   EnvironmentOutlined,
@@ -169,11 +169,32 @@ const AIJobMatchingPage: React.FC = () => {
         <div
           id="ai-job-matching-spinner-container"
           data-cy="ai-job-matching-spinner-container"
-          className="flex items-center justify-center min-h-96"
+          className="grid grid-cols-1 gap-6 px-6 py-6 md:grid-cols-2"
         >
-          <div id="ai-job-matching-spinner" data-cy="ai-job-matching-spinner">
-            <Spin size="large" />
-          </div>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Card
+              key={index}
+              id={`ai-job-card-skeleton-${index}`}
+              data-cy={`ai-job-card-skeleton-${index}`}
+              className="rounded-[28px] border border-blue-100 bg-white shadow-sm p-6"
+              headStyle={{ borderBottom: 'none', padding: 0 }}
+              bodyStyle={{ padding: 0 }}
+            >
+              <div className="space-y-4">
+                <Skeleton.Input active className="!h-7 !w-56 !max-w-full" />
+                <div className="flex items-center gap-8">
+                  <Skeleton.Input active className="!h-4 !w-40 !max-w-full" />
+                  <Skeleton.Input active className="!h-4 !w-36 !max-w-full" />
+                </div>
+                <div className="pt-4 border-t border-blue-50">
+                  <div className="flex items-center justify-between">
+                    <Skeleton.Input active className="!h-4 !w-36 !max-w-full" />
+                    <Skeleton.Button active size="small" />
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
       </div>
     );

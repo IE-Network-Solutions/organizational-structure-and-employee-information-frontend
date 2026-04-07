@@ -1,4 +1,4 @@
-import { Card, Empty, Input, Spin } from 'antd';
+import { Card, Empty, Input, Skeleton } from 'antd';
 import React, { useMemo, useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
@@ -102,7 +102,7 @@ const RoleComponent: React.FC = () => {
         data-cy="settings-role-loading"
       >
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
-          <Spin size="large" data-cy="settings-role-spinner" />
+          <Skeleton active data-cy="settings-role-spinner" />
         )}
       </div>
       {rolePermissionsData && filteredItems.length > 0 ? (

@@ -4,6 +4,7 @@ import {
   Col,
   Row,
   Table,
+  Skeleton,
   DatePicker,
   TableColumnsType,
   Button,
@@ -370,6 +371,21 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     },
   );
 
+  const skeletonRowCount = 6;
+  const tableDataSource = isLoading
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : data;
+
+  const tableColumns = isLoading
+    ? (columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      })) as TableColumnsType<any>)
+    : columns;
+
   const handleSearchCandidate = async (
     value: string | boolean,
     keyValue: keyof typeof searchParams,
@@ -654,24 +670,27 @@ const InternTable = ({ onEdit }: InternTableProps) => {
       <Table
         data-cy="talent-acquisition-intern-table"
         className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
+        columns={tableColumns}
+        dataSource={tableDataSource}
         pagination={false}
         scroll={{ x: 1000 }}
-        onRow={(record) => ({
-          onClick: (event) => {
-            // Only navigate if the click is not on a checkbox, button, link, or dropdown
-            const target = event.target as HTMLElement;
-            const isInteractiveElement = target.closest(
-              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
-            );
+        onRow={
+          isLoading
+            ? undefined
+            : (record) => ({
+                onClick: (event) => {
+                  // Only navigate if the click is not on a checkbox, button, link, or dropdown
+                  const target = event.target as HTMLElement;
+                  const isInteractiveElement = target.closest(
+                    'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
+                  );
 
-            if (!isInteractiveElement) {
-              router.push(`/recruitment/talent-resource/intern/${record?.id}`);
-            }
-          },
-        })}
+                  if (!isInteractiveElement) {
+                    router.push(`/recruitment/talent-resource/intern/${record?.id}`);
+                  }
+                },
+              })
+        }
       />
       {isMobile || isTablet ? (
         <div

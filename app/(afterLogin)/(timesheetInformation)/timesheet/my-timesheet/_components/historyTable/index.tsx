@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import HistoryTableFilter from './tableFilter';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Table, Tag } from 'antd';
+import { Button, Skeleton, Table, Tag } from 'antd';
 import {
   useGetLeaveRequest,
   useGetSingleApproval,
@@ -223,6 +223,21 @@ const HistoryTable = () => {
     },
   ];
 
+  const skeletonRowCount = limit > 0 ? Math.min(limit, 8) : 5;
+  const historyTableDataSource = isFetching
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : tableData;
+
+  const historyTableColumns = isFetching
+    ? columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      }))
+    : columns;
+
   const safeHistoryLimit = limit > 0 ? limit : 1;
   const historyMetaTotalPages = data?.meta?.totalPages;
   const historyResolvedTotalPages = Math.max(
@@ -341,9 +356,8 @@ const HistoryTable = () => {
         >
           <Table
             className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
-            columns={columns}
-            loading={isFetching}
-            dataSource={tableData}
+            columns={historyTableColumns}
+            dataSource={historyTableDataSource}
             pagination={false}
             scroll={{ x: LEAVE_TABLE_SCROLL_X }}
             rowClassName={(record, index) => {

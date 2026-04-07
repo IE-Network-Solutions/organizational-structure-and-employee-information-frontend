@@ -1,5 +1,14 @@
 'use client';
-import { Button, Card, Row, Col, Dropdown, MenuProps, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  MenuProps,
+  Row,
+  Skeleton,
+  Typography,
+} from 'antd';
 import React from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
@@ -28,7 +37,10 @@ const EmploymentType = () => {
     editingEmploymentType,
     setEditingEmploymentType,
   } = EmployeTypeManagementStore();
-  const { data: employeTypeData } = useGetEmployementTypes(page, pageSize);
+  const { data: employeTypeData, isLoading } = useGetEmployementTypes(
+    page,
+    pageSize,
+  );
   const deleteEmployeeType = useDeleteEmployeeType() as any;
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [employmentTypeToDelete, setEmploymentTypeToDelete] =
@@ -111,7 +123,55 @@ const EmploymentType = () => {
           data-cy={`settings-${pageSlug}-cards-section`}
         >
           <Row gutter={[16, 16]}>
-            {reformattedData?.map((record: any) => {
+            {isLoading ? (
+              <>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={12}
+                    lg={12}
+                    xl={12}
+                    key={index}
+                    id={`employment-type-card-skeleton-col-${index}`}
+                    data-cy={`employment-type-card-skeleton-col-${index}`}
+                  >
+                    <Card
+                      className="border-[1px] border-[#D9D9D9] rounded-lg"
+                      id={`employment-type-card-skeleton-${index}`}
+                      data-cy={`employment-type-card-skeleton-${index}`}
+                      headStyle={{
+                        borderBottom: 'none',
+                        padding: '12px 16px 12px 16px',
+                      }}
+                      bodyStyle={{ padding: '0px 16px 12px 16px' }}
+                      title={
+                        <Skeleton.Input
+                          active
+                          className="!w-48 !min-w-0"
+                          data-cy={`employment-type-card-skeleton-title-${index}`}
+                        />
+                      }
+                      extra={
+                        <Skeleton.Button
+                          active
+                          size="small"
+                          data-cy={`employment-type-card-skeleton-menu-${index}`}
+                        />
+                      }
+                    >
+                      <Skeleton
+                        active
+                        paragraph={{ rows: 2 }}
+                        title={false}
+                        data-cy={`employment-type-card-skeleton-body-${index}`}
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </>
+            ) : (
+              reformattedData?.map((record: any) => {
               const menuItems: MenuProps['items'] = [
                 {
                   key: 'edit',
@@ -219,7 +279,8 @@ const EmploymentType = () => {
                   </Card>
                 </Col>
               );
-            })}
+            })
+            )}
           </Row>
           {/* {isMobile || isTablet ? (
               <div

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Table } from 'antd';
+import { Button, Skeleton, Table } from 'antd';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
@@ -226,6 +226,20 @@ const TalentPoolTable: React.FC<any> = () => {
   ];
 
   const filteredItems = candidates?.items || [];
+  const skeletonRowCount = 6;
+  const tableDataSource = responseLoading
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : filteredItems;
+
+  const tableColumns = responseLoading
+    ? columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      }))
+    : columns;
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -240,30 +254,15 @@ const TalentPoolTable: React.FC<any> = () => {
 
   return (
     <>
-      {responseLoading ? (
-        <div
-          id="talent-acquisition-talent-pool-table-loading"
-          data-cy="talent-acquisition-talent-pool-table-loading"
-        >
-          <SkeletonLoading
-            alignment="vertical"
-            componentType="table"
-            count={1}
-            type="default"
-            columns={columns}
-          />
-        </div>
-      ) : (
+      
         <Table
           data-cy="talent-acquisition-talent-pool-table"
-          dataSource={filteredItems}
-          columns={columns}
+          dataSource={tableDataSource}
+          columns={tableColumns}
           pagination={false}
-          loading={responseLoading}
           scroll={{ x: 1000 }}
-          rowKey="id"
+          rowKey={(record: any) => record?.id ?? record?.key}
         />
-      )}
 
       {isMobile || isTablet ? (
         <div

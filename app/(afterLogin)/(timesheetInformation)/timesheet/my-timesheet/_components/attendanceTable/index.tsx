@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Dropdown, message, Space, Table, Tag } from 'antd';
+import { Button, Dropdown, message, Skeleton, Space, Table, Tag } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { GoLocation } from 'react-icons/go';
 import dayjs from 'dayjs';
@@ -406,6 +406,21 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
   const columns =
     variant === 'myTimesheet' ? myTimesheetColumns : defaultColumns;
 
+  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
+  const tableDataSource = isFetching
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        id: `skeleton-${index}`,
+      }))
+    : (data?.items ?? []);
+
+  const tableColumns = isFetching
+    ? (columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      })) as any)
+    : columns;
+
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };
 
@@ -535,9 +550,8 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
       >
         <Table<AttendanceRecord>
           className="mt-3 [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
-          columns={columns}
-          dataSource={data?.items}
-          loading={isFetching}
+          columns={tableColumns}
+          dataSource={tableDataSource as AttendanceRecord[]}
           pagination={false}
           onChange={handleTableChange}
           scroll={{ x: 'min-content' }}

@@ -6,7 +6,7 @@ import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import { FieldType } from '@/types/enumTypes';
-import { Checkbox, Collapse, Spin } from 'antd';
+import { Checkbox, Collapse, Skeleton } from 'antd';
 import React, { useEffect } from 'react';
 
 const CustomFieldsSelector: React.FC = () => {
@@ -43,8 +43,8 @@ const CustomFieldsSelector: React.FC = () => {
         className="flex justify-center items-center h-64"
         data-cy="talent-acquisition-create-application-form-custom-field-loading"
       >
-        <Spin
-          size="large"
+        <Skeleton
+          active
           data-cy="talent-acquisition-create-application-form-custom-field-spin"
         />
       </div>

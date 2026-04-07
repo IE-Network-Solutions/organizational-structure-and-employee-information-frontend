@@ -4,6 +4,7 @@ import {
   Col,
   Row,
   Select,
+  Skeleton,
   Table,
   TableColumnsType,
   DatePicker,
@@ -384,6 +385,21 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       };
     }) || [];
 
+  const skeletonRowCount = 6;
+  const tableDataSource = isLoading
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : data;
+
+  const tableColumns = isLoading
+    ? (columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      })) as TableColumnsType<any>)
+    : columns;
+
   const rowSelection: TableRowSelection<TableDataItem> = {
     selectedRowKeys: selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
@@ -693,27 +709,30 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
       <Table
         data-cy="talent-acquisition-talent-roaster-table"
         className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
+        columns={tableColumns}
+        dataSource={tableDataSource}
         scroll={{ x: 1000 }}
         pagination={false}
-        rowSelection={rowSelection}
-        onRow={(record) => ({
-          onClick: (event) => {
-            // Only navigate if the click is not on a checkbox, button, link, or dropdown
-            const target = event.target as HTMLElement;
-            const isInteractiveElement = target.closest(
-              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
-            );
+        rowSelection={isLoading ? undefined : rowSelection}
+        onRow={
+          isLoading
+            ? undefined
+            : (record) => ({
+                onClick: (event) => {
+                  // Only navigate if the click is not on a checkbox, button, link, or dropdown
+                  const target = event.target as HTMLElement;
+                  const isInteractiveElement = target.closest(
+                    'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
+                  );
 
-            if (!isInteractiveElement) {
-              router.push(
-                `/recruitment/talent-resource/talent-roaster/${record?.id}`,
-              );
-            }
-          },
-        })}
+                  if (!isInteractiveElement) {
+                    router.push(
+                      `/recruitment/talent-resource/talent-roaster/${record?.id}`,
+                    );
+                  }
+                },
+              })
+        }
       />
       {isMobile || isTablet ? (
         <div

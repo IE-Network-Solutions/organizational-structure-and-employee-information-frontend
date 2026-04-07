@@ -1,4 +1,4 @@
-import { Card, Empty, Spin } from 'antd';
+import { Card, Empty, Skeleton } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -43,7 +43,7 @@ const GroupPermissionComponent = () => {
         data-cy="settings-role-permission-group-loading"
       >
         {groupPermissionData?.items?.length === 0 && groupPermissionLoading && (
-          <Spin size="large" data-cy="settings-role-permission-group-spinner" />
+          <Skeleton active data-cy="settings-role-permission-group-spinner" />
         )}
       </div>
       {groupPermissionData && groupPermissionData.items?.length > 0 ? (

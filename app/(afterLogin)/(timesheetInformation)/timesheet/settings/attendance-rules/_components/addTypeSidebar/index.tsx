@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Form, Input, Radio, Space, Spin } from 'antd';
+import { Form, Input, Radio, Skeleton, Space } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import React, { useEffect, useState } from 'react';
@@ -164,8 +164,9 @@ const AddTypesSidebar = () => {
         width="400px"
         data-cy="time-attendance-settings-attendance-rules-add-type-sidebar"
       >
-        <Spin
-          spinning={isFetching || isLoading}
+        <Skeleton
+          loading={isFetching || isLoading}
+          active
           data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-spin"
         >
           <Form
@@ -232,7 +233,7 @@ const AddTypesSidebar = () => {
               </Form.Item>
             </Space.Compact>
           </Form>
-        </Spin>
+        </Skeleton>
       </CustomDrawerLayout>
     )
   );

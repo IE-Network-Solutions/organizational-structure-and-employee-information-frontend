@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Select, Avatar, Tag, Spin, DatePicker, Modal } from 'antd';
+import { Avatar, Card, DatePicker, Modal, Select, Skeleton, Tag } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -301,8 +301,9 @@ const LeaveSection: React.FC = () => {
                 data-cy="time-attendance-leave-section-type-select"
               />
             </div>
-            <Spin
-              spinning={loading}
+            <Skeleton
+              loading={loading}
+              active
               data-cy="time-attendance-leave-section-list-spinner"
             >
               {employeeAdminLeave?.users?.length === 0 ? (
@@ -398,7 +399,7 @@ const LeaveSection: React.FC = () => {
                   ))}
                 </div>
               )}
-            </Spin>
+            </Skeleton>
           </div>
 
           <LeaveSectionGraph data-cy="time-attendance-leave-section-graph-display-component" />

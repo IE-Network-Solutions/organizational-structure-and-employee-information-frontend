@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, List, Typography, Tag } from 'antd';
+import { Card, List, Skeleton, Tag, Typography } from 'antd';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -110,48 +110,71 @@ export default function RecentAttendanceCard() {
         className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
         data-cy="my-timesheet-overview-recent-attendance-list-container"
       >
-        <List
-          loading={isFetching}
-          dataSource={items}
-          locale={{ emptyText: 'No recent attendance' }}
-          data-cy="my-timesheet-overview-recent-attendance-list"
-          className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
-          renderItem={(record) => (
-            <List.Item
-              className="!border-0 !border-b-0 !p-0"
-              data-cy={`my-timesheet-overview-recent-attendance-item-${record.id}`}
-            >
-              <div
-                className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3"
-                data-cy={`my-timesheet-overview-recent-attendance-row-${record.id}`}
+        {isFetching ? (
+          <List
+            dataSource={Array.from({ length: RECENT_LIMIT }, (_, index) => index)}
+            data-cy="my-timesheet-overview-recent-attendance-list-skeleton"
+            className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
+            renderItem={(index) => (
+              <List.Item
+                className="!border-0 !border-b-0 !p-0"
+                data-cy={`my-timesheet-overview-recent-attendance-item-skeleton-${index}`}
+              >
+                <div className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3">
+                  <div className="min-w-0 flex-1">
+                    <Skeleton.Input active className="!h-4 !w-28 !mb-2" />
+                    <Skeleton.Input active className="!h-3 !w-36" />
+                  </div>
+                  <div className="shrink-0 flex justify-end">
+                    <Skeleton.Button active size="small" />
+                  </div>
+                </div>
+              </List.Item>
+            )}
+          />
+        ) : (
+          <List
+            dataSource={items}
+            locale={{ emptyText: 'No recent attendance' }}
+            data-cy="my-timesheet-overview-recent-attendance-list"
+            className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
+            renderItem={(record) => (
+              <List.Item
+                className="!border-0 !border-b-0 !p-0"
+                data-cy={`my-timesheet-overview-recent-attendance-item-${record.id}`}
               >
                 <div
-                  className="min-w-0 flex-1"
-                  data-cy={`my-timesheet-overview-recent-attendance-row-content-${record.id}`}
+                  className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3"
+                  data-cy={`my-timesheet-overview-recent-attendance-row-${record.id}`}
                 >
-                  <Text
-                    className="block text-gray-900 text-sm mb-2"
-                    data-cy={`my-timesheet-overview-recent-attendance-row-date-${record.id}`}
+                  <div
+                    className="min-w-0 flex-1"
+                    data-cy={`my-timesheet-overview-recent-attendance-row-content-${record.id}`}
                   >
-                    {dayjs(record.createdAt).format(DATE_FORMAT)}
-                  </Text>
-                  <Text
-                    className="block text-gray-600 text-xs mt-0.5"
-                    data-cy={`my-timesheet-overview-recent-attendance-row-time-${record.id}`}
+                    <Text
+                      className="block text-gray-900 text-sm mb-2"
+                      data-cy={`my-timesheet-overview-recent-attendance-row-date-${record.id}`}
+                    >
+                      {dayjs(record.createdAt).format(DATE_FORMAT)}
+                    </Text>
+                    <Text
+                      className="block text-gray-600 text-xs mt-0.5"
+                      data-cy={`my-timesheet-overview-recent-attendance-row-time-${record.id}`}
+                    >
+                      {renderTimeDisplay(record)}
+                    </Text>
+                  </div>
+                  <div
+                    className="shrink-0 flex flex-wrap justify-end gap-1"
+                    data-cy={`my-timesheet-overview-recent-attendance-row-status-${record.id}`}
                   >
-                    {renderTimeDisplay(record)}
-                  </Text>
+                    {renderStatus(record)}
+                  </div>
                 </div>
-                <div
-                  className="shrink-0 flex flex-wrap justify-end gap-1"
-                  data-cy={`my-timesheet-overview-recent-attendance-row-status-${record.id}`}
-                >
-                  {renderStatus(record)}
-                </div>
-              </div>
-            </List.Item>
-          )}
-        />
+              </List.Item>
+            )}
+          />
+        )}
       </div>
     </Card>
   );

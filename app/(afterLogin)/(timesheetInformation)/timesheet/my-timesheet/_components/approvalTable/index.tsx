@@ -7,7 +7,7 @@ import {
   Input,
   Popconfirm,
   Table,
-  Spin,
+  Skeleton,
   Card,
   Select,
   Tag,
@@ -409,6 +409,21 @@ const ApprovalTable = () => {
     },
   ];
 
+  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
+  const approvalTableDataSource = isApprovalListLoading
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : allFilterData;
+
+  const approvalTableColumns = isApprovalListLoading
+    ? columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      }))
+    : columns;
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (keys: React.Key[]) => setSelectedRowKeys(keys),
@@ -551,8 +566,9 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-reject-all-button"
                   data-cy="time-attendance-approval-table-reject-all-button"
                 >
-                  <Spin
-                    spinning={allRejectIsLoading}
+                  <Skeleton
+                    active
+                    loading={allRejectIsLoading}
                     data-cy="time-attendance-approval-table-reject-all-spin"
                   />
                   Reject All
@@ -580,9 +596,10 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-approve-all-button"
                   data-cy="time-attendance-approval-table-approve-all-button"
                 >
-                  <Spin
+                  <Skeleton
+                    active
                     data-cy="time-attendance-approval-table-approve-all-spin"
-                    spinning={allApproveIsLoading}
+                    loading={allApproveIsLoading}
                   />
                   Approve All
                 </Button>
@@ -602,12 +619,9 @@ const ApprovalTable = () => {
         </div>
       </div>
       <Table
-        rowSelection={rowSelection}
-        columns={columns}
-        loading={{
-          spinning: isApprovalListLoading,
-        }}
-        dataSource={allFilterData}
+        rowSelection={isApprovalListLoading ? undefined : rowSelection}
+        columns={approvalTableColumns}
+        dataSource={approvalTableDataSource}
         pagination={false}
         // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
         scroll={{ x: APPROVAL_TABLE_SCROLL_X }}

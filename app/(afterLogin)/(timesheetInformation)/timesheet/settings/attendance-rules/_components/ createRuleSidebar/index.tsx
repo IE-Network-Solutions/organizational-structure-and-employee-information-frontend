@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, Form, Input, InputNumber, Row, Select, Spin } from 'antd';
+import { Col, Form, Input, InputNumber, Row, Select, Skeleton } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -134,8 +134,9 @@ const CreateRuleSidebar = () => {
         width="40%"
         data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar"
       >
-        <Spin
-          spinning={isFetching || isLoading}
+        <Skeleton
+          loading={isFetching || isLoading}
+          active
           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-spin"
         >
           <Form
@@ -242,7 +243,7 @@ const CreateRuleSidebar = () => {
               </Col>
             </Row>
           </Form>
-        </Spin>
+        </Skeleton>
       </CustomDrawerLayout>
     )
   );

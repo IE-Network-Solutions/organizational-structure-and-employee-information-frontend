@@ -1,4 +1,4 @@
-import { Card, Empty, Pagination, Spin } from 'antd';
+import { Card, Empty, Pagination, Skeleton } from 'antd';
 import React, { useState } from 'react';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -41,8 +41,8 @@ const RoleComponent: React.FC = () => {
         data-cy={`settings-permission-role-loading-${componentSlug}`}
       >
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
-          <Spin
-            size="large"
+          <Skeleton
+            active
             data-cy={`settings-permission-role-spinner-${componentSlug}`}
           />
         )}

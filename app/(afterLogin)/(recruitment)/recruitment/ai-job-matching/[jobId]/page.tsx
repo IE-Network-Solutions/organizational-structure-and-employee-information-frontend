@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Empty, Spin, Tag, Button, Avatar } from 'antd';
+import { Avatar, Button, Card, Empty, Skeleton, Tag } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -188,7 +188,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
           id="ai-job-detail-loading-spinner"
           data-cy="ai-job-detail-loading-spinner"
         >
-          <Spin size="large" />
+          <Skeleton active />
         </div>
       </div>
     );
@@ -695,7 +695,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                         id="ai-candidate-detail-loading-spinner"
                         data-cy="ai-candidate-detail-loading-spinner"
                       >
-                        <Spin size="large" />
+                        <Skeleton active />
                       </div>
                     ) : (
                       <>

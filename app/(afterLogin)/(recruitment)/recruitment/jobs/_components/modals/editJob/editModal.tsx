@@ -5,7 +5,7 @@ import {
   Input,
   Select,
   DatePicker,
-  Spin,
+  Skeleton,
   InputNumber,
 } from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
@@ -220,7 +220,7 @@ const EditJob: React.FC = () => {
                   data-cy="-components-modals-editjob-editmodal-tsx-editmodal-div-205"
                   className="flex items-center justify-center h-30"
                 >
-                  <Spin size="small" />
+                  <Skeleton.Button active size="small" />
                 </div>
               )}
               {departments &&

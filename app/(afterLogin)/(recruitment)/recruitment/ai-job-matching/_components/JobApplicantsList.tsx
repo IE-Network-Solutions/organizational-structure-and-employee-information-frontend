@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Empty, Spin, Table, Tag } from 'antd';
+import { Card, Empty, Skeleton, Table, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { useGetJobApplicants } from '@/store/server/features/recruitment/ai-job-matching/queries';
 
@@ -45,7 +45,7 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
             id="ai-job-applicants-loading-spinner"
             data-cy="ai-job-applicants-loading-spinner"
           >
-            <Spin size="large" />
+            <Skeleton active />
           </div>
         </div>
       </Card>

@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Avatar, Button, Dropdown, Table } from 'antd';
+import { Avatar, Button, Dropdown, Skeleton, Table } from 'antd';
 import TableFilter from './tableFilter';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
@@ -531,6 +531,21 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     );
   };
 
+  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
+  const tableDataSource = isFetching
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : tableData;
+
+  const tableColumns = isFetching
+    ? (columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      })) as any)
+    : columns;
+
   return (
     <div
       id="time-attendance-employee-attendance-table-card"
@@ -557,14 +572,17 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
           <Table
-            loading={isFetching}
-            columns={columns}
-            dataSource={tableData}
-            rowSelection={{
-              checkStrictly: false,
-              selectedRowKeys: getCurrentPageSelectedKeys(),
-              onChange: handleRowSelection,
-            }}
+            columns={tableColumns}
+            dataSource={tableDataSource}
+            rowSelection={
+              isFetching
+                ? undefined
+                : {
+                    checkStrictly: false,
+                    selectedRowKeys: getCurrentPageSelectedKeys(),
+                    onChange: handleRowSelection,
+                  }
+            }
             pagination={false}
             scroll={{ x: 'max-content' }}
             className="w-full [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd):hover>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr.ant-table-row:nth-child(even):hover>td]:!bg-white"
@@ -573,6 +591,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             data-cy="time-attendance-employee-attendance-table"
             rowClassName={(record, index) => {
               const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              if (isFetching) {
+                return base;
+              }
               const selected = getCurrentPageSelectedKeys().includes(
                 record.key,
               );

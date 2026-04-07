@@ -1,4 +1,4 @@
-import { Space, Spin, Switch, Table } from 'antd';
+import { Skeleton, Space, Switch, Table } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import ActionButton from '@/components/common/actionButton';
 import { TableColumnsType } from '@/types/table/table';
@@ -128,8 +128,9 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
   };
 
   return (
-    <Spin
-      spinning={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
+    <Skeleton
+      loading={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
+      active
       data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-spin`}
     >
       <div
@@ -196,7 +197,7 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
           data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}`}
         />
       </div>
-    </Spin>
+    </Skeleton>
   );
 };
 

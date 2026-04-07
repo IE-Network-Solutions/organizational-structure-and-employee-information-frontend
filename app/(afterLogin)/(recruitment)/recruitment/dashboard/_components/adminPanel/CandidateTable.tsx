@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Table, Spin } from 'antd';
+import { Skeleton, Table } from 'antd';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LoadingOutlined } from '@ant-design/icons';
 import CustomPagination from '@/components/customPagination';
@@ -59,9 +59,10 @@ export default function CandidateTable({
       id="talent-acquisition-dashboard-candidate-table-div-container"
       data-cy="talent-acquisition-dashboard-candidate-table-div-container"
     >
-      <Spin
+      <Skeleton
         data-cy="talent-acquisition-dashboard-candidate-table-spin"
-        spinning={isLoading}
+        loading={isLoading}
+        active
       >
         <Table
           id="talent-acquisition-dashboard-candidate-table"
@@ -87,7 +88,7 @@ export default function CandidateTable({
             setLimit(size);
           }}
         />
-      </Spin>
+      </Skeleton>
     </div>
   );
 }

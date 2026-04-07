@@ -1,7 +1,7 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
-import { Avatar, Divider, List, Skeleton, Spin, Tooltip } from 'antd';
+import { Avatar, Divider, List, Skeleton, Tooltip } from 'antd';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { EmptyImage } from '@/components/emptyIndicator';
@@ -96,11 +96,7 @@ const Notifications = () => {
         />
       </Divider>
       {isLoading ? (
-        <Spin
-          tip="Loading"
-          size="large"
-          data-cy={`notification-latest-spinner-${pageSlug}`}
-        />
+        <Skeleton active data-cy={`notification-latest-spinner-${pageSlug}`} />
       ) : unReadNotification?.length > 0 ? (
         <div
           className="w-full h-auto"
@@ -211,11 +207,7 @@ const Notifications = () => {
         />
       </Divider>
       {isLoading ? (
-        <Spin
-          tip="Loading"
-          size="large"
-          data-cy={`notification-previous-spinner-${pageSlug}`}
-        />
+        <Skeleton active data-cy={`notification-previous-spinner-${pageSlug}`} />
       ) : readNotification?.length > 0 ? (
         <div
           className="w-full h-auto"

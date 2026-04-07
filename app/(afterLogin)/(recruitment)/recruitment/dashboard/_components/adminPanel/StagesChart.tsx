@@ -1,7 +1,7 @@
 'use client';
 
 import { Pie } from 'react-chartjs-2';
-import { Card, Select, Form, Typography, Spin } from 'antd';
+import { Card, Form, Select, Skeleton, Typography } from 'antd';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
   Chart as ChartJS,
@@ -164,10 +164,10 @@ export default function StagesChart() {
       >
         <ChartFilter data-cy="talent-acquisition-stages-chart-filter" />
       </Form>
-      <Spin
+      <Skeleton
         data-cy="talent-acquisition-stages-chart-spin"
-        spinning={isLoading}
-        tip="Loading..."
+        loading={isLoading}
+        active
       >
         {!isLoading && stagesData?.stageList?.length > 0 ? (
           <div
@@ -222,7 +222,7 @@ export default function StagesChart() {
             </Typography.Text>
           </div>
         )}
-      </Spin>
+      </Skeleton>
     </Card>
   );
 }

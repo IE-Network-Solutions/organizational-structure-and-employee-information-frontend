@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import LeaveManagementTableFilter from './tableFilter';
-import { Table } from 'antd';
+import { Skeleton, Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import LeaveRequestStatusTag from '../LeaveRequestStatusTag';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
@@ -382,6 +382,21 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     );
   };
 
+  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
+  const tableDataSource = isFetching
+    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+        key: `skeleton-${index}`,
+      }))
+    : tableData;
+
+  const tableColumns = isFetching
+    ? (columns.map((column: any) => ({
+        ...column,
+        sorter: false,
+        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
+      })) as any)
+    : columns;
+
   return (
     <div
       className="mt-6 bg-white rounded-lg border border-gray-100 overflow-hidden"
@@ -410,27 +425,36 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
         >
           <Table
             className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
-            rowClassName={() => 'h-[60px] cursor-pointer'}
+            rowClassName={() =>
+              isFetching ? 'h-[60px]' : 'h-[60px] cursor-pointer'
+            }
             scroll={{ x: 'max-content' }}
-            columns={columns}
-            dataSource={tableData}
-            loading={isFetching}
-            onRow={(record) => ({
-              onClick: (e) => {
-                const target = e.target as HTMLElement;
-                if (target.closest('.ant-checkbox-wrapper')) return;
-                if (record.id && record.approvalWorkflowId) {
-                  setLeaveRequestId(record.id);
-                  setLeaveRequestWorkflowId(record.approvalWorkflowId);
-                  setIsShowLeaveRequestManagementSidebar(true);
-                }
-              },
-            })}
-            rowSelection={{
-              checkStrictly: false,
-              selectedRowKeys: getCurrentPageSelectedKeys(),
-              onChange: handleRowSelection,
-            }}
+            columns={tableColumns}
+            dataSource={tableDataSource}
+            onRow={
+              isFetching
+                ? undefined
+                : (record) => ({
+                    onClick: (e) => {
+                      const target = e.target as HTMLElement;
+                      if (target.closest('.ant-checkbox-wrapper')) return;
+                      if (record.id && record.approvalWorkflowId) {
+                        setLeaveRequestId(record.id);
+                        setLeaveRequestWorkflowId(record.approvalWorkflowId);
+                        setIsShowLeaveRequestManagementSidebar(true);
+                      }
+                    },
+                  })
+            }
+            rowSelection={
+              isFetching
+                ? undefined
+                : {
+                    checkStrictly: false,
+                    selectedRowKeys: getCurrentPageSelectedKeys(),
+                    onChange: handleRowSelection,
+                  }
+            }
             pagination={false}
             onChange={handleTableChange}
             id="time-attendance-leave-management-table"
