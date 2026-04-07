@@ -8,6 +8,7 @@ import CustomPagination from '@/components/customPagination';
 import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { useDeletePerspective } from '@/store/server/features/CFR/feedback/mutations';
 import { BsThreeDots } from 'react-icons/bs';
+import EmptyState from '@/components/empty';
 
 interface PerspectivesDetailProps {
   perspectivesDetail: any;
@@ -28,10 +29,16 @@ const PerspectivesDetail = ({
     setPerspectiveOpenDropdownId,
   } = ConversationStore();
   const { mutate: deletePerspective } = useDeletePerspective();
-  const paginatedData = perspectivesDetail?.slice(
+  const perspectiveList = perspectivesDetail ?? [];
+  const paginatedData = perspectiveList.slice(
     (page - 1) * pageSize,
     page * pageSize,
   );
+
+  const openCreatePerspective = () => {
+    setSelectedFeedback(null);
+    setOpen(true);
+  };
   const getDepartment = (id: string) => {
     return departments?.find((item: Department) => item.id === id);
   };
@@ -42,6 +49,21 @@ const PerspectivesDetail = ({
       }`}
       data-cy="settings-define-feedback-perspectives-panel"
     >
+      {perspectiveList.length === 0 ? (
+        <div
+          className="flex min-h-[220px] items-center justify-center py-6"
+          data-cy="settings-define-feedback-perspective-empty"
+          id="settingsDefineFeedbackPerspectiveEmptyId"
+        >
+          <EmptyState
+            title="No perspectives yet"
+            description="Add a perspective to link feedback with departments."
+            actionText="Add perspective"
+            onAction={openCreatePerspective}
+          />
+        </div>
+      ) : (
+        <>
       {paginatedData?.map((item: any) => (
         <Card
           className={`my-2 border-[#D9D9D9] ${isMobile ? 'mx-0  shadow-none' : 'mx-2'}`}
@@ -184,7 +206,7 @@ const PerspectivesDetail = ({
       ))}
       <CustomPagination
         current={page}
-        total={perspectivesDetail?.length || 0}
+        total={perspectiveList.length}
         pageSize={pageSize}
         onChange={(page, size) => {
           setPage(page);
@@ -196,6 +218,8 @@ const PerspectivesDetail = ({
         }}
         data-cy="settings-define-feedback-perspective-pagination"
       />
+        </>
+      )}
     </div>
   );
 };

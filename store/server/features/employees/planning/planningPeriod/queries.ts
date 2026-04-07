@@ -170,6 +170,7 @@ export const useGetAllAssignedUserGroupedByUser = (
   useQuery<PaginatedGroupedUsers>(
     ['allPlanningPeriodUserGroupedByUser', page, pageSize, userId],
     () => fetchPlanningPeriodWithUserGroupedByUser(page, pageSize, userId),
+    { keepPreviousData: true },
   );
 // New hook to get all planning periods for all users (for unfiltered view)
 export const useGetAllUsersWithAllPlanningPeriods = () => {

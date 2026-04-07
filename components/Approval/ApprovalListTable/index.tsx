@@ -35,7 +35,7 @@ const ApproverListTableComponent = ({
           className="grid grid-cols-1 lg:grid-cols-2 gap-4"
           data-cy="approval-list-cards-grid"
         >
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <div
               key={item.key ?? index}
               className="rounded-lg border border-[#D9D9D9] bg-white p-3"

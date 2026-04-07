@@ -44,5 +44,6 @@ export const useGetAllPerspectives = () => {
   return useQuery<any>(
     ['perspectives'], // Unique query key based on params
     () => getPerspectives(),
+    { keepPreviousData: true },
   );
 };

@@ -111,6 +111,7 @@ export const useGetWeeklyPriorities = (
   useQuery<ResponseData>(
     ['weeklyPriorities', departmentIds, weeklyId, pageSize, currentPage],
     () => getWeeklyPriority(departmentIds, weeklyId, pageSize, currentPage),
+    { keepPreviousData: true },
   );
 export const useGetDepartmentChild = (departmentId: string) =>
   useQuery<DepartmentData>(['departmentChild', departmentId], () =>
