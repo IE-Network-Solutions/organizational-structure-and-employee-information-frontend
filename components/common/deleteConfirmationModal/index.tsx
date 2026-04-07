@@ -59,7 +59,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   modalClassName,
 }) => {
   const isPositioned = Boolean(triggerRect);
-  const simpleLayout = Boolean(title) || hideImage;
   const modalStyle: React.CSSProperties | undefined = isPositioned
     ? (() => {
         const modalWidth = 440;

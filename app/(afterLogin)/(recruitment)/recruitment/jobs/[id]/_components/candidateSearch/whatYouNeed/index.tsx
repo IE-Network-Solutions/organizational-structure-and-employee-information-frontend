@@ -65,6 +65,7 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
     >
       <div
         className={`flex h-8 items-stretch overflow-hidden bg-white ${outerRadius} ${outerBorder}`}
+        data-cy="talent-acquisition-what-you-need-input-bar"
       >
         <input
           id={`inputWhatYouNeed${searchParams.whatYouNeed}`}

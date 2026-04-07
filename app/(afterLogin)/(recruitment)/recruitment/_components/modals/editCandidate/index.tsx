@@ -205,7 +205,10 @@ const EditCandidate: React.FC = () => {
     editCandidateModal && (
       <Modal
         title={
-          <span className="text-[20px] font-bold leading-none text-black">
+          <span
+            className="text-[20px] font-bold leading-none text-black"
+            data-cy="talent-acquisition-edit-candidate-modal-title"
+          >
             Edit Candidate
           </span>
         }
@@ -213,10 +216,16 @@ const EditCandidate: React.FC = () => {
         onCancel={() => setEditCandidateModal(false)}
         centered
         width={760}
-        closeIcon={<CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />}
+        closeIcon={
+          <CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />
+        }
         footer={null}
         data-cy="talent-acquisition-edit-candidate-modal"
-        bodyStyle={{ maxHeight: '80vh', overflowY: 'auto', padding: '6px 24px 20px' }}
+        bodyStyle={{
+          maxHeight: '80vh',
+          overflowY: 'auto',
+          padding: '6px 24px 20px',
+        }}
       >
         <Form
           form={form}
@@ -474,11 +483,21 @@ const EditCandidate: React.FC = () => {
               <Form.Item
                 name="coverLetter"
                 label={
-                  <div className="flex items-center justify-between">
-                    <span className="text-[14px] font-normal text-[#030712]">
+                  <div
+                    className="flex items-center justify-between"
+                    data-cy="talent-acquisition-edit-candidate-cover-letter-label"
+                  >
+                    <span
+                      className="text-[14px] font-normal text-[#030712]"
+                      data-cy="talent-acquisition-edit-candidate-cover-letter-label-text"
+                    >
                       Cover Letter
                     </span>
-                    <span className="text-red-500" aria-hidden>
+                    <span
+                      className="text-red-500"
+                      aria-hidden
+                      data-cy="talent-acquisition-edit-candidate-cover-letter-required"
+                    >
                       *
                     </span>
                   </div>
@@ -532,7 +551,10 @@ const EditCandidate: React.FC = () => {
                     data-cy="-components-modals-editcandidate-index-tsx-index-p-354"
                     className="flex items-center justify-center"
                   >
-                    <InboxOutlined style={{ fontSize: '34px', color: '#1E40AF' }} className="text-primary" />
+                    <InboxOutlined
+                      style={{ fontSize: '34px', color: '#1E40AF' }}
+                      className="text-primary"
+                    />
                   </p>
                   <div
                     id="talent-acquisition-edit-candidate-div-upload-cv-info"

@@ -2,15 +2,7 @@ import { useEmployeeDepartments } from '@/store/server/features/employees/employ
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import {
-  Button,
-  Col,
-  DatePicker,
-  Form,
-  Modal,
-  Row,
-  Select,
-} from 'antd';
+import { Button, Col, DatePicker, Form, Modal, Row, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../whatYouNeed';
@@ -62,8 +54,9 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
     {
       key: 'selectedJob',
       label:
-        jobList?.items?.find((job: any) => job?.id === searchParams?.selectedJob)
-          ?.jobTitle ?? '',
+        jobList?.items?.find(
+          (job: any) => job?.id === searchParams?.selectedJob,
+        )?.jobTitle ?? '',
     },
     {
       key: 'selectedStage',
@@ -384,8 +377,14 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2">
-                <div className="hidden items-center gap-2 sm:flex">
+              <div
+                className="flex items-center gap-2"
+                data-cy="talent-acquisition-job-candidate-search-filter-row"
+              >
+                <div
+                  className="hidden items-center gap-2 sm:flex"
+                  data-cy="talent-acquisition-job-candidate-search-filter-chips"
+                >
                   {activeFilterChips.map((chip) => (
                     <span
                       key={chip.key}
@@ -414,16 +413,16 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
                     </span>
                   ))}
                 </div>
-              <Button
-                icon={
-                  <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
-                }
-                className="!inline-flex !h-8 !items-center !gap-2 !rounded-[4px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
-                onClick={() => setFilterModalOpen(true)}
-                data-cy="talent-acquisition-job-candidate-search-button-filter"
-              >
-                Filter
-              </Button>
+                <Button
+                  icon={
+                    <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
+                  }
+                  className="!inline-flex !h-8 !items-center !gap-2 !rounded-[4px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
+                  onClick={() => setFilterModalOpen(true)}
+                  data-cy="talent-acquisition-job-candidate-search-button-filter"
+                >
+                  Filter
+                </Button>
               </div>
               <Modal
                 title={filterModalTitle}

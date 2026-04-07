@@ -6,13 +6,7 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import {
-  Button,
-  Dropdown,
-  Select,
-  Table,
-  TableColumnsType,
-} from 'antd';
+import { Dropdown, Select, Table, TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { FaEye, FaTrashAlt } from 'react-icons/fa';
@@ -65,9 +59,8 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteCandidateName, setDeleteCandidateName] = useState('');
-  const [deleteTriggerRect, setDeleteTriggerRect] = useState<TriggerRect | null>(
-    null,
-  );
+  const [deleteTriggerRect, setDeleteTriggerRect] =
+    useState<TriggerRect | null>(null);
   const { mutate: deleteCandidate } = useDeleteCandidate();
 
   const handleCandidateDetail = (candidate: any) => {
@@ -251,7 +244,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       ),
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
       stages: selectedStage?.id ? (
-        <div className="flex justify-center">
+        <div
+          className="flex justify-center"
+          data-cy={`talent-acquisition-job-candidate-table-stage-cell-${item?.id}`}
+        >
           <Select
             id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
             data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}

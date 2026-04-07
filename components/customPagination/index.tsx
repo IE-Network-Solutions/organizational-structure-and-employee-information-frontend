@@ -20,6 +20,10 @@ interface CustomPaginationProps {
   showPageSizeChanger?: boolean;
   /** When true, renders "Go to" section on the right side */
   goToOnRight?: boolean;
+  /** When false, hides the "Go to page" input (desktop only). Default true. */
+  showGoToPage?: boolean;
+  /** Optional Tailwind classes for the active page number button */
+  activePageButtonClassName?: string;
   /** Placeholder for the go-to page input (e.g. "Input") */
   goToInputPlaceholder?: string;
 }
@@ -37,6 +41,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   grayBackground = false,
   showPageSizeChanger = true,
   goToOnRight = false,
+  showGoToPage = true,
+  activePageButtonClassName,
   goToInputPlaceholder,
 }) => {
   const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
@@ -55,6 +61,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   const { isMobile } = useIsMobile();
 
   const [goToPageValue, setGoToPageValue] = useState<string>('');
+
+  const defaultActivePageBtnClass =
+    'border border-[#1e40af] text-[#1e40af] font-semibold';
+  const activePageBtnClass =
+    activePageButtonClassName ?? defaultActivePageBtnClass;
+  const inactivePageBtnClass = 'text-[#111827] font-normal hover:bg-gray-100';
 
   const handleGoToPage = () => {
     const page = parseInt(goToPageValue, 10);
@@ -76,9 +88,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             key={i}
             onClick={() => handlePageChange(i)}
             className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
-              current === i
-                ? ' border border-[#1e40af] text-[#1e40af] font-semibold '
-                : ' text-[#111827] font-normal hover:bg-gray-100'
+              current === i ? activePageBtnClass : inactivePageBtnClass
             }`}
             data-cy="pagination-page-button"
           >
@@ -96,9 +106,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           key={1}
           onClick={() => handlePageChange(1)}
           className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
-            current === 1
-              ? 'border border-[#1e40af] text-[#1e40af] font-semibold '
-              : 'text-[#111827] font-normal hover:bg-gray-100'
+            current === 1 ? activePageBtnClass : inactivePageBtnClass
           }`}
           data-cy="pagination-page-button"
         >
@@ -138,10 +146,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <button
             key={i}
             onClick={() => handlePageChange(i)}
-            className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors  ${
-              current === i
-                ? ' border border-[#1e40af] text-[#1e40af] font-semibold '
-                : ' text-[#111827] font-normal hover:bg-gray-100'
+            className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
+              current === i ? activePageBtnClass : inactivePageBtnClass
             }`}
             data-cy="pagination-page-button"
           >
@@ -170,8 +176,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           onClick={() => handlePageChange(totalPages)}
           className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
             current === totalPages
-              ? ' border-[1px] border-[#1e40af] text-[#1e40af] font-semibold '
-              : ' text-[#111827] font-normal  hover:bg-gray-100'
+              ? activePageBtnClass
+              : inactivePageBtnClass
           }`}
           data-cy="pagination-page-button"
         >
@@ -221,7 +227,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
 
-        {!goToOnRight && !isMobile && totalPages > 0 && (
+        {!goToOnRight &&
+          !isMobile &&
+          totalPages > 0 &&
+          showGoToPage && (
           <div
             className="flex items-center gap-2 ml-4"
             data-cy="pagination-goto"
@@ -260,7 +269,10 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {goToOnRight && !isMobile && totalPages > 0 && (
+        {goToOnRight &&
+          !isMobile &&
+          totalPages > 0 &&
+          showGoToPage && (
           <div className="flex items-center gap-2" data-cy="pagination-goto">
             <span
               className="text-xs text-[#718096]"

@@ -154,7 +154,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       open={createJobDrawer}
       onCancel={onClose}
       title={
-        <span className="text-[20px] font-bold leading-none text-black">
+        <span
+          className="text-[20px] font-bold leading-none text-black"
+          data-cy="talent-acquisition-create-candidate-modal-title"
+        >
           Add Candidate
         </span>
       }
@@ -437,8 +440,17 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             <Form.Item
               name="coverLetter"
               label={
-                <span className="text-[14px] font-normal text-[#030712]">
-                  Cover Letter <span className="text-red-500">*</span>
+                <span
+                  className="text-[14px] font-normal text-[#030712]"
+                  data-cy="talent-acquisition-create-candidate-cover-letter-label"
+                >
+                  Cover Letter{' '}
+                  <span
+                    className="text-red-500"
+                    data-cy="talent-acquisition-create-candidate-cover-letter-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[{ required: true, message: 'Please input cover letter' }]}
