@@ -56,6 +56,17 @@ const LeaveRequestManagementSidebar = () => {
     setIsShow(false);
   };
 
+  const isWorkFromHomeLeave = useMemo(() => {
+    const lt = leaveData?.items?.leaveType;
+    const title =
+      typeof lt === 'string'
+        ? lt
+        : lt && typeof lt === 'object' && lt !== null && 'title' in lt
+          ? String((lt as { title?: string }).title ?? '')
+          : '';
+    return title.trim().toLowerCase() === 'work from home';
+  }, [leaveData]);
+
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Close',
@@ -347,6 +358,7 @@ const LeaveRequestManagementSidebar = () => {
                     <ApprovalStatusCardSkeleton
                       key={`skeleton-${idx}`}
                       dataCyPrefix={`time-attendance-leave-management-sidebar-approval-levels-status-card-skeleton-${idx}`}
+                      hideApproverSkeleton={isWorkFromHomeLeave}
                     />
                   ))
                 : // Show actual approval status cards when data is loaded
@@ -359,6 +371,7 @@ const LeaveRequestManagementSidebar = () => {
                         data={approvalCard}
                         userName={userData}
                         userImage={userImage}
+                        hideApproverIdentity={isWorkFromHomeLeave}
                       />
                     ))}
             </div>
