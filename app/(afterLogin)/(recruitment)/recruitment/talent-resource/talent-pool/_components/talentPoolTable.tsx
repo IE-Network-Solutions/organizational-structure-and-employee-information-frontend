@@ -220,7 +220,7 @@ const TalentPoolTable: React.FC<any> = () => {
   const filteredItems = candidates?.items || [];
   const skeletonRowCount = 6;
   const tableDataSource = responseLoading
-    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
         key: `skeleton-${index}`,
       }))
     : filteredItems;
