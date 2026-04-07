@@ -2229,6 +2229,12 @@ h6 {
   align-items: center !important;
 }
 
+.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item-content {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+}
+
   /* TNA Course Category (...): Edit / Delete — 117×72 panel, 8px radius, spec icons */
   .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu {
     background: #ffffff !important;
