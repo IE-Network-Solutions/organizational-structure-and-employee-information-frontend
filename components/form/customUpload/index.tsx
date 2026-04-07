@@ -247,13 +247,10 @@ const CustomUpload: FC<CustomUploadProps> = ({
           >
             <div
               data-cy="components-form-customupload-index-tsx-index-div-190"
-              className={classNames(
-                'flex flex-col items-center h-max w-full',
-                {
-                  'py-4': presentation === 'classic',
-                  'p-3 gap-1': presentation !== 'classic',
-                },
-              )}
+              className={classNames('flex flex-col items-center h-max w-full', {
+                'py-4': presentation === 'classic',
+                'p-3 gap-1': presentation !== 'classic',
+              })}
             >
               {presentation === 'classic' ? (
                 <div

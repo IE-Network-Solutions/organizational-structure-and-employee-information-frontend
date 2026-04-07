@@ -4,7 +4,8 @@
  * Select triggers use `.custom-centered-select-wrapper` (already 40px in TS styles).
  */
 
-.add-meeting-form .ant-input-affix-wrapper:not(.ant-input-textarea-affix-wrapper) {
+.add-meeting-form
+  .ant-input-affix-wrapper:not(.ant-input-textarea-affix-wrapper) {
   min-height: 40px !important;
   align-items: center !important;
 }
@@ -74,12 +75,18 @@
   border-radius: 50% !important;
 }
 
-.add-meeting-form .allow-guests-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+.add-meeting-form
+  .allow-guests-checkbox
+  .ant-checkbox-checked
+  .ant-checkbox-inner {
   background-color: #1e40af !important;
   border-color: #1e40af !important;
 }
 
-.add-meeting-form .allow-guests-checkbox .ant-checkbox-checked .ant-checkbox-inner::after {
+.add-meeting-form
+  .allow-guests-checkbox
+  .ant-checkbox-checked
+  .ant-checkbox-inner::after {
   display: block !important;
   box-sizing: border-box !important;
   width: 5px !important;

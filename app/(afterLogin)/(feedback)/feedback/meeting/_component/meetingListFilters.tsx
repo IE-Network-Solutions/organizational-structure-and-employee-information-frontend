@@ -15,6 +15,8 @@ import filterStyles from './meetingListFilters.module.css';
 
 const { RangePicker } = DatePicker;
 
+type LabelValueOption = { value: string; label: string };
+
 export default function MeetingListFilters() {
   const {
     setDepartmentId,
@@ -40,12 +42,12 @@ export default function MeetingListFilters() {
   const { data: Departments } = useGetUserDepartment();
   const { data: meetTypes } = useGetAllMeetingType();
 
-  const departmentOptions =
+  const departmentOptions: LabelValueOption[] =
     Departments?.map((i) => ({
       value: String(i.id),
       label: String(i?.name ?? ''),
     })) ?? [];
-  const meetingOptions = meetTypes?.items?.map(
+  const meetingOptions: LabelValueOption[] | undefined = meetTypes?.items?.map(
     (i: { id: string; name: string }) => ({
       value: i.id,
       label: i.name,

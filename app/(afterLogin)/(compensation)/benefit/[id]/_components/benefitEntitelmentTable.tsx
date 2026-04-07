@@ -58,9 +58,11 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
   } = useBenefitEntitlementStore();
   const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteBenefitEntitlement } = useDeleteBenefitEntitlement();
-  const { id } = useParams();
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { data: benefitEntitlementsData, isLoading } =
-    useFetchBenefitEntitlement(id);
+    useFetchBenefitEntitlement(id ?? '');
   const { searchQuery, searchText } = useAllowanceEntitlementStore();
   const { data: employeeData, isLoading: employeeLoading } = useGetAllUsers();
 

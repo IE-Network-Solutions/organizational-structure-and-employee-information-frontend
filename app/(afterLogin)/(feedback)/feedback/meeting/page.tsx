@@ -13,7 +13,7 @@ import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 
 function MeetingsSplitContent() {
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get('id') ?? undefined;
+  const selectedId = searchParams?.get('id') ?? undefined;
 
   return (
     <div
@@ -62,7 +62,7 @@ function MeetingsSplitContent() {
 function MeetingMeetingsPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get('id') ?? undefined;
+  const selectedId = searchParams?.get('id') ?? undefined;
   const { setOpenAddMeeting, bumpAddMeetingFormReset } = useMeetingStore();
 
   const handleCreateMeeting = () => {

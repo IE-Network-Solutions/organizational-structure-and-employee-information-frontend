@@ -60,8 +60,9 @@ interface SettingsLayoutProps {
 
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
+  const path = pathname ?? '';
   const router = useRouter();
-  const layoutSlug = toSlug(pathname || 'settings-layout');
+  const layoutSlug = toSlug(path || 'settings-layout');
   const { isMobile } = useIsMobile();
   const { setOpen, setIsEditMode, setEditingEmploymentType } =
     EmployeTypeManagementStore();
@@ -73,10 +74,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   };
 
   const getActiveKey = () => {
-    if (pathname.includes('/employementType')) return 'employementType';
-    if (pathname.includes('/rolePermission')) return 'rolePermission';
-    if (pathname.includes('/positions')) return 'positions';
-    if (pathname.includes('/customFields')) return 'customFields';
+    if (path.includes('/employementType')) return 'employementType';
+    if (path.includes('/rolePermission')) return 'rolePermission';
+    if (path.includes('/positions')) return 'positions';
+    if (path.includes('/customFields')) return 'customFields';
     return 'employementType';
   };
 

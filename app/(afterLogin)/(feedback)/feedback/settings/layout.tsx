@@ -22,11 +22,11 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         key: 'define-feedback',
         icon: (
           <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/define-feedback') ? 'lg:ml-4' : ''}`}
+            className={`lg:flex items-center gap-2 ${pathname?.includes('/feedback/settings/define-feedback') ? 'lg:ml-4' : ''}`}
             data-cy="feedback-settings-menu-define-feedback"
           >
             <RiFeedbackLine
-              className={`hidden lg:block ${pathname.includes('/feedback/settings/define-feedback') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:block ${pathname?.includes('/feedback/settings/define-feedback') ? 'text-[#1677FF]' : ''}`}
               data-cy="feedback-settings-menu-define-feedback-icon"
             />
             <p
@@ -73,11 +73,11 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         key: 'recognition',
         icon: (
           <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/recognition') ? 'lg:ml-4' : ''}`}
+            className={`lg:flex items-center gap-2 ${pathname?.includes('/feedback/settings/recognition') ? 'lg:ml-4' : ''}`}
             data-cy="feedback-settings-menu-recognition"
           >
             <CiCalendarDate
-              className={`hidden lg:block ${pathname.includes('/feedback/settings/recognition') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:block ${pathname?.includes('/feedback/settings/recognition') ? 'text-[#1677FF]' : ''}`}
               data-cy="feedback-settings-menu-recognition-icon"
             />
             <p
@@ -97,11 +97,11 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         key: 'target-achievement',
         icon: (
           <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/feedback/settings/target-achievement') ? 'lg:ml-4' : ''}`}
+            className={`lg:flex items-center gap-2 ${pathname?.includes('/feedback/settings/target-achievement') ? 'lg:ml-4' : ''}`}
             data-cy="feedback-settings-menu-target-achievement"
           >
             <CiCalendarDate
-              className={`hidden lg:block ${pathname.includes('/feedback/settings/target-achievement') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:block ${pathname?.includes('/feedback/settings/target-achievement') ? 'text-[#1677FF]' : ''}`}
               data-cy="feedback-settings-menu-target-achievement-icon"
             />
             <p
@@ -123,14 +123,14 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${
-              pathname.includes('/feedback/settings/define-meeting-type')
+              pathname?.includes('/feedback/settings/define-meeting-type')
                 ? 'lg:ml-4'
                 : ''
             }`}
             data-cy="feedback-settings-menu-meeting-type"
           >
             <IoListSharp
-              className={`hidden lg:block ${pathname.includes('/feedback/settings/define-meeting-type') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:block ${pathname?.includes('/feedback/settings/define-meeting-type') ? 'text-[#1677FF]' : ''}`}
               data-cy="feedback-settings-menu-meeting-type-icon"
             />
             <p

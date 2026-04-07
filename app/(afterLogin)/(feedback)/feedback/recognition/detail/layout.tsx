@@ -18,7 +18,7 @@ function RecognitionDetailLayoutShell({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const recognitionTypeId = searchParams.get('recognitionTypeId') ?? '1';
+  const recognitionTypeId = searchParams?.get('recognitionTypeId') ?? '1';
   const { data: recognitionData, isLoading: isRecognitionTypeLoading } =
     useGetRecognitionTypeById(recognitionTypeId);
   const { setVisible, visible } = useRecongnitionStore();
@@ -28,10 +28,10 @@ function RecognitionDetailLayoutShell({
   const typesHref = `/feedback/recognition/detail/recognition-type?recognitionTypeId=${encodeURIComponent(recognitionTypeId)}`;
 
   const isHistoryActive =
-    pathname.endsWith('/feedback/recognition/detail') ||
-    pathname.endsWith('/feedback/recognition/detail/history');
+    pathname?.endsWith('/feedback/recognition/detail') ||
+    pathname?.endsWith('/feedback/recognition/detail/history');
 
-  const isTypesActive = pathname.endsWith(
+  const isTypesActive = pathname?.endsWith(
     '/feedback/recognition/detail/recognition-type',
   );
 

@@ -20,7 +20,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
-  const recognitionTypeId = searchParams.get('recognitionTypeId');
+  const recognitionTypeId = searchParams?.get('recognitionTypeId');
   const { data: recognitionTypesParentChild } =
     useGetRecognitionTypeParentChildById(recognitionTypeId ?? '');
   const { mutate: createRecognition, isLoading: createRecognitionLoading } =
