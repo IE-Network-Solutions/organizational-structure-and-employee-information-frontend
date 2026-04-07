@@ -584,8 +584,11 @@ h6 {
   border: none !important;
 }
 
-.lesson-material-article {
-  @apply text-gray-600 text-base;
+  .lesson-material-article {
+    @apply text-gray-600 text-base;
+  }
+.page-wrap {
+  @apply h-auto w-auto pb-6;
 }
 
 .lesson-material-article h3 {

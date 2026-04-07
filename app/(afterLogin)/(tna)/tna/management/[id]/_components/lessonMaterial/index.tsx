@@ -3,15 +3,20 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Col, Form, Input, InputNumber, Row, Select, Spin } from 'antd';
+import { Form, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
-import TextEditor from '@/components/form/textEditor';
-import CustomUpload from '@/components/form/customUpload';
 import React, { useEffect } from 'react';
+import {
+  CourseMaterialArticleFormItem,
+  CourseMaterialAttachmentsFormItem,
+  CourseMaterialDescriptionFormItem,
+  CourseMaterialTimeFormItem,
+  CourseMaterialTitleFormItem,
+  CourseMaterialVideosFormItem,
+} from '../courseLesson/courseMaterialFormFields';
 import { useGetCourseLessonsMaterial } from '@/store/server/features/tna/lessonMaterial/queries';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
-import { CourseLessonMaterial as CourseLessonMaterialType } from '@/types/tna/course';
 import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 
 const CourseLessonMaterial = () => {
@@ -60,7 +65,6 @@ const CourseLessonMaterial = () => {
         description: item.description,
         article: item.article,
         timeToFinishMinutes: item.timeToFinishMinutes,
-        order: item.order,
         videos: item.videos.length
           ? item.videos.map((video) => formatLinkToUploadFile(video))
           : undefined,
@@ -74,33 +78,11 @@ const CourseLessonMaterial = () => {
   }, [lessonMaterialData]);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && isShow) {
       onClose();
     }
-  }, [isSuccess]);
+  }, [isSuccess, isShow]);
 
-  const getOrderOptions = (
-    courseLessonMaterials: CourseLessonMaterialType[],
-  ) => {
-    const defaultOption = {
-      label: 'Add at the end',
-      value: 0, // Use 0 to indicate appending at the end
-    };
-
-    // Generate options from existing materials, excluding the current material (if editing)
-    const materialOptions = courseLessonMaterials
-      .filter(
-        (material) => !lessonMaterial || material.id !== lessonMaterial.id,
-      )
-      ?.sort((a, b) => a.order - b.order)
-      .map((material) => ({
-        label: material.title || 'Untitled', // Fallback for missing titles
-        value: material.order, // Use index+1 for unique values
-        key: `material-${material.order}`, // Use unique keys
-      }));
-
-    return [defaultOption, ...materialOptions];
-  };
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
     {
       label: 'Cancel',
@@ -180,7 +162,7 @@ const CourseLessonMaterial = () => {
         description: values.description,
         article: values.article,
         timeToFinishMinutes: values.timeToFinishMinutes,
-        order: getMaterialOrder(values.order),
+        order: lessonMaterial ? lessonMaterial.order : getMaterialOrder(0),
         courseLessonId: lesson?.id ?? '',
         videos: values.videos?.map((video: any) => video.response) ?? [],
         attachments:
@@ -241,165 +223,69 @@ const CourseLessonMaterial = () => {
         id="tnaLessonMaterialFormId"
         data-cy="tna-lesson-material-form"
       >
-        <Form.Item
-          name="title"
-          label="Course Material Title"
-          rules={[{ required: true, message: 'Required' }]}
-          className="form-item"
-          id="tnaLessonMaterialTitleItemId"
-          data-cy="tna-lesson-material-title-item"
-        >
-          <Input
-            id="tnaCourseMaterialTitleFieldId"
-            data-cy="tna-course-material-title-field"
-            className="control"
-          />
-        </Form.Item>
-        <Form.Item
-          name="description"
+        <CourseMaterialTitleFormItem
+          itemDataCy="tna-lesson-material-title-item"
+          formItemClassName="form-item"
+          formItemProps={{ id: 'tnaLessonMaterialTitleItemId' }}
+          inputClassName="control"
+          inputId="tnaCourseMaterialTitleFieldId"
+          inputDataCy="tna-course-material-title-field"
+        />
+        <CourseMaterialDescriptionFormItem
+          itemDataCy="tna-lesson-material-description-item"
           label="Lesson Description"
-          rules={[{ required: true, message: 'Required' }]}
-          className="form-item"
-          id="tnaLessonMaterialDescriptionItemId"
-          data-cy="tna-lesson-material-description-item"
-        >
-          <Input.TextArea
-            id="tnaCourseLessonDescriptionFieldId"
-            data-cy="tna-course-lesson-description-field"
-            className="control-tarea"
-            rows={6}
-            placeholder="Enter the Description"
-          />
-        </Form.Item>
-        <Form.Item
-          name="article"
+          formItemClassName="form-item"
+          formItemProps={{ id: 'tnaLessonMaterialDescriptionItemId' }}
+          placeholder="Enter the Description"
+          inputId="tnaCourseLessonDescriptionFieldId"
+          inputDataCy="tna-course-lesson-description-field"
+        />
+        <CourseMaterialArticleFormItem
+          itemDataCy="tna-article-for-course-field"
           label="Article"
-          id="tnaArticleForCourseFieldId"
-          data-cy="tna-article-for-course-field"
-          rules={[{ required: true, message: 'Required' }]}
-          className="form-item"
-        >
-          <TextEditor
-            className="mt-3"
-            placeholder="Enter the Article"
-            data-cy="tna-lesson-material-article-editor"
-          />
-        </Form.Item>
+          formItemClassName="form-item"
+          formItemProps={{ id: 'tnaArticleForCourseFieldId' }}
+          editorPlaceholder="Enter the Article"
+          editorDataCy="tna-lesson-material-article-editor"
+        />
         <Spin
           spinning={isFileUploadLoading.video}
           data-cy="tna-lesson-material-video-spinner"
         >
-          <Form.Item
-            name="videos"
-            label="Video"
-            className="form-item"
-            valuePropName="fileList"
-            rules={[{ required: true, message: 'Required' }]}
-            id="tnaLessonMaterialVideoItemId"
-            data-cy="tna-lesson-material-video-item"
-            getValueFromEvent={(e) => {
-              return Array.isArray(e) ? e : e && e.fileList;
-            }}
-          >
-            <CustomUpload
-              mode="dragWithLink"
-              className="w-full mt-3"
-              listType="picture"
-              title="Upload Your video"
-              accept="video/*"
-              maxCount={1}
-              targetState="fileList"
-              uploadType="video"
-              id="tnaLessonMaterialVideoUploadId"
-              data-cy="tna-lesson-material-video-upload"
-            />
-          </Form.Item>
+          <CourseMaterialVideosFormItem
+            itemDataCy="tna-lesson-material-video-item"
+            formItemClassName="form-item"
+            formItemProps={{ id: 'tnaLessonMaterialVideoItemId' }}
+            uploadClassName="w-full mt-3"
+            uploadTitle="Upload Your video"
+            uploadDataCy="tna-lesson-material-video-upload"
+            uploadId="tnaLessonMaterialVideoUploadId"
+          />
         </Spin>
         <Spin
           spinning={isFileUploadLoading.attachment}
           data-cy="tna-lesson-material-attachment-spinner"
         >
-          <Form.Item
-            name="attachments"
+          <CourseMaterialAttachmentsFormItem
+            itemDataCy="tna-lesson-material-attachment-item"
             label="Attachment"
-            className="form-item"
-            valuePropName="fileList"
-            rules={[{ required: true, message: 'Required' }]}
-            id="tnaLessonMaterialAttachmentItemId"
-            data-cy="tna-lesson-material-attachment-item"
-            getValueFromEvent={(e) => {
-              return Array.isArray(e) ? e : e && e.fileList;
-            }}
-          >
-            <CustomUpload
-              mode="dragWithLink"
-              className="w-full mt-3"
-              listType="picture"
-              title="Upload Your Attachment"
-              targetState="fileAttachmentList"
-              uploadType="attachment"
-              id="tnaLessonMaterialAttachmentUploadId"
-              data-cy="tna-lesson-material-attachment-upload"
-            />
-          </Form.Item>
+            formItemClassName="form-item"
+            formItemProps={{ id: 'tnaLessonMaterialAttachmentItemId' }}
+            uploadClassName="w-full mt-3"
+            uploadTitle="Upload Your Attachment"
+            uploadDataCy="tna-lesson-material-attachment-upload"
+            uploadId="tnaLessonMaterialAttachmentUploadId"
+          />
         </Spin>
-        <Row
-          gutter={24}
-          id="tnaLessonMaterialRowId"
-          data-cy="tna-lesson-material-row"
-        >
-          <Col
-            span={12}
-            id="tnaLessonMaterialTimeColId"
-            data-cy="tna-lesson-material-time-col"
-          >
-            <Form.Item
-              name="timeToFinishMinutes"
-              label="Estimated time to Finish"
-              className="form-item"
-              id="tnaLessonMaterialTimeItemId"
-              data-cy="tna-lesson-material-time-item"
-            >
-              <InputNumber
-                className="control-number"
-                placeholder="Enter estimated time"
-                min={1}
-                id="tnaLessonMaterialTimeInputId"
-                data-cy="tna-lesson-material-time-input"
-              />
-            </Form.Item>
-          </Col>
-          <Col
-            span={12}
-            id="tnaLessonMaterialOrderColId"
-            data-cy="tna-lesson-material-order-col"
-          >
-            <Form.Item
-              name="order"
-              label="Insert Before"
-              className="form-item"
-              rules={[{ required: true, message: 'Please select a position' }]}
-              initialValue={0} // Set default value to 0
-              id="tnaLessonMaterialOrderItemId"
-              data-cy="tna-lesson-material-order-item"
-            >
-              <Select
-                className="control"
-                placeholder="Select position"
-                showSearch
-                optionFilterProp="label"
-                id="tnaLessonMaterialOrderSelectId"
-                data-cy="tna-lesson-material-order-select"
-                filterOption={(input, option) =>
-                  (option?.label ?? '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={getOrderOptions(lesson?.courseLessonMaterials ?? [])}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        <CourseMaterialTimeFormItem
+          itemDataCy="tna-lesson-material-time-item"
+          variant="inputNumber"
+          label="Estimated time to Finish"
+          formItemClassName="form-item"
+          formItemProps={{ id: 'tnaLessonMaterialTimeItemId' }}
+          inputNumberId="tnaLessonMaterialTimeInputId"
+          inputNumberDataCy="tna-lesson-material-time-input"
+        />
       </Form>
     </CustomDrawerLayout>
   );
