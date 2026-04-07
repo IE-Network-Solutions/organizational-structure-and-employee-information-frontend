@@ -8,6 +8,8 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 75, 100];
 interface CustomPaginationProps {
   current: number;
   total: number;
+  /** Optional override for page count (legacy usage compatibility) */
+  totalPages?: number;
   pageSize: number;
   onChange: (page: number, pageSize: number) => void;
   onShowSizeChange: (size: number) => void;
@@ -16,6 +18,8 @@ interface CustomPaginationProps {
   id?: string;
   'data-cy'?: string;
   className?: string;
+  /** Legacy layout flag; when true allows pagination row wrapping */
+  wrapMainRow?: boolean;
   grayBackground?: boolean; // Only for planning and reporting page
   showPageSizeChanger?: boolean;
   /** When true, renders "Go to" section on the right side */
@@ -31,6 +35,7 @@ interface CustomPaginationProps {
 const CustomPagination: React.FC<CustomPaginationProps> = ({
   current,
   total,
+  totalPages: totalPagesProp,
   pageSize,
   onChange,
   onShowSizeChange,
@@ -38,6 +43,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
   id,
   'data-cy': dataCy,
   className,
+  wrapMainRow = false,
   grayBackground = false,
   showPageSizeChanger = true,
   goToOnRight = false,
@@ -57,7 +63,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     onShowSizeChange(value);
   };
 
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = totalPagesProp ?? Math.ceil(total / pageSize);
   const { isMobile } = useIsMobile();
 
   const [goToPageValue, setGoToPageValue] = useState<string>('');
@@ -175,9 +181,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
           className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-colors ${
-            current === totalPages
-              ? activePageBtnClass
-              : inactivePageBtnClass
+            current === totalPages ? activePageBtnClass : inactivePageBtnClass
           }`}
           data-cy="pagination-page-button"
         >
@@ -193,7 +197,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex justify-between items-center py-6 ${
+      className={`flex justify-between ${wrapMainRow ? 'flex-wrap gap-3' : 'items-center'} py-6 ${
         grayBackground ? 'bg-gray-100' : ''
       } ${className ?? ''}`}
     >
@@ -227,10 +231,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <RightOutlined className={isMobile ? 'text-sm' : 'text-xs'} />
         </button>
 
-        {!goToOnRight &&
-          !isMobile &&
-          totalPages > 0 &&
-          showGoToPage && (
+        {!goToOnRight && !isMobile && totalPages > 0 && showGoToPage && (
           <div
             className="flex items-center gap-2 ml-4"
             data-cy="pagination-goto"
@@ -269,10 +270,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         }`}
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {goToOnRight &&
-          !isMobile &&
-          totalPages > 0 &&
-          showGoToPage && (
+        {goToOnRight && !isMobile && totalPages > 0 && showGoToPage && (
           <div className="flex items-center gap-2" data-cy="pagination-goto">
             <span
               className="text-xs text-[#718096]"
