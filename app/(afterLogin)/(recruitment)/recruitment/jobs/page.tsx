@@ -126,7 +126,7 @@ const RecruitmentPage: React.FC = () => {
     <div
       id="talent-acquisition-jobs-page-div-container"
       data-cy="talent-acquisition-jobs-page-div-container"
-      className="min-h-screen max-w-full overflow-x-hidden bg-white"
+      className="min-h-screen max-w-full overflow-x-hidden bg-white font-['Calibri']"
     >
       <header className="w-full" data-cy="talent-acquisition-jobs-page-header">
         <div
@@ -214,7 +214,7 @@ const RecruitmentPage: React.FC = () => {
           </div>
         </div>
         <div
-          className="mt-3 w-full border-0 border-b border-solid border-gray-200 sm:mt-4"
+          className="relative left-1/2 mt-3 w-[calc(100vw-16px)] -translate-x-1/2 border-0 border-b border-solid border-gray-200 sm:mt-4"
           aria-hidden
           data-cy="talent-acquisition-jobs-page-header-divider"
         />

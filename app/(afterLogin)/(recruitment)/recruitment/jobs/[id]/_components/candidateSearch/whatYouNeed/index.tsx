@@ -1,6 +1,5 @@
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useDebounce } from '@/utils/useDebounce';
-import { Input } from 'antd';
 import React from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 
@@ -42,38 +41,46 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
     onSearchChange(trimmedValue, keyValue);
   };
 
-  const containerClassName = embeddedInBar
+  const containerSizeClass = embeddedInBar
     ? 'w-full flex-1'
     : fullWidth
-      ? 'w-full min-w-0'
-      : 'w-full sm:w-[360px]';
-  const wrapperClassName = `${containerClassName} ${className}`.trim();
-  const inputShapeClass = pill
+      ? 'w-full min-w-0 sm:max-w-[299px]'
+      : 'w-full sm:w-[299px]';
+
+  const outerRadius = pill
     ? 'rounded-md'
-    : 'rounded-[6px] !border-[#D9D9D9] hover:!border-[#D9D9D9]';
+    : embeddedInBar
+      ? 'rounded-l-lg rounded-r-none'
+      : 'rounded-[4px]';
+
+  const outerBorder = embeddedInBar
+    ? 'border-0 shadow-none'
+    : 'border border-solid border-[#D9D9D9]';
 
   return (
     <div
       id="talent-acquisition-what-you-need-div-container"
       data-cy="talent-acquisition-what-you-need-div-container"
-      className={wrapperClassName}
+      className={`${containerSizeClass} ${className}`.trim()}
     >
-      <Input.Search
-        id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
-        data-cy="talent-acquisition-job-candidate-search-input"
-        placeholder={placeholder}
-        onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className={`ta-candidate-search-input w-full !h-10 [&_.ant-input]:!h-10 [&_.ant-input]:!text-[14px] [&_.ant-input]:placeholder:!text-[rgba(0,0,0,0.25)] ${embeddedInBar ? '!rounded-l-lg !rounded-r-none !border-0 !border-r-0 !shadow-none hover:!border-0 focus:!shadow-none' : inputShapeClass}`}
-        allowClear
-        suffix={
-          <span
-            className="inline-flex h-10 items-center border-l border-[#D9D9D9] pl-2.5 pr-0.5"
-            data-cy="talent-acquisition-job-candidate-search-input-suffix"
-          >
-            <AiOutlineSearch className="h-4 w-4 shrink-0 text-[rgba(0,0,0,0.45)]" />
-          </span>
-        }
-      />
+      <div
+        className={`flex h-8 items-stretch overflow-hidden bg-white ${outerRadius} ${outerBorder}`}
+      >
+        <input
+          id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
+          data-cy="talent-acquisition-job-candidate-search-input"
+          type="text"
+          placeholder={placeholder}
+          onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
+          className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 font-['Calibri'] text-[14px] font-normal leading-none text-black outline-none placeholder:text-[14px] placeholder:leading-none placeholder:text-[rgba(0,0,0,0.25)]"
+        />
+        <span
+          className="flex h-full w-8 shrink-0 items-center justify-center border-l border-solid border-[#D9D9D9] bg-[#FAFAFA]"
+          data-cy="talent-acquisition-job-candidate-search-input-suffix"
+        >
+          <AiOutlineSearch className="h-4 w-4 shrink-0 text-[rgba(0,0,0,0.45)]" />
+        </span>
+      </div>
     </div>
   );
 };

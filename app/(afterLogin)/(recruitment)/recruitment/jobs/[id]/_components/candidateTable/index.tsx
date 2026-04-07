@@ -12,7 +12,6 @@ import {
   Select,
   Table,
   TableColumnsType,
-  Popover,
 } from 'antd';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
@@ -31,9 +30,17 @@ import { TableRowSelection } from 'antd/es/table/interface';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
 
 interface TableProps {
   jobId: string;
+}
+
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
 }
 
 const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
@@ -56,9 +63,11 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     setSelectedRowKeys,
   } = useCandidateState();
 
-  const [deletePopoverCandidateId, setDeletePopoverCandidateId] = useState<
-    string | null
-  >(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteCandidateName, setDeleteCandidateName] = useState('');
+  const [deleteTriggerRect, setDeleteTriggerRect] = useState<TriggerRect | null>(
+    null,
+  );
   const { mutate: deleteCandidate } = useDeleteCandidate();
 
   const handleCandidateDetail = (candidate: any) => {
@@ -122,6 +131,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     {
       title: 'CV',
       dataIndex: 'cv',
+      align: 'center',
     },
     {
       title: 'Applied/Created Date',
@@ -147,11 +157,13 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     {
       title: 'Stages',
       dataIndex: 'stages',
+      align: 'center',
     },
 
     {
       title: 'Action',
       dataIndex: 'action',
+      align: 'center',
     },
   ];
 
@@ -164,19 +176,36 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       setSelectedCandidateID(candidate?.id);
       setEditCandidateModal(true);
     } else if (key === 'delete') {
+      const btn = document.querySelector<HTMLElement>(
+        `[data-cy="talent-acquisition-job-candidate-table-action-button-${candidate?.id}"]`,
+      );
+      if (btn) {
+        const r = btn.getBoundingClientRect();
+        setDeleteTriggerRect({
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height,
+        });
+      } else {
+        setDeleteTriggerRect(null);
+      }
       setSelectedCandidate(candidate);
       setDeleteCandidateId(candidate?.id);
-      setDeletePopoverCandidateId(candidate?.id);
+      setDeleteCandidateName(candidate?.fullName ?? 'this candidate');
+      setIsDeleteModalOpen(true);
     }
   };
 
   const handleConfirmDelete = () => {
     deleteCandidate(undefined, {
-      onSuccess: () => setDeletePopoverCandidateId(null),
+      onSuccess: () => setIsDeleteModalOpen(false),
     });
   };
 
   const data = candidateList?.items?.map((item: any, index: any) => {
+    const selectedStage = item?.jobCandidate?.[0]?.applicantStatusStage;
+
     const handleDownload = () => {
       const link = document.createElement('a');
       link.href = item?.resumeUrl;
@@ -221,130 +250,85 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         </div>
       ),
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
-      stages: (
-        <Select
-          id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
-          data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
-          defaultValue={item?.jobCandidate?.map(
-            (e: any) => e?.applicantStatusStage?.title ?? '--',
-          )}
-          className="ta-candidate-stage-select min-w-[128px] max-w-[200px] [&_.ant-select-selector]:!h-auto [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-[4px] [&_.ant-select-selector]:!border [&_.ant-select-selector]:!border-solid [&_.ant-select-selector]:!border-[#1E40AF] [&_.ant-select-selector]:!bg-[#EFF6FF] [&_.ant-select-selector]:!py-0.5 [&_.ant-select-selector]:!px-2 [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[#1E40AF]"
-          popupClassName="ta-candidate-stage-dropdown"
-          onChange={(value) =>
-            handleStageChange(
-              value,
-              item?.jobCandidate?.map((e: any) => e?.id),
-            )
-          }
-        >
-          {statusStage?.items?.map((stage: any) => (
-            <Select.Option
-              key={stage.id}
-              value={stage.id}
-              id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
-            >
-              {stage.title}
-            </Select.Option>
-          ))}
-        </Select>
+      stages: selectedStage?.id ? (
+        <div className="flex justify-center">
+          <Select
+            id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+            defaultValue={selectedStage.id}
+            bordered={false}
+            suffixIcon={null}
+            className="ta-candidate-stage-select min-w-[96px] max-w-[140px] [&_.ant-select-selector]:!h-[24px] [&_.ant-select-selector]:!min-h-[24px] [&_.ant-select-selector]:!rounded-[4px] [&_.ant-select-selector]:!border [&_.ant-select-selector]:!border-solid [&_.ant-select-selector]:!border-[#91CAFF] [&_.ant-select-selector]:!bg-[#E6F4FF] [&_.ant-select-selector]:!px-2 [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!leading-[24px] [&_.ant-select-selection-item]:!text-[#1677FF]"
+            popupClassName="ta-candidate-stage-dropdown"
+            onChange={(value) =>
+              handleStageChange(
+                value,
+                item?.jobCandidate?.map((e: any) => e?.id),
+              )
+            }
+          >
+            {statusStage?.items?.map((stage: any) => (
+              <Select.Option
+                key={stage.id}
+                value={stage.id}
+                id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+                data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              >
+                {stage.title}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+      ) : (
+        '--'
       ),
       action: (
         <div
           id={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
           data-cy={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
-          className="flex items-center justify-end"
+          className="flex items-center justify-center"
         >
-          <Popover
-            open={deletePopoverCandidateId === item?.id}
-            onOpenChange={(open) => !open && setDeletePopoverCandidateId(null)}
-            placement="bottomRight"
-            trigger={[]}
-            content={
-              <div
-                id="candidate-delete-popover"
-                className="w-72 p-1"
-                data-cy="talent-acquisition-candidate-delete-popover"
-              >
-                <p
-                  className="text-gray-700 text-sm mb-4"
-                  data-cy="talent-acquisition-candidate-delete-popover-message"
-                >
-                  Are you sure you want to delete{' '}
-                  <span
-                    className="font-semibold"
-                    data-cy="talent-acquisition-candidate-delete-popover-candidate-name"
-                  >
-                    {item?.fullName ?? 'this candidate'}
-                  </span>{' '}
-                  from candidates?
-                </p>
-                <div
-                  className="flex justify-end gap-2"
-                  data-cy="talent-acquisition-candidate-delete-popover-actions"
-                >
-                  <Button
-                    size="small"
-                    onClick={() => setDeletePopoverCandidateId(null)}
-                    data-cy="talent-acquisition-candidate-delete-popover-cancel"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="primary"
-                    danger
-                    size="small"
-                    onClick={handleConfirmDelete}
-                    data-cy="talent-acquisition-candidate-delete-popover-confirm"
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            }
+          <span
+            data-cy={`talent-acquisition-job-candidate-table-dropdown-trigger-${item?.id}`}
           >
-            <span
-              data-cy={`talent-acquisition-job-candidate-table-dropdown-trigger-${item?.id}`}
+            <Dropdown
+              data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
+              menu={{
+                items: [
+                  {
+                    key: 'view',
+                    label: 'View Detail',
+                    icon: <FaEye className="text-gray-500 text-sm" />,
+                    onClick: () => handleCandidateDetail(item),
+                  },
+                  {
+                    key: 'edit',
+                    label: 'Edit',
+                    icon: <MdModeEdit className="text-gray-500 text-sm" />,
+                    onClick: () => handleMenuClick('edit', item),
+                  },
+                  {
+                    key: 'delete',
+                    label: 'Delete',
+                    icon: <FaTrashAlt className="text-gray-500 text-sm" />,
+                    onClick: () => handleMenuClick('delete', item),
+                  },
+                ],
+              }}
+              trigger={['click']}
+              placement="bottomRight"
+              overlayClassName="talent-acquisition-candidate-action-dropdown rounded-lg shadow-lg border border-gray-200"
             >
-              <Dropdown
-                data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
-                menu={{
-                  items: [
-                    {
-                      key: 'view',
-                      label: 'View Detail',
-                      icon: <FaEye className="text-gray-500 text-sm" />,
-                      onClick: () => handleCandidateDetail(item),
-                    },
-                    {
-                      key: 'edit',
-                      label: 'Edit',
-                      icon: <MdModeEdit className="text-gray-500 text-sm" />,
-                      onClick: () => handleMenuClick('edit', item),
-                    },
-                    {
-                      key: 'delete',
-                      label: 'Delete',
-                      icon: <FaTrashAlt className="text-gray-500 text-sm" />,
-                      onClick: () => handleMenuClick('delete', item),
-                    },
-                  ],
-                }}
-                trigger={['click']}
-                placement="bottomRight"
-                overlayClassName="talent-acquisition-candidate-action-dropdown rounded-lg shadow-lg border border-gray-200"
+              <button
+                type="button"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:border-[#1E40AF] hover:text-[#1E40AF]"
+                aria-label="Actions"
+                data-cy={`talent-acquisition-job-candidate-table-action-button-${item?.id}`}
               >
-                <button
-                  type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:border-[#1E40AF] hover:text-[#1E40AF]"
-                  aria-label="Actions"
-                  data-cy={`talent-acquisition-job-candidate-table-action-button-${item?.id}`}
-                >
-                  <BsThreeDots className="text-base" />
-                </button>
-              </Dropdown>
-            </span>
-          </Popover>
+                <BsThreeDots className="text-base" />
+              </button>
+            </Dropdown>
+          </span>
         </div>
       ),
     };
@@ -372,7 +356,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       className="min-w-0 overflow-x-auto"
     >
       <Table
-        className="ta-job-detail-candidate-table w-full min-w-[960px] [&_.ant-table]:rounded-none [&_.ant-table-container]:!border-x-0 [&_.ant-table-cell]:!px-3 [&_.ant-table-cell]:!py-3 [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#E5E7EB] [&_.ant-table-thead>tr>th]:!bg-[#F3F4F6] [&_.ant-table-thead>tr>th]:!py-3 [&_.ant-table-thead>tr>th]:!text-[14px] [&_.ant-table-thead>tr>th]:!font-semibold [&_.ant-table-thead>tr>th]:!text-[rgba(0,0,0,0.65)] [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#F3F4F6]"
+        className="ta-job-detail-candidate-table w-full min-w-[960px] [&_.ant-table]:rounded-none [&_.ant-table-container]:!border-0 [&_.ant-table-cell]:!px-3 [&_.ant-table-cell]:!py-[11px] [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#F0F0F0] [&_.ant-table-thead>tr>th]:!bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:!py-[10px] [&_.ant-table-thead>tr>th]:!text-[14px] [&_.ant-table-thead>tr>th]:!font-semibold [&_.ant-table-thead>tr>th]:!text-[rgba(0,0,0,0.65)] [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#F5F5F5] [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left]:!bg-inherit [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left-last]:!bg-inherit"
         columns={columns}
         dataSource={data}
         loading={isResponseLoading}
@@ -408,6 +392,18 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       )}
       <EditCandidate />
       <MoveToTalentPool />
+      <DeleteModal
+        open={isDeleteModalOpen}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        onAfterClose={() => setDeleteTriggerRect(null)}
+        title="Delete Candidate"
+        deleteMessage={`Are you sure you want to delete ${deleteCandidateName} from candidates?`}
+        hideImage
+        danger
+        triggerRect={deleteTriggerRect ?? undefined}
+        data-cy="talent-acquisition-candidate-delete-modal"
+      />
     </div>
   );
 };

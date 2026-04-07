@@ -8,7 +8,6 @@ import {
   DatePicker,
   Form,
   Modal,
-  Popover,
   Row,
   Select,
 } from 'antd';
@@ -23,7 +22,6 @@ import { CloseOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-
 interface OptionParams {
   jobId?: string;
   /** When true, only render the filter row (no mobile header/modal). Used inside card toolbar. */
@@ -53,6 +51,34 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
     pageSize,
   );
   const { data: stageList } = useGetStages();
+  const activeFilterChips = [
+    {
+      key: 'selectedDepartment',
+      label:
+        EmployeeDepartment?.find(
+          (item: any) => item?.id === searchParams?.selectedDepartment,
+        )?.name ?? '',
+    },
+    {
+      key: 'selectedJob',
+      label:
+        jobList?.items?.find((job: any) => job?.id === searchParams?.selectedJob)
+          ?.jobTitle ?? '',
+    },
+    {
+      key: 'selectedStage',
+      label:
+        stageList?.items?.find(
+          (item: any) => item?.id === searchParams?.selectedStage,
+        )?.title ?? '',
+    },
+    {
+      key: 'dateRange',
+      label: searchParams?.dateRange
+        ? searchParams.dateRange.replace(' to ', ' - ')
+        : '',
+    },
+  ].filter((chip) => Boolean(chip.label));
 
   useEffect(() => {
     if (filterModalOpen || showMobileFilter) {
@@ -93,13 +119,13 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
   const filterModalTitle = (
     <div data-cy="talent-acquisition-job-candidate-search-filter-modal-title-wrap">
       <div
-        className="text-lg font-semibold text-gray-900"
+        className="text-[16px] font-bold leading-tight text-[rgba(0,0,0,0.7)]"
         data-cy="talent-acquisition-job-candidate-search-filter-modal-title"
       >
         Filter
       </div>
       <div
-        className="text-sm font-normal text-gray-500 mt-0.5"
+        className="mt-1 text-[14px] font-normal text-[rgba(0,0,0,0.45)]"
         data-cy="talent-acquisition-job-candidate-search-filter-modal-subtitle"
       >
         Select All filters that apply
@@ -108,14 +134,18 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
   );
 
   const filterFormContent = (
-    <Form form={form} layout="vertical" className="mt-2 min-w-0 max-w-full">
+    <Form
+      form={form}
+      layout="vertical"
+      className="mt-2 min-w-0 max-w-full [&_.ant-form-item]:!mb-4 [&_.ant-form-item-label]:!pb-2 [&_.ant-form-item-label>label]:!text-[14px] [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:!text-[#030712]"
+    >
       <Row gutter={16} className="!max-w-full">
         <Col xs={24} sm={12}>
           <Form.Item name="department" label="Department">
             <Select
               placeholder="Select department"
               allowClear
-              className="w-full h-10"
+              className="w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selection-item]:!leading-[38px] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)]"
               data-cy="talent-acquisition-job-candidate-search-select-department"
             >
               {EmployeeDepartment?.map((item: any) => (
@@ -131,7 +161,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
             <Select
               placeholder="Select job"
               allowClear
-              className="w-full h-10"
+              className="w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selection-item]:!leading-[38px] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)]"
               disabled={!!jobId}
               data-cy="talent-acquisition-job-candidate-search-select-job"
             >
@@ -148,7 +178,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
             <Select
               placeholder="Select status"
               allowClear
-              className="w-full h-10"
+              className="w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selection-item]:!leading-[38px] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)]"
               data-cy="talent-acquisition-job-candidate-search-select-stage"
             >
               {stageList?.items?.map((item: any) => (
@@ -160,11 +190,11 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
           </Form.Item>
         </Col>
         <Col xs={24} sm={12}>
-          <Form.Item name="type" label="Type">
+          <Form.Item name="type" label="Stage">
             <Select
-              placeholder="Select type"
+              placeholder="Select stage"
               allowClear
-              className="w-full h-10"
+              className="w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selection-item]:!leading-[38px] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)]"
               data-cy="talent-acquisition-job-candidate-search-select-type"
             >
               {Object.values(LocationType).map((type) => (
@@ -178,11 +208,11 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
         <Col xs={24} span={24}>
           <Form.Item name="date" label="Date">
             <RangePicker
-              className="w-full h-10 [&_.ant-picker]:!flex [&_.ant-picker]:!flex-nowrap [&_.ant-picker-input>input]:!min-w-0"
+              className="w-full h-10 [&_.ant-picker]:!h-10 [&_.ant-picker]:!rounded-[8px] [&_.ant-picker]:!border-[#D9D9D9] [&_.ant-picker]:!px-3 [&_.ant-picker-input>input]:!text-[16px] [&_.ant-picker-input>input]:!font-normal [&_.ant-picker-input>input]:!text-[rgba(0,0,0,0.7)] [&_.ant-picker-range-separator]:!px-2 [&_.ant-picker-suffix]:!text-[rgba(0,0,0,0.35)]"
               allowClear
-              getPopupContainer={(triggerNode) =>
-                triggerNode.parentElement || document.body
-              }
+              format="YYYY-MM-DD"
+              getPopupContainer={() => document.body}
+              popupClassName="ta-job-detail-filter-date-popup"
               data-cy="talent-acquisition-job-candidate-search-date-picker"
             />
           </Form.Item>
@@ -193,13 +223,13 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
 
   const filterModalFooter = (
     <div
-      className="flex justify-end gap-2"
+      className="mt-3 flex justify-end gap-3 border-t border-[#F0F0F0] pt-4"
       data-cy="talent-acquisition-job-candidate-search-filter-modal-footer"
     >
       <Button
         type="default"
         onClick={handleResetFilter}
-        className="border-gray-300 text-gray-700"
+        className="!h-10 !rounded-[8px] !border-gray-300 !px-6 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)]"
         data-cy="talent-acquisition-jobs-filter-modal-reset"
       >
         Reset
@@ -207,7 +237,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
       <Button
         type="primary"
         onClick={handleSaveFilter}
-        className="!border-[#1E40AF] !bg-[#1E40AF] hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+        className="!h-10 !rounded-[8px] !border-[#1E40AF] !bg-[#1E40AF] !px-7 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
         data-cy="talent-acquisition-jobs-filter-modal-save"
       >
         Save Filter
@@ -254,7 +284,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
           onChange={(dates: any) => handleSearchByDateRange(dates)}
           className="w-full h-14"
           allowClear
-          getPopupContainer={(triggerNode) =>
+          getPopupContainer={(triggerNode: any) =>
             triggerNode.parentElement || document.body
           }
         />
@@ -331,7 +361,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
                 icon={
                   <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
                 }
-                className="!inline-flex !h-10 !items-center !gap-2 !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
+                className="!inline-flex !h-8 !items-center !gap-2 !rounded-[4px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
                 onClick={openFilter}
                 data-cy="talent-acquisition-job-candidate-search-button-filter"
               >
@@ -343,68 +373,73 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
                 onCancel={closeFilter}
                 footer={filterModalFooter}
                 centered
-                width="90%"
-                closeIcon={<CloseOutlined className="text-gray-500" />}
+                width={493}
+                closeIcon={<CloseOutlined className="h-4 w-4 text-gray-500" />}
                 bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+                className="[&_.ant-modal-content]:!rounded-[14px] [&_.ant-modal-content]:!p-7 [&_.ant-modal-header]:!pb-2 [&_.ant-modal-title]:!font-['Calibri']"
                 data-cy="talent-acquisition-job-candidate-search-modal-filter"
               >
                 {filterFormContent}
               </Modal>
             </>
           ) : (
-            <Popover
-              open={filterModalOpen}
-              onOpenChange={(open) => {
-                if (!open) setFilterModalOpen(false);
-              }}
-              trigger="click"
-              placement="bottomRight"
-              align={{ offset: [0, 8] }}
-              content={
-                <div
-                  className="w-[560px] max-w-[90vw] max-h-[70vh] overflow-y-auto overflow-x-hidden min-w-0"
-                  data-cy="talent-acquisition-job-candidate-search-modal-filter"
-                >
-                  {filterModalTitle}
-                  {filterFormContent}
-                  <div
-                    className="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200"
-                    data-cy="talent-acquisition-job-candidate-search-filter-modal-actions"
-                  >
-                    <Button
-                      type="default"
-                      onClick={handleResetFilter}
-                      className="border-gray-300 text-gray-700"
-                      data-cy="talent-acquisition-jobs-filter-modal-reset"
+            <>
+              <div className="flex items-center gap-2">
+                <div className="hidden items-center gap-2 sm:flex">
+                  {activeFilterChips.map((chip) => (
+                    <span
+                      key={chip.key}
+                      className="inline-flex h-8 items-center gap-2 rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                      data-cy={`talent-acquisition-job-candidate-filter-chip-${chip.key}`}
                     >
-                      Reset
-                    </Button>
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        handleSaveFilter();
-                        setFilterModalOpen(false);
-                      }}
-                      className="!border-[#1E40AF] !bg-[#1E40AF] hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
-                      data-cy="talent-acquisition-jobs-filter-modal-save"
-                    >
-                      Save Filter
-                    </Button>
-                  </div>
+                      {chip.label}
+                      <button
+                        type="button"
+                        className="leading-none text-[rgba(0,0,0,0.45)] hover:text-[rgba(0,0,0,0.7)]"
+                        onClick={() =>
+                          setSearchParams(
+                            chip.key as
+                              | 'selectedDepartment'
+                              | 'selectedJob'
+                              | 'selectedStage'
+                              | 'dateRange',
+                            '',
+                          )
+                        }
+                        aria-label={`Remove ${chip.key}`}
+                        data-cy={`talent-acquisition-job-candidate-filter-chip-remove-${chip.key}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
                 </div>
-              }
-            >
               <Button
                 icon={
                   <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
                 }
-                className="!inline-flex !h-10 !items-center !gap-2 !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
+                className="!inline-flex !h-8 !items-center !gap-2 !rounded-[4px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
                 onClick={() => setFilterModalOpen(true)}
                 data-cy="talent-acquisition-job-candidate-search-button-filter"
               >
                 Filter
               </Button>
-            </Popover>
+              </div>
+              <Modal
+                title={filterModalTitle}
+                open={filterModalOpen}
+                onCancel={closeFilter}
+                footer={filterModalFooter}
+                centered
+                width={493}
+                closeIcon={<CloseOutlined className="h-4 w-4 text-gray-500" />}
+                bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+                className="[&_.ant-modal-content]:!rounded-[14px] [&_.ant-modal-content]:!p-7 [&_.ant-modal-header]:!pb-2 [&_.ant-modal-title]:!font-['Calibri']"
+                data-cy="talent-acquisition-job-candidate-search-modal-filter"
+              >
+                {filterFormContent}
+              </Modal>
+            </>
           )}
         </>
       ) : isMobile || isTablet ? (

@@ -164,6 +164,7 @@ const MoveToTalentPool: React.FC = () => {
         onCancel={handleCancel}
         footer={null}
         width={705}
+        centered
         title={
           <div
             id="talent-acquisition-move-talent-pool-div-header"
@@ -171,7 +172,7 @@ const MoveToTalentPool: React.FC = () => {
             className="flex flex-col"
           >
             <span
-              className="text-lg font-bold text-gray-900"
+              className="text-[20px] font-bold text-black"
               data-cy="talent-acquisition-move-talent-pool-modal-title"
             >
               Move to Talent Pool
@@ -194,7 +195,7 @@ const MoveToTalentPool: React.FC = () => {
           form={form}
           layout="vertical"
           requiredMark={false}
-          className="[&_.ant-form-item]:mb-4 [&_.ant-form-item:last-of-type]:mb-0"
+          className="[&_.ant-form-item]:mb-4 [&_.ant-form-item:last-of-type]:mb-0 [&_.ant-form-item-label]:!pb-1"
         >
           <div
             id="talent-acquisition-move-talent-pool-div-form-container"
@@ -202,7 +203,7 @@ const MoveToTalentPool: React.FC = () => {
             className="bg-white border border-[#D9D9D9] rounded-lg -mx-8 sm:mx-0"
           >
             <div
-              className="px-3 sm:px-4 py-2"
+              className="px-4 py-4"
               data-cy="talent-acquisition-move-talent-pool-form-inner"
             >
               <Form.Item
@@ -216,7 +217,7 @@ const MoveToTalentPool: React.FC = () => {
                   >
                     <span
                       data-cy="talent-acquisition-move-talent-pool-candidate-label-text"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                     >
                       Candidate
                     </span>
@@ -249,7 +250,7 @@ const MoveToTalentPool: React.FC = () => {
                       data-cy="talent-acquisition-move-talent-pool-select-candidates"
                       mode="multiple"
                       size="large"
-                      className="w-full always-show-placeholder"
+                      className="w-full always-show-placeholder [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-[6px]"
                       placeholder=""
                       loading={isCandidatesLoading}
                       value={selectedCandidate.map((item: any) => item.id)}
@@ -341,7 +342,7 @@ const MoveToTalentPool: React.FC = () => {
                   >
                     <span
                       data-cy="talent-acquisition-move-talent-pool-category-label-text"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                     >
                       Talent Pool Category
                     </span>
@@ -365,7 +366,7 @@ const MoveToTalentPool: React.FC = () => {
                   id="talent-acquisition-move-talent-pool-select-category"
                   data-cy="talent-acquisition-move-talent-pool-select-category"
                   size="large"
-                  className="w-full"
+                  className="h-10 w-full [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selection-item]:!leading-[38px]"
                   placeholder="Select talent pool category"
                   popupClassName="org-structure-branch-select-dropdown"
                 >
@@ -392,7 +393,7 @@ const MoveToTalentPool: React.FC = () => {
                   >
                     <span
                       data-cy="talent-acquisition-move-talent-pool-reason-label-text"
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                     >
                       Reason
                     </span>
@@ -430,7 +431,7 @@ const MoveToTalentPool: React.FC = () => {
                 id="talent-acquisition-move-talent-pool-button-cancel"
                 data-cy="talent-acquisition-move-talent-pool-button-cancel"
                 onClick={handleCancel}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white px-3 h-8 hover:border-[#4096FF] border-gray-300 hover:text-[#4096FF]"
+                className="flex h-8 justify-center rounded-[6px] border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:border-[#4096FF] hover:text-[#4096FF]"
                 disabled={isLoading}
               >
                 Cancel
@@ -439,7 +440,7 @@ const MoveToTalentPool: React.FC = () => {
                 id="talent-acquisition-move-talent-pool-button-continue"
                 data-cy="talent-acquisition-move-talent-pool-button-continue"
                 type="primary"
-                className="flex justify-center text-sm font-medium text-white bg-primary px-3 h-8 border-none hover:bg-[#4096FF]"
+                className="flex h-8 justify-center rounded-[6px] border-none bg-[#1E40AF] px-4 text-sm font-medium text-white hover:bg-[#1D4ED8]"
                 onClick={handleSubmit}
                 loading={isLoading}
                 disabled={isLoading}

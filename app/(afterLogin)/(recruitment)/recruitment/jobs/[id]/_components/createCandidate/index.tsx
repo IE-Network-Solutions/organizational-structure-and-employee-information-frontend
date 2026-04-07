@@ -11,7 +11,7 @@ import {
   Upload,
 } from 'antd';
 import React, { useEffect } from 'react';
-import { InboxOutlined } from '@ant-design/icons';
+import { CloseOutlined, InboxOutlined } from '@ant-design/icons';
 import { useCreateCandidate } from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
@@ -153,47 +153,18 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
       open={createJobDrawer}
       onCancel={onClose}
-      title="Create Candidate"
-      width="40%"
-      footer={
-        <Form.Item className="mb-0">
-          <div
-            data-cy="-id-components-createcandidate-index-tsx-index-div-144"
-            className="flex flex-col sm:flex-row justify-center sm:justify-center w-full bg-[#fff] gap-3 sm:gap-6 p-3 sm:p-3"
-          >
-            <Button
-              id="talent-acquisition-job-create-candidate-button-cancel"
-              data-cy="talent-acquisition-job-create-candidate-button-cancel"
-              onClick={onClose}
-              className="w-full sm:w-auto flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-11 sm:h-10 hover:border-gray-500 border-gray-300 rounded-lg"
-              disabled={isCreatingCandidate}
-            >
-              Cancel
-            </Button>
-            <Button
-              id="talent-acquisition-job-create-candidate-button-submit"
-              data-cy="talent-acquisition-job-create-candidate-button-submit"
-              onClick={() => form.submit()}
-              className="w-full sm:w-auto flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-11 sm:h-10 border-none rounded-lg"
-              loading={isCreatingCandidate}
-              disabled={isCreatingCandidate}
-            >
-              Create
-            </Button>
-          </div>
-        </Form.Item>
+      title={
+        <span className="text-[20px] font-bold leading-none text-black">
+          Add Candidate
+        </span>
       }
+      width={760}
+      footer={null}
+      closeIcon={<CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />}
       maskClosable={false}
       destroyOnClose
-      styles={{
-        body: {
-          backgroundColor: '#FFFFFF',
-          padding: '4px 4px',
-        },
-      }}
-      classNames={{
-        body: 'py-2 px-2 md:py-4 md:px-[70px]',
-      }}
+      styles={{ body: { backgroundColor: '#FFFFFF', padding: '6px 0 0' } }}
+      classNames={{ body: 'px-6 pb-5' }}
       className="gb-bg-white"
       zIndex={10002}
     >
@@ -204,14 +175,14 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         layout="vertical"
         requiredMark={false}
         onFinish={handleSubmit}
-        className="pb-4"
+        className="pb-1 [&_.ant-form-item-label]:!pb-1"
       >
         <div
-          className="bg-white border border-[#D9D9D9] rounded-lg  sm:mx-0 mx-auto"
+          className="mx-auto rounded-[8px] border border-[#D9D9D9] bg-white"
           data-cy="talent-acquisition-create-candidate-form-container"
         >
           <div
-            className="px-3 sm:px-4 py-2"
+            className="px-4 py-4"
             data-cy="talent-acquisition-create-candidate-form-inner"
           >
             <Form.Item
@@ -219,7 +190,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               name="fullName"
               label={
                 <span
-                  className="text-sm font-medium text-gray-700"
+                  className="text-[14px] font-normal text-[#030712]"
                   data-cy="talent-acquisition-create-candidate-full-name-label"
                 >
                   <span data-cy="talent-acquisition-create-candidate-full-name-label-text">
@@ -257,7 +228,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   name="email"
                   label={
                     <span
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                       data-cy="talent-acquisition-create-candidate-email-label"
                     >
                       <span data-cy="talent-acquisition-create-candidate-email-label-text">
@@ -299,7 +270,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   name="phone"
                   label={
                     <span
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                       data-cy="talent-acquisition-create-candidate-phone-label"
                     >
                       <span data-cy="talent-acquisition-create-candidate-phone-label-text">
@@ -342,7 +313,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   name="jobInformationId"
                   label={
                     <span
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                       data-cy="talent-acquisition-create-candidate-job-label"
                     >
                       <span data-cy="talent-acquisition-create-candidate-job-label-text">
@@ -396,7 +367,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                   name="CGPA"
                   label={
                     <span
-                      className="text-sm font-medium text-gray-700"
+                      className="text-[14px] font-normal text-[#030712]"
                       data-cy="talent-acquisition-create-candidate-cgpa-label"
                     >
                       <span data-cy="talent-acquisition-create-candidate-cgpa-label-text">
@@ -464,11 +435,23 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             </Row>
 
             <Form.Item
+              name="coverLetter"
+              label={
+                <span className="text-[14px] font-normal text-[#030712]">
+                  Cover Letter <span className="text-red-500">*</span>
+                </span>
+              }
+              rules={[{ required: true, message: 'Please input cover letter' }]}
+            >
+              <Input.TextArea placeholder="Job description" rows={2} />
+            </Form.Item>
+
+            <Form.Item
               id="documentNameId"
               name="resumeUrl"
               label={
                 <span
-                  className="text-sm font-medium text-gray-700"
+                  className="text-[14px] font-normal text-[#030712]"
                   data-cy="talent-acquisition-create-candidate-cv-label"
                 >
                   <span data-cy="talent-acquisition-create-candidate-cv-label-text">
@@ -495,14 +478,14 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 customRequest={customRequest}
                 listType="picture"
                 accept=".pdf,.doc,.docx"
-                className="!border-gray-200 !border-dashed !rounded-lg bg-[#F9FAFB]"
+                className="!rounded-[6px] !border-gray-200 !border-dashed bg-[#F9FAFB]"
               >
                 <p
                   data-cy="-id-components-createcandidate-index-tsx-index-p-384"
                   className="flex items-center justify-center"
                 >
                   <InboxOutlined
-                    style={{ fontSize: '40px', color: '#1E40AF' }}
+                    style={{ fontSize: '34px', color: '#1E40AF' }}
                     className="text-primary"
                   />
                 </p>
@@ -525,17 +508,17 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
           </div>
         </div>
 
-        <Form.Item>
+        <Form.Item className="!mb-0">
           <div
             id="talent-acquisition-create-candidate-div-buttons"
             data-cy="talent-acquisition-create-candidate-div-buttons"
-            className="flex justify-end w-full bg-[#fff] px-0 pt-4 gap-3"
+            className="flex w-full justify-end gap-3 bg-[#fff] px-0 pt-4"
           >
             <Button
               id="talent-acquisition-job-create-candidate-button-cancel"
               data-cy="talent-acquisition-job-create-candidate-button-cancel"
               onClick={onClose}
-              className="flex justify-center text-sm font-medium text-gray-800 bg-white px-3 h-8 hover:border-[#4096FF] border-gray-300 hover:text-[#4096FF]"
+              className="flex h-8 justify-center rounded-[6px] border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:border-[#4096FF] hover:text-[#4096FF]"
               disabled={isCreatingCandidate}
             >
               Cancel
@@ -544,11 +527,11 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="talent-acquisition-job-create-candidate-button-submit"
               data-cy="talent-acquisition-job-create-candidate-button-submit"
               htmlType="submit"
-              className="flex justify-center text-sm font-medium text-white bg-primary px-3 h-8 border-none hover:bg-[#4096FF]"
+              className="flex h-8 justify-center rounded-[6px] border-none bg-[#1E40AF] px-4 text-sm font-medium text-white hover:bg-[#1D4ED8]"
               loading={isCreatingCandidate}
               disabled={isCreatingCandidate}
             >
-              Continue
+              Create
             </Button>
           </div>
         </Form.Item>
