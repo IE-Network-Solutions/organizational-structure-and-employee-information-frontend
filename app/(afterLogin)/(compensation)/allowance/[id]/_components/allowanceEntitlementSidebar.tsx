@@ -19,9 +19,11 @@ const AllowanceEntitlementSideBar = () => {
     useCreateAllowanceEntitlement();
 
   const [form] = Form.useForm();
-  const { id } = useParams();
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
-  const { data: allowanceData } = useFetchAllowance(id);
+  const { data: allowanceData } = useFetchAllowance(id ?? '');
 
   const showDepartmentLeadsOnly =
     Form.useWatch('showDepartmentLeadsOnly', form) ?? false;
@@ -80,7 +82,7 @@ const AllowanceEntitlementSideBar = () => {
   const onSubmit = (formValues: any) => {
     createAllowanceEntitlement(
       {
-        compensationItemId: id,
+        compensationItemId: id ?? '',
         employeeIds: [formValues.employee].filter(Boolean),
         totalAmount: Number(allowanceData?.defaultAmount || 0),
         active: true,

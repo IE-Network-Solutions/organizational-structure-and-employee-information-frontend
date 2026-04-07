@@ -8,8 +8,10 @@ import { useFetchAllowance } from '@/store/server/features/compensation/allowanc
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 
 const SingleAllowancePage = () => {
-  const { id } = useParams();
-  const { data: allowanceData } = useFetchAllowance(id);
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
+  const { data: allowanceData } = useFetchAllowance(id ?? '');
   const {
     isAllowanceGlobal,
     setIsAllowanceGlobal,
