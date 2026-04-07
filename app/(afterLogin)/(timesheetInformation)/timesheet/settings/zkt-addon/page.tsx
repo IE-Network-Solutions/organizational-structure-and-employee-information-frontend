@@ -6,7 +6,7 @@ import Logo from '@/components/common/logo';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { IoIosLink } from 'react-icons/io';
 import Image from 'next/image';
-import ZKTeco from '@/public/image/ZKTeco.png';
+import { ZK_TECO_LOGO_URL } from '@/constants/publicImageUrls';
 import { Trash2 } from 'lucide-react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import {
@@ -96,7 +96,7 @@ const ZKTAddonPage = () => {
             data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-85"
             className="flex items-end"
           >
-            <Image src={ZKTeco} alt="zkt" width={140} height={48} />
+            <Image src={ZK_TECO_LOGO_URL} alt="zkt" width={140} height={48} />
           </div>
         </div>
         <div

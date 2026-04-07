@@ -1,4 +1,4 @@
-import { Col, Input, Row, Skeleton } from 'antd';
+import { Col, Input, Row, Spin } from 'antd';
 import React, { useEffect, useMemo } from 'react';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
@@ -107,7 +107,7 @@ const Permission: React.FC<any> = () => {
           data-cy="settings-permission-loading-container"
           className="flex justify-center py-8"
         >
-          <Skeleton />
+          <Spin size="large" data-cy="settings-permission-loading" />
         </div>
       )}
       {!(permissionLoading || isSearching) && items.length > 0 && (

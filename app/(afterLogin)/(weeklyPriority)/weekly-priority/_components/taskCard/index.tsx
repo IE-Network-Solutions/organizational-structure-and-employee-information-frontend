@@ -163,6 +163,12 @@ const TaskCard: React.FC = () => {
             background-color: #52c41a !important;
             border-color: #52c41a !important;
         }
+        .text-strike-green {
+            color: #6b7280; /* Standard gray for completed task */
+        }
+        .text-strike-red {
+            color: #374151;
+        }
         .task-row-line {
             position: absolute;
             left: 16px;
@@ -230,13 +236,13 @@ const TaskCard: React.FC = () => {
         return (
           <Card
             key={itemIndex}
-            className="mb-5 border border-[#e5e7eb] rounded-[8px] overflow-hidden"
+            className="mb-5 border border-[#e5e7eb] rounded-[12px] overflow-hidden"
             bodyStyle={{ padding: '0px' }}
-            style={{ boxShadow: 'none', borderRadius: 8 }}
+            style={{ boxShadow: 'none' }}
             data-cy={`task-card-${itemIndex}`}
           >
             <div
-              className="px-4 md:px-6 py-4 md:py-5 bg-[#F9FAFB] border-b border-gray-100"
+              className="px-4 md:px-6 py-4 md:py-5 bg-[#f9fafb] border-b border-gray-100"
               data-cy={`task-card-header-${itemIndex}`}
             >
               <div
@@ -248,7 +254,7 @@ const TaskCard: React.FC = () => {
                   data-cy={`task-card-header-info-${itemIndex}`}
                 >
                   <h3
-                    className="text-[16px] font-bold text-[#111827] mb-1 leading-tight"
+                    className="text-[15.5px] md:text-[16.5px] font-bold text-[#111827] mb-1 leading-tight"
                     data-cy={`task-card-title-${itemIndex}`}
                   >
                     {item.departmentId
@@ -261,30 +267,36 @@ const TaskCard: React.FC = () => {
                     data-cy={`task-card-meta-${itemIndex}`}
                   >
                     <Avatar
-                      size={16}
+                      size={22}
                       icon={
                         <UserOutlined
                           data-cy={`task-card-avatar-icon-${itemIndex}`}
                         />
                       }
                       src={employee?.photo}
-                      className="bg-gray-100 flex-shrink-0 [&_.anticon]:text-[10px]"
+                      className="bg-gray-100 flex-shrink-0"
                       data-cy={`task-card-avatar-${itemIndex}`}
                     />
                     <div
-                      className="flex items-center text-[14px] font-normal text-black/70"
+                      className="flex items-center text-[13px] md:text-[14px] text-gray-500 font-medium"
                       data-cy={`task-card-user-info-${itemIndex}`}
                     >
-                      <span data-cy={`task-card-user-name-${itemIndex}`}>
+                      <span
+                        className="text-[#374151]"
+                        data-cy={`task-card-user-name-${itemIndex}`}
+                      >
                         {fullName}
                       </span>
                       <span
-                        className="mx-1.5"
+                        className="mx-1.5 text-gray-400"
                         data-cy={`task-card-separator-${itemIndex}`}
                       >
                         •
                       </span>
-                      <span data-cy={`task-card-date-${itemIndex}`}>
+                      <span
+                        className="text-[#4b5563] font-medium"
+                        data-cy={`task-card-date-${itemIndex}`}
+                      >
                         {dayjs(item?.tasks[0]?.createdAt).format('DD MMM YYYY')}
                       </span>
                     </div>
@@ -419,7 +431,7 @@ const TaskCard: React.FC = () => {
                               data-cy={`task-item-header-${itemIndex}-${taskIndex}`}
                             >
                               <span
-                                className="text-[16px] font-normal leading-normal text-black/70 transition-all truncate md:whitespace-normal"
+                                className={`text-[14.5px] md:text-[15px] font-medium leading-normal transition-all truncate md:whitespace-normal ${isCompleted ? 'text-strike-green' : isNotCompleted ? 'text-strike-red' : 'text-[#374151]'}`}
                                 data-cy={`task-item-title-${itemIndex}-${taskIndex}`}
                               >
                                 {task.title}
@@ -519,13 +531,13 @@ const TaskCard: React.FC = () => {
                               data-cy={`task-item-failed-reason-display-${itemIndex}-${taskIndex}`}
                             >
                               <span
-                                className="text-[16px] font-normal text-black/70"
+                                className="text-[13.5px] text-[#111827] font-bold"
                                 data-cy={`task-item-failed-reason-label-${itemIndex}-${taskIndex}`}
                               >
                                 Reason :{' '}
                               </span>
                               <span
-                                className="text-[16px] font-normal text-black/70"
+                                className="text-[13.5px] text-gray-500 font-medium ml-1"
                                 data-cy={`task-item-failed-reason-text-${itemIndex}-${taskIndex}`}
                               >
                                 {task.failureReason}

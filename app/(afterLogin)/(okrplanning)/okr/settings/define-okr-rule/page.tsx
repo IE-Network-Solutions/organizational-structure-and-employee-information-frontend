@@ -4,13 +4,14 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
 import { Spin, Dropdown, MenuProps } from 'antd';
 import React from 'react';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
 import { useDeleteOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/mutations';
 import { useGetOkrRule } from '@/store/server/features/okrplanning/monitoring-evaluation/okr-rule/queries';
 import OkrRuleModal from './okr-rule';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 
 const DefineOkrRule = () => {
   const {
@@ -64,12 +65,12 @@ const DefineOkrRule = () => {
             data-cy={`okr-rule-card-edit-access-guard-${item.id}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
+              className="flex items-center gap-3 py-1"
               onClick={() => handleEditModal(item)}
               id={`okr-rule-card-edit-menu-item-${item.id}`}
               data-cy={`okr-rule-card-edit-menu-item-${item.id}`}
             >
-              <MdOutlineEdit className="text-[#595959] text-xl" />
+              <MdModeEditOutline className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-rule-card-edit-text-${item.id}`}
@@ -91,12 +92,12 @@ const DefineOkrRule = () => {
             data-cy={`okr-rule-card-delete-access-guard-${item.id}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+              className="flex items-center gap-3 py-1 text-red-600"
               onClick={() => showDeleteModal(item.id)}
               id={`okr-rule-card-delete-menu-item-${item.id}`}
               data-cy={`okr-rule-card-delete-menu-item-${item.id}`}
             >
-              <MdDeleteOutline className="text-xl" />
+              <MdDeleteForever className="text-xl" />
               <span
                 className="text-[15px]"
                 data-cy={`okr-rule-card-delete-text-${item.id}`}
@@ -138,17 +139,17 @@ const DefineOkrRule = () => {
             {OkrRules?.items?.map((item: any) => (
               <div
                 key={item.id}
-                className="bg-white border border-[#d9d9d9] rounded-[8px] py-3 px-4 min-w-[323px] min-h-[78px] hover:shadow-sm transition-shadow relative flex flex-col gap-2"
+                className="bg-white border border-[#d9d9d9] rounded-[12px] p-5 hover:shadow-sm transition-shadow relative"
                 id={`okr-rule-card-${item.id}`}
                 data-cy={`okr-rule-card-${item.id}`}
               >
                 {/* Top Row: Title and Menu */}
                 <div
-                  className="flex justify-between items-start mb-0"
+                  className="flex justify-between items-start mb-6"
                   data-cy={`okr-rule-card-header-${item.id}`}
                 >
                   <p
-                    className="text-[14px] font-normal text-[#262626] flex-1 mr-2 leading-tight"
+                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
                     id={`okr-rule-card-title-${item.id}`}
                     data-cy={`okr-rule-card-title-${item.id}`}
                   >
@@ -162,43 +163,13 @@ const DefineOkrRule = () => {
                       menu={{ items: getMenuItems(item) }}
                       trigger={['click']}
                       placement="bottomRight"
-                      overlayClassName="okr-settings-menu-dropdown"
                     >
                       <button
-                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
+                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-rule-card-menu-button-${item.id}`}
                       >
-                        <svg
-                          width="14"
-                          height="4"
-                          viewBox="0 0 14 4"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          data-cy={`okr-rule-card-menu-svg-${item.id}`}
-                        >
-                          <circle
-                            cx="2.5"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-rule-card-menu-circle-1-${item.id}`}
-                          />
-                          <circle
-                            cx="7"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-rule-card-menu-circle-2-${item.id}`}
-                          />
-                          <circle
-                            cx="11.5"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-rule-card-menu-circle-3-${item.id}`}
-                          />
-                        </svg>
+                        <EllipsisOutlined className="text-lg" />
                       </button>
                     </Dropdown>
                   </div>
@@ -210,14 +181,14 @@ const DefineOkrRule = () => {
                   data-cy={`okr-rule-card-footer-${item.id}`}
                 >
                   <div
-                    className="h-[22px] px-3 py-0 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa] inline-flex items-center"
+                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
                     id={`okr-rule-card-self-${item.id}`}
                     data-cy={`okr-rule-card-self-${item.id}`}
                   >
                     Self Contribution: {item.myOkrPercentage || 0}
                   </div>
                   <div
-                    className="h-[22px] px-3 py-0 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa] inline-flex items-center"
+                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
                     id={`okr-rule-card-team-${item.id}`}
                     data-cy={`okr-rule-card-team-${item.id}`}
                   >
