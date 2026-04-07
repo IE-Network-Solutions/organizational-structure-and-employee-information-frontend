@@ -5,7 +5,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
-import AvatarImage from '@/public/gender_neutral_avatar.jpg';
+import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import Image from 'next/image';
 import ShareToSocialMedia from '../modals/share';
 import ChangeStatusModal from '../modals/changeJobStatus';
@@ -377,7 +377,7 @@ const JobCard: React.FC = () => {
                                     key={member?.id}
                                   >
                                     <Image
-                                      src={AvatarImage}
+                                      src={GENDER_NEUTRAL_AVATAR_URL}
                                       alt="Profile pic"
                                       width={20}
                                       height={20}
@@ -388,7 +388,7 @@ const JobCard: React.FC = () => {
                             </Avatar.Group>
                           ) : (
                             <Image
-                              src={AvatarImage}
+                              src={GENDER_NEUTRAL_AVATAR_URL}
                               alt="Profile pic"
                               width={20}
                               height={20}
