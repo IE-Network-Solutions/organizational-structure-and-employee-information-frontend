@@ -25,13 +25,16 @@ const CriteriaManagementPageSkeleton = () => {
         className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
         data-cy="okr-criteria-management-skeleton-grid"
       >
-        {Array.from({ length: CARD_COUNT }).map((_, idx) => (
+        {Array.from({ length: CARD_COUNT }).map((unusedValue, idx) => (
           <div
             key={idx}
             className="rounded-[8px] border border-[#d9d9d9] bg-white p-5"
             data-cy={`okr-criteria-management-skeleton-card-${idx}`}
           >
-            <div className="mb-6 flex items-start justify-between gap-2">
+            <div
+              className="mb-6 flex items-start justify-between gap-2"
+              data-cy={`okr-criteria-management-skeleton-card-body-${idx}`}
+            >
               <Skeleton.Input
                 active
                 size="small"
@@ -39,9 +42,20 @@ const CriteriaManagementPageSkeleton = () => {
               />
               <Skeleton.Button active className="!h-8 !w-8 !min-w-8" />
             </div>
-            <div className="flex items-center justify-between gap-2">
-              <Skeleton.Input active size="small" className="!h-6 !w-20 !min-w-0" />
-              <Skeleton.Input active size="small" className="!h-6 !w-24 !min-w-0" />
+            <div
+              className="flex items-center justify-between gap-2"
+              data-cy={`okr-criteria-management-skeleton-card-footer-${idx}`}
+            >
+              <Skeleton.Input
+                active
+                size="small"
+                className="!h-6 !w-20 !min-w-0"
+              />
+              <Skeleton.Input
+                active
+                size="small"
+                className="!h-6 !w-24 !min-w-0"
+              />
             </div>
           </div>
         ))}

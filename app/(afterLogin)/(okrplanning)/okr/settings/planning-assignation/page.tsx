@@ -413,37 +413,39 @@ const PlanAssignment: React.FC = () => {
         {!allUserPlanningPeriodGroupedByUserLoading &&
           (allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0) >
             0 && (
-          <div
-            className="custom-pagination-container"
-            data-cy="okr-planning-assignation-pagination-container"
-          >
-            {isMobile || isTablet ? (
-              <CustomMobilePagination
-                totalResults={
-                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-                }
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageChange}
-                data-cy="okr-planning-assignation-mobile-pagination"
-              />
-            ) : (
-              <CustomPagination
-                current={page}
-                total={
-                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-                }
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={(pageSize) => {
-                  setPageSize(pageSize);
-                  setPage(1);
-                }}
-                data-cy="okr-planning-assignation-pagination"
-              />
-            )}
-          </div>
-        )}
+            <div
+              className="custom-pagination-container"
+              data-cy="okr-planning-assignation-pagination-container"
+            >
+              {isMobile || isTablet ? (
+                <CustomMobilePagination
+                  totalResults={
+                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
+                    0
+                  }
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
+                  data-cy="okr-planning-assignation-mobile-pagination"
+                />
+              ) : (
+                <CustomPagination
+                  current={page}
+                  total={
+                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
+                    0
+                  }
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={(pageSize) => {
+                    setPageSize(pageSize);
+                    setPage(1);
+                  }}
+                  data-cy="okr-planning-assignation-pagination"
+                />
+              )}
+            </div>
+          )}
       </div>
 
       <PlanningAssignationModal

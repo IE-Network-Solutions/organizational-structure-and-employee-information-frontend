@@ -233,8 +233,8 @@ const OkrTypePage = () => {
                 data-cy="okr-type-basic-card-description"
               >
                 Basic OKR allows employees to define Objectives and Key Results
-                for goal tracking. Daily and weekly plans are not linked to OKRs.
-                OKR progress has no impact on variable pay.
+                for goal tracking. Daily and weekly plans are not linked to
+                OKRs. OKR progress has no impact on variable pay.
               </p>
             </div>
           </>

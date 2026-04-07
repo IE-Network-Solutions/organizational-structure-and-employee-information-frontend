@@ -5,13 +5,8 @@ import {
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 
 export function useWeeklyPriorityList() {
-  const {
-    departmentId,
-    weekIds,
-    activeTab,
-    pageSize,
-    currentPage,
-  } = useWeeklyPriorityStore();
+  const { departmentId, weekIds, activeTab, pageSize, currentPage } =
+    useWeeklyPriorityStore();
   const { data: departmentChild } = useGetDepartmentChild(departmentId || '');
   const departmentIds = Array.isArray(departmentChild)
     ? departmentChild.map((item) => item.id)

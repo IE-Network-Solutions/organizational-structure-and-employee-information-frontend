@@ -15,11 +15,8 @@ const TnaCategoryPageSkeleton = () => {
         <Skeleton.Button active className="!h-10 !w-10 lg:!w-[120px]" />
       </div>
 
-      <div
-        className="flex flex-col gap-0"
-        data-cy="tna-category-skeleton-list"
-      >
-        {Array.from({ length: CARD_COUNT }).map((_, idx) => (
+      <div className="flex flex-col gap-0" data-cy="tna-category-skeleton-list">
+        {Array.from({ length: CARD_COUNT }).map((unusedValue, idx) => (
           <div
             key={idx}
             className="flex justify-between items-center p-6 rounded-2xl border border-gray-200 mt-6 gap-2.5"
@@ -30,7 +27,10 @@ const TnaCategoryPageSkeleton = () => {
               size="small"
               className="!h-5 !w-[45%] !min-w-0 flex-1"
             />
-            <div className="flex shrink-0 gap-2">
+            <div
+              className="flex shrink-0 gap-2"
+              data-cy={`tna-category-skeleton-card-actions-${idx}`}
+            >
               <Skeleton.Button active className="!h-8 !w-8 !min-w-8" />
               <Skeleton.Button active className="!h-8 !w-8 !min-w-8" />
             </div>

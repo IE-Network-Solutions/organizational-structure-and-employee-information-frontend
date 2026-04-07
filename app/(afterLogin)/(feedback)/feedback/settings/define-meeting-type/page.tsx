@@ -132,102 +132,98 @@ const DefineMeetingType = () => {
                           onMouseDown={(e) => e.stopPropagation()}
                         >
                           <Dropdown
-                              trigger={['click']}
-                              placement="bottomRight"
-                              arrow={false}
-                              open={
-                                meetingTypeOpenDropdownId === String(item?.id)
+                            trigger={['click']}
+                            placement="bottomRight"
+                            arrow={false}
+                            open={
+                              meetingTypeOpenDropdownId === String(item?.id)
+                            }
+                            onOpenChange={(open) => {
+                              if (open) {
+                                setMeetingTypeOpenDropdownId(String(item?.id));
+                              } else {
+                                setMeetingTypeOpenDropdownId(null);
                               }
-                              onOpenChange={(open) => {
-                                if (open) {
+                            }}
+                            menu={{
+                              onClick: ({ key, domEvent }) => {
+                                if (key === 'delete') {
+                                  domEvent.preventDefault();
+                                  domEvent.stopPropagation();
                                   setMeetingTypeOpenDropdownId(
                                     String(item?.id),
                                   );
-                                } else {
-                                  setMeetingTypeOpenDropdownId(null);
+                                  return;
                                 }
-                              }}
-                              menu={{
-                                onClick: ({ key, domEvent }) => {
-                                  if (key === 'delete') {
-                                    domEvent.preventDefault();
-                                    domEvent.stopPropagation();
-                                    setMeetingTypeOpenDropdownId(
-                                      String(item?.id),
-                                    );
-                                    return;
-                                  }
-                                  setMeetingTypeOpenDropdownId(null);
+                                setMeetingTypeOpenDropdownId(null);
+                              },
+                              items: [
+                                {
+                                  key: 'edit',
+                                  label: 'Edit',
+                                  icon: <MdOutlineEdit className="w-4 h-4 " />,
+                                  className: 'text-xs text-gray-600',
+                                  onClick: () => {
+                                    handleEditModal(item);
+                                    setMeetingTypeOpenDropdownId(null);
+                                  },
                                 },
-                                items: [
-                                  {
-                                    key: 'edit',
-                                    label: 'Edit',
-                                    icon: (
-                                      <MdOutlineEdit className="w-4 h-4 " />
-                                    ),
-                                    className: 'text-xs text-gray-600',
-                                    onClick: () => {
-                                      handleEditModal(item);
-                                      setMeetingTypeOpenDropdownId(null);
-                                    },
-                                  },
-                                  {
-                                    key: 'delete',
-                                    className: 'text-xs text-gray-600',
-                                    label: (
-                                      <Popconfirm
-                                        title="Are you sure you want to delete this meeting type?"
-                                        onConfirm={() => {
-                                          handleDeleteMeetingType(item?.id);
-                                          setMeetingTypeOpenDropdownId(null);
+                                {
+                                  key: 'delete',
+                                  className: 'text-xs text-gray-600',
+                                  label: (
+                                    <Popconfirm
+                                      title="Are you sure you want to delete this meeting type?"
+                                      onConfirm={() => {
+                                        handleDeleteMeetingType(item?.id);
+                                        setMeetingTypeOpenDropdownId(null);
+                                      }}
+                                      onCancel={() => {
+                                        setMeetingTypeOpenDropdownId(null);
+                                      }}
+                                      okText="Yes"
+                                      cancelText="No"
+                                      okButtonProps={{
+                                        loading: deleteLoading,
+                                      }}
+                                      data-cy={`settings-define-meeting-type-card-delete-confirm-${item?.id}`}
+                                      id={`settingsDefineMeetingTypeCardDeleteConfirm${item?.id}`}
+                                    >
+                                      <span
+                                        className="flex items-center gap-2"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setMeetingTypeOpenDropdownId(
+                                            String(item?.id),
+                                          );
                                         }}
-                                        onCancel={() => {
-                                          setMeetingTypeOpenDropdownId(null);
-                                        }}
-                                        okText="Yes"
-                                        cancelText="No"
-                                        okButtonProps={{
-                                          loading: deleteLoading,
-                                        }}
-                                        data-cy={`settings-define-meeting-type-card-delete-confirm-${item?.id}`}
-                                        id={`settingsDefineMeetingTypeCardDeleteConfirm${item?.id}`}
+                                        data-cy={`settings-define-meeting-type-card-delete-${item?.id}`}
                                       >
-                                        <span
-                                          className="flex items-center gap-2"
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            setMeetingTypeOpenDropdownId(
-                                              String(item?.id),
-                                            );
-                                          }}
-                                          data-cy={`settings-define-meeting-type-card-delete-${item?.id}`}
-                                        >
-                                          <MdOutlineDelete className="w-4 h-4" />
-                                          Delete
-                                        </span>
-                                      </Popconfirm>
-                                    ),
-                                  },
-                                ],
-                              }}
+                                        <MdOutlineDelete className="w-4 h-4" />
+                                        Delete
+                                      </span>
+                                    </Popconfirm>
+                                  ),
+                                },
+                              ],
+                            }}
+                          >
+                            <button
+                              type="button"
+                              className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
+                              data-cy={`settings-define-meeting-type-card-actions-${item?.id}`}
+                              id={`settingsDefineMeetingTypeCardActions${item?.id}`}
                             >
-                              <button
-                                type="button"
-                                className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
-                                data-cy={`settings-define-meeting-type-card-actions-${item?.id}`}
-                                id={`settingsDefineMeetingTypeCardActions${item?.id}`}
-                              >
-                                <BsThreeDots
-                                  data-cy={`settings-define-meeting-type-card-actions-icon-${item?.id}`}
-                                  id={`settingsDefineMeetingTypeCardActionsIcon${item?.id}`}
-                                />
-                              </button>
-                            </Dropdown>
-                          </div>
+                              <BsThreeDots
+                                data-cy={`settings-define-meeting-type-card-actions-icon-${item?.id}`}
+                                id={`settingsDefineMeetingTypeCardActionsIcon${item?.id}`}
+                              />
+                            </button>
+                          </Dropdown>
                         </div>
-                      </Card>
+                      </div>
+                    </Card>
                   ))}
                 </div>
               </div>
