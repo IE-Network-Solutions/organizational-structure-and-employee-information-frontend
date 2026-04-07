@@ -207,8 +207,10 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
       <DeleteModal
         open={deleteModalOpen}
         loading={isLoading}
-        deleteMessage="Delete"
-        customMessage="Are you sure you want to delete this course category?"
+        title="Delete"
+        deleteMessage="Are you sure you want to delete this course category?"
+        hideImage
+        danger
         onCancel={() => setDeleteModalOpen(false)}
         onConfirm={() => {
           deleteCategory([item.id], {
