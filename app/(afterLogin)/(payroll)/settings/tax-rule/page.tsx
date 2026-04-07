@@ -12,6 +12,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface TaxRule {
   id: string;
@@ -341,22 +342,25 @@ const TaxRules = () => {
               data-cy="payroll-tax-rule-table-inner-view-container"
               className="w-full bg-white"
             >
-              <Table
-                id="payroll-tax-rule-table-view-table"
-                data-cy="payroll-tax-rule-table-view-table"
-                className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead_.ant-table-cell:first-child]:!rounded-tl-none [&_.ant-table-thead_.ant-table-cell:last-child]:!rounded-tr-none"
-                dataSource={paginatedData}
-                columns={columns}
-                pagination={false}
-                scroll={{ x: 'max-content' }}
-                bordered={false}
-                loading={isLoading}
-                rowHoverable={false}
-                // eslint-disable-next-line
+              {isLoading ? (
+                <TableSkeleton columns={columns} />
+              ) : (
+                <Table
+                  id="payroll-tax-rule-table-view-table"
+                  data-cy="payroll-tax-rule-table-view-table"
+                  className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead_.ant-table-cell:first-child]:!rounded-tl-none [&_.ant-table-thead_.ant-table-cell:last-child]:!rounded-tr-none"
+                  dataSource={paginatedData}
+                  columns={columns}
+                  pagination={false}
+                  scroll={{ x: 'max-content' }}
+                  bordered={false}
+                  rowHoverable={false}
+                  // eslint-disable-next-line
                 rowClassName={(_notUsed, index) =>
-                  `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
-                }
-              />
+                    `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
+                  }
+                />
+              )}
             </div>
           </div>
           <div

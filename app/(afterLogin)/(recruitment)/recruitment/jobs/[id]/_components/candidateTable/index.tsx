@@ -31,6 +31,7 @@ import { TableRowSelection } from 'antd/es/table/interface';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface TableProps {
   jobId: string;
@@ -450,15 +451,18 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       id="talent-acquisition-job-candidate-table-div-container"
       data-cy="talent-acquisition-job-candidate-table-div-container"
     >
-      <Table
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isResponseLoading}
-        scroll={{ x: 1000 }}
-        rowSelection={rowSelection}
-        pagination={false}
-      />
+      {isResponseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          className="w-full"
+          columns={columns}
+          dataSource={data}
+          scroll={{ x: 1000 }}
+          rowSelection={rowSelection}
+          pagination={false}
+        />
+      )}
 
       {isMobile || isTablet ? (
         <CustomMobilePagination

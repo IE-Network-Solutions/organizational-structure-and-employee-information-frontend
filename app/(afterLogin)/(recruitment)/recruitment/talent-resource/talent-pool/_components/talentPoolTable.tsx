@@ -4,7 +4,7 @@ import { Button, Table } from 'antd';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
-import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import TransferTalentPoolToCandidateModal from './transferModal';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import AccessGuard from '@/utils/permissionGuard';
@@ -233,30 +233,23 @@ const TalentPoolTable: React.FC<any> = () => {
 
   return (
     <>
-      {responseLoading ? (
-        <div
-          id="talent-acquisition-talent-pool-table-loading"
-          data-cy="talent-acquisition-talent-pool-table-loading"
-        >
-          <SkeletonLoading
-            alignment="vertical"
-            componentType="table"
-            count={1}
-            type="default"
-            columns={columns}
-          />
-        </div>
-      ) : (
-        <div
-          data-cy="talent-acquisition-talent-pool-table-container"
-          className=" overflow-x-auto scrollbar-none"
-        >
+      <div
+        data-cy="talent-acquisition-talent-pool-table-container"
+        className=" overflow-x-auto scrollbar-none"
+      >
+        {responseLoading ? (
+          <div
+            id="talent-acquisition-talent-pool-table-loading"
+            data-cy="talent-acquisition-talent-pool-table-loading"
+          >
+            <TableSkeleton columns={columns} />
+          </div>
+        ) : (
           <Table
             data-cy="talent-acquisition-talent-pool-table"
             dataSource={filteredItems}
             columns={columns}
             pagination={false}
-            loading={responseLoading}
             rowKey="id"
             rowHoverable={false}
             rowClassName={(notUsed, index) => {
@@ -264,8 +257,8 @@ const TalentPoolTable: React.FC<any> = () => {
               return base;
             }}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {isMobile || isTablet ? (
         <div

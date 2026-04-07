@@ -30,6 +30,7 @@ import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/le
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const TnaApprovalTable = () => {
@@ -482,15 +483,18 @@ const TnaApprovalTable = () => {
               </Popconfirm>
             </div>
           </div>
-          <Table
-            columns={columns}
-            loading={currentApproverIsFetching}
-            dataSource={allFilterData}
-            pagination={false}
-            scroll={{ x: 'min-content' }}
-            id="tnaMyTrainingApprovalTableId"
-            data-cy="tna-my-training-approval-table"
-          />
+          {currentApproverIsFetching ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={allFilterData}
+              pagination={false}
+              scroll={{ x: 'min-content' }}
+              id="tnaMyTrainingApprovalTableId"
+              data-cy="tna-my-training-approval-table"
+            />
+          )}
           {isMobile || isTablet ? (
             <CustomMobilePagination
               totalResults={currentApproverData?.meta?.totalItems || 0}

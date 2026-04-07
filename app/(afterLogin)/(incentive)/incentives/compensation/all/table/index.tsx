@@ -17,6 +17,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 import { useGetAllIncentiveIds } from '@/store/server/features/incentive/other/queries';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const AllIncentiveTable: React.FC = () => {
   const {
@@ -350,23 +351,26 @@ const AllIncentiveTable: React.FC = () => {
       data-cy="all-incentive-table-container"
       className="m-1"
     >
-      <Table
-        id="all-incentive-table"
-        data-cy="all-incentive-table"
-        rowSelection={{ type: 'checkbox', ...rowSelection }}
-        rowKey="id"
-        className="w-full cursor-pointer"
-        columns={columns}
-        dataSource={allIncentiveTableData}
-        pagination={false}
-        loading={responseLoading}
-        scroll={{ x: 1400 }}
-        onRow={(record) => ({
-          onClick: () => {
-            router.push(`/incentives/detail/${record?.id}`);
-          },
-        })}
-      />
+      {responseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          id="all-incentive-table"
+          data-cy="all-incentive-table"
+          rowSelection={{ type: 'checkbox', ...rowSelection }}
+          rowKey="id"
+          className="w-full cursor-pointer"
+          columns={columns}
+          dataSource={allIncentiveTableData}
+          pagination={false}
+          scroll={{ x: 1400 }}
+          onRow={(record) => ({
+            onClick: () => {
+              router.push(`/incentives/detail/${record?.id}`);
+            },
+          })}
+        />
+      )}
 
       {isMobile || isTablet ? (
         <CustomMobilePagination
