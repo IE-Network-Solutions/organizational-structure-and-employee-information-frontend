@@ -3,6 +3,7 @@ import { Tabs, TabsProps } from 'antd';
 import CourseOverview from './_components/courseOverview';
 import CourseLesson from './_components/courseLesson';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
+import CoursePageSkeleton from './_components/coursePageSkeleton';
 
 const CoursePage = () => {
   const { course } = useTnaManagementCoursePageStore();
@@ -33,7 +34,11 @@ const CoursePage = () => {
     },
   ];
 
-  return course ? (
+  if (!course) {
+    return <CoursePageSkeleton />;
+  }
+
+  return (
     <>
       <div
         className="py-6 pr-2 pl-8 bg-[#B2B2FF66] flex items-center gap-8 mt-8"
@@ -71,7 +76,7 @@ const CoursePage = () => {
         data-cy="tna-course-page-tabs"
       />
     </>
-  ) : null;
+  );
 };
 
 export default CoursePage;

@@ -1,4 +1,4 @@
-import { Space, Spin, Switch, Table } from 'antd';
+import { Space, Switch, Table } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import ActionButton from '@/components/common/actionButton';
 import { TableColumnsType } from '@/types/table/table';
@@ -14,6 +14,7 @@ import {
 } from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
 import { useDeleteAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -127,67 +128,69 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
     });
   };
 
+  const typeTableSpinning =
+    isLoading || isLoadingDeleteRule || isLoadingDeleteType;
+
   return (
-    <Spin
-      spinning={isLoading || isLoadingDeleteRule || isLoadingDeleteType}
-      data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-spin`}
+    <div
+      className="p-6 border rounded-2xl border-gray-200"
+      id={`time-attendance-settings-attendance-rules-type-table-${type.id}-container`}
+      data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-container`}
     >
       <div
-        className="p-6 border rounded-2xl border-gray-200"
-        id={`time-attendance-settings-attendance-rules-type-table-${type.id}-container`}
-        data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-container`}
+        className="flex items-center gap-2.5 mb-4"
+        id={`time-attendance-settings-attendance-rules-type-table-${type.id}-header`}
+        data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-header`}
       >
         <div
-          className="flex items-center gap-2.5 mb-4"
-          id={`time-attendance-settings-attendance-rules-type-table-${type.id}-header`}
-          data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-header`}
+          className="text-lg text-gray-900 font-bold flex-1"
+          id={`time-attendance-settings-attendance-rules-type-table-${type.id}-title`}
+          data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-title`}
         >
-          <div
-            className="text-lg text-gray-900 font-bold flex-1"
-            id={`time-attendance-settings-attendance-rules-type-table-${type.id}-title`}
-            data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-title`}
-          >
-            {type.title}
-          </div>
-          <AccessGuard
-            permissions={[
-              Permissions.UpdateAttendanceRuleType,
-              Permissions.DeleteAttendanceRuleType,
-            ]}
-            data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-actions-access-guard`}
-          >
-            <Space
-              size={12}
-              id={`time-attendance-settings-attendance-rules-type-table-${type.id}-actions`}
-              data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-actions`}
-            >
-              <Switch
-                id="switchButtonForTypeId"
-                data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-id"
-                checkedChildren={
-                  <CheckOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-checked-icon" />
-                }
-                unCheckedChildren={
-                  <CloseOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-unchecked-icon" />
-                }
-                value={type.isActive}
-                onChange={activeChange}
-              />
-              <ActionButton
-                id={type?.id ?? null}
-                onEdit={() => {
-                  setAttendanceTypeId(type.id);
-                  setIsShowRulesAddTypeSidebar(true);
-                }}
-                onDelete={() => {
-                  deleteType(type.id);
-                }}
-                data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-action-button`}
-              />
-            </Space>
-          </AccessGuard>
+          {type.title}
         </div>
+        <AccessGuard
+          permissions={[
+            Permissions.UpdateAttendanceRuleType,
+            Permissions.DeleteAttendanceRuleType,
+          ]}
+          data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-actions-access-guard`}
+        >
+          <Space
+            size={12}
+            id={`time-attendance-settings-attendance-rules-type-table-${type.id}-actions`}
+            data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-actions`}
+          >
+            <Switch
+              id="switchButtonForTypeId"
+              data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-id"
+              checkedChildren={
+                <CheckOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-checked-icon" />
+              }
+              unCheckedChildren={
+                <CloseOutlined data-cy="time-attendance-settings-attendance-rules-type-table-switch-button-unchecked-icon" />
+              }
+              value={type.isActive}
+              onChange={activeChange}
+            />
+            <ActionButton
+              id={type?.id ?? null}
+              onEdit={() => {
+                setAttendanceTypeId(type.id);
+                setIsShowRulesAddTypeSidebar(true);
+              }}
+              onDelete={() => {
+                deleteType(type.id);
+              }}
+              data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}-action-button`}
+            />
+          </Space>
+        </AccessGuard>
+      </div>
 
+      {typeTableSpinning ? (
+        <TableSkeleton columns={columns} />
+      ) : (
         <Table
           columns={columns}
           dataSource={tableData}
@@ -195,8 +198,8 @@ const TypeTable: FC<TypeTableProps> = ({ type }) => {
           id={`time-attendance-settings-attendance-rules-type-table-${type.id}`}
           data-cy={`time-attendance-settings-attendance-rules-type-table-${type.id}`}
         />
-      </div>
-    </Spin>
+      )}
+    </div>
   );
 };
 

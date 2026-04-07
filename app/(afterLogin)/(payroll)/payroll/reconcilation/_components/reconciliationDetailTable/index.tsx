@@ -1,6 +1,7 @@
 'use client';
 
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetReconciliationDetails } from '@/store/server/features/payroll/reconcilation/queries';
@@ -398,23 +399,26 @@ const ReconciliationDetailTable = ({
             data-cy="reconciliation-detail-table-wrap"
             className="w-full overflow-x-auto scrollbar-none"
           >
-            <Table
-              loading={isLoadingReconciliationDetails}
-              dataSource={payrollVarianceData}
-              columns={columns}
-              pagination={false}
-              rowHoverable={false}
-              onRow={(record: any) => ({
-                onClick: () => {
-                  if (record?.userId) {
-                    router.push(`/employee-information/${record.userId}`);
-                  }
-                },
-              })}
-              rowClassName={(notUsed, index) =>
-                index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-              }
-            />
+            {isLoadingReconciliationDetails ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                dataSource={payrollVarianceData}
+                columns={columns}
+                pagination={false}
+                rowHoverable={false}
+                onRow={(record: any) => ({
+                  onClick: () => {
+                    if (record?.userId) {
+                      router.push(`/employee-information/${record.userId}`);
+                    }
+                  },
+                })}
+                rowClassName={(notUsed, index) =>
+                  index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+                }
+              />
+            )}
           </div>
 
           {isMobile || isTablet ? (

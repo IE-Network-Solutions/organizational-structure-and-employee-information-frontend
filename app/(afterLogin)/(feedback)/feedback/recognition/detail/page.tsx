@@ -31,6 +31,7 @@ import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import {
   CloseOutlined,
   DeleteOutlined,
@@ -785,23 +786,29 @@ function DetailPage() {
         )}
 
         <div className="" data-cy="recognition-history-table-section">
-          <Table<any>
-            rowSelection={{ type: 'checkbox', ...rowSelection }}
-            rowKey="id"
-            columns={columns}
-            dataSource={getAllRecognition?.items ?? []}
-            pagination={false}
-            scroll={{ x: 1200 }}
-            className="cursor-pointer"
-            onRow={(record) => ({
-              onClick: () => handleRowClick(record),
-            })}
-            loading={isLoading}
-            rowClassName={(unusedRecord, rowIndex) => {
-              void unusedRecord;
-              return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
-            }}
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table<any>
+              rowSelection={{ type: 'checkbox', ...rowSelection }}
+              rowKey="id"
+              columns={columns}
+              dataSource={getAllRecognition?.items ?? []}
+              pagination={false}
+              scroll={{ x: 1200 }}
+              // locale={{
+              //   emptyText: <EmptyState />,
+              // }}
+              className="cursor-pointer"
+              onRow={(record) => ({
+                onClick: () => handleRowClick(record),
+              })}
+              rowClassName={(unusedRecord, rowIndex) => {
+                void unusedRecord;
+                return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
+              }}
+            />
+          )}
           <CustomPagination
             current={getAllRecognition?.meta?.currentPage || 1}
             total={getAllRecognition?.meta?.totalItems || 1}

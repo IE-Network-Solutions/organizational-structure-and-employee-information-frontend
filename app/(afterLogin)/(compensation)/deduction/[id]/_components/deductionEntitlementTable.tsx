@@ -14,6 +14,7 @@ import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -139,13 +140,17 @@ const AllowanceEntitlementTable = () => {
         id="compensation-deduction-entitlement-table-scroll"
         data-cy="compensation-deduction-entitlement-table-scroll"
       >
-        <Table
-          className="mt-6"
-          columns={columns}
-          dataSource={transformedData}
-          pagination={false}
-          data-cy="compensation-deduction-entitlement-table"
-        />
+        {fiscalActiveYearFetchLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            className="mt-6"
+            columns={columns}
+            dataSource={transformedData}
+            pagination={false}
+            data-cy="compensation-deduction-entitlement-table"
+          />
+        )}
       </div>
       {isMobile || isTablet ? (
         <CustomMobilePagination

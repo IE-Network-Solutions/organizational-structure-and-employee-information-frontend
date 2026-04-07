@@ -1,3 +1,4 @@
+import { TableSkeleton } from '@/components/tableSkeleton';
 import React from 'react';
 import { Form, Select, Button, Table, Tag, Avatar, Skeleton } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -409,17 +410,20 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
           >
             {selectedEmployees.length} employee(s) selected across filters.
           </p>
-          <Table
-            key={filterOption} // forces remount on filter change
-            rowSelection={{ type: 'checkbox', ...rowSelection }}
-            columns={columns}
-            dataSource={filteredEmployees}
-            rowKey="recipientId"
-            loading={createRecognitionLoading}
-            scroll={{ x: 640 }}
-            data-cy="employee-recognition-modal-table"
-            id="employeeRecognitionModalTable"
-          />
+          {createRecognitionLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              key={filterOption} // forces remount on filter change
+              rowSelection={{ type: 'checkbox', ...rowSelection }}
+              columns={columns}
+              dataSource={filteredEmployees}
+              rowKey="recipientId"
+              scroll={{ x: 640 }}
+              data-cy="employee-recognition-modal-table"
+              id="employeeRecognitionModalTable"
+            />
+          )}
         </div>
         <Form.Item
           className="flex items-center justify-end gap-2"

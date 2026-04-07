@@ -12,6 +12,7 @@ import {
 import { useCompensationTypeTablesStore } from '@/store/uistate/features/compensation/settings';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -253,15 +254,19 @@ const BenefitTypeTable = () => {
           id="compensation-settings-benefit-type-table-scroll"
           data-cy="compensation-settings-benefit-type-table-scroll"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="benefit-type-table"
-            id="compensation-settings-benefit-type-table"
-            data-cy="compensation-settings-benefit-type-table"
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="benefit-type-table"
+              id="compensation-settings-benefit-type-table"
+              data-cy="compensation-settings-benefit-type-table"
+            />
+          )}
         </div>
 
         {isMobile || isTablet ? (

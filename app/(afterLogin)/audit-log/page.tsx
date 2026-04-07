@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Table, Select, Tag, Avatar, Popover, Button, DatePicker } from 'antd';
+import { Select, Tag, Avatar, Popover, Button, DatePicker, Table } from 'antd';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
@@ -19,6 +19,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import dayjs, { Dayjs } from 'dayjs';
 import { UserOutlined } from '@ant-design/icons';
 import { MdOutlineFilterAlt } from 'react-icons/md';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const { Option } = Select;
 
@@ -609,35 +610,38 @@ const AuditLogPage = () => {
           data-cy="audit-log-table-container"
           id="audit-log-table-container"
         >
-          <Table
-            columns={columns}
-            dataSource={filteredAuditLogsData}
-            loading={isLoading}
-            pagination={false}
-            rowKey="id"
-            rowClassName={(unusedRecord, index) =>
-              index % 2 === 1 ? 'bg-gray-50' : ''
-            }
-            scroll={{ x: true }}
-            data-cy="audit-log-table"
-            id="audit-log-table"
-            className="cursor-pointer"
-            onRow={(record) => ({
-              onClick: () => {
-                // Store the record data in sessionStorage for the detail page to use
-                sessionStorage.setItem(
-                  `audit-log-${record.id}`,
-                  JSON.stringify(record),
-                );
-                router.push(`/audit-log/${record.id}`);
-              },
-              'data-cy': `audit-log-table-row-${record.id}`,
-              id: `audit-log-table-row-${record.id}`,
-            })}
-            locale={{
-              emptyText: 'No data available',
-            }}
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={filteredAuditLogsData}
+              pagination={false}
+              rowKey="id"
+              rowClassName={(unusedRecord, index) =>
+                index % 2 === 1 ? 'bg-gray-50' : ''
+              }
+              scroll={{ x: true }}
+              data-cy="audit-log-table"
+              id="audit-log-table"
+              className="cursor-pointer"
+              onRow={(record) => ({
+                onClick: () => {
+                  // Store the record data in sessionStorage for the detail page to use
+                  sessionStorage.setItem(
+                    `audit-log-${record.id}`,
+                    JSON.stringify(record),
+                  );
+                  router.push(`/audit-log/${record.id}`);
+                },
+                'data-cy': `audit-log-table-row-${record.id}`,
+                id: `audit-log-table-row-${record.id}`,
+              })}
+              locale={{
+                emptyText: 'No data available',
+              }}
+            />
+          )}
           <div
             className="px-3 md:px-3"
             data-cy="audit-log-pagination-container"

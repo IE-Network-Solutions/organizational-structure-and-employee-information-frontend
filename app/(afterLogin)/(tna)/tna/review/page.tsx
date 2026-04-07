@@ -37,6 +37,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const TnaReviewPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -449,21 +450,24 @@ const TnaReviewPage = () => {
           id="tnaReviewTableContainerId"
           data-cy="tna-review-table-container"
         >
-          <Table
-            className="mt-6 w-full"
-            rowClassName={() => 'h-[60px]'}
-            scroll={{ x: 'max-content' }}
-            columns={tableColumns}
-            dataSource={tableData}
-            loading={isLoading || isLoadingDelete}
-            pagination={false}
-            id="tnaReviewTableId"
-            data-cy="tna-review-table"
-            onChange={(sorter: any) => {
-              setOrderDirection(sorter['order']);
-              setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-            }}
-          />
+          {isLoading || isLoadingDelete ? (
+            <TableSkeleton columns={tableColumns} />
+          ) : (
+            <Table
+              className="mt-6 w-full"
+              rowClassName={() => 'h-[60px]'}
+              scroll={{ x: 'max-content' }}
+              columns={tableColumns}
+              dataSource={tableData}
+              pagination={false}
+              id="tnaReviewTableId"
+              data-cy="tna-review-table"
+              onChange={(sorter: any) => {
+                setOrderDirection(sorter['order']);
+                setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+              }}
+            />
+          )}
         </div>{' '}
         {isMobile || isTablet ? (
           <CustomMobilePagination

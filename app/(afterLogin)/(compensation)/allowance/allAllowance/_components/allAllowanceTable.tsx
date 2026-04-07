@@ -8,6 +8,7 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 // Component to handle allowance amount calculation
 const AllowanceAmount = ({
@@ -205,15 +206,19 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
           id="compensation-allowance-all-table-scroll"
           data-cy="compensation-allowance-all-table-scroll"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="allowance-table"
-            id="compensation-allowance-all-table-display"
-            data-cy="compensation-allowance-all-table-display"
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="allowance-table"
+              id="compensation-allowance-all-table-display"
+              data-cy="compensation-allowance-all-table-display"
+            />
+          )}
         </div>
 
         {isMobile || isTablet ? (

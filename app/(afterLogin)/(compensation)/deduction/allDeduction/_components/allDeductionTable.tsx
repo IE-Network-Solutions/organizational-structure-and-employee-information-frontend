@@ -5,6 +5,7 @@ import { useFetchAllowances } from '@/store/server/features/compensation/allowan
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useAllAllowanceStore } from '@/store/uistate/features/compensation/allowance';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -164,15 +165,19 @@ const AllDeductionTable = () => {
           id="compensation-deduction-all-table-scroll"
           data-cy="compensation-deduction-all-table-scroll"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="deduction-table"
-            id="compensation-deduction-all-table"
-            data-cy="compensation-deduction-all-table"
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="deduction-table"
+              id="compensation-deduction-all-table"
+              data-cy="compensation-deduction-all-table"
+            />
+          )}
         </div>
 
         {isMobile || isTablet ? (

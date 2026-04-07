@@ -13,6 +13,7 @@ import { useGetBasicSalaryById } from '@/store/server/features/employees/employe
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const AllowanceEntitlementTable = () => {
   const { currentPage, pageSize, setCurrentPage, searchQuery, setPageSize } =
@@ -184,15 +185,19 @@ const AllowanceEntitlementTable = () => {
           id="compensation-allowance-table-scroll-container"
           data-cy="compensation-allowance-table-scroll-container"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="entitlement-table"
-            id="compensation-allowance-table-display"
-            data-cy="compensation-allowance-table-display"
-          />
+          {fiscalActiveYearFetchLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="entitlement-table"
+              id="compensation-allowance-table-display"
+              data-cy="compensation-allowance-table-display"
+            />
+          )}
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination

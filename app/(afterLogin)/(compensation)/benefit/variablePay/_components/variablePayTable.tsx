@@ -18,6 +18,7 @@ import {
   useGetVpScoreCalculate,
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -718,36 +719,43 @@ const VariablePayTable = () => {
             id="compensation-benefit-variable-pay-scroll-container"
             data-cy="compensation-benefit-variable-pay-scroll-container"
           >
-            <Table
-              className="[&_.ant-table]:text-[14px] [&_.ant-table-thead>tr>th]:text-[14px]"
-              rowClassName={(record, index) =>
-                index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'
-              }
-              columns={columns}
-              dataSource={paginatedData}
-              scroll={isMobile || isTablet ? { x: 900 } : undefined}
-              pagination={false}
-              expandable={{
-                expandedRowRender: (record) => (
-                  <ExpandedVPDetails userId={record.userId} />
-                ),
-                expandIcon: () => null,
-                expandIconColumnIndex: -1,
-                expandedRowKeys: expandedRowKeys,
-                onExpand: (expanded, record) => {
-                  if (expanded) {
-                    setExpandedRowKeys([...expandedRowKeys, record.key]);
-                  } else {
-                    setExpandedRowKeys(
-                      expandedRowKeys.filter((k) => k !== record.key),
-                    );
-                  }
-                },
-              }}
-              data-testid="variable-pay-table"
-              id="compensation-benefit-variable-pay-table"
-              data-cy="compensation-benefit-variable-pay-table"
-            />
+            {isLoading || isFetching || refreshLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                className="[&_.ant-table]:text-[14px] [&_.ant-table-thead>tr>th]:text-[14px]"
+                rowClassName={(record, index) =>
+                  index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'
+                }
+                columns={columns}
+                dataSource={paginatedData}
+                scroll={isMobile || isTablet ? { x: 900 } : undefined}
+                pagination={false}
+                expandable={{
+                  expandedRowRender: (record) => (
+                    <ExpandedVPDetails userId={record.userId} />
+                  ),
+                  expandIcon: () => null,
+                  expandIconColumnIndex: -1,
+                  expandedRowKeys: expandedRowKeys,
+                  onExpand: (expanded, recordWithKey) => {
+                    if (expanded) {
+                      setExpandedRowKeys([
+                        ...expandedRowKeys,
+                        recordWithKey.key,
+                      ]);
+                    } else {
+                      setExpandedRowKeys(
+                        expandedRowKeys.filter((k) => k !== recordWithKey.key),
+                      );
+                    }
+                  },
+                }}
+                data-testid="variable-pay-table"
+                id="compensation-benefit-variable-pay-table"
+                data-cy="compensation-benefit-variable-pay-table"
+              />
+            )}
           </div>
 
           {isMobile || isTablet ? (

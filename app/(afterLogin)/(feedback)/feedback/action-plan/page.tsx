@@ -26,6 +26,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetCombinedActionPlan } from '@/store/server/features/CFR/meeting/action-plan/queries';
 import { ActionPlanSourceType } from '@/types/enumTypes';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
@@ -802,20 +803,23 @@ export default function ActionPlansPage() {
             data-cy="feedback-action-plan-page-div-table-container"
             id="feedback-action-plan-page-div-table-container"
           >
-            <Table
-              columns={columns}
-              dataSource={data}
-              pagination={false}
-              loading={isLoading}
-              scroll={{ x: 'max-content' }}
-              rowKey="key"
-              rowClassName={(rowRecord, index) =>
-                index % 2 == 0 ? 'bg-white' : 'bg-[#fafafa]'
-              }
-              className="action-plan-table [&_.ant-table]:rounded-none"
-              data-cy="feedback-action-plan-page-table"
-              id="feedback-action-plan-page-table"
-            />
+            {isLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={false}
+                scroll={{ x: 'max-content' }}
+                rowKey="key"
+                rowClassName={(rowRecord, index) =>
+                  index % 2 == 0 ? 'bg-white' : 'bg-[#fafafa]'
+                }
+                className="action-plan-table [&_.ant-table]:rounded-none"
+                data-cy="feedback-action-plan-page-table"
+                id="feedback-action-plan-page-table"
+              />
+            )}
           </div>
 
           <div

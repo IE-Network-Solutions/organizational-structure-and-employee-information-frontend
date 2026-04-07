@@ -8,6 +8,7 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import type { ColumnsType } from 'antd/es/table';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 /** Above entitlement/benefit-type sidebars (`zIndex={10002}`) so tracking stays on top. */
 const BENEFIT_TRACKING_MODAL_Z_INDEX = 10200;
@@ -255,25 +256,29 @@ const BenefitTracking = () => {
             id="compensation-benefit-tracker-table-scroll"
             data-cy="compensation-benefit-tracker-table-scroll"
           >
-            <Table<any>
-              data-cy="compensation-benefit-tracker-list-table"
-              // className="benefit-tracking-paid-table [&_.ant-table]:text-sm [&_.ant-table]:border [&_.ant-table]:border-[#F0F0F0] [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-medium [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]"
-              columns={columns}
-              dataSource={paginatedTracking}
-              rowKey={(record, index) =>
-                record?.id ??
-                `${record?.createdAt ?? ''}-${record?.payPeriodId ?? index}`
-              }
-              rowHoverable={false}
-              rowClassName={(unusedRow, rowIndex) => {
-                void unusedRow;
-                return rowIndex % 2 === 0 ? 'bg-[#FFFFFF]' : 'bg-[#FAFAFA]';
-              }}
-              pagination={false}
-              size="small"
-              scroll={{ x: 'max-content' }}
-              id="compensation-benefit-tracker-list-table"
-            />
+            {isLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table<any>
+                data-cy="compensation-benefit-tracker-list-table"
+                // className="benefit-tracking-paid-table [&_.ant-table]:text-sm [&_.ant-table]:border [&_.ant-table]:border-[#F0F0F0] [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-medium [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]"
+                columns={columns}
+                dataSource={paginatedTracking}
+                rowKey={(record, index) =>
+                  record?.id ??
+                  `${record?.createdAt ?? ''}-${record?.payPeriodId ?? index}`
+                }
+                rowHoverable={false}
+                rowClassName={(unusedRow, rowIndex) => {
+                  void unusedRow;
+                  return rowIndex % 2 === 0 ? 'bg-[#FFFFFF]' : 'bg-[#FAFAFA]';
+                }}
+                pagination={false}
+                size="small"
+                scroll={{ x: 'max-content' }}
+                id="compensation-benefit-tracker-list-table"
+              />
+            )}
           </div>
 
           <div

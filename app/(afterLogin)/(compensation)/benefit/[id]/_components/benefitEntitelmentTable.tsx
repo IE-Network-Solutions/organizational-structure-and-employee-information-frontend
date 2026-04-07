@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Popover, Spin, Table, Dropdown, Skeleton } from 'antd';
+import { Popover, Spin, Dropdown, Skeleton, Table } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -20,6 +20,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const dotsButtonStyle: React.CSSProperties = {
   height: 24,
@@ -491,28 +492,32 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
             id="compensation-benefit-entitlement-table-scroll"
             data-cy="compensation-benefit-entitlement-table-scroll"
           >
-            <Table
-              data-cy="compensation-benefit-entitlement-table"
-              className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
-                compact
-                  ? '[&_.ant-table]:text-sm [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
-                  : '[&_.ant-table-thead>tr>th]:font-bold'
-              }`}
-              columns={compact ? columnsCompact : columns}
-              dataSource={paginatedData}
-              rowKey="id"
-              rowHoverable={false}
-              rowClassName={(unusedRow, rowIndex) => {
-                void unusedRow;
-                return rowIndex % 2 === 0
-                  ? 'benefit-row-even'
-                  : 'benefit-row-odd';
-              }}
-              pagination={false}
-              scroll={
-                compact && (isMobile || isTablet) ? { x: 620 } : undefined
-              }
-            />
+            {isLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                data-cy="compensation-benefit-entitlement-table"
+                className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
+                  compact
+                    ? '[&_.ant-table]:text-sm [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
+                    : '[&_.ant-table-thead>tr>th]:font-bold'
+                }`}
+                columns={compact ? columnsCompact : columns}
+                dataSource={paginatedData}
+                rowKey="id"
+                rowHoverable={false}
+                rowClassName={(unusedRow, rowIndex) => {
+                  void unusedRow;
+                  return rowIndex % 2 === 0
+                    ? 'benefit-row-even'
+                    : 'benefit-row-odd';
+                }}
+                pagination={false}
+                scroll={
+                  compact && (isMobile || isTablet) ? { x: 620 } : undefined
+                }
+              />
+            )}
           </div>
           {isMobile || isTablet ? (
             <div

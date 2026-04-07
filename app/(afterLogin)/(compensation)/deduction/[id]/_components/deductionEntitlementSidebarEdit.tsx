@@ -11,6 +11,7 @@ import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries
 import dayjs from 'dayjs';
 import { useEmployeeSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -322,14 +323,18 @@ const DeductionEntitlementSideBarEdit = ({
                 id="compensation-deduction-sidebar-edit-table-wrapper"
                 data-cy="compensation-deduction-sidebar-edit-table-wrapper"
               >
-                <Table
-                  data-cy="compensation-deduction-sidebar-edit-payments-table"
-                  columns={columns}
-                  dataSource={editPaymentsData}
-                  bordered={false}
-                  className="mb-4"
-                  pagination={false}
-                />
+                {allUserLoading || payLoading || isLoading ? (
+                  <TableSkeleton columns={columns} />
+                ) : (
+                  <Table
+                    data-cy="compensation-deduction-sidebar-edit-payments-table"
+                    columns={columns}
+                    dataSource={editPaymentsData}
+                    bordered={false}
+                    className="mb-4"
+                    pagination={false}
+                  />
+                )}
               </div>
             )}
             <Form.Item
