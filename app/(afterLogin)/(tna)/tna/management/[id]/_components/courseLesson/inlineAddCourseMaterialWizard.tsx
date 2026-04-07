@@ -18,6 +18,7 @@ import {
   courseMaterialTimeValidationRules,
   courseMaterialVideoUploadIcon,
 } from './courseMaterialFormFields';
+import { LuGripVertical } from 'react-icons/lu';
 
 const STEP_LABELS = [
   'Material Details',
@@ -60,6 +61,8 @@ interface InlineAddCourseMaterialWizardProps {
     material: NestedLessonMaterialDraftPayload,
     replaceClientId?: string,
   ) => void;
+  /** When `draftMode`: lesson title from the inline create form (may be empty until filled). */
+  draftLessonTitle?: string;
 }
 
 /** New inline materials sort first in the list (`LessonCard` uses ascending `order`). */
@@ -87,6 +90,7 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
   draftMode = false,
   draftMaterialOrders = [],
   onDraftMaterialCommit,
+  draftLessonTitle = '',
 }) => {
   const { refetchCourse, isFileUploadLoading } =
     useTnaManagementCoursePageStore();
@@ -261,6 +265,10 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
   const stepTrackInsetPct = 100 / (2 * stepCount);
   const stepTrackSpanPct = (100 * (stepCount - 1)) / stepCount;
 
+  const draftLessonTitleTrimmed = String(draftLessonTitle ?? '').trim();
+  const draftLessonTitleDisplay =
+    draftLessonTitleTrimmed || 'Untitled lesson';
+
   return (
     <div
       className="mb-3 rounded-lg bg-white p-4 shadow-sm"
@@ -274,6 +282,30 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
               : `tna-inline-add-material-wizard-${lesson.id}`
       }
     >
+      {draftMode ? (
+        <div
+          className="mb-4 flex items-start gap-3 border-b border-gray-100 pb-3"
+          data-cy="tna-inline-add-material-wizard-lesson-context"
+        >
+          <div
+            className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400"
+            aria-hidden
+            data-cy="tna-inline-add-material-wizard-lesson-context-grip"
+          >
+            <LuGripVertical size={16} className="block shrink-0" />
+          </div>
+          <div
+            className={classNames(
+              'min-w-0 flex-1 truncate pt-0.5 text-base font-semibold',
+              draftLessonTitleTrimmed ? 'text-gray-900' : 'text-black/45',
+            )}
+            title={draftLessonTitleDisplay}
+            data-cy="tna-inline-add-material-wizard-lesson-context-title"
+          >
+            {draftLessonTitleDisplay}
+          </div>
+        </div>
+      ) : null}
       <nav
         className="mb-6 w-full"
         aria-label="Material setup steps"

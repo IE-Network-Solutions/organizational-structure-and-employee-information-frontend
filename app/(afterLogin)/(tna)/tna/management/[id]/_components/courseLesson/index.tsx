@@ -1,7 +1,6 @@
 'use client';
 
 import { Spin } from 'antd';
-import CourseAddLessonSidebar from './addLesson';
 import LessonSectionInlineEdit from './lessonSectionInlineEdit';
 import InlineAddCourseMaterialWizard from './inlineAddCourseMaterialWizard';
 import InlineCreateLessonForm from './inlineCreateLessonForm';
@@ -12,7 +11,6 @@ import {
 } from '@/types/tna/course';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import LessonCard from './lessonCard';
-import LessonMaterialDrawer from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
 import {
   DndContext,
   DragEndEvent,
@@ -286,11 +284,6 @@ const CourseLesson = () => {
         ) : null}
       </Spin>
 
-      <CourseAddLessonSidebar data-cy="tna-course-lesson-add-lesson-sidebar" />
-
-      {!isShowAddLesson && (
-        <LessonMaterialDrawer data-cy="tna-course-lesson-material" />
-      )}
     </div>
   );
 };

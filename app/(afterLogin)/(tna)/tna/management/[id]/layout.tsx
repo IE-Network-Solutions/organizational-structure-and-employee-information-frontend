@@ -220,7 +220,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
               <Button
                 type="primary"
                 icon={<MdAdd className="text-lg" aria-hidden />}
-                className="shrink-0 !border-[#1a3a8a] !bg-[#1a3a8a] !font-normal hover:!border-[#152f73] hover:!bg-[#152f73] focus-visible:!border-[#152f73]"
+                className="shrink-0 !border-[#1a3a8a] !bg-[#1a3a8a] !font-normal !text-white hover:!border-[#152f73] hover:!bg-[#152f73] focus-visible:!border-[#152f73] disabled:!cursor-not-allowed disabled:!border-[#1a3a8a] disabled:!bg-[#1a3a8a] disabled:!text-white disabled:!opacity-70 disabled:hover:!border-[#1a3a8a] disabled:hover:!bg-[#1a3a8a] disabled:hover:!text-white"
                 disabled={isShowAddLesson}
                 onClick={openAddLesson}
                 data-cy="tna-management-layout-add-lesson"

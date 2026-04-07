@@ -102,6 +102,7 @@ const InlineCreateLessonForm: FC = () => {
     useTnaManagementCoursePageStore();
   const { mutate: setLessons, isLoading } = useSetCourseLesson();
   const [form] = Form.useForm();
+  const watchedLessonTitle = Form.useWatch('title', form);
   const [pendingMaterials, setPendingMaterials] = useState<
     PendingMaterialRow[]
   >([]);
@@ -296,6 +297,9 @@ const InlineCreateLessonForm: FC = () => {
             key={materialWizardMountKey}
             lesson={draftLessonForWizard}
             draftMode
+            draftLessonTitle={
+              typeof watchedLessonTitle === 'string' ? watchedLessonTitle : ''
+            }
             draftMaterialOrders={draftMaterialOrders}
             editingDraft={editingDraftPayload}
             draftEditingClientId={pendingMaterialEditClientId}
