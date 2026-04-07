@@ -42,7 +42,7 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
-import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+
 import { auth } from '@/utils/firebaseConfig';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
