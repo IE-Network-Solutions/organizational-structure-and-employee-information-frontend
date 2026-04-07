@@ -486,14 +486,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: hasEndedFiscalYear,
         moduleCode: 'RECRUITMENT',
         children: [
-          {
-            title: (
-              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
-            ),
-            key: '/recruitment/dashboard',
-            className: 'font-bold',
-            permissions: ['view_recruitment_dashboard'],
-          },
+          // {
+          //   title: (
+          //     <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
+          //   ),
+          //   key: '/recruitment/dashboard',
+          //   className: 'font-bold',
+          //   permissions: ['view_recruitment_dashboard'],
+          // },
           {
             title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
             key: '/recruitment/jobs',
@@ -527,7 +527,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             title: (
               <span
                 data-cy="nav-tree-recruitment-settings"
-                className="font-bold"
               >
                 Settings
               </span>
@@ -704,14 +703,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: hasEndedFiscalYear,
         moduleCode: 'TIMESHEET',
         children: [
-          {
-            title: (
-              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
-            ),
-            key: '/timesheet/dashboard',
-            className: 'font-bold',
-            permissions: ['view_timesheet_dashboard'],
-          },
+          // {
+          //   title: (
+          //     <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
+          //   ),
+          //   key: '/timesheet/dashboard',
+          //   className: 'font-bold',
+          //   permissions: ['view_timesheet_dashboard'],
+          // },
           {
             title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
             key: '/timesheet/my-timesheet',

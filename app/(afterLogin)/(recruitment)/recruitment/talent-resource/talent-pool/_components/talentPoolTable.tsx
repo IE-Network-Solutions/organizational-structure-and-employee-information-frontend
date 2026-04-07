@@ -255,6 +255,11 @@ const TalentPoolTable: React.FC<any> = () => {
           pagination={false}
           scroll={{ x: 1000 }}
           rowKey={(record: any) => record?.id ?? record?.key}
+          rowHoverable={false}
+          rowClassName={(notUsed, index) => {
+            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+            return base;
+          }}
         />
 
       {isMobile || isTablet ? (

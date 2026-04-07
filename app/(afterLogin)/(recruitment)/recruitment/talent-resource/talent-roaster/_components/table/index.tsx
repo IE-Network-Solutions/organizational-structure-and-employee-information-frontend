@@ -785,6 +785,11 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         scroll={{ x: 1000 }}
         pagination={false}
         rowSelection={isLoading ? undefined : rowSelection}
+        rowHoverable={false}
+          rowClassName={(notUsed, index) => {
+            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+            return base;
+          }}
         onRow={
           isLoading
             ? undefined

@@ -764,6 +764,11 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         dataSource={tableDataSource}
         pagination={false}
         scroll={{ x: 1000 }}
+        rowHoverable={false}
+          rowClassName={(notUsed, index) => {
+            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+            return base;
+          }}
         onRow={
           isLoading
             ? undefined
