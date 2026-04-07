@@ -266,8 +266,7 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
   const stepTrackSpanPct = (100 * (stepCount - 1)) / stepCount;
 
   const draftLessonTitleTrimmed = String(draftLessonTitle ?? '').trim();
-  const draftLessonTitleDisplay =
-    draftLessonTitleTrimmed || 'Untitled lesson';
+  const draftLessonTitleDisplay = draftLessonTitleTrimmed || 'Untitled lesson';
 
   return (
     <div
@@ -297,7 +296,10 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
           <div
             className={classNames(
               'min-w-0 flex-1 truncate pt-0.5 text-base font-semibold',
-              draftLessonTitleTrimmed ? 'text-gray-900' : 'text-black/45',
+              {
+                'text-gray-900': !!draftLessonTitleTrimmed,
+                'text-black/45': !draftLessonTitleTrimmed,
+              },
             )}
             title={draftLessonTitleDisplay}
             data-cy="tna-inline-add-material-wizard-lesson-context-title"

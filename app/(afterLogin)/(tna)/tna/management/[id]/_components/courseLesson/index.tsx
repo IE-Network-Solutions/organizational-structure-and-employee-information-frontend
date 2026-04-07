@@ -283,7 +283,6 @@ const CourseLesson = () => {
           </div>
         ) : null}
       </Spin>
-
     </div>
   );
 };
