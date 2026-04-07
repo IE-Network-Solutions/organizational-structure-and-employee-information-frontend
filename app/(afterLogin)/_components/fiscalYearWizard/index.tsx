@@ -544,7 +544,7 @@ export default function FiscalYearWizard({
           </div>
 
           <div
-            className="flex justify-end pt-8"
+            className="flex justify-end m-6"
             data-cy="fiscal-wizard-step2-footer"
           >
             <Button
