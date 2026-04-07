@@ -1,8 +1,29 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
+import { jwtVerify, createRemoteJWKSet } from 'jose';
+const JWKS = createRemoteJWKSet(
+  new URL(
+    'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com',
+  ),
+);
 
-export function middleware(req: NextRequest) {
+async function verifyFirebaseToken(token: string) {
+  try {
+    const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
+
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://securetoken.google.com/${projectId}`,
+      audience: projectId,
+    });
+
+    return payload; // Token valid
+  } catch (err) {
+    return null; // Invalid
+  }
+}
+
+export async function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
     const pathname = url.pathname;
@@ -36,9 +57,17 @@ export function middleware(req: NextRequest) {
       pathname.startsWith(path),
     );
     const isRootPath = pathname === '/';
-    if (!isExcludedPath && !token) {
-      return NextResponse.redirect(new URL('/authentication/login', req.url));
+    if (!isExcludedPath) {
+      if(token){
+        const decoded = await verifyFirebaseToken(token);
+        if (!decoded) {
+          return NextResponse.redirect(new URL('/authentication/login', req.url));
+        }
+      } else {
+        return NextResponse.redirect(new URL('/authentication/login', req.url));
+      }
     }
+
 
     if (
       token &&
@@ -54,11 +83,7 @@ export function middleware(req: NextRequest) {
     // TODO: Uncomment and restore the redirect for the root path
 
     if (!isExcludedPath && isRootPath) {
-      if (token) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
-      } else {
-        return NextResponse.redirect(new URL('/authentication/login', req.url));
-      }
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
     // Protect fiscal year settings routes
@@ -72,6 +97,7 @@ export function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
+
 
     return NextResponse.next();
   } catch (error) {

@@ -42,11 +42,14 @@ import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInform
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import dayjs from 'dayjs';
 import { useUpdateEmployeeInformation } from '@/store/server/features/employees/employeeDetail/mutations';
+
+import { auth } from '@/utils/firebaseConfig';
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
 import CopilotModule from '@/components/copilot/CopilotModule';
 
 const { Header, Content, Sider } = Layout;
+
 
 interface CustomMenuItem {
   key: string;
@@ -1204,6 +1207,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      //firebase sign out
+      if (auth.currentUser) {
+        await auth.signOut();
+      }
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
