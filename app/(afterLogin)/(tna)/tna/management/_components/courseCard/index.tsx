@@ -120,7 +120,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
                 data-cy={`tna-course-card-courses-icon-${item?.id}`}
               />
               <span data-cy={`tna-course-card-courses-count-${item?.id}`}>
-                Courses({item.courseLessons?.length || 12})
+                Courses({item.courseLessons?.length ?? 0})
               </span>
             </div>
             <div
@@ -134,10 +134,9 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               <span data-cy={`tna-course-card-lessons-count-${item?.id}`}>
                 Lessons(
                 {item.courseLessons?.reduce(
-                  (acc, curr) =>
-                    acc + (curr.courseLessonMaterials?.length || 0),
+                  (acc, curr) => acc + (curr.courseLessonMaterials?.length ?? 0),
                   0,
-                ) || 24}
+                ) ?? 0}
                 )
               </span>
             </div>
