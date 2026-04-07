@@ -30,7 +30,11 @@ interface LessonCardProps {
 const sortMaterialsStable = (materials: CourseLessonMaterial[]) =>
   [...materials].sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 
-const LessonCard: FC<LessonCardProps> = ({ lesson, onEditMaterial, onAddMaterial }) => {
+const LessonCard: FC<LessonCardProps> = ({
+  lesson,
+  onEditMaterial,
+  onAddMaterial,
+}) => {
   const { refetchCourse } = useTnaManagementCoursePageStore();
   const { mutate: setMaterial, isLoading } = useSetCourseLessonMaterial();
 

@@ -539,28 +539,28 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
             {isLoading ? (
               <TableSkeleton columns={compact ? columnsCompact : columns} />
             ) : (
-            <Table
-              data-cy="compensation-benefit-entitlement-table"
-              className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
-                compact
-                  ? '[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
-                  : '[&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:font-bold'
-              }`}
-              columns={compact ? columnsCompact : columns}
-              dataSource={paginatedData}
-              rowKey="id"
-              rowHoverable={false}
-              rowClassName={(unusedRow, rowIndex) => {
-                void unusedRow;
-                return rowIndex % 2 === 0
-                  ? 'benefit-row-even'
-                  : 'benefit-row-odd';
-              }}
-              pagination={false}
-              scroll={
-                compact && (isMobile || isTablet) ? { x: 620 } : undefined
-              }
-            />
+              <Table
+                data-cy="compensation-benefit-entitlement-table"
+                className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
+                  compact
+                    ? '[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-thead>tr>th:last-child]:text-left [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]'
+                    : '[&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:font-bold'
+                }`}
+                columns={compact ? columnsCompact : columns}
+                dataSource={paginatedData}
+                rowKey="id"
+                rowHoverable={false}
+                rowClassName={(unusedRow, rowIndex) => {
+                  void unusedRow;
+                  return rowIndex % 2 === 0
+                    ? 'benefit-row-even'
+                    : 'benefit-row-odd';
+                }}
+                pagination={false}
+                scroll={
+                  compact && (isMobile || isTablet) ? { x: 620 } : undefined
+                }
+              />
             )}
           </div>
           {isMobile || isTablet ? (

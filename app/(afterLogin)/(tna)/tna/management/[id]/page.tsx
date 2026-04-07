@@ -3,7 +3,6 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CourseOverview from './_components/courseOverview';
 import CourseLesson from './_components/courseLesson';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
-import CoursePageSkeleton from './_components/coursePageSkeleton';
 
 const CoursePage = () => {
   const { course } = useTnaManagementCoursePageStore();

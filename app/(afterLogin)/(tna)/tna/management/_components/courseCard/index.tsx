@@ -134,7 +134,8 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               <span data-cy={`tna-course-card-lessons-count-${item?.id}`}>
                 Lessons(
                 {item.courseLessons?.reduce(
-                  (acc, curr) => acc + (curr.courseLessonMaterials?.length ?? 0),
+                  (acc, curr) =>
+                    acc + (curr.courseLessonMaterials?.length ?? 0),
                   0,
                 ) ?? 0}
                 )

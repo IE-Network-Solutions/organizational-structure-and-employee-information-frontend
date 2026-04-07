@@ -244,26 +244,26 @@ const AllAllowanceTable = ({ searchText }: { searchText: string }) => {
           {isLoading ? (
             <TableSkeleton columns={columns} />
           ) : (
-          <Table
-            className="mt-6 [&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-tbody>tr.benefit-row-even>td]:!bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr>td]:border-0 [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr:hover>td]:!bg-[#f5f5f5]"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="allowance-table"
-            id="compensation-allowance-all-table-display"
-            data-cy="compensation-allowance-all-table-display"
-            scroll={{ x: 'max-content' }}
-            rowHoverable={false}
-            rowKey="employeeId"
-            rowClassName={(unusedRow, rowIndex) => {
-              void unusedRow;
-              return rowIndex % 2 === 0
-                ? 'benefit-row-even'
-                : 'benefit-row-odd';
-            }}
-            // Ensure fixed-left cells match stripe colors and avoid overlay shadow.
-            rootClassName="[&_.ant-table-cell-fix-left]:shadow-none [&_.ant-table-cell-fix-left-last]:shadow-none [&_.benefit-row-even_.ant-table-cell-fix-left]:!bg-[#FFFFFF] [&_.benefit-row-odd_.ant-table-cell-fix-left]:!bg-[#FAFAFA] [&_.ant-table-thead>tr>th.ant-table-cell-fix-left]:!bg-[#FAFAFA]"
-          />
+            <Table
+              className="mt-6 [&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-tbody>tr.benefit-row-even>td]:!bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr>td]:border-0 [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr:hover>td]:!bg-[#f5f5f5]"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="allowance-table"
+              id="compensation-allowance-all-table-display"
+              data-cy="compensation-allowance-all-table-display"
+              scroll={{ x: 'max-content' }}
+              rowHoverable={false}
+              rowKey="employeeId"
+              rowClassName={(unusedRow, rowIndex) => {
+                void unusedRow;
+                return rowIndex % 2 === 0
+                  ? 'benefit-row-even'
+                  : 'benefit-row-odd';
+              }}
+              // Ensure fixed-left cells match stripe colors and avoid overlay shadow.
+              rootClassName="[&_.ant-table-cell-fix-left]:shadow-none [&_.ant-table-cell-fix-left-last]:shadow-none [&_.benefit-row-even_.ant-table-cell-fix-left]:!bg-[#FFFFFF] [&_.benefit-row-odd_.ant-table-cell-fix-left]:!bg-[#FAFAFA] [&_.ant-table-thead>tr>th.ant-table-cell-fix-left]:!bg-[#FAFAFA]"
+            />
           )}
         </div>
 
