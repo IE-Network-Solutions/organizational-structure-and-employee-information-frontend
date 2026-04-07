@@ -584,9 +584,9 @@ h6 {
   border: none !important;
 }
 
-  .lesson-material-article {
-    @apply text-gray-600 text-base;
-  }
+.lesson-material-article {
+  @apply text-gray-600 text-base;
+}
 .page-wrap {
   @apply h-auto w-auto pb-6;
 }
@@ -1312,7 +1312,6 @@ h6 {
     width: 100%;
     height: 100%;
   }
-}
 
   body {
     width: 100vw;
@@ -1424,79 +1423,54 @@ h6 {
   padding: 0 !important;
 }
 
-  /* TNA Course Category (...): Edit / Delete — 117×72 panel, 8px radius, spec icons */
-  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu {
-    background: #ffffff !important;
-    width: 117px !important;
-    min-width: 117px !important;
-    max-width: 117px !important;
-    height: 72px !important;
-    min-height: 72px !important;
-    max-height: 72px !important;
-    border-radius: 8px !important;
-    border: none !important;
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.08),
-      0 1px 2px rgba(0, 0, 0, 0.06) !important;
-    padding: 4px !important;
-    box-sizing: border-box !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    gap: 2px !important;
-    overflow: hidden !important;
-  }
-
-  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
-    padding: 2px 6px !important;
-    margin: 0 !important;
-    height: auto !important;
-    min-height: 0 !important;
-    flex: 1 1 0 !important;
-    line-height: 1.2 !important;
-    border-radius: 4px !important;
-    color: rgba(0, 0, 0, 0.7) !important;
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    display: flex !important;
-    align-items: center !important;
-  }
-}
-
-/* Survey Form Card (triple-dot): dropdown panel styling */
-.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu {
-  border-radius: 10px !important;
-  border: 1px solid #e5e7eb !important;
+/* TNA Course Category (...): Edit / Delete — 117×72 panel, 8px radius, spec icons */
+.tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu {
+  background: #ffffff !important;
+  width: 117px !important;
+  min-width: 117px !important;
+  max-width: 117px !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  max-height: 72px !important;
+  border-radius: 8px !important;
+  border: none !important;
   box-shadow:
-    0 12px 30px rgba(15, 23, 42, 0.12),
-    0 0 0 1px rgba(148, 163, 184, 0.12) !important;
-  padding: 4px 0 !important;
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.06) !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 2px !important;
   overflow: hidden !important;
 }
 
-.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
-  padding: 10px 16px !important;
-  height: 40px !important;
+.tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
+  padding: 2px 6px !important;
+  margin: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 1 1 0 !important;
+  line-height: 1.2 !important;
+  border-radius: 4px !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   display: flex !important;
   align-items: center !important;
 }
-  .tna-course-category-menu-overlay.ant-dropdown
-    .ant-dropdown-menu-item
-    .ant-dropdown-menu-title-content {
-    width: 100%;
-  }
 
-  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover,
-  .tna-course-category-menu-overlay.ant-dropdown
-    .ant-dropdown-menu-item-active {
-    background-color: #f5f5f5 !important;
-    color: rgba(0, 0, 0, 0.7) !important;
-  }
+.tna-course-category-menu-overlay.ant-dropdown
+  .ant-dropdown-menu-item
+  .ant-dropdown-menu-title-content {
+  width: 100%;
+}
 
-.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item-content {
-  display: flex !important;
-  align-items: center !important;
-  padding: 0 !important;
+.tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover,
+.tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item-active {
+  background-color: #f5f5f5 !important;
+  color: rgba(0, 0, 0, 0.7) !important;
 }
 
 .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover {
@@ -1883,7 +1857,6 @@ h6 {
     right: 12px !important;
   }
 }
-
 
 /*
  * Recruitment /settings routes only — classes from app/(recruitment)/recruitment/settings/**
