@@ -18,18 +18,19 @@ import {
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { FC, useEffect, useMemo, useState } from 'react';
-import { Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import SortableLessonMaterialRow from './sortableLessonMaterialRow';
 
 interface LessonCardProps {
   lesson: CourseLesson;
   onEditMaterial: (material: CourseLessonMaterial) => void;
+  onAddMaterial: () => void;
 }
 
 const sortMaterialsStable = (materials: CourseLessonMaterial[]) =>
   [...materials].sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
 
-const LessonCard: FC<LessonCardProps> = ({ lesson, onEditMaterial }) => {
+const LessonCard: FC<LessonCardProps> = ({ lesson, onEditMaterial, onAddMaterial }) => {
   const { refetchCourse } = useTnaManagementCoursePageStore();
   const { mutate: setMaterial, isLoading } = useSetCourseLessonMaterial();
 
@@ -106,11 +107,19 @@ const LessonCard: FC<LessonCardProps> = ({ lesson, onEditMaterial }) => {
           </DndContext>
         ) : (
           <div
-            className="text-sm text-black/70"
+            className="flex justify-center pt-2"
             id={`tnaLessonCardNoData${lesson.id}Id`}
             data-cy={`tna-lesson-card-no-data-${lesson.id}`}
           >
-            No-data
+            <Button
+              type="primary"
+              size="middle"
+              className=" !font-normal"
+              onClick={onAddMaterial}
+              data-cy={`tna-lesson-card-add-material-${lesson.id}`}
+            >
+              Add Course Material
+            </Button>
           </div>
         )}
       </div>

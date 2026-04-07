@@ -214,6 +214,12 @@ const CourseLesson = () => {
               setAddingMaterialLessonId(String(lesson.id));
               setInlineEditingMaterial(material);
             }}
+            onAddMaterial={() => {
+              materialWizardFromSectionRef.current = false;
+              setActiveKey(String(lesson.id));
+              setInlineEditingMaterial(null);
+              setAddingMaterialLessonId(String(lesson.id));
+            }}
           />
         ) : null}
       </div>
