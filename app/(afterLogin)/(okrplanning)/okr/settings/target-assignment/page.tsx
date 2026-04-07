@@ -1,15 +1,12 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Table } from 'antd';
-import { FaPlus } from 'react-icons/fa';
-import { GrEdit } from 'react-icons/gr';
-import { RiDeleteBin6Line } from 'react-icons/ri';
+import { Spin, Dropdown, MenuProps, Tag } from 'antd';
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
-import AssignTargetDrawer from './_components/assign-target-drawer';
+import AssignTargetModal from './_components/assign-target-drawer';
 import TargetFilters from './_components/target-filters';
 import { useGetTargetAssignment } from '@/store/server/features/okrplanning/okr/target/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
 import { useDeleteAssignedTarget } from '@/store/server/features/okrplanning/okr/target/mutation';
 import { useGetCriteriaTargets } from '@/store/server/features/okrplanning/okr/criteria/queries';
 import AccessGuard from '@/utils/permissionGuard';
@@ -29,232 +26,265 @@ function Page() {
   const criteriaTypes: string[] = (criteriaData?.items || []).map(
     (item: any) => item.name,
   );
-  const dataSource = targetAssignmentData?.items
-    .map((item: any) => {
+
+  const groupedData = (targetAssignmentData?.items || [])
+    .reduce((acc: any[], item: any) => {
       const matchingDepartment = departmentData?.find(
         (dept: any) => dept.id == item.departmentId,
       );
+      const deptName = matchingDepartment ? matchingDepartment.name : '--';
+      const criteriaName = item.vpCriteria.name;
+      const key = `${deptName}-${criteriaName}`;
 
-      return {
-        key: item.id,
-        department: matchingDepartment ? matchingDepartment.name : '--',
-        criteriaName: item.vpCriteria.name,
+      let group = acc.find((g) => g.key === key);
+      if (!group) {
+        group = {
+          key,
+          department: deptName,
+          criteriaName,
+          targets: [],
+        };
+        acc.push(group);
+      }
+      group.targets.push({
+        id: item.id,
         month: item.month,
         target: item.target,
-      };
-    })
-    .filter((item: any) => {
-      const matchesSearch = item.department
+      });
+      group.targets.sort((a: any, b: any) => a.month - b.month);
+      return acc;
+    }, [])
+    .filter((group: any) => {
+      const matchesSearch = group.department
         ?.toLowerCase()
         .includes(searchText.toLowerCase());
       const matchesType =
         selectedType === 'All Types' ||
-        item.criteriaName
+        group.criteriaName
           ?.toLowerCase()
           .includes(selectedType?.toLowerCase() || '');
       return matchesSearch && matchesType;
     });
 
-  const columns = [
-    {
-      title: 'Department',
-      dataIndex: 'department',
-      key: 'department',
-    },
-    {
-      title: 'Criteria Name',
-      dataIndex: 'criteriaName',
-      key: 'criteriaName',
-    },
-    {
-      title: 'Month',
-      dataIndex: 'month',
-      key: 'month',
-    },
-    {
-      title: 'Target',
-      dataIndex: 'target',
-      key: 'target',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (record: any) => (
-        <div
-          className="flex space-x-2"
-          id={`okr-target-assignment-table-actions-${record.key}`}
-          data-cy={`okr-target-assignment-table-actions-${record.key}`}
-        >
-          <AccessGuard
-            data-cy="okr-target-assignment-table-edit-button-access-guard-display-guard"
-            permissions={[Permissions.UpdateVpTargetsAssignation]}
-          >
-            <Button
-              type="default"
-              className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-600 border-none"
-              icon={<GrEdit />}
-              onClick={() => handleEditClick(record.key)}
-              id={`okr-target-assignment-table-edit-button-${record.key}`}
-              data-cy={`okr-target-assignment-table-edit-button-${record.key}`}
-            />
-          </AccessGuard>
-          <DeletePopover
-            onDelete={() => handleDelete(record.key)}
-            data-cy={`okr-target-assignment-table-delete-popover-${record.key}`}
-          >
-            <AccessGuard
-              data-cy="okr-target-assignment-table-delete-button-access-guard-display-guard"
-              permissions={[Permissions.DeleteVpTargetsAssignation]}
-            >
-              <Button
-                type="default"
-                className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={
-                  <RiDeleteBin6Line
-                    data-cy={`okr-target-assignment-table-delete-button-icon-${record.key}`}
-                  />
-                }
-                id={`okr-target-assignment-table-delete-button-${record.key}`}
-                data-cy={`okr-target-assignment-table-delete-button-${record.key}`}
-              />
-            </AccessGuard>
-          </DeletePopover>
-        </div>
-      ),
-    },
-  ];
-
   const handleEditClick = (id: string) => {
     openDrawer(id);
   };
+
   const handleDelete = (id: string) => {
     deleteAssignedTarget(id);
   };
+
+  const getMenuItems = (group: any): MenuProps['items'] => {
+    // Note: In a grouped view, edit/delete might need to be specific to a month
+    // or we edit the first target. Assuming edit opens the drawer for the configuration.
+    const firstId = group.targets[0]?.id;
+    return [
+      {
+        key: 'edit',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.UpdateVpTargetsAssignation]}
+            data-cy={`okr-target-card-edit-access-guard-${group.key}`}
+          >
+            <div
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
+              onClick={() => handleEditClick(firstId)}
+              id={`okr-target-card-edit-menu-item-${group.key}`}
+              data-cy={`okr-target-card-edit-menu-item-${group.key}`}
+            >
+              <MdOutlineEdit className="text-[#595959] text-xl" />
+              <span
+                className="text-[15px] text-[#262626]"
+                data-cy={`okr-target-card-edit-text-${group.key}`}
+              >
+                Edit OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'delete',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.DeleteVpTargetsAssignation]}
+            data-cy={`okr-target-card-delete-access-guard-${group.key}`}
+          >
+            <div
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+              onClick={() => handleDelete(firstId)}
+              id={`okr-target-card-delete-menu-item-${group.key}`}
+              data-cy={`okr-target-card-delete-menu-item-${group.key}`}
+            >
+              <MdDeleteOutline className="text-xl" />
+              <span
+                className="text-[15px]"
+                data-cy={`okr-target-card-delete-text-${group.key}`}
+              >
+                Delete OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+    ];
+  };
+
   const handleTypeChange = (value: string) => setSelectedType(value);
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
-      id="okr-target-assignment-container"
-      data-cy="okr-target-assignment-container"
+      className="w-full"
+      id="okr-target-assignment-page"
+      data-cy="okr-target-assignment-page"
     >
-      {/* Desktop layout: visible from md and up */}
-
+      {/* Unified Container */}
       <div
-        className="hidden md:flex justify-between mb-6"
-        id="okr-target-assignment-desktop-header"
-        data-cy="okr-target-assignment-desktop-header"
+        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+        id="okr-target-assignment-main-container"
+        data-cy="okr-target-assignment-main-container"
       >
-        <h1
-          className="text-2xl font-bold md:text-lg"
-          id="okr-target-assignment-desktop-title"
-          data-cy="okr-target-assignment-desktop-title"
-        >
-          Target Assignment
-        </h1>
-        <AccessGuard
-          data-cy="okr-target-assignment-desktop-assign-button-access-guard-display-guard"
-          permissions={[Permissions.AssignVpTargets]}
-        >
-          <Button
-            type="primary"
-            className=""
-            icon={
-              <FaPlus data-cy="okr-target-assignment-desktop-assign-button-icon-display-button" />
-            }
-            onClick={() => openDrawer()}
-            id="okr-target-assignment-desktop-assign-button"
-            data-cy="okr-target-assignment-desktop-assign-button"
-          >
-            <span
-              className="hidden lg:block"
-              id="okr-target-assignment-desktop-assign-button-label"
-              data-cy="okr-target-assignment-desktop-assign-button-label"
-            >
-              Assign Target
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-      <div
-        className="hidden md:block w-full"
-        id="okr-target-assignment-desktop-filter-wrapper"
-        data-cy="okr-target-assignment-desktop-filter-wrapper"
-      >
+        {/* Search and Filter Row */}
         <TargetFilters
           onSearchChange={setSearchText}
           onTypeChange={handleTypeChange}
           targetNames={['All Types', ...criteriaTypes]}
-          data-cy="okr-target-assignment-desktop-filters"
+          data-cy="okr-target-assignment-filters"
         />
-      </div>
-      {/* Mobile layout: visible on small screens */}
-      <div
-        className="md:hidden"
-        id="okr-target-assignment-mobile-section"
-        data-cy="okr-target-assignment-mobile-section"
-      >
-        <h1
-          className="text-2xl font-bold md:text-lg"
-          id="okr-target-assignment-mobile-title"
-          data-cy="okr-target-assignment-mobile-title"
-        >
-          Target Assignment
-        </h1>
-        <div
-          className="mt-4 flex justify-between gap-4"
-          id="okr-target-assignment-mobile-toolbar"
-          data-cy="okr-target-assignment-mobile-toolbar"
-        >
-          <TargetFilters
-            onSearchChange={setSearchText}
-            onTypeChange={handleTypeChange}
-            targetNames={['All Types', ...criteriaTypes]}
-            data-cy="okr-target-assignment-mobile-filters"
-          />
-          <AccessGuard permissions={[Permissions.AssignVpTargets]}>
-            <Button
-              type="primary"
-              className="h-10"
-              icon={<FaPlus />}
-              onClick={() => openDrawer()}
-              id="okr-target-assignment-mobile-assign-button"
-              data-cy="okr-target-assignment-mobile-assign-button"
-            >
-              <span
-                className="hidden lg:block"
-                id="okr-target-assignment-mobile-assign-button-label"
-                data-cy="okr-target-assignment-mobile-assign-button-label"
+
+        {targetAssignmentLoading ? (
+          <div
+            className="flex justify-center items-center py-20"
+            data-cy="okr-target-assignment-loading"
+          >
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            id="okr-target-assignment-cards-grid"
+            data-cy="okr-target-assignment-cards-grid"
+          >
+            {groupedData.map((group: any) => (
+              <div
+                key={group.key}
+                className="bg-white border border-[#d9d9d9] rounded-[8px] py-2 px-4 min-h-[112px] hover:shadow-sm transition-shadow relative flex flex-col justify-between"
+                id={`okr-target-card-${group.key}`}
+                data-cy={`okr-target-card-${group.key}`}
               >
-                Assign Target
-              </span>
-            </Button>
-          </AccessGuard>
-        </div>
+                {/* Top Row: Criteria Name and Menu */}
+                <div
+                  className="flex justify-between items-start mb-0"
+                  data-cy={`okr-target-card-header-${group.key}`}
+                >
+                  <p
+                    className="text-[14px] font-normal text-black flex-1 mr-2 leading-tight"
+                    id={`okr-target-card-title-${group.key}`}
+                    data-cy={`okr-target-card-title-${group.key}`}
+                  >
+                    {group.criteriaName}
+                  </p>
+                  <div
+                    id={`okr-target-card-menu-wrapper-${group.key}`}
+                    data-cy={`okr-target-card-menu-wrapper-${group.key}`}
+                  >
+                    <Dropdown
+                      menu={{ items: getMenuItems(group) }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                      overlayClassName="okr-settings-menu-dropdown"
+                    >
+                      <button
+                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        data-cy={`okr-target-card-menu-button-${group.key}`}
+                      >
+                        <svg
+                          width="14"
+                          height="4"
+                          viewBox="0 0 14 4"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          data-cy={`okr-target-card-menu-svg-${group.key}`}
+                        >
+                          <circle
+                            cx="2.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-target-card-menu-circle-1-${group.key}`}
+                          />
+                          <circle
+                            cx="7"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-target-card-menu-circle-2-${group.key}`}
+                          />
+                          <circle
+                            cx="11.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-target-card-menu-circle-3-${group.key}`}
+                          />
+                        </svg>
+                      </button>
+                    </Dropdown>
+                  </div>
+                </div>
+
+                {/* Second Row: Department Tag */}
+                <div
+                  className="mb-0"
+                  data-cy={`okr-target-card-dept-wrapper-${group.key}`}
+                >
+                  <Tag
+                    className="h-[22px] px-2 py-0 text-[12px] font-medium text-[#8c8c8c] border-[#f0f0f0] rounded-[4px] bg-[#fafafa] inline-flex items-center"
+                    id={`okr-target-card-dept-${group.key}`}
+                    data-cy={`okr-target-card-dept-${group.key}`}
+                  >
+                    {group.department}
+                  </Tag>
+                </div>
+
+                {/* Divider Line */}
+                <div
+                  className="h-[1px] bg-[#f0f0f0] mb-0"
+                  data-cy={`okr-target-card-divider-${group.key}`}
+                />
+
+                {/* Bottom Row: Month Targets */}
+                <div
+                  className="flex items-center gap-[8px] overflow-x-auto scrollbar-none pb-1"
+                  data-cy={`okr-target-card-targets-${group.key}`}
+                >
+                  <span
+                    className="text-[14px] font-normal text-black whitespace-nowrap"
+                    data-cy={`okr-target-card-targets-label-${group.key}`}
+                  >
+                    Target
+                  </span>
+                  {group.targets.map((t: any) => (
+                    <Tag
+                      key={t.id}
+                      className="h-[22px] px-2 py-0 text-[12px] font-medium text-[rgba(0,0,0,0.7)] border-[#d9d9d9] rounded-[4px] bg-[rgba(0,0,0,0.02)] whitespace-nowrap m-0 inline-flex items-center"
+                      data-cy={`okr-target-card-target-item-${group.key}-${t.id}`}
+                    >
+                      {t.month} : {Math.round(parseFloat(t.target))}
+                    </Tag>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div
-        className="flex  overflow-x-auto scrollbar-none  w-full"
-        id="okr-target-assignment-table-wrapper"
-        data-cy="okr-target-assignment-table-wrapper"
-      >
-        <div
-          className="w-full"
-          id="okr-target-assignment-table-container"
-          data-cy="okr-target-assignment-table-container"
-        >
-          <Table
-            dataSource={dataSource}
-            columns={columns}
-            pagination={{ pageSize: 5 }}
-            loading={targetAssignmentLoading}
-            id="okr-target-assignment-table"
-            data-cy="okr-target-assignment-table"
-          />
-        </div>
-      </div>
-
-      <AssignTargetDrawer data-cy="okr-target-assignment-drawer" />
+      <AssignTargetModal data-cy="okr-target-assignment-drawer" />
     </div>
   );
 }

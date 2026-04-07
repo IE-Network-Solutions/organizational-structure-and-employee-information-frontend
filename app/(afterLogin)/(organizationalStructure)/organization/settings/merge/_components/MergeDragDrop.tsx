@@ -85,20 +85,6 @@ const MergeDragDrop: React.FC = () => {
     );
   }, [departments, searchQuery]);
 
-  // Exclude already selected teams from the list
-  const availableDepartments = useMemo(() => {
-    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(Boolean);
-
-    return filteredDepartments
-      .filter((dept: any) => !selectedIds.includes(dept.id))
-      .map((dept: any) => ({
-        id: dept.id,
-        name: dept.name,
-        branchId: dept.branchId,
-        description: dept.description,
-      }));
-  }, [filteredDepartments, sourceTeam, destinationTeam]);
-
   // Department cache for finding departments with children
   const departmentCache: Record<string, any> = {};
 
@@ -146,6 +132,50 @@ const MergeDragDrop: React.FC = () => {
     },
     [],
   );
+
+  // Exclude already selected teams from the list
+  const availableDepartments = useMemo(() => {
+    const selectedIds = [sourceTeam?.id, destinationTeam?.id].filter(
+      (id): id is string => Boolean(id),
+    );
+    const excludedDescendantIds = new Set<string>();
+
+    const collectDescendantIds = (nodes: any[] = []) => {
+      nodes.forEach((node) => {
+        if (!node?.id) return;
+        excludedDescendantIds.add(node.id);
+        if (Array.isArray(node.department) && node.department.length > 0) {
+          collectDescendantIds(node.department);
+        }
+      });
+    };
+
+    // When a team is selected in either box, hide all of its descendants.
+    selectedIds.forEach((id) => {
+      const selectedDept = findDepartmentWithChildren(orgStructureData, id);
+      if (selectedDept?.children?.length) {
+        collectDescendantIds(selectedDept.children);
+      }
+    });
+
+    return filteredDepartments
+      .filter(
+        (dept: any) =>
+          !selectedIds.includes(dept.id) && !excludedDescendantIds.has(dept.id),
+      )
+      .map((dept: any) => ({
+        id: dept.id,
+        name: dept.name,
+        branchId: dept.branchId,
+        description: dept.description,
+      }));
+  }, [
+    filteredDepartments,
+    sourceTeam,
+    destinationTeam,
+    orgStructureData,
+    findDepartmentWithChildren,
+  ]);
 
   // Build merge data
   useEffect(() => {
@@ -325,12 +355,11 @@ const MergeDragDrop: React.FC = () => {
 
   const getTeamColor = (index: number) => {
     const colors = [
-      'bg-green-50 border-green-200',
-      'bg-pink-50 border-pink-200',
-      'bg-blue-50 border-blue-200',
-      'bg-yellow-50 border-yellow-200',
-      'bg-gray-50 border-gray-200',
-      'bg-purple-50 border-purple-200',
+      'bg-[#EEF0F5] border-gray-200 shadow-md',
+      'bg-[#F5F1EE] border-gray-200 shadow-md',
+      'bg-[#F2EDF1] border-gray-200 shadow-md',
+      'bg-[#EEF0F0] border-gray-200 shadow-md',
+      'bg-[#F3EDF1] border-gray-200 shadow-md',
     ];
     return colors[index % colors.length];
   };
@@ -553,6 +582,7 @@ const MergeDragDrop: React.FC = () => {
               nodesConnectable={false}
               elementsSelectable={false}
               preventScrolling={false}
+              proOptions={{ hideAttribution: true }}
               style={{
                 background: 'transparent',
                 width: '100%',

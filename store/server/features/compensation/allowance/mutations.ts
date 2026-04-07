@@ -114,7 +114,7 @@ export const useCreateAllowanceEntitlement = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceEntitlement, {
     onSuccess: (notused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries(['allowanceEntitlement']);
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -132,7 +132,7 @@ export const useCreateAllowanceEntitlementSettlement = () => {
   const queryClient = useQueryClient();
   return useMutation(createAllowanceEntitlementSettlement, {
     onSuccess: (notused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries(['allowanceEntitlement']);
       queryClient.invalidateQueries('allowanceType');
       queryClient.invalidateQueries('employeeSettlementTracking');
       const method = variables?.method?.toUpperCase();
@@ -151,7 +151,7 @@ export const useDeleteAllowanceEntitlement = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteAllowanceEntitlement, {
     onSuccess: (notused: any, variables: any) => {
-      queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries(['allowanceEntitlement']);
       queryClient.invalidateQueries('allowanceType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -169,7 +169,7 @@ export const useUpdateAllowanceEntitlementSettlement = () => {
   const queryClient = useQueryClient();
   return useMutation(updateAllowanceEntitlementSettlement, {
     onSuccess: () => {
-      queryClient.invalidateQueries('allowanceEntitlement');
+      queryClient.invalidateQueries(['allowanceEntitlement']);
       queryClient.invalidateQueries('allowanceType');
       queryClient.invalidateQueries('employeeSettlementTracking');
       handleSuccessMessage('PATCH');

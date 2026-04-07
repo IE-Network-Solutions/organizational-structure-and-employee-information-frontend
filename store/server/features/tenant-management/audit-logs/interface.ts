@@ -12,6 +12,7 @@ export interface AuditLogRequestBody {
 }
 
 export interface AggregateAuditLogParams {
+  modules?: string[] | string | null | undefined;
   module?: string | null | undefined;
   page?: number;
   limit?: number;
@@ -19,5 +20,7 @@ export interface AggregateAuditLogParams {
   orderDirection?: 'ASC' | 'DESC';
   action?: string;
   performedBy?: string;
+  startDate?: string;
+  endDate?: string;
   entityType?: string;
 }

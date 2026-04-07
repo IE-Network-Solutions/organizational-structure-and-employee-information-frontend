@@ -8,22 +8,14 @@ import React, {
 import LeaveManagementTableFilter from './tableFilter';
 import { Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
-import StatusBadge from '@/components/common/statusBadge/statusBadge';
-import { TbFileDownload } from 'react-icons/tb';
-import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
+import LeaveRequestStatusTag from '../LeaveRequestStatusTag';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
 import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import {
-  LeaveRequest,
-  LeaveRequestStatus,
-  LeaveRequestStatusBadgeTheme,
-} from '@/types/timesheet/settings';
+import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import { CommonObject } from '@/types/commons/commonObject';
-import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import UserCard from '@/components/common/userCard/userCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -32,6 +24,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
+import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 
 interface LeaveManagementTableProps {
   setBodyRequest: Dispatch<SetStateAction<LeaveRequestBody>>;
@@ -44,12 +37,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   selectedRowKeys,
   setSelectedRowKeys,
 }) => {
-  const {
-    setIsShowLeaveRequestManagementSidebar,
-    setLeaveRequestId,
-    setLeaveRequestWorkflowId,
-  } = useLeaveManagementStore();
-
   const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
     usePagination(1, 10);
   const {
@@ -61,6 +48,11 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   } = useMyTimesheetStore();
 
   const pathname = usePathname();
+  const {
+    setLeaveRequestId,
+    setLeaveRequestWorkflowId,
+    setIsShowLeaveRequestManagementSidebar,
+  } = useLeaveManagementStore();
 
   useEffect(() => {
     resetPagination();
@@ -110,13 +102,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
         data-cy={`time-attendance-leave-management-row-employee-${userId}`}
       >
         <div
-          className="mx-1 text-sm"
-          id={`time-attendance-leave-management-row-employee-${userId}-id`}
-          data-cy={`time-attendance-leave-management-row-employee-${userId}-id`}
-        >
-          {employeeData?.employeeInformation?.employeeAttendanceId}
-        </div>{' '}
-        <div
           className="flex-1"
           id={`time-attendance-leave-management-row-employee-${userId}-card`}
           data-cy={`time-attendance-leave-management-row-employee-${userId}-card`}
@@ -125,9 +110,9 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
             data-cy="time-attendance-leave-management-row-employee-card"
             data={employeeData}
             name={fullName}
-            email={employeeData?.email}
             profileImage={employeeData?.profileImage}
             size="small"
+            nameClassName="text-sm text-gray-700"
           />
         </div>
       </div>
@@ -137,61 +122,39 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   };
   const columns: TableColumnsType<any> = [
     {
-      title: 'Employee Name',
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-employee-name"
+        >
+          Employee Name
+        </span>
+      ),
       dataIndex: 'userId',
       key: 'createdBy',
-      sorter: true,
-      render: (text: string) => <EmpRender userId={text} />,
-    },
-    {
-      title: 'from',
-      dataIndex: 'startAt',
-      key: 'startAt',
-      sorter: true,
-      render: (date: string) => (
-        <div
-          id={`time-attendance-leave-management-row-start-${date}`}
-          data-cy={`time-attendance-leave-management-row-start-${date}`}
-        >
-          {dayjs(date).format(DATE_FORMAT)}
-        </div>
-      ),
-    },
-    {
-      title: 'to',
-      dataIndex: 'endAt',
-      key: 'endAt',
-      sorter: true,
-      render: (date: string) => (
-        <div
-          id={`time-attendance-leave-management-row-end-${date}`}
-          data-cy={`time-attendance-leave-management-row-end-${date}`}
-        >
-          {dayjs(date).format(DATE_FORMAT)}
-        </div>
-      ),
-    },
-    {
-      title: 'total request',
-      dataIndex: 'days',
-      key: 'days',
-      sorter: true,
       render: (text: string) => (
         <div
-          id={`time-attendance-leave-management-row-days-${text}`}
-          data-cy={`time-attendance-leave-management-row-days-${text}`}
+          className="text-sm text-gray-700"
+          data-cy="time-attendance-leave-management-cell-employee"
         >
-          {text}
+          <EmpRender userId={text} />
         </div>
       ),
     },
     {
-      title: 'type',
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-type"
+        >
+          Type
+        </span>
+      ),
       dataIndex: 'leaveType',
       key: 'leaveType',
-      sorter: true,
       render: (text: string) => (
         <div
+          className="text-sm text-gray-700"
           id={`time-attendance-leave-management-row-type-${text || 'unknown'}`}
           data-cy={`time-attendance-leave-management-row-type-${text || 'unknown'}`}
         >
@@ -200,12 +163,109 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       ),
     },
     {
-      title: 'total available',
-      dataIndex: 'totalAvailable',
-      key: 'totalAvailable',
-      sorter: true,
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-from"
+        >
+          From
+        </span>
+      ),
+      dataIndex: 'startAt',
+      key: 'startAt',
+      render: (date: string) => (
+        <div
+          className="text-sm text-gray-700"
+          id={`time-attendance-leave-management-row-start-${date}`}
+          data-cy={`time-attendance-leave-management-row-start-${date}`}
+        >
+          {date ? dayjs(date).format(DATE_FORMAT) : '-'}
+        </div>
+      ),
+    },
+    {
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-to"
+        >
+          To
+        </span>
+      ),
+      dataIndex: 'endAt',
+      key: 'endAt',
+      render: (date: string) => (
+        <div
+          className="text-sm text-gray-700"
+          id={`time-attendance-leave-management-row-end-${date}`}
+          data-cy={`time-attendance-leave-management-row-end-${date}`}
+        >
+          {date ? dayjs(date).format(DATE_FORMAT) : '-'}
+        </div>
+      ),
+    },
+    {
+      title: (
+        <span
+          className="text-base"
+          style={{ fontWeight: 600 }}
+          data-cy="time-attendance-leave-management-column-title-total-days"
+        >
+          Total Days
+        </span>
+      ),
+      dataIndex: 'days',
+      key: 'days',
       render: (text: string) => (
         <div
+          className="text-sm text-gray-700"
+          id={`time-attendance-leave-management-row-days-${text}`}
+          data-cy={`time-attendance-leave-management-row-days-${text}`}
+        >
+          {text}
+        </div>
+      ),
+    },
+    {
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-status"
+        >
+          Status
+        </span>
+      ),
+      dataIndex: 'status',
+      key: 'status',
+      className: 'text-base',
+      render: (text: LeaveRequestStatus) => (
+        <div
+          className="text-sm text-gray-700"
+          id={`time-attendance-leave-management-row-status-${text}`}
+          data-cy={`time-attendance-leave-management-row-status-${text}`}
+        >
+          <LeaveRequestStatusTag
+            status={text}
+            dataCy="time-attendance-leave-management-row-status-badge"
+          />
+        </div>
+      ),
+    },
+    {
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-available"
+        >
+          Available
+        </span>
+      ),
+      dataIndex: 'totalAvailable',
+      key: 'totalAvailable',
+      className: 'text-base',
+      render: (text: string) => (
+        <div
+          className="text-base"
           id={`time-attendance-leave-management-row-total-available-${text}`}
           data-cy={`time-attendance-leave-management-row-total-available-${text}`}
         >
@@ -214,66 +274,24 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       ),
     },
     {
-      title: 'Requested At',
-      dataIndex: 'createdAt',
-    },
-    {
-      title: 'Attachment',
-      dataIndex: 'attachment',
-      key: 'attachment',
-      render: (link: string) =>
-        link ? (
-          <a
-            href={link}
-            target="_blank"
-            className="flex justify-between align-middle text-gray-900"
-            id={`time-attendance-leave-management-row-attachment-link-${formatLinkToUploadFile(link).name}`}
-            data-cy={`time-attendance-leave-management-row-attachment-link-${formatLinkToUploadFile(link).name}`}
-          >
-            <div data-cy="time-attendance-leave-management-row-attachment-link-name">
-              {formatLinkToUploadFile(link).name}
-            </div>
-            <TbFileDownload
-              data-cy="time-attendance-leave-management-row-attachment-link-icon"
-              size={14}
-            />
-          </a>
-        ) : (
-          '-'
-        ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (text: LeaveRequestStatus) => (
-        <div
-          id={`time-attendance-leave-management-row-status-${text}`}
-          data-cy={`time-attendance-leave-management-row-status-${text}`}
+      title: (
+        <span
+          className="text-base font-bold text-black/70"
+          data-cy="time-attendance-leave-management-column-title-requested-at"
         >
-          <StatusBadge
-            data-cy="time-attendance-leave-management-row-status-badge"
-            theme={LeaveRequestStatusBadgeTheme[text]}
-          >
-            {text}
-          </StatusBadge>
-        </div>
+          Requested At
+        </span>
       ),
-    },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      render: (item: LeaveRequest) => (
-        <ActionButtons
-          data-cy="time-attendance-leave-management-row-action-buttons"
-          id={item?.id ?? null}
-          onDetail={() => {
-            setIsShowLeaveRequestManagementSidebar(true);
-            setLeaveRequestId(item.id);
-            setLeaveRequestWorkflowId(item.approvalWorkflowId);
-          }}
-        />
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      className: 'text-base',
+      render: (date: string) => (
+        <div
+          className="text-sm font-normal text-black/70"
+          data-cy="time-attendance-leave-management-cell-requested-at"
+        >
+          {date ? dayjs(date).format(DATE_FORMAT) : '-'}
+        </div>
       ),
     },
   ];
@@ -283,6 +301,8 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       setTableData(() =>
         data.items.map((item) => ({
           key: item.id,
+          id: item.id,
+          approvalWorkflowId: item.approvalWorkflowId ?? null,
           userId: item.userId,
           createdBy: item.createdBy,
           startAt: item.startAt,
@@ -298,9 +318,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
               : item.leaveType.title
             : '-',
           totalAvailable: item.leaveType?.leaveBalance?.[0]?.balance || '-',
-          attachment: item.justificationDocument,
           status: item.status,
-          action: item,
         })),
       );
     }
@@ -308,10 +326,12 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
 
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<LeaveRequestBody['filter']> = {};
-    if (val.dateRange) {
+    const dateFrom = val.dateRange?.[0] ?? val.dateFrom;
+    const dateTo = val.dateRange?.[1] ?? val.dateTo;
+    if (dateFrom || dateTo) {
       nFilter['date'] = {
-        from: val.dateRange[0],
-        to: val.dateRange[1],
+        from: dateFrom ?? dateTo,
+        to: dateTo ?? dateFrom,
       };
     }
 
@@ -322,8 +342,11 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     if (val.status) {
       nFilter['status'] = val.status;
     }
-    if (val.userIds) {
-      nFilter['userIds'] = [val.userIds];
+    const userIdsFilter = val.searchEmployee ?? val.userIds;
+    if (userIdsFilter) {
+      nFilter['userIds'] = Array.isArray(userIdsFilter)
+        ? userIdsFilter
+        : [userIdsFilter];
     }
 
     setFilter(nFilter);
@@ -354,30 +377,50 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
 
   return (
     <div
-      className="mt-6"
+      className="mt-6 bg-white rounded-lg border border-gray-100 overflow-hidden"
       id="time-attendance-leave-management-table-wrapper"
       data-cy="time-attendance-leave-management-table-wrapper"
     >
-      <LeaveManagementTableFilter
-        data-cy="time-attendance-leave-management-table-filter"
-        onChange={onFilterChange}
-      />
       <div
+        className="px-4 py-4 bg-white"
+        id="time-attendance-leave-management-table-toolbar"
+        data-cy="time-attendance-leave-management-table-toolbar"
+      >
+        <LeaveManagementTableFilter
+          data-cy="time-attendance-leave-management-table-filter"
+          onChange={onFilterChange}
+        />
+      </div>
+      <div
+        className="pb-4"
         id="time-attendance-leave-management-table-container"
         data-cy="time-attendance-leave-management-table-container"
       >
         <div
-          className="flex  overflow-x-auto scrollbar-none  w-full bg-[#fafafa]"
+          className="leave-management-table flex overflow-x-auto scrollbar-none w-full bg-white rounded-b-lg"
           id="time-attendance-leave-management-table-scroll-wrapper"
           data-cy="time-attendance-leave-management-table-scroll-wrapper"
         >
           <Table
-            className="mt-6 w-full"
-            rowClassName={() => 'h-[60px]'}
+            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_tr.ant-table-row-selected>td]:!bg-transparent [&_tr.ant-table-row-selected:hover>td]:!bg-transparent"
+            rowClassName={(record, index) =>
+              `h-[60px] cursor-pointer${index % 2 === 1 ? ' bg-gray-50' : ''}`
+            }
             scroll={{ x: 'max-content' }}
             columns={columns}
             dataSource={tableData}
             loading={isFetching}
+            onRow={(record) => ({
+              onClick: (e) => {
+                const target = e.target as HTMLElement;
+                if (target.closest('.ant-checkbox-wrapper')) return;
+                if (record.id && record.approvalWorkflowId) {
+                  setLeaveRequestId(record.id);
+                  setLeaveRequestWorkflowId(record.approvalWorkflowId);
+                  setIsShowLeaveRequestManagementSidebar(true);
+                }
+              },
+            })}
             rowSelection={{
               checkStrictly: false,
               selectedRowKeys: getCurrentPageSelectedKeys(),

@@ -3,8 +3,8 @@ import { Button, Col, DatePicker, Form, Input, Row } from 'antd';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { RangePicker } = DatePicker;
 
@@ -53,6 +53,7 @@ const MonthDrawer: React.FC<
   onSubmit, // <-- destructure this
   open, // <-- add this
 }) => {
+  const { isMobile } = useIsMobile();
   const {
     setCurrent,
     fiscalYearStart,
@@ -63,8 +64,6 @@ const MonthDrawer: React.FC<
     monthRangeValues,
     sessionData,
   } = useFiscalYearDrawerStore();
-
-  const { isMobile } = useIsMobile();
 
   // State to track expanded session (only one can be expanded at a time)
   const [expandedSession, setExpandedSession] = useState<number | null>(null);
@@ -482,14 +481,14 @@ const MonthDrawer: React.FC<
                 return (
                   <div
                     key={sessionIndex}
-                    className={`border rounded-md ${
+                    className={`border rounded-lg px-4 py-3 ${
                       isExpanded ? 'border-primary' : 'border-gray-200'
                     }`}
                     data-cy={`org-settings-fiscal-year-session-${sessionIndex}`}
                   >
                     {/* Session Header */}
                     <div
-                      className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-50"
+                      className="flex items-center justify-between px-3 py-3 cursor-pointer hover:bg-gray-50"
                       onClick={() => toggleSession(sessionIndex)}
                       data-cy={`org-settings-fiscal-year-session-header-${sessionIndex}`}
                     >
@@ -538,7 +537,7 @@ const MonthDrawer: React.FC<
                     {/* Session Months (when expanded) */}
                     {isExpanded && (
                       <div
-                        className="px-3 pb-3 space-y-3"
+                        className="px-3 pb-4 space-y-4"
                         data-cy={`org-settings-fiscal-year-session-months-${sessionIndex}`}
                       >
                         {sessionMonths.map((monthInfo) => (
@@ -552,7 +551,9 @@ const MonthDrawer: React.FC<
                               data-cy={`org-settings-fiscal-year-month-row-${monthInfo.monthNumber}`}
                             >
                               <Col
-                                span={12}
+                                span={isMobile ? undefined : 10}
+                                flex={isMobile ? 'auto' : undefined}
+                                style={isMobile ? { minWidth: 0 } : undefined}
                                 data-cy={`org-settings-fiscal-year-month-name-col-${monthInfo.monthNumber}`}
                               >
                                 <Form.Item
@@ -569,14 +570,15 @@ const MonthDrawer: React.FC<
                                 >
                                   <Input
                                     size="middle"
-                                    className="w-full text-sm"
+                                    className="w-full text-sm h-8"
                                     placeholder={`Enter name for ${monthInfo.monthName}`}
                                     data-cy={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
                                   />
                                 </Form.Item>
                               </Col>
                               <Col
-                                span={12}
+                                span={isMobile ? undefined : 14}
+                                flex={isMobile ? 'none' : undefined}
                                 data-cy={`org-settings-fiscal-year-month-date-range-col-${monthInfo.monthNumber}`}
                               >
                                 <Form.Item
@@ -745,7 +747,11 @@ const MonthDrawer: React.FC<
                                   className="mb-0"
                                 >
                                   <RangePicker
-                                    className="w-full"
+                                    className={
+                                      isMobile
+                                        ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
+                                        : 'w-full h-8 [&_.ant-picker-input]:h-8'
+                                    }
                                     size="middle"
                                     disabledDate={(current) => {
                                       if (!current) return false;
@@ -784,7 +790,7 @@ const MonthDrawer: React.FC<
           id="org-settings-fiscal-year-month-previous-btn-form-item"
         >
           <div
-            className={`flex justify-end pt-2 pb-0 sm:p-2 gap-3 ${isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'}`}
+            className={`flex justify-end w-full pt-2 pb-0  gap-3 shadow-none`}
             data-cy="org-settings-fiscal-year-month-previous-btn-container"
             id="org-settings-fiscal-year-month-previous-btn-container"
           >
@@ -813,7 +819,7 @@ const MonthDrawer: React.FC<
                 }
                 setCurrent(1); // Go to previous step
               }}
-              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-month-previous-btn"
               id="org-settings-fiscal-year-month-previous-btn"
             >
@@ -823,7 +829,7 @@ const MonthDrawer: React.FC<
               type="primary"
               htmlType="submit"
               loading={isCreateLoading || isUpdateLoading}
-              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 min-w-[100px]"
               data-cy="org-settings-fiscal-year-month-next-btn"
               id="org-settings-fiscal-year-month-next-btn"
             >

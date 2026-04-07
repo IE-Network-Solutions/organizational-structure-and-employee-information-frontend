@@ -1,10 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Table, Tabs } from 'antd';
-import { FaPlus } from 'react-icons/fa';
-import { GrEdit } from 'react-icons/gr';
-import { RiDeleteBin6Line } from 'react-icons/ri';
-import ScoringDrawer from './_components/criteria-drawer';
+import { Spin, Dropdown, MenuProps, Tag } from 'antd';
+import ScoringModal from './_components/criteria-drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CriteriaFilters from './_components/criteria-filters';
 import {
@@ -12,25 +9,16 @@ import {
   useGetCriteriaTargets,
 } from '@/store/server/features/okrplanning/okr/criteria/queries';
 import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-
-interface AssignedCriteriaRecord {
-  key: string;
-  name: string;
-  totalPercentage: string;
-  criteriaCount: number;
-  types: string[];
-}
+import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
 
 function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All Types');
 
   const { openDrawer } = useDrawerStore();
-  const { data: criteriaData, isLoading: criteriaLoading } =
-    useGetCriteriaTargets();
+  const { data: criteriaData } = useGetCriteriaTargets();
   const { data: vpScoringData, isLoading: vpScoringLoading } =
     useFetchVpScoring();
   const { mutate: deleteVpScoring } = useDeleteVpScoring();
@@ -48,23 +36,6 @@ function Page() {
   const criteriaTypes: string[] = (criteriaData?.items || []).map(
     (item: any) => item.name,
   );
-
-  const availableCriteriaData = criteriaData?.items
-    ?.map((item: any) => ({
-      key: item.id,
-      name: item.name,
-      description: item.description,
-      sourceService: item.sourceService,
-    }))
-    .filter((item: any) => {
-      const matchesSearch = item.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesType =
-        selectedType === 'All Types' ||
-        item.name.toLowerCase() === selectedType?.toLowerCase();
-      return matchesSearch && matchesType;
-    });
 
   const assignedCriteriaData = vpScoringData?.items
     ?.map((item: any) => ({
@@ -87,247 +58,186 @@ function Page() {
       return matchesSearch && matchesType;
     });
 
-  const assignedCriteriaColumns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a: AssignedCriteriaRecord, b: AssignedCriteriaRecord) =>
-        a.name.localeCompare(b.name),
-    },
-    {
-      title: 'Total Percentage',
-      dataIndex: 'totalPercentage',
-      key: 'totalPercentage',
-      defaultSortOrder: 'descend' as const,
-      sorter: (a: AssignedCriteriaRecord, b: AssignedCriteriaRecord) =>
-        parseFloat(a.totalPercentage) - parseFloat(b.totalPercentage),
-    },
-    {
-      title: 'Criteria Count',
-      dataIndex: 'criteriaCount',
-      key: 'criteriaCount',
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (record: AssignedCriteriaRecord) => (
-        <div
-          className="flex space-x-2"
-          id={`okr-criteria-assigned-table-actions-${record.key}`}
-          data-cy={`okr-criteria-assigned-table-actions-${record.key}`}
-        >
+  const getMenuItems = (item: any): MenuProps['items'] => {
+    return [
+      {
+        key: 'edit',
+        label: (
           <AccessGuard
-            data-cy="okr-criteria-assigned-table-edit-button-access-guard-display-guard"
             permissions={[Permissions.UpdateVpScoringConfigurations]}
+            data-cy={`okr-criteria-card-edit-access-guard-${item.key}`}
           >
-            <Button
-              type="default"
-              className="flex items-center space-x-1 bg-blue text-white hover:bg-sky-500 border-none"
-              icon={<GrEdit />}
-              onClick={() => handleEditClick(record.key)}
-              id={`okr-criteria-assigned-table-edit-button-${record.key}`}
-              data-cy={`okr-criteria-assigned-table-edit-button-${record.key}`}
-            />
-          </AccessGuard>
-
-          <DeletePopover
-            onDelete={() => handleDelete(record.key)}
-            data-cy={`okr-criteria-assigned-table-delete-popover-${record.key}`}
-          >
-            <AccessGuard
-              data-cy="okr-criteria-assigned-table-delete-button-access-guard-display-guard"
-              permissions={[Permissions.DeleteVpScoringConfigurations]}
+            <div
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
+              onClick={() => handleEditClick(item.key)}
+              id={`okr-criteria-card-edit-menu-item-${item.key}`}
+              data-cy={`okr-criteria-card-edit-menu-item-${item.key}`}
             >
-              <Button
-                type="default"
-                className="flex items-center space-x-1 bg-red-500 text-white hover:bg-red-600 border-none"
-                icon={
-                  <RiDeleteBin6Line
-                    data-cy={`okr-criteria-assigned-table-delete-button-icon-${record.key}`}
-                  />
-                }
-                id={`okr-criteria-assigned-table-delete-button-${record.key}`}
-                data-cy={`okr-criteria-assigned-table-delete-button-${record.key}`}
-              />
-            </AccessGuard>
-          </DeletePopover>
-        </div>
-      ),
-    },
-  ];
-
-  const availableCriteriaColumns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-    },
-    {
-      title: 'Source Service',
-      dataIndex: 'sourceService',
-      key: 'sourceService',
-    },
-  ];
+              <MdOutlineEdit className="text-[#595959] text-xl" />
+              <span
+                className="text-[15px] text-[#262626]"
+                data-cy={`okr-criteria-card-edit-text-${item.key}`}
+              >
+                Edit OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+      {
+        type: 'divider',
+      },
+      {
+        key: 'delete',
+        label: (
+          <AccessGuard
+            permissions={[Permissions.DeleteVpScoringConfigurations]}
+            data-cy={`okr-criteria-card-delete-access-guard-${item.key}`}
+          >
+            <div
+              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+              onClick={() => handleDelete(item.key)}
+              id={`okr-criteria-card-delete-menu-item-${item.key}`}
+              data-cy={`okr-criteria-card-delete-menu-item-${item.key}`}
+            >
+              <MdDeleteOutline className="text-xl" />
+              <span
+                className="text-[15px]"
+                data-cy={`okr-criteria-card-delete-text-${item.key}`}
+              >
+                Delete OKR
+              </span>
+            </div>
+          </AccessGuard>
+        ),
+      },
+    ];
+  };
 
   return (
-    <div
-      className="p-5 rounded-2xl bg-white "
-      id="okr-criteria-management-container"
-      data-cy="okr-criteria-management-container"
-    >
-      {/* Desktop layout: visible from md and up */}
+    <div className="w-full" data-cy="okr-criteria-management-page-container">
+      {/* Container with Border - Now includes Search/Filter and Cards */}
       <div
-        className="hidden md:flex justify-between mb-6"
-        id="okr-criteria-management-desktop-header"
-        data-cy="okr-criteria-management-desktop-header"
+        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+        id="okr-criteria-management-main-container"
+        data-cy="okr-criteria-management-main-container"
       >
-        <h1
-          className="text-2xl font-bold md:text-lg"
-          id="okr-criteria-management-desktop-title"
-          data-cy="okr-criteria-management-desktop-title"
-        >
-          Criteria Management
-        </h1>
-        <AccessGuard
-          data-cy="okr-criteria-management-desktop-add-button-access-guard-display-guard"
-          permissions={[Permissions.CreateVpScoringConfigurations]}
-        >
-          <Button
-            type="primary"
-            className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 md:w-auto"
-            icon={<FaPlus />}
-            onClick={() => openDrawer()}
-            id="okr-criteria-management-desktop-add-button"
-            data-cy="okr-criteria-management-desktop-add-button"
-          >
-            <span
-              className="hidden lg:block"
-              id="okr-criteria-management-desktop-add-button-label"
-              data-cy="okr-criteria-management-desktop-add-button-label"
-            >
-              Scoring Configuration
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
-      <div
-        className="hidden md:block w-full"
-        id="okr-criteria-management-desktop-filters-wrapper"
-        data-cy="okr-criteria-management-desktop-filters-wrapper"
-      >
+        {/* Search and Filter Row inside the container */}
         <CriteriaFilters
           onSearch={handleSearch}
           onTypeChange={handleTypeChange}
           criteriaNames={['All Types', ...criteriaTypes]}
-          data-cy="okr-criteria-management-desktop-filters"
+          data-cy="okr-criteria-management-filters"
         />
-      </div>
 
-      {/* Mobile layout: visible on small screens */}
-      <div
-        className="md:hidden"
-        id="okr-criteria-management-mobile-section"
-        data-cy="okr-criteria-management-mobile-section"
-      >
-        <h1
-          className="text-lg font-bold md:text-lg"
-          id="okr-criteria-management-mobile-title"
-          data-cy="okr-criteria-management-mobile-title"
-        >
-          Criteria Management
-        </h1>
-        <div
-          className="mt-4 flex justify-between gap-4"
-          id="okr-criteria-management-mobile-toolbar"
-          data-cy="okr-criteria-management-mobile-toolbar"
-        >
-          <CriteriaFilters
-            onSearch={handleSearch}
-            onTypeChange={handleTypeChange}
-            criteriaNames={['All Types', ...criteriaTypes]}
-            data-cy="okr-criteria-management-mobile-filters"
-          />
-          <AccessGuard
-            data-cy="okr-criteria-management-mobile-add-button-access-guard-display-guard"
-            permissions={[Permissions.CreateVpScoringConfigurations]}
+        {vpScoringLoading ? (
+          <div
+            className="flex justify-center items-center py-20"
+            data-cy="okr-criteria-management-loading"
           >
-            <Button
-              type="primary"
-              className="bg-blue-500 hover:bg-blue-600 focus:bg-blue-600 w-10 md:w-auto h-10"
-              icon={<FaPlus />}
-              onClick={() => openDrawer()}
-              id="okr-criteria-management-mobile-add-button"
-              data-cy="okr-criteria-management-mobile-add-button"
-            >
-              <span
-                className="hidden lg:block"
-                id="okr-criteria-management-mobile-add-button-label"
-                data-cy="okr-criteria-management-mobile-add-button-label"
+            <Spin size="large" />
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            id="okr-criteria-management-cards-grid"
+            data-cy="okr-criteria-management-cards-grid"
+          >
+            {assignedCriteriaData?.map((item: any) => (
+              <div
+                key={item.key}
+                className="bg-white border border-[#d9d9d9] rounded-[8px] py-3 px-4 min-h-[78px] hover:shadow-sm transition-shadow relative flex flex-col justify-between"
+                id={`okr-criteria-card-${item.key}`}
+                data-cy={`okr-criteria-card-${item.key}`}
               >
-                {' '}
-                Scoring Configuration
-              </span>
-            </Button>
-          </AccessGuard>
-        </div>
-      </div>
+                {/* Top Row: Name and Menu */}
+                <div
+                  className="flex justify-between items-start"
+                  data-cy={`okr-criteria-card-header-${item.key}`}
+                >
+                  <p
+                    className="text-[14px] font-normal text-black flex-1 mr-2 leading-tight"
+                    id={`okr-criteria-card-name-${item.key}`}
+                    data-cy={`okr-criteria-card-name-${item.key}`}
+                  >
+                    {item.name}
+                  </p>
+                  <div
+                    id={`okr-criteria-card-menu-wrapper-${item.key}`}
+                    data-cy={`okr-criteria-card-menu-wrapper-${item.key}`}
+                  >
+                    <Dropdown
+                      menu={{ items: getMenuItems(item) }}
+                      trigger={['click']}
+                      placement="bottomRight"
+                      overlayClassName="okr-settings-menu-dropdown"
+                    >
+                      <button
+                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                        data-cy={`okr-criteria-card-menu-button-${item.key}`}
+                      >
+                        <svg
+                          width="14"
+                          height="4"
+                          viewBox="0 0 14 4"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          data-cy={`okr-criteria-card-menu-svg-${item.key}`}
+                        >
+                          <circle
+                            cx="2.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-1-${item.key}`}
+                          />
+                          <circle
+                            cx="7"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-2-${item.key}`}
+                          />
+                          <circle
+                            cx="11.5"
+                            cy="2"
+                            r="1.5"
+                            fill="currentColor"
+                            data-cy={`okr-criteria-card-menu-circle-3-${item.key}`}
+                          />
+                        </svg>
+                      </button>
+                    </Dropdown>
+                  </div>
+                </div>
 
-      <div
-        className="flex  overflow-x-auto scrollbar-none w-full"
-        id="okr-criteria-management-tabs-wrapper"
-        data-cy="okr-criteria-management-tabs-wrapper"
-      >
-        <div
-          className="w-full"
-          id="okr-criteria-management-tabs-container"
-          data-cy="okr-criteria-management-tabs-container"
-        >
-          <Tabs
-            centered
-            defaultActiveKey="1"
-            id="okr-criteria-management-tabs"
-            data-cy="okr-criteria-management-tabs"
-          >
-            <Tabs.TabPane
-              tab="Scoring Configuration"
-              key="1"
-              id="okr-criteria-management-tab-scoring"
-              data-cy="okr-criteria-management-tab-scoring"
-            >
-              <Table
-                dataSource={assignedCriteriaData}
-                columns={assignedCriteriaColumns}
-                pagination={{ pageSize: 5 }}
-                loading={vpScoringLoading}
-                id="okr-criteria-management-assigned-table"
-                data-cy="okr-criteria-management-assigned-table"
-              />
-            </Tabs.TabPane>
-            <Tabs.TabPane
-              tab="Available Criteria"
-              key="2"
-              id="okr-criteria-management-tab-available"
-              data-cy="okr-criteria-management-tab-available"
-            >
-              <Table
-                dataSource={availableCriteriaData}
-                columns={availableCriteriaColumns}
-                pagination={{ pageSize: 5 }}
-                loading={criteriaLoading}
-                id="okr-criteria-management-available-table"
-                data-cy="okr-criteria-management-available-table"
-              />
-            </Tabs.TabPane>
-          </Tabs>
-        </div>
+                {/* Bottom Row: Score and Count boxes */}
+                <div
+                  className="flex items-center justify-between"
+                  data-cy={`okr-criteria-card-footer-${item.key}`}
+                >
+                  <Tag
+                    className="h-[22px] px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0 inline-flex items-center"
+                    id={`okr-criteria-card-percentage-${item.key}`}
+                    data-cy={`okr-criteria-card-percentage-${item.key}`}
+                  >
+                    Total %: {item.totalPercentage.replace('%', '')}
+                  </Tag>
+                  <Tag
+                    className="h-[22px] px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0 inline-flex items-center"
+                    id={`okr-criteria-card-count-${item.key}`}
+                    data-cy={`okr-criteria-card-count-${item.key}`}
+                  >
+                    Count: {item.criteriaCount}
+                  </Tag>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-      <ScoringDrawer data-cy="okr-criteria-management-drawer" />
+      <ScoringModal data-cy="okr-criteria-management-drawer" />
     </div>
   );
 }

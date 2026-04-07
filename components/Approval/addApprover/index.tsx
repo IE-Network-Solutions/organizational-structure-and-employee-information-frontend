@@ -1,5 +1,4 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Button, Form, Input, Row, Select } from 'antd';
+import { Button, Form, Input, Modal, Row, Select } from 'antd';
 import React from 'react';
 
 const AddApproverComponent = ({
@@ -28,17 +27,16 @@ const AddApproverComponent = ({
   users: any;
 }) => {
   return (
-    <CustomDrawerLayout
+    <Modal
       open={addModal}
-      modalHeader={customFieldsDrawerHeader}
-      onClose={onClose}
+      title={customFieldsDrawerHeader}
+      onCancel={onClose}
       width="40%"
+      centered
       footer={null}
+      zIndex={10002}
     >
-      <div
-        data-cy="components-approval-addapprover-index-tsx-index-div-38"
-        className="pb-[60px]"
-      >
+      <div data-cy="components-approval-addapprover-index-tsx-index-div-38">
         <Form
           form={form}
           onFinish={handleSubmit}
@@ -47,32 +45,25 @@ const AddApproverComponent = ({
             workFlownName: selectedItem?.name,
           }}
         >
-          <Form.Item
-            className="text-lg font-bold mt-3 mb-1"
-            name="workFlownName"
-            label="Workflow Name"
-            rules={[
-              { required: true, message: 'Please enter a workflow name!' },
-            ]}
-          >
-            <Input disabled placeholder="Enter Workflow Name" />
+          {/* keep workflow name in form state but not editable here */}
+          <Form.Item name="workFlownName">
+            <Input disabled />
           </Form.Item>
 
           <div
             data-cy="components-approval-addapprover-index-tsx-index-div-58"
             className="my-3"
           >
-            <div
-              data-cy="components-approval-addapprover-index-tsx-index-div-59"
-              className="text-lg font-bold "
+            <label
+              data-cy="components-approval-addapprover-index-tsx-index-label-levels"
+              className="block text-sm font-medium text-[#4d4d4d] mb-1"
             >
-              {approverType === 'Parallel' ? 'Approvers' : 'Level'}
-            </div>
+              Levels
+            </label>
             <Select
               showSearch
               optionFilterProp="label"
-              className="w-full h-10 m-1"
-              style={{ width: 120 }}
+              className="w-full h-10"
               onChange={handleLevelChange}
               defaultValue={1}
               placeholder="Select Levels"
@@ -90,10 +81,25 @@ const AddApproverComponent = ({
 
             <div
               data-cy="components-approval-addapprover-index-tsx-index-div-82"
-              className="font-medium"
+              className="mt-1 text-xs text-gray-500"
             >
-              This is the specific approval stage or level within the process
+              Select one assignee for {level || 1}{' '}
+              {level === 1 ? 'level' : 'levels'} of approval
             </div>
+          </div>
+
+          <div
+            id="components-approval-addapprover-index-tsx-index-div-90"
+            data-cy="components-approval-addapprover-index-tsx-index-div-90"
+            className="mt-4"
+          >
+            <span
+              id="components-approval-addapprover-index-tsx-index-label-assignee"
+              data-cy="components-approval-addapprover-index-tsx-index-label-assignee"
+              className="block text-sm font-medium text-[#4d4d4d] mb-1"
+            >
+              Assignee
+            </span>
           </div>
           {Array.from({ length: level }).map(
             /* eslint-disable-next-line @typescript-eslint/naming-convention */ (
@@ -103,7 +109,7 @@ const AddApproverComponent = ({
               <div
                 data-cy="components-approval-addapprover-index-tsx-index-div-91"
                 key={index}
-                className="px-10 my-1 "
+                className="my-2"
               >
                 {approverType !== 'Parallel' && (
                   <div data-cy="components-approval-addapprover-index-tsx-index-div-93">
@@ -112,27 +118,13 @@ const AddApproverComponent = ({
                   </div>
                 )}
 
-                {approverType === 'Parallel' && (
-                  <Form.Item
-                    className="font-semibold text-xs"
-                    name={`level_${index}`}
-                    label="Level"
-                    rules={[
-                      { required: true, message: 'Please enter a level!' },
-                    ]}
-                  >
-                    <Input placeholder="Enter level" />
-                  </Form.Item>
-                )}
-
                 <Form.Item
-                  className="font-semibold text-xs"
+                  className="mb-3"
                   name={`assignedUser_${index}`}
-                  label={`Assign User `}
                   rules={[{ required: true, message: 'Please select a user!' }]}
                 >
                   <Select
-                    className="min-w-52 my-3"
+                    className="w-full"
                     allowClear
                     showSearch
                     optionFilterProp="label"
@@ -153,15 +145,16 @@ const AddApproverComponent = ({
           )}
 
           <Form.Item>
-            <Row className="flex justify-end gap-3">
+            <Row className="flex justify-end gap-3 mt-4">
+              <Button onClick={onClose}>Cancel</Button>
               <Button type="primary" htmlType="submit">
-                Submit
+                Add
               </Button>
             </Row>
           </Form.Item>
         </Form>
       </div>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 
