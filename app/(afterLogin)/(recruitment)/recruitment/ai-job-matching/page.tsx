@@ -171,7 +171,7 @@ const AIJobMatchingPage: React.FC = () => {
           data-cy="ai-job-matching-spinner-container"
           className="grid grid-cols-1 gap-6 px-6 py-6 md:grid-cols-2"
         >
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: 4 }).map((notUsed, index) => (
             <Card
               key={index}
               id={`ai-job-card-skeleton-${index}`}
@@ -180,14 +180,26 @@ const AIJobMatchingPage: React.FC = () => {
               headStyle={{ borderBottom: 'none', padding: 0 }}
               bodyStyle={{ padding: 0 }}
             >
-              <div className="space-y-4">
+              <div
+                data-cy={`ai-job-card-skeleton-body-${index}`}
+                className="space-y-4"
+              >
                 <Skeleton.Input active className="!h-7 !w-56 !max-w-full" />
-                <div className="flex items-center gap-8">
+                <div
+                  data-cy={`ai-job-card-skeleton-body-${index}-flex-container`}
+                  className="flex items-center gap-8"
+                >
                   <Skeleton.Input active className="!h-4 !w-40 !max-w-full" />
                   <Skeleton.Input active className="!h-4 !w-36 !max-w-full" />
                 </div>
-                <div className="pt-4 border-t border-blue-50">
-                  <div className="flex items-center justify-between">
+                <div
+                  data-cy={`ai-job-card-skeleton-body-${index}-pt-4-border-t-border-blue-50`}
+                  className="pt-4 border-t border-blue-50"
+                >
+                  <div
+                    data-cy={`ai-job-card-skeleton-body-${index}-flex-items-center-justify-between`}
+                    className="flex items-center justify-between"
+                  >
                     <Skeleton.Input active className="!h-4 !w-36 !max-w-full" />
                     <Skeleton.Button active size="small" />
                   </div>

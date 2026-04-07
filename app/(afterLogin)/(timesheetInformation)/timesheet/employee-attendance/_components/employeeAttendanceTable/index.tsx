@@ -533,7 +533,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
   const tableDataSource = isFetching
-    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
         key: `skeleton-${index}`,
       }))
     : tableData;

@@ -73,8 +73,8 @@ export const useGetOkrDepartmentsOkrProgress = (
   const canRun =
     Boolean(
       payload?.sessionId &&
-        Array.isArray(payload.departmentIds) &&
-        payload.orgLevel != null,
+      Array.isArray(payload.departmentIds) &&
+      payload.orgLevel != null,
     ) && options?.enabled !== false;
 
   return useQuery<OkrDepartmentsOkrProgressResponse>(

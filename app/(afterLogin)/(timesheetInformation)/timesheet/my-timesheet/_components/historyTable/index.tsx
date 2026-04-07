@@ -225,7 +225,7 @@ const HistoryTable = () => {
 
   const skeletonRowCount = limit > 0 ? Math.min(limit, 8) : 5;
   const historyTableDataSource = isFetching
-    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
         key: `skeleton-${index}`,
       }))
     : tableData;

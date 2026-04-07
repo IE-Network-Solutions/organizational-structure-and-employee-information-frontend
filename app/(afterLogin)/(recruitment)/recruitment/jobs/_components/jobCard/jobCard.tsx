@@ -87,7 +87,7 @@ const JobCard: React.FC = () => {
         data-cy="talent-acquisition-job-card-div-loading"
         className="w-full"
       >
-        {Array.from({ length: 3 }).map((_, index) => (
+        {Array.from({ length: 3 }).map((notUsed, index) => (
           <Card
             key={index}
             className="mb-4 rounded-lg w-full"
@@ -96,16 +96,28 @@ const JobCard: React.FC = () => {
             headStyle={{ borderBottom: 'none', padding: 0 }}
             bodyStyle={{ padding: 0 }}
           >
-            <div className="p-4">
-              <div className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3">
+            <div
+              data-cy={`talent-acquisition-job-card-skeleton-body-${index}`}
+              className="p-4"
+            >
+              <div
+                data-cy={`talent-acquisition-job-card-skeleton-body-${index}-flex-container`}
+                className="flex flex-col sm:flex-row sm:justify-between gap-3 mb-3"
+              >
                 <Skeleton.Input active className="!h-7 !w-56" />
                 <Skeleton.Button active size="small" />
               </div>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+              <div
+                data-cy={`talent-acquisition-job-card-skeleton-body-${index}-flex-container-2`}
+                className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3"
+              >
                 <Skeleton.Input active className="!h-4 !w-44" />
                 <Skeleton.Input active className="!h-4 !w-36" />
               </div>
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div
+                data-cy={`talent-acquisition-job-card-skeleton-body-${index}-flex-container-3`}
+                className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
+              >
                 <Skeleton.Input active className="!h-4 !w-40" />
                 <Skeleton.Input active className="!h-4 !w-28" />
               </div>

@@ -451,7 +451,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
 
   const skeletonRowCount = 6;
   const tableDataSource = isLoading
-    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
         key: `skeleton-${index}`,
       }))
     : data;
@@ -786,10 +786,10 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         pagination={false}
         rowSelection={isLoading ? undefined : rowSelection}
         rowHoverable={false}
-          rowClassName={(notUsed, index) => {
-            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-            return base;
-          }}
+        rowClassName={(notUsed, index) => {
+          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+          return base;
+        }}
         onRow={
           isLoading
             ? undefined

@@ -86,7 +86,7 @@ const PositionCards: React.FC = () => {
           id="settings-position-cards-skeleton"
           data-cy="settings-position-cards-skeleton"
         >
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 5 }).map((notUsed, index) => (
             <div
               key={index}
               className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"

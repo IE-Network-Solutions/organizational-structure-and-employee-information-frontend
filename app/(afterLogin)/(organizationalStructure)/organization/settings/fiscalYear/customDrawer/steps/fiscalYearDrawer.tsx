@@ -298,9 +298,9 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
 
         const isValid = Boolean(
           currentValues.fiscalYearName &&
-            currentValues.fiscalYearStartDate &&
-            currentValues.fiscalYearEndDate &&
-            currentValues.fiscalYearCalenderId,
+          currentValues.fiscalYearStartDate &&
+          currentValues.fiscalYearEndDate &&
+          currentValues.fiscalYearCalenderId,
         );
         setIsFormValid(isValid);
       };
@@ -392,9 +392,9 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
             // Check form validity immediately when values change
             const isValid = Boolean(
               nextValues.fiscalYearName &&
-                nextValues.fiscalYearStartDate &&
-                nextValues.fiscalYearEndDate &&
-                nextValues.fiscalYearCalenderId,
+              nextValues.fiscalYearStartDate &&
+              nextValues.fiscalYearEndDate &&
+              nextValues.fiscalYearCalenderId,
             );
             setIsFormValid(isValid);
 

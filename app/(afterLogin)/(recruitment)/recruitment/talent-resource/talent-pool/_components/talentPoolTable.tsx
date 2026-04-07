@@ -4,7 +4,6 @@ import { Button, Skeleton, Table } from 'antd';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
-import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
 import TransferTalentPoolToCandidateModal from './transferModal';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import AccessGuard from '@/utils/permissionGuard';
@@ -247,20 +246,19 @@ const TalentPoolTable: React.FC<any> = () => {
 
   return (
     <>
-      
-        <Table
-          data-cy="talent-acquisition-talent-pool-table"
-          dataSource={tableDataSource}
-          columns={tableColumns}
-          pagination={false}
-          scroll={{ x: 1000 }}
-          rowKey={(record: any) => record?.id ?? record?.key}
-          rowHoverable={false}
-          rowClassName={(notUsed, index) => {
-            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-            return base;
-          }}
-        />
+      <Table
+        data-cy="talent-acquisition-talent-pool-table"
+        dataSource={tableDataSource}
+        columns={tableColumns}
+        pagination={false}
+        scroll={{ x: 1000 }}
+        rowKey={(record: any) => record?.id ?? record?.key}
+        rowHoverable={false}
+        rowClassName={(notUsed, index) => {
+          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+          return base;
+        }}
+      />
 
       {isMobile || isTablet ? (
         <div

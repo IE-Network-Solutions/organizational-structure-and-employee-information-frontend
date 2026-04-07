@@ -456,7 +456,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
 
   const skeletonRowCount = 6;
   const tableDataSource = isLoading
-    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
         key: `skeleton-${index}`,
       }))
     : data;
@@ -765,10 +765,10 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         pagination={false}
         scroll={{ x: 1000 }}
         rowHoverable={false}
-          rowClassName={(notUsed, index) => {
-            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-            return base;
-          }}
+        rowClassName={(notUsed, index) => {
+          const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+          return base;
+        }}
         onRow={
           isLoading
             ? undefined
@@ -781,7 +781,9 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                   );
 
                   if (!isInteractiveElement) {
-                    router.push(`/recruitment/talent-resource/intern/${record?.id}`);
+                    router.push(
+                      `/recruitment/talent-resource/intern/${record?.id}`,
+                    );
                   }
                 },
               })

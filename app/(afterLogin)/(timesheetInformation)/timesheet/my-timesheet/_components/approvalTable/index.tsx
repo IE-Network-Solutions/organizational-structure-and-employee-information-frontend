@@ -411,7 +411,7 @@ const ApprovalTable = () => {
 
   const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
   const approvalTableDataSource = isApprovalListLoading
-    ? Array.from({ length: skeletonRowCount }).map((_, index) => ({
+    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
         key: `skeleton-${index}`,
       }))
     : allFilterData;

@@ -125,7 +125,7 @@ const EmploymentType = () => {
           <Row gutter={[16, 16]}>
             {isLoading ? (
               <>
-                {Array.from({ length: 4 }).map((_, index) => (
+                {Array.from({ length: 4 }).map((notUsed, index) => (
                   <Col
                     xs={24}
                     sm={24}
@@ -172,114 +172,114 @@ const EmploymentType = () => {
               </>
             ) : (
               reformattedData?.map((record: any) => {
-              const menuItems: MenuProps['items'] = [
-                {
-                  key: 'edit',
-                  label: (
-                    <AccessGuard
-                      permissions={[Permissions.UpdateEmploymentType]}
-                      id={`settings-employment-type-edit-menu-guard-${record.__slug}`}
-                      data-cy={`settings-employment-type-edit-menu-guard-${record.__slug}`}
-                    >
-                      <div
-                        className="flex items-center gap-2"
-                        onClick={() => handleEdit(record)}
-                        id={`employment-type-edit-menu-item-${record.__slug}`}
-                        data-cy={`employment-type-edit-menu-item-${record.__slug}`}
+                const menuItems: MenuProps['items'] = [
+                  {
+                    key: 'edit',
+                    label: (
+                      <AccessGuard
+                        permissions={[Permissions.UpdateEmploymentType]}
+                        id={`settings-employment-type-edit-menu-guard-${record.__slug}`}
+                        data-cy={`settings-employment-type-edit-menu-guard-${record.__slug}`}
                       >
-                        <Pencil size={14} className="text-gray-600" />
-                        <span data-cy="settings-employment-type-edit-menu-item-label">
-                          Edit
-                        </span>
-                      </div>
-                    </AccessGuard>
-                  ),
-                },
-                {
-                  key: 'delete',
-                  label: (
-                    <AccessGuard
-                      permissions={[Permissions.DeleteEmploymentType]}
-                      id={`settings-employment-type-delete-menu-guard-${record.__slug}`}
-                      data-cy={`settings-employment-type-delete-menu-guard-${record.__slug}`}
-                    >
-                      <div
-                        className="flex items-center gap-2 text-red-600"
-                        onClick={() => handleDelete(record)}
-                        id={`employment-type-delete-menu-item-${record.__slug}`}
-                        data-cy={`employment-type-delete-menu-item-${record.__slug}`}
-                      >
-                        <Trash2 size={14} />
-                        <span data-cy="settings-employment-type-delete-menu-item-label">
-                          Delete
-                        </span>
-                      </div>
-                    </AccessGuard>
-                  ),
-                  danger: true,
-                },
-              ];
-
-              return (
-                <Col
-                  xs={24}
-                  sm={24}
-                  md={12}
-                  lg={12}
-                  xl={12}
-                  key={record.id}
-                  id={`employment-type-card-col-${record.__slug}`}
-                  data-cy={`employment-type-card-col-${record.__slug}`}
-                >
-                  <Card
-                    className="border-[1px] border-[#D9D9D9] rounded-lg"
-                    id={`employment-type-card-${record.__slug}`}
-                    data-cy={`employment-type-card-${record.__slug}`}
-                    title={
-                      <Typography.Title
-                        className="!mb-2 !font-normal !text-gray-900 !text-sm"
-                        id={`employment-type-card-title-${record.__slug}`}
-                        data-cy={`employment-type-card-title-${record.__slug}`}
-                      >
-                        {record.name}
-                      </Typography.Title>
-                    }
-                    extra={
-                      <div
-                        id={`employment-type-dropdown-${record.__slug}`}
-                        data-cy={`employment-type-dropdown-${record.__slug}`}
-                      >
-                        <Dropdown
-                          menu={{ items: menuItems }}
-                          trigger={['click']}
-                          placement="bottomRight"
+                        <div
+                          className="flex items-center gap-2"
+                          onClick={() => handleEdit(record)}
+                          id={`employment-type-edit-menu-item-${record.__slug}`}
+                          data-cy={`employment-type-edit-menu-item-${record.__slug}`}
                         >
-                          <Button
-                            type="text"
-                            icon={<MoreHorizIcon />}
-                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
-                            id={`employment-type-menu-btn-${record.__slug}`}
-                            data-cy={`employment-type-menu-btn-${record.__slug}`}
-                          />
-                        </Dropdown>
-                      </div>
-                    }
-                    headStyle={{
-                      borderBottom: 'none',
-                      padding: '12px 16px 12px 16px',
-                    }}
-                    bodyStyle={{ padding: '0px 16px 12px 16px' }}
+                          <Pencil size={14} className="text-gray-600" />
+                          <span data-cy="settings-employment-type-edit-menu-item-label">
+                            Edit
+                          </span>
+                        </div>
+                      </AccessGuard>
+                    ),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <AccessGuard
+                        permissions={[Permissions.DeleteEmploymentType]}
+                        id={`settings-employment-type-delete-menu-guard-${record.__slug}`}
+                        data-cy={`settings-employment-type-delete-menu-guard-${record.__slug}`}
+                      >
+                        <div
+                          className="flex items-center gap-2 text-red-600"
+                          onClick={() => handleDelete(record)}
+                          id={`employment-type-delete-menu-item-${record.__slug}`}
+                          data-cy={`employment-type-delete-menu-item-${record.__slug}`}
+                        >
+                          <Trash2 size={14} />
+                          <span data-cy="settings-employment-type-delete-menu-item-label">
+                            Delete
+                          </span>
+                        </div>
+                      </AccessGuard>
+                    ),
+                    danger: true,
+                  },
+                ];
+
+                return (
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={12}
+                    lg={12}
+                    xl={12}
+                    key={record.id}
+                    id={`employment-type-card-col-${record.__slug}`}
+                    data-cy={`employment-type-card-col-${record.__slug}`}
                   >
-                    <p
-                      data-cy="settings-employment-type-description"
-                      className="text-sm text-[#8c8c8c] text-wrap font-normal"
+                    <Card
+                      className="border-[1px] border-[#D9D9D9] rounded-lg"
+                      id={`employment-type-card-${record.__slug}`}
+                      data-cy={`employment-type-card-${record.__slug}`}
+                      title={
+                        <Typography.Title
+                          className="!mb-2 !font-normal !text-gray-900 !text-sm"
+                          id={`employment-type-card-title-${record.__slug}`}
+                          data-cy={`employment-type-card-title-${record.__slug}`}
+                        >
+                          {record.name}
+                        </Typography.Title>
+                      }
+                      extra={
+                        <div
+                          id={`employment-type-dropdown-${record.__slug}`}
+                          data-cy={`employment-type-dropdown-${record.__slug}`}
+                        >
+                          <Dropdown
+                            menu={{ items: menuItems }}
+                            trigger={['click']}
+                            placement="bottomRight"
+                          >
+                            <Button
+                              type="text"
+                              icon={<MoreHorizIcon />}
+                              className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
+                              id={`employment-type-menu-btn-${record.__slug}`}
+                              data-cy={`employment-type-menu-btn-${record.__slug}`}
+                            />
+                          </Dropdown>
+                        </div>
+                      }
+                      headStyle={{
+                        borderBottom: 'none',
+                        padding: '12px 16px 12px 16px',
+                      }}
+                      bodyStyle={{ padding: '0px 16px 12px 16px' }}
                     >
-                      {record.description || 'No description provided'}
-                    </p>
-                  </Card>
-                </Col>
-              );
-            })
+                      <p
+                        data-cy="settings-employment-type-description"
+                        className="text-sm text-[#8c8c8c] text-wrap font-normal"
+                      >
+                        {record.description || 'No description provided'}
+                      </p>
+                    </Card>
+                  </Col>
+                );
+              })
             )}
           </Row>
           {/* {isMobile || isTablet ? (

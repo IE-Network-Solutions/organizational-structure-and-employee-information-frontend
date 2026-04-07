@@ -207,7 +207,10 @@ const Notifications = () => {
         />
       </Divider>
       {isLoading ? (
-        <Skeleton active data-cy={`notification-previous-spinner-${pageSlug}`} />
+        <Skeleton
+          active
+          data-cy={`notification-previous-spinner-${pageSlug}`}
+        />
       ) : readNotification?.length > 0 ? (
         <div
           className="w-full h-auto"

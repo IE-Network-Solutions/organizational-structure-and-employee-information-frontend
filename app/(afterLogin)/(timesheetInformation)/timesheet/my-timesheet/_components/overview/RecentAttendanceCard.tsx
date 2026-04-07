@@ -112,7 +112,10 @@ export default function RecentAttendanceCard() {
       >
         {isFetching ? (
           <List
-            dataSource={Array.from({ length: RECENT_LIMIT }, (_, index) => index)}
+            dataSource={Array.from(
+              { length: RECENT_LIMIT },
+              (notUsed, index) => index,
+            )}
             data-cy="my-timesheet-overview-recent-attendance-list-skeleton"
             className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
             renderItem={(index) => (
@@ -120,12 +123,21 @@ export default function RecentAttendanceCard() {
                 className="!border-0 !border-b-0 !p-0"
                 data-cy={`my-timesheet-overview-recent-attendance-item-skeleton-${index}`}
               >
-                <div className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3">
-                  <div className="min-w-0 flex-1">
+                <div
+                  data-cy={`my-timesheet-overview-recent-attendance-item-skeleton-${index}-flex-container`}
+                  className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3"
+                >
+                  <div
+                    data-cy={`my-timesheet-overview-recent-attendance-item-skeleton-${index}-flex-container-min-w-0-flex-1`}
+                    className="min-w-0 flex-1"
+                  >
                     <Skeleton.Input active className="!h-4 !w-28 !mb-2" />
                     <Skeleton.Input active className="!h-3 !w-36" />
                   </div>
-                  <div className="shrink-0 flex justify-end">
+                  <div
+                    data-cy={`my-timesheet-overview-recent-attendance-item-skeleton-${index}-flex-container-shrink-0-flex-justify-end`}
+                    className="shrink-0 flex justify-end"
+                  >
                     <Skeleton.Button active size="small" />
                   </div>
                 </div>

@@ -87,7 +87,10 @@ export default function RecentLeaveRequestCard() {
       >
         {isFetching ? (
           <List
-            dataSource={Array.from({ length: RECENT_LIMIT }, (_, index) => index)}
+            dataSource={Array.from(
+              { length: RECENT_LIMIT },
+              (notUsed, index) => index,
+            )}
             data-cy="my-timesheet-overview-recent-leave-list-skeleton"
             className="[&_.ant-list-item]:!py-1.5 [&_.ant-list-item]:!px-0"
             renderItem={(index) => (
@@ -95,8 +98,14 @@ export default function RecentLeaveRequestCard() {
                 className="!border-0 !border-b-0 !p-0"
                 data-cy={`my-timesheet-overview-recent-leave-item-skeleton-${index}`}
               >
-                <div className="flex w-full items-center justify-between gap-2 rounded-md border border-gray-200 p-3">
-                  <div className="min-w-0 flex-1">
+                <div
+                  data-cy={`my-timesheet-overview-recent-leave-item-skeleton-${index}-flex-container`}
+                  className="flex w-full items-center justify-between gap-2 rounded-md border border-gray-200 p-3"
+                >
+                  <div
+                    data-cy={`my-timesheet-overview-recent-leave-item-skeleton-${index}-flex-container-min-w-0-flex-1`}
+                    className="min-w-0 flex-1"
+                  >
                     <Skeleton.Input active className="!h-4 !w-32 !mb-2" />
                     <Skeleton.Input active className="!h-3 !w-44" />
                   </div>
@@ -128,7 +137,8 @@ export default function RecentLeaveRequestCard() {
                       className="block text-gray-900 text-sm font-medium mb-2"
                       data-cy={`my-timesheet-overview-recent-leave-row-type-${item.id}`}
                     >
-                      {typeof item.leaveType === 'object' && item.leaveType?.title
+                      {typeof item.leaveType === 'object' &&
+                      item.leaveType?.title
                         ? item.leaveType.title
                         : '—'}
                     </Text>
