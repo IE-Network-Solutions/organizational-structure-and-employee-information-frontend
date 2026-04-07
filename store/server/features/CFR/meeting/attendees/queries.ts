@@ -8,7 +8,7 @@ const getMeetingAttendees = async (id: string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_DEV_URL}/attendees?meetingId=${id}`,
+    url: `${ORG_DEV_URL}/attendees?meetingId=${id}&page=1&limit=1000`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

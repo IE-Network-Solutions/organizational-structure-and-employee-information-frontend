@@ -114,7 +114,7 @@ export default function ActionPlan({
                 type="primary"
                 size="small"
                 onClick={() => setOpenAddActionPlan(true)}
-                className="box-border inline-flex !h-[22px] min-h-0 min-w-[52px] items-center justify-center rounded-md px-3 py-0 text-xs font-normal leading-none shadow-none"
+                className="box-border inline-flex !h-[22px] min-h-0 min-w-[52px] items-center justify-center rounded-md border-none bg-[#1E40AF] px-3 py-0 text-xs font-normal leading-none !text-white shadow-none hover:!bg-[#1e3a8a] hover:!text-white"
                 data-cy="feedback-meeting-components-actionplan-button-add"
                 id="feedback-meeting-components-actionplan-button-add"
               >
@@ -157,8 +157,8 @@ export default function ActionPlan({
           {canEdit && (
             <Button
               onClick={() => setOpenAddActionPlan(true)}
-              type="default"
-              className="h-10"
+              type="primary"
+              className="h-10 border-none bg-[#1E40AF] hover:bg-[#1e3a8a]"
               data-cy="feedback-meeting-components-actionplan-button-add"
               id="feedback-meeting-components-actionplan-button-add"
             >

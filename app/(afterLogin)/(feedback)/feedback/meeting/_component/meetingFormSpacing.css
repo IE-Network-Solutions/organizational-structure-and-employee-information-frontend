@@ -1,0 +1,6 @@
+/* Vertical forms: extra space between label row and control. */
+.add-meeting-form.ant-form-vertical .ant-form-item .ant-form-item-label,
+.meeting-form-field-spacing.ant-form-vertical .ant-form-item .ant-form-item-label,
+.meeting-action-plan-modal .ant-form-vertical .ant-form-item .ant-form-item-label {
+  padding-bottom: 8px !important;
+}

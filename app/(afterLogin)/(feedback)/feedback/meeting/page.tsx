@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Spin } from 'antd';
 import MeetingList from './_component/meetingList';
 import MeetingListFilters from './_component/meetingListFilters';
-import MeetingListPagination from './_component/meetingListPagination';
 import MeetingDetailPanel from './_component/MeetingDetailPanel';
 import AddNewMeetingForm from './_component/addMeetingForm';
 import { FaPlus } from 'react-icons/fa';
@@ -18,7 +17,7 @@ function MeetingsSplitContent() {
 
   return (
     <div
-      className="box-border w-full min-w-0 rounded-[8px] border border-solid border-[#D9D9D9] bg-white p-4 sm:p-5"
+      className="box-border w-full min-w-0 bg-white p-4 sm:p-5"
       data-cy="feedback-meeting-page-main-card"
     >
       <div
@@ -55,7 +54,6 @@ function MeetingsSplitContent() {
             )}
           </div>
         </div>
-        <MeetingListPagination />
       </div>
     </div>
   );
@@ -82,8 +80,8 @@ function MeetingMeetingsPageInner() {
       flushHorizontal
       id="meetingLayoutId"
       data-cy="feedback-meeting-page-tab-landing-layout"
-      primaryActionButtonClassName="!h-[40px] !min-h-[40px] !px-[15px] rounded-lg border-none bg-blue-600 hover:bg-blue-700"
-      primaryActionTextClassName="text-sm font-normal"
+      primaryActionButtonClassName="!self-center !h-[40px] !min-h-[40px] !inline-flex !items-center !justify-center !px-[15px] rounded-lg border-none bg-blue-600 hover:bg-blue-700 !leading-none [&_.ant-btn-icon]:!m-0 [&_.ant-btn-icon]:!inline-flex [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center"
+      primaryActionTextClassName="text-sm font-normal !leading-none !inline-flex !items-center"
       title="Meetings"
       subtitle={
         <p
@@ -108,6 +106,7 @@ function MeetingMeetingsPageInner() {
       buttonIcon={
         selectedId ? (
           <FaPlus
+            className="text-[12px]"
             data-cy="feedback-meeting-page-icon-plus"
             id="feedback-meeting-page-icon-plus"
           />

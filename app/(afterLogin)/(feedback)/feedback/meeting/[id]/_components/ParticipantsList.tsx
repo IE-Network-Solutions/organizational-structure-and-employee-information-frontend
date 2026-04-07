@@ -16,7 +16,7 @@ import {
 import AddParticipantsPopconfirm from './AddParticipant';
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { MdClose } from 'react-icons/md';
 import {
@@ -24,6 +24,10 @@ import {
   useUpdateMeetingAttendees,
 } from '@/store/server/features/CFR/meeting/attendees/mutations';
 import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/attendees/queries';
+import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
+import './meetingAttendeesViewAllAnchoredModal.css';
+
+const ATTENDEES_VIEW_ALL_MODAL_WIDTH = 340;
 
 const statusColorMap: Record<string, string> = {
   absent: 'red',
@@ -31,6 +35,9 @@ const statusColorMap: Record<string, string> = {
   attended: 'blue',
   late: 'orange',
 };
+
+/** Attendees panel: show this many avatars before inline "View All" (when total exceeds this). */
+const ATTENDEES_PANEL_AVATAR_CAP = 10;
 
 /** Panel strip: photo fills the circle without letterboxing (object-fit cover). */
 const panelPreviewAvatarClassName =
@@ -87,7 +94,7 @@ interface ParticipantsListProps {
   meeting: any;
   loading: boolean;
   canEdit: boolean;
-  /** Compact avatar strip + View All modal (meeting detail panel). */
+  /** Compact avatar strip + View All anchored modal (meeting detail panel). */
   variant?: 'list' | 'panel';
 }
 
@@ -105,6 +112,32 @@ export default function ParticipantsList({
     useGetMeetingAttendees(meeting?.id);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [viewAllModalOpen, setViewAllModalOpen] = useState(false);
+  const [viewAllModalPos, setViewAllModalPos] = useState({ top: 0, left: 0 });
+  const viewAllButtonRef = useRef<HTMLButtonElement>(null);
+
+  const measureViewAllAnchor = () => {
+    const gap = 8;
+    const w = ATTENDEES_VIEW_ALL_MODAL_WIDTH;
+    const el = viewAllButtonRef.current;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      let left = r.right - w;
+      left = Math.min(Math.max(gap, left), window.innerWidth - w - gap);
+      const top = r.bottom + gap;
+      return { top, left };
+    }
+    return { top: gap, left: gap };
+  };
+
+  const openViewAllModal = () => {
+    setViewAllModalPos(measureViewAllAnchor());
+    setViewAllModalOpen(true);
+  };
+
+  useLayoutEffect(() => {
+    if (!viewAllModalOpen) return;
+    setViewAllModalPos(measureViewAllAnchor());
+  }, [viewAllModalOpen]);
 
   const userId = useAuthenticationStore.getState().userId;
   const EmployeeDetails = ({
@@ -115,6 +148,7 @@ export default function ParticipantsList({
     attendanceStatus,
     absentismReason,
     lateBy,
+    compact = false,
   }: {
     empId: string;
     isEmp: boolean;
@@ -123,6 +157,8 @@ export default function ParticipantsList({
     attendanceStatus: string;
     absentismReason: string;
     lateBy: number;
+    /** Fixed-height row (e.g. View All popover): 58px row layout. */
+    compact?: boolean;
   }) => {
     const { data: userDetails, isLoading } = useGetEmployee(empId);
 
@@ -246,7 +282,8 @@ export default function ParticipantsList({
         <Form
           form={form}
           layout="vertical"
-          className="space-y-3"
+          requiredMark={meetingFormRequiredMark}
+          className="meeting-form-field-spacing space-y-3"
           initialValues={{ isLate: false, isAbsent: false }}
           onValuesChange={(changedValues) => {
             if (changedValues.isLate) {
@@ -359,7 +396,56 @@ export default function ParticipantsList({
       </div>
     );
 
-    const details = (
+    const secondaryLine =
+      attendanceStatus === 'absent'
+        ? `Absent: ${absentismReason || '—'}`
+        : attendanceStatus === 'late'
+          ? `Late by ${lateBy} min`
+          : email;
+
+    const details = compact ? (
+      <div
+        className="flex min-w-0 flex-1 items-start gap-[8px]"
+        data-cy={`feedback-meeting-components-participantslist-details-${id}`}
+        id={`feedback-meeting-components-participantslist-details-${id}`}
+      >
+        <Avatar
+          size={24}
+          src={profileImage}
+          icon={
+            <UserOutlined
+              data-cy={`feedback-meeting-components-participantslist-icon-${id}`}
+            />
+          }
+          className="!h-6 !min-h-6 !w-6 !min-w-6 shrink-0 [&_.anticon]:text-[12px]"
+          data-cy={`feedback-meeting-components-participantslist-avatar-display-${id}`}
+        />
+        <div
+          className="flex min-w-0 flex-1 flex-col gap-[8px]"
+          data-cy={`feedback-meeting-components-participantslist-div-text-${id}`}
+          id={`feedback-meeting-components-participantslist-div-text-${id}`}
+        >
+          <Tooltip title={userName}>
+            <div
+              className="truncate text-[14px] font-bold leading-tight text-[#262626]"
+              data-cy={`feedback-meeting-components-participantslist-span-name-${id}`}
+              id={`feedback-meeting-components-participantslist-span-name-${id}`}
+            >
+              {userName}
+            </div>
+          </Tooltip>
+          <Tooltip title={secondaryLine}>
+            <div
+              className="truncate text-[12px] font-normal leading-tight text-[#8c8c8c]"
+              data-cy={`feedback-meeting-components-participantslist-span-email-${id}`}
+              id={`feedback-meeting-components-participantslist-span-email-${id}`}
+            >
+              {secondaryLine}
+            </div>
+          </Tooltip>
+        </div>
+      </div>
+    ) : (
       <div
         className="flex gap-2 items-center"
         data-cy={`feedback-meeting-components-participantslist-details-${id}`}
@@ -595,6 +681,17 @@ export default function ParticipantsList({
   );
 
   const attendeeItems = meetingAttendees?.items ?? [];
+  /** Prefer API total when the list is paginated (items may be capped). */
+  const attendeeTotal =
+    typeof meetingAttendees?.totalCount === 'number'
+      ? meetingAttendees.totalCount
+      : typeof meetingAttendees?.total === 'number'
+        ? meetingAttendees.total
+        : attendeeItems.length;
+  const showAttendeesViewAll = attendeeTotal > ATTENDEES_PANEL_AVATAR_CAP;
+  const attendeePanelPreviewItems = showAttendeesViewAll
+    ? attendeeItems.slice(0, ATTENDEES_PANEL_AVATAR_CAP)
+    : attendeeItems;
 
   const renderParticipantStatus = (p: any, i: number) =>
     userId != p.userId ? (
@@ -694,7 +791,7 @@ export default function ParticipantsList({
       }
     >
       <div
-        className={`flex flex-col items-start min-w-0 ${mode === 'modal' ? 'flex-1 pr-2' : ''}`}
+        className={`flex min-w-0 ${mode === 'modal' ? 'min-h-0 flex-1 items-start overflow-hidden' : 'flex-col items-start'}`}
         data-cy={`feedback-meeting-components-participantslist-item-details-${i}`}
         id={`feedback-meeting-components-participantslist-item-details-${i}`}
       >
@@ -706,11 +803,12 @@ export default function ParticipantsList({
           attendanceStatus={p.attendanceStatus}
           absentismReason={p.absentismReason}
           lateBy={p.lateBy}
+          compact={mode === 'modal'}
           data-cy={`feedback-meeting-components-participantslist-employee-details-${i}`}
         />
       </div>
       <div
-        className="shrink-0 flex items-start pt-0.5"
+        className={`shrink-0 flex ${mode === 'modal' ? 'items-start pt-0.5' : 'items-start pt-0.5'}`}
         data-cy={`feedback-meeting-participants-row-status-wrap-${i}`}
       >
         {renderParticipantStatus(p, i)}
@@ -740,16 +838,6 @@ export default function ParticipantsList({
               className="flex items-center gap-3 shrink-0"
               data-cy="feedback-meeting-participants-panel-header-actions"
             >
-              {attendeeItems.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setViewAllModalOpen(true)}
-                  className="text-[#1E40AF] text-[14px] font-normal leading-none bg-transparent border-none p-0 cursor-pointer hover:opacity-80"
-                  data-cy="feedback-meeting-participants-view-all"
-                >
-                  View All
-                </button>
-              ) : null}
               {canEdit && (
                 <AddParticipantsPopconfirm
                   meetingId={meeting?.id}
@@ -769,16 +857,27 @@ export default function ParticipantsList({
             </div>
           ) : (
             <div
-              className="flex flex-wrap gap-[9px] items-center h-[28px] overflow-hidden"
+              className="flex min-h-[28px] w-full min-w-0 flex-nowrap items-center gap-[9px] overflow-x-auto overflow-y-visible scrollbar-none"
               data-cy="feedback-meeting-participants-panel-avatars-row"
             >
-              {attendeeItems.slice(0, 16).map((p: any, i: number) => (
+              {attendeePanelPreviewItems.map((p: any, i: number) => (
                 <ParticipantPreviewAvatar
                   key={p.id ?? i}
                   userId={p.userId}
                   guestUser={p.guestUser}
                 />
               ))}
+              {showAttendeesViewAll ? (
+                <button
+                  ref={viewAllButtonRef}
+                  type="button"
+                  onClick={openViewAllModal}
+                  className="shrink-0 text-[#1E40AF] text-[14px] font-normal leading-none bg-transparent border-none p-0 cursor-pointer hover:opacity-80"
+                  data-cy="feedback-meeting-participants-view-all"
+                >
+                  View All
+                </button>
+              ) : null}
             </div>
           )}
         </div>
@@ -786,32 +885,75 @@ export default function ParticipantsList({
         <Modal
           title={
             <span
-              className="text-base font-semibold text-[#262626]"
+              className="text-[14px] font-bold text-black/70"
               data-cy="feedback-meeting-participants-view-all-modal-title"
             >
               Attendees
             </span>
           }
+          closeIcon={
+            <MdClose
+              size={16}
+              className="text-[#8c8c8c]"
+              data-cy="feedback-meeting-participants-view-all-modal-close"
+            />
+          }
           open={viewAllModalOpen}
           onCancel={() => setViewAllModalOpen(false)}
           footer={null}
-          width={520}
+          width={ATTENDEES_VIEW_ALL_MODAL_WIDTH}
+          centered={false}
+          wrapClassName="meeting-attendees-view-all-anchored-wrap"
           destroyOnClose
-          centered
+          maskClosable
+          style={{
+            position: 'fixed',
+            top: viewAllModalPos.top,
+            left: viewAllModalPos.left,
+            margin: 0,
+            paddingBottom: 0,
+          }}
+          styles={{
+            wrapper: {
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start',
+              padding: 0,
+            },
+            content: {
+              padding: 0,
+              borderRadius: 12,
+              overflow: 'hidden',
+              boxShadow:
+                '0 12px 48px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08)',
+            },
+            header: {
+              padding: '20px 24px 8px 24px',
+              marginBottom: 0,
+              borderBottom: 'none',
+            },
+            body: {
+              padding: '12px 24px',
+            },
+          }}
           data-cy="feedback-meeting-participants-view-all-modal"
         >
           <div
-            className="max-h-[65vh] overflow-y-auto space-y-3 pt-1 pr-1"
+            className="max-h-[65vh] overflow-y-auto scrollbar-none"
             data-cy="feedback-meeting-participants-view-all-modal-body"
           >
-            {attendeeItems.map((p: any, i: number) =>
-              renderParticipantRow(
-                p,
-                i,
-                'flex justify-between items-start gap-2 border border-[#D9D9D9] rounded-lg p-3 shadow-sm bg-white',
-                'modal',
-              ),
-            )}
+            <div
+              className="flex flex-col gap-[8px]"
+              data-cy="feedback-meeting-participants-view-all-modal-menu"
+            >
+              {attendeeItems.map((p: any, i: number) =>
+                renderParticipantRow(
+                  p,
+                  i,
+                  'box-border flex h-[58px] min-h-[58px] max-h-[58px] items-start justify-between rounded-[8px] border border-solid border-[#D9D9D9] bg-white py-2 px-3',
+                  'modal',
+                ),
+              )}
+            </div>
           </div>
         </Modal>
       </>

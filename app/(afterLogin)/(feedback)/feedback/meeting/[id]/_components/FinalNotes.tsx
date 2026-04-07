@@ -13,7 +13,11 @@ interface FinalNotesProps {
 }
 
 const panelAddButtonClass =
-  'box-border inline-flex !h-[22px] min-h-0 items-center justify-center rounded-[6px] border-none bg-[#254EDB] px-[15px] py-0 text-xs font-normal leading-none !text-white shadow-none hover:!bg-[#1e40af] hover:!text-white focus:!text-white';
+  'box-border inline-flex !h-[22px] min-h-0 items-center justify-center rounded-[6px] border-none bg-[#1E40AF] px-[15px] py-0 text-xs font-normal leading-none !text-white shadow-none hover:!bg-[#1e3a8a] hover:!text-white focus:!text-white';
+const notesFooterCancelBtnClass =
+  'inline-flex !h-[22px] !min-h-[22px] items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-[15px] py-0 text-[14px] font-normal leading-none text-[#595959] hover:bg-[#fafafa] hover:text-[#262626]';
+const notesFooterSaveBtnClass =
+  'inline-flex !h-[22px] !min-h-[22px] items-center justify-center rounded-[4px] border-none bg-[#1E40AF] px-[15px] py-0 text-[14px] font-normal leading-none !text-white hover:!bg-[#1e3a8a]';
 
 export default function FinalNotes({
   meetingId,
@@ -66,9 +70,9 @@ export default function FinalNotes({
         >
           <Input.TextArea
             name="finalNote"
-            autoSize={{ minRows: variant === 'panel' ? 3 : 4 }}
             autoFocus
-            className="border-gray-300 text-sm"
+            autoSize={false}
+            className="h-[52px] min-h-[52px] max-h-[52px] resize-none border-gray-300 text-sm"
             data-cy="feedback-meeting-components-finalnotes-textarea"
             id="feedback-meeting-components-finalnotes-textarea"
           />
@@ -80,20 +84,20 @@ export default function FinalNotes({
         id="feedback-meeting-components-finalnotes-div-actions"
       >
         <Button
-          size="small"
           type="default"
           onClick={() => setEditing(false)}
           loading={isLoading}
+          className={notesFooterCancelBtnClass}
           data-cy="feedback-meeting-components-finalnotes-button-cancel"
           id="feedback-meeting-components-finalnotes-button-cancel"
         >
           Cancel
         </Button>
         <Button
-          size="small"
           type="primary"
           onClick={() => form.submit()}
           loading={isLoading}
+          className={notesFooterSaveBtnClass}
           data-cy="feedback-meeting-components-finalnotes-button-save"
           id="feedback-meeting-components-finalnotes-button-save"
         >

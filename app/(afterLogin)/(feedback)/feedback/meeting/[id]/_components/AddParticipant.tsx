@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { Button, Form, Input, Modal, Select } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Button, Form, Input, Modal } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useCreateMeetingAttendeesBulk } from '@/store/server/features/CFR/meeting/attendees/mutations';
+import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
+import {
+  ADD_MEETING_ASSIGNEE_SELECT_STYLES,
+  MeetingFormUserMultiSelect,
+} from '../../_component/meetingFormAssigneeStyleSelects';
 
 interface AddParticipantsPopconfirmProps {
   loading: boolean;
@@ -22,14 +27,11 @@ const AddParticipantsPopconfirm = ({
   const { data: allUsers } = useGetAllUsers();
   const { mutateAsync: meetingAttendeesAsync, isLoading } =
     useCreateMeetingAttendeesBulk();
-  const attendeeIds = attendees?.map((att: any) => att.userId) ?? [];
 
-  const peopleOptions = allUsers?.items
-    ?.filter((user: any) => !attendeeIds.includes(user.id))
-    .map((i: any) => ({
-      value: i.id,
-      label: `${i?.firstName} ${i?.middleName} ${i?.lastName}`,
-    }));
+  const selectableUsers = useMemo(() => {
+    const ids = attendees?.map((att: any) => att.userId) ?? [];
+    return allUsers?.items?.filter((user: any) => !ids.includes(user.id)) ?? [];
+  }, [allUsers?.items, attendees]);
 
   const buildPayload = (values: any) => [
     ...(values?.participants
@@ -66,6 +68,36 @@ const AddParticipantsPopconfirm = ({
     setVisible(false);
   };
 
+  const handleClose = () => {
+    form.resetFields();
+    setVisible(false);
+  };
+
+  const footer = (
+    <div
+      className="flex justify-end gap-2"
+      data-cy="feedback-meeting-components-addparticipant-footer"
+    >
+      <Button
+        className="flex h-[32px] items-center justify-center rounded-[8px] border border-solid border-[#D9D9D9] px-[15px] py-0 text-[14px] font-normal text-[#595959] hover:text-[#262626]"
+        onClick={handleClose}
+        disabled={isLoading}
+        data-cy="feedback-meeting-components-addparticipant-button-cancel"
+      >
+        Cancel
+      </Button>
+      <Button
+        type="primary"
+        className="flex h-[32px] items-center justify-center rounded-[8px] border-none bg-[#1E40AF] px-[15px] py-0 text-[14px] font-normal hover:bg-[#1e3a8a]"
+        onClick={handleModalOk}
+        loading={isLoading}
+        data-cy="feedback-meeting-components-addparticipant-button-submit"
+      >
+        Add Participants
+      </Button>
+    </div>
+  );
+
   return (
     <div data-cy="feedback-meeting-components-addparticipant-div">
       <Button
@@ -79,24 +111,75 @@ const AddParticipantsPopconfirm = ({
       </Button>
 
       <Modal
-        title="Add attendees"
+        title={
+          <span
+            className="text-[16px] font-bold text-black/70"
+            data-cy="feedback-meeting-components-addparticipant-modal-title"
+          >
+            Add attendees
+          </span>
+        }
         open={visible}
-        onCancel={() => setVisible(false)}
-        onOk={handleModalOk}
-        okText="Add Participants"
-        cancelText="Cancel"
+        onCancel={handleClose}
+        footer={footer}
         confirmLoading={isLoading}
         width={480}
         destroyOnClose
         maskClosable={!isLoading}
         closable={!isLoading}
+        className="okr-settings-modal meeting-add-attendees-modal"
         data-cy="feedback-meeting-components-addparticipant-modal"
       >
+        <style
+          jsx
+          global
+          data-cy="feedback-meeting-components-addparticipant-modal-global-styles"
+        >{`
+          ${ADD_MEETING_ASSIGNEE_SELECT_STYLES}
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+          }
+          .okr-settings-modal .ant-modal-header {
+            padding: 20px 24px 8px 24px !important;
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+          }
+          .okr-settings-modal .ant-modal-body {
+            padding: 12px 24px !important;
+          }
+          .okr-settings-modal .ant-modal-footer {
+            padding: 1px 24px 20px 24px !important;
+            border-top: none !important;
+            margin-top: 0 !important;
+          }
+          .okr-settings-modal .ant-modal-close {
+            width: 22px !important;
+            height: 22px !important;
+          }
+          .okr-settings-modal .ant-modal-close-x {
+            width: 22px !important;
+            height: 22px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          .okr-settings-modal .ant-modal-close .anticon,
+          .okr-settings-modal .ant-modal-close svg {
+            width: 16px !important;
+            height: 16px !important;
+            font-size: 16px !important;
+          }
+          .meeting-add-attendees-modal .ant-input {
+            height: 40px !important;
+            min-height: 40px !important;
+          }
+        `}</style>
         <Form
           form={form}
           layout="vertical"
           preserve={false}
-          className="pt-1"
+          requiredMark={meetingFormRequiredMark}
+          className="add-meeting-form meeting-form-field-spacing pt-1"
           data-cy="feedback-meeting-components-addparticipant-form"
         >
           <div
@@ -114,18 +197,9 @@ const AddParticipantsPopconfirm = ({
               label="Name"
               name="participants"
             >
-              <Select
-                showSearch
-                placeholder="Select person"
-                allowClear
-                mode="multiple"
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={peopleOptions}
-                id="feedback-meeting-components-addparticipant-select-participants"
+              <MeetingFormUserMultiSelect
+                allUsers={{ items: selectableUsers }}
+                hint="Select person"
                 data-cy="feedback-meeting-components-addparticipant-select-participants"
               />
             </Form.Item>

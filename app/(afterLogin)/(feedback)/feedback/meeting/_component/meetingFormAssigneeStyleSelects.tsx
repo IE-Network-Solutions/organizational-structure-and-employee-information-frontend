@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { Select, Avatar } from 'antd';
 import { CloseOutlined, UserOutlined } from '@ant-design/icons';
 
@@ -15,14 +15,16 @@ export const ADD_MEETING_ASSIGNEE_SELECT_STYLES = `
     padding-top: 0 !important;
     padding-bottom: 0 !important;
     position: relative !important;
+    background-color: #ffffff !important;
+  }
+  .add-meeting-form .custom-centered-select-wrapper .ant-select-focused .ant-select-selector,
+  .add-meeting-form .custom-centered-select-wrapper .ant-select-open .ant-select-selector {
+    background-color: #ffffff !important;
   }
   .add-meeting-form .custom-centered-select-wrapper.always-show-placeholder-wrap .always-show-placeholder .ant-select-selection-placeholder {
     display: none !important;
   }
   .add-meeting-form .custom-centered-select-wrapper.always-show-placeholder-wrap .always-show-placeholder .ant-select-selection-item {
-    display: none !important;
-  }
-  .add-meeting-form .custom-centered-select-wrapper.always-show-placeholder-wrap .always-show-placeholder .ant-select-selection-search {
     display: none !important;
   }
   .add-meeting-form .custom-centered-select-wrapper.always-show-placeholder-wrap .always-show-placeholder .ant-select-selection-overflow {
@@ -99,12 +101,17 @@ export const MeetingFormUserMultiSelect = forwardRef<
 ) {
   const ids = Array.isArray(value) ? value : [];
   const setIds = (next: string[]) => onChange?.(next);
+  const [searchValue, setSearchValue] = useState('');
 
   return (
     <div ref={ref} data-cy={dataCy}>
       <div
         className="custom-centered-select-wrapper always-show-placeholder-wrap relative"
-        data-cy={dataCy ? `${dataCy}-select-wrap` : 'meeting-form-user-multi-select-wrap'}
+        data-cy={
+          dataCy
+            ? `${dataCy}-select-wrap`
+            : 'meeting-form-user-multi-select-wrap'
+        }
       >
         <Select
           mode="multiple"
@@ -113,8 +120,14 @@ export const MeetingFormUserMultiSelect = forwardRef<
           className="always-show-placeholder h-10 w-full"
           maxTagCount={0}
           maxTagPlaceholder={() => null}
+          searchValue={searchValue}
+          onSearch={setSearchValue}
           value={ids}
-          onChange={(v) => setIds(Array.isArray(v) ? (v as string[]) : [])}
+          onChange={(v) => {
+            setIds(Array.isArray(v) ? (v as string[]) : []);
+            setSearchValue('');
+          }}
+          onClear={() => setSearchValue('')}
           optionLabelProp="label"
           filterOption={(input, option: any) =>
             (option?.label ?? '')
@@ -179,10 +192,12 @@ export const MeetingFormUserMultiSelect = forwardRef<
             </Option>
           ))}
         </Select>
-        <HintOverlay
-          text={hint}
-          data-cy={dataCy ? `${dataCy}-hint` : undefined}
-        />
+        {!searchValue ? (
+          <HintOverlay
+            text={hint}
+            data-cy={dataCy ? `${dataCy}-hint` : undefined}
+          />
+        ) : null}
       </div>
       <div
         className="mt-2 flex flex-wrap gap-2"
@@ -224,13 +239,16 @@ export const MeetingFormUserSingleSelect = forwardRef<
 ) {
   const id = value;
   const setId = (next: string | undefined) => onChange?.(next);
+  const [searchValue, setSearchValue] = useState('');
 
   return (
     <div ref={ref} data-cy={dataCy}>
       <div
         className="custom-centered-select-wrapper always-show-placeholder-wrap relative"
         data-cy={
-          dataCy ? `${dataCy}-select-wrap` : 'meeting-form-user-single-select-wrap'
+          dataCy
+            ? `${dataCy}-select-wrap`
+            : 'meeting-form-user-single-select-wrap'
         }
       >
         <Select
@@ -238,8 +256,14 @@ export const MeetingFormUserSingleSelect = forwardRef<
           allowClear
           placeholder=""
           className="always-show-placeholder h-10 w-full"
+          searchValue={searchValue}
+          onSearch={setSearchValue}
           value={id}
-          onChange={(v) => setId(v as string | undefined)}
+          onChange={(v) => {
+            setId(v as string | undefined);
+            setSearchValue('');
+          }}
+          onClear={() => setSearchValue('')}
           optionLabelProp="label"
           filterOption={(input, option: any) =>
             (option?.label ?? '')
@@ -304,10 +328,12 @@ export const MeetingFormUserSingleSelect = forwardRef<
             </Option>
           ))}
         </Select>
-        <HintOverlay
-          text={hint}
-          data-cy={dataCy ? `${dataCy}-hint` : undefined}
-        />
+        {!searchValue ? (
+          <HintOverlay
+            text={hint}
+            data-cy={dataCy ? `${dataCy}-hint` : undefined}
+          />
+        ) : null}
       </div>
       <div
         className="mt-2 flex flex-wrap gap-2"
@@ -341,14 +367,24 @@ export const MeetingFormOptionsMultiSelect = forwardRef<
     onChange?: (ids: string[]) => void;
     options: { value: string; label: string }[];
     hint: string;
+    /** Portaled dropdown: use a unique class when styles are not under `add-meeting-form`. */
+    dropdownClassName?: string;
     'data-cy'?: string;
   }
 >(function MeetingFormOptionsMultiSelect(
-  { value, onChange, options, hint, 'data-cy': dataCy },
+  {
+    value,
+    onChange,
+    options,
+    hint,
+    dropdownClassName = 'custom-assignee-dropdown',
+    'data-cy': dataCy,
+  },
   ref,
 ) {
   const ids = Array.isArray(value) ? value : [];
   const setIds = (next: string[]) => onChange?.(next);
+  const [searchValue, setSearchValue] = useState('');
 
   return (
     <div ref={ref} data-cy={dataCy}>
@@ -367,22 +403,30 @@ export const MeetingFormOptionsMultiSelect = forwardRef<
           className="always-show-placeholder h-10 w-full"
           maxTagCount={0}
           maxTagPlaceholder={() => null}
+          searchValue={searchValue}
+          onSearch={setSearchValue}
           value={ids}
-          onChange={(v) => setIds(Array.isArray(v) ? (v as string[]) : [])}
+          onChange={(v) => {
+            setIds(Array.isArray(v) ? (v as string[]) : []);
+            setSearchValue('');
+          }}
+          onClear={() => setSearchValue('')}
           filterOption={(input, option: any) =>
             (option?.label ?? '')
               .toString()
               .toLowerCase()
               .includes(input.toLowerCase())
           }
-          popupClassName="custom-assignee-dropdown"
-          dropdownClassName="custom-assignee-dropdown"
+          popupClassName={dropdownClassName}
+          dropdownClassName={dropdownClassName}
           options={options}
         />
-        <HintOverlay
-          text={hint}
-          data-cy={dataCy ? `${dataCy}-hint` : undefined}
-        />
+        {!searchValue ? (
+          <HintOverlay
+            text={hint}
+            data-cy={dataCy ? `${dataCy}-hint` : undefined}
+          />
+        ) : null}
       </div>
       <div
         className="mt-2 flex flex-wrap gap-2"
@@ -421,6 +465,7 @@ export const MeetingFormOptionsSingleSelect = forwardRef<
 ) {
   const id = value;
   const setId = (next: string | undefined) => onChange?.(next);
+  const [searchValue, setSearchValue] = useState('');
 
   return (
     <div ref={ref} data-cy={dataCy}>
@@ -437,8 +482,14 @@ export const MeetingFormOptionsSingleSelect = forwardRef<
           allowClear
           placeholder=""
           className="always-show-placeholder h-10 w-full"
+          searchValue={searchValue}
+          onSearch={setSearchValue}
           value={id}
-          onChange={(v) => setId(v as string | undefined)}
+          onChange={(v) => {
+            setId(v as string | undefined);
+            setSearchValue('');
+          }}
+          onClear={() => setSearchValue('')}
           filterOption={(input, option: any) =>
             (option?.label ?? '')
               .toString()
@@ -449,10 +500,12 @@ export const MeetingFormOptionsSingleSelect = forwardRef<
           dropdownClassName="custom-assignee-dropdown"
           options={options}
         />
-        <HintOverlay
-          text={hint}
-          data-cy={dataCy ? `${dataCy}-hint` : undefined}
-        />
+        {!searchValue ? (
+          <HintOverlay
+            text={hint}
+            data-cy={dataCy ? `${dataCy}-hint` : undefined}
+          />
+        ) : null}
       </div>
       <div
         className="mt-2 flex flex-wrap gap-2"

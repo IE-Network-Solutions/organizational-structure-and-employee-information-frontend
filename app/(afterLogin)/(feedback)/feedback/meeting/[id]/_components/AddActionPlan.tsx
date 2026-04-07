@@ -19,37 +19,18 @@ import {
   useCreateMeetingActionPlanBulk,
   useUpdateMeetingActionPlan,
 } from '@/store/server/features/CFR/meeting/action-plan/mutations';
+import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
 
 const { Option } = Select;
 
-function FormFieldLabel({
-  children,
-  required,
-}: {
-  children: React.ReactNode;
-  required?: boolean;
-}) {
+function FormFieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className="flex items-center gap-1"
-      data-cy="feedback-meeting-addactionplan-form-field-label-wrap"
+    <span
+      className="text-[14px] font-normal text-[#030712]"
+      data-cy="feedback-meeting-addactionplan-form-field-label-text"
     >
-      <span
-        className="text-[14px] font-normal text-[#030712]"
-        data-cy="feedback-meeting-addactionplan-form-field-label-text"
-      >
-        {children}
-      </span>
-      {required ? (
-        <span
-          className="text-[14px] leading-none text-[#ff4d4f]"
-          aria-hidden
-          data-cy="feedback-meeting-addactionplan-form-field-label-required"
-        >
-          *
-        </span>
-      ) : null}
-    </div>
+      {children}
+    </span>
   );
 }
 
@@ -270,7 +251,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
         type="default"
         disabled={loading}
         onClick={handleClose}
-        className="flex h-[32px] w-[68px] items-center justify-center rounded-[8px] border-[#d9d9d9] p-0 text-[14px] font-normal text-[#595959] hover:text-[#262626]"
+        className="flex h-[32px] w-[68px] items-center justify-center rounded-[8px] border border-solid border-[#D9D9D9] p-0 text-[14px] font-normal text-[#595959] hover:text-[#262626]"
         data-cy="feedback-meeting-components-addactionplan-button-cancel"
       >
         Cancel
@@ -279,7 +260,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
         type="primary"
         loading={loading}
         onClick={handleSubmit}
-        className="flex h-[32px] w-[68px] items-center justify-center rounded-[8px] border-none bg-[#2b54ad] p-0 text-[14px] font-normal hover:bg-[#3d66c2] focus:bg-[#3d66c2]"
+        className="flex h-[32px] w-[68px] items-center justify-center rounded-[8px] border-none bg-[#1E40AF] p-0 text-[14px] font-normal hover:bg-[#1e3a8a] focus:bg-[#1e3a8a]"
         data-cy="feedback-meeting-components-addactionplan-button-submit"
       >
         {actionPlanData ? 'Save' : 'Create'}
@@ -291,7 +272,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
     <Modal
       title={
         <span
-          className="text-[20px] font-bold text-[#262626]"
+          className="text-[16px] font-bold text-black/70"
           data-cy="feedback-meeting-components-addactionplan-header"
         >
           {modalTitle}
@@ -299,7 +280,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
       }
       open={visible}
       onCancel={handleClose}
-      width={640}
+      width={780}
       footer={footer}
       destroyOnClose
       maskClosable={!loading}
@@ -320,106 +301,124 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
         data-cy="feedback-meeting-addactionplan-modal-global-styles"
       >
         {`
-        .meeting-action-plan-modal .ant-modal-body {
-          max-height: min(70vh, 640px);
-          overflow-y: auto;
-        }
-        .meeting-action-plan-modal .ant-picker {
-          height: 40px !important;
-        }
-        .meeting-action-plan-modal .ant-picker-input > input {
-          font-size: 14px;
-        }
-        .meeting-action-plan-modal .ant-input-textarea {
-          min-height: 52px !important;
-        }
-        .meeting-action-plan-modal .ant-input-textarea textarea.ant-input,
-        .meeting-action-plan-modal textarea.ant-input {
-          height: 52px !important;
-          min-height: 52px !important;
-          max-height: 52px !important;
-          resize: none !important;
-          padding-top: 8px !important;
-          padding-bottom: 8px !important;
-          line-height: 1.4 !important;
-        }
-        .meeting-action-plan-modal
-          .custom-centered-select-wrapper
-          .ant-select-selector {
-          display: flex !important;
-          align-items: center !important;
-          height: 40px !important;
-          padding-top: 0 !important;
-          padding-bottom: 0 !important;
-          position: relative !important;
-        }
-        .meeting-action-plan-modal
-          .custom-centered-select-wrapper
-          .always-show-placeholder
-          .ant-select-selection-placeholder {
-          display: none !important;
-        }
-        .meeting-action-plan-modal
-          .custom-centered-select-wrapper
-          .always-show-placeholder
-          .ant-select-selection-item {
-          display: none !important;
-        }
-        .meeting-action-plan-modal
-          .custom-centered-select-wrapper
-          .always-show-placeholder
-          .ant-select-selection-search {
-          display: none !important;
-        }
-        .meeting-action-plan-modal
-          .custom-centered-select-wrapper
-          .always-show-placeholder
-          .ant-select-selection-overflow {
-          display: none !important;
-        }
-        .custom-assignee-dropdown .ant-select-item-option-selected {
-          background-color: #e6f7ff !important;
-          font-weight: 500;
-        }
-        .custom-assignee-dropdown
-          .ant-select-item-option-selected
-          .ant-select-item-option-state {
-          color: #1890ff;
-        }
-        .okr-settings-modal .ant-modal-content {
-          padding: 0 !important;
-        }
-        .okr-settings-modal .ant-modal-header {
-          padding: 20px 24px 8px 24px !important;
-          border-bottom: none !important;
-          margin-bottom: 0 !important;
-        }
-        .okr-settings-modal .ant-modal-body {
-          padding: 12px 24px !important;
-        }
-        .okr-settings-modal .ant-modal-footer {
-          padding: 1px 24px 20px 24px !important;
-          border-top: none !important;
-          margin-top: 0 !important;
-        }
-        .okr-settings-modal .ant-form-item-label > label {
-          height: auto !important;
-          line-height: 1.5 !important;
-          padding-bottom: 4px !important;
-        }
-        .okr-settings-modal .ant-modal-body .ant-form-item,
-        .okr-settings-modal .ant-modal-body .ant-row {
-          margin-bottom: 12px !important;
-        }
-        .okr-settings-modal .ant-modal-body > *:last-child {
-          margin-bottom: 0 !important;
-        }
-      `}</style>
+          .meeting-action-plan-modal .ant-modal-body {
+            max-height: min(70vh, 640px);
+            overflow-y: auto;
+          }
+          .meeting-action-plan-modal .ant-picker {
+            height: 40px !important;
+          }
+          .meeting-action-plan-modal .ant-picker-input > input {
+            font-size: 14px;
+          }
+          .meeting-action-plan-modal .ant-input-textarea {
+            min-height: 52px !important;
+          }
+          .meeting-action-plan-modal .ant-input-textarea textarea.ant-input,
+          .meeting-action-plan-modal textarea.ant-input {
+            height: 52px !important;
+            min-height: 52px !important;
+            max-height: 52px !important;
+            resize: none !important;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+            line-height: 1.4 !important;
+          }
+          .meeting-action-plan-modal
+            .custom-centered-select-wrapper
+            .ant-select-selector {
+            display: flex !important;
+            align-items: center !important;
+            height: 40px !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            position: relative !important;
+          }
+          .meeting-action-plan-modal
+            .custom-centered-select-wrapper
+            .always-show-placeholder
+            .ant-select-selection-placeholder {
+            display: none !important;
+          }
+          .meeting-action-plan-modal
+            .custom-centered-select-wrapper
+            .always-show-placeholder
+            .ant-select-selection-item {
+            display: none !important;
+          }
+          .meeting-action-plan-modal
+            .custom-centered-select-wrapper
+            .always-show-placeholder
+            .ant-select-selection-search {
+            display: none !important;
+          }
+          .meeting-action-plan-modal
+            .custom-centered-select-wrapper
+            .always-show-placeholder
+            .ant-select-selection-overflow {
+            display: none !important;
+          }
+          .custom-assignee-dropdown .ant-select-item-option-selected {
+            background-color: #e6f7ff !important;
+            font-weight: 500;
+          }
+          .custom-assignee-dropdown
+            .ant-select-item-option-selected
+            .ant-select-item-option-state {
+            color: #1890ff;
+          }
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+          }
+          .okr-settings-modal .ant-modal-header {
+            padding: 20px 24px 8px 24px !important;
+            border-bottom: none !important;
+            margin-bottom: 0 !important;
+          }
+          .okr-settings-modal .ant-modal-body {
+            padding: 12px 24px !important;
+          }
+          .okr-settings-modal .ant-modal-footer {
+            padding: 1px 24px 20px 24px !important;
+            border-top: none !important;
+            margin-top: 0 !important;
+          }
+          .okr-settings-modal .ant-modal-close {
+            width: 22px !important;
+            height: 22px !important;
+          }
+          .okr-settings-modal .ant-modal-close-x {
+            width: 22px !important;
+            height: 22px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          .okr-settings-modal .ant-modal-close .anticon,
+          .okr-settings-modal .ant-modal-close svg {
+            width: 16px !important;
+            height: 16px !important;
+            font-size: 16px !important;
+          }
+          .okr-settings-modal .ant-form-item-label > label {
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-bottom: 4px !important;
+          }
+          .okr-settings-modal .ant-modal-body .ant-form-item,
+          .okr-settings-modal .ant-modal-body .ant-row {
+            margin-bottom: 12px !important;
+          }
+          .okr-settings-modal .ant-modal-body > *:last-child {
+            margin-bottom: 0 !important;
+          }
+        `}
+      </style>
       <Form
         form={form}
         layout="vertical"
         name="actionPlansForm"
-        requiredMark={false}
+        requiredMark={meetingFormRequiredMark}
         data-cy="feedback-meeting-components-addactionplan-form"
         id="feedback-meeting-components-addactionplan-form"
       >
@@ -448,7 +447,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
 
                   <Form.Item
                     {...restField}
-                    label={<FormFieldLabel required>Issue</FormFieldLabel>}
+                    label={<FormFieldLabel>Issue</FormFieldLabel>}
                     name={[name, 'issue']}
                     rules={[
                       { required: true, message: 'Please input the issue!' },
@@ -467,11 +466,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
 
                   <Form.Item
                     {...restField}
-                    label={
-                      <FormFieldLabel required>
-                        Action to be taken
-                      </FormFieldLabel>
-                    }
+                    label={<FormFieldLabel>Action to be taken</FormFieldLabel>}
                     name={[name, 'description']}
                     rules={[
                       {
@@ -493,11 +488,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
 
                   <Form.Item
                     {...restField}
-                    label={
-                      <FormFieldLabel required>
-                        Responsible Person
-                      </FormFieldLabel>
-                    }
+                    label={<FormFieldLabel>Responsible Person</FormFieldLabel>}
                     name={[name, 'responsibleUsers']}
                     rules={[
                       {
@@ -516,15 +507,13 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                   </Form.Item>
 
                   <Row
-                    gutter={24}
+                    gutter={12}
                     data-cy={`feedback-meeting-components-addactionplan-priority-deadline-row-${key}`}
                   >
                     <Col span={12}>
                       <Form.Item
                         {...restField}
-                        label={
-                          <FormFieldLabel required>Priority</FormFieldLabel>
-                        }
+                        label={<FormFieldLabel>Priority</FormFieldLabel>}
                         name={[name, 'priority']}
                         rules={[
                           {
@@ -545,6 +534,18 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                             className="custom-modal-select h-10 w-full"
                             popupClassName="custom-assignee-dropdown"
                             dropdownClassName="custom-assignee-dropdown"
+                            onChange={(value) => {
+                              form.setFieldValue(
+                                ['actionPlans', name, 'priority'],
+                                value,
+                              );
+                              form.setFields([
+                                {
+                                  name: ['actionPlans', name, 'priority'],
+                                  errors: [],
+                                },
+                              ]);
+                            }}
                             data-cy={`feedback-meeting-components-addactionplan-priority-select-${key}`}
                             id={`feedback-meeting-components-addactionplan-priority-select-inner-${key}`}
                           >
@@ -558,9 +559,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                     <Col span={12}>
                       <Form.Item
                         {...restField}
-                        label={
-                          <FormFieldLabel required>Deadline</FormFieldLabel>
-                        }
+                        label={<FormFieldLabel>Deadline</FormFieldLabel>}
                         name={[name, 'deadline']}
                         rules={[
                           {
@@ -586,7 +585,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                   {actionPlanData && (
                     <Form.Item
                       {...restField}
-                      label={<FormFieldLabel required>Status</FormFieldLabel>}
+                      label={<FormFieldLabel>Status</FormFieldLabel>}
                       name={[name, 'status']}
                       rules={[
                         { required: true, message: 'Please select a status!' },
@@ -616,13 +615,13 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
               ))}
               {actionPlanData == null && (
                 <div
-                  className="flex justify-center pb-1 pt-2"
+                  className="flex justify-center pb-1"
                   data-cy="feedback-meeting-components-addactionplan-add-plan-wrap"
                 >
                   <Button
                     type="primary"
                     onClick={() => add()}
-                    className="h-8 min-w-[200px] rounded-[8px] border-none bg-[#2b54ad] font-normal hover:bg-[#3d66c2]"
+                    className="h-8 rounded-[8px] border-none bg-[#1E40AF] px-[15px] py-0 font-normal hover:bg-[#1e3a8a]"
                     data-cy="feedback-meeting-components-addactionplan-button-add-plan"
                     id="feedback-meeting-components-addactionplan-button-add-plan"
                   >

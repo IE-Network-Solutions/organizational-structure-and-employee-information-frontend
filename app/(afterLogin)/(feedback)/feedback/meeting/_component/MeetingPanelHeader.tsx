@@ -1,9 +1,8 @@
 'use client';
 
-import { Button, Card } from 'antd';
+import { Card } from 'antd';
 import Link from 'next/link';
-import { FileTextOutlined } from '@ant-design/icons';
-import { MdOutlineEdit } from 'react-icons/md';
+import { MdOutlineEdit, MdOutlineFileDownload } from 'react-icons/md';
 import { usePDF } from '@react-pdf/renderer';
 import MomTemplate from '../[id]/_components/momTemplate';
 import { useEffect } from 'react';
@@ -91,17 +90,16 @@ export default function MeetingPanelHeader({
               <MdOutlineEdit className="text-[14px]" aria-hidden />
             </button>
           ) : null}
-          <Button
-            type="primary"
-            icon={<FileTextOutlined className="text-[12px]" />}
-            className="box-border inline-flex !h-[22px] min-h-0 items-center justify-center px-[15px] py-0 text-xs font-normal leading-none shadow-none"
+          <button
+            type="button"
             onClick={handleDownload}
             disabled={instance.loading || !meetingData}
-            loading={instance.loading}
+            className="box-border flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white p-0 text-[#2D3748] outline-none transition-colors hover:border-[#BFBFBF] hover:bg-[#FAFAFA] focus-visible:ring-2 focus-visible:ring-[#1677FF]/25 disabled:cursor-not-allowed disabled:opacity-50"
             data-cy="feedback-meeting-panel-header-button-mom"
+            aria-label="Download meeting minutes"
           >
-            MoM
-          </Button>
+            <MdOutlineFileDownload className="text-[14px]" aria-hidden />
+          </button>
         </div>
       </div>
     </Card>

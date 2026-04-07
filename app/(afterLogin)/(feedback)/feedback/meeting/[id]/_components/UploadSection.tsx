@@ -10,6 +10,7 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import { meetingDetailSectionClassName } from '../../_component/MeetingDetailSection';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
 
 const { Text } = Typography;
 
@@ -17,7 +18,7 @@ const panelShellClass =
   'box-border flex w-full max-w-full min-w-0 shrink-0 flex-col gap-[9px] rounded-[8px] border border-solid border-[#D9D9D9] bg-white pt-2 pr-3 pb-2 pl-3 opacity-100';
 
 const panelHeaderUploadBtnClass =
-  'box-border inline-flex !h-[22px] min-h-0 items-center justify-center rounded-[6px] border-none bg-[#254EDB] px-[15px] py-0 text-xs font-normal leading-none !text-white shadow-none hover:!bg-[#1e40af] hover:!text-white focus:!text-white';
+  'box-border inline-flex !h-[22px] min-h-0 items-center justify-center rounded-[6px] border-none bg-[#1E40AF] px-[15px] py-0 text-xs font-normal leading-none !text-white shadow-none hover:!bg-[#1e3a8a] hover:!text-white focus:!text-white';
 
 interface UploadSectionProps {
   meetingId: string;
@@ -118,8 +119,9 @@ const UploadSection: React.FC<UploadSectionProps> = ({
       <Form
         layout="vertical"
         form={form}
+        requiredMark={meetingFormRequiredMark}
         onFinish={handleFileUpload}
-        className="flex flex-col gap-[9px]"
+        className="meeting-form-field-spacing flex flex-col gap-[9px]"
         data-cy="feedback-meeting-components-uploadsection-form"
         id="feedback-meeting-components-uploadsection-form"
       >
@@ -351,8 +353,9 @@ const UploadSection: React.FC<UploadSectionProps> = ({
     <Form
       layout="vertical"
       form={form}
+      requiredMark={meetingFormRequiredMark}
       onFinish={handleFileUpload}
-      className="flex flex-col gap-4"
+      className="meeting-form-field-spacing flex flex-col gap-4"
       data-cy="feedback-meeting-components-uploadsection-form"
       id="feedback-meeting-components-uploadsection-form"
     >

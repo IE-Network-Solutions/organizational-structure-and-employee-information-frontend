@@ -31,7 +31,7 @@ function priorityBadgeClass(priority: ActionPlanCardProps['priority']) {
 
 /** Date + bottom status: 22px height, 1×8px padding, 12px regular @ 70% black */
 const neutralMetaTagClass =
-  'inline-flex h-[22px] shrink-0 items-center justify-center rounded border border-solid border-[#E5E7EB] bg-white px-2 py-px text-[12px] font-normal leading-none text-black/70 box-border';
+  'inline-flex h-[22px] shrink-0 items-center justify-center rounded border border-solid border-[#E5E7EB] bg-[rgba(0,0,0,0.02)] px-2 py-px text-[12px] font-normal leading-none text-black/70 box-border';
 
 function ResponsibleOverlapAvatar({
   empId,
@@ -133,7 +133,7 @@ export default function ActionPlanCard({
   const statusLabel = isResolved ? 'Completed' : 'Unresolved';
   const statusBadgeClass = isResolved
     ? 'border-[#52C41A] bg-white text-[#52C41A]'
-    : 'border-[#FAAD14] bg-white text-[#FAAD14]';
+    : 'border-[#FAAD14] bg-[#FFFBE6] text-[#FAAD14]';
 
   const bodyText = (description || issue || '—').trim();
 

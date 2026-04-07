@@ -225,7 +225,7 @@ export default function MeetingAgenda({
                 type="primary"
                 size="small"
                 onClick={() => setOpenAddAgenda(true)}
-                className="box-border inline-flex !h-[22px] min-h-0 min-w-[52px] items-center justify-center rounded-md px-3 py-0 text-xs font-normal leading-none shadow-none"
+                className="box-border inline-flex !h-[22px] min-h-0 min-w-[52px] items-center justify-center rounded-md border-none bg-[#1E40AF] px-3 py-0 text-xs font-normal leading-none !text-white shadow-none hover:!bg-[#1e3a8a] hover:!text-white"
                 data-cy="feedback-meeting-components-meetingagenda-button-add"
                 id="feedback-meeting-components-meetingagenda-button-add"
               >
@@ -268,7 +268,7 @@ export default function MeetingAgenda({
             }
             onClick={() => setOpenAddAgenda(true)}
             type="primary"
-            className="h-10"
+            className="h-10 border-none bg-[#1E40AF] hover:bg-[#1e3a8a]"
             data-cy="feedback-meeting-components-meetingagenda-button-add"
             id="feedback-meeting-components-meetingagenda-button-add"
           >

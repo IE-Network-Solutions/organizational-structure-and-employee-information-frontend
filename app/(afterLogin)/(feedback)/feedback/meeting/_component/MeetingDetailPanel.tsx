@@ -11,8 +11,6 @@ import ParticipantsList from '../[id]/_components/ParticipantsList';
 import UploadSection from '../[id]/_components/UploadSection';
 import { useGetMeetingsById } from '@/store/server/features/CFR/meeting/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import CommentsSection from '../[id]/_components/CommentsSection';
-import PreviousMeeting from '../[id]/_components/PreviousMeeting';
 
 export interface MeetingDetailPanelProps {
   meetingId: string;
@@ -27,9 +25,6 @@ export default function MeetingDetailPanel({
 
   const canEdit =
     userId === meeting?.chairpersonId || userId === meeting?.facilitatorId;
-  const canEditComment = meeting?.attendees?.some(
-    (i: any) => i.userId === userId,
-  );
 
   return (
     <div
@@ -98,23 +93,6 @@ export default function MeetingDetailPanel({
         meeting={meeting}
         data-cy="feedback-meeting-detail-panel-upload-section"
       />
-
-      <div
-        className="flex flex-col gap-[15px]"
-        data-cy={`feedback-meeting-detail-panel-column-${meetingId}`}
-        id={`feedback-meeting-detail-panel-column-${meetingId}`}
-      >
-        <PreviousMeeting
-          variant="panel"
-          meeting={meeting}
-          data-cy="feedback-meeting-detail-panel-previous-meeting"
-        />
-        <CommentsSection
-          canEditComment={canEditComment}
-          meetingId={meeting?.id}
-          data-cy="feedback-meeting-detail-panel-comments-section"
-        />
-      </div>
     </div>
   );
 }

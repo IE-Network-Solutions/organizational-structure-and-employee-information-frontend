@@ -30,6 +30,9 @@ import {
   MeetingFormUserMultiSelect,
   MeetingFormUserSingleSelect,
 } from './meetingFormAssigneeStyleSelects';
+import { meetingFormRequiredMark } from './meetingFormRequiredMark';
+
+import './addMeetingFormFieldHeights.css';
 
 const STEPPER_ACTIVE = '#1E40AF';
 
@@ -45,23 +48,23 @@ const stepperStyles = `
   .add-meeting-form-steps .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-tail::after {
     background-color: ${STEPPER_ACTIVE} !important;
   }
-  /* Step 1: first connector fill tracks form completion (0–100% in quarter steps) */
+  /* Step 1: first connector starts half filled (50%) and reaches 100% as quarters complete */
   .add-meeting-form-steps-step1-progress .add-meeting-form-steps .ant-steps-item:first-child.ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-tail::after {
     background: linear-gradient(
       90deg,
       ${STEPPER_ACTIVE} 0%,
-      ${STEPPER_ACTIVE} var(--add-meeting-step1-line-pct, 0%),
-      #d1d5db var(--add-meeting-step1-line-pct, 0%),
+      ${STEPPER_ACTIVE} var(--add-meeting-step1-line-pct, 50%),
+      #d1d5db var(--add-meeting-step1-line-pct, 50%),
       #d1d5db 100%
     ) !important;
   }
-  /* Step 2: second connector fill tracks attendees-step form (0–100% in quarter steps) */
+  /* Step 2: second connector same — 50% baseline → 100% */
   .add-meeting-form-steps-step2-progress .add-meeting-form-steps .ant-steps-item:nth-child(2).ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-tail::after {
     background: linear-gradient(
       90deg,
       ${STEPPER_ACTIVE} 0%,
-      ${STEPPER_ACTIVE} var(--add-meeting-step2-line-pct, 0%),
-      #d1d5db var(--add-meeting-step2-line-pct, 0%),
+      ${STEPPER_ACTIVE} var(--add-meeting-step2-line-pct, 50%),
+      #d1d5db var(--add-meeting-step2-line-pct, 50%),
       #d1d5db 100%
     ) !important;
   }
@@ -107,7 +110,7 @@ export default function AddNewMeetingForm({
   const startAtW = Form.useWatch('startAt', form);
   const endAtW = Form.useWatch('endAt', form);
 
-  /** Step 1 form completion in 4 quarters → first connector line 0 / 25 / 50 / 75 / 100%. */
+  /** Step 1 form completion in 4 quarters → first connector line 50% → 100% (half filled at start). */
   const step1CompletedQuarters = useMemo(() => {
     const q1 =
       typeof titleW === 'string' &&
@@ -148,7 +151,7 @@ export default function AddNewMeetingForm({
   const attendeeIdsW = Form.useWatch('attendeeIds', form);
   const guestsW = Form.useWatch('guests', form);
 
-  /** Step 2: chair → facilitator → attendees → (guests if enabled, else “all required” together). */
+  /** Step 2: same quarter model → second connector 50% → 100%. */
   const step2CompletedQuarters = useMemo(() => {
     const q1 = chairpersonIdW != null && chairpersonIdW !== '';
     const q2 = facilitatorIdW != null && facilitatorIdW !== '';
@@ -172,6 +175,10 @@ export default function AddNewMeetingForm({
     }
     return [q1, q2, q3, q4].filter(Boolean).length;
   }, [chairpersonIdW, facilitatorIdW, attendeeIdsW, allowGuests, guestsW]);
+
+  /** Map 0–4 completed quarters to 50%–100% line fill. */
+  const stepConnectorLinePct = (quarters: number) =>
+    50 + (Math.min(4, Math.max(0, quarters)) / 4) * 50;
 
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
@@ -339,9 +346,9 @@ export default function AddNewMeetingForm({
   };
 
   const footerSecondaryBtnClass =
-    'inline-flex h-8 min-h-8 items-center justify-center rounded-[6px] px-[15px] text-[14px] leading-none';
+    'inline-flex h-8 min-h-8 items-center justify-center rounded-[6px] px-[15px] text-[14px] font-normal leading-none';
   const footerPrimaryBtnClass =
-    'inline-flex !h-[40px] !min-h-[40px] items-center justify-center rounded-[6px] !px-[15px] text-[14px] leading-none';
+    'inline-flex !h-8 !min-h-8 items-center justify-center rounded-lg !px-4 text-[14px] font-normal leading-none';
 
   const footer = (
     <div
@@ -400,10 +407,10 @@ export default function AddNewMeetingForm({
           style={
             {
               ...(step === 1 && {
-                ['--add-meeting-step1-line-pct' as string]: `${step1CompletedQuarters * 25}%`,
+                ['--add-meeting-step1-line-pct' as string]: `${stepConnectorLinePct(step1CompletedQuarters)}%`,
               }),
               ...(step === 2 && {
-                ['--add-meeting-step2-line-pct' as string]: `${step2CompletedQuarters * 25}%`,
+                ['--add-meeting-step2-line-pct' as string]: `${stepConnectorLinePct(step2CompletedQuarters)}%`,
               }),
             } as React.CSSProperties
           }
@@ -416,17 +423,17 @@ export default function AddNewMeetingForm({
             progressDot={(stepDot, { status }) => {
               void stepDot;
               return (
-              <span
-                aria-hidden
-                className="mx-auto block shrink-0 rounded-full"
-                style={{
-                  width: 8,
-                  height: 8,
-                  backgroundColor:
-                    status === 'wait' ? '#d1d5db' : STEPPER_ACTIVE,
-                }}
-                data-cy="add-meeting-form-steps-progress-dot"
-              />
+                <span
+                  aria-hidden
+                  className="mx-auto block shrink-0 rounded-full"
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor:
+                      status === 'wait' ? '#d1d5db' : STEPPER_ACTIVE,
+                  }}
+                  data-cy="add-meeting-form-steps-progress-dot"
+                />
               );
             }}
             className="add-meeting-form-steps w-full max-w-xl"
@@ -444,6 +451,7 @@ export default function AddNewMeetingForm({
         initialValues={{ meetingTypeId: undefined }}
         form={form}
         layout="vertical"
+        requiredMark={meetingFormRequiredMark}
         onFinish={onFinish}
         className="add-meeting-form"
         data-cy="add-meeting-form"
@@ -505,7 +513,7 @@ export default function AddNewMeetingForm({
             >
               <Radio
                 value="in-person"
-                className="flex h-8 flex-1 items-center rounded-md border px-2 py-0 !mr-0"
+                className="flex h-[34px] min-h-[34px] flex-1 items-center rounded-md border px-2 py-0 !mr-0"
                 data-cy="add-meeting-form-location-type-in-person"
                 id="addMeetingFormLocationTypeInPerson"
               >
@@ -519,7 +527,7 @@ export default function AddNewMeetingForm({
               </Radio>
               <Radio
                 value="virtual"
-                className="flex h-8 flex-1 items-center rounded-md border px-2 py-0 !mr-0"
+                className="flex h-[34px] min-h-[34px] flex-1 items-center rounded-md border px-2 py-0 !mr-0"
                 data-cy="add-meeting-form-location-type-virtual"
                 id="addMeetingFormLocationTypeVirtual"
               >
@@ -533,7 +541,7 @@ export default function AddNewMeetingForm({
               </Radio>
               <Radio
                 value="hybrid"
-                className="flex h-8 flex-1 items-center rounded-md border px-2 py-0 !mr-0"
+                className="flex h-[34px] min-h-[34px] flex-1 items-center rounded-md border px-2 py-0 !mr-0"
                 data-cy="add-meeting-form-location-type-hybrid"
                 id="addMeetingFormLocationTypeHybrid"
               >
@@ -636,6 +644,7 @@ export default function AddNewMeetingForm({
                 format="hh:mm A"
                 use12Hours
                 placeholder="Select time"
+                popupClassName="add-meeting-timepicker-dropdown"
                 className="w-full h-8"
                 data-cy="add-meeting-form-start-time-picker"
                 id="addMeetingFormStartTimePicker"
@@ -672,6 +681,7 @@ export default function AddNewMeetingForm({
                 format="hh:mm A"
                 use12Hours
                 placeholder="Select time"
+                popupClassName="add-meeting-timepicker-dropdown"
                 className="w-full h-8"
                 data-cy="add-meeting-form-end-time-picker"
                 id="addMeetingFormEndTimePicker"
@@ -737,7 +747,9 @@ export default function AddNewMeetingForm({
             id="addMeetingFormAllowGuestsField"
           >
             <div
-              className="rounded-lg border border-blue-500 p-3"
+              className={`rounded-lg border border-solid bg-white px-3 py-2 transition-colors ${
+                allowGuests ? 'border-[#1E40AF]' : 'border-[#D9D9D9]'
+              }`}
               data-cy="add-meeting-form-allow-guests-container"
               id="addMeetingFormAllowGuestsContainer"
             >
@@ -754,182 +766,220 @@ export default function AddNewMeetingForm({
                     form.setFieldsValue({ guests: [] });
                   }
                 }}
-                className="items-start"
+                className="allow-guests-checkbox !m-0 flex w-full items-start gap-2.5 [&_.ant-checkbox+span]:!ps-0 [&_.ant-checkbox+span]:!pe-0"
                 data-cy="add-meeting-form-allow-guests-checkbox"
                 id="addMeetingFormAllowGuestsCheckbox"
               >
                 <span
-                  className="inline-block pl-2"
+                  className="flex min-w-0 flex-1 flex-col gap-0.5"
                   data-cy="add-meeting-form-allow-guests-text-wrap"
                 >
                   <span
-                    className="font-semibold text-[#262626]"
+                    className="text-[14px] font-medium leading-snug text-black/70"
                     data-cy="add-meeting-form-allow-guests-label"
                     id="addMeetingFormAllowGuestsLabel"
                   >
                     Allow Guests
                   </span>
-                  <div
-                    className="mt-1 text-sm font-normal text-gray-600"
+                  <span
+                    className="text-[12px] font-normal leading-snug text-black/45"
                     data-cy="add-meeting-form-allow-guests-description"
                   >
                     People that are not users of selamnew workspace can attend
                     this meeting.
-                  </div>
+                  </span>
                 </span>
               </Checkbox>
             </div>
 
             {allowGuests && (
-              <Form.List name="guests" data-cy="add-meeting-form-guests-list">
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, ...restField }) => (
-                      <div
-                        key={key}
-                        className="bg-gray-50 p-4 rounded-lg mb-3 border"
-                        data-cy={`add-meeting-form-guest-item-${name}`}
-                        id={`addMeetingFormGuestItem${name}`}
-                      >
-                        <div
-                          className="flex justify-between items-center mb-3"
-                          data-cy={`add-meeting-form-guest-header-${name}`}
-                          id={`addMeetingFormGuestHeader${name}`}
-                        >
-                          <span
-                            className="font-semibold text-gray-700"
-                            data-cy="add-meeting-form-guest-header-label"
-                            id="addMeetingFormGuestHeaderLabel"
+              <div
+                className="mt-4 space-y-3"
+                data-cy="add-meeting-form-guests-section"
+                id="addMeetingFormGuestsSection"
+              >
+                <Form.List name="guests" data-cy="add-meeting-form-guests-list">
+                  {(fields, { add, remove }) => (
+                    <>
+                      {fields.map(({ key, name, ...restField }) => {
+                        const isLastGuest = name === fields.length - 1;
+                        return (
+                          <div
+                            key={key}
+                            className="rounded-lg border border-solid border-[#D9D9D9] bg-white p-3"
+                            data-cy={`add-meeting-form-guest-item-${name}`}
+                            id={`addMeetingFormGuestItem${name}`}
                           >
-                            {name === 0 ? 'First Guest' : `Guest ${name + 1}`}
-                          </span>
-                          <Button
-                            icon={
-                              <MdClose
-                                data-cy="add-meeting-form-guest-header-remove-icon"
-                                id="addMeetingFormGuestHeaderRemoveIcon"
+                            <div
+                              className="mb-1.5 flex items-center justify-between"
+                              data-cy={`add-meeting-form-guest-header-${name}`}
+                              id={`addMeetingFormGuestHeader${name}`}
+                            >
+                              <span
+                                className="text-[14px] font-normal leading-none text-[#030712]"
+                                data-cy="add-meeting-form-guest-header-label"
+                                id="addMeetingFormGuestHeaderLabel"
+                              >
+                                {name === 0
+                                  ? 'First Guest'
+                                  : `Guest ${name + 1}`}
+                              </span>
+                              <Button
+                                icon={
+                                  <MdClose
+                                    size={14}
+                                    data-cy="add-meeting-form-guest-header-remove-icon"
+                                    id="addMeetingFormGuestHeaderRemoveIcon"
+                                  />
+                                }
+                                type="default"
+                                className="flex !h-6 !min-h-6 !w-6 !min-w-6 items-center justify-center !border !border-solid !border-[#D9D9D9] !bg-white !p-0 !text-gray-600 hover:!border-[#D9D9D9] hover:!bg-white hover:!text-gray-800"
+                                onClick={() => remove(name)}
+                                data-cy={`add-meeting-form-remove-guest-${name}`}
+                                id={`addMeetingFormRemoveGuest${name}`}
                               />
-                            }
-                            type="text"
-                            className="text-gray-500 hover:text-red-500"
-                            onClick={() => remove(name)}
-                            data-cy={`add-meeting-form-remove-guest-${name}`}
-                            id={`addMeetingFormRemoveGuest${name}`}
-                          />
-                        </div>
-                        <div
-                          className="grid grid-cols-2 gap-3"
-                          data-cy={`add-meeting-form-guest-fields-${name}`}
-                          id={`addMeetingFormGuestFields${name}`}
-                        >
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'name']}
-                            label="Guest Name"
-                            rules={[
-                              {
-                                validator: (notused, value) => {
-                                  if (!value)
-                                    return Promise.reject(
-                                      new Error('Name is required'),
-                                    );
-                                  const validName = /^[A-Za-z\s]+$/;
-                                  if (!validName.test(value)) {
-                                    return Promise.reject(
-                                      new Error(
-                                        'Name can only include letters and spaces',
-                                      ),
-                                    );
-                                  }
-                                  return Promise.resolve();
-                                },
-                              },
-                            ]}
-                            className="w-full"
-                            data-cy={`add-meeting-form-guest-name-field-${name}`}
-                            id={`addMeetingFormGuestNameField${name}`}
-                          >
-                            <Input
-                              placeholder="Name"
-                              className="h-8"
-                              data-cy={`add-meeting-form-guest-name-input-${name}`}
-                              id={`addMeetingFormGuestNameInput${name}`}
-                            />
-                          </Form.Item>
+                            </div>
+                            <div
+                              className={
+                                isLastGuest
+                                  ? 'grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end'
+                                  : 'grid grid-cols-1 gap-3 sm:grid-cols-2'
+                              }
+                              data-cy={`add-meeting-form-guest-fields-${name}`}
+                              id={`addMeetingFormGuestFields${name}`}
+                            >
+                              <Form.Item
+                                {...restField}
+                                name={[name, 'name']}
+                                label={
+                                  <span
+                                    className="text-[14px] font-normal leading-none text-[#030712]"
+                                    data-cy={`add-meeting-form-guest-name-label-${name}`}
+                                  >
+                                    Guest Name
+                                  </span>
+                                }
+                                required
+                                rules={[
+                                  {
+                                    validator: (notused, value) => {
+                                      if (!value)
+                                        return Promise.reject(
+                                          new Error('Name is required'),
+                                        );
+                                      const validName = /^[A-Za-z\s]+$/;
+                                      if (!validName.test(value)) {
+                                        return Promise.reject(
+                                          new Error(
+                                            'Name can only include letters and spaces',
+                                          ),
+                                        );
+                                      }
+                                      return Promise.resolve();
+                                    },
+                                  },
+                                ]}
+                                className="add-meeting-form-guest-field !mb-0 w-full min-w-0"
+                                data-cy={`add-meeting-form-guest-name-field-${name}`}
+                                id={`addMeetingFormGuestNameField${name}`}
+                              >
+                                <Input
+                                  placeholder="Input"
+                                  className="h-8"
+                                  data-cy={`add-meeting-form-guest-name-input-${name}`}
+                                  id={`addMeetingFormGuestNameInput${name}`}
+                                />
+                              </Form.Item>
 
-                          <Form.Item
-                            {...restField}
-                            name={[name, 'email']}
-                            label="Guest Email"
-                            rules={[
-                              {
-                                validator: async (notused, value) => {
-                                  if (!value) {
-                                    return Promise.reject(
-                                      new Error('Email is required'),
-                                    );
-                                  }
+                              <Form.Item
+                                {...restField}
+                                name={[name, 'email']}
+                                label={
+                                  <span
+                                    className="text-[14px] font-normal leading-none text-[#030712]"
+                                    data-cy={`add-meeting-form-guest-email-label-${name}`}
+                                  >
+                                    Guest Email
+                                  </span>
+                                }
+                                required
+                                rules={[
+                                  {
+                                    validator: async (notused, value) => {
+                                      if (!value) {
+                                        return Promise.reject(
+                                          new Error('Email is required'),
+                                        );
+                                      }
 
-                                  const emailRegex =
-                                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                                  if (!emailRegex.test(value)) {
-                                    return Promise.reject(
-                                      new Error('Enter a valid email'),
-                                    );
-                                  }
+                                      const emailRegex =
+                                        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                      if (!emailRegex.test(value)) {
+                                        return Promise.reject(
+                                          new Error('Enter a valid email'),
+                                        );
+                                      }
 
-                                  const allValues =
-                                    form.getFieldValue('guests') || [];
-                                  const emails = allValues.map((g: any) =>
-                                    g?.email?.toLowerCase(),
-                                  );
-                                  const duplicates = emails.filter(
-                                    (e: any) => e === value.toLowerCase(),
-                                  );
+                                      const allValues =
+                                        form.getFieldValue('guests') || [];
+                                      const emails = allValues.map((g: any) =>
+                                        g?.email?.toLowerCase(),
+                                      );
+                                      const duplicates = emails.filter(
+                                        (e: any) => e === value.toLowerCase(),
+                                      );
 
-                                  if (duplicates.length > 1) {
-                                    return Promise.reject(
-                                      new Error('This email is already added'),
-                                    );
-                                  }
+                                      if (duplicates.length > 1) {
+                                        return Promise.reject(
+                                          new Error(
+                                            'This email is already added',
+                                          ),
+                                        );
+                                      }
 
-                                  return Promise.resolve();
-                                },
-                              },
-                            ]}
-                            className="w-full"
-                            data-cy={`add-meeting-form-guest-email-field-${name}`}
-                            id={`addMeetingFormGuestEmailField${name}`}
-                          >
-                            <Input
-                              placeholder="Email"
-                              type="email"
-                              className="h-8"
-                              data-cy={`add-meeting-form-guest-email-input-${name}`}
-                              id={`addMeetingFormGuestEmailInput${name}`}
-                            />
-                          </Form.Item>
-                        </div>
-                      </div>
-                    ))}
-                    <div
-                      className="flex justify-end"
-                      data-cy="add-meeting-form-add-guest-button-container"
-                      id="addMeetingFormAddGuestButtonContainer"
-                    >
-                      <Button
-                        type="primary"
-                        onClick={() => add()}
-                        className="h-8"
-                        data-cy="add-meeting-form-add-guest-button"
-                        id="addMeetingFormAddGuestButton"
-                      >
-                        Add
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </Form.List>
+                                      return Promise.resolve();
+                                    },
+                                  },
+                                ]}
+                                className="add-meeting-form-guest-field !mb-0 w-full min-w-0"
+                                data-cy={`add-meeting-form-guest-email-field-${name}`}
+                                id={`addMeetingFormGuestEmailField${name}`}
+                              >
+                                <Input
+                                  placeholder="Input"
+                                  type="email"
+                                  className="h-8"
+                                  data-cy={`add-meeting-form-guest-email-input-${name}`}
+                                  id={`addMeetingFormGuestEmailInput${name}`}
+                                />
+                              </Form.Item>
+
+                              {isLastGuest ? (
+                                <Form.Item
+                                  label=" "
+                                  colon={false}
+                                  className="!mb-0 w-full sm:w-auto"
+                                  data-cy="add-meeting-form-add-guest-button-field"
+                                >
+                                  <Button
+                                    type="primary"
+                                    onClick={() => add()}
+                                    className="h-8 w-full min-w-[72px] text-[14px] font-bold leading-none sm:w-auto"
+                                    data-cy="add-meeting-form-add-guest-button"
+                                    id="addMeetingFormAddGuestButton"
+                                  >
+                                    Add
+                                  </Button>
+                                </Form.Item>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
+                </Form.List>
+              </div>
             )}
           </Form.Item>
         </div>

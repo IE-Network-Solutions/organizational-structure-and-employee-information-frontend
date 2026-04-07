@@ -1,0 +1,14 @@
+/* Anchored modal: not viewport-centered; position comes from inline style on .ant-modal */
+.meeting-attendees-view-all-anchored-wrap.ant-modal-wrap {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  padding: 0 !important;
+}
+
+/* Do not set top/left here — Modal uses inline style from the View All button rect.
+   `top: auto !important` was overriding that and pinned the dialog to the top. */
+.meeting-attendees-view-all-anchored-wrap .ant-modal {
+  margin: 0 !important;
+  padding-bottom: 0 !important;
+  max-width: min(340px, calc(100vw - 16px)) !important;
+}

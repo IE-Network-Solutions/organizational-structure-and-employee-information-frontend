@@ -11,6 +11,10 @@ import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import MeetingListFilters from './meetingListFilters';
 import styles from './meetingList.module.css';
 
+/** One request loads the list; scroll in the column instead of paginating. */
+const MEETING_LIST_FETCH_LIMIT = 1000;
+const MEETING_LIST_FETCH_PAGE = 1;
+
 const meetingTimelineTheme = {
   components: {
     Timeline: {
@@ -38,23 +42,16 @@ const MeetingList = ({
   matchRightPanelHeight = false,
   'data-cy': dataCy,
 }: MeetingListProps) => {
-  const {
-    pageSize,
-    current,
-    departmentId,
-    meetingTypeId,
-    startAt,
-    endAt,
-    title,
-  } = useMeetingStore();
+  const { departmentId, meetingTypeId, startAt, endAt, title } =
+    useMeetingStore();
 
   const {
     data: meetings,
     isLoading: meetingLoading,
     refetch,
   } = useGetMeetings(
-    pageSize,
-    current,
+    MEETING_LIST_FETCH_LIMIT,
+    MEETING_LIST_FETCH_PAGE,
     meetingTypeId ?? '',
     departmentId ?? '',
     startAt ?? '',
@@ -63,16 +60,7 @@ const MeetingList = ({
   );
   useEffect(() => {
     refetch();
-  }, [
-    pageSize,
-    current,
-    meetingTypeId,
-    departmentId,
-    startAt,
-    endAt,
-    title,
-    refetch,
-  ]);
+  }, [meetingTypeId, departmentId, startAt, endAt, title, refetch]);
   const EmployeeDetails = ({
     empId,
     type,
@@ -122,11 +110,11 @@ const MeetingList = ({
       style: { height: '76px', paddingBottom: 0 },
       dot: (
         <div
-          className="flex w-[73px] shrink-0 items-center justify-end gap-2"
+          className="flex w-[90px] shrink-0 items-center gap-2"
           data-cy="feedback-meeting-meetinglist-timeline-dot-wrap"
         >
           <div
-            className="w-[55px] shrink-0 text-right text-[13px] font-medium leading-none text-black/70 tabular-nums"
+            className="min-w-0 flex-1 whitespace-nowrap text-left text-[14px] font-medium leading-none text-black/70 tabular-nums"
             data-cy="feedback-meeting-meetinglist-timeline-date"
           >
             {dayjs(meeting.createdAt).format('YYYY-M-D')}
@@ -214,7 +202,7 @@ const MeetingList = ({
             </div>
 
             <Tag
-              className="!m-0 !inline-flex !items-center !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-3 !py-1 !text-[12px] !font-normal !text-black/70"
+              className="!m-0 !inline-flex !h-auto !w-[60px] !min-w-[60px] shrink-0 !items-center !justify-center !whitespace-nowrap !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-1 !py-1 !text-[14px] !font-normal !text-black/70"
               data-cy="feedback-meeting-component-meetinglist-time-tag"
             >
               {dayjs(meeting.createdAt).format('h:mmA')}
@@ -300,7 +288,7 @@ const MeetingList = ({
 
         {meetings?.items?.length !== 0 ? (
           <div
-            className={hideFilters ? 'mt-[15px]' : 'mt-6'}
+            className={`${hideFilters ? 'mt-[15px]' : 'mt-6'} max-h-[min(720px,75vh)] min-h-0 overflow-y-auto scrollbar-none`}
             data-cy="feedback-meeting-meetinglist-timeline-outer"
           >
             {timelineNode}

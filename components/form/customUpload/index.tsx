@@ -189,7 +189,7 @@ const CustomUpload: FC<CustomUploadProps> = ({
             {presentation === 'classic' ? (
               <div
                 data-cy="components-form-customupload-classic-dragger"
-                className="py-6"
+                className="py-0"
               >
                 {classicDraggerContent}
               </div>

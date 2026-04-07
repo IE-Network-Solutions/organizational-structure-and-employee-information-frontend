@@ -1,0 +1,95 @@
+/**
+ * Create-meeting form: single-line controls 40px tall.
+ * Excludes: Radio.Group, TextArea (textarea / textarea affix wrapper).
+ * Select triggers use `.custom-centered-select-wrapper` (already 40px in TS styles).
+ */
+
+.add-meeting-form .ant-input-affix-wrapper:not(.ant-input-textarea-affix-wrapper) {
+  min-height: 40px !important;
+  align-items: center !important;
+}
+
+.add-meeting-form
+  .ant-input-affix-wrapper:not(.ant-input-textarea-affix-wrapper)
+  input.ant-input {
+  line-height: 22px !important;
+}
+
+/* Plain input nodes (if any render without affix) */
+.add-meeting-form input.ant-input:not([type='radio']):not([type='checkbox']) {
+  min-height: 40px !important;
+  height: 40px !important;
+  box-sizing: border-box !important;
+}
+
+.add-meeting-form
+  .ant-input-affix-wrapper:not(.ant-input-textarea-affix-wrapper)
+  input.ant-input {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.add-meeting-form .ant-picker {
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+.add-meeting-form .ant-picker-input > input {
+  line-height: 22px !important;
+}
+
+/* TimePicker panel (create meeting): "Now" darker text and regular OK text weight. */
+.add-meeting-timepicker-dropdown .ant-picker-now .ant-picker-now-btn {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.add-meeting-timepicker-dropdown .ant-picker-ok .ant-btn {
+  font-weight: 400 !important;
+}
+
+/* Footer: Cancel / Continue / Create — regular weight, 14px (antd primary defaults heavier). */
+#addMeetingFormFooter .ant-btn {
+  font-weight: 400 !important;
+  font-size: 14px !important;
+}
+
+/* Guest card field labels: regular 14px (antd label token can be medium). */
+.add-meeting-form .add-meeting-form-guest-field .ant-form-item-label > label {
+  font-weight: 400 !important;
+}
+
+/* Allow guests: circular control, primary fill when checked (dot, not tick). */
+.add-meeting-form .allow-guests-checkbox.ant-checkbox-wrapper {
+  align-items: flex-start !important;
+}
+
+.add-meeting-form .allow-guests-checkbox .ant-checkbox {
+  align-self: flex-start !important;
+  margin-top: 2px !important;
+}
+
+.add-meeting-form .allow-guests-checkbox .ant-checkbox-inner {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+}
+
+.add-meeting-form .allow-guests-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #1e40af !important;
+  border-color: #1e40af !important;
+}
+
+.add-meeting-form .allow-guests-checkbox .ant-checkbox-checked .ant-checkbox-inner::after {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 5px !important;
+  height: 5px !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background-color: #fff !important;
+  opacity: 1 !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+  inset-inline-start: 50% !important;
+  top: 50% !important;
+  content: '' !important;
+}

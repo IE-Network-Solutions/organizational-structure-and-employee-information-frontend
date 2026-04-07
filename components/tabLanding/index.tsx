@@ -57,8 +57,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
       className={classNames(
         'min-h-screen h-auto bg-white',
         flushHorizontal
-          ? // Break out of Nav inner padding so the divider is full-width; header/body add their own inset
-            'py-4 px-0 overflow-x-hidden -mx-2 w-[calc(100%+16px)] md:-mx-6 md:w-[calc(100%+48px)]'
+          ? 'pt-8 pb-4 px-0 overflow-x-hidden -mx-2 w-[calc(100%+16px)] md:-mx-6 md:w-[calc(100%+48px)]'
           : 'w-full p-4',
       )}
       data-cy="tab-landing-layout"

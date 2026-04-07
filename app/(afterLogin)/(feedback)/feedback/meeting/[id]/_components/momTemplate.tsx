@@ -1,12 +1,14 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetMeetingDiscussion } from '@/store/server/features/CFR/meeting/discussion/queries';
 import React from 'react';
 import Html from 'react-pdf-html';
 
 dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 // Helper component to fetch and display employee name
 const EmployeeName = ({ userId, style }: { userId: string; style?: any }) => {

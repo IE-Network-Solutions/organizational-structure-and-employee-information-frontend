@@ -3,10 +3,13 @@ import { Card, TimePicker, Input, Button, Form, Avatar } from 'antd';
 import dayjs from 'dayjs';
 import { GoClock } from 'react-icons/go';
 import { IoIosLink } from 'react-icons/io';
+import { IoLocationOutline } from 'react-icons/io5';
+import { MdPersonOutline } from 'react-icons/md';
 import { useEffect, useState } from 'react';
 import { useUpdateMeeting } from '@/store/server/features/CFR/meeting/mutations';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
 
 type Meeting = {
   startAt: string;
@@ -55,16 +58,21 @@ function ChairPersonSummary({ chairpersonId }: { chairpersonId?: string }) {
 
   return (
     <div
-      className="flex gap-3 items-start border border-[#D9D9D9] rounded-lg p-3 h-full bg-white"
+      className="flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white"
       data-cy="feedback-meeting-otherdetails-chair-card"
     >
-      <UserOutlined className="text-lg text-black/45 mt-0.5 shrink-0" />
+      <div
+        className="flex h-6 w-6 shrink-0 items-center justify-center"
+        data-cy="feedback-meeting-otherdetails-chair-icon-wrap"
+      >
+        <MdPersonOutline size={20} className="text-black/45" />
+      </div>
       <div
         className="min-w-0 flex-1"
         data-cy="feedback-meeting-otherdetails-chair-main"
       >
         <div
-          className="text-xs text-black/45 mb-0.5"
+          className="text-[14px] text-black/45 mb-0.5"
           data-cy="feedback-meeting-otherdetails-chair-label"
         >
           Chair Person
@@ -79,7 +87,7 @@ function ChairPersonSummary({ chairpersonId }: { chairpersonId?: string }) {
             icon={<UserOutlined />}
           />
           <span
-            className="text-[15px] font-medium text-[#262626] truncate"
+            className="text-[14px] font-medium text-[#262626] truncate"
             data-cy="feedback-meeting-otherdetails-chair-name"
           >
             {isLoading ? '…' : name}
@@ -179,6 +187,8 @@ export default function OtherDetails({
       <Form
         form={form}
         layout="vertical"
+        className="meeting-form-field-spacing"
+        requiredMark={meetingFormRequiredMark}
         onFinish={handleConfirm}
         data-cy="feedback-meeting-components-otherdetails-form"
         id="feedback-meeting-components-otherdetails-form"
@@ -196,22 +206,27 @@ export default function OtherDetails({
               data-cy="feedback-meeting-components-otherdetails-summary-start"
             >
               <div
-                className={`flex gap-3 items-start border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
+                className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
                 data-cy="feedback-meeting-otherdetails-summary-start-inner"
               >
-                <GoClock className="text-lg text-black/45 mt-0.5 shrink-0" />
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center"
+                  data-cy="feedback-meeting-otherdetails-summary-start-icon-wrap"
+                >
+                  <GoClock size={20} className="text-black/45" />
+                </div>
                 <div
                   className="min-w-0 flex-1"
                   data-cy="feedback-meeting-otherdetails-summary-start-body"
                 >
                   <div
-                    className="text-xs text-black/45 mb-0.5"
+                    className="text-[14px] text-black/45 mb-0.5"
                     data-cy="feedback-meeting-otherdetails-summary-start-label"
                   >
                     Start Time
                   </div>
                   <div
-                    className="text-[15px] font-medium text-[#262626]"
+                    className="text-[14px] font-medium text-[#262626]"
                     data-cy="feedback-meeting-otherdetails-summary-start-value"
                   >
                     {formatTimeDisplay(meeting?.startAt)}
@@ -227,22 +242,27 @@ export default function OtherDetails({
               data-cy="feedback-meeting-components-otherdetails-summary-end"
             >
               <div
-                className={`flex gap-3 items-start border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
+                className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
                 data-cy="feedback-meeting-otherdetails-summary-end-inner"
               >
-                <GoClock className="text-lg text-black/45 mt-0.5 shrink-0" />
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center"
+                  data-cy="feedback-meeting-otherdetails-summary-end-icon-wrap"
+                >
+                  <GoClock size={20} className="text-black/45" />
+                </div>
                 <div
                   className="min-w-0 flex-1"
                   data-cy="feedback-meeting-otherdetails-summary-end-body"
                 >
                   <div
-                    className="text-xs text-black/45 mb-0.5"
+                    className="text-[14px] text-black/45 mb-0.5"
                     data-cy="feedback-meeting-otherdetails-summary-end-label"
                   >
                     End Time
                   </div>
                   <div
-                    className="text-[15px] font-medium text-[#262626]"
+                    className="text-[14px] font-medium text-[#262626]"
                     data-cy="feedback-meeting-otherdetails-summary-end-value"
                   >
                     {formatTimeDisplay(meeting?.endAt)}
@@ -258,22 +278,27 @@ export default function OtherDetails({
               data-cy="feedback-meeting-components-otherdetails-summary-location"
             >
               <div
-                className={`flex gap-3 items-start border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
+                className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
                 data-cy="feedback-meeting-otherdetails-summary-location-inner"
               >
-                <EnvironmentOutlined className="text-lg text-black/45 mt-0.5 shrink-0" />
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center"
+                  data-cy="feedback-meeting-otherdetails-summary-location-icon-wrap"
+                >
+                  <IoLocationOutline size={20} className="text-black/45" />
+                </div>
                 <div
                   className="min-w-0 flex-1"
                   data-cy="feedback-meeting-otherdetails-summary-location-body"
                 >
                   <div
-                    className="text-xs text-black/45 mb-0.5"
+                    className="text-[14px] text-black/45 mb-0.5"
                     data-cy="feedback-meeting-otherdetails-summary-location-label"
                   >
                     Location
                   </div>
                   <div
-                    className="text-[15px] font-medium text-[#262626] break-words"
+                    className="text-[14px] font-medium text-[#262626] break-words"
                     data-cy="feedback-meeting-otherdetails-summary-location-value"
                   >
                     {locationSummaryText(meeting)}
