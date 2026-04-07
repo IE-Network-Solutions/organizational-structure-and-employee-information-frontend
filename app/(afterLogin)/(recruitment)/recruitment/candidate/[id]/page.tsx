@@ -147,7 +147,7 @@ const CandidateDetailPage: React.FC = () => {
   }
 
   const cardClassName =
-    'bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mt-2';
+    'bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden';
 
   return (
     <div
@@ -156,12 +156,11 @@ const CandidateDetailPage: React.FC = () => {
       data-cy="talent-acquisition-candidate-detail-page"
     >
       <Card
-        bodyStyle={{ padding: '0' }}
         data-cy="talent-acquisition-candidate-detail-page-header-card"
         className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
         title={
           <div
-            className="py-0.5 flex items-center gap-2"
+            className="px-4 sm:px-6 py-0.5 flex items-center gap-2"
             data-cy="talent-acquisition-candidate-detail-page-breadcrumb-container"
           >
             <Button
@@ -368,7 +367,7 @@ const CandidateDetailPage: React.FC = () => {
         data-cy="talent-acquisition-candidate-detail-page-cv-section"
       >
         <div
-          className="px-0 flex flex-row items-center justify-between gap-3"
+          className="py-4 sm:py-6 px-0 flex flex-row items-center justify-between gap-3"
           data-cy="talent-acquisition-candidate-detail-page-cv-inner"
         >
           <div

@@ -372,10 +372,6 @@ export interface PayInvoiceRequest {
   amount?: number;
 }
 
-export interface CancelInvoiceRequest {
-  reason?: string;
-}
-
 export interface InitiatePaymentRequest {
   paymentMethod: string;
   paymentProvider: string;
@@ -395,6 +391,7 @@ export interface GetSubscriptionByTenantRequest {
  */
 export interface UpgradeSubscriptionRequest {
   subscriptionId: string;
+  tenantId: string;
   planId?: string;
   planPeriodId?: string;
   slots?: number;
@@ -408,15 +405,25 @@ export interface UpgradeSubscriptionRequest {
  */
 export interface BuyAdditionalSlotsRequest {
   subscriptionId: string;
+  tenantId: string;
   newSlotsAmount: number;
 }
 
 export interface RenewSubscriptionRequest {
   subscriptionId: string;
+  tenantId: string;
+  planId?: string;
+  planPeriodId?: string;
+  slotTotal?: number;
 }
 
 export interface PrepaySubscriptionRequest {
   subscriptionId: string;
+  tenantId: string;
+  /** Same optional shape as /renew; omitted fields fall back server-side. */
+  planId?: string;
+  planPeriodId?: string;
+  slotTotal?: number;
 }
 /**
  * Tenant

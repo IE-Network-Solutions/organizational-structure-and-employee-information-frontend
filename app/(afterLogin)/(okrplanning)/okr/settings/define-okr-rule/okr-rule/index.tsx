@@ -70,13 +70,15 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
   }, [okrRule, form]);
 
   const footer = (
-    <div className="flex justify-end gap-2" data-cy="okr-rule-modal-footer">
+    <div
+      className="flex justify-end gap-3 mt-4"
+      data-cy="okr-rule-modal-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"
         onClick={handleModalClose}
-        className="h-[32px] w-[68px] p-0 rounded-[8px] border-[#d9d9d9] flex items-center justify-center"
-        textClassName="text-[14px] font-normal text-[#595959]"
+        className="h-10 px-6 rounded-lg"
         id="okr-rule-modal-cancel-button"
         data-cy="okr-rule-modal-cancel-button"
       />
@@ -85,8 +87,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
         title={okrRule ? 'Update' : 'Create'}
         type="primary"
         loading={isCreateLoading || isUpdateLoading}
-        className="h-[32px] w-[68px] p-0 rounded-[8px] bg-[#2b54ad] hover:bg-[#3d66c2] border-none flex items-center justify-center"
-        textClassName="text-[14px] font-normal text-white"
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
         id="okr-rule-modal-submit-button"
         data-cy="okr-rule-modal-submit-button"
       />
@@ -120,9 +121,8 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
       <Form
         form={form}
         layout="vertical"
-        requiredMark={false}
         onFinish={onFinish}
-        className=""
+        className="pt-4"
         id="okr-rule-modal-form"
         data-cy="okr-rule-modal-form"
       >
@@ -133,14 +133,13 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
               data-cy="okr-rule-modal-name-label"
             >
               <span
-                className="text-[14px] font-normal text-[#030712]"
+                className="text-[14px] font-medium text-[#262626]"
                 data-cy="okr-rule-modal-name-label-text"
               >
                 OKR rule name
               </span>
               <span
-                className="text-[#ff4d4f] text-[14px] leading-none"
-                aria-hidden
+                className="text-red-500"
                 data-cy="okr-rule-modal-name-required-indicator"
               >
                 *
@@ -148,7 +147,6 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
             </div>
           }
           name="title"
-          required
           rules={[
             { required: true, message: 'Please enter the OKR rule name' },
           ]}
@@ -156,7 +154,7 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
         >
           <Input
             placeholder="Enter OKR rule name"
-            className="h-10"
+            className="h-11"
             data-cy="okr-rule-modal-name-input"
           />
         </Form.Item>
@@ -170,14 +168,13 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                   data-cy="okr-rule-modal-personal-label"
                 >
                   <span
-                    className="text-[14px] font-normal text-[#030712]"
+                    className="text-[14px] font-medium text-[#262626]"
                     data-cy="okr-rule-modal-personal-label-text"
                   >
                     Personal Contribution
                   </span>
                   <span
-                    className="text-[#ff4d4f] text-[14px] leading-none"
-                    aria-hidden
+                    className="text-red-500"
                     data-cy="okr-rule-modal-personal-required-indicator"
                   >
                     *
@@ -185,14 +182,13 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                 </div>
               }
               name="myOkrPercentage"
-              required
               rules={[{ required: true, message: 'Required' }]}
               data-cy="okr-rule-modal-personal-field"
             >
               <Input
                 type="number"
                 placeholder="Enter personal contribution"
-                className="h-10"
+                className="h-11"
                 data-cy="okr-rule-modal-personal-input"
               />
             </Form.Item>
@@ -205,14 +201,13 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                   data-cy="okr-rule-modal-team-label"
                 >
                   <span
-                    className="text-[14px] font-normal text-[#030712]"
+                    className="text-[14px] font-medium text-[#262626]"
                     data-cy="okr-rule-modal-team-label-text"
                   >
                     Team Contribution
                   </span>
                   <span
-                    className="text-[#ff4d4f] text-[14px] leading-none"
-                    aria-hidden
+                    className="text-red-500"
                     data-cy="okr-rule-modal-team-required-indicator"
                   >
                     *
@@ -220,14 +215,13 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
                 </div>
               }
               name="teamOkrPercentage"
-              required
               rules={[{ required: true, message: 'Required' }]}
               data-cy="okr-rule-modal-team-field"
             >
               <Input
                 type="number"
                 placeholder="Enter team contribution"
-                className="h-10"
+                className="h-11"
                 data-cy="okr-rule-modal-team-input"
               />
             </Form.Item>
@@ -235,38 +229,24 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
         </Row>
 
         <style jsx global data-cy="okr-rule-modal-styles">{`
-          .okr-settings-modal .ant-modal-content {
-            padding: 0 !important;
-          }
           .okr-settings-modal .ant-modal-title {
+            margin-bottom: 24px !important;
           }
           .okr-settings-modal .ant-form-item-label > label {
             height: auto !important;
             line-height: 1.5 !important;
             padding-bottom: 4px !important;
           }
-          .okr-settings-modal .ant-modal-body .ant-form-item,
-          .okr-settings-modal .ant-modal-body .ant-row {
-            margin-bottom: 12px !important;
-          }
-          .okr-settings-modal .ant-modal-body .ant-form-item + .flex-wrap {
-            margin-top: -8px !important;
-          }
-          .okr-settings-modal .ant-modal-body > *:last-child {
-            margin-bottom: 0 !important;
-          }
           .okr-settings-modal .ant-modal-header {
-            padding: 20px 24px 8px 24px !important;
-            border-bottom: none !important;
-            margin-bottom: 0 !important;
+            padding: 20px 24px 16px 24px !important;
+            border-bottom: 1px solid #f0f0f0 !important;
           }
           .okr-settings-modal .ant-modal-body {
-            padding: 12px 24px !important;
+            padding: 24px !important;
           }
           .okr-settings-modal .ant-modal-footer {
-            padding: 1px 24px 20px 24px !important;
-            border-top: none !important;
-            margin-top: 0 !important;
+            padding: 16px 24px 24px 24px !important;
+            border-top: 1px solid #f0f0f0 !important;
           }
         `}</style>
       </Form>

@@ -66,9 +66,11 @@ function ConversationInstanceDetail({
                     setSelectedUserId(''); // Reset selectedUserId if it's already the same as the attendee's id
                   }
                 }}
-                className={`${selectedUserId === attendee?.id && 'ml-4 bg-indigo-100'} 
-                                px-4 py-2 rounded cursor-pointer hover:bg-indigo-100
-                                sm:px-6 sm:py-3 md:px-8 md:py-4`} // Responsive padding
+                className={`${
+                  selectedUserId === attendee?.id
+                    ? 'ml-4 bg-[#1E40AF]'
+                    : 'hover:bg-[#DBEAFE]'
+                } px-4 py-2 rounded cursor-pointer sm:px-6 sm:py-3 md:px-8 md:py-4`}
                 key={attendee.id}
                 actions={[
                   <MdKeyboardArrowRight

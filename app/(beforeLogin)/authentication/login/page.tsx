@@ -24,11 +24,11 @@ type FieldType = {
 };
 
 const IMG = {
-  backgroundLeft: '/Group2.png',
-  backgroundRight: '/Group3.png',
-  card1: '/image14.png',
-  card2: '/image15.png',
-  card3: '/image16.png',
+  backgroundLeft: '/images/auth-login/Group2.png',
+  backgroundRight: '/images/auth-login/Group3.png',
+  card1: '/images/auth-login/image14.png',
+  card2: '/images/auth-login/image15.png',
+  card3: '/images/auth-login/image16.png',
 } as const;
 
 const Login: FC = () => {

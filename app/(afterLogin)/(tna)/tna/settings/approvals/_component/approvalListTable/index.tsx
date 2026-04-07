@@ -6,7 +6,7 @@ import { APPROVALTYPES } from '@/types/enumTypes';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import Image from 'next/image';
-const Avatar = '/gender_neutral_avatar.jpg';
+import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import { Button, Tooltip } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -153,17 +153,17 @@ const ApprovalListTable = () => {
                                 return parsed.url &&
                                   parsed.url.startsWith('http')
                                   ? parsed.url
-                                  : Avatar;
+                                  : GENDER_NEUTRAL_AVATAR_URL;
                               } catch {
                                 return getEmployeeInformation(
                                   employee?.userId,
                                 )?.profileImage.startsWith('http')
                                   ? getEmployeeInformation(employee?.userId)
                                       ?.profileImage
-                                  : Avatar;
+                                  : GENDER_NEUTRAL_AVATAR_URL;
                               }
                             })()
-                          : Avatar
+                          : GENDER_NEUTRAL_AVATAR_URL
                       }
                       alt="Description of image"
                       layout="fill"

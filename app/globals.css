@@ -37,9 +37,81 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-content::-webkit-scrollbar,
-#time-attendance-employee-attendance-table-scroll-wrapper .ant-table-body::-webkit-scrollbar {
+#time-attendance-employee-attendance-table-scroll-wrapper
+  .ant-table-content::-webkit-scrollbar,
+#time-attendance-employee-attendance-table-scroll-wrapper
+  .ant-table-body::-webkit-scrollbar {
   display: none;
+}
+
+/* Survey action plans: full width + hide Ant Table scrollbars (keep scroll) */
+.survey-action-plans-table.ant-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+}
+.survey-action-plans-table .ant-spin-nested-loading,
+.survey-action-plans-table .ant-spin-container,
+.survey-action-plans-table .ant-table,
+.survey-action-plans-table .ant-table-container,
+.survey-action-plans-table .ant-table-content,
+.survey-action-plans-table .ant-table-body,
+.survey-action-plans-table table {
+  width: 100%;
+}
+.survey-action-plans-table .ant-table-container,
+.survey-action-plans-table .ant-table-content,
+.survey-action-plans-table .ant-table-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.survey-action-plans-table .ant-table-container::-webkit-scrollbar,
+.survey-action-plans-table .ant-table-content::-webkit-scrollbar,
+.survey-action-plans-table .ant-table-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ant Design: hide internal measure row under header (empty td row for scroll sync) */
+.survey-action-plans-table .ant-table-measure-row {
+  display: none !important;
+}
+
+/* Action plan create modal: hide body scrollbar, keep scroll */
+.action-plan-create-modal .ant-modal-body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.action-plan-create-modal .ant-modal-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Action plan create modal: normalize control heights */
+.action-plan-create-modal .ant-picker,
+.action-plan-create-modal .ant-select-selector {
+  height: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Make inner inputs match the outer control height */
+.action-plan-create-modal .ant-picker-input > input,
+.action-plan-create-modal .ant-select-selection-search-input,
+.action-plan-create-modal .ant-select-selection-overflow {
+  height: 40px !important;
+  line-height: 40px !important;
+}
+
+/* Vertically center suffix/arrow and keep icons aligned */
+.action-plan-create-modal .ant-picker-suffix,
+.action-plan-create-modal .ant-select-arrow {
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Survey/modal icons: make them consistent at 24px */
+.action-plan-create-modal .anticon,
+.action-plan-create-modal .ant-picker-suffix svg,
+.action-plan-create-modal .ant-select-arrow svg {
+  font-size: 24px !important;
 }
 
 /* Org Structure chart: smooth layout transitions on collapse/expand */
@@ -53,6 +125,25 @@
 .org-structure-flow .react-flow__edge-path,
 .org-structure-flow .xyflow__edge-path {
   transition: opacity 220ms ease;
+}
+
+/* Ant Select caret container (multi-select uses suffix container) */
+.action-plan-create-modal .ant-select-suffix {
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Ensure the caret icon itself is vertically centered */
+.action-plan-create-modal .ant-select-arrow {
+  justify-content: center !important;
+}
+
+.action-plan-create-modal .ant-select-arrow svg,
+.action-plan-create-modal .ant-select-arrow .anticon {
+  display: block !important;
+  align-self: center !important;
 }
 
 /* Calibre font family - local OTF files */
@@ -461,10 +552,58 @@ h6 {
   gap: 8px !important;
 }
 
-.ant-pagination.invoice-table .ant-pagination-total-text {
-  position: absolute !important;
-  right: 130px !important;
-  margin: 0 !important;
+.ant-form-item-control .control-tarea {
+  @apply w-full py-4 px-5 mt-2.5;
+}
+
+.form-item {
+  @apply font-semibold text-xs;
+}
+
+.menu-item-label {
+  @apply font-bold text-sm;
+}
+
+.menu-item-icon {
+  @apply text-[#4DAEF0] !important;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  align-items: center !important;
+}
+
+.page-wrap {
+  @apply h-auto w-auto pr-6 pb-6 pl-3;
+}
+
+.tna-page-wrap {
+  @apply h-auto w-auto pb-6;
+}
+
+.lesson-card .ant-collapse-content {
+  border: none !important;
+}
+
+  .lesson-material-article {
+    @apply text-gray-600 text-base;
+  }
+.page-wrap {
+  @apply h-auto w-auto pb-6;
+}
+
+.lesson-material-article h3 {
+  @apply text-gray-900 text-[24px];
+}
+
+.ant-pagination.invoice-table {
+  display: flex !important;
+}
+
+.ant-pagination.invoice-table .ant-pagination-options {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
 @media (max-width: 768px) {
@@ -1260,6 +1399,42 @@ h6 {
   }
 }
 
+/* Survey Form Card (triple-dot): dropdown panel styling */
+.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu {
+  border-radius: 10px !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(148, 163, 184, 0.12) !important;
+  padding: 4px 0 !important;
+  overflow: hidden !important;
+}
+
+.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
+  padding: 10px 16px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item-content {
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 !important;
+}
+
+.form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover {
+  background-color: #f8faff !important;
+}
+
+.form-card-menu-item-delete {
+  color: #ef4444 !important;
+}
+
+.form-card-menu-overlay.ant-dropdown svg {
+  color: inherit !important;
+}
+
 /* Recruitment: Add/Edit Candidate modal - tighter mobile spacing */
 .ta-candidate-modal.ant-modal {
   width: calc(100vw - 24px) !important;
@@ -1338,6 +1513,42 @@ h6 {
 .org-structure-branch-select-dropdown
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
   background-color: #e6f4ff !important; /* light blue background */
+  position: relative;
+}
+
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-content {
+  color: #111827 !important; /* keep text dark */
+  font-weight: 400;
+  padding-right: 28px; /* room for single ✓ on the right */
+}
+
+/* Single ✓ (Talent Pool Category + multi-select Candidate): Ant’s state icon + ::after produced a double tick; hide state and use one drawn tick only */
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(.ant-select-item-option-disabled)
+  .ant-select-item-option-state {
+  display: none !important;
+}
+
+.org-structure-branch-select-dropdown
+  .ant-select-item-option-selected:not(
+    .ant-select-item-option-disabled
+  )::after {
+  content: '✓';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #1677ff;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.ql-container {
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .org-structure-branch-select-dropdown
@@ -1492,6 +1703,290 @@ h6 {
   }
 }
 
+/*
+ * Recruitment /settings routes only — classes from app/(recruitment)/recruitment/settings/**
+ * Sourced from globals_backup.css; do not paste unrelated backup sections here.
+ */
+
+/* Talent acquisition settings: context menu (Edit/Delete) - white card, rounded corners */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu {
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px 0 !important;
+  min-width: 120px;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item {
+  padding: 8px 12px !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item
+  .ant-dropdown-menu-item-icon {
+  color: #000 !important;
+}
+/* Remove red danger hover; use greyed-white for all items */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item:hover,
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger:hover,
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  background: #f3f4f6 !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger {
+  color: #000 !important;
+}
+
+/* Talent acquisition settings: primary button blue #1E40AF */
+.recruitment-settings-primary-btn.ant-btn-primary,
+.recruitment-settings-primary-btn.ant-btn-primary:hover,
+.recruitment-settings-primary-btn.ant-btn-primary:focus {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+}
+.recruitment-settings-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
+}
+
+/* Talent acquisition settings: shared design tokens (cards, panels) */
+:root {
+  --recruitment-settings-border: #d9d9d9;
+  --recruitment-settings-radius: 8px;
+  --recruitment-settings-title-size: 14px;
+  --recruitment-settings-title-weight: 400;
+  --recruitment-settings-level-size: 12px;
+  --recruitment-settings-level-color: rgba(0, 0, 0, 0.7);
+  --recruitment-settings-description-size: 14px;
+  --recruitment-settings-description-color: rgba(0, 0, 0, 0.45);
+}
+
+.recruitment-settings-card {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: #ffffff;
+}
+
+.recruitment-settings-card-title {
+  font-size: var(--recruitment-settings-title-size);
+  font-weight: var(--recruitment-settings-title-weight);
+  color: #000;
+}
+
+.recruitment-settings-card-level {
+  font-size: var(--recruitment-settings-level-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-level-color);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #d9d9d9;
+}
+
+.recruitment-settings-card-description {
+  font-size: var(--recruitment-settings-description-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-description-color);
+}
+
+.recruitment-settings-input-type-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.recruitment-settings-card-type-pill {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+}
+
+.recruitment-settings-more-btn {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+.recruitment-settings-more-btn:hover {
+  background: rgb(243 244 246);
+}
+
+.recruitment-settings-dragging-card {
+  transform: scale(0.98) rotate(8deg);
+  transform-origin: center center;
+  opacity: 0.7;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+.recruitment-settings-status-drag-placeholder {
+  background: rgba(0, 0, 0, 0.02);
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* DragOverlay ghost (dnd-kit): Define Status & Template Questions */
+.recruitment-settings-drag-ghost {
+  transform: rotate(3deg);
+  transform-origin: center top;
+  box-shadow:
+    0 12px 28px -6px rgba(0, 0, 0, 0.18),
+    0 4px 10px -4px rgba(0, 0, 0, 0.1);
+  opacity: 0.95;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  cursor: grabbing;
+}
+
+.recruitment-settings-panel {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: #ffffff;
+}
+
+.recruitment-settings-question-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+}
+
+.recruitment-settings-status-modal .ant-modal-content,
+.recruitment-settings-delete-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-status-modal .ant-modal-header,
+.recruitment-settings-delete-modal .ant-modal-header {
+  border-bottom: none;
+}
+.recruitment-settings-status-modal .ant-modal-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+}
+.recruitment-settings-delete-modal .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.recruitment-settings-status-modal .ant-input,
+.recruitment-settings-status-modal .ant-input-affix-wrapper,
+.recruitment-settings-status-modal textarea.ant-input {
+  border-color: #d1d5db !important;
+  border-radius: 8px !important;
+  border-bottom: 1px solid #d1d5db !important;
+}
+.recruitment-settings-status-modal .ant-input-textarea textarea {
+  border-radius: 8px !important;
+}
+
+.recruitment-settings-status-modal .ant-form-item .ant-input,
+.recruitment-settings-status-modal .ant-form-item textarea.ant-input {
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+}
+
+.recruitment-settings-status-modal .ant-form-item-label > label {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #030712 !important;
+}
+
+.recruitment-settings-status-modal .ant-form-item-label {
+  padding-bottom: 6px !important;
+}
+
+.recruitment-settings-status-modal .ant-input::placeholder,
+.recruitment-settings-status-modal textarea.ant-input::placeholder,
+.recruitment-settings-status-modal .ant-input-affix-wrapper input::placeholder,
+.recruitment-settings-status-modal .ant-select-selection-placeholder {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::before {
+  display: none !important;
+}
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::after {
+  display: inline-block !important;
+  margin-inline-start: 4px !important;
+  color: #ff4d4f !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  content: '*' !important;
+  visibility: visible !important;
+}
+
+.recruitment-settings-status-modal .ant-btn-default,
+.recruitment-settings-delete-modal .ant-btn-default {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* Anchored delete modals: keep triggerRect until afterClose (DeleteModal). */
+
+.recruitment-settings-reorder-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-reorder-modal .ant-modal-header {
+  border-bottom: none;
+}
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-cancel-btn.ant-btn,
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-cancel-btn.ant-btn:hover {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-confirm-btn.ant-btn-primary,
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-confirm-btn.ant-btn-primary:hover {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
+}
+
+.recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
+.recruitment-settings-delete-modal .ant-btn-dangerous {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
 /* Leave Management table: thin light gray borders, no vertical lines */
 .leave-management-table .ant-table {
   border: none !important;
@@ -1595,6 +2090,44 @@ h6 {
     left: auto !important;
     right: 12px !important;
   }
+}
+
+/* OKR settings dropdown menu (Edit OKR / Delete OKR) */
+.okr-settings-menu-dropdown .ant-dropdown-menu-item {
+  padding: 0 !important;
+  height: 32px !important;
+  width: 145px !important;
+}
+.okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Payroll page table styles */
+.payroll-table .ant-table-thead > tr > th {
+  background-color: #fafafa !important;
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.payroll-table .ant-table-tbody > tr > td {
+  padding: 14px 16px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  color: #4b5563;
+}
+
+.payroll-table .ant-table-tbody > tr:hover > td {
+  background-color: #f0f4f8 !important;
+}
+
+.payroll-zebra-row > td {
+  background-color: #fafafa !important;
+}
+
+.payroll-zebra-row:hover > td {
+  background-color: #f0f4f8 !important;
 }
 
 /* OKR settings dropdown menu (Edit OKR / Delete OKR) */

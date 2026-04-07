@@ -89,18 +89,10 @@ const CarryOverSidebar = () => {
             id="time-attendance-settings-carry-over-rule-sidebar-footer-container"
             data-cy="time-attendance-settings-carry-over-rule-sidebar-footer-container"
           >
-            <Button
-              type="default"
-              className="font-normal h-8 border border-[#D9D9D9] text-[#4d4d4d]"
-              onClick={() => onClose()}
-            >
+            <Button type="default" onClick={() => onClose()}>
               Cancel
             </Button>
-            <Button
-              type="primary"
-              className="font-normal h-8"
-              onClick={() => form.submit()}
-            >
+            <Button type="primary" onClick={() => form.submit()}>
               Create
             </Button>
           </div>

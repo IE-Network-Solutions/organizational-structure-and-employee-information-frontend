@@ -31,6 +31,30 @@ const handleTenantIdError = (error: any): boolean => {
   return false;
 };
 
+// Public survey page uses its own friendly auth/forbidden UI.
+const shouldSuppressGlobalErrorToast = (error: any): boolean => {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location?.pathname ?? '';
+  const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname);
+  if (!isPublicSurveyRoute) return false;
+
+  const status = error?.response?.status ?? error?.status;
+  const msg = String(
+    error?.response?.data?.message ??
+      error?.response?.data?.error ??
+      error?.message ??
+      '',
+  ).toLowerCase();
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    msg.includes('forbidden') ||
+    msg.includes('unauthorized') ||
+    msg.includes('login')
+  );
+};
+
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -38,6 +62,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
         onError: async (error: any) => {
           // Check for tenant ID missing error first
           if (handleTenantIdError(error)) {
+            return;
+          }
+          if (shouldSuppressGlobalErrorToast(error)) {
             return;
           }
 
@@ -57,6 +84,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
         onError: async (error: any) => {
           // Check for tenant ID missing error first
           if (handleTenantIdError(error)) {
+            return;
+          }
+          if (shouldSuppressGlobalErrorToast(error)) {
             return;
           }
 
@@ -83,6 +113,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       onError: async (error: any) => {
         // Check for tenant ID missing error first
         if (handleTenantIdError(error)) {
+          return;
+        }
+        if (shouldSuppressGlobalErrorToast(error)) {
           return;
         }
 

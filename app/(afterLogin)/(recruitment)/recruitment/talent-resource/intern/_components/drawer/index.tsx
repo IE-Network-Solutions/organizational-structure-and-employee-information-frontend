@@ -359,42 +359,36 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
 
             <Row data-cy="talent-acquisition-intern-form-row-cgpa" gutter={16}>
               <Col xs={24} sm={24} lg={12} md={12} xl={12}>
-                <Form.Item
-                  id="yearOfGraduationId"
-                  name="yearOfGraduation"
-                  className="mt-2"
-                  label={
-                    <span
-                      data-cy="intern-components-drawer-index-tsx-index-span-338"
-                      className="text-sm font-normal text-black"
-                    >
-                      Expected Year of Graduation{' '}
-                      <span
-                        className="text-error"
-                        data-cy="custom-label-required"
-                      >
-                        *
-                      </span>
-                    </span>
-                  }
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Please input year of graduation!',
-                    },
-                    {
-                      pattern: /^\d{4}$/,
-                      message: 'Please enter a valid year!',
-                    },
-                  ]}
+              <Form.Item
+              id="yearOfGraduationId"
+              name="yearOfGraduation"
+              className="mt-2"
+              label={
+                <span
+                  data-cy="intern-components-drawer-index-tsx-index-span-338"
+                  className="text-sm font-normal text-black"
                 >
-                  <Input
-                    id="talent-acquisition-intern-input-year-graduation"
-                    data-cy="talent-acquisition-intern-input-year-graduation"
-                    placeholder="Expected Year of Graduation"
-                    className="w-full h-10 text-sm"
-                  />
-                </Form.Item>
+                  Expected Year of Graduation{' '}
+                  <span className="text-error" data-cy="custom-label-required">
+                    *
+                  </span>
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Please input year of graduation!' },
+                {
+                  pattern: /^\d{4}$/,
+                  message: 'Please enter a valid year!',
+                },
+              ]}
+            >
+              <Input
+                id="talent-acquisition-intern-input-year-graduation"
+                data-cy="talent-acquisition-intern-input-year-graduation"
+                placeholder="Expected Year of Graduation"
+                className="w-full h-10 text-sm"
+              />
+            </Form.Item>
               </Col>
               <Col
                 data-cy="talent-acquisition-intern-form-col-cgpa"
@@ -442,6 +436,8 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 </div>
               </Col>
             </Row>
+
+           
 
             <Form.Item
               id="departmentId"

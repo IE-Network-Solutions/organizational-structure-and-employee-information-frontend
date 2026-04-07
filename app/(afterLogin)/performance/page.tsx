@@ -10,21 +10,10 @@ import ActionPlanCard from './_components/actionPlan';
 import { Select } from 'antd';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import RecentHrActions from '../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
-import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 
 export default function PerformanceDashboardPage() {
   const { data: activeFiscalYears } = useGetActiveFiscalYears();
-  const modules = ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'];
-  const {
-    data: aggregateAuditLogsResponse,
-    isLoading: isRecentActionsLoading,
-  } = useGetAggregateAuditPostLogs({
-    modules: modules,
-    page: 1,
-    limit: 5,
-    orderBy: 'performedAt',
-    orderDirection: 'DESC',
-  });
+  const auditLogModules = ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'];
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null,
   );
@@ -96,7 +85,7 @@ export default function PerformanceDashboardPage() {
     <div className="h-auto w-full " data-cy="performance-dashboard-page">
       <div className="">
         <div className="flex items-center py-4 justify-between">
-          <h1 className="mb-6 text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900">
             Performance Dashboard
           </h1>
           <div
@@ -186,12 +175,7 @@ export default function PerformanceDashboardPage() {
               sessionId={sessionId}
               monthOptions={monthOptions}
             />
-            <RecentHrActions
-              auditLogs={aggregateAuditLogsResponse?.items ?? []}
-              isLoading={isRecentActionsLoading}
-              auditLogModules={modules}
-              height="444px"
-            />
+            <RecentHrActions auditLogModules={auditLogModules} />
           </div>
         </div>
       </div>

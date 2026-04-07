@@ -18,11 +18,11 @@ interface DeleteModalProps {
   /** Optional anchor rect to position the modal under a trigger element */
   triggerRect?: TriggerRect;
   /**
-   * Called after close animation finishes.
-   * Use this to clear triggerRect state to preserve anchored exit animation.
+   * Called after the close animation fully finishes.
+   * Use this (NOT onCancel/onConfirm) to clear triggerRect state so the modal
+   * keeps its anchored position throughout the entire exit animation.
    */
   onAfterClose?: () => void;
-  title?: string;
   customMessage?: React.ReactNode;
   deleteMessage?: React.ReactNode;
   deleteText?: React.ReactNode;
@@ -30,11 +30,13 @@ interface DeleteModalProps {
   loading?: boolean;
   id?: string;
   'data-cy'?: string;
-  /** Hide illustration and use compact layout */
+  /** Modal title (e.g. "Delete Status"). When set, modal shows title and no image. */
+  title?: string;
+  /** Hide the delete illustration and use compact layout with title + message only */
   hideImage?: boolean;
-  /** Use red danger confirm button */
+  /** Use danger (red) style for the confirm button */
   danger?: boolean;
-  /** Optional class for modal wrapper */
+  /** Optional class for modal wrapper (e.g. recruitment-settings-delete-modal) */
   modalClassName?: string;
 }
 
@@ -44,7 +46,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   onCancel,
   triggerRect,
   onAfterClose,
-  title,
   customMessage,
   deleteMessage,
   deleteText,
@@ -52,8 +53,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   loading,
   id,
   'data-cy': dataCy,
-  hideImage,
-  danger,
+  title,
+  hideImage = false,
+  danger = false,
   modalClassName,
 }) => {
   const isPositioned = Boolean(triggerRect);
@@ -76,11 +78,11 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
 
   const deleteModalFooter = (
     <div
-      className={`mt-4 flex w-full flex-row items-center gap-3 ${simpleLayout ? 'justify-end' : 'justify-center'}`}
+      className="w-full flex flex-row justify-end items-center gap-3 mt-4"
       data-cy="delete-confirmation-modal-footer"
     >
       <Button
-        className="!h-8 !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#CFCFCF] hover:!text-[rgba(0,0,0,0.7)]"
+        className="px-6 py-2 rounded-md"
         id="deleteModalCancelButtonId"
         onClick={onCancel}
       >
@@ -88,7 +90,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </Button>
       <Button
         id="confirmDeleteId"
-        className="!h-8 !rounded-[8px] !border-0 !bg-[#FF4D4F] !px-4 !text-[14px] !font-normal !text-white hover:!bg-[#ff7875]"
+        className="px-6 py-2 rounded-md"
         type="primary"
         danger={danger}
         loading={loading ?? false}
@@ -101,14 +103,8 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   return (
     <Modal
       open={open}
+      title={title}
       width={hideImage ? 440 : 500}
-      title={
-        title ? (
-          <span className="text-[16px] font-bold text-[rgba(0,0,0,0.7)]">
-            {title}
-          </span>
-        ) : undefined
-      }
       onCancel={onCancel}
       afterClose={onAfterClose}
       footer={deleteModalFooter}
@@ -123,7 +119,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       )}
       data-cy="delete-confirmation-modal"
     >
-      {!hideImage && !simpleLayout && (
+      {!hideImage && (
         <p
           data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
           className="flex justify-center items-center h-[200px]"
@@ -132,40 +128,23 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         </p>
       )}
 
-      {simpleLayout ? (
-        <>
-          <p
-            data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
-            className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
-          >
-            {deleteMessage ?? 'Are you sure to delete?'}
-          </p>
-          {customMessage && (
-            <div
-              data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
-              className="mt-4 text-center"
-            >
-              {customMessage}
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <p
-            data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
-            className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
-          >
-            {deleteMessage ?? 'you sure to Delete ? '}
-          </p>
-          {customMessage && (
-            <div
-              data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
-              className="mt-4 text-center"
-            >
-              {customMessage}
-            </div>
-          )}
-        </>
+      <p
+        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+        className={
+          hideImage
+            ? 'text-gray-900 text-[14px] font-normal'
+            : 'flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold'
+        }
+      >
+        {deleteMessage ?? 'you sure to Delete ? '}
+      </p>
+      {customMessage && (
+        <div
+          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
+          className="mt-4 text-center"
+        >
+          {customMessage ?? 'Are you sure you want to delete this item?'}
+        </div>
       )}
     </Modal>
   );

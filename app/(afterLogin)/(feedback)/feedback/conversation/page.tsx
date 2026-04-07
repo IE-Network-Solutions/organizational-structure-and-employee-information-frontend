@@ -5,7 +5,7 @@ import DashboardComponent from './_component/conversation/conversationDashboard'
 function Index() {
   return (
     <div
-      className="p-4 bg-[#f5f5f5]"
+      className="py-4"
       data-cy="feedback-conversation-page-div"
       id="feedback-conversation-page-div"
     >
