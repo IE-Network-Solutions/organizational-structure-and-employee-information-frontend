@@ -15,7 +15,6 @@ import { Button, Input, Form, Avatar } from 'antd';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
 import CommentActionMenu from '../commentActionMenu';
-import { FaUser } from 'react-icons/fa';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { SendOutlined } from '@ant-design/icons';
 
@@ -58,21 +57,26 @@ const CommentList = ({
   const { userId } = useAuthenticationStore();
   const lastResetToggle = useRef(resetToggle);
 
-  // Memoize the user details for performance
+  const [localComments, setLocalComments] = useState<CommentsData[]>(data);
+
+  useEffect(() => {
+    setLocalComments(data);
+  }, [data]);
+
   const getUserDetail = useMemo(
     () => (id: string) => {
       const user = allUsers?.items?.find((user: any) => id === user.id);
-      return user
-        ? {
-            fullName: `${user.firstName} ${user.middleName} ${user.lastName}`,
-            profileImage: user.profileImage,
-            role: user.role?.name || '-',
-          }
-        : {
-            fullName: '-',
-            profileImage: null,
-            role: '-',
-          };
+      if (!user) {
+        return { fullName: 'Unknown', initials: 'U', profileImage: null };
+      }
+      const firstName = user.firstName || '';
+      const middleName = user.middleName || '';
+      return {
+        fullName: `${firstName} ${middleName}`.trim() || 'Unknown',
+        initials:
+          `${firstName.charAt(0)}${middleName.charAt(0)}`.toUpperCase() || 'U',
+        profileImage: user.profileImage,
+      };
     },
     [allUsers],
   );
@@ -82,10 +86,21 @@ const CommentList = ({
       .validateFields()
       .then((values) => {
         if (editingCommentId !== '') {
-          // Update existing comment - send only the comment field
           const updateMutation = isPlanCard
             ? onUpdatePlanComment
             : onUpdateReportComment;
+
+          setLocalComments((prev) =>
+            prev.map((c) =>
+              c.id === editingCommentId
+                ? {
+                    ...c,
+                    comment: values.comment,
+                    updatedAt: new Date().toISOString(),
+                  }
+                : c,
+            ),
+          );
 
           updateMutation(
             {
@@ -94,71 +109,86 @@ const CommentList = ({
             },
             {
               onSuccess: () => {
-                form.resetFields(); // Reset the form after submission
-                setEditingCommentId(''); // Clear edit mode
+                form.resetFields();
+                setEditingCommentId('');
+                setCommentValue('');
+              },
+              onError: () => {
+                setLocalComments(data);
               },
             },
           );
         } else {
-          // Add new comment
           const addMutation = isPlanCard
             ? onAddPlanComment
             : onAddReportComment;
 
+          const optimisticComment: CommentsData = {
+            id: `optimistic-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            deletedAt: null,
+            createdBy: userId,
+            updatedBy: null,
+            commentedBy: userId,
+            comment: values.comment,
+            tenantId: '',
+          };
+          setLocalComments((prev) => [...prev, optimisticComment]);
+
           addMutation(values, {
             onSuccess: () => {
-              form.resetFields(); // Reset the form after submission
+              form.resetFields();
+              setCommentValue('');
+            },
+            onError: () => {
+              setLocalComments(data);
             },
           });
         }
       })
       .finally(() => {
-        onFormSubmit?.(); // Always notify parent after attempt
+        onFormSubmit?.();
       });
   };
 
-  // Reset edit state when showAddForm changes or resetToggle is triggered
   useEffect(() => {
     const isResetTriggered = resetToggle !== lastResetToggle.current;
-
     if (isResetTriggered || !showAddForm) {
       setEditingCommentId('');
       setCommentValue('');
       form.resetFields();
     }
-
     lastResetToggle.current = resetToggle;
   }, [resetToggle, showAddForm, form]);
 
-  // Get the comment being edited
   const commentBeingEdited = useMemo(() => {
     if (!editingCommentId) return null;
-    return data.find((c) => c.id === editingCommentId);
-  }, [editingCommentId, data]);
+    return localComments.find((c) => c.id === editingCommentId);
+  }, [editingCommentId, localComments]);
 
   const handleEdit = (commentData: CommentsData) => {
-    // Set the comment text state - this will be used as the input value
     setCommentValue(commentData.comment);
-    // Then set the editing ID
     setEditingCommentId(commentData.id);
-    onEdit?.(); // Tell parent to show form
-    // Also set form value for submission
+    onEdit?.();
     form.setFieldsValue({ comment: commentData.comment });
   };
 
-  // Populate form when editing a comment
   useEffect(() => {
     if (editingCommentId && showAddForm && commentBeingEdited) {
-      // Update the comment value state
       setCommentValue(commentBeingEdited.comment);
-      // Also set form value for submission
       form.setFieldsValue({ comment: commentBeingEdited.comment });
     }
   }, [editingCommentId, showAddForm, commentBeingEdited, form]);
 
   const handleDelete = (id: string) => {
+    setLocalComments((prev) => prev.filter((c) => c.id !== id));
     const mutation = isPlanCard ? deletePlanComment : deleteReportComment;
-    mutation(id);
+    mutation(id, {
+      onError: () => {
+        setLocalComments(data);
+      },
+    } as any);
   };
 
   const isLoading =
@@ -170,79 +200,76 @@ const CommentList = ({
     editReportLoading;
 
   const sortedComments = useMemo(() => {
-    return [...data].sort(
+    return [...localComments].sort(
       (a, b) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
     );
-  }, [data]);
+  }, [localComments]);
 
   return (
     <div
       data-cy="-components-comments-commentlist-index-tsx-index-div-179"
       className="w-full"
     >
-      {sortedComments.map((commentData) => {
-        const { fullName, profileImage } = getUserDetail(
-          commentData.commentedBy,
-        );
-        const isOwnComment = commentData.commentedBy === userId;
+      {/* Comment thread */}
+      <div className="space-y-2">
+        {sortedComments.map((commentData) => {
+          const { fullName, initials, profileImage } = getUserDetail(
+            commentData.commentedBy,
+          );
+          const isOwnComment = commentData.commentedBy === userId;
+          const timeAgo = dayjs(commentData.createdAt).fromNow();
 
-        return (
-          <div
-            key={commentData.id}
-            className={`w-full mb-3 flex items-start gap-2 ${isOwnComment ? 'justify-end' : 'justify-start'}`}
-            data-cy="planningandreporting-planning-and-reporting-components-comments-commentlist-index-tsx-div-190"
-          >
+          return (
             <div
-              className={`inline-block rounded-2xl px-4 py-3 shadow-sm ${
-                isOwnComment
-                  ? 'border border-[#574CFF] bg-white'
-                  : 'bg-[#F5F5F7] border border-[#E5E7EB]'
-              }`}
-              data-cy="planningandreporting-planning-and-reporting-components-comments-commentlist-index-tsx-div-194"
-              style={{ maxWidth: '70%' }}
+              key={commentData.id}
+              className="group/comment flex items-start gap-2"
+              data-cy="planningandreporting-planning-and-reporting-components-comments-commentlist-index-tsx-div-190"
             >
-              {/* Avatar and Name on top - Avatar first (left), then name - all inside bubble */}
-              <div
-                data-cy="-components-comments-commentlist-index-tsx-index-div-200"
-                className="flex items-center gap-2 mb-2"
+              <Avatar
+                src={profileImage || undefined}
+                size={24}
+                className="flex-shrink-0 mt-0.5"
+                style={{
+                  backgroundColor: profileImage ? undefined : '#E0E7FF',
+                  color: profileImage ? undefined : '#4C1D95',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                }}
               >
-                <Avatar
-                  src={profileImage || undefined}
-                  icon={!profileImage ? <FaUser /> : undefined}
-                  alt={fullName}
-                  size="small"
-                  className="flex-shrink-0"
-                />
-                <span
-                  data-cy="-components-comments-commentlist-index-tsx-index-span-208"
-                  className="text-sm font-semibold text-[#161A2C]"
-                >
-                  {fullName}
-                </span>
-              </div>
-              {/* Comment text below - aligned left - inside bubble */}
-              <div
-                data-cy="-components-comments-commentlist-index-tsx-index-div-213"
-                className="text-sm text-[#4B5563] break-words"
-              >
-                {commentData.comment}
-              </div>
-            </div>
-            {isOwnComment && (
-              <CommentActionMenu
-                onEdit={() => handleEdit(commentData)}
-                onDelete={() => handleDelete(commentData.id)}
-              />
-            )}
-          </div>
-        );
-      })}
+                {!profileImage && initials}
+              </Avatar>
 
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[12px] font-semibold text-[#161A2C]">
+                    {fullName}
+                  </span>
+                  <span className="text-[10px] text-[#B0B3C0]">{timeAgo}</span>
+                </div>
+                <p className="text-[12px] text-[#4B5563] leading-relaxed mt-0.5 break-words">
+                  {commentData.comment}
+                </p>
+              </div>
+
+              {isOwnComment && (
+                <div className="flex-shrink-0 opacity-0 group-hover/comment:opacity-100 transition-opacity">
+                  <CommentActionMenu
+                    onEdit={() => handleEdit(commentData)}
+                    onDelete={() => handleDelete(commentData.id)}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Input */}
       {showAddForm && (
         <Form
           form={form}
           layout="inline"
-          className="w-full mt-4"
+          className="w-full mt-3"
           onFinish={handleSubmit}
         >
           <Form.Item
@@ -257,59 +284,61 @@ const CommentList = ({
           </Form.Item>
           <Form.Item
             name="comment"
-            rules={[{ required: true, message: 'Please enter a comment' }]}
-            className="w-full mt-2 mb-0"
+            rules={[{ required: true, message: '' }]}
+            className="w-full mb-0"
           >
-            <div
-              data-cy="-components-comments-commentlist-index-tsx-index-div-249"
-              className="relative"
-            >
-              <Input.TextArea
+            <div className="flex items-center gap-2">
+              <Input
                 id={`planning-comment-textarea-${planId || 'new'}`}
                 data-cy={`planning-comment-textarea-${planId || 'new'}`}
-                placeholder={editingCommentId ? '' : 'Add your comment here'}
-                className={`rounded-2xl border-[#E5E7EB] px-4 pr-12 transition-colors ${editingCommentId ? 'bg-indigo-50 border-indigo-200' : 'bg-[#F9FAFB]'}`}
-                style={{ height: '88px', paddingRight: '48px', resize: 'none' }}
-                autoSize={false}
+                placeholder={
+                  editingCommentId
+                    ? 'Edit your comment...'
+                    : 'Write a comment...'
+                }
+                className={`flex-1 rounded-lg text-[12px] !py-1.5 !px-3 ${
+                  editingCommentId
+                    ? '!border-[#574CFF]/30 !bg-[#574CFF]/[0.03]'
+                    : '!border-[#E5E7EB] !bg-[#FAFBFC]'
+                } focus:!border-[#574CFF] focus:!shadow-[0_0_0_2px_rgba(87,76,255,0.08)]`}
                 value={commentValue}
                 onChange={(e) => {
                   const newValue = e.target.value;
                   setCommentValue(newValue);
-                  // Sync with form for submission
                   form.setFieldsValue({ comment: newValue });
                 }}
+                onPressEnter={(e) => {
+                  e.preventDefault();
+                  handleSubmit();
+                }}
               />
-              <div
-                data-cy="-components-comments-commentlist-index-tsx-index-div-265"
-                className="absolute right-2 top-2 flex flex-col gap-1"
+              <Button
+                id={`planning-comment-submit-button-${planId || 'new'}`}
+                data-cy={`planning-comment-submit-button-${planId || 'new'}`}
+                loading={isLoading}
+                type="primary"
+                htmlType="submit"
+                icon={<SendOutlined className="text-[11px]" />}
+                className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]"
               >
+                {editingCommentId ? 'Update' : 'Send'}
+              </Button>
+              {editingCommentId && (
                 <Button
-                  id={`planning-comment-submit-button-${planId || 'new'}`}
-                  data-cy={`planning-comment-submit-button-${planId || 'new'}`}
-                  loading={isLoading}
+                  id={`planning-comment-cancel-button-${planId || 'new'}`}
+                  data-cy={`planning-comment-cancel-button-${planId || 'new'}`}
                   type="text"
-                  htmlType="submit"
-                  icon={<SendOutlined />}
-                  className={`flex items-center justify-center !w-8 !h-8 !p-0 border-0 bg-transparent text-[#111827] hover:bg-transparent ${editingCommentId ? 'text-[#574CFF] hover:text-[#4F46EF]' : 'hover:text-[#574CFF]'}`}
-                />
-                {editingCommentId && (
-                  <Button
-                    id={`planning-comment-cancel-button-${planId || 'new'}`}
-                    data-cy={`planning-comment-cancel-button-${planId || 'new'}`}
-                    type="text"
-                    size="small"
-                    onClick={() => {
-                      setEditingCommentId('');
-                      setCommentValue('');
-                      form.resetFields();
-                    }}
-                    className="text-gray-400 hover:text-red-500 !p-0 !h-6"
-                    style={{ fontSize: '10px' }}
-                  >
-                    Cancel
-                  </Button>
-                )}
-              </div>
+                  size="small"
+                  onClick={() => {
+                    setEditingCommentId('');
+                    setCommentValue('');
+                    form.resetFields();
+                  }}
+                  className="!text-[11px] !text-[#8F94A3] hover:!text-[#EF4444] !px-2 !h-[30px]"
+                >
+                  Cancel
+                </Button>
+              )}
             </div>
           </Form.Item>
         </Form>

@@ -19,6 +19,7 @@ const groupTasksByKeyResultId = (plans: any) => {
       keyResultMap[keyResultId].tasks.push({
         id: task?.id,
         task: task?.task,
+        taskName: task?.taskName,
         priority: task?.priority,
         createdAt: task?.createdAt,
         updatedAt: task?.updatedAt,
@@ -26,7 +27,7 @@ const groupTasksByKeyResultId = (plans: any) => {
         weight: task?.weight,
         parentTask: task?.parentTask,
         achieveMK: task?.achieveMK,
-
+        status: task?.status,
         milestone: { ...task?.milestone },
       });
     });
@@ -53,6 +54,7 @@ const groupByMilestone = (tasks: any[]) => {
     acc[milestoneId].tasks.push({
       id: task.id,
       task: task.task,
+      taskName: task.taskName,
       priority: task.priority,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
@@ -60,7 +62,8 @@ const groupByMilestone = (tasks: any[]) => {
       weight: task.weight,
       parentTask: task?.parentTask,
       achieveMK: task?.achieveMK,
-      keyResult: { ...task.keyResult }, // Optionally include keyResult data
+      status: task?.status,
+      keyResult: { ...task.keyResult },
     });
     return acc;
   }, {}); // Start with an empty object
@@ -84,11 +87,13 @@ const groupByParentTask = (tasks: any[]) => {
     parentTaskMap[parentTask.id].tasks.push({
       id: task.id,
       task: task.task,
+      taskName: task.taskName,
       priority: task.priority,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,
       targetValue: task.targetValue,
       achieveMK: task.achieveMK,
+      status: task?.status,
       weight: task.weight,
     });
   });

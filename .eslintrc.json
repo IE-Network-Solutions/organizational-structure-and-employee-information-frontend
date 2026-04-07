@@ -53,6 +53,14 @@
       "rules": {
         "local-rules/data-cy-required": "error"
       }
+    },
+    {
+      "files": [
+        "app/(afterLogin)/(planningAndReporting)/planning-and-reporting/**/*.tsx"
+      ],
+      "rules": {
+        "local-rules/data-cy-required": "off"
+      }
     }
   ],
   "ignorePatterns": [

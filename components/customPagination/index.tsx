@@ -16,7 +16,8 @@ interface CustomPaginationProps {
   id?: string;
   'data-cy'?: string;
   className?: string;
-  grayBackground?: boolean; // Only for planning and reporting page
+  /** When true, pagination row uses `bg-gray-100` (employees table leaves this false). */
+  grayBackground?: boolean;
   showPageSizeChanger?: boolean;
   /** When true, renders "Go to" section on the right side */
   goToOnRight?: boolean;

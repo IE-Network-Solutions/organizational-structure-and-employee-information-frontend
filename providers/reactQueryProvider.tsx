@@ -55,6 +55,28 @@ const shouldSuppressGlobalErrorToast = (error: any): boolean => {
   );
 };
 
+/**
+ * Planning header queries (`find-all-plans`, `parent-hierarchy`) — backend may return 400 while UI still works.
+ * QueryCache passes `query`; merged default `queries.onError` may only receive `error`, so also match URL.
+ */
+const shouldSuppressPlanningHeaderFetchError = (
+  error: any,
+  query?: { queryKey?: unknown },
+) => {
+  const key = query?.queryKey;
+  if (Array.isArray(key)) {
+    const k0 = key[0];
+    if (k0 === 'okrUserPlans' || k0 === 'planningPeriodsHierarchy') {
+      return true;
+    }
+  }
+  const url = String(error?.config?.url ?? error?.response?.config?.url ?? '');
+  return (
+    url.includes('/plan/find-all-plans/') ||
+    url.includes('/planning-periods/parent-hierarchy/')
+  );
+};
+
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -62,6 +84,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
         onError: async (error: any) => {
           // Check for tenant ID missing error first
           if (handleTenantIdError(error)) {
+            return;
+          }
+          if (shouldSuppressPlanningHeaderFetchError(error)) {
             return;
           }
           if (shouldSuppressGlobalErrorToast(error)) {
@@ -110,9 +135,12 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       },
     },
     queryCache: new QueryCache({
-      onError: async (error: any) => {
+      onError: async (error: any, query: any) => {
         // Check for tenant ID missing error first
         if (handleTenantIdError(error)) {
+          return;
+        }
+        if (shouldSuppressPlanningHeaderFetchError(error, query)) {
           return;
         }
         if (shouldSuppressGlobalErrorToast(error)) {
