@@ -51,6 +51,14 @@
 /* Reserve space for the 90px date+dot rail + gap before cards. */
 .meetingTimeline :global(.ant-timeline-item-content) {
   margin-inline-start: 98px !important;
+  /* Let flex parents shrink this column; avoids horizontal overflow that clips the card. */
+  min-width: 0 !important;
+  /*
+    Parent columns use overflow-hidden; a 1px border flush to the right edge is often clipped.
+    Reserve 2px so the card’s right border stays inside the paint box.
+  */
+  padding-inline-end: 2px !important;
+  box-sizing: border-box !important;
 }
 
 /* First row: custom head uses translateY(-50%); pad so date/dot aren’t clipped in scroll parents. */

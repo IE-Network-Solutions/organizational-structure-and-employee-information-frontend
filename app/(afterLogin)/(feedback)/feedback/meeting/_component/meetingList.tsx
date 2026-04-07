@@ -131,7 +131,7 @@ const MeetingList = ({
           passHref
           key={meeting.id}
           scroll={false}
-          className={`block min-w-0 hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
+          className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
             selectedMeetingId === meeting.id
               ? 'border-[#1E40AF] bg-transparent'
               : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
@@ -249,7 +249,7 @@ const MeetingList = ({
             data-cy="feedback-meeting-meetinglist-timeline-wrap"
           >
             <div
-              className="min-h-0 flex-1 overflow-y-auto scrollbar-none pt-[2px]"
+              className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden scrollbar-none pt-[2px]"
               data-cy="feedback-meeting-meetinglist-timeline-scroll"
             >
               {timelineNode}
@@ -288,7 +288,7 @@ const MeetingList = ({
 
         {meetings?.items?.length !== 0 ? (
           <div
-            className={`${hideFilters ? 'mt-[15px]' : 'mt-6'} max-h-[min(720px,75vh)] min-h-0 overflow-y-auto scrollbar-none`}
+            className={`${hideFilters ? 'mt-[15px]' : 'mt-6'} max-h-[min(720px,75vh)] min-h-0 min-w-0 overflow-y-auto overflow-x-hidden scrollbar-none`}
             data-cy="feedback-meeting-meetinglist-timeline-outer"
           >
             {timelineNode}
