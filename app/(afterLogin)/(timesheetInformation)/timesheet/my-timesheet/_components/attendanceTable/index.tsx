@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 // Types
 import { TableColumnsType } from '@/types/table/table';
@@ -533,23 +534,26 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
         id="time-attendance-attendance-table-content"
         data-cy="time-attendance-attendance-table-content"
       >
-        <Table<AttendanceRecord>
-          className="mt-3 [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
-          columns={columns}
-          dataSource={data?.items}
-          loading={isFetching}
-          pagination={false}
-          onChange={handleTableChange}
-          scroll={{ x: 'min-content' }}
-          id="time-attendance-attendance-table"
-          data-cy="time-attendance-attendance-table"
-          rowClassName={(record, index) => {
-            void record;
-            return index % 2 === 1
-              ? 'time-attendance-table-row-even'
-              : 'time-attendance-table-row-odd';
-          }}
-        />
+        {isFetching ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table<AttendanceRecord>
+            className="mt-3 [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
+            columns={columns}
+            dataSource={data?.items}
+            pagination={false}
+            onChange={handleTableChange}
+            scroll={{ x: 'min-content' }}
+            id="time-attendance-attendance-table"
+            data-cy="time-attendance-attendance-table"
+            rowClassName={(record, index) => {
+              void record;
+              return index % 2 === 1
+                ? 'time-attendance-table-row-even'
+                : 'time-attendance-table-row-odd';
+            }}
+          />
+        )}
         <div
           className={`mx-1 ${isMobile || isTablet ? 'mt-6' : ''}`}
           data-cy="time-attendance-attendance-table-pagination-wrapper"

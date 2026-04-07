@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import {
   Table,
   Select,
@@ -655,15 +656,18 @@ const EmployeeSurveyTable: React.FC = () => {
         </div>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={employeeSurvey?.items}
-        pagination={false}
-        loading={employeeSurveyLoading}
-        className="overflow-x-auto scrollbar-none"
-        data-cy="employee-survey-table"
-        id="employeeSurveyTable"
-      />
+      {employeeSurveyLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={employeeSurvey?.items}
+          pagination={false}
+          className="overflow-x-auto scrollbar-none"
+          data-cy="employee-survey-table"
+          id="employeeSurveyTable"
+        />
+      )}
       <CustomPagination
         total={employeeSurvey?.meta?.totalItems || 0}
         current={employeeSurvey?.meta?.currentPage || 1}

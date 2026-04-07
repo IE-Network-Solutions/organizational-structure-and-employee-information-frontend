@@ -14,6 +14,7 @@ import { useCompensationSettingStore } from '@/store/uistate/features/compensati
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const DeductionTypeTable = () => {
   const { isMobile, isTablet } = useIsMobile();
@@ -240,15 +241,19 @@ const DeductionTypeTable = () => {
           id="compensation-settings-deduction-type-table-scroll"
           data-cy="compensation-settings-deduction-type-table-scroll"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="deduction-type-table"
-            id="compensation-settings-deduction-type-table"
-            data-cy="compensation-settings-deduction-type-table"
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="deduction-type-table"
+              id="compensation-settings-deduction-type-table"
+              data-cy="compensation-settings-deduction-type-table"
+            />
+          )}
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination

@@ -16,6 +16,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { MdDeleteOutline, MdOutlineEdit } from 'react-icons/md';
 import { useMemo, useState } from 'react';
 import { ConversationStore } from '@/store/uistate/features/conversation';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import RecognitionForm from '../../_components/recognition/createRecognition';
 import { AiOutlineTrophy } from 'react-icons/ai';
 import { LuSuperscript } from 'react-icons/lu';
@@ -398,22 +399,26 @@ export default function RecognitionDetailPage() {
                           className="rounded-[8px] p-3 bg-white"
                           data-cy={`recognition-detail-criteria-table-inner-${child?.id}`}
                         >
-                          <Table<CriteriaTableRecord>
-                            data-cy={`recognition-detail-criteria-table-ant-${child?.id}`}
-                            rowKey={(r, index) =>
-                              String(
-                                r.id ??
-                                  r.criteria?.criteriaName ??
-                                  `criteria-row-${index}`,
-                              )
-                            }
-                            size="small"
-                            columns={columns}
-                            dataSource={child?.recognitionCriteria ?? []}
-                            pagination={false}
-                            className="bg-transparent [&_.ant-table]:bg-transparent"
-                            scroll={{ x: 720 }}
-                          />
+                          {isLoading ? (
+                            <TableSkeleton columns={columns} />
+                          ) : (
+                            <Table<CriteriaTableRecord>
+                              data-cy={`recognition-detail-criteria-table-ant-${child?.id}`}
+                              rowKey={(r, index) =>
+                                String(
+                                  r.id ??
+                                    r.criteria?.criteriaName ??
+                                    `criteria-row-${index}`,
+                                )
+                              }
+                              size="small"
+                              columns={columns}
+                              dataSource={child?.recognitionCriteria ?? []}
+                              pagination={false}
+                              className="bg-transparent [&_.ant-table]:bg-transparent"
+                              scroll={{ x: 720 }}
+                            />
+                          )}
                         </div>
                       </div>
                     )}

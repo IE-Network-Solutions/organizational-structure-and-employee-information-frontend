@@ -9,6 +9,7 @@ import { MdEdit } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AllowanceTypeSideBar from '@/app/(afterLogin)/(compensation)/compensationSetting/allowanceType/_components/allowanceTypeSidebar';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface Ids {
   id: string;
@@ -144,15 +145,18 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
         id="job-basic-salary-card"
         data-cy="job-basic-salary-card"
       >
-        <Table
-          dataSource={basicSalary?.slice()?.reverse()}
-          columns={columns}
-          className="w-full overflow-auto"
-          pagination={{ hideOnSinglePage: true }}
-          loading={isLoading}
-          id="job-basic-salary-table"
-          data-cy="job-basic-salary-table"
-        />
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            dataSource={basicSalary?.slice()?.reverse()}
+            columns={columns}
+            className="w-full overflow-auto"
+            pagination={{ hideOnSinglePage: true }}
+            id="job-basic-salary-table"
+            data-cy="job-basic-salary-table"
+          />
+        )}
       </Card>
       <BasicSalaryModal
         visible={isBasicSalaryModalVisible}

@@ -24,6 +24,7 @@ import {
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useDeleteIntern } from '@/store/server/features/recruitment/intern/mutation';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
@@ -744,34 +745,37 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         data-cy="talent-acquisition-intern-table-container"
         className=" overflow-x-auto scrollbar-none"
       >
-        <Table
-          data-cy="talent-acquisition-intern-table"
-          className="w-full"
-          columns={columns}
-          dataSource={data}
-          loading={isLoading}
-          pagination={false}
-          onRow={(record) => ({
-            onClick: (event) => {
-              // Only navigate if the click is not on a checkbox, button, link, or dropdown
-              const target = event.target as HTMLElement;
-              const isInteractiveElement = target.closest(
-                'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
-              );
-
-              if (!isInteractiveElement) {
-                router.push(
-                  `/recruitment/talent-resource/intern/${record?.id}`,
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            data-cy="talent-acquisition-intern-table"
+            className="w-full"
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            onRow={(record) => ({
+              onClick: (event) => {
+                // Only navigate if the click is not on a checkbox, button, link, or dropdown
+                const target = event.target as HTMLElement;
+                const isInteractiveElement = target.closest(
+                  'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
                 );
-              }
-            },
-          })}
-          rowHoverable={false}
-          rowClassName={(notUsed, index) => {
-            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-            return base;
-          }}
-        />
+
+                if (!isInteractiveElement) {
+                  router.push(
+                    `/recruitment/talent-resource/intern/${record?.id}`,
+                  );
+                }
+              },
+            })}
+            rowHoverable={false}
+            rowClassName={(notUsed, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              return base;
+            }}
+          />
+        )}
       </div>
       {isMobile || isTablet ? (
         <div

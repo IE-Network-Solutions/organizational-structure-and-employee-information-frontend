@@ -1,5 +1,6 @@
 'use client';
 
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Button, Table, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
@@ -45,12 +46,14 @@ type Props = {
   items: any[] | undefined;
   departmentNameById: Map<string, string>;
   searchText: string;
+  isLoading?: boolean;
 };
 
 export default function RecognitionTypesAccordion({
   items,
   departmentNameById,
   searchText,
+  isLoading = false,
 }: Props) {
   const router = useRouter();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -263,15 +266,19 @@ export default function RecognitionTypesAccordion({
                 className="border-t border-gray-100 px-4 pb-4"
                 data-cy={`recognition-type-accordion-body-${type.id}`}
               >
-                <Table<any>
-                  rowKey="id"
-                  size="small"
-                  columns={columns}
-                  dataSource={criteria}
-                  pagination={false}
-                  className="mt-3"
-                  scroll={{ x: 720 }}
-                />
+                {isLoading ? (
+                  <TableSkeleton columns={columns} />
+                ) : (
+                  <Table<any>
+                    rowKey="id"
+                    size="small"
+                    columns={columns}
+                    dataSource={criteria}
+                    pagination={false}
+                    className="mt-3"
+                    scroll={{ x: 720 }}
+                  />
+                )}
               </div>
             ) : null}
           </div>

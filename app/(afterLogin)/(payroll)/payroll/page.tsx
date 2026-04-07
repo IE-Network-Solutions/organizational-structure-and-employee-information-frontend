@@ -69,6 +69,7 @@ import { TbFileExport } from 'react-icons/tb';
 import GeneratePayrollModal, { Incentive } from './_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
@@ -123,11 +124,11 @@ const Payroll = () => {
 
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(
-    searchQuery,
-    pageSize,
-    currentPage,
-  );
+  const {
+    data: payroll,
+    refetch,
+    isLoading: payrollTableLoading,
+  } = useGetActivePayroll(searchQuery, pageSize, currentPage);
   const { data: payrollForExport, refetch: refetchExportData } =
     useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
@@ -1669,35 +1670,39 @@ const Payroll = () => {
             data-cy="payroll-table-wrapper-view-container"
             className="overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
           >
-            <Table
-              id="payroll-table-view-table"
-              data-cy="payroll-table-view-table"
-              className="payroll-table"
-              dataSource={mergedPayroll || []}
-              columns={columns}
-              pagination={false}
-              rowClassName={(record: any, index: number) => {
-                void record;
-                return index % 2 === 1 ? 'payroll-zebra-row' : '';
-              }}
-              rowSelection={{
-                selectedRowKeys,
-                onChange: (newSelectedRowKeys: React.Key[]) => {
-                  setSelectedRowKeys(newSelectedRowKeys);
-                },
-                onSelectAll: (isSelected: boolean) => {
-                  if (isSelected) {
-                    const allKeys = mergedPayroll.map(
-                      (item: any) => item.id || item.employeeId,
-                    );
-                    setSelectedRowKeys(allKeys);
-                  } else {
-                    setSelectedRowKeys([]);
-                  }
-                },
-              }}
-              rowKey={(record: any) => record.id || record.employeeId}
-            />
+            {payrollTableLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                id="payroll-table-view-table"
+                data-cy="payroll-table-view-table"
+                className="payroll-table"
+                dataSource={mergedPayroll || []}
+                columns={columns}
+                pagination={false}
+                rowClassName={(record: any, index: number) => {
+                  void record;
+                  return index % 2 === 1 ? 'payroll-zebra-row' : '';
+                }}
+                rowSelection={{
+                  selectedRowKeys,
+                  onChange: (newSelectedRowKeys: React.Key[]) => {
+                    setSelectedRowKeys(newSelectedRowKeys);
+                  },
+                  onSelectAll: (isSelected: boolean) => {
+                    if (isSelected) {
+                      const allKeys = mergedPayroll.map(
+                        (item: any) => item.id || item.employeeId,
+                      );
+                      setSelectedRowKeys(allKeys);
+                    } else {
+                      setSelectedRowKeys([]);
+                    }
+                  },
+                }}
+                rowKey={(record: any) => record.id || record.employeeId}
+              />
+            )}
           </div>
           {/* Pagination footer — outside scrollable table wrapper */}
           <div

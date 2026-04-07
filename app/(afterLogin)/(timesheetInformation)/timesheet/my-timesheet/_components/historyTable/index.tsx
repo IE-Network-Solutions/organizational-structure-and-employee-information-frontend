@@ -20,6 +20,7 @@ import { FaPlus } from 'react-icons/fa';
 import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const HistoryTable = () => {
   const { isMobile, isTablet } = useIsMobile();
@@ -339,23 +340,26 @@ const HistoryTable = () => {
           className="border-t border-gray-200 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           data-cy="time-attendance-history-table-container"
         >
-          <Table
-            className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
-            columns={columns}
-            loading={isFetching}
-            dataSource={tableData}
-            pagination={false}
-            scroll={{ x: LEAVE_TABLE_SCROLL_X }}
-            rowClassName={(record, index) => {
-              void record;
-              return index % 2 === 1
-                ? 'leave-history-table-row-even'
-                : 'leave-history-table-row-odd';
-            }}
-            tableLayout="fixed"
-            id="time-attendance-history-table"
-            data-cy="time-attendance-history-table"
-          />
+          {isFetching ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
+              columns={columns}
+              dataSource={tableData}
+              pagination={false}
+              scroll={{ x: LEAVE_TABLE_SCROLL_X }}
+              rowClassName={(record, index) => {
+                void record;
+                return index % 2 === 1
+                  ? 'leave-history-table-row-even'
+                  : 'leave-history-table-row-odd';
+              }}
+              tableLayout="fixed"
+              id="time-attendance-history-table"
+              data-cy="time-attendance-history-table"
+            />
+          )}
           <div
             className={`mx-2 sm:mx-3 ${isMobile || isTablet ? 'mt-6' : ''}`}
             data-cy="time-attendance-history-table-pagination-wrapper"

@@ -196,7 +196,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
 
     return pageNumbers;
   };
-
+  if (totalPages <= 1) {
+    return null;
+  }
   return (
     <div
       id={id}

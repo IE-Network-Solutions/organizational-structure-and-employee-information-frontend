@@ -21,7 +21,6 @@ import {
   Popover,
   Row,
   Select,
-  Skeleton,
   Table,
   Tooltip,
 } from 'antd';
@@ -38,6 +37,7 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -229,38 +229,6 @@ function deadlineStatusText(item: any): React.ReactNode {
     );
   }
   return <span className="text-xs font-medium text-blue-600">Upcoming</span>;
-}
-
-function ActionPlansTableSkeleton() {
-  return (
-    <div
-      className="w-full min-w-0 overflow-hidden bg-white"
-      data-cy="action-plans-table-skeleton"
-    >
-      <div className="border-b border-gray-200 bg-[#F5F5F5] px-3 py-3">
-        <Skeleton.Input
-          active
-          size="small"
-          style={{ width: 220, minWidth: 220 }}
-          className="!min-h-[14px] !leading-none"
-        />
-      </div>
-      {Array.from({ length: 3 }).map((_, row) => (
-        <div
-          key={row}
-          className={`border-b border-gray-100 px-3 py-4 ${
-            row % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
-          }`}
-        >
-          <Skeleton
-            active
-            title={false}
-            paragraph={{ rows: 2, width: ['68%', '42%'] }}
-          />
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function ActionPlans({ id }: Params) {
@@ -972,8 +940,11 @@ function ActionPlans({ id }: Params) {
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-0">
           <div className="min-h-0 w-full min-w-0 flex-1 overflow-auto scrollbar-hide">
             {showTableSkeleton ? (
-              <div className="w-full min-w-0">
-                <ActionPlansTableSkeleton />
+              <div
+                className="w-full min-w-0"
+                data-cy="action-plans-table-skeleton"
+              >
+                <TableSkeleton columns={columns} />
               </div>
             ) : (
               <Table

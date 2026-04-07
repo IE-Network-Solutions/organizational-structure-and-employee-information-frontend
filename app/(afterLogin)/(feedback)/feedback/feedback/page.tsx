@@ -8,7 +8,6 @@ import {
   Popconfirm,
   Popover,
   Select,
-  Spin,
   Table,
   Tooltip,
 } from 'antd';
@@ -31,6 +30,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useFeedbackExport } from './_components/useFeedbackExport';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
@@ -943,30 +943,25 @@ const Page = () => {
             className="scrollbar-none w-full overflow-x-auto"
             data-cy="feedback-page-table-scroll-container"
           >
-            <Table
-              dataSource={getAllFeedbackRecord?.items}
-              columns={columns}
-              locale={{
-                emptyText: getFeedbackRecordLoading ? (
-                  <div
-                    className="flex min-h-[220px] items-center justify-center"
-                    data-cy="feedback-page-table-loading"
-                  >
-                    <Spin size="large" />
-                  </div>
-                ) : (
-                  <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                ),
-              }}
-              rowClassName={(row, index) =>
-                `feedback-table-row ${index % 2 === 1 ? 'feedback-table-row--alt' : 'feedback-table-row--base'}`
-              }
-              scroll={{ x: 'max-content' }}
-              className="w-full feedback-table"
-              pagination={false}
-              rowKey={(record: any) => record?.id}
-              data-cy="feedback-page-table"
-            />
+            {getFeedbackRecordLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                dataSource={getAllFeedbackRecord?.items}
+                columns={columns}
+                locale={{
+                  emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
+                }}
+                rowClassName={(row, index) =>
+                  `feedback-table-row ${index % 2 === 1 ? 'feedback-table-row--alt' : 'feedback-table-row--base'}`
+                }
+                scroll={{ x: 'max-content' }}
+                className="w-full feedback-table"
+                pagination={false}
+                rowKey={(record: any) => record?.id}
+                data-cy="feedback-page-table"
+              />
+            )}
           </div>
         </div>
 

@@ -21,6 +21,7 @@ import {
 } from '@/store/server/features/CFR/conversation/conversation-instance/queries';
 import { useRouter } from 'next/navigation';
 import EmployeeSearchComponent from '@/components/common/search/searchComponent';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const MettingDataTable = ({
   conversationTypeId,
@@ -264,26 +265,29 @@ const MettingDataTable = ({
         fields={searchField}
         onChange={handleSearchChange}
       />
-      <Table<any>
-        columns={columns}
-        loading={getInstanceLoading}
-        dataSource={conversationInstances?.items ?? []}
-        pagination={{
-          total: conversationInstances?.meta?.total ?? 0, // Total number of items
-          current: page, // Current page
-          pageSize: pageSize, // Items per page
-          showSizeChanger: true, // Enable page size changer
-          onChange: (page, pageSize) => {
-            setPage(page); // Update current page
-            setPageSize(pageSize); // Update page size
-          },
-        }}
-        scroll={{ x: 800 }} // Enable horizontal scrolling
-        className="cursor-pointer"
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record), // Add click handler
-        })}
-      />
+      {getInstanceLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table<any>
+          columns={columns}
+          dataSource={conversationInstances?.items ?? []}
+          pagination={{
+            total: conversationInstances?.meta?.total ?? 0, // Total number of items
+            current: page, // Current page
+            pageSize: pageSize, // Items per page
+            showSizeChanger: true, // Enable page size changer
+            onChange: (page, pageSize) => {
+              setPage(page); // Update current page
+              setPageSize(pageSize); // Update page size
+            },
+          }}
+          scroll={{ x: 800 }} // Enable horizontal scrolling
+          className="cursor-pointer"
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record), // Add click handler
+          })}
+        />
+      )}
       <CustomDrawerLayout
         open={open}
         onClose={() => {
