@@ -31,40 +31,63 @@ const TextEditor: FC<TextEditorProps> = ({
       className={classNames('border rounded-2xl border-gray-200', undefined, [
         className,
       ])}
+      data-cy="text-editor"
     >
       <div
         id="textEditorToolbar"
         className="flex items-center gap-3 px-2 py-4 border-0 border-b border-gray-200"
+        data-cy="text-editor-toolbar"
       >
-        <button className="ql-header" value="3">
+        <button
+          className="ql-header"
+          value="3"
+          data-cy="text-editor-header-button"
+        >
           <MdTitle size={16} />
         </button>
-        <button id="buttonQlBold" type="button" className="ql-bold"></button>
+        <button
+          data-cy="components-form-texteditor-index-tsx-index-button-48"
+          id="buttonQlBold"
+          type="button"
+          className="ql-bold"
+        ></button>
         <button
           id="buttonQlItallic"
           type="button"
+          data-cy="components-form-texteditor-index-tsx-index-button-54"
           className="ql-italic"
         ></button>
         <button
           id="buttonQlUnderline"
           type="button"
           className="ql-underline"
+          data-cy="components-form-texteditor-index-tsx-index-button-60"
         ></button>
-        <button id="buttonQlLink" type="button" className="ql-link"></button>
+        <button
+          data-cy="components-form-texteditor-index-tsx-index-button-59"
+          id="buttonQlLink"
+          type="button"
+          className="ql-link"
+        ></button>
         <button
           id="buttonQlList"
           type="button"
+          data-cy="components-form-texteditor-index-tsx-index-button-70"
           className="ql-list"
           value="bullet"
         ></button>
         <button
           id="buttonQlAlign"
+          data-cy="components-form-texteditor-index-tsx-index-button-78"
           type="button"
           className="ql-align"
           value="center"
         ></button>
       </div>
-      <div className="p-3 h-[250px] overflow-y-auto border-0 border-none [&_.ql-container]:border-0 [&_.ql-container]:shadow-none [&_.ql-editor]:border-0">
+      <div
+        data-cy="components-form-texteditor-index-tsx-index-div-73"
+        className="p-3 h-[250px] overflow-y-auto border-0 border-none [&_.ql-container]:border-0 [&_.ql-container]:shadow-none [&_.ql-editor]:border-0"
+      >
         {toolbar && (
           <QuillEditor
             id="quillEditorFieldId"

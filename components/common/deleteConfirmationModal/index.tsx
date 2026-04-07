@@ -30,7 +30,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   'data-cy': dataCy,
 }) => {
   const deleteModalFooter = (
-    <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
+    <div
+      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      data-cy="delete-confirmation-modal-footer"
+    >
       <Button
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
         id="deleteModalCancelButtonId"
@@ -63,7 +66,10 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         </div>
       )}
     >
-      <p className="flex justify-center items-center h-[200px]">
+      <p
+        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-69"
+        className="flex justify-center items-center h-[200px]"
+      >
         <Image
           src="/deleteSvg.svg"
           width={300}
@@ -72,10 +78,20 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         />
       </p>
 
-      <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+      <p
+        data-cy="components-common-deleteconfirmationmodal-index-tsx-index-p-78"
+        className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+      >
         {deleteMessage ?? 'you sure to Delete ? '}
       </p>
-      {customMessage && <div className="mt-4 text-center">{customMessage}</div>}
+      {customMessage && (
+        <div
+          data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
+          className="mt-4 text-center"
+        >
+          {customMessage}
+        </div>
+      )}
     </Modal>
   );
 };

@@ -1,13 +1,20 @@
-import { Dropdown, Menu, Progress } from 'antd';
+import { Dropdown, Menu, Progress, Select, Tooltip } from 'antd';
 import { FC, useState } from 'react';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { IoIosMore } from 'react-icons/io';
-import { useUpdateObjectiveNestedDelete } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import {
+  useUpdateObjectiveNestedDelete,
+  useUpdateKeyResult,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useIsBasicOkr } from '../../../_utils/okrMode';
+import { DownOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import RecentModesTimelineModal from '../../recentModesTimelineModal';
+import { useQueryClient } from 'react-query';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -17,6 +24,8 @@ interface KPIMetricsProps {
   objectiveUserId?: string;
   isInActiveSession?: boolean;
 }
+
+const { Option } = Select;
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({
   keyResult,
@@ -28,8 +37,12 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [openTimelineModal, setOpenTimelineModal] = useState(false);
+  const queryClient = useQueryClient();
   const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+  const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
+  const isBasicOkr = useIsBasicOkr();
 
   const { keyResultValue, setKeyResultValue, setKeyResultId, setObjectiveId } =
     useOKRStore();
@@ -101,6 +114,48 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         return isMobile ? metricType : '';
     }
   }
+
+  // Get status display value and color for key result (Basic OKR mode)
+  const getKeyResultStatus = () => {
+    // Check status field first, then fall back to progress
+    if (
+      keyResult?.status === 'achieved' ||
+      Number(keyResult?.progress) === 100
+    ) {
+      return { value: 'achieved', label: 'Achieved', color: 'green' };
+    } else if (keyResult?.status === 'failed') {
+      return { value: 'failed', label: 'Failed', color: 'red' };
+    }
+    return { value: 'pending', label: 'Pending', color: 'yellow' };
+  };
+
+  // Handle status change for key result (Basic OKR mode)
+  const handleStatusChange = (newStatus: string) => {
+    let progressValue = 0;
+    if (newStatus === 'achieved') {
+      progressValue = 100;
+    } else if (newStatus === 'failed') {
+      progressValue = 0;
+    } else {
+      progressValue = 0;
+    }
+
+    const updatedKeyResult = {
+      ...keyResult,
+      progress: progressValue,
+      status: newStatus, // Set status field
+    };
+
+    updateKeyResult(updatedKeyResult, {
+      onSuccess: () => {
+        // Refetch will happen automatically via query invalidation
+      },
+    });
+  };
+
+  // Check if this is Basic OKR mode with AchieveOrNot metric
+  const isBasicAchieveOrNot =
+    isBasicOkr && keyResult?.metricType?.name === 'Achieve';
   return (
     <div
       id={`key-result-metrics-${keyResult?.id}`}
@@ -126,11 +181,19 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         >
           {`${keyResult?.title} ${getMetricName(keyResult.metricType.name)}`}
         </h2>
+        {keyResult?.previousMetricTypeId && (
+          <Tooltip title="Recent modes timeline">
+            <InfoCircleOutlined
+              className="text-blue-500 cursor-pointer hover:text-blue-600"
+              onClick={() => setOpenTimelineModal(true)}
+              data-cy={`okr-key-result-timeline-info-${keyResult?.id}`}
+            />
+          </Tooltip>
+        )}
         {keyResult?.isClosed === false &&
           Number(keyResult?.progress) === 0 &&
           menu && (
             <Dropdown
-             
               data-cy={`okr-key-result-actions-dropdown-${keyResult?.id}`}
               overlay={menu}
               trigger={['click']}
@@ -324,26 +387,61 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         data-cy={`okr-key-result-progress-section-${keyResult?.id}`}
         className="absolute bottom-2 right-2 flex items-center gap-2"
       >
-        <Progress
-          
-          data-cy={`okr-key-result-progress-indicator-${keyResult?.id}`}
-          type="circle"
-          showInfo={false}
-          percent={keyResult?.progress}
-          size={isMobile ? 16 : 20}
-        />
-        <span
-          id={`key-result-progress-text-${keyResult?.id}`}
-          data-cy={`okr-key-result-progress-text-${keyResult?.id}`}
-          className={`${isMobile ? 'text-base' : 'text-lg'}`}
-        >
-          {keyResult?.progress || 0}%
-        </span>
+        {isBasicAchieveOrNot ? (
+          <Select
+            value={getKeyResultStatus().value}
+            onChange={handleStatusChange}
+            disabled={!canEditDelete || keyResult?.isClosed}
+            suffixIcon={<DownOutlined className="text-gray-400" />}
+            className={`min-w-[120px] ${
+              getKeyResultStatus().color === 'yellow'
+                ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300'
+                : getKeyResultStatus().color === 'red'
+                  ? '[&_.ant-select-selector]:!bg-red-100 [&_.ant-select-selector]:!text-red-800 [&_.ant-select-selector]:!border-red-300'
+                  : '[&_.ant-select-selector]:!bg-green-100 [&_.ant-select-selector]:!text-green-800 [&_.ant-select-selector]:!border-green-300'
+            }`}
+            size={isMobile ? 'small' : 'middle'}
+            data-cy={`okr-key-result-status-dropdown-${keyResult?.id}`}
+          >
+            <Option value="pending">Pending</Option>
+            <Option value="failed">Failed</Option>
+            <Option value="achieved">Achieved</Option>
+          </Select>
+        ) : (
+          <>
+            <Progress
+              data-cy={`okr-key-result-progress-indicator-${keyResult?.id}`}
+              type="circle"
+              showInfo={false}
+              percent={keyResult?.progress}
+              size={isMobile ? 16 : 20}
+            />
+            <span
+              id={`key-result-progress-text-${keyResult?.id}`}
+              data-cy={`okr-key-result-progress-text-${keyResult?.id}`}
+              className={`${isMobile ? 'text-base' : 'text-lg'}`}
+            >
+              {keyResult?.progress || 0}%
+            </span>
+          </>
+        )}
       </div>
 
-      <EditKeyResult 
+      <EditKeyResult
         data-cy={`okr-key-result-metrics-edit-key-result-${keyResult?.id}`}
-        open={open} onClose={onClose} keyResult={keyResultValue} />
+        open={open}
+        onClose={onClose}
+        keyResult={keyResultValue}
+      />
+      <RecentModesTimelineModal
+        open={openTimelineModal}
+        onClose={() => setOpenTimelineModal(false)}
+        keyResult={keyResult}
+        onRestoreSuccess={() => {
+          queryClient.invalidateQueries('ObjectiveInformation');
+          queryClient.refetchQueries('ObjectiveDashboard');
+        }}
+      />
       <DeleteModal
         open={openDeleteModal}
         onConfirm={() => handleKeyResultDelete(keyResultValue.id)}

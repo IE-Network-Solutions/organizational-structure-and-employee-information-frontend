@@ -56,6 +56,8 @@ const CheckOutSidebar = () => {
       className: 'h-[40px] sm:h-[56px] text-base px-10',
       size: 'large',
       onClick: () => setIsShowCheckOutSidebar(false),
+      id: 'time-attendance-check-out-sidebar-cancel-button',
+      'data-cy': 'time-attendance-check-out-sidebar-cancel-button',
     },
     {
       label: 'Check-out',
@@ -64,6 +66,8 @@ const CheckOutSidebar = () => {
       size: 'large',
       type: 'primary',
       onClick: () => form.submit(),
+      id: 'time-attendance-check-out-sidebar-check-out-button',
+      'data-cy': 'time-attendance-check-out-sidebar-check-out-button',
     },
   ];
 
@@ -74,7 +78,12 @@ const CheckOutSidebar = () => {
     const { value } = props;
     const option = options.find((item) => item.value === value);
     return option ? (
-      <div className="font-bold text-gray-900">{option.label}</div>
+      <div
+        data-cy="my-timesheet-components-checkoutsidebar-index-tsx-index-div-81"
+        className="font-bold text-gray-900"
+      >
+        {option.label}
+      </div>
     ) : (
       ''
     );
@@ -121,7 +130,12 @@ const CheckOutSidebar = () => {
         open={isShowCheckOutSidebar}
         onClose={() => setIsShowCheckOutSidebar(false)}
         modalHeader={
-          <CustomDrawerHeader className="px-3">Check-out</CustomDrawerHeader>
+          <CustomDrawerHeader
+            className="px-3"
+            data-cy="time-attendance-check-out-sidebar-header"
+          >
+            Check-out
+          </CustomDrawerHeader>
         }
         footer={
           <CustomDrawerFooterButton
@@ -130,6 +144,7 @@ const CheckOutSidebar = () => {
           />
         }
         width="400px"
+        data-cy="time-attendance-check-out-sidebar"
       >
         <Form
           layout="vertical"
@@ -138,11 +153,14 @@ const CheckOutSidebar = () => {
           onFinish={onFinish}
           autoComplete="off"
           className="px-3"
+          id="time-attendance-check-out-sidebar-form"
+          data-cy="time-attendance-check-out-sidebar-form"
         >
           <Form.Item
             name="type"
             label="Checkin type"
-            id="checkTypeSelect"
+            id="time-attendance-check-out-sidebar-type-select"
+            data-cy="time-attendance-check-out-sidebar-type-select"
             rules={[{ required: true, message: 'Required' }]}
             className={itemClass}
           >
@@ -151,25 +169,52 @@ const CheckOutSidebar = () => {
               value={selectedType}
               labelRender={selectLabel}
               suffixIcon={
-                <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                <MdKeyboardArrowDown
+                  data-cy="time-attendance-check-out-sidebar-type-select-input-icon"
+                  size={16}
+                  className="text-gray-900"
+                />
               }
               onChange={setSelectedType}
+              id="time-attendance-check-out-sidebar-type-select-input"
+              data-cy="time-attendance-check-out-sidebar-type-select-input"
             >
               {options.map((option, key) => (
                 <Select.Option
-                  id={`chekinTypeOption${key}`}
+                  id={`time-attendance-check-out-sidebar-type-option-${key}`}
+                  data-cy={`time-attendance-check-out-sidebar-type-option-${key}`}
                   value={option.value}
                   key={option.value}
                   disabled={option.disabled}
                 >
-                  <div className="p-4 pr-1.5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div
+                    className="p-4 pr-1.5 flex items-center justify-between"
+                    id={`time-attendance-check-out-sidebar-type-option-${key}-container`}
+                    data-cy={`time-attendance-check-out-sidebar-type-option-${key}-container`}
+                  >
+                    <div
+                      className="flex items-center gap-2"
+                      id={`time-attendance-check-out-sidebar-type-option-${key}-label-container`}
+                      data-cy={`time-attendance-check-out-sidebar-type-option-${key}-label-container`}
+                    >
                       {selectedType === option.value ? (
-                        <div className="w-6 h-6 rounded-full border-[7px] border-primary"></div>
+                        <div
+                          className="w-6 h-6 rounded-full border-[7px] border-primary"
+                          id={`time-attendance-check-out-sidebar-type-option-${key}-selected-indicator`}
+                          data-cy={`time-attendance-check-out-sidebar-type-option-${key}-selected-indicator`}
+                        ></div>
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-gray-200 border"></div>
+                        <div
+                          className="w-6 h-6 rounded-full bg-gray-200 border"
+                          id={`time-attendance-check-out-sidebar-type-option-${key}-unselected-indicator`}
+                          data-cy={`time-attendance-check-out-sidebar-type-option-${key}-unselected-indicator`}
+                        ></div>
                       )}
-                      <span className="text-sm font-bold text-gray-900">
+                      <span
+                        className="text-sm font-bold text-gray-900"
+                        id={`time-attendance-check-out-sidebar-type-option-${key}-label`}
+                        data-cy={`time-attendance-check-out-sidebar-type-option-${key}-label`}
+                      >
                         {option.label}
                       </span>
                     </div>
@@ -177,6 +222,7 @@ const CheckOutSidebar = () => {
                       theme={option.status.theme}
                       transparentBg={true}
                       className="p-0"
+                      data-cy={`time-attendance-check-out-sidebar-type-option-${key}-status-badge`}
                     >
                       {option.status.text}
                     </StatusBadge>
@@ -185,11 +231,16 @@ const CheckOutSidebar = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item id="checkinPictureId" name="photo">
+          <Form.Item
+            id="time-attendance-check-out-sidebar-photo"
+            data-cy="time-attendance-check-out-sidebar-photo"
+            name="photo"
+          >
             <TakePicture
               onChange={(imgSrc) => {
                 form.setFieldValue('photo', imgSrc);
               }}
+              data-cy="time-attendance-check-out-sidebar-take-picture"
             />
           </Form.Item>
         </Form>

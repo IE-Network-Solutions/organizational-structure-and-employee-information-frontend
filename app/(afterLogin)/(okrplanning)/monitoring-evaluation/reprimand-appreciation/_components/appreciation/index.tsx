@@ -64,11 +64,18 @@ const Appreciation = () => {
   const { data: appLogs, isLoading } = useGetAppreciationLog(userId, typeId);
 
   return (
-    <div className="p-0">
-      <div className="flex flex-wrap justify-between items-center mb-6">
-        <div>
-          <h1 className="text-xl font-bold mb-1">Appreciation</h1>
-          <span className="text-sm mb-4">Given Upon Appreciation</span>
+    <div className="p-0" data-cy="appreciation-container">
+      <div
+        className="flex flex-wrap justify-between items-center mb-6"
+        data-cy="appreciation-header"
+      >
+        <div data-cy="appreciation-title-container">
+          <h1 className="text-xl font-bold mb-1" data-cy="appreciation-title">
+            Appreciation
+          </h1>
+          <span className="text-sm mb-4" data-cy="appreciation-subtitle">
+            Given Upon Appreciation
+          </span>
         </div>
         <AccessGuard permissions={[Permissions.CreateAppreciation]}>
           <CustomButton
@@ -81,7 +88,10 @@ const Appreciation = () => {
           />
         </AccessGuard>
       </div>
-      <div className="flex  justify-between items-center mb-4 gap-5">
+      <div
+        className="flex  justify-between items-center mb-4 gap-5"
+        data-cy="appreciation-filters-container"
+      >
         <Select
           showSearch
           placeholder="Select a person"

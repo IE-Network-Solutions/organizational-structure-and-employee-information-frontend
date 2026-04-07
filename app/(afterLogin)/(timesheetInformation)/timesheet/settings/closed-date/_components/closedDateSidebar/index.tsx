@@ -47,6 +47,8 @@ const ClosedDateSidebar = () => {
       onClick: () => {
         (setIsShow(false), form.resetFields());
       },
+      id: 'time-attendance-settings-closed-date-sidebar-cancel-button',
+      'data-cy': 'time-attendance-settings-closed-date-sidebar-cancel-button',
     },
     {
       label: selectedClosedDate ? 'Edit' : 'Add',
@@ -56,6 +58,8 @@ const ClosedDateSidebar = () => {
       type: 'primary',
       loading: isLoading,
       onClick: () => form.submit(),
+      id: 'time-attendance-settings-closed-date-sidebar-submit-button',
+      'data-cy': 'time-attendance-settings-closed-date-sidebar-submit-button',
     },
   ];
 
@@ -153,16 +157,30 @@ const ClosedDateSidebar = () => {
         open={isShow}
         onClose={() => setIsShow(false)}
         modalHeader={
-          <div className="px-2">
-            <CustomDrawerHeader>Closed Date</CustomDrawerHeader>
+          <div
+            className="px-2"
+            id="time-attendance-settings-closed-date-sidebar-header-container"
+            data-cy="time-attendance-settings-closed-date-sidebar-header-container"
+          >
+            <CustomDrawerHeader data-cy="time-attendance-settings-closed-date-sidebar-header">
+              Closed Date
+            </CustomDrawerHeader>
           </div>
         }
         footer={
-          <div className="p-4">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-4"
+            id="time-attendance-settings-closed-date-sidebar-footer-container"
+            data-cy="time-attendance-settings-closed-date-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-closed-date-sidebar-footer-button"
+            />
           </div>
         }
         width="400px"
+        data-cy="time-attendance-settings-closed-date-sidebar"
       >
         <Form
           layout="vertical"
@@ -171,10 +189,18 @@ const ClosedDateSidebar = () => {
           form={form}
           className={itemClass}
           onFinish={onFinish}
+          id="time-attendance-settings-closed-date-sidebar-form"
+          data-cy="time-attendance-settings-closed-date-sidebar-form"
         >
-          <Space.Compact direction="vertical" className="w-full px-3 sm:px-0 ">
+          <Space.Compact
+            direction="vertical"
+            className="w-full px-3 sm:px-0 "
+            id="time-attendance-settings-closed-date-sidebar-form-fields"
+            data-cy="time-attendance-settings-closed-date-sidebar-form-fields"
+          >
             <Form.Item
               id="closedDateNameFieldId"
+              data-cy="time-attendance-settings-closed-date-sidebar-name-field-id"
               label="Closed Date Name"
               required
               name="name"
@@ -185,10 +211,15 @@ const ClosedDateSidebar = () => {
                 },
               ]}
             >
-              <Input className={controlClass} />
+              <Input
+                className={controlClass}
+                id="time-attendance-settings-closed-date-sidebar-name-input"
+                data-cy="time-attendance-settings-closed-date-sidebar-name-input"
+              />
             </Form.Item>
             <Form.Item
               id="closedDateTypeFieldId"
+              data-cy="time-attendance-settings-closed-date-sidebar-type-field-id"
               label="Type"
               required
               name="type"
@@ -202,16 +233,23 @@ const ClosedDateSidebar = () => {
               <Select
                 className={controlClass}
                 suffixIcon={
-                  <MdKeyboardArrowDown size={16} className="text-gray-900" />
+                  <MdKeyboardArrowDown
+                    size={16}
+                    className="text-gray-900"
+                    data-cy="time-attendance-settings-closed-date-sidebar-type-select-icon"
+                  />
                 }
                 options={[
                   { value: 'day', label: 'Day' },
                   { value: 'month', label: 'Month' },
                 ]}
+                id="time-attendance-settings-closed-date-sidebar-type-select"
+                data-cy="time-attendance-settings-closed-date-sidebar-type-select"
               />
             </Form.Item>
             <Form.Item
               id="closedHolidayDescriptionFieldId"
+              data-cy="time-attendance-settings-closed-date-sidebar-description-field-id"
               label="Holiday Description"
               required
               name="description"
@@ -220,12 +258,22 @@ const ClosedDateSidebar = () => {
                 className="w-full h-36 px-5 mt-2.5"
                 placeholder="Description"
                 rows={6}
+                id="time-attendance-settings-closed-date-sidebar-description-textarea"
+                data-cy="time-attendance-settings-closed-date-sidebar-description-textarea"
               />
             </Form.Item>
-            <Row gutter={16}>
-              <Col span={12}>
+            <Row
+              gutter={16}
+              id="time-attendance-settings-closed-date-sidebar-date-row"
+              data-cy="time-attendance-settings-closed-date-sidebar-date-row"
+            >
+              <Col
+                span={12}
+                data-cy="time-attendance-settings-closed-date-sidebar-from-column"
+              >
                 <Form.Item
                   id="closedHolidayFromFieldId"
+                  data-cy="time-attendance-settings-closed-date-sidebar-from-field-id"
                   label="From"
                   required
                   name="startDate"
@@ -233,14 +281,27 @@ const ClosedDateSidebar = () => {
                     { required: true, message: 'Please select the start date' },
                   ]}
                 >
-                  <DatePicker className={controlClass} format="DD MMM YYYY" />
+                  <DatePicker
+                    className={controlClass}
+                    format="DD MMM YYYY"
+                    id="time-attendance-settings-closed-date-sidebar-from-picker"
+                    data-cy="time-attendance-settings-closed-date-sidebar-from-picker"
+                  />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              <Col
+                span={12}
+                data-cy="time-attendance-settings-closed-date-sidebar-to-column"
+              >
                 <Form.Item
                   id="closedHolidayDateToFieldId"
+                  data-cy="time-attendance-settings-closed-date-sidebar-to-field-id"
                   label={
-                    <Radio checked={isTo} onClick={() => setIsTo(!isTo)}>
+                    <Radio
+                      checked={isTo}
+                      onClick={() => setIsTo(!isTo)}
+                      data-cy="time-attendance-settings-closed-date-sidebar-to-radio"
+                    >
                       To
                     </Radio>
                   }
@@ -251,6 +312,8 @@ const ClosedDateSidebar = () => {
                     disabled={!isTo}
                     format="DD MMM YYYY"
                     disabledDate={disabledEndDate}
+                    id="time-attendance-settings-closed-date-sidebar-to-picker"
+                    data-cy="time-attendance-settings-closed-date-sidebar-to-picker"
                   />
                 </Form.Item>
               </Col>

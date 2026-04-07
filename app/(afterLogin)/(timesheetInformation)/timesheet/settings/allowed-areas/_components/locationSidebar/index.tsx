@@ -97,6 +97,8 @@ const LocationSidebar = () => {
       size: 'large',
       loading: isLoading,
       onClick: () => onClose(),
+      id: 'time-attendance-settings-allowed-areas-sidebar-cancel-button',
+      'data-cy': 'time-attendance-settings-allowed-areas-sidebar-cancel-button',
     },
     {
       label: allowedAreaId ? 'Edit' : 'Create',
@@ -106,6 +108,8 @@ const LocationSidebar = () => {
       type: 'primary',
       loading: isFetching || isLoading,
       onClick: () => form.submit(),
+      id: 'time-attendance-settings-allowed-areas-sidebar-submit-button',
+      'data-cy': 'time-attendance-settings-allowed-areas-sidebar-submit-button',
     },
   ];
 
@@ -157,23 +161,38 @@ const LocationSidebar = () => {
   return (
     isShow && (
       <CustomDrawerLayout
+        data-cy="time-attendance-settings-allowed-areas-sidebar-container"
         open={isShow}
         onClose={() => onClose()}
         modalHeader={
-          <div className="px-2">
-            <CustomDrawerHeader>
+          <div
+            className="px-2"
+            id="time-attendance-settings-allowed-areas-sidebar-header-container"
+            data-cy="time-attendance-settings-allowed-areas-sidebar-header-container"
+          >
+            <CustomDrawerHeader data-cy="time-attendance-settings-allowed-areas-sidebar-header">
               {allowedAreaId ? 'Edit' : 'New'} Location
             </CustomDrawerHeader>
           </div>
         }
         footer={
-          <div className="p-4">
-            <CustomDrawerFooterButton buttons={footerModalItems} />
+          <div
+            className="p-4"
+            id="time-attendance-settings-allowed-areas-sidebar-footer-container"
+            data-cy="time-attendance-settings-allowed-areas-sidebar-footer-container"
+          >
+            <CustomDrawerFooterButton
+              buttons={footerModalItems}
+              data-cy="time-attendance-settings-allowed-areas-sidebar-footer-button"
+            />
           </div>
         }
         width="800px"
       >
-        <Spin spinning={isFetching || isLoading}>
+        <Spin
+          spinning={isFetching || isLoading}
+          data-cy="time-attendance-settings-allowed-areas-sidebar-spin"
+        >
           <Form
             layout="vertical"
             requiredMark={CustomLabel}
@@ -181,29 +200,60 @@ const LocationSidebar = () => {
             className={itemClass}
             form={form}
             onFinish={onFinish}
+            id="time-attendance-settings-allowed-areas-sidebar-form"
+            data-cy="time-attendance-settings-allowed-areas-sidebar-form"
           >
-            <div className="p-4">
-              <Space.Compact direction="vertical" className="w-full">
+            <div
+              className="p-4"
+              id="time-attendance-settings-allowed-areas-sidebar-form-container"
+              data-cy="time-attendance-settings-allowed-areas-sidebar-form-container"
+            >
+              <Space.Compact
+                direction="vertical"
+                className="w-full"
+                id="time-attendance-settings-allowed-areas-sidebar-form-fields"
+                data-cy="time-attendance-settings-allowed-areas-sidebar-form-fields"
+              >
                 <Form.Item
-                  id="nameOfLocatioInputFieldId"
+                  id="time-attendance-settings-allowed-areas-sidebar-title"
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-title"
                   label="Name of Location"
                   rules={[{ required: true, message: 'Required' }]}
                   name="title"
                 >
-                  <Input className={controlClass} />
+                  <Input
+                    className={controlClass}
+                    id="time-attendance-settings-allowed-areas-sidebar-title-input"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-title-input"
+                  />
                 </Form.Item>
 
                 {/* Map Section */}
-                <div>
-                  <div className="text-sm text-gray-600 mb-2">
+                <div
+                  id="time-attendance-settings-allowed-areas-sidebar-map-container"
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-map-container"
+                >
+                  <div
+                    className="text-sm text-gray-600 mb-2"
+                    id="time-attendance-settings-allowed-areas-sidebar-map-instruction-1"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-instruction-1"
+                  >
                     Double click on the map to set the center point of your
                     allowed area
                   </div>
-                  <div className="text-sm text-gray-600 mb-3">
+                  <div
+                    className="text-sm text-gray-600 mb-3"
+                    id="time-attendance-settings-allowed-areas-sidebar-map-instruction-2"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-instruction-2"
+                  >
                     Click and drag to explore, then double-click to select your
                     location
                   </div>
-                  <div className="mt-2">
+                  <div
+                    className="mt-2"
+                    id="time-attendance-settings-allowed-areas-sidebar-map-picker-container"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-map-picker-container"
+                  >
                     <EnhancedLocationPicker
                       latitude={formValues.latitude}
                       longitude={formValues.longitude}
@@ -211,31 +261,64 @@ const LocationSidebar = () => {
                       onLocationChange={handleLocationChange}
                       onRadiusChange={handleRadiusChange}
                       height="400px"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-map-picker"
                     />
                   </div>
                 </div>
 
                 {/* Hidden form fields for map values */}
-                <Form.Item name="latitude" hidden>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-form-item"
+                  name="latitude"
+                  hidden
+                >
                   <Input />
                 </Form.Item>
-                <Form.Item name="longitude" hidden>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-form-item"
+                  name="longitude"
+                  hidden
+                >
                   <Input />
                 </Form.Item>
-                <Form.Item name="distance" hidden>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-distance-form-item"
+                  name="distance"
+                  hidden
+                >
                   <Input />
                 </Form.Item>
-
-                <div className="flex items-center gap-2 py-4">
-                  <span className="text-sm text-gray-700">Is Global</span>
-                  <Form.Item name="isGlobal" valuePropName="checked" noStyle>
-                    <Switch onChange={(checked) => setShowUsers(!checked)} />
+                <div
+                  className="flex items-center gap-2 py-4"
+                  id="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-container"
+                >
+                  <span
+                    className="text-sm text-gray-700"
+                    id="time-attendance-settings-allowed-areas-sidebar-is-global-label"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-label"
+                  >
+                    Is Global
+                  </span>
+                  <Form.Item
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-item"
+                    name="isGlobal"
+                    valuePropName="checked"
+                    noStyle
+                  >
+                    <Switch
+                      defaultChecked
+                      onChange={(checked) => setShowUsers(!checked)}
+                      id="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-is-global-switch"
+                    />
                   </Form.Item>
                 </div>
 
                 {showUsers && (
                   <Form.Item
-                    id="userAccessList"
+                    id="time-attendance-settings-allowed-areas-sidebar-users"
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-users"
                     label="Select Users"
                     name="allowedUserAccesses"
                   >
@@ -249,6 +332,8 @@ const LocationSidebar = () => {
                         value: list?.id,
                         label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                       }))}
+                      id="time-attendance-settings-allowed-areas-sidebar-users-select"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-users-select"
                     />
                   </Form.Item>
                 )}

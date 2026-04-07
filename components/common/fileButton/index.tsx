@@ -28,9 +28,15 @@ const FileButton: FC<FileButtonProps> = ({
       onClick={(e) => {
         e.stopPropagation();
       }}
+      data-cy="file-button-preview"
     >
       <TbFileDownload size={16} />
-      <span className="text-xs">{fileName}</span>
+      <span
+        data-cy="components-common-filebutton-index-tsx-index-span-34"
+        className="text-xs"
+      >
+        {fileName}
+      </span>
       {onRemove && (
         <IoClose
           size={16}
@@ -44,6 +50,7 @@ const FileButton: FC<FileButtonProps> = ({
       href={link}
       target="_blank"
       id="fileOpenLinkId"
+      data-cy="components-common-filebutton-index-tsx-index-a-49"
       className={classNames(
         'flex items-center rounded-lg border border-gray-200 py-2 px-6 w-max gap-1 text-gray-900',
         undefined,
@@ -51,7 +58,12 @@ const FileButton: FC<FileButtonProps> = ({
       )}
     >
       <TbFileDownload size={16} />
-      <span className="text-xs">{fileName}</span>
+      <span
+        data-cy="components-common-filebutton-index-tsx-index-span-55"
+        className="text-xs"
+      >
+        {fileName}
+      </span>
     </a>
   );
 };

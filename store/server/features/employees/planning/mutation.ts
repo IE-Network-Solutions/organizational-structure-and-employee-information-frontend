@@ -32,6 +32,7 @@ export const useCreatePlanTasks = () => {
   return useMutation(createPlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('okrReports');
       queryClient.invalidateQueries('okrPlannedData');
       queryClient.invalidateQueries('planningPeriodsHierarchy');
@@ -40,10 +41,12 @@ export const useCreatePlanTasks = () => {
         description: ' ',
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const descriptiveMessage =
+        error?.response?.data?.message || 'Creating Failed';
       NotificationMessage.error({
         message: 'Creating Failed',
-        description: '',
+        description: descriptiveMessage,
       });
     },
   });
@@ -66,6 +69,7 @@ export const useUpdatePlanTasks = () => {
   return useMutation(updatePlanTasks, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
       queryClient.invalidateQueries('okrPlannedData');
       queryClient.invalidateQueries('okrPlannedData');
       queryClient.invalidateQueries('planningPeriodsHierarchy');
@@ -74,10 +78,12 @@ export const useUpdatePlanTasks = () => {
         description: ' ',
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      const descriptiveMessage =
+        error?.response?.data?.message || 'Updating Failed';
       NotificationMessage.error({
         message: 'Updating Failed',
-        description: '',
+        description: descriptiveMessage,
       });
     },
   });

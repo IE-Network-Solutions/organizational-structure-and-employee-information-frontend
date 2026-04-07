@@ -12,8 +12,13 @@ import { useDeleteBulkIncentives } from '@/store/server/features/incentive/other
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 
 const AllIncentives = () => {
-  const { parentResponseIsLoading, selectedRowKeys, setSelectedRowKeys, showBulkDeleteModal, setShowBulkDeleteModal } =
-    useIncentiveStore();
+  const {
+    parentResponseIsLoading,
+    selectedRowKeys,
+    setSelectedRowKeys,
+    showBulkDeleteModal,
+    setShowBulkDeleteModal,
+  } = useIncentiveStore();
   const { mutate: deleteBulkIncentives, isLoading: isDeleting } =
     useDeleteBulkIncentives();
 
@@ -36,12 +41,20 @@ const AllIncentives = () => {
   return (
     <div id="all-incentives-container" data-cy="all-incentives-container">
       {parentResponseIsLoading ? (
-        <div id="all-incentives-skeleton-cards-container" data-cy="all-incentives-skeleton-cards-container" className="grid grid-cols-3 gap-4">
+        <div
+          id="all-incentives-skeleton-cards-container"
+          data-cy="all-incentives-skeleton-cards-container"
+          className="grid grid-cols-3 gap-4"
+        >
           {[...Array(3)].map(
             /* eslint-disable-next-line @typescript-eslint/naming-convention */
             (_, index) => (
               /* eslint-enable-next-line @typescript-eslint/naming-convention */
-              <Card id={`all-incentives-skeleton-card-${index}`} data-cy={`all-incentives-skeleton-card-${index}`} key={index}>
+              <Card
+                id={`all-incentives-skeleton-card-${index}`}
+                data-cy={`all-incentives-skeleton-card-${index}`}
+                key={index}
+              >
                 <Skeleton data-cy={`all-incentives-skeleton-${index}`} active />
               </Card>
             ),
@@ -51,14 +64,21 @@ const AllIncentives = () => {
         <IncentiveCards />
       )}
       {parentResponseIsLoading ? (
-        <div id="all-incentives-skeleton-filter" data-cy="all-incentives-skeleton-filter">
+        <div
+          id="all-incentives-skeleton-filter"
+          data-cy="all-incentives-skeleton-filter"
+        >
           <Skeleton active paragraph={{ rows: 1 }} />
         </div>
       ) : (
         <IncentiveFilter />
       )}
       {!parentResponseIsLoading && hasSelectedRows && (
-        <div id="incentive-bulk-delete-container" data-cy="incentive-bulk-delete-container" className="mb-4 flex justify-end">
+        <div
+          id="incentive-bulk-delete-container"
+          data-cy="incentive-bulk-delete-container"
+          className="mb-4 flex justify-end"
+        >
           <AccessGuard
             permissions={[Permissions.DeleteIncentive]}
             id="incentive-bulk-delete-guard"
@@ -79,7 +99,10 @@ const AllIncentives = () => {
         </div>
       )}
       {parentResponseIsLoading ? (
-        <div id="all-incentives-skeleton-table" data-cy="all-incentives-skeleton-table">
+        <div
+          id="all-incentives-skeleton-table"
+          data-cy="all-incentives-skeleton-table"
+        >
           <Skeleton active paragraph={{ rows: 4 }} />
         </div>
       ) : (

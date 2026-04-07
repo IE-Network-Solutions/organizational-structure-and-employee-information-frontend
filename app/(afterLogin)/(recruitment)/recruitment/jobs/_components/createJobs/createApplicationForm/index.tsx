@@ -22,20 +22,37 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
   isLoading = false,
 }) => {
   return (
-    <div className="p-2">
+    <div
+      className="p-2"
+      data-cy="talent-acquisition-create-application-form-container"
+    >
       <CustomFieldsSelector />
-      <div className="my-4">
-        <div className="text-md font-semibold">Existing Fields</div>
-        <div className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1 h-10">
+      <div
+        className="my-4"
+        data-cy="talent-acquisition-create-application-form-existing-fields-container"
+      >
+        <div
+          className="text-md font-semibold"
+          data-cy="talent-acquisition-create-application-form-existing-fields-title"
+        >
+          Existing Fields
+        </div>
+        <div
+          data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-40"
+          className="flex items-center justify-start text-[10px] text-gray-400 font-normal gap-1 my-1 h-10"
+        >
           <CiCircleInfo />
           These fields are automatically created for you-no need to set them up
           again. Effortlessly integrated and ready to use!
         </div>
-        <div>
+        <div data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-45">
           <Row gutter={16}>
             {staticField?.map((item: any) => (
               <Col key={item?.key} xs={24} sm={24} lg={12} md={12} xl={12}>
-                <div className="w-full rounded-md border-gray-200 border p-3 bg-gray-100 my-1 text-sm font-normal">
+                <div
+                  data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-49"
+                  className="w-full rounded-md border-gray-200 border p-3 bg-gray-100 my-1 text-sm font-normal"
+                >
                   {item?.name}
                 </div>
               </Col>
@@ -45,7 +62,10 @@ const CreateApplicationForm: React.FC<ApplicationFormProps> = ({
         <DynamicJobForm form={form} />
       </div>
       <Form.Item>
-        <div className="flex justify-center w-full  bg-[#fff] px-6 py-6 gap-6">
+        <div
+          data-cy="-components-createjobs-createapplicationform-index-tsx-index-div-59"
+          className="flex justify-center w-full  bg-[#fff] px-6 py-6 gap-6"
+        >
           <Button
             id="talent-acquisition-create-application-form-button-back"
             data-cy="talent-acquisition-create-application-form-button-back"

@@ -36,21 +36,48 @@ function Page({ params: { slug } }: FormDetailProps) {
     {
       key: '1',
       label: (
-        <span className="mt-4">
-          <p className="font-semibold">Questions</p>
+        <span
+          id="survey-detail-tab-label-questions"
+          data-cy="survey-detail-tab-label-questions"
+          className="mt-4"
+        >
+          <p
+            id="survey-detail-tab-text-questions"
+            data-cy="survey-detail-tab-text-questions"
+            className="font-semibold"
+          >
+            Questions
+          </p>
         </span>
       ),
-      children: <Questions id={slug} />,
+      children: (
+        <Questions id={slug} data-cy="survey-detail-tab-content-questions" />
+      ),
       className: 'text-gray-950 font-semibold ',
     },
     {
       key: '2',
       label: (
-        <span className="mt-4">
-          <p className="font-semibold">Responses</p>
+        <span
+          id="survey-detail-tab-label-responses"
+          data-cy="survey-detail-tab-label-responses"
+          className="mt-4"
+        >
+          <p
+            id="survey-detail-tab-text-responses"
+            data-cy="survey-detail-tab-text-responses"
+            className="font-semibold"
+          >
+            Responses
+          </p>
         </span>
       ),
-      children: <IndividualResponses id={slug} />,
+      children: (
+        <IndividualResponses
+          id={slug}
+          data-cy="survey-detail-tab-content-responses"
+        />
+      ),
       className: 'text-gray-950 font-semibold',
     },
     // {
@@ -66,11 +93,26 @@ function Page({ params: { slug } }: FormDetailProps) {
     {
       key: '4',
       label: (
-        <span className="mt-4">
-          <p className="font-semibold">Action Plans</p>
+        <span
+          id="survey-detail-tab-label-action-plans"
+          data-cy="survey-detail-tab-label-action-plans"
+          className="mt-4"
+        >
+          <p
+            id="survey-detail-tab-text-action-plans"
+            data-cy="survey-detail-tab-text-action-plans"
+            className="font-semibold"
+          >
+            Action Plans
+          </p>
         </span>
       ),
-      children: <ActionPlans id={slug} />,
+      children: (
+        <ActionPlans
+          id={slug}
+          data-cy="survey-detail-tab-content-action-plans"
+        />
+      ),
       className: 'text-gray-950 font-semibold',
     },
   ];
@@ -88,16 +130,31 @@ function Page({ params: { slug } }: FormDetailProps) {
   };
 
   return (
-    <div className="flex flex-wrap justify-between items-center p-2">
-      <div className="flex gap-4">
+    <div
+      id="survey-detail-page-container"
+      data-cy="survey-detail-page-container"
+      className="flex flex-wrap justify-between items-center p-2"
+    >
+      <div
+        id="survey-detail-page-header"
+        data-cy="survey-detail-page-header"
+        className="flex gap-4"
+      >
         <ArrowLeftOutlined
+          id="survey-detail-back-button"
+          data-cy="survey-detail-back-button"
           className="cursor-pointer"
           onClick={() => router.back()}
         />
         <CustomBreadcrumb
+          data-cy="survey-detail-breadcrumb"
           title={
             isFormDataLoading ? (
-              <Skeleton.Input active size="small" />
+              <Skeleton.Input
+                data-cy="survey-detail-title-skeleton"
+                active
+                size="small"
+              />
             ) : (
               formsData?.name
             )
@@ -114,19 +171,39 @@ function Page({ params: { slug } }: FormDetailProps) {
       </div>
 
       {activeTab === '4' && (
-        <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+        <div
+          id="survey-detail-action-plan-section"
+          data-cy="survey-detail-action-plan-section"
+          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+        >
           <CustomButton
             title="Create New Action Plan"
-            id="createUserButton"
-            icon={<PlusOutlined className="mr-2" />}
+            id="survey-detail-create-action-button"
+            data-cy="survey-detail-create-action-button"
+            icon={
+              <PlusOutlined
+                id="survey-detail-create-action-icon"
+                data-cy="survey-detail-create-action-icon"
+                className="mr-2"
+              />
+            }
             onClick={showDrawer}
             className="bg-blue-600 hover:bg-blue-700"
           />
-          <CreateActionPlan onClose={onClose} id={slug} />
+          <CreateActionPlan
+            onClose={onClose}
+            id={slug}
+            data-cy="survey-detail-create-action-drawer"
+          />
         </div>
       )}
 
-      <Row justify="center" style={{ width: '100%' }}>
+      <Row
+        id="survey-detail-filter-row"
+        data-cy="survey-detail-filter-row"
+        justify="center"
+        style={{ width: '100%' }}
+      >
         {/* {activeTab === '2' && (
           <Col span={8}>
             <Select
@@ -155,26 +232,47 @@ function Page({ params: { slug } }: FormDetailProps) {
           </Col>
         )} */}
         {activeTab === '3' && (
-          <Col span={8}>
+          <Col
+            span={8}
+            id="survey-detail-graph-select-column"
+            data-cy="survey-detail-graph-select-column"
+          >
             <Select
               id={`selectStatusChartType`}
+              data-cy={`selectStatusChartType`}
               placeholder="All Status"
               onChange={handleChangeGraphType}
               allowClear
               className="w-full h-[48px] my-4"
             >
-              <Option key="active" value="barGraph">
+              <Option
+                id="survey-detail-graph-option-bar"
+                data-cy="survey-detail-graph-option-bar"
+                key="active"
+                value="barGraph"
+              >
                 Bar graph
               </Option>
-              <Option key="active" value="pieChart">
+              <Option
+                id="survey-detail-graph-option-pie"
+                data-cy="survey-detail-graph-option-pie"
+                key="active"
+                value="pieChart"
+              >
                 Pie chart
               </Option>
             </Select>
           </Col>
         )}
       </Row>
-      <div className="flex justify-between">
+      <div
+        id="survey-detail-tabs-container"
+        data-cy="survey-detail-tabs-container"
+        className="flex justify-between"
+      >
         <Tabs
+          id="survey-detail-tabs"
+          data-cy="survey-detail-tabs"
           defaultActiveKey="1"
           className="w-[900px]"
           items={items}

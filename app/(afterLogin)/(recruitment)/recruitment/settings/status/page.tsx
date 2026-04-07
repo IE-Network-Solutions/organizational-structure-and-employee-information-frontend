@@ -71,10 +71,18 @@ const Status: React.FC = () => {
     setCurrentPage(1);
   };
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      data-cy="talent-acquisition-status-page-container"
+    >
       {/* Header section */}
-      <div className="flex justify-between items-center mb-4">
-        <Title level={5}>Define New Status</Title>
+      <div
+        className="flex justify-between items-center mb-4"
+        data-cy="talent-acquisition-status-page-header"
+      >
+        <Title level={5} data-cy="talent-acquisition-status-page-title">
+          Define New Status
+        </Title>
         <AccessGuard permissions={[Permissions.CreateApplicationStage]}>
           <Button
             type="primary"
@@ -82,14 +90,24 @@ const Status: React.FC = () => {
             data-cy="talent-acquisition-status-button-define-new"
             onClick={handleOpen}
             className="h-10 w-10 sm:w-auto"
-            icon={<FaPlus />}
+            icon={
+              <FaPlus data-cy="talent-acquisition-status-button-define-new-icon" />
+            }
           >
-            <span className="hidden lg:inline">Define New Status</span>
+            <span
+              className="hidden lg:inline"
+              data-cy="talent-acquisition-status-button-define-new-text"
+            >
+              Define New Status
+            </span>
           </Button>
         </AccessGuard>
       </div>
 
-      <div className="space-y-4 w-full">
+      <div
+        data-cy="recruitment-settings-status-page-tsx-page-div-107"
+        className="space-y-4 w-full"
+      >
         {fetchLoading ? (
           <>
             <SkeletonLoading
@@ -104,9 +122,18 @@ const Status: React.FC = () => {
             <div
               key={index}
               className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+              data-cy="recruitment-recruitment-settings-status-page-tsx-div-122"
             >
-              <div className="text-medium font-medium">{status?.title}</div>
-              <div className="flex items-center justify-center gap-2">
+              <div
+                data-cy="recruitment-settings-status-page-tsx-page-div-123"
+                className="text-medium font-medium"
+              >
+                {status?.title}
+              </div>
+              <div
+                data-cy="recruitment-settings-status-page-tsx-page-div-124"
+                className="flex items-center justify-center gap-2"
+              >
                 <AccessGuard permissions={[Permissions.UpdateApplicationStage]}>
                   <div
                     id={`talent-acquisition-status-button-edit-${status?.id}`}

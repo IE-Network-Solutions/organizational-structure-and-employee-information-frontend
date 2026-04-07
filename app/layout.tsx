@@ -2,11 +2,14 @@ import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
+import { App as AntdApp } from 'antd';
 import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
+import UserSessionRefresher from '@/providers/UserSessionRefresher';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
+import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
 import ChatBotButton from '@/components/ai/ChatBotButton';
 import RouteTopLoader from '@/components/RouteTopLoader';
 const manrope = Manrope({ subsets: ['latin'] });
@@ -148,50 +151,135 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-test="layout">
-      <head>
+    <html
+      lang="en"
+      data-test="layout"
+      data-cy="root-layout-html"
+      suppressHydrationWarning
+    >
+      <head data-cy="root-layout-head">
         {/* PWA Meta Tags - FORCE FULLSCREEN */}
-        <meta name="application-name" content="Selamnew Workspace" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="application-name"
+          content="Selamnew Workspace"
+          data-cy="pwa-meta-application-name"
+        />
+        <meta
+          name="apple-mobile-web-app-capable"
+          content="yes"
+          data-cy="pwa-meta-apple-mobile-web-app-capable"
+        />
         <meta
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
+          data-cy="pwa-meta-apple-mobile-web-app-status-bar-style"
         />
-        <meta name="apple-mobile-web-app-title" content="Selamnew Workspace" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-config" content="/icons/browserconfig.xml" />
-        <meta name="msapplication-TileColor" content="#1890ff" />
-        <meta name="msapplication-tap-highlight" content="no" />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Selamnew Workspace"
+          data-cy="pwa-meta-apple-mobile-web-app-title"
+        />
+        <meta
+          name="format-detection"
+          content="telephone=no"
+          data-cy="pwa-meta-format-detection"
+        />
+        <meta
+          name="mobile-web-app-capable"
+          content="yes"
+          data-cy="pwa-meta-mobile-web-app-capable"
+        />
+        <meta
+          name="msapplication-config"
+          content="/icons/browserconfig.xml"
+          data-cy="pwa-meta-msapplication-config"
+        />
+        <meta
+          name="msapplication-TileColor"
+          content="#1890ff"
+          data-cy="pwa-meta-msapplication-tile-color"
+        />
+        <meta
+          name="msapplication-tap-highlight"
+          content="no"
+          data-cy="pwa-meta-msapplication-tap-highlight"
+        />
 
         {/* Force Fullscreen - Hide URL Bar */}
-        <meta name="apple-touch-fullscreen" content="yes" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="HandheldFriendly" content="true" />
-        <meta name="MobileOptimized" content="320" />
-        <meta name="screen-orientation" content="portrait" />
-        <meta name="x5-orientation" content="portrait" />
-        <meta name="full-screen" content="yes" />
-        <meta name="x5-fullscreen" content="true" />
-        <meta name="browsermode" content="application" />
-        <meta name="x5-page-mode" content="app" />
-        <meta name="msapplication-navbutton-color" content="#1890ff" />
-        <meta name="theme-color" content="#1890ff" />
+        <meta
+          name="apple-touch-fullscreen"
+          content="yes"
+          data-cy="pwa-meta-apple-touch-fullscreen"
+        />
+        <meta
+          name="mobile-web-app-capable"
+          content="yes"
+          data-cy="pwa-meta-mobile-web-app-capable-2"
+        />
+        <meta
+          name="HandheldFriendly"
+          content="true"
+          data-cy="pwa-meta-handheld-friendly"
+        />
+        <meta
+          name="MobileOptimized"
+          content="320"
+          data-cy="pwa-meta-mobile-optimized"
+        />
+        <meta
+          name="screen-orientation"
+          content="portrait"
+          data-cy="pwa-meta-screen-orientation"
+        />
+        <meta
+          name="x5-orientation"
+          content="portrait"
+          data-cy="pwa-meta-x5-orientation"
+        />
+        <meta name="full-screen" content="yes" data-cy="pwa-meta-full-screen" />
+        <meta
+          name="x5-fullscreen"
+          content="true"
+          data-cy="pwa-meta-x5-fullscreen"
+        />
+        <meta
+          name="browsermode"
+          content="application"
+          data-cy="pwa-meta-browsermode"
+        />
+        <meta
+          name="x5-page-mode"
+          content="app"
+          data-cy="pwa-meta-x5-page-mode"
+        />
+        <meta
+          name="msapplication-navbutton-color"
+          content="#1890ff"
+          data-cy="pwa-meta-msapplication-navbutton-color"
+        />
+        <meta
+          name="theme-color"
+          content="#1890ff"
+          data-cy="pwa-meta-theme-color"
+        />
 
         {/* CRITICAL: Force hide address bar */}
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, minimal-ui"
+          data-cy="pwa-meta-viewport"
         />
 
         {/* Microsoft Edge */}
         <meta
           name="msapplication-TileImage"
           content="/icons/manifest-icon-144.png"
+          data-cy="pwa-meta-msapplication-tile-image"
         />
 
         {/* Force Hide URL Bar Script */}
         <script
+          data-cy="pwa-script-hide-address-bar"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -246,18 +334,27 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${manrope.className} pwa-viewport`}>
+      <body
+        className={`${manrope.className} pwa-viewport`}
+        data-cy="root-layout-body"
+        suppressHydrationWarning
+      >
         <RouteTopLoader />
-        <div className="status-bar-safe">
+        <div className="status-bar-safe" data-cy="root-layout-status-bar-safe">
           <PWAProvider>
             {/* <AuthProvider> */}
             <ReactQueryWrapper>
               <AntdRegistry>
                 <AntdConfigProvider>
-                  <RecaptchaProvider>
-                    <ConditionalNav>{children}</ConditionalNav>
-                    <ChatBotButton />
-                  </RecaptchaProvider>
+                  <AntdApp>
+                    <NotificationSocketProvider>
+                      <RecaptchaProvider>
+                        <UserSessionRefresher />
+                        <ConditionalNav>{children}</ConditionalNav>
+                        <ChatBotButton />
+                      </RecaptchaProvider>
+                    </NotificationSocketProvider>
+                  </AntdApp>
                 </AntdConfigProvider>
               </AntdRegistry>
             </ReactQueryWrapper>

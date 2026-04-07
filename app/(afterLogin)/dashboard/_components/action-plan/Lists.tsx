@@ -60,12 +60,25 @@ const Lists = () => {
   };
   const transformedData: any = scheduleData ? transformData(scheduleData) : [];
   return (
-    <div className="py-3 max-h-52 overflow-y-auto scrollbar-none">
+    <div
+      className="py-3 max-h-52 overflow-y-auto scrollbar-none"
+      data-cy="action-plan-list"
+    >
       {transformedData?.length > 0
         ? transformedData?.map((item: any, index: number) => (
-            <div key={index} className="flex items-center py-1">
-              <div className="flex items-center gap-4">
-                <div className="text-[10px] font-bold w-3">
+            <div
+              key={index}
+              className="flex items-center py-1"
+              data-cy="action-plan-item"
+            >
+              <div
+                className="flex items-center gap-4"
+                data-cy="action-plan-item-content"
+              >
+                <div
+                  className="text-[10px] font-bold w-3"
+                  data-cy="action-plan-item-time"
+                >
                   {item?.type == 'Meeting' ? item.time : '     '}
                 </div>
                 <div
@@ -78,17 +91,27 @@ const Lists = () => {
                           ? 'from-red-600 to-transparent'
                           : 'from-blue to-transparent'
                   } h-10 w-[3px] rounded inline-block mx-4`}
+                  data-cy="action-plan-item-indicator"
                 />
-                <div className="flex flex-col gap-1 p-2">
+                <div
+                  className="flex flex-col gap-1 p-2"
+                  data-cy="action-plan-item-details"
+                >
                   <Tooltip title={item?.type}>
-                    <div className="text-xs font-medium">
+                    <div
+                      className="text-xs font-medium"
+                      data-cy="action-plan-item-type"
+                    >
                       {item?.type?.length >= 20
                         ? item?.type?.slice(0, 20) + '...'
                         : item?.type}
                     </div>
                   </Tooltip>
                   <Tooltip title={item?.title}>
-                    <div className="text-base font-bold">
+                    <div
+                      className="text-base font-bold"
+                      data-cy="action-plan-item-title"
+                    >
                       {item?.title?.length >= 10
                         ? item?.title?.slice(0, 10) + '...'
                         : item?.title}

@@ -202,7 +202,7 @@ const ListOfRoles = () => {
   );
 
   return (
-    <div>
+    <div data-cy="settings-role-modal-container">
       <Modal
         // width="50%"
         className="w-3/4 md:w-1/4 lg:w-1/2 xl:w-1/2"
@@ -355,7 +355,12 @@ const ListOfRoles = () => {
                 name="permission"
                 className="h-auto"
                 label={
-                  <p className="text-xs font-bold text-gray-600">Permission</p>
+                  <p
+                    className="text-xs font-bold text-gray-600"
+                    data-cy="settings-role-permission-label"
+                  >
+                    Permission
+                  </p>
                 }
                 rules={[
                   { required: true, message: 'Select the Permission List!' },

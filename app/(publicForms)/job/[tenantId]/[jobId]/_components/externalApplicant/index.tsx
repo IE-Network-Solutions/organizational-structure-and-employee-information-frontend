@@ -98,7 +98,12 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
         id="documentNameId"
         name="resumeUrl"
         label={
-          <span className="text-md font-semibold text-gray-700">Upload CV</span>
+          <span
+            data-cy="-jobid-components-externalapplicant-index-tsx-index-span-101"
+            className="text-md font-semibold text-gray-700"
+          >
+            Upload CV
+          </span>
         }
         rules={[
           {
@@ -138,18 +143,32 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
           listType="picture"
           accept=".pdf,.doc,.docx"
         >
-          <div className="flex items-center justify-center">
+          <div
+            data-cy="-jobid-components-externalapplicant-index-tsx-index-div-141"
+            className="flex items-center justify-center"
+          >
             <Image src={cvUpload.src} alt="Upload" width={30} height={30} />
           </div>
-          <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
-            <p>Upload your CV</p>
-            <p className="text-gray-400 text-sm font-normal">
+          <div
+            data-cy="-jobid-components-externalapplicant-index-tsx-index-div-144"
+            className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+          >
+            <p data-cy="-jobid-components-externalapplicant-index-tsx-index-p-145">
+              Upload your CV
+            </p>
+            <p
+              data-cy="-jobid-components-externalapplicant-index-tsx-index-p-146"
+              className="text-gray-400 text-sm font-normal"
+            >
               or drag and drop it here
             </p>
           </div>
         </Dragger>
       </Form.Item>
-      <div className="text-xs font-sm mb-5 ">
+      <div
+        data-cy="-jobid-components-externalapplicant-index-tsx-index-div-152"
+        className="text-xs font-sm mb-5 "
+      >
         Max file size : 5MB. File format : pdf
       </div>
       <Row gutter={16}>
@@ -158,7 +177,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="fullNameId"
             name="fullName"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-161"
+                className="text-md font-semibold text-gray-700"
+              >
                 Full-Name
               </span>
             }
@@ -181,7 +203,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="emailAddressId"
             name="email"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-184"
+                className="text-md font-semibold text-gray-700"
+              >
                 Email Address
               </span>
             }
@@ -202,7 +227,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="phoneNumberId"
             name="phone"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-205"
+                className="text-md font-semibold text-gray-700"
+              >
                 Phone Number
               </span>
             }
@@ -229,7 +257,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="jobTitle"
             name="jobTitle"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-232"
+                className="text-md font-semibold text-gray-700"
+              >
                 Job Title
               </span>
             }
@@ -247,7 +278,12 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="cgpaId"
             name="cgpa"
             label={
-              <span className="text-md font-semibold text-gray-700">CGPA</span>
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-250"
+                className="text-md font-semibold text-gray-700"
+              >
+                CGPA
+              </span>
             }
             rules={[
               { required: true, message: 'Please input CGPA' },
@@ -269,9 +305,17 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
               step={0.01}
             />
           </Form.Item>
-          <div className="flex items-center justify-start gap-1 ml-1">
+          <div
+            data-cy="-jobid-components-externalapplicant-index-tsx-index-div-272"
+            className="flex items-center justify-start gap-1 ml-1"
+          >
             <FaInfoCircle />
-            <div className="text-xs font-md">Put your point on a 4.0 scale</div>
+            <div
+              data-cy="-jobid-components-externalapplicant-index-tsx-index-div-274"
+              className="text-xs font-md"
+            >
+              Put your point on a 4.0 scale
+            </div>
           </div>
         </Col>
       </Row>
@@ -281,7 +325,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="candidateTypeId"
             name="candidateType"
             label={
-              <span className="text-md font-semibold text-gray-700">
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-284"
+                className="text-md font-semibold text-gray-700"
+              >
                 Candidate Type
               </span>
             }
@@ -305,7 +352,12 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             id="jobId"
             name="job"
             label={
-              <span className="text-md font-semibold text-gray-700">Job</span>
+              <span
+                data-cy="-jobid-components-externalapplicant-index-tsx-index-span-308"
+                className="text-md font-semibold text-gray-700"
+              >
+                Job
+              </span>
             }
             rules={[{ required: true, message: 'Please select a job' }]}
           >
@@ -330,7 +382,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
         id="coverLetterId"
         name="coverLetter"
         label={
-          <span className="text-md font-semibold text-gray-700">
+          <span
+            data-cy="-jobid-components-externalapplicant-index-tsx-index-span-333"
+            className="text-md font-semibold text-gray-700"
+          >
             Cover Letter
           </span>
         }
@@ -344,7 +399,10 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
       </Form.Item>
 
       <Form.Item>
-        <div className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6">
+        <div
+          data-cy="-jobid-components-externalapplicant-index-tsx-index-div-347"
+          className="flex justify-center w-full bg-[#fff] px-6 py-6 gap-6"
+        >
           <Button
             type="primary"
             className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-12 hover:border-gray-500 border-gray-300"

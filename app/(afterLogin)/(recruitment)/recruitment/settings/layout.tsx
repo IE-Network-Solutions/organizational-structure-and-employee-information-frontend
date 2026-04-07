@@ -20,11 +20,18 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/recruitment/settings/status') ? 'lg:ml-4' : ''}`}
+            data-cy="talent-acquisition-settings-layout-sidebar-menu-item-status"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/recruitment/settings/status') ? 'text-[#1677FF]' : ''}`}
+              data-cy="talent-acquisition-settings-layout-sidebar-menu-item-status-icon"
             />
-            <p className="menu-item-label">Define Status</p>
+            <p
+              className="menu-item-label"
+              data-cy="talent-acquisition-settings-layout-sidebar-menu-item-status-label"
+            >
+              Define Status
+            </p>
           </div>
         ),
       },
@@ -36,11 +43,17 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         icon: (
           <div
             className={`lg:flex items-center gap-2 ${pathname.includes('/recruitment/settings/talentPoolCategory/talentPoolCategoryTab') ? 'lg:ml-4' : ''}`}
+            data-cy="recruitment-recruitment-settings-layout-tsx-div-44"
           >
             <TbNotes
               className={`hidden lg:block ${pathname.includes('/recruitment/settings/talentPoolCategory/talentPoolCategoryTab') ? 'text-[#1677FF]' : ''}`}
             />
-            <p className="menu-item-label">Talent Pool Category</p>
+            <p
+              data-cy="-recruitment-recruitment-settings-layout-tsx-layout-p-50"
+              className="menu-item-label"
+            >
+              Talent Pool Category
+            </p>
           </div>
         ),
       },

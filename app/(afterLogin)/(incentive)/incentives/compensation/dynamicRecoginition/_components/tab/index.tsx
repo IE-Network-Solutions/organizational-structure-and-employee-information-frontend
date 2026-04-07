@@ -36,9 +36,19 @@ const DetailPageTabs: React.FC = () => {
     : [
         {
           key: '1',
-          label: <span className="font-semibold text-md p-3">All</span>,
+          label: (
+            <span
+              className="font-semibold text-md p-3"
+              data-cy="dynamic-recognition-tab-all-label"
+            >
+              All
+            </span>
+          ),
           children: (
-            <div className="mx-3">
+            <div
+              className="mx-3"
+              data-cy="dynamic-recognition-tab-all-children"
+            >
               {isPayrollView ? (
                 <PayRoleView operationSlot={''} />
               ) : (
@@ -50,10 +60,18 @@ const DetailPageTabs: React.FC = () => {
         ...(parentRecognition ?? []).map((item: any) => ({
           key: item?.id,
           label: (
-            <span className="font-semibold text-md p-3">{item?.name}</span>
+            <span
+              className="font-semibold text-md p-3"
+              data-cy={`dynamic-recognition-tab-label-${item?.id}`}
+            >
+              {item?.name}
+            </span>
           ),
           children: (
-            <div className="mx-3">
+            <div
+              className="mx-3"
+              data-cy={`dynamic-recognition-tab-children-${item?.id}`}
+            >
               <DynamicIncentive parentRecognitionId={item?.id} />
             </div>
           ),
@@ -63,7 +81,11 @@ const DetailPageTabs: React.FC = () => {
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
-        <div id="detail-page-tabs-operations-slot-all" data-cy="detail-page-tabs-operations-slot-all" className="flex items-center justify-center gap-3">
+        <div
+          id="detail-page-tabs-operations-slot-all"
+          data-cy="detail-page-tabs-operations-slot-all"
+          className="flex items-center justify-center gap-3"
+        >
           {isPayrollView ? (
             <Button
               id="detail-page-tabs-generate-button"
@@ -97,7 +119,11 @@ const DetailPageTabs: React.FC = () => {
     } else {
       // Show Import & Generate for all other tabs
       return (
-        <div id="detail-page-tabs-operations-slot-other" data-cy="detail-page-tabs-operations-slot-other" className="flex items-center justify-center gap-3">
+        <div
+          id="detail-page-tabs-operations-slot-other"
+          data-cy="detail-page-tabs-operations-slot-other"
+          className="flex items-center justify-center gap-3"
+        >
           <Button
             id="detail-page-tabs-export-button-other"
             data-cy="detail-page-tabs-export-button-other"
@@ -136,8 +162,15 @@ const DetailPageTabs: React.FC = () => {
     }
   };
   return (
-    <div id="detail-page-tabs-container" data-cy="detail-page-tabs-container" className="m-1">
-      <div id="detail-page-tabs-payroll-view-wrapper" data-cy="detail-page-tabs-payroll-view-wrapper">
+    <div
+      id="detail-page-tabs-container"
+      data-cy="detail-page-tabs-container"
+      className="m-1"
+    >
+      <div
+        id="detail-page-tabs-payroll-view-wrapper"
+        data-cy="detail-page-tabs-payroll-view-wrapper"
+      >
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>
 

@@ -116,19 +116,27 @@ const SelfAttendance = () => {
       loading={attendanceIsLoading}
       className="bg-white p-5 rounded-xl md:h-[416px] shadow-lg"
     >
-      <div className="flex justify-between items-center mb-3">
-        <div className="text-lg font-bold">Annual Attendance Report</div>
-        <div className="pl-2"></div>
+      <div
+        className="flex justify-between items-center mb-3"
+        data-cy="self-attendance-header"
+      >
+        <div className="text-lg font-bold" data-cy="self-attendance-title">
+          Annual Attendance Report
+        </div>
+        <div className="pl-2" data-cy="self-attendance-header-spacer"></div>
       </div>
-      <div className="flex  xl:hidden">
+      <div className="flex  xl:hidden" data-cy="self-attendance-chart-mobile">
         {/* flex xl:hidden zoom in min 110{' '} */}
         <Bar data={data} options={options} height={120} width={180} />{' '}
       </div>
-      <div className="hidden xl:flex 2xl:hidden">
+      <div
+        className="hidden xl:flex 2xl:hidden"
+        data-cy="self-attendance-chart-tablet"
+      >
         {/* hidden xl:flex 2xl:hidden mid 90 - 100 */}
         <Bar data={data} options={options} height={100} width={180} />{' '}
       </div>
-      <div className="hidden 2xl:flex ">
+      <div className="hidden 2xl:flex " data-cy="self-attendance-chart-desktop">
         {/* hidden 2xl:flex = zoom out max 80 -75 */}
         <Bar data={data} options={options} height={65} width={180} />
       </div>{' '}

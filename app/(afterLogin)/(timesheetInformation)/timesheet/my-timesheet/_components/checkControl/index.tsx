@@ -82,16 +82,28 @@ const CheckControl = () => {
   switch (checkStatus) {
     case CheckStatus.notStarted:
       return (
-        <AccessGuard permissions={[Permissions.CheckInRemotely]}>
+        <AccessGuard
+          data-cy="time-attendance-check-control-check-in-button-access-guard"
+          permissions={[Permissions.CheckInRemotely]}
+        >
           <Button
             className="h-12 sm:h-14 text-base w-full sm:w-auto"
-            id="buttonCheckin"
+            id="time-attendance-check-control-check-in-button"
+            data-cy="time-attendance-check-control-check-in-button"
             size="large"
             type="primary"
             icon={
               <>
-                <IoLocationOutline className="block sm:hidden" size={20} />
-                <GoClock className="hidden sm:block" size={20} />
+                <IoLocationOutline
+                  data-cy="time-attendance-check-control-check-in-button-icon"
+                  className="block sm:hidden"
+                  size={20}
+                />
+                <GoClock
+                  data-cy="time-attendance-check-control-check-in-button-clock-icon"
+                  className="hidden sm:block"
+                  size={20}
+                />
               </>
             }
             loading={isLoading || isFetching}
@@ -105,16 +117,34 @@ const CheckControl = () => {
       );
     case CheckStatus.started:
       return (
-        <Space className="w-full sm:w-auto" direction="vertical" size="middle">
-          <AccessGuard permissions={[Permissions.CheckOutRemotely]}>
+        <Space
+          className="w-full sm:w-auto"
+          direction="vertical"
+          size="middle"
+          id="time-attendance-check-control-started-container"
+          data-cy="time-attendance-check-control-started-container"
+        >
+          <AccessGuard
+            data-cy="time-attendance-check-control-break-check-out-button-access-guard"
+            permissions={[Permissions.CheckOutRemotely]}
+          >
             <Button
               className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
-              id="buttonBreakCheckOut"
+              id="time-attendance-check-control-break-check-out-button"
+              data-cy="time-attendance-check-control-break-check-out-button"
               icon={
                 <>
-                  <IoLocationOutline className="block sm:hidden" size={20} />
-                  <GoClock className="hidden sm:block" size={20} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-control-break-check-out-button-icon"
+                    className="block sm:hidden"
+                    size={20}
+                  />
+                  <GoClock
+                    data-cy="time-attendance-check-control-break-check-out-button-clock-icon"
+                    className="hidden sm:block"
+                    size={20}
+                  />
                 </>
               }
               loading={isLoading || isFetching}
@@ -129,11 +159,20 @@ const CheckControl = () => {
             <Button
               className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
-              id="buttonCheckOut"
+              id="time-attendance-check-control-check-out-button"
+              data-cy="time-attendance-check-control-check-out-button"
               icon={
                 <>
-                  <IoLocationOutline className="block sm:hidden" size={20} />
-                  <GoClock className="hidden sm:block" size={20} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-control-check-out-button-icon"
+                    className="block sm:hidden"
+                    size={20}
+                  />
+                  <GoClock
+                    data-cy="time-attendance-check-control-check-out-button-clock-icon"
+                    className="hidden sm:block"
+                    size={20}
+                  />
                 </>
               }
               loading={isLoading || isFetching}
@@ -148,21 +187,43 @@ const CheckControl = () => {
       );
     case CheckStatus.breaking:
       return (
-        <Space className="w-full sm:w-auto" direction="vertical" size="middle">
+        <Space
+          className="w-full sm:w-auto"
+          direction="vertical"
+          size="middle"
+          id="time-attendance-check-control-breaking-container"
+          data-cy="time-attendance-check-control-breaking-container"
+        >
           {workTime && (
-            <div className="text-[24px] sm:text-[28px] text-primary font-bold text-center sm:text-left">
+            <div
+              className="text-[24px] sm:text-[28px] text-primary font-bold text-center sm:text-left"
+              id="time-attendance-check-control-work-time"
+              data-cy="time-attendance-check-control-work-time"
+            >
               {workTime} hrs
             </div>
           )}
-          <AccessGuard permissions={[Permissions.CheckInRemotely]}>
+          <AccessGuard
+            data-cy="time-attendance-check-control-break-check-in-button-access-guard"
+            permissions={[Permissions.CheckInRemotely]}
+          >
             <Button
               className="h-12 sm:h-14 text-base w-full sm:w-auto"
               size="large"
-              id="checkInButton"
+              id="time-attendance-check-control-break-check-in-button"
+              data-cy="time-attendance-check-control-break-check-in-button"
               icon={
                 <>
-                  <IoLocationOutline className="block sm:hidden" size={20} />
-                  <GoClock className="hidden sm:block" size={20} />
+                  <IoLocationOutline
+                    data-cy="time-attendance-check-control-break-check-in-button-icon"
+                    className="block sm:hidden"
+                    size={20}
+                  />
+                  <GoClock
+                    data-cy="time-attendance-check-control-break-check-in-button-clock-icon"
+                    className="hidden sm:block"
+                    size={20}
+                  />
                 </>
               }
               loading={isLoading || isFetching}

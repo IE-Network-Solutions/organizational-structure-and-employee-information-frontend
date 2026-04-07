@@ -7,7 +7,7 @@ import {
 } from '@/store/server/features/payroll/setting/tax-rule/mutation';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/taxRules/taxRulesStore';
 
-<style jsx global>{`
+<style jsx global data-cy="payroll-tax-rule-drawer-style">{`
   @media (max-width: 767px) {
     .input-number-mobile .ant-input-number,
     .input-number-mobile .ant-input-number-input {
@@ -62,10 +62,10 @@ const Drawer: React.FC = () => {
   const onFinish = async (values: any) => {
     const taxRuleData = {
       name: values.name,
-      minIncome: values['minimum-income'],
-      maxIncome: values['maximum-income'],
-      rate: values.rate,
-      deduction: values.deduction,
+      minIncome: parseFloat(values['minimum-income']),
+      maxIncome: parseFloat(values['maximum-income']),
+      rate: parseFloat(values.rate),
+      deduction: parseFloat(values.deduction),
     };
 
     try {
@@ -130,7 +130,7 @@ const Drawer: React.FC = () => {
       }
     >
       <Form
-         id="tax-rule-form"
+        id="tax-rule-form"
         data-cy="payroll-tax-rule-drawer-form-submit-form"
         layout="vertical"
         form={form}
@@ -159,7 +159,6 @@ const Drawer: React.FC = () => {
           name="minimum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the minimum income!',
             },
@@ -203,7 +202,6 @@ const Drawer: React.FC = () => {
           name="maximum-income"
           rules={[
             {
-              type: 'number',
               required: true,
               message: 'Please input the maximum income!',
             },
@@ -269,7 +267,12 @@ const Drawer: React.FC = () => {
             placeholder="Input Tax Rate"
             controls={true}
             addonAfter={
-              <span style={{ color: '#bdbdbd', fontWeight: 600 }}>%</span>
+              <span
+                data-cy="tax-rule-components-drawer-index-tsx-index-span-270"
+                style={{ color: '#bdbdbd', fontWeight: 600 }}
+              >
+                %
+              </span>
             }
           />
         </Form.Item>

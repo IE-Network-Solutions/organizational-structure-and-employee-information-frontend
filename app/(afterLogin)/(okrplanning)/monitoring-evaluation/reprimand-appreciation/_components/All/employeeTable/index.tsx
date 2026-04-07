@@ -37,7 +37,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       dataIndex: 'type',
       key: 'type',
       render: (type: AppreciationType) => {
-        return <span className="ml-2">{type?.name || 'Unknown Type'}</span>;
+        return (
+          <span
+            className="ml-2"
+            data-cy={`employee-table-type-${type?.id || 'unknown'}`}
+          >
+            {type?.name || 'Unknown Type'}
+          </span>
+        );
       },
     },
     {
@@ -47,7 +54,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       render: (recipientId: string) => {
         const user = employeeInfo(recipientId); // Fetch employee info
         return (
-          <div className="flex md:flex-row flex-col items-center">
+          <div
+            className="flex md:flex-row flex-col items-center"
+            data-cy={`employee-table-recipient-${recipientId}`}
+          >
             {user?.profileImage ? (
               <Avatar
                 size={40}
@@ -58,7 +68,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             ) : (
               <Avatar size={40} icon={<UserOutlined />}></Avatar>
             )}
-            <span className="ml-2">{user?.firstName || 'Unknown User'}</span>
+            <span
+              className="ml-2"
+              data-cy={`employee-table-received-by-name-${recipientId}`}
+            >
+              {user?.firstName || 'Unknown User'}
+            </span>
           </div>
         );
       },
@@ -70,8 +85,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       render: (issuerId: string) => {
         const user = employeeInfo(issuerId); // Fetch employee info
         return (
-          <div className="flex md:flex-row flex-col items-center">
-            <div className="flex md:flex-row flex-col items-center">
+          <div
+            className="flex md:flex-row flex-col items-center"
+            data-cy={`employee-table-given-by-container-${issuerId}`}
+          >
+            <div
+              className="flex md:flex-row flex-col items-center"
+              data-cy={`employee-table-given-by-inner-${issuerId}`}
+            >
               {user?.profileImage ? (
                 <Avatar
                   size={40}
@@ -82,7 +103,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
               ) : (
                 <Avatar size={40} icon={<UserOutlined />}></Avatar>
               )}
-              <span className="ml-2">{user?.firstName || 'Unknown User'}</span>
+              <span
+                className="ml-2"
+                data-cy={`employee-table-given-by-name-${issuerId}`}
+              >
+                {user?.firstName || 'Unknown User'}
+              </span>
             </div>
           </div>
         );
@@ -99,7 +125,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       key: 'action',
       render: (record: Record<string, string> | any) => {
         return (
-          <div className="flex space-x-2">
+          <div
+            className="flex space-x-2"
+            data-cy={`employee-table-action-${record.id}`}
+          >
             <AccessGuard
               permissions={[Permissions.ViewReprimandAndAppreciationDetails]}
             >

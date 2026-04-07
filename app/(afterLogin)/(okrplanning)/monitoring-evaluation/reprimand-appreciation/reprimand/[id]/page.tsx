@@ -58,17 +58,21 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
     setOpenEdit(true);
   };
   return (
-    <div className="p-4 md:p-6">
+    <div className="p-4 md:p-6" data-cy="reprimand-detail-page">
       {/* Back button and actions */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0">
+      <div
+        className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0"
+        data-cy="reprimand-detail-header"
+      >
         <Button
           href="/monitoring-evaluation/reprimand-appreciation"
           className="mb-4 text-lg font-semibold"
           type="text"
+          data-cy="reprimand-detail-back-button"
         >
           ← Detail
         </Button>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2" data-cy="reprimand-detail-actions">
           <Button
             className="bg-blue text-white border-none"
             icon={<EditOutlined />}
@@ -87,11 +91,22 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
         <Divider />
 
         {/* Content section */}
-        <div className="mt-4">
+        <div className="mt-4" data-cy="reprimand-detail-content">
           {/* Given To Section */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0">
-            <h4 className="text-gray-500 text-sm col-span-3">Given To</h4>
-            <div className="flex items-center space-x-3 w-full col-span-9">
+          <div
+            className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0"
+            data-cy="reprimand-detail-given-to-section"
+          >
+            <h4
+              className="text-gray-500 text-sm col-span-3"
+              data-cy="reprimand-detail-given-to-label"
+            >
+              Given To
+            </h4>
+            <div
+              className="flex items-center space-x-3 w-full col-span-9"
+              data-cy="reprimand-detail-given-to-content"
+            >
               {employeeInfo(repDetail?.recipientId || '')?.profileImage ? (
                 <Avatar
                   size={40}
@@ -104,12 +119,18 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
                   icon={<UserOutlined />}
                 />
               )}
-              <div>
-                <p className="text-lg font-semibold">
+              <div data-cy="reprimand-detail-given-to-employee-info">
+                <p
+                  className="text-lg font-semibold"
+                  data-cy="reprimand-detail-given-to-employee-name"
+                >
                   {employeeInfo(repDetail?.recipientId || '')?.firstName ||
                     'N/A'}
                 </p>
-                <p className="text-gray-500">
+                <p
+                  className="text-gray-500"
+                  data-cy="reprimand-detail-given-to-employee-joined"
+                >
                   Joined on:{' '}
                   {dayjs(
                     employeeInfo(repDetail?.recipientId || '')?.createdAt,
@@ -120,17 +141,39 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
           </div>
 
           {/* Last Updated Section */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0">
-            <h4 className="text-gray-500 text-sm col-span-3">Last Updated</h4>
-            <p className="col-span-9">
+          <div
+            className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0"
+            data-cy="reprimand-detail-last-updated-section"
+          >
+            <h4
+              className="text-gray-500 text-sm col-span-3"
+              data-cy="reprimand-detail-last-updated-label"
+            >
+              Last Updated
+            </h4>
+            <p
+              className="col-span-9"
+              data-cy="reprimand-detail-last-updated-value"
+            >
               {dayjs(repDetail?.updatedAt).format('ddd - MMM - YYYY') || 'N/A'}
             </p>
           </div>
 
           {/* Given By Section */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0">
-            <h4 className="text-gray-500 text-sm col-span-3">Given By</h4>
-            <div className="flex items-center space-x-3 w-full col-span-9">
+          <div
+            className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0"
+            data-cy="reprimand-detail-given-by-section"
+          >
+            <h4
+              className="text-gray-500 text-sm col-span-3"
+              data-cy="reprimand-detail-given-by-label"
+            >
+              Given By
+            </h4>
+            <div
+              className="flex items-center space-x-3 w-full col-span-9"
+              data-cy="reprimand-detail-given-by-content"
+            >
               {employeeInfo(repDetail?.issuerId || '')?.profileImage ? (
                 <Avatar
                   size={40}
@@ -143,11 +186,17 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
                   icon={<UserOutlined />}
                 />
               )}
-              <div>
-                <p className="text-lg font-semibold">
+              <div data-cy="reprimand-detail-given-by-employee-info">
+                <p
+                  className="text-lg font-semibold"
+                  data-cy="reprimand-detail-given-by-employee-name"
+                >
                   {employeeInfo(repDetail?.issuerId || '')?.firstName || 'N/A'}
                 </p>
-                <p className="text-gray-500">
+                <p
+                  className="text-gray-500"
+                  data-cy="reprimand-detail-given-by-employee-joined"
+                >
                   Joined on:{' '}
                   {dayjs(
                     employeeInfo(repDetail?.issuerId || '')?.createdAt,
@@ -158,16 +207,28 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
           </div>
 
           {/* Total No of Appreciations and Reprimands */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0">
-            <h4 className="text-gray-500 text-sm col-span-3">
+          <div
+            className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0"
+            data-cy="reprimand-detail-total-appreciations-section"
+          >
+            <h4
+              className="text-gray-500 text-sm col-span-3"
+              data-cy="reprimand-detail-total-appreciations-label"
+            >
               Total No of Appreciations
             </h4>
             <Tag className="col-span-9 w-fit" color="green">
               {repDetail?.totalNumberOfAppreciation || 0}
             </Tag>
           </div>
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0">
-            <h4 className="text-gray-500 text-sm col-span-3">
+          <div
+            className="mb-6 grid grid-cols-1 md:grid-cols-12 items-center gap-y-4 md:gap-0"
+            data-cy="reprimand-detail-total-reprimands-section"
+          >
+            <h4
+              className="text-gray-500 text-sm col-span-3"
+              data-cy="reprimand-detail-total-reprimands-label"
+            >
               Total No of Reprimands
             </h4>
             <Tag className="col-span-9 w-fit" color="red">
@@ -176,9 +237,20 @@ function DetailPage({ params: { id } }: EmployeeDetailsProps) {
           </div>
 
           {/* Reason Section */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-12 items-start gap-y-4 md:gap-0">
-            <h4 className="text-gray-500 text-sm col-span-3">Reason</h4>
-            <p className="text-gray-700 col-span-9">
+          <div
+            className="mb-6 grid grid-cols-1 md:grid-cols-12 items-start gap-y-4 md:gap-0"
+            data-cy="reprimand-detail-reason-section"
+          >
+            <h4
+              className="text-gray-500 text-sm col-span-3"
+              data-cy="reprimand-detail-reason-label"
+            >
+              Reason
+            </h4>
+            <p
+              className="text-gray-700 col-span-9"
+              data-cy="reprimand-detail-reason-value"
+            >
               {repDetail?.action || 'No reason provided.'}
             </p>
           </div>

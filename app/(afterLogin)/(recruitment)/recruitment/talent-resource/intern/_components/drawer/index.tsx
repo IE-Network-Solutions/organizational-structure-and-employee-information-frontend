@@ -222,7 +222,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           id="fullNameId"
           name="fullName"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="intern-components-drawer-index-tsx-index-span-225"
+              className="text-md font-semibold text-gray-700"
+            >
               Full-Name
             </span>
           }
@@ -248,7 +251,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               id="emailAddressId"
               name="email"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="intern-components-drawer-index-tsx-index-span-251"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Email Address
                 </span>
               }
@@ -275,7 +281,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               id="phoneNumberId"
               name="phone"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="intern-components-drawer-index-tsx-index-span-278"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Phone Number
                 </span>
               }
@@ -304,7 +313,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               id="cgpaId"
               name="CGPA"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="intern-components-drawer-index-tsx-index-span-307"
+                  className="text-md font-semibold text-gray-700"
+                >
                   CGPA
                 </span>
               }
@@ -326,7 +338,12 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
               className="flex items-center justify-start gap-1 ml-1"
             >
               <FaInfoCircle />
-              <div className="text-xs font-md">Put your point 4.0 scale</div>
+              <div
+                data-cy="intern-components-drawer-index-tsx-index-div-329"
+                className="text-xs font-md"
+              >
+                Put your point 4.0 scale
+              </div>
             </div>
           </Col>
         </Row>
@@ -335,7 +352,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           id="yearOfGraduationId"
           name="yearOfGraduation"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="intern-components-drawer-index-tsx-index-span-338"
+              className="text-md font-semibold text-gray-700"
+            >
               Expected Year of Graduation
             </span>
           }
@@ -359,7 +379,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           id="departmentId"
           name="department"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="intern-components-drawer-index-tsx-index-span-362"
+              className="text-md font-semibold text-gray-700"
+            >
               Department
             </span>
           }
@@ -394,7 +417,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           id="coverLetterId"
           name="coverLetter"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="intern-components-drawer-index-tsx-index-span-397"
+              className="text-md font-semibold text-gray-700"
+            >
               Cover Letter
             </span>
           }
@@ -413,7 +439,10 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
           id="documentNameId"
           name="resumeUrl"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="intern-components-drawer-index-tsx-index-span-416"
+              className="text-md font-semibold text-gray-700"
+            >
               Upload CV
             </span>
           }
@@ -438,7 +467,7 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
             listType="picture"
             accept=".pdf,.doc,.docx"
           >
-            <p>
+            <p data-cy="intern-components-drawer-index-tsx-index-p-441">
               <Image
                 preview={false}
                 className="w-full max-w-xs"
@@ -446,15 +475,26 @@ const CreateInternApplicants: React.FC<CreateInternApplicantsProps> = ({
                 alt="Loading"
               />
             </p>
-            <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
-              <p>Upload your CV</p>
-              <p className="text-gray-400 text-sm font-normal">
+            <div
+              data-cy="intern-components-drawer-index-tsx-index-div-449"
+              className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+            >
+              <p data-cy="intern-components-drawer-index-tsx-index-p-450">
+                Upload your CV
+              </p>
+              <p
+                data-cy="intern-components-drawer-index-tsx-index-p-451"
+                className="text-gray-400 text-sm font-normal"
+              >
                 or drag and drop it here
               </p>
             </div>
           </Dragger>
         </Form.Item>
-        <div className="text-sm font-md mb-8">
+        <div
+          data-cy="intern-components-drawer-index-tsx-index-div-457"
+          className="text-sm font-md mb-8"
+        >
           Max file size: 5MB. File formats: .pdf, .doc, .docx
         </div>
       </Form>

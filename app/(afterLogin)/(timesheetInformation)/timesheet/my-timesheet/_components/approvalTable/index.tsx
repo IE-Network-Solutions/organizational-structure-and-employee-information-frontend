@@ -119,7 +119,11 @@ const ApprovalTable = () => {
       leaveType: item?.leaveType?.title,
       status: item?.status,
       action: (
-        <div className="flex gap-4 ">
+        <div
+          className="flex gap-4 "
+          id={`time-attendance-approval-table-row-${index}-actions-container`}
+          data-cy={`time-attendance-approval-table-row-${index}-actions-container`}
+        >
           {item?.nextApprover?.[0]?.userId === userId && (
             <Popconfirm
               title="Approve Request"
@@ -144,20 +148,31 @@ const ApprovalTable = () => {
                 allApproveIsLoading ||
                 allRejectIsLoading
               }
+              data-cy={`time-attendance-approval-table-row-${index}-approve-popconfirm`}
             >
-              <Button type="primary">Approve</Button>
+              <Button
+                type="primary"
+                id={`time-attendance-approval-table-row-${index}-approve-button`}
+                data-cy={`time-attendance-approval-table-row-${index}-approve-button`}
+              >
+                Approve
+              </Button>
             </Popconfirm>
           )}
           <Popconfirm
             title="Reject Request"
             description={
               <>
-                <p>Are you sure you want to reject this leave request?</p>
+                <p data-cy="my-timesheet-components-approvaltable-index-tsx-index-p-166">
+                  Are you sure you want to reject this leave request?
+                </p>
                 <Input
                   placeholder="Add a comment"
                   value={rejectComment}
                   onChange={(e) => setRejectComment(e.target.value)}
                   style={{ marginTop: 8 }}
+                  id={`time-attendance-approval-table-row-${index}-reject-comment-input`}
+                  data-cy={`time-attendance-approval-table-row-${index}-reject-comment-input`}
                 />
               </>
             }
@@ -187,8 +202,15 @@ const ApprovalTable = () => {
               allApproveIsLoading ||
               allRejectIsLoading
             }
+            data-cy={`time-attendance-approval-table-row-${index}-reject-popconfirm`}
           >
-            <Button danger>Reject</Button>
+            <Button
+              danger
+              id={`time-attendance-approval-table-row-${index}-reject-button`}
+              data-cy={`time-attendance-approval-table-row-${index}-reject-button`}
+            >
+              Reject
+            </Button>
           </Popconfirm>
         </div>
       ),
@@ -201,21 +223,54 @@ const ApprovalTable = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div data-cy="my-timesheet-components-approvaltable-index-tsx-index-div-224">
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="mx-1 text-sm">
+      <div
+        className="flex items-center gap-1.5"
+        id={`time-attendance-approval-table-employee-${userId}-container`}
+        data-cy={`time-attendance-approval-table-employee-${userId}-container`}
+      >
+        <div
+          className="mx-1 text-sm"
+          id={`time-attendance-approval-table-employee-${userId}-id`}
+          data-cy={`time-attendance-approval-table-employee-${userId}-id`}
+        >
           {employeeData?.employeeInformation?.employeeAttendanceId}
         </div>
-        <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900 flex gap-2">
+        <Avatar
+          size={24}
+          icon={
+            <UserOutlined
+              data-cy={`time-attendance-approval-table-employee-${userId}-avatar-icon`}
+            />
+          }
+          data-cy={`time-attendance-approval-table-employee-${userId}-avatar`}
+        />
+        <div
+          className="flex-1"
+          id={`time-attendance-approval-table-employee-${userId}-info`}
+          data-cy={`time-attendance-approval-table-employee-${userId}-info`}
+        >
+          <div
+            className="text-xs text-gray-900 flex gap-2"
+            id={`time-attendance-approval-table-employee-${userId}-name`}
+            data-cy={`time-attendance-approval-table-employee-${userId}-name`}
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            className="text-[10px] leading-4 text-gray-600"
+            id={`time-attendance-approval-table-employee-${userId}-email`}
+            data-cy={`time-attendance-approval-table-employee-${userId}-email`}
+          >
             {employeeData?.email}
           </div>
         </div>
@@ -256,7 +311,10 @@ const ApprovalTable = () => {
       title: 'Status',
       dataIndex: 'status',
       render: (text: LeaveRequestStatus) => (
-        <StatusBadge theme={LeaveRequestStatusBadgeTheme[text]}>
+        <StatusBadge
+          data-cy={`time-attendance-approval-table-status-badge-${text}`}
+          theme={LeaveRequestStatusBadgeTheme[text]}
+        >
           {text}
         </StatusBadge>
       ),
@@ -312,20 +370,48 @@ const ApprovalTable = () => {
   return (
     <>
       {approvalData?.items?.length > 0 ? (
-        <Card loading={isLoadingApproval}>
-          <div className="flex items-center mb-2 px-3">
-            <div className="text-2xl font-bold text-gray-900">
+        <Card
+          loading={isLoadingApproval}
+          id="time-attendance-approval-table-card"
+          data-cy="time-attendance-approval-table-card"
+        >
+          <div
+            className="flex items-center mb-2 px-3"
+            id="time-attendance-approval-table-header-container"
+            data-cy="time-attendance-approval-table-header-container"
+          >
+            <div
+              className="text-2xl font-bold text-gray-900"
+              id="time-attendance-approval-table-title"
+              data-cy="time-attendance-approval-table-title"
+            >
               Waiting for my approval
               <Button
                 type="text"
                 size="small"
-                icon={<AiOutlineReload size={14} className="text-gray-600" />}
+                icon={
+                  <AiOutlineReload
+                    data-cy="time-attendance-approval-table-refresh-button-icon"
+                    size={14}
+                    className="text-gray-600"
+                  />
+                }
                 onClick={() => refetch()}
+                id="time-attendance-approval-table-refresh-button"
+                data-cy="time-attendance-approval-table-refresh-button"
               />
             </div>
           </div>
-          <div className="flex items-center sm:justify-end justify-between mb-2 px-3 sm:px-0">
-            <div className="flex items-center gap-4 mb-2">
+          <div
+            className="flex items-center sm:justify-end justify-between mb-2 px-3 sm:px-0"
+            id="time-attendance-approval-table-actions-container"
+            data-cy="time-attendance-approval-table-actions-container"
+          >
+            <div
+              className="flex items-center gap-4 mb-2"
+              id="time-attendance-approval-table-actions-buttons"
+              data-cy="time-attendance-approval-table-actions-buttons"
+            >
               <Popconfirm
                 title="All Approve Request"
                 description="Are you sure to approve all leave request?"
@@ -335,6 +421,7 @@ const ApprovalTable = () => {
                 onCancel={cancel}
                 okText="Approve All"
                 cancelText="Cancel"
+                data-cy="time-attendance-approval-table-approve-all-popconfirm"
               >
                 <Button
                   disabled={
@@ -344,8 +431,13 @@ const ApprovalTable = () => {
                     allRejectIsLoading
                   }
                   type="primary"
+                  id="time-attendance-approval-table-approve-all-button"
+                  data-cy="time-attendance-approval-table-approve-all-button"
                 >
-                  <Spin spinning={allApproveIsLoading} />
+                  <Spin
+                    data-cy="time-attendance-approval-table-approve-all-spin"
+                    spinning={allApproveIsLoading}
+                  />
                   Approve All
                 </Button>
               </Popconfirm>
@@ -358,6 +450,7 @@ const ApprovalTable = () => {
                 onCancel={cancel}
                 okText="Reject All"
                 cancelText="Cancel"
+                data-cy="time-attendance-approval-table-reject-all-popconfirm"
               >
                 <Button
                   disabled={
@@ -367,8 +460,13 @@ const ApprovalTable = () => {
                     allRejectIsLoading
                   }
                   danger
+                  id="time-attendance-approval-table-reject-all-button"
+                  data-cy="time-attendance-approval-table-reject-all-button"
                 >
-                  <Spin spinning={allRejectIsLoading} />
+                  <Spin
+                    spinning={allRejectIsLoading}
+                    data-cy="time-attendance-approval-table-reject-all-spin"
+                  />
                   Reject All
                 </Button>
               </Popconfirm>
@@ -385,6 +483,8 @@ const ApprovalTable = () => {
             dataSource={allFilterData}
             pagination={false}
             scroll={{ x: 'min-content' }}
+            id="time-attendance-approval-table"
+            data-cy="time-attendance-approval-table"
           />
           {isMobile || isTablet ? (
             <CustomMobilePagination
@@ -395,6 +495,7 @@ const ApprovalTable = () => {
                 setPageSize(newPageSize);
                 setUserCurrentPage(1);
               }}
+              data-cy="time-attendance-approval-table-mobile-pagination"
             />
           ) : (
             <CustomPagination
@@ -406,6 +507,7 @@ const ApprovalTable = () => {
                 setPageSize(newPageSize);
                 setUserCurrentPage(1);
               }}
+              data-cy="time-attendance-approval-table-pagination"
             />
           )}
         </Card>

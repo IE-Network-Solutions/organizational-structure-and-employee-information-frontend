@@ -182,7 +182,10 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               <CustomButton
                 title={
                   !(isMobile || isTablet) && (
-                    <span className="hidden sm:inline">
+                    <span
+                      data-cy="recruitment-jobs-id-page-tsx-page-span-185"
+                      className="hidden sm:inline"
+                    >
                       Move to Talent Pool
                     </span>
                   )
@@ -198,7 +201,12 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
           <CustomButton
             title={
               !(isMobile || isTablet) && (
-                <span className="hidden sm:inline">Add candidate</span>
+                <span
+                  data-cy="recruitment-jobs-id-page-tsx-page-span-201"
+                  className="hidden sm:inline"
+                >
+                  Add candidate
+                </span>
               )
             }
             id="createUserButton"

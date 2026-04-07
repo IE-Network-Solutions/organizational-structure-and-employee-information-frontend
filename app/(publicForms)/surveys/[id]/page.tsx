@@ -37,13 +37,27 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
 
   if (alreadySubmitted) {
     return (
-      <div className="mt-8 flex flex-col items-center">
-        <h2 className="text-2xl font-bold mb-4">{publicForm?.name}</h2>
-        <div className="w-full max-w-xl mb-6">
+      <div
+        className="mt-8 flex flex-col items-center"
+        data-cy="public-forms-surveys-already-submitted-container"
+      >
+        <h2
+          className="text-2xl font-bold mb-4"
+          data-cy="public-forms-surveys-already-submitted-title"
+        >
+          <span data-cy="public-forms-surveys-already-submitted-title-text">
+            {publicForm?.name}
+          </span>
+        </h2>
+        <div
+          className="w-full max-w-xl mb-6"
+          data-cy="public-forms-surveys-already-submitted-alert"
+        >
           <Alert
             message="You have submitted your response."
             type="info"
             showIcon
+            data-cy="public-forms-surveys-already-submitted-alert-message"
           />
         </div>
       </div>
@@ -51,7 +65,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
   }
 
   return (
-    <div>
+    <div data-cy="-publicforms-surveys-id-page-tsx-page-div-68">
       {isLoading ?? <Spin className="flex justify-center align-middle" />}
       <Form
         labelCol={{ span: 4 }}
@@ -76,15 +90,23 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
         }}
         form={form}
       >
-        <h2>{publicForm?.name}</h2>
+        <h2 data-cy="-publicforms-surveys-id-page-tsx-page-h2-93">
+          {publicForm?.name}
+        </h2>
         {publicForm?.questions?.map((q: any, index: number) => (
           <Row gutter={16} key={q.id}>
             <Col xs={24} sm={24}>
               <Form.Item
                 key={q.id}
                 label={
-                  <div className="my-2 font-semibold">
-                    <span>{index + 1}.</span> {q.question}
+                  <div
+                    data-cy="-publicforms-surveys-id-page-tsx-page-div-100"
+                    className="my-2 font-semibold"
+                  >
+                    <span data-cy="-publicforms-surveys-id-page-tsx-page-span-101">
+                      {index + 1}.
+                    </span>{' '}
+                    {q.question}
                   </div>
                 }
                 name={`question_${q.id}`}

@@ -85,12 +85,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          data-cy={`okr-milestone-form-remove-icon-${index}`}
         >
           <path
             d="M6 6L14 14M6 14L14 6"
             stroke="white"
             strokeWidth="2"
             strokeLinecap="round"
+            data-cy={`okr-milestone-form-remove-key-result-path-${index}`}
           />
         </svg>
       </button>
@@ -105,7 +107,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
           <div
             id={`okr-milestone-mobile-wrapper-${index}`}
             data-cy={`okr-milestone-mobile-wrapper-${index}`}
-            className="flex flex-col gap-2 mt-4 mx-4"
+            className="flex flex-col gap-2 mt-4"
           >
             {/* Row 1: Key Result Name */}
             <div
@@ -134,6 +136,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   onChange={(e) =>
                     updateKeyResult(index, 'title', e.target.value)
                   }
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                  }}
                 />
               </Form.Item>
             </div>
@@ -174,11 +179,19 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   }
                   id={`select-metric-type-${index}`}
                 >
-                  <Option data-cy={`okr-milestone-mobile-type-option-${index}`} value="" disabled>
+                  <Option
+                    data-cy={`okr-milestone-mobile-type-option-${index}`}
+                    value=""
+                    disabled
+                  >
                     Please select a metric type
                   </Option>
                   {metrics?.items?.map((metric) => (
-                    <Option data-cy={`okr-milestone-mobile-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                    <Option
+                      data-cy={`okr-milestone-mobile-type-option-${index}-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Option>
                   ))}
@@ -242,7 +255,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
             <div
               id={`okr-milestone-mobile-list-${index}`}
               data-cy={`okr-milestone-mobile-list-${index}`}
-              className="flex flex-col gap-2 pl-4"
+              className="flex flex-col gap-2"
             >
               {/* First milestone row (always present) */}
               <div
@@ -267,6 +280,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onChange={(e) =>
                       handleMilestoneChange(0, 'title', e.target.value)
                     }
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                    }}
                   />
                 </Form.Item>
                 <Form.Item
@@ -302,12 +318,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     viewBox="0 0 20 20"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    data-cy={`okr-milestone-mobile-remove-icon-${index}`}
                   >
                     <path
                       d="M6 6L14 14M6 14L14 6"
                       stroke="white"
                       strokeWidth="2"
                       strokeLinecap="round"
+                      data-cy={`okr-milestone-mobile-remove-path-${index}`}
                     />
                   </svg>
                 </button>
@@ -349,6 +367,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           e.target.value,
                         )
                       }
+                      onPressEnter={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -384,12 +405,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       viewBox="0 0 20 20"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      data-cy={`okr-milestone-desktop-remove-svg-${mIndex + 1}-${index}`}
                     >
                       <path
                         d="M6 6L14 14M6 14L14 6"
                         stroke="white"
                         strokeWidth="2"
                         strokeLinecap="round"
+                        data-cy={`okr-milestone-form-remove-path-${index}`}
                       />
                     </svg>
                   </button>
@@ -431,6 +454,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   onChange={(e) =>
                     updateKeyResult(index, 'title', e.target.value)
                   }
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                  }}
                 />
               </Form.Item>
               <Form.Item
@@ -464,11 +490,19 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   }
                   id={`select-metric-type-${index}`}
                 >
-                  <Option data-cy={`okr-milestone-desktop-type-option-${index}`} value="" disabled>
+                  <Option
+                    data-cy={`okr-milestone-desktop-type-option-${index}`}
+                    value=""
+                    disabled
+                  >
                     Please select a metric type
                   </Option>
                   {metrics?.items?.map((metric) => (
-                    <Option data-cy={`okr-milestone-desktop-type-option-${index}-${metric?.id}`} key={metric?.id} value={metric?.id}>
+                    <Option
+                      data-cy={`okr-milestone-desktop-type-option-${index}-${metric?.id}`}
+                      key={metric?.id}
+                      value={metric?.id}
+                    >
                       {metric?.name}
                     </Option>
                   ))}
@@ -506,7 +540,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 id={`key-result-deadline-${index}`}
                 data-cy={`okr-milestone-desktop-deadline-item-${index}`}
               >
-                <DatePicker              
+                <DatePicker
                   data-cy={`okr-milestone-desktop-deadline-picker-${index}`}
                   className="w-full h-10 rounded-lg text-base"
                   value={keyItem.deadline ? dayjs(keyItem.deadline) : null}
@@ -559,6 +593,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     onChange={(e) =>
                       handleMilestoneChange(0, 'title', e.target.value)
                     }
+                    onPressEnter={(e) => {
+                      e.preventDefault();
+                    }}
                   />
                 </Form.Item>
                 <Form.Item
@@ -585,6 +622,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   className="w-48 flex gap-2 items-center"
                 >
                   <button
+                    type="button"
                     id={`okr-milestone-desktop-remove-0-${index}`}
                     data-cy={`okr-milestone-desktop-remove-0-${index}`}
                     onClick={() => handleRemoveMilestone(0)}
@@ -599,12 +637,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       viewBox="0 0 20 20"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
+                      data-cy={`okr-milestone-desktop-remove-svg-0-${index}`}
                     >
                       <path
                         d="M6 6L14 14M6 14L14 6"
                         stroke="white"
                         strokeWidth="2"
                         strokeLinecap="round"
+                        data-cy={`okr-milestone-form-remove-path-${index}`}
                       />
                     </svg>
                   </button>
@@ -647,6 +687,9 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                           e.target.value,
                         )
                       }
+                      onPressEnter={(e) => {
+                        e.preventDefault();
+                      }}
                     />
                   </Form.Item>
                   <Form.Item
@@ -673,6 +716,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     data-cy={`okr-milestone-desktop-actions-${mIndex + 1}-${index}`}
                   >
                     <button
+                      type="button"
                       id={`okr-milestone-desktop-remove-${mIndex + 1}-${index}`}
                       data-cy={`okr-milestone-desktop-remove-${mIndex + 1}-${index}`}
                       onClick={() => handleRemoveMilestone(mIndex + 1)}
@@ -687,12 +731,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                         viewBox="0 0 20 20"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
+                        data-cy={`okr-milestone-desktop-remove-icon-${mIndex + 1}-${index}`}
                       >
                         <path
                           d="M6 6L14 14M6 14L14 6"
                           stroke="white"
                           strokeWidth="2"
                           strokeLinecap="round"
+                          data-cy={`okr-milestone-desktop-remove-icon-path-${mIndex + 1}-${index}`}
                         />
                       </svg>
                     </button>

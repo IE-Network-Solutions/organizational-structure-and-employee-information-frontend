@@ -83,10 +83,13 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
 
   return (
     <>
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full" data-cy="employee-search-container">
         {isMobile ? (
-          <div className="flex items-center gap-2 w-full">
-            <div className="flex-1">
+          <div
+            className="flex items-center gap-2 w-full"
+            data-cy="employee-search-mobile"
+          >
+            <div className="flex-1" data-cy="employee-search-select-container">
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select employee"
@@ -119,7 +122,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                         ? `${displayFirstName} ${displayMiddleName}`.trim()
                         : 'Unnamed Employee';
                     return (
-                      <Option key={item.id} value={item.id}>
+                      <Option
+                        key={item.id}
+                        value={item.id}
+                        data-cy="employee-search-option"
+                      >
                         {fullName}
                       </Option>
                     );
@@ -130,13 +137,20 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
             <button
               onClick={() => setIsFilterModalOpen(true)}
               className="p-2 border border-gray-300 rounded-lg"
+              data-cy="employee-search-filter-button"
             >
               <VscSettings size={20} />
             </button>
           </div>
         ) : (
-          <div className="flex flex-wrap w-full">
-            <div className="w-full md:w-1/2 p-2">
+          <div
+            data-cy="components-common-search-employeesearch-tsx-employeesearch-div-146"
+            className="flex flex-wrap w-full"
+          >
+            <div
+              data-cy="components-common-search-employeesearch-tsx-employeesearch-div-147"
+              className="w-full md:w-1/2 p-2"
+            >
               <AccessGuard permissions={[Permissions.ViewAllEmployeePlan]}>
                 <Select
                   placeholder="Select Employee"
@@ -177,7 +191,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                 </Select>
               </AccessGuard>
             </div>
-            <div className="w-full md:w-1/4 p-2" id="subscriptionTypeFilter">
+            <div
+              data-cy="components-common-search-employeesearch-tsx-employeesearch-div-188"
+              className="w-full md:w-1/4 p-2"
+              id="subscriptionTypeFilter"
+            >
               <AccessGuard permissions={[Permissions.ViewAllPlan]}>
                 <Select
                   placeholder="Select Type"
@@ -203,7 +221,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
                 </Select>
               </AccessGuard>
             </div>
-            <div className="w-full md:w-1/4 p-2" id="subscriptionStatusFilter">
+            <div
+              data-cy="components-common-search-employeesearch-tsx-employeesearch-div-214"
+              className="w-full md:w-1/4 p-2"
+              id="subscriptionStatusFilter"
+            >
               <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
                 <Select
                   id="selectDepartment"
@@ -241,7 +263,10 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         open={isFilterModalOpen}
         onCancel={() => setIsFilterModalOpen(false)}
         footer={
-          <div className="flex justify-end items-center gap-2">
+          <div
+            data-cy="components-common-search-employeesearch-tsx-employeesearch-div-252"
+            className="flex justify-end items-center gap-2"
+          >
             <Button key="cancel" onClick={() => setIsFilterModalOpen(false)}>
               Cancel
             </Button>
@@ -257,8 +282,11 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
         width={isMobile ? '95%' : '50%'}
         centered
       >
-        <div className="space-y-4">
-          <div>
+        <div
+          data-cy="components-common-search-employeesearch-tsx-employeesearch-div-268"
+          className="space-y-4"
+        >
+          <div data-cy="components-common-search-employeesearch-tsx-employeesearch-div-269">
             <AccessGuard permissions={[Permissions.ViewAllPlan]}>
               <Select
                 placeholder="Select Type"
@@ -285,7 +313,7 @@ const EmployeeSearch: React.FC<EmployeeSearchProps> = ({
             </AccessGuard>
           </div>
 
-          <div>
+          <div data-cy="components-common-search-employeesearch-tsx-employeesearch-div-296">
             <AccessGuard permissions={[Permissions.ViewAllStatusPlan]}>
               <Select
                 id="selectDepartment"

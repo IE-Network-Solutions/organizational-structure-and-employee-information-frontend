@@ -66,12 +66,27 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
     return {
       key: `${selectedWorkSchedule?.id || 'default'}-${index}`,
       workingDay: (
-        <div className="flex space-x-2 justify-start">
-          <Switch checked={schedule?.status || schedule?.workday} disabled />
-          <span>{schedule?.dayOfWeek || schedule?.day}</span>
+        <div
+          className="flex space-x-2 justify-start"
+          data-cy={`work-schedule-day-${index}`}
+        >
+          <Switch
+            checked={schedule?.status || schedule?.workday}
+            disabled
+            data-cy={`work-schedule-day-switch-${index}`}
+          />
+          <span data-cy={`work-schedule-day-name-${index}`}>
+            {schedule?.dayOfWeek || schedule?.day}
+          </span>
         </div>
       ),
-      time: <TimePicker value={dayjs(timeValue, 'HH:mm:ss')} disabled />,
+      time: (
+        <TimePicker
+          value={dayjs(timeValue, 'HH:mm:ss')}
+          disabled
+          data-cy={`work-schedule-time-${index}`}
+        />
+      ),
     };
   });
 
@@ -101,7 +116,10 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({
             id="workScheduleId"
             data-cy="workScheduleId"
             label={
-              <span className="mb-1 font-semibold text-xs">
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="work-schedule-form-category-label"
+              >
                 Work Schedule Category
               </span>
             }

@@ -88,13 +88,25 @@ const TwoFactorAuth = () => {
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      data-cy="authentication-2fa-container"
     >
-      <div className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5">
-        <p className="flex justify-center font-semibold">
+      <div
+        className="bg-[#F1F2F3] w-full max-w-md py-4 px-6 rounded-lg my-5"
+        data-cy="authentication-2fa-form-container"
+      >
+        <p
+          className="flex justify-center font-semibold"
+          data-cy="authentication-2fa-logo"
+        >
           <SimpleLogo />
         </p>
-        <h5 className="text-center my-2">Two-Step Authentication</h5>
-        <p className="text-center text-xs mb-6">
+        <h5 className="text-center my-2" data-cy="authentication-2fa-title">
+          Two-Step Authentication
+        </h5>
+        <p
+          className="text-center text-xs mb-6"
+          data-cy="authentication-2fa-description"
+        >
           To continue, please enter the 6-digit verification code sent to your
           email address {twoFactorAuthEmail.replace(/(?<=.{3}).(?=.*@)/g, '*')}
         </p>
@@ -118,11 +130,13 @@ const TwoFactorAuth = () => {
             <Input.OTP length={6} size="large" autoFocus />
           </Form.Item>
           {/* 5 minutes countdown */}
-          <p className="text-center text-xs mb-6">
+          <p className="text-center text-xs mb-6" data-cy="2fa-countdown">
             {countdown > 0 ? (
-              <span className="font-bold text-sm">{formatted}</span>
+              <span className="font-bold text-sm" data-cy="2fa-countdown-time">
+                {formatted}
+              </span>
             ) : (
-              'Code expired'
+              <span data-cy="2fa-countdown-expired">Code expired</span>
             )}
           </p>
           <Form.Item>
@@ -137,13 +151,14 @@ const TwoFactorAuth = () => {
             </Button>
           </Form.Item>
         </Form>
-        <p className="text-center text-xs mb-6">
-          Didn&apos;t receive the code?
+        <p className="text-center text-xs mb-6" data-cy="2fa-resend-container">
+          <span data-cy="2fa-resend-text">Didn&apos;t receive the code?</span>
           <Button
             type="link"
             className="text-blue cursor-pointer"
             onClick={handleResendCode}
             loading={isGet2FACodeLoading}
+            data-cy="2fa-resend-button"
           >
             {' '}
             Resend Code
@@ -152,9 +167,11 @@ const TwoFactorAuth = () => {
       </div>
       {/* resend otp */}
 
-      <div className="text-xs font-thin text-center">
-        © {new Date().getFullYear().toString()} Selamnew Workspace . All-rights
-        reserved.
+      <div className="text-xs font-thin text-center" data-cy="2fa-footer">
+        <span data-cy="2fa-copyright">
+          © {new Date().getFullYear().toString()} Selamnew Workspace .
+          All-rights reserved.
+        </span>
         {/* <span className="font-semibold ml-1 cursor-pointer">
         Terms & Conditions
       </span>

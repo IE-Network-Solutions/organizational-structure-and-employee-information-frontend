@@ -28,7 +28,7 @@ type Props = {
 
 const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
   return (
-    <div className="ml-4">
+    <div className="ml-4" data-cy="tasks-displayer-container">
       {tasks?.map((task: Task) => (
         <Row
           key={task.taskId}
@@ -39,25 +39,45 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
         >
           <Col className="flex gap-2">
             <Text className="text-xs flex flex-col">
-              <div className="flex items-center gap-1 max-w-[250px] sm:max-w-full">
+              <div
+                data-cy="-components-reporting-milestone-index-tsx-index-div-42"
+                className="flex items-center gap-1 max-w-[250px] sm:max-w-full"
+              >
                 {task?.isAchieved ? (
                   <Tooltip title="Achieved">
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 text-white flex items-center justify-center rounded-full bg-green-600 shrink-0">
+                    <div
+                      data-cy="-components-reporting-milestone-index-tsx-index-div-45"
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-white flex items-center justify-center rounded-full bg-green-600 shrink-0"
+                    >
                       <FaCheck size={8} />
                     </div>
                   </Tooltip>
                 ) : (
                   <Tooltip title="Not Achieved">
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 text-white flex items-center justify-center rounded-full bg-red-600 shrink-0">
+                    <div
+                      data-cy="-components-reporting-milestone-index-tsx-index-div-51"
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-white flex items-center justify-center rounded-full bg-red-600 shrink-0"
+                    >
                       <FaTimes size={8} />
                     </div>
                   </Tooltip>
                 )}
-                <div className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF] shrink-0">
-                  <span className="rounded-full bg-blue w-1 h-1"></span>
+                <div
+                  data-cy="-components-reporting-milestone-index-tsx-index-div-56"
+                  className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF] shrink-0"
+                >
+                  <span
+                    data-cy="-components-reporting-milestone-index-tsx-index-span-57"
+                    className="rounded-full bg-blue w-1 h-1"
+                  ></span>
                 </div>
 
-                <span className="truncate">{task?.taskName} </span>
+                <span
+                  data-cy="-components-reporting-milestone-index-tsx-index-span-60"
+                  className="truncate"
+                >
+                  {task?.taskName}{' '}
+                </span>
                 {task?.achieveMK ? (
                   task?.milestone ? (
                     <FaStar size={11} />
@@ -83,13 +103,17 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           {/* Desktop View */}
           <Col className="hidden sm:block">
             <Text type="secondary" className="text-[10px]">
-              <span className="text-xl" style={{ color: 'blue' }}>
+              <span
+                data-cy="-components-reporting-milestone-index-tsx-index-span-86"
+                className="text-xl"
+                style={{ color: 'blue' }}
+              >
                 &bull;
               </span>
               Priority
             </Text>
             <Tag
-              className="font-bold border-none w-16 text-center capitalize text-[10px]"
+              className="font-bold border-none w-16 text-center capitalize text-[10px] rounded-[4px]"
               color={
                 task?.priority === 'high'
                   ? 'red'
@@ -104,7 +128,11 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
               task?.keyResult?.metricType?.name !== NAME.ACHIEVE && (
                 <>
                   <Text type="secondary" className="text-[10px]">
-                    <span className="text-xl" style={{ color: 'blue' }}>
+                    <span
+                      data-cy="-components-reporting-milestone-index-tsx-index-span-107"
+                      className="text-xl"
+                      style={{ color: 'blue' }}
+                    >
                       &bull;
                     </span>
                     Achieved
@@ -116,7 +144,11 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                     {Number(task?.actualValue)?.toLocaleString() || 'None'}
                   </Tag>
                   <Text type="secondary" className="text-[10px]">
-                    <span className="text-xl" style={{ color: 'blue' }}>
+                    <span
+                      data-cy="-components-reporting-milestone-index-tsx-index-span-119"
+                      className="text-xl"
+                      style={{ color: 'blue' }}
+                    >
                       &bull;
                     </span>
                     Target
@@ -130,7 +162,11 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                 </>
               )}
             <Text type="secondary" className="text-[10px]">
-              <span className="text-xl" style={{ color: 'blue' }}>
+              <span
+                data-cy="-components-reporting-milestone-index-tsx-index-span-133"
+                className="text-xl"
+                style={{ color: 'blue' }}
+              >
                 &bull;
               </span>
               Weight
@@ -144,10 +180,13 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
           </Col>
           {/* Mobile View */}
           <Col className="block sm:hidden">
-            <div className="flex justify-between w-60 py-1">
-              <div>
+            <div
+              data-cy="-components-reporting-milestone-index-tsx-index-div-147"
+              className="flex justify-between w-60 py-1"
+            >
+              <div data-cy="-components-reporting-milestone-index-tsx-index-div-148">
                 <Tag
-                  className="font-bold border-none w-16 text-center capitalize text-[10px]"
+                  className="font-bold border-none w-16 text-center capitalize text-[10px] rounded-[4px]"
                   color={
                     task?.priority === 'high'
                       ? 'red'
@@ -159,9 +198,21 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                   {task?.priority || 'None'}
                 </Tag>
               </div>
-              <div className="flex gap-2">
-                <span className="text-xs text-gray-500">
-                  <span className="text-blue mr-1">&bull;</span>Weight
+              <div
+                data-cy="-components-reporting-milestone-index-tsx-index-div-162"
+                className="flex gap-2"
+              >
+                <span
+                  data-cy="-components-reporting-milestone-index-tsx-index-span-163"
+                  className="text-xs text-gray-500"
+                >
+                  <span
+                    data-cy="-components-reporting-milestone-index-tsx-index-span-164"
+                    className="text-blue mr-1"
+                  >
+                    &bull;
+                  </span>
+                  Weight
                 </span>
                 <Tag
                   className="font-semibold border-none text-blue px-1.5 py-0 h-4 text-xs"

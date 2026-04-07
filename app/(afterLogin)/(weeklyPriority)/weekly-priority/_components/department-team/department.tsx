@@ -51,9 +51,12 @@ const Department: React.FC = () => {
   }, [weeklyPriority, activeTab]);
 
   return (
-    <div style={{ padding: 20 }}>
-      <div className="flex justify-between mb-5">
-        <div className="flex gap-4">
+    <div style={{ padding: 20 }} data-cy="department-team-container">
+      <div
+        className="flex justify-between mb-5"
+        data-cy="department-team-header"
+      >
+        <div className="flex gap-4" data-cy="department-team-filters">
           <Select
             id={`selectDepartment`}
             placeholder={
@@ -105,12 +108,20 @@ const Department: React.FC = () => {
           type="primary"
           icon={<HiPlus />}
         >
-          <span className="text-xs">Add one thing</span>
+          <span
+            data-cy="weekly-priority-components-department-team-department-tsx-department-span-111"
+            className="text-xs"
+          >
+            Add one thing
+          </span>
         </Button>
       </div>
       <>
         {weeklyLoading ? (
-          <div className="flex justify-center items-center h-96">
+          <div
+            data-cy="weekly-priority-components-department-team-department-tsx-department-div-116"
+            className="flex justify-center items-center h-96"
+          >
             <Spin size="large" tip="Loading..." />
           </div>
         ) : data?.length ? (

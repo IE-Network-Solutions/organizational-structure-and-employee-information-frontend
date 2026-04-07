@@ -82,7 +82,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
   }
 
   const createJobDrawerHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 ">
+    <div
+      data-cy="-id-components-createcandidate-index-tsx-index-div-85"
+      className="flex justify-center text-xl font-extrabold text-gray-800 "
+    >
       Add New Candidate
     </div>
   );
@@ -108,7 +111,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       createdBy: isInternalApplicant,
       jobInformationId: jobId && jobId ? jobId : formValues?.jobInformationId,
       applicantStatusStageId: formValues?.stageId,
-
     };
 
     // Append each field individually instead of as JSON string
@@ -116,10 +118,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     Object.keys(formattedValues).forEach((key) => {
       const value = formattedValues[key];
       if (value !== undefined && value !== null) {
-        formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        formData.append(
+          key,
+          typeof value === 'object' ? JSON.stringify(value) : String(value),
+        );
       }
     });
-
 
     createCandidate(formData, {
       onSuccess: () => {
@@ -140,7 +144,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       customMobileHeight="75vh"
       footer={
         <Form.Item>
-          <div className="flex justify-center w-full bg-[#fff] gap-6 p-3">
+          <div
+            data-cy="-id-components-createcandidate-index-tsx-index-div-144"
+            className="flex justify-center w-full bg-[#fff] gap-6 p-3"
+          >
             <Button
               id="talent-acquisition-job-create-candidate-button-cancel"
               data-cy="talent-acquisition-job-create-candidate-button-cancel"
@@ -175,7 +182,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
           id="fullNameId"
           name="fullName"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="-id-components-createcandidate-index-tsx-index-span-179"
+              className="text-md font-semibold text-gray-700"
+            >
               Full-Name
             </span>
           }
@@ -201,7 +211,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="emailAddressId"
               name="email"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="-id-components-createcandidate-index-tsx-index-span-205"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Email Address
                 </span>
               }
@@ -228,7 +241,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="phoneNumberId"
               name="phone"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="-id-components-createcandidate-index-tsx-index-span-232"
+                  className="text-md font-semibold text-gray-700"
+                >
                   Phone Number
                 </span>
               }
@@ -257,7 +273,12 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="jobId"
               name="jobInformationId"
               label={
-                <span className="text-md font-semibold text-gray-700">Job</span>
+                <span
+                  data-cy="-id-components-createcandidate-index-tsx-index-span-261"
+                  className="text-md font-semibold text-gray-700"
+                >
+                  Job
+                </span>
               }
               rules={
                 jobId
@@ -291,7 +312,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
               id="cgpaId"
               name="CGPA"
               label={
-                <span className="text-md font-semibold text-gray-700">
+                <span
+                  data-cy="-id-components-createcandidate-index-tsx-index-span-295"
+                  className="text-md font-semibold text-gray-700"
+                >
                   CGPA
                 </span>
               }
@@ -307,21 +331,31 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 placeholder="CGPA"
               />
             </Form.Item>
-            <div className="flex items-center justify-start gap-1 ml-1">
+            <div
+              data-cy="-id-components-createcandidate-index-tsx-index-div-311"
+              className="flex items-center justify-start gap-1 ml-1"
+            >
               <FaInfoCircle />
-              <div className="text-xs font-md">Put your point 4.0 scale</div>
+              <div
+                data-cy="-id-components-createcandidate-index-tsx-index-div-313"
+                className="text-xs font-md"
+              >
+                Put your point 4.0 scale
+              </div>
             </div>
           </Col>
         </Row>
-         <Form.Item
+        <Form.Item
           id="stageId"
           name="stageId"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="-id-components-createcandidate-index-tsx-index-span-321"
+              className="text-md font-semibold text-gray-700"
+            >
               Stage
             </span>
           }
-         
         >
           <Select
             id="talent-acquisition-job-create-candidate-input-full-name"
@@ -347,7 +381,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
           id="coverLetterId"
           name="coverLetter"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="-id-components-createcandidate-index-tsx-index-span-348"
+              className="text-md font-semibold text-gray-700"
+            >
               Cover Letter
             </span>
           }
@@ -366,7 +403,10 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
           id="documentNameId"
           name="resumeUrl"
           label={
-            <span className="text-md font-semibold text-gray-700">
+            <span
+              data-cy="-id-components-createcandidate-index-tsx-index-span-367"
+              className="text-md font-semibold text-gray-700"
+            >
               Upload CV
             </span>
           }
@@ -383,7 +423,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             listType="picture"
             accept=".pdf,.doc,.docx"
           >
-            <p>
+            <p data-cy="-id-components-createcandidate-index-tsx-index-p-384">
               <Image
                 preview={false}
                 className="w-full max-w-xs"
@@ -391,15 +431,26 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 alt="Loading"
               />
             </p>
-            <div className="flex flex-col justify-center items-center text-md font-semibold text-gray-950">
-              <p>Upload your CV</p>
-              <p className="text-gray-400 text-sm font-normal">
+            <div
+              data-cy="-id-components-createcandidate-index-tsx-index-div-392"
+              className="flex flex-col justify-center items-center text-md font-semibold text-gray-950"
+            >
+              <p data-cy="-id-components-createcandidate-index-tsx-index-p-393">
+                Upload your CV
+              </p>
+              <p
+                data-cy="-id-components-createcandidate-index-tsx-index-p-394"
+                className="text-gray-400 text-sm font-normal"
+              >
                 or drag and drop it here
               </p>
             </div>
           </Dragger>
         </Form.Item>
-        <div className="text-sm font-md mb-8">
+        <div
+          data-cy="-id-components-createcandidate-index-tsx-index-div-400"
+          className="text-sm font-md mb-8"
+        >
           Max file size: 5MB. File formats: .pdf, .doc, .docx
         </div>
       </Form>

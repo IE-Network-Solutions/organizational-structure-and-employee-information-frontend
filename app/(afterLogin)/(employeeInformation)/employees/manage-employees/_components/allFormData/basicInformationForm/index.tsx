@@ -248,7 +248,12 @@ const BasicInformationForm = ({ form }: any) => {
             className="font-semibold text-xs"
             name="userMiddleName"
             label={
-              <span className="mb-1 font-semibold text-xs">Middle Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-middle-name-label"
+              >
+                Middle Name
+              </span>
             }
             id="userMiddleNameId"
             data-cy="userMiddleNameId"
@@ -280,7 +285,12 @@ const BasicInformationForm = ({ form }: any) => {
             className="font-semibold text-xs"
             name="userLastName"
             label={
-              <span className="mb-1 font-semibold text-xs">Last Name</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-last-name-label"
+              >
+                Last Name
+              </span>
             }
             id="userLastNameId"
             data-cy="userLastNameId"
@@ -318,7 +328,12 @@ const BasicInformationForm = ({ form }: any) => {
             className="font-semibold text-xs"
             name="userEmail"
             label={
-              <span className="mb-1 font-semibold text-xs">Email Address</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-email-label"
+              >
+                Email Address
+              </span>
             }
             id="userEmailId"
             data-cy="userEmailId"
@@ -347,7 +362,14 @@ const BasicInformationForm = ({ form }: any) => {
           <Form.Item
             className="font-semibold text-xs"
             name="employeeGender"
-            label={<span className="mb-1 font-semibold text-xs">Gender</span>}
+            label={
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-gender-label"
+              >
+                Gender
+              </span>
+            }
             id="userEmployeeGenderId"
             data-cy="userEmployeeGenderId"
             rules={[{ required: true }]}
@@ -391,7 +413,12 @@ const BasicInformationForm = ({ form }: any) => {
             className="font-semibold text-xs"
             name="dateOfBirth"
             label={
-              <span className="mb-1 font-semibold text-xs">Date of Birth</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-dob-label"
+              >
+                Date of Birth
+              </span>
             }
             id="userDateOfBirthId"
             data-cy="userDateOfBirthId"
@@ -424,16 +451,28 @@ const BasicInformationForm = ({ form }: any) => {
             className="font-semibold text-xs"
             name="nationalityId"
             label={
-              <span className="mb-1 font-semibold text-xs">Nationality</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-nationality-label"
+              >
+                Nationality
+              </span>
             }
             id="userNationalityId"
             data-cy="userNationalityId"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: 'Please select nationality' }]}
           >
             <Select
               loading={isLoadingNationality}
               placeholder="Select an option"
               allowClear
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                String(option?.children || '')
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
               id="basic-info-nationality-select"
               data-cy="basic-info-nationality-select"
             >
@@ -466,7 +505,12 @@ const BasicInformationForm = ({ form }: any) => {
             className="font-semibold text-xs"
             name="maritalStatus"
             label={
-              <span className="mb-1 font-semibold text-xs">Marital Status</span>
+              <span
+                className="mb-1 font-semibold text-xs"
+                data-cy="basic-info-marital-status-label"
+              >
+                Marital Status
+              </span>
             }
             id="userMaritalStatusId"
             data-cy="userMaritalStatusId"

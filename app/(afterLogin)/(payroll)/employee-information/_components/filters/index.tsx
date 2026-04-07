@@ -122,7 +122,6 @@ const Filters: React.FC<FiltersProps> = () => {
               </Button>
             </div>
           }
-  
           data-cy="payroll-mobile-filter-modal-view-modal"
         >
           <div

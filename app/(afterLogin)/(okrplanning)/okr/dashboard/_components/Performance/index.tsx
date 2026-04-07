@@ -454,7 +454,11 @@ const Performance: React.FC = () => {
         <Select
           value={selectedFilter}
           onChange={handleFilterChange}
-          suffixIcon={<DownOutlined data-cy="okr-performance-admin-period-filter-icon-display-icon" />}
+          suffixIcon={
+            <div data-cy="okr-performance-admin-period-filter-icon-wrapper">
+              <DownOutlined data-cy="okr-performance-admin-period-filter-icon-display-icon" />
+            </div>
+          }
           className="w-20 rounded-lg"
           options={[
             { value: 'All', label: 'All' },
@@ -498,15 +502,45 @@ const Performance: React.FC = () => {
             id="okr-performance-admin-table-header-grid"
             data-cy="okr-performance-admin-table-header-grid"
           >
-            <div className="text-center" id="okr-performance-admin-table-header-employee" data-cy="okr-performance-admin-table-header-employee">Employee</div>
+            <div
+              className="text-center"
+              id="okr-performance-admin-table-header-employee"
+              data-cy="okr-performance-admin-table-header-employee"
+            >
+              Employee
+            </div>
             {selectedFilter === 'All' ? (
               <>
-                <div className="text-right" id="okr-performance-admin-table-header-monthly" data-cy="okr-performance-admin-table-header-monthly">Monthly</div>
-                <div className="text-right" id="okr-performance-admin-table-header-weekly" data-cy="okr-performance-admin-table-header-weekly">Weekly</div>
-                <div className="text-right" id="okr-performance-admin-table-header-daily" data-cy="okr-performance-admin-table-header-daily">Daily</div>
+                <div
+                  className="text-right"
+                  id="okr-performance-admin-table-header-monthly"
+                  data-cy="okr-performance-admin-table-header-monthly"
+                >
+                  Monthly
+                </div>
+                <div
+                  className="text-right"
+                  id="okr-performance-admin-table-header-weekly"
+                  data-cy="okr-performance-admin-table-header-weekly"
+                >
+                  Weekly
+                </div>
+                <div
+                  className="text-right"
+                  id="okr-performance-admin-table-header-daily"
+                  data-cy="okr-performance-admin-table-header-daily"
+                >
+                  Daily
+                </div>
               </>
             ) : (
-              <div className="text-right" id="okr-performance-admin-table-header-selected-filter" data-cy="okr-performance-admin-table-header-selected-filter">{selectedFilter}</div>
+              <div
+                className="text-right"
+                id="okr-performance-admin-table-header-selected-filter"
+                data-cy="okr-performance-admin-table-header-selected-filter"
+              >
+                {selectedFilter}
+              </div>
             )}
           </div>
         </div>
@@ -528,7 +562,6 @@ const Performance: React.FC = () => {
             >
               <Spin
                 size="default"
-
                 data-cy="okr-performance-admin-loading-spin"
               />
             </div>
@@ -540,7 +573,6 @@ const Performance: React.FC = () => {
             >
               <Spin
                 size="default"
-   
                 data-cy="okr-performance-admin-selected-loading-spin"
               />
             </div>
@@ -687,7 +719,6 @@ const Performance: React.FC = () => {
                 pageSizeOptions={['5', '10', '20', '50', '100']}
                 size="small"
                 className="pagination-custom"
-           
                 data-cy="okr-performance-admin-pagination-control"
               />
             </div>
@@ -747,10 +778,7 @@ const Performance: React.FC = () => {
               id="okr-performance-personal-loading"
               data-cy="okr-performance-personal-loading"
             >
-              <Spin
-    
-                data-cy="okr-performance-personal-loading-spin"
-              />
+              <Spin data-cy="okr-performance-personal-loading-spin" />
             </div>
           ) : personalAvailablePeriods.length === 0 ? (
             <div
@@ -877,7 +905,10 @@ const Performance: React.FC = () => {
       </div>
 
       {activeTab === 'admin' ? (
-        <AccessGuard data-cy="okr-performance-admin-access-guard" permissions={[Permissions.ViewAllEmployeePerformance]}>
+        <AccessGuard
+          data-cy="okr-performance-admin-access-guard"
+          permissions={[Permissions.ViewAllEmployeePerformance]}
+        >
           <AdminPageView data-cy="okr-performance-admin-page-view" />
         </AccessGuard>
       ) : (

@@ -35,18 +35,23 @@ interface AISuggestionsModalProps {
   resolveListNameForKR?: (krId: string) => string; // returns form list name e.g., names-<id or composite>
   resolveBoardKeyForKR?: (krId: string) => string; // what to pass to handleAddBoard
   hasParentPlan?: boolean; // Explicitly indicates if this is a child plan (e.g., Daily under Weekly)
+  userId?: string;
+  planningPeriodId?: string;
+  planningUserId?: string;
 }
 
 const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   getKeyResults,
   getWeeklyPlanTasks,
   form,
-  handleAddBoard,
   handleAddName,
   planTypeName,
   resolveListNameForKR,
   resolveBoardKeyForKR,
   hasParentPlan,
+  userId,
+  planningPeriodId,
+  planningUserId,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -215,7 +220,11 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
   ]);
 
   const truncatedLabel = (text: string) => (
-    <div className="block max-w-full truncate" title={text}>
+    <div
+      className="block max-w-full truncate"
+      title={text}
+      data-cy="ai-suggestions-truncated-label"
+    >
       {text}
     </div>
   );
@@ -555,8 +564,12 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
     let boardKey, listName;
 
     if (isDaily && weeklyPlanTaskId) {
-      // Daily plan: use composite key with both keyResultId and parentTaskId
-      const compositeKey = `${targetKeyResultId}${weeklyPlanTaskId}`;
+      // Daily plan: use composite key with keyResultId, milestoneId, and parentTaskId
+      const selectedWeeklyTask = weeklyPlanTasks.find(
+        (t) => t.id === weeklyPlanTaskId,
+      );
+      const mId = (selectedWeeklyTask as any)?.milestoneId || '';
+      const compositeKey = `${targetKeyResultId}${mId}${weeklyPlanTaskId}`;
       boardKey = resolveBoardKeyForKR
         ? resolveBoardKeyForKR(compositeKey)
         : compositeKey;
@@ -585,18 +598,16 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       }
     }
 
-    // Create the board form if it doesn't exist
-    const currentList = form.getFieldValue(listName) || [];
-    if (currentList.length === 0) {
-      handleAddBoard(boardKey);
-    }
-
     // Prepare the task data with proper structure
     const taskData = {
       task: item.title,
       weight: item.weight,
       priority: (item.priority || 'medium').toLowerCase(),
       targetValue: typeof item.target === 'number' ? item.target : 0,
+      userId: userId,
+      planningPeriodId: planningPeriodId,
+      planningUserId: planningUserId,
+      keyResultId: targetKeyResultId,
       // Always false for generated tasks; only true when planning milestone itself elsewhere
       achieveMK: false,
       // If adding under a milestone, include milestoneId
@@ -621,38 +632,23 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
       return;
     }
 
-    // Use the same logic for both weekly and daily plans
-    const boardFormKey = `board-${boardKey}`;
-    const boardFormValues = form.getFieldValue(boardFormKey) || [];
+    // Handle task addition and weight calculation
+    if (handleAddName) {
+      // Delegate to handleAddName if provided (standard approach in CreatePlan/EditPlan)
+      handleAddName(taskData, boardKey);
+    } else {
+      // Add directly and update weights manually if no handler provided (fallback)
+      const updatedList = [taskData, ...existingList];
+      form.setFieldsValue({ [listName]: updatedList });
 
-    // Add the task data to the first position (index 0) in the board form
-    boardFormValues[0] = taskData;
-    form.setFieldsValue({ [boardFormKey]: boardFormValues });
-
-    // Give the form a moment to update
-    setTimeout(async () => {
-      try {
-        // Validate the board form fields
-        await form.validateFields([
-          [boardFormKey, 0, 'task'],
-          [boardFormKey, 0, 'weight'],
-          [boardFormKey, 0, 'priority'],
-        ]);
-
-        // Call handleAddName to save the task (this handles the names list and weight calculation)
-        if (handleAddName) {
-          handleAddName(taskData, boardKey);
-        }
-
-        // Clear the board form after adding
-        form.setFieldsValue({ [boardFormKey]: [] });
-      } catch (error) {
-        // Validation failed - error is expected during form validation
-      }
-    }, 100);
+      const totalWeight = updatedList.reduce(
+        (sum: number, f: { weight?: number }) => sum + Number(f?.weight ?? 0),
+        0,
+      );
+      PlanningAndReportingStore.getState().setWeight(listName, totalWeight);
+    }
 
     // Remove the suggestion from the list after successfully adding.
-    // If the list becomes empty, ask to switch to another key result (weekly only).
     if (items.length === 1) {
       askAnother();
     }
@@ -668,12 +664,29 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         data-cy="ai-suggestion-trigger-button"
         id="ai-suggestion-trigger-button"
       >
-        AI Suggestion
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-667"
+          className="hidden sm:inline"
+        >
+          AI Suggestion
+        </span>
+        <span
+          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-668"
+          className="sm:hidden"
+        >
+          AI
+        </span>
       </Button>
       <Modal
         title={
-          <div className="flex flex-wrap items-center justify-between gap-3 pr-4 sm:pr-12">
-            <div className="text-base font-semibold text-[#1F1F33]">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-672"
+            className="flex flex-wrap items-center justify-between gap-3 pr-4 sm:pr-12"
+          >
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-673"
+              className="text-base font-semibold text-[#1F1F33]"
+            >
               AI Planning Suggestion
             </div>
             {renderGenerateButton}
@@ -695,7 +708,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
         {ongoingKeyResults.length === 0 ? (
           <Empty
             description={
-              <div className="text-sm">
+              <div
+                data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-695"
+                className="text-sm"
+              >
                 {isDaily
                   ? 'No in-progress key results found. Please ensure weekly plan has in-progress KRs.'
                   : 'No in-progress key results found. Please create objectives with in-progress key results.'}
@@ -703,17 +719,33 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
             }
           />
         ) : (
-          <div className="space-y-4 p-4 sm:p-6">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-703"
+            className="space-y-4 p-4 sm:p-6"
+          >
             <div
               className={`rounded-3xl bg-white/80 shadow-sm ${
                 isMobile ? 'p-4' : 'p-6'
               }`}
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-726"
             >
               {isWeekly && (
                 <>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-[#4B4D63]">
-                      Key Result <span className="text-[#FF6B6B]">*</span>
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-711"
+                    className="flex flex-col gap-2"
+                  >
+                    <label
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-712"
+                      className="text-sm font-medium text-[#4B4D63]"
+                    >
+                      Key Result{' '}
+                      <span
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-713"
+                        className="text-[#FF6B6B]"
+                      >
+                        *
+                      </span>
                     </label>
                     <Select
                       className="w-full"
@@ -732,7 +764,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       options={ongoingKeyResults.map((k) => ({
                         // Full text in dropdown
                         label: (
-                          <div className="whitespace-normal break-words">
+                          <div
+                            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-732"
+                            className="whitespace-normal break-words"
+                          >
                             {k.title}
                           </div>
                         ),
@@ -747,9 +782,21 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                     />
                   </div>
                   {requiresMilestoneSelection && (
-                    <div className="mt-4 flex flex-col gap-2">
-                      <label className="text-sm font-medium text-[#4B4D63]">
-                        Milestone <span className="text-[#FF6B6B]">*</span>
+                    <div
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-747"
+                      className="mt-4 flex flex-col gap-2"
+                    >
+                      <label
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-748"
+                        className="text-sm font-medium text-[#4B4D63]"
+                      >
+                        Milestone{' '}
+                        <span
+                          data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-749"
+                          className="text-[#FF6B6B]"
+                        >
+                          *
+                        </span>
                       </label>
                       <Select
                         className="w-full"
@@ -799,10 +846,25 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                 </>
               )}
               {isDaily && (
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-[#4B4D63]">
-                      Key Result <span className="text-[#FF6B6B]">*</span>
+                <div
+                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-799"
+                  className="flex flex-col gap-4"
+                >
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-800"
+                    className="flex flex-col gap-2"
+                  >
+                    <label
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-801"
+                      className="text-sm font-medium text-[#4B4D63]"
+                    >
+                      Key Result{' '}
+                      <span
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-802"
+                        className="text-[#FF6B6B]"
+                      >
+                        *
+                      </span>
                     </label>
                     <Select
                       className="w-full"
@@ -821,7 +883,10 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       options={ongoingKeyResults.map((k) => ({
                         // Full text in dropdown
                         label: (
-                          <div className="whitespace-normal break-words">
+                          <div
+                            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-821"
+                            className="whitespace-normal break-words"
+                          >
                             {k.title}
                           </div>
                         ),
@@ -835,9 +900,21 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       id="daily-key-result-select"
                     />
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium text-[#4B4D63]">
-                      Weekly Plan <span className="text-[#FF6B6B]">*</span>
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-835"
+                    className="flex flex-col gap-2"
+                  >
+                    <label
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-label-836"
+                      className="text-sm font-medium text-[#4B4D63]"
+                    >
+                      Weekly Plan{' '}
+                      <span
+                        data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-837"
+                        className="text-[#FF6B6B]"
+                      >
+                        *
+                      </span>
                     </label>
                     <Select
                       className="w-full"
@@ -856,12 +933,22 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       options={filteredWeeklyTasks.map((t) => ({
                         // Full text in dropdown
                         label: (
-                          <div className="whitespace-normal break-words">
+                          <div
+                            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-856"
+                            className="whitespace-normal break-words"
+                          >
                             {t.task}
                           </div>
                         ),
                         // Truncated in selector
-                        shortLabel: <div className="truncate">{t.task}</div>,
+                        shortLabel: (
+                          <div
+                            data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-861"
+                            className="truncate"
+                          >
+                            {t.task}
+                          </div>
+                        ),
                         value: t.id,
                       }))}
                       value={weeklyPlanTaskId}
@@ -884,17 +971,28 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
               )}
             </div>
 
-            <div className="space-y-3">
+            <div
+              data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-884"
+              className="space-y-3"
+            >
               {items.length === 0 && (
                 <Empty
                   description={
-                    <span className="text-xs">No suggestions yet</span>
+                    <span
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-888"
+                      className="text-xs"
+                    >
+                      No suggestions yet
+                    </span>
                   }
                 />
               )}
               {items.map((s, idx) => {
                 const renderActionButtons = () => (
-                  <div className="flex items-center gap-2">
+                  <div
+                    data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-894"
+                    className="flex items-center gap-2"
+                  >
                     <button
                       type="button"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full  text-[#3636F0] transition hover:bg-[#5D5FEF]/10"
@@ -943,6 +1041,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                 return (
                   <div
                     key={idx}
+                    data-cy="components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-1041"
                     className={`relative overflow-hidden rounded-[28px] border border-[#3636F0] bg-white shadow-sm transition-all ${
                       isMobile ? 'p-4' : 'px-4 py-5'
                     }`}
@@ -953,6 +1052,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                           ? 'flex-col gap-3'
                           : 'flex-row items-start justify-between gap-4'
                       }`}
+                      data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-1048"
                     >
                       <Typography.Text
                         className="flex-1 text-sm leading-6 text-[#1F1F33]"
@@ -973,11 +1073,13 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                       {!isMobile && renderActionButtons()}
                     </div>
                     <div
+                      data-cy={`components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-1072-${idx}`}
                       className={`mt-4 flex flex-wrap items-center gap-2 ${
                         isMobile ? 'justify-between' : ''
                       }`}
                     >
                       <div
+                        data-cy={`components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-div-1077-${idx}`}
                         className={`flex flex-wrap gap-2 ${
                           isMobile ? 'flex-1' : ''
                         }`}
@@ -985,6 +1087,7 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                         {pillData.map((pill, pillIdx) => (
                           <span
                             key={`${pill.label}-${pillIdx}`}
+                            data-cy={`components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-1083-${pillIdx}`}
                             className={`inline-flex items-center rounded-full border border-[#3636F0] font-medium text-[#5D5FEF] ${
                               isMobile
                                 ? 'px-3 py-1 text-xs'
@@ -992,13 +1095,23 @@ const AISuggestionsModal: React.FC<AISuggestionsModalProps> = ({
                             }`}
                           >
                             {isMobile ? (
-                              <span>{pill.value}</span>
+                              <span data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-992">
+                                {pill.value}
+                              </span>
                             ) : (
                               <>
-                                <span className="pr-1 text-[#7A7BB5]">
+                                <span
+                                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-995"
+                                  className="pr-1 text-[#7A7BB5]"
+                                >
                                   {pill.label}:
                                 </span>
-                                <span className="capitalize">{pill.value}</span>
+                                <span
+                                  data-cy="organizational-structure-and-employee-information-frontend-components-ai-aisuggestionsmodal-tsx-aisuggestionsmodal-span-998"
+                                  className="capitalize"
+                                >
+                                  {pill.value}
+                                </span>
                               </>
                             )}
                           </span>

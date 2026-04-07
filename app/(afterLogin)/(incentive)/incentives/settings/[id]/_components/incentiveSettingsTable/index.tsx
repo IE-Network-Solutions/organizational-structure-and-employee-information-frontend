@@ -9,7 +9,10 @@ import {
   useIncentiveStore,
 } from '@/store/uistate/features/incentive/incentive';
 import { Skeleton, Table, TableColumnsType } from 'antd';
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
+import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
+import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import React from 'react';
 
@@ -49,9 +52,12 @@ type Params = {
 const IncentiveSettingsTable: React.FC = () => {
   const { id } = useParams<Params>();
   const recognitionId = id;
+  const router = useRouter();
 
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
     useIncentiveStore();
+
+  const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
 
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(recognitionId);
@@ -63,6 +69,14 @@ const IncentiveSettingsTable: React.FC = () => {
     setIncentiveId(value?.id ?? '');
   };
 
+  const handleDelete = (id: string) => {
+    deleteRecognitionType(id, {
+      onSuccess: () => {
+        router.push('/incentives/settings');
+      },
+    });
+  };
+
   const incentiveTableData = {
     id: recognitionData?.id,
     name: recognitionData?.name,
@@ -70,8 +84,17 @@ const IncentiveSettingsTable: React.FC = () => {
       formulaById?.expression !== null ? (
         recognitionData?.recognitionCriteria?.map(
           (criterion: RecognitionCriteria, index: string) => (
-            <Skeleton data-cy={`incentive-settings-table-criterion-skeleton-${index}`} active loading={responseLoading} key={index}>
-              <div id={`incentive-settings-table-criterion-wrapper-${index}`} data-cy={`incentive-settings-table-criterion-wrapper-${index}`} className=" flex-col flex-wrap inline-block space-x-1 space-y-2">
+            <Skeleton
+              data-cy={`incentive-settings-table-criterion-skeleton-${index}`}
+              active
+              loading={responseLoading}
+              key={index}
+            >
+              <div
+                id={`incentive-settings-table-criterion-wrapper-${index}`}
+                data-cy={`incentive-settings-table-criterion-wrapper-${index}`}
+                className=" flex-col flex-wrap inline-block space-x-1 space-y-2"
+              >
                 <span
                   id={`incentive-settings-table-criterion-${index}`}
                   data-cy={`incentive-settings-table-criterion-${index}`}
@@ -85,26 +108,58 @@ const IncentiveSettingsTable: React.FC = () => {
           ),
         )
       ) : (
-        <Skeleton data-cy="incentive-settings-table-empty-skeleton" active loading={responseLoading}>
+        <Skeleton
+          data-cy="incentive-settings-table-empty-skeleton"
+          active
+          loading={responseLoading}
+        >
           {' '}
           <>-</>
         </Skeleton>
       ),
     action: (
-      <div id="incentive-settings-table-action-wrapper" data-cy="incentive-settings-table-action-wrapper" className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center">
-        <Pencil
-          id="incentive-settings-table-action-pencil"
-          data-cy="incentive-settings-table-action-pencil"
-          size={15}
-          className="text-white cursor-pointer"
-          onClick={() => handleProjectIncentiveEdit(recognitionData)}
-        />
+      <div
+        id="incentive-settings-table-action-wrapper"
+        data-cy="incentive-settings-table-action-wrapper"
+        className="flex items-center gap-2"
+      >
+        <div
+          className="bg-[#2f78ee] w-7 h-7 rounded-md flex items-center justify-center"
+          data-cy="incentive-settings-table-action-edit-wrapper"
+        >
+          <Pencil
+            id="incentive-settings-table-action-pencil"
+            data-cy="incentive-settings-table-action-pencil"
+            size={15}
+            className="text-white cursor-pointer"
+            onClick={() => handleProjectIncentiveEdit(recognitionData)}
+          />
+        </div>
+        <DeletePopover
+          onDelete={() => handleDelete(recognitionData?.id)}
+          data-cy="incentive-settings-table-delete-popover"
+        >
+          <div
+            className="bg-red-500 w-7 h-7 rounded-md flex items-center justify-center"
+            data-cy="incentive-settings-table-action-delete-wrapper"
+          >
+            <Trash2
+              id="incentive-settings-table-action-delete"
+              data-cy="incentive-settings-table-action-delete"
+              size={15}
+              className="text-white cursor-pointer"
+            />
+          </div>
+        </DeletePopover>
       </div>
     ),
   };
 
   return (
-    <div id="incentive-settings-table-container" data-cy="incentive-settings-table-container">
+    <div
+      id="incentive-settings-table-container"
+      data-cy="incentive-settings-table-container"
+    >
       <Table
         id="incentive-settings-table"
         data-cy="incentive-settings-table"

@@ -17,7 +17,9 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
 
   const domainNameSuffix = (
     <Form.Item name="suffix" noStyle>
-      <p style={{ width: 'auto' }}>.selamnew.com</p>
+      <p style={{ width: 'auto' }} data-cy="industry-select-domain-suffix">
+        .selamnew.com
+      </p>
     </Form.Item>
   );
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -53,8 +55,14 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
     { value: 'Other', label: 'Other' },
   ];
   return (
-    <div className="flex-1 bg-gray-50 p-8 rounded-lg h-full my-8 items-center">
-      <div className="bg-white p-8 rounded-lg h-full">
+    <div
+      className="flex-1 bg-gray-50 p-8 rounded-lg h-full my-8 items-center"
+      data-cy="onboarding-industry-select-container"
+    >
+      <div
+        className="bg-white p-8 rounded-lg h-full"
+        data-cy="onboarding-industry-select-content"
+      >
         <Form form={form} layout="vertical" initialValues={companyInfo}>
           <Form.Item
             id="domainName"
@@ -121,9 +129,13 @@ const IndustrySelect: React.FC<IndustrySelectProps> = ({ form }) => {
             </Form.Item>
           )}
 
-          <div className="text-center">
+          <div
+            className="text-center"
+            data-cy="industry-select-continue-button-wrapper"
+          >
             <Button
               onClick={() => nextStep()}
+              data-cy="industry-select-continue-button"
               name="skipButton"
               type="link"
               htmlType="button"

@@ -86,8 +86,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     updateOffboardingItem(data);
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading tasks</div>;
+  if (isLoading)
+    return <div data-cy="offboarding-tasks-loading">Loading...</div>;
+  if (error)
+    return <div data-cy="offboarding-tasks-error">Error loading tasks</div>;
 
   const resignationSubmittedDate =
     employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
@@ -375,7 +377,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     id="offboarding-delete-modal-title-p"
                     data-cy="offboarding-delete-modal-title-p"
                   >
-                    <strong>Title: </strong> {taskToDelete.title}
+                    <strong data-cy="offboarding-delete-modal-title-label">
+                      Title:{' '}
+                    </strong>{' '}
+                    {taskToDelete.title}
                   </p>
                   <p
                     id="offboarding-delete-modal-assigned-to-p"

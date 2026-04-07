@@ -24,18 +24,46 @@ const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
     isError,
   } = useGetSimpleEmployee(userId);
 
-  if (isLoading) return <div>...</div>;
+  if (isLoading)
+    return (
+      <div
+        id={`time-attendance-leave-balance-employee-loading-${userId}`}
+        data-cy={`time-attendance-leave-balance-employee-loading-${userId}`}
+      >
+        ...
+      </div>
+    );
   if (isError || !employeeData) return <>-</>;
 
   return (
-    <div className="flex items-center gap-1.5">
-      <Avatar size={24} icon={<UserOutlined />} />
-      <div className="flex-1">
-        <div className="text-xs text-gray-900 flex gap-2">
+    <div
+      className="flex items-center gap-1.5"
+      id={`time-attendance-leave-balance-employee-${userId}`}
+      data-cy={`time-attendance-leave-balance-employee-${userId}`}
+    >
+      <Avatar
+        size={24}
+        icon={
+          <UserOutlined data-cy="time-attendance-leave-balance-employee-avatar-icon" />
+        }
+        data-cy="time-attendance-leave-balance-employee-avatar"
+      />
+      <div
+        className="flex-1"
+        id={`time-attendance-leave-balance-employee-${userId}-info`}
+        data-cy={`time-attendance-leave-balance-employee-${userId}-info`}
+      >
+        <div
+          className="text-xs text-gray-900 flex gap-2"
+          data-cy="time-attendance-leave-balance-employee-name"
+        >
           {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
           {employeeData?.lastName || '-'}
         </div>
-        <div className="text-[10px] leading-4 text-gray-600">
+        <div
+          className="text-[10px] leading-4 text-gray-600"
+          data-cy="time-attendance-leave-balance-employee-email"
+        >
           {employeeData?.email || '-'}
         </div>
       </div>
@@ -113,16 +141,31 @@ const LeaveBalanceTable: React.FC = () => {
   return (
     <>
       {leaveBalanceData && (
-        <EmpRender userId={leaveBalanceData?.items?.items?.[0]?.userId} />
+        <div
+          id="time-attendance-leave-balance-employee-summary"
+          data-cy="time-attendance-leave-balance-employee-summary"
+        >
+          <EmpRender userId={leaveBalanceData?.items?.items?.[0]?.userId} />
+        </div>
       )}
-      <div className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]">
+      <div
+        className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]"
+        id="time-attendance-leave-balance-table-scroll-wrapper"
+        data-cy="time-attendance-leave-balance-table-scroll-wrapper"
+      >
         <Table
           className="mt-2"
+          id="time-attendance-leave-balance-table"
+          data-cy="time-attendance-leave-balance-table"
           columns={columns}
           dataSource={dataSource}
           loading={leaveBalanceIsLoading}
           locale={{
-            emptyText: selectedUserId ? undefined : <h3>Please Select User</h3>,
+            emptyText: selectedUserId ? undefined : (
+              <h3 data-cy="leave-balance-components-leavebalancetable-index-tsx-index-h3-164">
+                Please Select User
+              </h3>
+            ),
           }}
         />
       </div>

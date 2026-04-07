@@ -61,8 +61,14 @@ const TargetFilters: React.FC<TargetFiltersProps> = ({
               dropdownMatchSelectWidth={false}
               dropdownStyle={{ left: '50%', transform: 'translateX(-50%)' }}
               suffixIcon={
-                <div className="flex items-center justify-center w-full h-full text-black">
-                  <IoMdSwitch size={20} data-cy="okr-target-filters-mobile-select-switch-icon" />
+                <div
+                  className="flex items-center justify-center w-full h-full text-black"
+                  data-cy="target-filters-suffix-icon-wrapper"
+                >
+                  <IoMdSwitch
+                    size={20}
+                    data-cy="okr-target-filters-mobile-select-switch-icon"
+                  />
                 </div>
               }
               id="okr-target-filters-mobile-select"

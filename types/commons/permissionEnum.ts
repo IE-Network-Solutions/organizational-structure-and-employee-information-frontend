@@ -109,6 +109,7 @@ export enum Permissions {
   UpdateCourse = 'update-course',
   DeleteCourse = 'delete-course',
   CreateCourse = 'create-course',
+  ViewAllCourse = 'view-all-course', // View all courses including drafts
 
   // Course Category Permissions
   CreateCourseCategory = 'create-course-category',

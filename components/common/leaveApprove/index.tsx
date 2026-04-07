@@ -18,7 +18,10 @@ const LeaveApproval: React.FC<LeaveApprovalProps> = ({
   customMessage,
 }) => {
   const leaveApprovalFooter = (
-    <div className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6">
+    <div
+      className="w-full flex flex-col md:flex-row justify-center items-center gap-6 mt-6"
+      data-cy="leave-approval-footer"
+    >
       <Button
         className="w-70 md:w-auto px-8 py-4 text-xs font-bold"
         onClick={onCancel}
@@ -44,7 +47,10 @@ const LeaveApproval: React.FC<LeaveApprovalProps> = ({
       onCancel={onCancel}
       footer={leaveApprovalFooter}
     >
-      <p className="flex justify-center items-center h-[200px]">
+      <p
+        data-cy="components-common-leaveapprove-index-tsx-index-p-50"
+        className="flex justify-center items-center h-[200px]"
+      >
         <Image
           src="/deleteSvg.svg"
           width={300}
@@ -53,10 +59,20 @@ const LeaveApproval: React.FC<LeaveApprovalProps> = ({
         />
       </p>
 
-      <p className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold">
+      <p
+        data-cy="components-common-leaveapprove-index-tsx-index-p-59"
+        className="flex justify-center items-center mt-4 text-xl text-gray-950 font-extrabold"
+      >
         Are you sure to Approve?
       </p>
-      {customMessage && <div className="mt-4 text-center">{customMessage}</div>}
+      {customMessage && (
+        <div
+          data-cy="components-common-leaveapprove-index-tsx-index-div-62"
+          className="mt-4 text-center"
+        >
+          {customMessage}
+        </div>
+      )}
     </Modal>
   );
 };

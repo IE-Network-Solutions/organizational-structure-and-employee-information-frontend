@@ -13,28 +13,64 @@ const Page = () => {
   const { setIsShowCarryOverRuleSidebar } = useTimesheetSettingsStore();
   const { data } = useGetCarryOverRules();
   return (
-    <div className="p-5 rounded-2xl bg-white h-full">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg text-bold">Carry-over Rule</h1>
-        <AccessGuard permissions={[Permissions.CreateCarryOverRule]}>
+    <div
+      className="p-5 rounded-2xl bg-white h-full"
+      id="time-attendance-settings-carry-over-rule-container"
+      data-cy="time-attendance-settings-carry-over-rule-container"
+    >
+      <div
+        className="flex items-center justify-between mb-4"
+        id="time-attendance-settings-carry-over-rule-header"
+        data-cy="time-attendance-settings-carry-over-rule-header"
+      >
+        <h1
+          className="text-lg text-bold"
+          id="time-attendance-settings-carry-over-rule-title"
+          data-cy="time-attendance-settings-carry-over-rule-title"
+        >
+          Carry-over Rule
+        </h1>
+        <AccessGuard
+          permissions={[Permissions.CreateCarryOverRule]}
+          data-cy="time-attendance-settings-carry-over-rule-add-button-access-guard"
+        >
           <Button
             size="large"
             type="primary"
             id="carryOver"
-            icon={<FaPlus />}
+            data-cy="time-attendance-settings-carry-over-rule-add-button-id"
+            icon={
+              <FaPlus data-cy="time-attendance-settings-carry-over-rule-add-button-icon" />
+            }
             className="h-10 w-10 sm:w-auto"
             onClick={() => setIsShowCarryOverRuleSidebar(true)}
           >
-            <span className="hidden md:inline"> New Carry-over Rule</span>
+            <span
+              data-cy="timesheet-settings-carry-over-rule-page-tsx-page-span-48"
+              className="hidden md:inline"
+            >
+              {' '}
+              New Carry-over Rule
+            </span>
           </Button>
         </AccessGuard>
       </div>
       {/* Scrollable Container for Horizontal Scroll */}
-      <div className="w-full overflow-x-auto scrollbar-none">
+      <div
+        className="w-full overflow-x-auto scrollbar-none"
+        id="time-attendance-settings-carry-over-rule-cards-container"
+        data-cy="time-attendance-settings-carry-over-rule-cards-container"
+      >
         {data &&
-          data.items.map((item) => <CarryOverCard key={item.id} item={item} />)}
+          data.items.map((item) => (
+            <CarryOverCard
+              key={item.id}
+              item={item}
+              data-cy={`time-attendance-settings-carry-over-rule-card-${item.id}`}
+            />
+          ))}
       </div>
-      <CarryOverSidebar />
+      <CarryOverSidebar data-cy="time-attendance-settings-carry-over-rule-sidebar" />
     </div>
   );
 };

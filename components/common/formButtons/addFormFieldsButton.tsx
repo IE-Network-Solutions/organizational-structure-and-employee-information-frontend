@@ -21,6 +21,7 @@ const AddFormFieldsButton: FC<AddFormFieldsButtonProps> = ({
         undefined,
         [className],
       )}
+      data-cy="add-form-fields-button"
     >
       <Button
         icon={<LuPlus size={18} />}
@@ -30,7 +31,12 @@ const AddFormFieldsButton: FC<AddFormFieldsButtonProps> = ({
         htmlType="button"
         onClick={onClick}
       />
-      <div className="text-center text-[10px] text-gray-500">{label}</div>
+      <div
+        data-cy="components-common-formbuttons-addformfieldsbutton-tsx-addformfieldsbutton-div-34"
+        className="text-center text-[10px] text-gray-500"
+      >
+        {label}
+      </div>
     </div>
   );
 };

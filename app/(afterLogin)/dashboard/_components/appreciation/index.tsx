@@ -8,10 +8,16 @@ import ReceivedAppreciation from '@/app/(afterLogin)/(okrplanning)/okr/dashboard
 const Appreciation = () => {
   const { data: getPersonalRecognition } = useGetPersonalRecognition();
   return (
-    <div className=" p-1 ">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 ">
+    <div className=" p-1 " data-cy="appreciation-container">
+      <div
+        className="grid grid-cols-1 lg:grid-cols-12 gap-4 "
+        data-cy="appreciation-grid"
+      >
         {/* Left Column */}
-        <div className="col-span-1 lg:col-span-6 flex flex-col gap-4 ">
+        <div
+          className="col-span-1 lg:col-span-6 flex flex-col gap-4 "
+          data-cy="appreciation-left-column"
+        >
           <IssuedReprimand
             kpi={getPersonalRecognition?.feedbackIssued?.KPI?.reprimands || 0}
             engagement={
@@ -29,7 +35,10 @@ const Appreciation = () => {
         </div>
 
         {/* Right Column */}
-        <div className="col-span-1 lg:col-span-6 flex flex-col gap-4">
+        <div
+          className="col-span-1 lg:col-span-6 flex flex-col gap-4"
+          data-cy="appreciation-right-column"
+        >
           <IssuedAppreciation
             kpi={
               getPersonalRecognition?.feedbackIssued?.KPI?.appreciations || 0

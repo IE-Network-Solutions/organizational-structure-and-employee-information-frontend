@@ -119,10 +119,16 @@ const RecognitionForm: React.FC<PropsData> = ({
   const [editingCriteriaName, setEditingCriteriaName] = useState<string>('');
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
-      {selectedRecognitionType === ''
-        ? 'Add New Recognition'
-        : 'Update Recognition'}
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="create-recognition-drawer-header"
+      id="createRecognitionDrawerHeader"
+    >
+      <span data-cy="create-recognition-drawer-header-text">
+        {selectedRecognitionType === ''
+          ? 'Add New Recognition'
+          : 'Update Recognition'}
+      </span>
     </div>
   );
 
@@ -265,7 +271,10 @@ const RecognitionForm: React.FC<PropsData> = ({
     // You can add a confirmation modal here if needed
     Modal.confirm({
       content: (
-        <span className="text-xs text-gray-950 font-semibold">
+        <span
+          className="text-xs text-gray-950 font-semibold"
+          data-cy="create-recognition-delete-confirm-message"
+        >
           Are you sure you want to delete ?
         </span>
       ),
@@ -319,7 +328,12 @@ const RecognitionForm: React.FC<PropsData> = ({
 
   const commonClass = 'text-xs text-gray-950';
   const getLabel = (text: string) => (
-    <span className="text-black text-xs font-semibold">{text}</span>
+    <span
+      className="text-black text-xs font-semibold"
+      data-cy={`create-recognition-${text}-label`}
+    >
+      {text}
+    </span>
   );
   const onFinish = (values: RecognitionFormValues) => {
     const { ...rest } = values;
@@ -516,8 +530,8 @@ const RecognitionForm: React.FC<PropsData> = ({
   }, [criteria, pendingNewCriteriaId]);
 
   return (
-    <>
-      <style>{`
+    <div data-cy="create-recognition-container">
+      <style data-cy="create-recognition-styles">{`
     .custom-delete-modal .ant-modal-confirm-btns {
       text-align: center !important;
       justify-content: center !important;
@@ -545,8 +559,15 @@ const RecognitionForm: React.FC<PropsData> = ({
         }
         width="40%"
         footer={
-          <Form.Item>
-            <div className="flex justify-center space-x-5 bottom-8">
+          <Form.Item
+            data-cy="create-recognition-form-footer"
+            id="createRecognitionFormFooter"
+          >
+            <div
+              className="flex justify-center space-x-5 bottom-8"
+              data-cy="create-recognition-form-actions"
+              id="createRecognitionFormActions"
+            >
               <Popconfirm
                 title="Are you sure you want to cancel?"
                 onConfirm={() => {
@@ -564,8 +585,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                 okText="Yes"
                 cancelText="No"
                 placement="top"
+                data-cy="create-recognition-form-cancel-confirm"
+                id="createRecognitionFormCancelConfirm"
               >
-                <Button type="default" htmlType="button" className="text-xs">
+                <Button
+                  type="default"
+                  htmlType="button"
+                  className="text-xs"
+                  data-cy="create-recognition-form-cancel-button"
+                  id="createRecognitionFormCancelButton"
+                >
                   Cancel
                 </Button>
               </Popconfirm>
@@ -579,12 +608,15 @@ const RecognitionForm: React.FC<PropsData> = ({
                 type="primary"
                 onClick={() => form.submit()}
                 className="text-xs"
+                data-cy="create-recognition-form-submit-button"
+                id="createRecognitionFormSubmitButton"
               >
                 {selectedRecognitionType !== '' ? 'Update' : 'Create'}
               </Button>
             </div>
           </Form.Item>
         }
+        data-cy="create-recognition-drawer"
       >
         <Form
           form={form}
@@ -596,10 +628,15 @@ const RecognitionForm: React.FC<PropsData> = ({
             requiresCertification: false,
             frequency: 'monthly',
           }}
+          data-cy="create-recognition-form"
+          id="createRecognitionForm"
         >
           <Form.Item
             label={
-              <span className="text-black text-xs font-semibold">
+              <span
+                className="text-black text-xs font-semibold"
+                data-cy="create-recognition-form-name-label"
+              >
                 Recognition Name
               </span>
             }
@@ -607,34 +644,48 @@ const RecognitionForm: React.FC<PropsData> = ({
             rules={[
               { required: true, message: 'Please enter the recognition name' },
             ]}
+            data-cy="create-recognition-form-name-field"
+            id="createRecognitionFormNameField"
           >
             <Input
               placeholder="Enter recognition type name"
               className="text-xs text-gray-950 h-10"
+              data-cy="create-recognition-form-name-input"
+              id="createRecognitionFormNameInput"
             />
           </Form.Item>
 
           <Form.Item
             className="text-xs text-gray-950"
             label={
-              <span className="text-black text-xs font-semibold">
+              <span
+                className="text-black text-xs font-semibold"
+                data-cy="create-recognition-form-description-label"
+              >
                 Description
               </span>
             }
             name="description"
             rules={[{ required: true, message: 'Please enter a description' }]}
+            data-cy="create-recognition-form-description-field"
+            id="createRecognitionFormDescriptionField"
           >
             <Input.TextArea
               placeholder="Enter a detailed description"
               rows={4}
               className="text-xs text-gray-950"
+              data-cy="create-recognition-form-description-textarea"
+              id="createRecognitionFormDescriptionTextarea"
             />
           </Form.Item>
           {!createCategory && (
             <Form.Item
               className="text-xs text-gray-950"
               label={
-                <span className="text-black text-xs font-semibold">
+                <span
+                  className="text-black text-xs font-semibold"
+                  data-cy="create-recognition-form-criteria-label"
+                >
                   Recognition Criteria
                 </span>
               }
@@ -645,12 +696,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                   message: 'Please select at least one criterion',
                 },
               ]}
+              data-cy="create-recognition-form-criteria-field"
+              id="createRecognitionFormCriteriaField"
             >
               <Select
                 mode="multiple"
                 placeholder="Select criteria"
                 className="text-xs text-gray-950 h-10"
                 onChange={handleCriteriaChange}
+                data-cy="create-recognition-form-criteria-select"
+                id="createRecognitionFormCriteriaSelect"
                 optionRender={(option) => {
                   const criteriaItem = criteria?.find(
                     (c: any) => c.id === option.value,
@@ -658,7 +713,11 @@ const RecognitionForm: React.FC<PropsData> = ({
                   const isEditing = editingCriteriaId === criteriaItem?.id;
 
                   return (
-                    <div className="flex items-center justify-between w-full">
+                    <div
+                      className="flex items-center justify-between w-full"
+                      data-cy={`create-recognition-form-criteria-option-${criteriaItem?.id}`}
+                      id={`createRecognitionFormCriteriaOption${criteriaItem?.id}`}
+                    >
                       {isEditing ? (
                         <>
                           <Input
@@ -670,8 +729,14 @@ const RecognitionForm: React.FC<PropsData> = ({
                             size="small"
                             onPressEnter={() => handleSaveEdit(criteriaItem)}
                             autoFocus
+                            data-cy={`create-recognition-form-criteria-edit-input-${criteriaItem?.id}`}
+                            id={`createRecognitionFormCriteriaEditInput${criteriaItem?.id}`}
                           />
-                          <div className="flex gap-1">
+                          <div
+                            className="flex gap-1"
+                            data-cy={`create-recognition-form-criteria-edit-actions-${criteriaItem?.id}`}
+                            id={`createRecognitionFormCriteriaEditActions${criteriaItem?.id}`}
+                          >
                             <Button
                               icon={<CheckOutlined />}
                               size="small"
@@ -680,6 +745,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 e.stopPropagation();
                                 handleSaveEdit(criteriaItem);
                               }}
+                              data-cy={`create-recognition-form-criteria-save-${criteriaItem?.id}`}
+                              id={`createRecognitionFormCriteriaSave${criteriaItem?.id}`}
                             />
                             <Button
                               icon={<CloseOutlined />}
@@ -689,16 +756,26 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 e.stopPropagation();
                                 handleCancelEdit();
                               }}
+                              data-cy={`create-recognition-form-criteria-cancel-${criteriaItem?.id}`}
+                              id={`createRecognitionFormCriteriaCancel${criteriaItem?.id}`}
                             />
                           </div>
                         </>
                       ) : (
                         <>
-                          <span className="flex-1">
+                          <span
+                            className="flex-1"
+                            data-cy={`create-recognition-form-criteria-name-${criteriaItem?.id}`}
+                            id={`createRecognitionFormCriteriaName${criteriaItem?.id}`}
+                          >
                             {criteriaItem?.criteriaName}
                           </span>
                           {criteriaItem?.criteriaType === 'Created' && (
-                            <div className="flex gap-2 ml-2">
+                            <div
+                              className="flex gap-2 ml-2"
+                              data-cy={`create-recognition-form-criteria-actions-${criteriaItem?.id}`}
+                              id={`createRecognitionFormCriteriaActions${criteriaItem?.id}`}
+                            >
                               <Button
                                 icon={<GoPencil />}
                                 size="small"
@@ -707,6 +784,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                                   e.stopPropagation();
                                   handleEditCriteria(criteriaItem);
                                 }}
+                                data-cy={`create-recognition-form-criteria-edit-button-${criteriaItem?.id}`}
+                                id={`createRecognitionFormCriteriaEditButton${criteriaItem?.id}`}
                               />
 
                               <Button
@@ -717,6 +796,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                                   e.stopPropagation();
                                   handleDeleteCriteria(criteriaItem);
                                 }}
+                                data-cy={`create-recognition-form-criteria-delete-button-${criteriaItem?.id}`}
+                                id={`createRecognitionFormCriteriaDeleteButton${criteriaItem?.id}`}
                               />
                             </div>
                           )}
@@ -727,7 +808,12 @@ const RecognitionForm: React.FC<PropsData> = ({
                 }}
               >
                 {criteria?.map((option: any) => (
-                  <Select.Option key={option.id} value={option.id}>
+                  <Select.Option
+                    key={option.id}
+                    value={option.id}
+                    data-cy={`create-recognition-form-criteria-option-${option.id}`}
+                    id={`createRecognitionFormCriteriaOption${option.id}`}
+                  >
                     {option.criteriaName}
                   </Select.Option>
                 ))}
@@ -738,6 +824,8 @@ const RecognitionForm: React.FC<PropsData> = ({
             <div
               className="flex gap-1"
               key={`recognition-criteria-${criteria.criterionKey}-${index}`}
+              data-cy={`create-recognition-form-criteria-item-${index}`}
+              id={`createRecognitionFormCriteriaItem${index}`}
             >
               {selectedRecognitionType !== '' && (
                 <Form.Item
@@ -745,6 +833,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                   name={['recognitionCriteria', index, 'id']}
                   initialValue={criteria.id}
                   hidden
+                  data-cy={`create-recognition-form-criteria-id-field-${index}`}
+                  id={`createRecognitionFormCriteriaIdField${index}`}
                 ></Form.Item>
               )}
               <Form.Item
@@ -752,6 +842,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                 name={['recognitionCriteria', index, 'criteriaId']}
                 initialValue={criteria.id}
                 hidden
+                data-cy={`create-recognition-form-criteria-criteria-id-field-${index}`}
+                id={`createRecognitionFormCriteriaCriteriaIdField${index}`}
               ></Form.Item>
               <Form.Item
                 labelAlign="left"
@@ -765,8 +857,15 @@ const RecognitionForm: React.FC<PropsData> = ({
                     message: 'Please select at least one criterion',
                   },
                 ]}
+                data-cy={`create-recognition-form-criteria-key-field-${index}`}
+                id={`createRecognitionFormCriteriaKeyField${index}`}
               >
-                <Input className={commonClass} disabled />
+                <Input
+                  className={commonClass}
+                  disabled
+                  data-cy={`create-recognition-form-criteria-key-input-${index}`}
+                  id={`createRecognitionFormCriteriaKeyInput${index}`}
+                />
               </Form.Item>
 
               <Form.Item
@@ -788,6 +887,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                     },
                   },
                 ]}
+                data-cy={`create-recognition-form-criteria-weight-field-${index}`}
+                id={`createRecognitionFormCriteriaWeightField${index}`}
               >
                 <Input
                   type="number"
@@ -799,6 +900,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                     const value = parseFloat(e.target.value || '0');
                     handleWeightChange(index, value);
                   }}
+                  data-cy={`create-recognition-form-criteria-weight-input-${index}`}
+                  id={`createRecognitionFormCriteriaWeightInput${index}`}
                 />
               </Form.Item>
 
@@ -808,6 +911,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                 name={['recognitionCriteria', index, 'operator']}
                 initialValue={criteria.operator}
                 rules={[{ required: true, message: 'Please enter operator' }]}
+                data-cy={`create-recognition-form-criteria-operator-field-${index}`}
+                id={`createRecognitionFormCriteriaOperatorField${index}`}
               >
                 <Select
                   placeholder="Select operator"
@@ -817,12 +922,16 @@ const RecognitionForm: React.FC<PropsData> = ({
                     updated[index].operator = value;
                     setSelectedCriteria(updated);
                   }}
+                  data-cy={`create-recognition-form-criteria-operator-select-${index}`}
+                  id={`createRecognitionFormCriteriaOperatorSelect${index}`}
                 >
                   {Object.values(AggregateOperator).map((operator, opIndex) => (
                     <Select.Option
                       key={`operator-${operator}-${opIndex}`}
                       value={operator}
                       className={commonClass}
+                      data-cy={`create-recognition-form-criteria-operator-option-${index}-${opIndex}`}
+                      id={`createRecognitionFormCriteriaOperatorOption${index}${opIndex}`}
                     >
                       {operator}
                     </Select.Option>
@@ -836,6 +945,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                 name={['recognitionCriteria', index, 'condition']}
                 initialValue={criteria.condition}
                 rules={[{ required: true, message: 'Please enter condition' }]}
+                data-cy={`create-recognition-form-criteria-condition-field-${index}`}
+                id={`createRecognitionFormCriteriaConditionField${index}`}
               >
                 <Select
                   placeholder="Select condition"
@@ -845,6 +956,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                     updated[index].condition = value;
                     setSelectedCriteria(updated);
                   }}
+                  data-cy={`create-recognition-form-criteria-condition-select-${index}`}
+                  id={`createRecognitionFormCriteriaConditionSelect${index}`}
                 >
                   {Object.values(ConditionOperator).map(
                     (operator, condIndex) => (
@@ -852,6 +965,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                         key={`condition-${operator}-${condIndex}`}
                         value={operator}
                         className={commonClass}
+                        data-cy={`create-recognition-form-criteria-condition-option-${index}-${condIndex}`}
+                        id={`createRecognitionFormCriteriaConditionOption${index}${condIndex}`}
                       >
                         {operator}
                       </Select.Option>
@@ -866,11 +981,15 @@ const RecognitionForm: React.FC<PropsData> = ({
                 name={['recognitionCriteria', index, 'value']}
                 initialValue={criteria.value}
                 rules={[{ required: true, message: 'Please enter value' }]}
+                data-cy={`create-recognition-form-criteria-value-field-${index}`}
+                id={`createRecognitionFormCriteriaValueField${index}`}
               >
                 <Input
                   type="number"
                   placeholder="Enter value"
                   className={commonClass}
+                  data-cy={`create-recognition-form-criteria-value-input-${index}`}
+                  id={`createRecognitionFormCriteriaValueInput${index}`}
                 />
               </Form.Item>
               <Image
@@ -894,6 +1013,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                   });
                 }}
                 className="cursor-pointer"
+                data-cy={`create-recognition-form-criteria-remove-${index}`}
+                id={`createRecognitionFormCriteriaRemove${index}`}
               />
             </div>
           ))}
@@ -901,39 +1022,61 @@ const RecognitionForm: React.FC<PropsData> = ({
           {!createCategory && (
             <div
               className={`mt-2 text-xs ${totalWeight !== 1 ? 'text-red-500' : 'text-gray-600'}`}
+              data-cy="create-recognition-form-total-weight"
+              id="createRecognitionFormTotalWeight"
             >
               Total Weight: {totalWeight}{' '}
               {totalWeight !== 1 && '(Must equal 1)'}
             </div>
           )}
           {!createCategory && (
-            <div className="flex">
+            <div
+              className="flex"
+              data-cy="create-recognition-form-switches-container"
+              id="createRecognitionFormSwitchesContainer"
+            >
               <Form.Item
                 className="text-xs text-gray-950"
                 label={
-                  <span className="text-black text-xs font-semibold">
+                  <span
+                    className="text-black text-xs font-semibold"
+                    data-cy="create-recognition-form-monetized-label"
+                  >
                     Monetized
                   </span>
                 }
                 initialValue={false}
                 name="isMonetized"
                 valuePropName="checked"
+                data-cy="create-recognition-form-monetized-field"
+                id="createRecognitionFormMonetizedField"
               >
-                <Switch />
+                <Switch
+                  data-cy="create-recognition-form-monetized-switch"
+                  id="createRecognitionFormMonetizedSwitch"
+                />
               </Form.Item>
 
               <Form.Item
                 className="text-xs text-gray-950"
                 label={
-                  <span className="text-black text-xs font-semibold">
+                  <span
+                    className="text-black text-xs font-semibold"
+                    data-cy="create-recognition-form-requires-certification-label"
+                  >
                     Requires Certification
                   </span>
                 }
                 name="requiresCertification"
                 valuePropName="checked"
                 initialValue={false}
+                data-cy="create-recognition-form-requires-certification-field"
+                id="createRecognitionFormRequiresCertificationField"
               >
-                <Switch />
+                <Switch
+                  data-cy="create-recognition-form-requires-certification-switch"
+                  id="createRecognitionFormRequiresCertificationSwitch"
+                />
               </Form.Item>
             </div>
           )}
@@ -943,11 +1086,19 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Form.Item>
                 {({ getFieldValue }) =>
                   getFieldValue('requiresCertification') && (
-                    <Space direction="vertical" style={{ width: '100%' }}>
+                    <Space
+                      direction="vertical"
+                      style={{ width: '100%' }}
+                      data-cy="create-recognition-form-certification-data"
+                      id="createRecognitionFormCertificationData"
+                    >
                       <Form.Item
                         className="text-xs text-gray-950"
                         label={
-                          <span className="text-black text-xs font-semibold">
+                          <span
+                            className="text-black text-xs font-semibold"
+                            data-cy="create-recognition-form-certification-title-label"
+                          >
                             Certification Title
                           </span>
                         }
@@ -958,16 +1109,23 @@ const RecognitionForm: React.FC<PropsData> = ({
                             message: 'Please enter certification title',
                           },
                         ]}
+                        data-cy="create-recognition-form-certification-title-field"
+                        id="createRecognitionFormCertificationTitleField"
                       >
                         <Input
                           placeholder="Enter certification title"
                           className="text-xs text-gray-950"
+                          data-cy="create-recognition-form-certification-title-input"
+                          id="createRecognitionFormCertificationTitleInput"
                         />
                       </Form.Item>
                       <Form.Item
                         className="text-xs text-gray-950"
                         label={
-                          <span className="text-black text-xs font-semibold">
+                          <span
+                            className="text-black text-xs font-semibold"
+                            data-cy="create-recognition-form-certification-details-label"
+                          >
                             Certification Details
                           </span>
                         }
@@ -978,23 +1136,33 @@ const RecognitionForm: React.FC<PropsData> = ({
                             message: 'Please enter certification details',
                           },
                         ]}
+                        data-cy="create-recognition-form-certification-details-field"
+                        id="createRecognitionFormCertificationDetailsField"
                       >
                         <Input.TextArea
                           placeholder="Enter details for certification"
                           rows={3}
                           className="text-xs text-gray-950"
+                          data-cy="create-recognition-form-certification-details-textarea"
+                          id="createRecognitionFormCertificationDetailsTextarea"
                         />
                       </Form.Item>
                     </Space>
                   )
                 }
               </Form.Item>
-              <div className="flex justify-center mb-3">
+              <div
+                className="flex justify-center mb-3"
+                data-cy="create-recognition-form-new-criteria-container"
+                id="createRecognitionFormNewCriteriaContainer"
+              >
                 <Button
                   className="flex justify-end items-center px-5"
                   icon={<FaPlus />}
                   onClick={() => setIsModalVisible(true)}
                   type="primary"
+                  data-cy="create-recognition-form-new-criteria-button"
+                  id="createRecognitionFormNewCriteriaButton"
                 >
                   New Criteria
                 </Button>
@@ -1003,7 +1171,10 @@ const RecognitionForm: React.FC<PropsData> = ({
               <Form.Item
                 className="text-xs text-gray-950"
                 label={
-                  <span className="text-black text-xs font-semibold">
+                  <span
+                    className="text-black text-xs font-semibold"
+                    data-cy="create-recognition-form-frequency-label"
+                  >
                     Frequency
                   </span>
                 }
@@ -1011,12 +1182,42 @@ const RecognitionForm: React.FC<PropsData> = ({
                 rules={[
                   { required: true, message: 'Please select a frequency' },
                 ]}
+                data-cy="create-recognition-form-frequency-field"
+                id="createRecognitionFormFrequencyField"
               >
-                <Select className="text-xs text-gray-950 h-10">
-                  <Select.Option value="weekly">Weekly</Select.Option>
-                  <Select.Option value="monthly">Monthly</Select.Option>
-                  <Select.Option value="quarterly">Quarterly</Select.Option>
-                  <Select.Option value="yearly">Yearly</Select.Option>
+                <Select
+                  className="text-xs text-gray-950 h-10"
+                  data-cy="create-recognition-form-frequency-select"
+                  id="createRecognitionFormFrequencySelect"
+                >
+                  <Select.Option
+                    value="weekly"
+                    data-cy="create-recognition-form-frequency-option-weekly"
+                    id="createRecognitionFormFrequencyOptionWeekly"
+                  >
+                    Weekly
+                  </Select.Option>
+                  <Select.Option
+                    value="monthly"
+                    data-cy="create-recognition-form-frequency-option-monthly"
+                    id="createRecognitionFormFrequencyOptionMonthly"
+                  >
+                    Monthly
+                  </Select.Option>
+                  <Select.Option
+                    value="quarterly"
+                    data-cy="create-recognition-form-frequency-option-quarterly"
+                    id="createRecognitionFormFrequencyOptionQuarterly"
+                  >
+                    Quarterly
+                  </Select.Option>
+                  <Select.Option
+                    value="yearly"
+                    data-cy="create-recognition-form-frequency-option-yearly"
+                    id="createRecognitionFormFrequencyOptionYearly"
+                  >
+                    Yearly
+                  </Select.Option>
                 </Select>
               </Form.Item>
             </>
@@ -1027,16 +1228,30 @@ const RecognitionForm: React.FC<PropsData> = ({
               className="text-xs text-gray-950"
               hidden
               label={
-                <span className="text-black text-xs font-semibold">
+                <span
+                  className="text-black text-xs font-semibold"
+                  data-cy="create-recognition-form-parent-type-label"
+                >
                   Parent Type
                 </span>
               }
               initialValue={parentRecognitionTypeId}
               name="parentTypeId"
+              data-cy="create-recognition-form-parent-type-field"
+              id="createRecognitionFormParentTypeField"
             >
-              <Select className="text-xs text-gray-950">
+              <Select
+                className="text-xs text-gray-950"
+                data-cy="create-recognition-form-parent-type-select"
+                id="createRecognitionFormParentTypeSelect"
+              >
                 {recognitionTypeWithOutCriteria?.items?.map((item: any) => (
-                  <Select.Option key={item?.id} value={item?.id}>
+                  <Select.Option
+                    key={item?.id}
+                    value={item?.id}
+                    data-cy={`create-recognition-form-parent-type-option-${item?.id}`}
+                    id={`createRecognitionFormParentTypeOption${item?.id}`}
+                  >
                     {item?.name}
                   </Select.Option>
                 ))}
@@ -1047,7 +1262,10 @@ const RecognitionForm: React.FC<PropsData> = ({
             <Form.Item
               className="text-xs text-gray-950"
               label={
-                <span className="text-black text-xs font-semibold">
+                <span
+                  className="text-black text-xs font-semibold"
+                  data-cy="create-recognition-form-department-label"
+                >
                   Department
                 </span>
               }
@@ -1055,14 +1273,27 @@ const RecognitionForm: React.FC<PropsData> = ({
               rules={[
                 { required: true, message: 'Please enter the department ID' },
               ]}
+              data-cy="create-recognition-form-department-field"
+              id="createRecognitionFormDepartmentField"
             >
               <Select
                 placeholder="Select a department"
                 className="text-black text-xs font-semibold h-10"
+                data-cy="create-recognition-form-department-select"
+                id="createRecognitionFormDepartmentSelect"
               >
                 {allDepartmentWithData?.map((dep: any) => (
-                  <Option key={dep.id} value={dep.id}>
-                    <span className="text-xs font-semibold text-black">
+                  <Option
+                    key={dep.id}
+                    value={dep.id}
+                    data-cy={`create-recognition-form-department-option-${dep.id}`}
+                    id={`createRecognitionFormDepartmentOption${dep.id}`}
+                  >
+                    <span
+                      className="text-xs font-semibold text-black"
+                      data-cy="create-recognition-form-department-option-name"
+                      id="createRecognitionFormDepartmentOptionName"
+                    >
                       {dep?.name}
                     </span>
                   </Option>
@@ -1089,11 +1320,17 @@ const RecognitionForm: React.FC<PropsData> = ({
           open={isModalVisible}
           onCancel={() => setIsModalVisible(false)}
           footer={
-            <div className="flex justify-center items-center space-x-4">
+            <div
+              className="flex justify-center items-center space-x-4"
+              data-cy="create-recognition-criteria-modal-footer"
+              id="createRecognitionCriteriaModalFooter"
+            >
               <Button
                 type="default"
                 className="px-3"
                 onClick={() => setIsModalVisible(false)}
+                data-cy="create-recognition-criteria-modal-cancel-button"
+                id="createRecognitionCriteriaModalCancelButton"
               >
                 Cancel
               </Button>
@@ -1102,16 +1339,21 @@ const RecognitionForm: React.FC<PropsData> = ({
                 onClick={() => criteriaForm.submit()}
                 type="primary"
                 className="px-3"
+                data-cy="create-recognition-criteria-modal-create-button"
+                id="createRecognitionCriteriaModalCreateButton"
               >
                 Create
               </Button>
             </div>
           }
+          data-cy="create-recognition-criteria-modal"
         >
           <Form
             form={criteriaForm}
             layout="vertical"
             onFinish={onFinishCriteria}
+            data-cy="create-recognition-criteria-modal-form"
+            id="createRecognitionCriteriaModalForm"
           >
             <Form.Item
               label="Criteria Name"
@@ -1119,34 +1361,45 @@ const RecognitionForm: React.FC<PropsData> = ({
               rules={[
                 { required: true, message: 'Please enter criteria name' },
               ]}
+              data-cy="create-recognition-criteria-modal-name-field"
+              id="createRecognitionCriteriaModalNameField"
             >
               <Input
                 className="w-full h-[40px] mt-1"
                 placeholder="Enter criteria name"
                 type="text"
+                data-cy="create-recognition-criteria-modal-name-input"
+                id="createRecognitionCriteriaModalNameInput"
               />
             </Form.Item>
 
             <Form.Item
               className="text-xs text-gray-950"
               label={
-                <span className="text-black text-xs font-semibold mb-1">
+                <span
+                  className="text-black text-xs font-semibold mb-1"
+                  data-cy="create-recognition-criteria-modal-description-label"
+                >
                   Description
                 </span>
               }
               name="description"
               rules={[{ message: 'Please enter a description' }]}
+              data-cy="create-recognition-criteria-modal-description-field"
+              id="createRecognitionCriteriaModalDescriptionField"
             >
               <Input.TextArea
                 placeholder="Enter a detailed description"
                 rows={4}
                 className="text-xs text-gray-950"
+                data-cy="create-recognition-criteria-modal-description-textarea"
+                id="createRecognitionCriteriaModalDescriptionTextarea"
               />
             </Form.Item>
           </Form>
         </Modal>
       </CustomDrawerLayout>
-    </>
+    </div>
   );
 };
 

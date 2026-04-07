@@ -14,18 +14,27 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 const ScoreTag = React.memo(({ score }: { score: number }): JSX.Element => {
   if (score >= 90)
     return (
-      <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`okr-employee-score-tag-green-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   if (score >= 75)
     return (
-      <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`okr-employee-score-tag-yellow-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   return (
-    <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+    <span
+      className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+      data-cy={`okr-employee-score-tag-red-${score}`}
+    >
       {score?.toLocaleString()}%
     </span>
   );
@@ -57,15 +66,23 @@ const EmployeeDetails = React.memo(
     return (
       <>
         {type === 'user' ? (
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-cy="employee-okr-user-info">
             <Avatar src={profileImage} icon={<UserOutlined />} />
-            <div>
+            <div data-cy="employee-okr-user-details">
               {userName}
-              <div className="text-xs text-gray-500">{email}</div>
+              <div
+                className="text-xs text-gray-500"
+                data-cy="employee-okr-user-email"
+              >
+                {email}
+              </div>
             </div>
           </div>
         ) : (
-          <span className="text-xs text-gray-500">
+          <span
+            className="text-xs text-gray-500"
+            data-cy={`employee-okr-${type}-info`}
+          >
             {type == 'job' ? jobPosition : department}
           </span>
         )}
@@ -89,7 +106,11 @@ const SessionDetail = React.memo(({ sessionId }: { sessionId: string[] }) => {
 
   const sessionName = `${session?.name}` || '-';
 
-  return <span className="text-xs text-gray-500">{sessionName}</span>;
+  return (
+    <span className="text-xs text-gray-500" data-cy="employee-okr-session-name">
+      {sessionName}
+    </span>
+  );
 });
 
 const EmployeeOKRTable: React.FC = () => {

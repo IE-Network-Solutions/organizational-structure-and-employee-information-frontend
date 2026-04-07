@@ -20,16 +20,39 @@ const RequestVerification: FC = () => {
     <div
       className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat px-4"
       style={{ backgroundImage: 'url(/login-background.png)', margin: 0 }}
+      data-cy="forget-password-page-container"
     >
-      <div className="flex justify-center items-center w-[80%] md:w-[35%]">
-        <div className="flex flex-col items-center gap-8 w-[80%] ">
-          <div className="flex flex-row items-center gap-8">
+      <div
+        className="flex justify-center items-center w-[80%] md:w-[35%]"
+        data-cy="forget-password-content-wrapper"
+      >
+        <div
+          className="flex flex-col items-center gap-8 w-[80%] "
+          data-cy="forget-password-form-container"
+        >
+          <div
+            className="flex flex-row items-center gap-8"
+            data-cy="forget-password-logo-container"
+          >
             <Logo type="selamnew" />
           </div>
 
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-semibold">Forgot Password</h2>
-            <p className="text-center text-sm">Recover your account password</p>
+          <div
+            className="flex flex-col items-center"
+            data-cy="forget-password-header"
+          >
+            <h2
+              className="text-2xl font-semibold"
+              data-cy="forget-password-title"
+            >
+              Forgot Password
+            </h2>
+            <p
+              className="text-center text-sm"
+              data-cy="forget-password-subtitle"
+            >
+              Recover your account password
+            </p>
           </div>
 
           <Form

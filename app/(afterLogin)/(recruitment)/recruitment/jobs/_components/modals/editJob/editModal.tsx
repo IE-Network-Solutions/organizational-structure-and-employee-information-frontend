@@ -89,12 +89,17 @@ const EditJob: React.FC = () => {
         onClose={handleEditModalClose}
         modalHeader={
           <CustomDrawerHeader className="flex justify-center">
-            <span>Edit Job</span>
+            <span data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-92">
+              Edit Job
+            </span>
           </CustomDrawerHeader>
         }
         footer={
           <Form.Item>
-            <div className="flex justify-center absolute w-full space-x-5 pb-2 bg-white ">
+            <div
+              data-cy="-components-modals-editjob-editmodal-tsx-editmodal-div-97"
+              className="flex justify-center absolute w-full space-x-5 pb-2 bg-white "
+            >
               <Button
                 id="talent-acquisition-edit-job-button-cancel"
                 data-cy="talent-acquisition-edit-job-button-cancel"
@@ -128,7 +133,10 @@ const EditJob: React.FC = () => {
             id="jobTitle"
             name="jobTitle"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-131"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Job Name
               </span>
             }
@@ -151,7 +159,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="employmentType"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-154"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Employment Type
               </span>
             }
@@ -184,7 +195,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="department"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-187"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Department
               </span>
             }
@@ -202,7 +216,10 @@ const EditJob: React.FC = () => {
               className="text-sm w-full h-10"
             >
               {isDepartmentLoading && (
-                <div className="flex items-center justify-center h-30">
+                <div
+                  data-cy="-components-modals-editjob-editmodal-tsx-editmodal-div-205"
+                  className="flex items-center justify-center h-30"
+                >
                   <Spin size="small" />
                 </div>
               )}
@@ -222,7 +239,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="jobLocation"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-225"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Location
               </span>
             }
@@ -254,7 +274,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="yearOfExperience"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-257"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Years of Experience
               </span>
             }
@@ -279,7 +302,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="jobStatus"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-282"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Job Status
               </span>
             }
@@ -315,7 +341,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="compensation"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-318"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Compensation
               </span>
             }
@@ -349,7 +378,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="quantity"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-352"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Quantity
               </span>
             }
@@ -372,7 +404,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="jobDeadline"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-375"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Expected Closing Date
               </span>
             }
@@ -405,7 +440,10 @@ const EditJob: React.FC = () => {
           <Form.Item
             name="description"
             label={
-              <span className="text-md my-2 font-semibold text-gray-700">
+              <span
+                data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-408"
+                className="text-md my-2 font-semibold text-gray-700"
+              >
                 Description
               </span>
             }

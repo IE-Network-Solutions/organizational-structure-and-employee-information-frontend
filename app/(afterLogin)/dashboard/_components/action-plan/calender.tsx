@@ -64,7 +64,10 @@ const Calender = () => {
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
     return (
-      <div className="flex gap-1 justify-center min-h-[18px]">
+      <div
+        className="flex gap-1 justify-center min-h-[18px]"
+        data-cy="calendar-cell"
+      >
         {listData.length > 0 ? (
           listData.map((item, index) => (
             <Badge key={index} status={item.type} />
@@ -98,16 +101,29 @@ const Calender = () => {
     };
 
     return (
-      <div className="flex justify-between items-center px-4 py-2">
-        <FaAngleLeft onClick={prevMonth} className="cursor-pointer" />
-        <span className="font-semibold">{current.format('MMMM YYYY')}</span>
-        <FaAngleRight onClick={nextMonth} className="cursor-pointer" />
+      <div
+        className="flex justify-between items-center px-4 py-2"
+        data-cy="calendar-header"
+      >
+        <FaAngleLeft
+          onClick={prevMonth}
+          className="cursor-pointer"
+          data-cy="calendar-prev-month"
+        />
+        <span className="font-semibold" data-cy="calendar-month-year">
+          {current.format('MMMM YYYY')}
+        </span>
+        <FaAngleRight
+          onClick={nextMonth}
+          className="cursor-pointer"
+          data-cy="calendar-next-month"
+        />
       </div>
     );
   };
 
   return (
-    <div className="h-[385px]">
+    <div className="h-[385px]" data-cy="calendar-container">
       <Calendar
         headerRender={headerRender}
         fullscreen={false}

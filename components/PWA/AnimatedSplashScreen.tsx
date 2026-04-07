@@ -16,7 +16,6 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
   const { isStandalone } = usePWA();
   const [showSplash, setShowSplash] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -29,9 +28,7 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
     setShowSplash(true);
 
     // Start exit animation before hiding
-    const exitTimer = setTimeout(() => {
-      setIsExiting(true);
-    }, duration - 500);
+    const exitTimer = setTimeout(() => {}, duration - 500);
 
     // Hide splash screen
     const hideTimer = setTimeout(() => {
@@ -51,153 +48,98 @@ export const AnimatedSplashScreen: React.FC<AnimatedSplashScreenProps> = ({
 
   return (
     <>
-      {/* Modal Overlay */}
       <div
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 9999,
+          marginBottom: '1.5rem',
+          transform: 'scale(0)',
+          animation: 'logoScale 0.8s ease-out 0.2s forwards',
+          position: 'relative',
+          zIndex: 2,
+        }}
+        data-cy="animated-splash-logo-container"
+      >
+        <SimpleLogo />
+      </div>
+
+      {/* App Name */}
+      <h1
+        style={{
+          fontSize: '1.8rem',
+          margin: '0.5rem 0',
+          fontWeight: 'bold',
+          opacity: 0,
+          transform: 'translateY(20px)',
+          animation: 'textSlideUp 0.6s ease-out 0.8s forwards',
+        }}
+        data-cy="animated-splash-app-name"
+      >
+        Selamnew
+      </h1>
+
+      {/* Subtitle */}
+      <p
+        style={{
+          fontSize: '1rem',
+          margin: '0 0 2rem 0',
+          opacity: 0,
+          animation: 'textSlideUp 0.6s ease-out 1s forwards',
+        }}
+        data-cy="animated-splash-subtitle"
+      >
+        Workspace
+      </p>
+
+      {/* Loading Animation */}
+      <div
+        style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          opacity: isExiting ? 0 : 1,
-          transition: 'opacity 0.5s ease-out',
+          gap: '0.5rem',
+          opacity: 0,
+          animation: 'fadeIn 0.4s ease-out 1.2s forwards',
         }}
+        data-cy="animated-splash-loading"
       >
-        {/* Modal Content */}
         <div
           style={{
-            background:
-              'linear-gradient(135deg, #3636F0 0%, #2525D1 50%, #1414B8 100%)',
-            borderRadius: '20px',
-            padding: '3rem 2rem',
-            textAlign: 'center',
-            color: 'white',
-            fontFamily: 'Manrope, sans-serif',
-            maxWidth: '300px',
-            width: '90%',
-            boxShadow: '0 20px 40px rgba(54, 54, 240, 0.3)',
-            transform: isExiting ? 'scale(0.9)' : 'scale(1)',
-            transition: 'transform 0.5s ease-out',
-            position: 'relative',
-            overflow: 'hidden',
+            width: '8px',
+            height: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            animation: 'bounce 1.4s infinite ease-in-out',
+            animationDelay: '-0.32s',
           }}
-        >
-          {/* Animated Background Circles */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '-50px',
-              right: '-50px',
-              width: '100px',
-              height: '100px',
-              background: 'rgba(255, 255, 255, 0.1)',
-              borderRadius: '50%',
-              animation: 'float 3s ease-in-out infinite',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '-30px',
-              left: '-30px',
-              width: '60px',
-              height: '60px',
-              background: 'rgba(255, 255, 255, 0.08)',
-              borderRadius: '50%',
-              animation: 'float 4s ease-in-out infinite reverse',
-            }}
-          />
-
-          {/* Logo Container */}
-          <div
-            style={{
-              marginBottom: '1.5rem',
-              transform: 'scale(0)',
-              animation: 'logoScale 0.8s ease-out 0.2s forwards',
-              position: 'relative',
-              zIndex: 2,
-            }}
-          >
-            <SimpleLogo />
-          </div>
-
-          {/* App Name */}
-          <h1
-            style={{
-              fontSize: '1.8rem',
-              margin: '0.5rem 0',
-              fontWeight: 'bold',
-              opacity: 0,
-              transform: 'translateY(20px)',
-              animation: 'textSlideUp 0.6s ease-out 0.8s forwards',
-            }}
-          >
-            Selamnew
-          </h1>
-
-          {/* Subtitle */}
-          <p
-            style={{
-              fontSize: '1rem',
-              margin: '0 0 2rem 0',
-              opacity: 0,
-              animation: 'textSlideUp 0.6s ease-out 1s forwards',
-            }}
-          >
-            Workspace
-          </p>
-
-          {/* Loading Animation */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '0.5rem',
-              opacity: 0,
-              animation: 'fadeIn 0.4s ease-out 1.2s forwards',
-            }}
-          >
-            <div
-              style={{
-                width: '8px',
-                height: '8px',
-                background: 'white',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-                animationDelay: '-0.32s',
-              }}
-            />
-            <div
-              style={{
-                width: '8px',
-                height: '8px',
-                background: 'white',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-                animationDelay: '-0.16s',
-              }}
-            />
-            <div
-              style={{
-                width: '8px',
-                height: '8px',
-                background: 'white',
-                borderRadius: '50%',
-                animation: 'bounce 1.4s infinite ease-in-out',
-              }}
-            />
-          </div>
-        </div>
+          data-cy="animated-splash-dot-1"
+        />
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            animation: 'bounce 1.4s infinite ease-in-out',
+            animationDelay: '-0.16s',
+          }}
+          data-cy="animated-splash-dot-2"
+        />
+        <div
+          style={{
+            width: '8px',
+            height: '8px',
+            background: 'white',
+            borderRadius: '50%',
+            animation: 'bounce 1.4s infinite ease-in-out',
+          }}
+          data-cy="animated-splash-dot-3"
+        />
       </div>
 
       {/* Keyframe Animations */}
-      <style jsx>{`
+      <style
+        data-cy="organizational-structure-and-employee-information-frontend-components-pwa-animatedsplashscreen-tsx-animatedsplashscreen-style-139"
+        jsx
+      >{`
         @keyframes logoScale {
           from {
             transform: scale(0) rotate(-180deg);

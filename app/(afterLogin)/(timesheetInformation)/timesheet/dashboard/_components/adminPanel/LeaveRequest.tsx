@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { Card, DatePicker, Select, Avatar, Spin } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Card, DatePicker, Select, Avatar, Spin, Modal } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,6 +17,8 @@ import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timeshe
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import randomColor from 'random-color';
+import CustomButton from '@/components/common/buttons/customButton';
+import { LuSettings2 } from 'react-icons/lu';
 
 ChartJS.register(
   CategoryScale,
@@ -28,6 +30,7 @@ ChartJS.register(
 );
 
 const LeaveRequest = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {
     userIdOnLeaveRequest,
     setUserIdOnLeaveRequest,
@@ -185,18 +188,140 @@ const LeaveRequest = () => {
     label: i?.title,
   }));
 
-  // Generate random colors for leave types (component level)
+  const MobileFilterContent = () => (
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-leave-request-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-leave-request-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
+
+      {/* Leave Type */}
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-request-mobile-filter-leave-type-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-request-mobile-filter-leave-type-label"
+        >
+          Leave Type
+        </label>
+        <Select
+          showSearch
+          placeholder="Select Leave Type"
+          allowClear
+          value={leaveTypeOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={leaveTypeOption}
+          data-cy="time-attendance-leave-request-mobile-filter-leave-type-select"
+        />
+      </div>
+
+      {/* Department */}
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-request-mobile-filter-department-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-request-mobile-filter-department-label"
+        >
+          Department
+        </label>
+        <Select
+          showSearch
+          placeholder="Select Department"
+          allowClear
+          value={departmentOnLeaveRequest}
+          className="w-full h-12"
+          onChange={(value) => setDepartmentOnLeaveRequest(value)}
+          filterOption={(input: any, option: any) =>
+            (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
+          }
+          options={departmentOptions}
+          data-cy="time-attendance-leave-request-mobile-filter-department-select"
+        />
+      </div>
+
+      {/* Date Range */}
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-leave-request-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-leave-request-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
+        <DatePicker.RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value: any) => {
+            if (value) {
+              setStartDateOnLeaveRequest(value[0]?.format('YYYY-MM-DD') || '');
+              setEndDateOnLeaveRequest(value[1]?.format('YYYY-MM-DD') || '');
+            } else {
+              setStartDateOnLeaveRequest('');
+              setEndDateOnLeaveRequest('');
+            }
+          }}
+          data-cy="time-attendance-leave-request-mobile-filter-date-range-picker"
+        />
+      </div>
+    </div>
+  );
 
   return (
-    <Spin spinning={loading}>
-      <Card bodyStyle={{ padding: 16 }}>
-        <div className="grid grid-cols-12 gap-12 mb-4">
+    <Spin
+      spinning={loading}
+      data-cy="time-attendance-leave-request-loading-spin"
+    >
+      <Card
+        bodyStyle={{ padding: 16 }}
+        id="time-attendance-leave-request-layout-card"
+        data-cy="time-attendance-leave-request-layout-card"
+      >
+        <div
+          className="grid grid-cols-12 gap-12 mb-4"
+          id="time-attendance-leave-request-grid-container-div"
+          data-cy="time-attendance-leave-request-grid-container-div"
+        >
           {/* Left Panel */}
-          <div className="col-span-12 md:col-span-5">
-            <h2 className="text-[16px] font-bold">Leave Request</h2>
-            <p className="text-[12px] mb-4">Pending Requests</p>
+          <div
+            className="col-span-12 md:col-span-5"
+            id="time-attendance-leave-request-left-panel-div"
+            data-cy="time-attendance-leave-request-left-panel-div"
+          >
+            <h2
+              className="text-[16px] font-bold"
+              id="time-attendance-leave-request-title-heading"
+              data-cy="time-attendance-leave-request-title-heading"
+            >
+              Leave Request
+            </h2>
+            <p
+              className="text-[12px] mb-4"
+              id="time-attendance-leave-request-subtitle-text"
+              data-cy="time-attendance-leave-request-subtitle-text"
+            >
+              Pending Requests
+            </p>
 
-            <div className="flex gap-2 mb-4">
+            <div
+              className="flex gap-2 mb-4"
+              id="time-attendance-leave-request-filter-controls-div"
+              data-cy="time-attendance-leave-request-filter-controls-div"
+            >
               <Select
                 showSearch
                 placeholder="Select employee"
@@ -210,9 +335,167 @@ const LeaveRequest = () => {
                 maxTagCount={1}
                 className="w-full h-12"
                 onChange={(value: any) => setUserIdOnLeaveRequest(value)}
+                id="time-attendance-leave-request-employee-select"
+                data-cy="time-attendance-leave-request-employee-select"
               />
+            </div>
+            {/* Mobile Filters */}
+            <div
+              className="md:hidden block"
+              data-cy="time-attendance-leave-request-mobile-filters-div"
+            >
+              <div
+                className="flex justify-between gap-4 w-full mb-4"
+                data-cy="time-attendance-leave-request-mobile-filters-row-div"
+              >
+                <div
+                  className="flex-1"
+                  data-cy="time-attendance-leave-request-mobile-filters-employee-select-div"
+                >
+                  <Select
+                    showSearch
+                    placeholder="Search Employee"
+                    className="w-full h-12"
+                    allowClear
+                    onChange={(value: any) => setUserIdOnLeaveRequest(value)}
+                    filterOption={(input: any, option: any) =>
+                      (option?.label ?? '')
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
+                    }
+                    options={employeeOptions}
+                    data-cy="time-attendance-leave-request-mobile-filters-employee-select"
+                  />
+                </div>
+                <div data-cy="time-attendance-leave-request-mobile-filters-settings-button-div">
+                  <CustomButton
+                    type="default"
+                    size="small"
+                    onClick={() => setIsModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 border rounded-lg h-10"
+                    title=""
+                    icon={<LuSettings2 size={20} />}
+                    data-cy="time-attendance-leave-request-mobile-filters-settings-button"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {pendingLeaveRequests?.users?.length > 0 ? (
+              <div
+                className="h-64 overflow-y-auto space-y-4 pr-2"
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#3636f0 #f3f4f6',
+                }}
+                id="time-attendance-leave-request-users-scroll-div"
+                data-cy="time-attendance-leave-request-users-scroll-div"
+              >
+                {pendingLeaveRequests.users.map((item: any, index: any) => (
+                  <div
+                    key={index}
+                    className="bg-white border rounded-xl px-4 py-1  items-center"
+                    id={`time-attendance-leave-request-card-${index}-container-div`}
+                    data-cy={`time-attendance-leave-request-card-${index}-container-div`}
+                  >
+                    <div
+                      className="space-y-2 flex justify-between w-full"
+                      id={`time-attendance-leave-request-card-${index}-header-div`}
+                      data-cy={`time-attendance-leave-request-card-${index}-header-div`}
+                    >
+                      <div
+                        className="flex items-center space-x-2 mb-1"
+                        id={`time-attendance-leave-request-card-${index}-profile-row`}
+                        data-cy={`time-attendance-leave-request-card-${index}-profile-row`}
+                      >
+                        <Avatar
+                          src={item.profileImage}
+                          className=" w-6 h-6 text-[12px]"
+                          data-cy={`time-attendance-leave-request-card-${index}-avatar-display`}
+                        >
+                          {item.name.charAt(0)}
+                        </Avatar>
+                        <p
+                          className="text-[12px] font-medium"
+                          id={`time-attendance-leave-request-card-${index}-name-text`}
+                          data-cy={`time-attendance-leave-request-card-${index}-name-text`}
+                        >
+                          {item.name}
+                        </p>
+                      </div>
+                      <p
+                        className="text-[12px]"
+                        id={`time-attendance-leave-request-card-${index}-requested-text`}
+                        data-cy={`time-attendance-leave-request-card-${index}-requested-text`}
+                      >
+                        Requested: {dayjs(item.requested).format('DD MMM YYYY')}
+                      </p>
+                    </div>
+
+                    <div
+                      className="flex justify-between w-full items-start"
+                      id={`time-attendance-leave-request-card-${index}-details-row`}
+                      data-cy={`time-attendance-leave-request-card-${index}-details-row`}
+                    >
+                      <div
+                        className={`text-xs px-2 py-1 rounded-md font-medium min-w-10 `}
+                        style={{
+                          backgroundColor: (() => {
+                            if (!leaveTypeColors[item.leaveType]) {
+                              leaveTypeColors[item.leaveType] =
+                                generateRandomColor();
+                            }
+                            return leaveTypeColors[item.leaveType];
+                          })(),
+                          color: '#ffffff',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                        }}
+                        id={`time-attendance-leave-request-card-${index}-type-label`}
+                        data-cy={`time-attendance-leave-request-card-${index}-type-label`}
+                      >
+                        {item.leaveType}
+                      </div>
+                      <p
+                        className="text-xs text-black font-bold"
+                        id={`time-attendance-leave-request-card-${index}-date-range-text`}
+                        data-cy={`time-attendance-leave-request-card-${index}-date-range-text`}
+                      >
+                        {`${dayjs(item.leaveStartDate).format('D MMM YYYY')} to ${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="flex justify-center items-center h-64"
+                id="time-attendance-leave-request-empty-state-div"
+                data-cy="time-attendance-leave-request-empty-state-div"
+              >
+                <p
+                  className="text-gray-500 text-[14px] font-semibold"
+                  id="time-attendance-leave-request-empty-state-text"
+                  data-cy="time-attendance-leave-request-empty-state-text"
+                >
+                  No leave requests found
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Right Panel - Chart */}
+          <div
+            className="col-span-12 md:col-span-7"
+            id="time-attendance-leave-request-right-panel-div"
+            data-cy="time-attendance-leave-request-right-panel-div"
+          >
+            <div
+              className="flex justify-end mb-2 gap-3"
+              id="time-attendance-leave-request-chart-filters-div"
+              data-cy="time-attendance-leave-request-chart-filters-div"
+            >
               <DatePicker.RangePicker
-                className="w-44 h-12"
+                className="w-full h-12"
                 value={
                   startDateOnLeaveRequest && endDateOnLeaveRequest
                     ? [
@@ -235,67 +518,9 @@ const LeaveRequest = () => {
                     setEndDateOnLeaveRequest('');
                   }
                 }}
+                id="time-attendance-leave-request-date-range-picker"
+                data-cy="time-attendance-leave-request-date-range-picker"
               />
-            </div>
-
-            {pendingLeaveRequests?.users?.length > 0 ? (
-              <div className="h-64 overflow-y-auto scrollbar-none space-y-4">
-                {pendingLeaveRequests.users.map((item: any, index: any) => (
-                  <div
-                    key={index}
-                    className="bg-white border rounded-xl px-4 py-1  items-center"
-                  >
-                    <div className="space-y-2 flex justify-between w-full">
-                      <div className="flex items-center space-x-2 mb-1 ">
-                        <Avatar
-                          src={item.profileImage}
-                          className=" w-6 h-6 text-[12px]"
-                        >
-                          {item.name.charAt(0)}
-                        </Avatar>
-                        <p className="text-[12px] font-medium">{item.name}</p>
-                      </div>
-                      <p className="text-[12px]">
-                        Requested: {dayjs(item.requested).format('DD MMM YYYY')}
-                      </p>
-                    </div>
-
-                    <div className="flex justify-between w-full items-start">
-                      <div
-                        className={`text-xs px-2 py-1 rounded-md font-medium min-w-10 `}
-                        style={{
-                          backgroundColor: (() => {
-                            if (!leaveTypeColors[item.leaveType]) {
-                              leaveTypeColors[item.leaveType] =
-                                generateRandomColor();
-                            }
-                            return leaveTypeColors[item.leaveType];
-                          })(),
-                          color: '#ffffff',
-                          border: '1px solid rgba(255,255,255,0.2)',
-                        }}
-                      >
-                        {item.leaveType}
-                      </div>
-                      <p className="text-xs text-black font-bold">
-                        {`${dayjs(item.leaveStartDate).format('D MMM YYYY')} to ${dayjs(item.leaveEndDate).format('D MMM YYYY')}`}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex justify-center items-center h-64">
-                <p className="text-gray-500 text-[14px] font-semibold">
-                  No leave requests found
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Panel - Chart */}
-          <div className="col-span-12 md:col-span-7">
-            <div className="flex justify-end mb-2 gap-3">
               <Select
                 showSearch
                 placeholder="Select Leave Type"
@@ -309,6 +534,8 @@ const LeaveRequest = () => {
                 maxTagCount={1}
                 className="w-40 h-12"
                 onChange={(value) => setLeaveTypeOnLeaveRequest(value)}
+                id="time-attendance-leave-request-type-select"
+                data-cy="time-attendance-leave-request-type-select"
               />
               <Select
                 showSearch
@@ -323,16 +550,65 @@ const LeaveRequest = () => {
                 maxTagCount={1}
                 className="w-40 h-12"
                 onChange={(value) => setDepartmentOnLeaveRequest(value)}
+                id="time-attendance-leave-request-department-select"
+                data-cy="time-attendance-leave-request-department-select"
               />
             </div>
-            <div style={{ height: 320, width: '100%' }}>
+            <div
+              style={{ height: 320, width: '100%' }}
+              id="time-attendance-leave-request-chart-container-div"
+              data-cy="time-attendance-leave-request-chart-container-div"
+            >
               <Bar
                 data={barData}
                 options={{ ...barOptions, maintainAspectRatio: false } as any}
+                id="time-attendance-leave-request-chart-view-bar"
+                data-cy="time-attendance-leave-request-chart-view-bar"
               />
             </div>
           </div>
         </div>
+
+        {/* Mobile Filter Modal */}
+        <Modal
+          open={isModalOpen}
+          onCancel={() => setIsModalOpen(false)}
+          footer={
+            <div
+              className="flex gap-2 justify-center mt-4"
+              data-cy="time-attendance-leave-request-mobile-filter-modal-footer-div"
+            >
+              <CustomButton
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+                title="Cancel"
+                type="default"
+                data-cy="time-attendance-leave-request-mobile-filter-modal-cancel-button"
+              />
+              <CustomButton
+                title="Apply Filter"
+                type="primary"
+                onClick={() => {
+                  setIsModalOpen(false);
+                }}
+                className="px-6 py-2 text-white rounded-lg text-sm"
+                data-cy="time-attendance-leave-request-mobile-filter-modal-apply-button"
+              />
+            </div>
+          }
+          className="!m-4 md:hidden"
+          style={{
+            top: '20%',
+            transform: 'translateY(-50%)',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}
+          width="90%"
+          centered
+          data-cy="time-attendance-leave-request-mobile-filter-modal"
+        >
+          <MobileFilterContent />
+        </Modal>
       </Card>
     </Spin>
   );

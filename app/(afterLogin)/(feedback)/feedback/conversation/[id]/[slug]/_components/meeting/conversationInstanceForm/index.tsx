@@ -114,7 +114,10 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       <Form.Item
         name="name"
         label={
-          <span className="text-black text-xs font-semibold">
+          <span
+            className="text-black text-xs font-semibold"
+            data-cy="conversation-instance-form-meeting-name-label"
+          >
             Bi-weekly Meeting Name
           </span>
         }
@@ -129,14 +132,21 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
           name="name"
           placeholder="Enter the meeting name"
           className="text-black text-xs font-semibold"
+          data-cy="conversation-instance-form-meeting-name-input"
         />
       </Form.Item>
 
-      <div className="flex gap-4">
+      <div
+        className="flex gap-4"
+        data-cy="conversation-instance-form-date-time-container"
+      >
         <Form.Item
           name="dateOfMeeting"
           label={
-            <span className="text-black text-xs font-semibold">
+            <span
+              className="text-black text-xs font-semibold"
+              data-cy="conversation-instance-form-date-label"
+            >
               Date of Meeting
             </span>
           }
@@ -148,13 +158,19 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
           ]}
           style={{ flex: 1 }}
         >
-          <DatePicker style={{ width: '100%', font: '10px' }} />
+          <DatePicker
+            style={{ width: '100%', font: '10px' }}
+            data-cy="conversation-instance-form-date-picker"
+          />
         </Form.Item>
 
         <Form.Item
           name="timeOfMeeting"
           label={
-            <span className="text-black text-xs font-semibold">
+            <span
+              className="text-black text-xs font-semibold"
+              data-cy="conversation-instance-form-time-label"
+            >
               Time of Meeting
             </span>
           }
@@ -171,6 +187,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
             style={{ width: '100%', font: '10px' }}
             minuteStep={5}
             showNow={false}
+            data-cy="conversation-instance-form-time-picker"
           />
         </Form.Item>
       </div>
@@ -178,7 +195,12 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       <Form.Item
         name="departmentId"
         label={
-          <span className="text-black text-xs font-semibold">Department</span>
+          <span
+            className="text-black text-xs font-semibold"
+            data-cy="conversation-instance-form-department-label"
+          >
+            Department
+          </span>
         }
         rules={[
           { required: true, message: 'Please select at least one department' },
@@ -189,10 +211,18 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
           placeholder="Select a department"
           className="text-black text-xs font-semibold"
           onChange={onDepartmentChange}
+          data-cy="conversation-instance-form-department-select"
         >
           {allDepartmentWithData?.map((dep) => (
-            <Option key={dep.id} value={dep.id}>
-              <span className="text-xs font-semibold text-black">
+            <Option
+              key={dep.id}
+              value={dep.id}
+              data-cy={`conversation-instance-form-department-option-${dep.id}`}
+            >
+              <span
+                className="text-xs font-semibold text-black"
+                data-cy={`conversation-instance-form-department-option-text-${dep.id}`}
+              >
                 {dep.name}
               </span>
             </Option>
@@ -202,7 +232,14 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
 
       <Form.Item
         name="userId"
-        label={<span className="text-black text-xs font-semibold">Users</span>}
+        label={
+          <span
+            className="text-black text-xs font-semibold"
+            data-cy="conversation-instance-form-users-label"
+          >
+            Users
+          </span>
+        }
         rules={[{ required: true, message: 'Please select at least one user' }]}
       >
         <Select
@@ -216,16 +253,19 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
           filterOption={(input, option: any) =>
             option.label?.toLowerCase().includes(input.toLowerCase())
           }
+          data-cy="conversation-instance-form-users-select"
         >
           {setOfUser?.map((user) => (
             <Option
               key={user.id}
               value={user.id}
               label={`${user?.firstName} ${user?.middleName} ${user?.lastName}`}
+              data-cy={`conversation-instance-form-user-option-${user.id}`}
             >
               <Checkbox
                 checked={selectedUsers.includes(user.id)}
                 onClick={(e) => e.stopPropagation()}
+                data-cy={`conversation-instance-form-user-checkbox-${user.id}`}
               >
                 {user?.firstName} ${user?.middleName} {user?.lastName}
               </Checkbox>
@@ -234,12 +274,19 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         </Select>
       </Form.Item>
 
-      <div>
-        <span className="text-gray-950 font-semibold text-xs">
+      <div data-cy="conversation-instance-form-agenda-container">
+        <span
+          className="text-gray-950 font-semibold text-xs"
+          data-cy="conversation-instance-form-agenda-title"
+        >
           Meeting Agenda
         </span>
         {agendaItems.map((item, index) => (
-          <div key={index} className="flex items-center mt-2">
+          <div
+            key={index}
+            className="flex items-center mt-2"
+            data-cy={`conversation-instance-form-agenda-item-${index}`}
+          >
             <Form.Item
               name={['agenda', index]}
               label={null}
@@ -250,6 +297,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
                 onChange={(e) => handleAgendaChange(e.target.value, index)}
                 placeholder={`Agenda item ${index + 1}`}
                 className="text-black font-semibold text-xs"
+                data-cy={`conversation-instance-form-agenda-input-${index}`}
               />
             </Form.Item>
 
@@ -259,6 +307,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
               onClick={() => removeAgendaItem(index)}
               disabled={agendaItems.length === 1}
               className="ml-2"
+              data-cy={`conversation-instance-form-agenda-remove-button-${index}`}
             />
           </div>
         ))}
@@ -269,11 +318,15 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         onClick={addAgendaItem}
         className="flex items-center text-sm font-semibold mt-2"
         icon={<TiPlusOutline />}
+        data-cy="conversation-instance-form-agenda-add-button"
       >
         Add Agenda Item
       </Button>
 
-      <div className="w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5">
+      <div
+        className="w-full bg-[#fff] absolute bottom-8 flex justify-center space-x-5"
+        data-cy="conversation-instance-form-actions"
+      >
         <Popconfirm
           title="Are you sure you want to cancel and reset the form?"
           onConfirm={() => {
@@ -284,15 +337,28 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
           okText="Yes"
           cancelText="No"
         >
-          <Button style={{ marginRight: 8 }}>Cancel</Button>
+          <Button
+            style={{ marginRight: 8 }}
+            data-cy="conversation-instance-form-cancel-button"
+          >
+            Cancel
+          </Button>
         </Popconfirm>
 
         {isEdit ? (
-          <Button htmlType="submit" type="primary">
+          <Button
+            htmlType="submit"
+            type="primary"
+            data-cy="conversation-instance-form-edit-button"
+          >
             Edit
           </Button>
         ) : (
-          <Button type="primary" onClick={handleContinue}>
+          <Button
+            type="primary"
+            onClick={handleContinue}
+            data-cy="conversation-instance-form-continue-button"
+          >
             Continue
           </Button>
         )}

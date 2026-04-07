@@ -45,15 +45,26 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
   return (
     <>
       {type === 'user' ? (
-        <div className="flex gap-2">
+        <div
+          className="flex gap-2"
+          data-cy="employee-survey-table-user-container"
+        >
           <Avatar src={profileImage} icon={<UserOutlined />} />
-          <div>
-            {userName}
-            <div className="text-xs text-gray-500">{email}</div>
+          <div data-cy="employee-survey-table-user-details">
+            <span data-cy="employee-survey-table-user-name">{userName}</span>
+            <div
+              className="text-xs text-gray-500"
+              data-cy="employee-survey-table-user-email"
+            >
+              {email}
+            </div>
           </div>
         </div>
       ) : (
-        <span className="text-xs text-gray-500">
+        <span
+          className="text-xs text-gray-500"
+          data-cy="employee-survey-table-type-info"
+        >
           {type == 'job' ? jobPosition : department}
         </span>
       )}
@@ -63,18 +74,27 @@ const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
 const getScoreTag = (score: number): JSX.Element => {
   if (score >= 10)
     return (
-      <span className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`employee-survey-table-score-tag-green-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   if (score >= 7.5)
     return (
-      <span className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+      <span
+        className="block w-24 text-center bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold"
+        data-cy={`employee-survey-table-score-tag-yellow-${score}`}
+      >
         {score?.toLocaleString()}%
       </span>
     );
   return (
-    <span className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
+    <span
+      className="block w-24 text-center bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-semibold"
+      data-cy={`employee-survey-table-score-tag-red-${score}`}
+    >
       {score?.toLocaleString()}%
     </span>
   );
@@ -132,7 +152,11 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'userId',
       key: 'userId',
       render: (userId: string) => (
-        <EmployeeDetails type="user" empId={userId} />
+        <EmployeeDetails
+          type="user"
+          empId={userId}
+          data-cy="employee-survey-table-employees-details"
+        />
       ),
     },
     {
@@ -140,7 +164,11 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'date',
       key: 'date',
       render: (notused: any, render: any) => (
-        <div className="text-xs text-gray-500">
+        <div
+          className="text-xs text-gray-500"
+          data-cy="employee-survey-table-month"
+          id="employeeSurveyTableMonth"
+        >
           {' '}
           {render?.month?.session?.name}-{render?.month?.name}
         </div>
@@ -151,7 +179,11 @@ const EmployeeSurveyTable: React.FC = () => {
       dataIndex: 'department',
       key: 'department',
       render: (notused: any, render: any) => (
-        <EmployeeDetails type="department" empId={render?.userId} />
+        <EmployeeDetails
+          type="department"
+          empId={render?.userId}
+          data-cy="employee-survey-table-department"
+        />
       ),
     },
     {
@@ -166,27 +198,47 @@ const EmployeeSurveyTable: React.FC = () => {
       key: 'action',
       render: (ruleData: any, record: any) =>
         record?.monthId == month?.id && (
-          <div className="flex gap-2">
-            <Tooltip title="Edit">
+          <div
+            className="flex gap-2"
+            data-cy="employee-survey-table-action-buttons"
+            id="employeeSurveyTableActionButtons"
+          >
+            <Tooltip
+              title="Edit"
+              data-cy="employee-survey-table-edit-tooltip"
+              id="employeeSurveyTableEditTooltip"
+            >
               <Button
                 onClick={() => handleVisibilityEdit(record)}
                 type="primary"
-                icon={<MdEdit />}
+                icon={<MdEdit data-cy="employee-survey-table-edit-icon" />}
+                data-cy="employee-survey-table-edit-button"
+                id="employeeSurveyTableEditButton"
               ></Button>
             </Tooltip>
 
-            <Tooltip title="Delete">
+            <Tooltip
+              title="Delete"
+              data-cy="employee-survey-table-delete-tooltip"
+              id="employeeSurveyTableDeleteTooltip"
+            >
               <Popconfirm
                 title="Are you sure you want to remove survey score?"
                 onConfirm={() => handleSurveyScore(record?.id)}
                 okText={'Yes'}
                 cancelText="No"
                 placement="top"
+                data-cy="employee-survey-table-delete-popconfirm"
+                id="employeeSurveyTableDeletePopconfirm"
               >
                 <Button
                   loading={deleteLoading}
                   className="text-red-100 bg-red-600 border-none"
-                  icon={<MdDelete />}
+                  icon={
+                    <MdDelete data-cy="employee-survey-table-delete-icon" />
+                  }
+                  data-cy="employee-survey-table-delete-button"
+                  id="employeeSurveyTableDeleteButton"
                 ></Button>
               </Popconfirm>
             </Tooltip>
@@ -201,13 +253,37 @@ const EmployeeSurveyTable: React.FC = () => {
     }
   };
   return (
-    <div className="p-6 bg-white rounded-lg">
-      <div className="flex justify-end mb-4">
-        <Button onClick={() => setOpen(true)} type="primary" icon={<HiPlus />}>
-          <span className="text-xs">Add Employee Survey</span>
+    <div
+      className="p-6 bg-white rounded-lg"
+      data-cy="employee-survey-table-page"
+      id="employeeSurveyTablePage"
+    >
+      <div
+        className="flex justify-end mb-4"
+        data-cy="employee-survey-table-actions"
+        id="employeeSurveyTableActions"
+      >
+        <Button
+          onClick={() => setOpen(true)}
+          type="primary"
+          icon={<HiPlus />}
+          data-cy="employee-survey-table-add-button"
+          id="employeeSurveyTableAddButton"
+        >
+          <span
+            className="text-xs"
+            data-cy="employee-survey-table-add-button-text"
+            id="employeeSurveyTableAddButtonText"
+          >
+            Add Employee Survey
+          </span>
         </Button>
       </div>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+      <div
+        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6"
+        data-cy="employee-survey-table-filters"
+        id="employeeSurveyTableFilters"
+      >
         <Select
           showSearch
           placeholder="Search Employee"
@@ -224,6 +300,8 @@ const EmployeeSurveyTable: React.FC = () => {
             label:
               item?.firstName + ' ' + item?.middleName + ' ' + item?.lastName,
           }))}
+          data-cy="employee-survey-table-employee-filter"
+          id="employeeSurveyTableEmployeeFilter"
         />
         <Select
           loading={depLoading}
@@ -237,9 +315,15 @@ const EmployeeSurveyTable: React.FC = () => {
               .toLowerCase()
               .includes(input.toLowerCase())
           }
+          data-cy="employee-survey-table-department-filter"
+          id="employeeSurveyTableDepartmentFilter"
         >
           {departmentData?.map((dept: any) => (
-            <Option key={dept.id} value={dept.id}>
+            <Option
+              key={dept.id}
+              value={dept.id}
+              data-cy={`employee-survey-table-department-option-${dept.id}`}
+            >
               {dept.name}
             </Option>
           ))}
@@ -256,11 +340,17 @@ const EmployeeSurveyTable: React.FC = () => {
               .includes(input.toLowerCase())
           }
           loading={monthsLoading}
+          data-cy="employee-survey-table-month-filter"
+          id="employeeSurveyTableMonthFilter"
         >
           {months?.items
             ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
             ?.map((month: any) => (
-              <Option key={month.id} value={month.id}>
+              <Option
+                key={month.id}
+                value={month.id}
+                data-cy={`employee-survey-table-month-option-${month.id}`}
+              >
                 {month?.session?.name}-{month.name}
               </Option>
             ))}
@@ -273,6 +363,8 @@ const EmployeeSurveyTable: React.FC = () => {
         pagination={false}
         loading={employeeSurveyLoading}
         className="overflow-x-auto"
+        data-cy="employee-survey-table"
+        id="employeeSurveyTable"
       />
       <CustomPagination
         total={employeeSurvey?.meta?.totalItems || 0}
@@ -282,12 +374,18 @@ const EmployeeSurveyTable: React.FC = () => {
         onShowSizeChange={(size) => {
           onPageChange(1, size);
         }}
+        data-cy="employee-survey-table-pagination"
       />
 
-      <EmployeeSurveyDrawer onClose={() => setOpen(false)} open={open} />
+      <EmployeeSurveyDrawer
+        onClose={() => setOpen(false)}
+        open={open}
+        data-cy="employee-survey-drawer"
+      />
       <EmployeeSurveyModal
         onClose={() => setOpenModal(false)}
         open={openModal}
+        data-cy="employee-survey-modal"
       />
     </div>
   );

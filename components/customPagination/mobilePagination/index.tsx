@@ -53,15 +53,25 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   };
 
   return (
-    <div id={id} data-cy={dataCy} className="flex items-center justify-between w-full px-4 py-2">
-      <div className="flex items-center gap-6">
+    <div
+      id={id}
+      data-cy={dataCy}
+      className="flex items-center justify-between w-full px-4 py-2 bg-gray-100"
+    >
+      <div
+        data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
+        className="flex items-center gap-6"
+      >
         <Button
           icon={<LeftOutlined />}
           onClick={handlePrevious}
           disabled={activeCurrentPage === 1}
           className="border-gray-200"
         />
-        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 font-medium">
+        <div
+          data-cy="components-custompagination-mobilepagination-index-tsx-index-div-68"
+          className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 text-gray-500 font-medium"
+        >
           {activeCurrentPage}
         </div>
         <Button
@@ -71,7 +81,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
           className="border-gray-200"
         />
       </div>
-      <div className="text-sm text-gray-600">
+      <div
+        data-cy="components-custompagination-mobilepagination-index-tsx-index-div-78"
+        className="text-sm text-gray-600"
+      >
         {totalResults} Result{totalResults !== 1 && 's'}
       </div>
     </div>

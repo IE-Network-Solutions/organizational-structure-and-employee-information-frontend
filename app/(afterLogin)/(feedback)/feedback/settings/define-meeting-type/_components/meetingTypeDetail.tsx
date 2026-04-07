@@ -111,22 +111,50 @@ const MeetingTypeDetail: React.FC = () => {
   } = useGetMeetingAgendaTemplate(meetingTypeDetailData?.id);
 
   return (
-    <Spin spinning={meetingAgendaTemplateLoading} className="">
-      <div className="bg-white p-4 rounded-lg">
-        <div className="flex gap-2 items-center mb-2">
+    <Spin
+      spinning={meetingAgendaTemplateLoading}
+      className=""
+      data-cy="meeting-type-detail-spin"
+    >
+      <div
+        className="bg-white p-4 rounded-lg"
+        data-cy="meeting-type-detail-container"
+        id="meetingTypeDetailContainer"
+      >
+        <div
+          className="flex gap-2 items-center mb-2"
+          data-cy="meeting-type-detail-header"
+          id="meetingTypeDetailHeader"
+        >
           <MdKeyboardArrowLeft
             className="cursor-pointer text-gray-600"
             onClick={() => handleClose()}
             size={24}
+            data-cy="meeting-type-detail-back-button"
+            id="meetingTypeDetailBackButton"
           />
-          <span className="font-bold text-lg">Detail</span>
+          <span
+            className="font-bold text-lg"
+            data-cy="meeting-type-detail-title"
+            id="meetingTypeDetailTitle"
+          >
+            Detail
+          </span>
         </div>
-        <h2 className="text-lg font-bold mb-4 ml-6">
+        <h2
+          className="text-lg font-bold mb-4 ml-6"
+          data-cy="meeting-type-detail-name"
+          id="meetingTypeDetailName"
+        >
           {meetingTypeDetailData?.name}
         </h2>
         {meetingAgendaTemplate?.items.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+              data-cy="meeting-type-detail-templates-grid"
+              id="meetingTypeDetailTemplatesGrid"
+            >
               {meetingAgendaTemplate?.items.map(
                 (template: any, idx: number) => (
                   <MeetingTemplateCard
@@ -136,18 +164,39 @@ const MeetingTypeDetail: React.FC = () => {
                     onClick={() => handleEdit(template)}
                     onDelete={() => handleDelete(template.id)}
                     loading={deleteMeetingAgendaTemplateLoading}
+                    data-cy="meeting-type-detail-template-card"
                   />
                 ),
               )}
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full">
-            <h2 className="text-lg font-bold mb-4">No templates available</h2>
+          <div
+            className="flex flex-col items-center justify-center h-full"
+            data-cy="meeting-type-detail-empty"
+            id="meetingTypeDetailEmpty"
+          >
+            <h2
+              className="text-lg font-bold mb-4"
+              data-cy="meeting-type-detail-empty-title"
+              id="meetingTypeDetailEmptyTitle"
+            >
+              No templates available
+            </h2>
           </div>
         )}
-        <div className="mt-6 text-center">
-          <Button type="primary" className="w-96 h-10" onClick={handleOpen}>
+        <div
+          className="mt-6 text-center"
+          data-cy="meeting-type-detail-add-button-container"
+          id="meetingTypeDetailAddButtonContainer"
+        >
+          <Button
+            type="primary"
+            className="w-96 h-10"
+            onClick={handleOpen}
+            data-cy="meeting-type-detail-add-button"
+            id="meetingTypeDetailAddButton"
+          >
             Add new Template
           </Button>
         </div>
@@ -161,6 +210,7 @@ const MeetingTypeDetail: React.FC = () => {
             updateMeetingAgendaTemplateLoading
           }
           form={form}
+          data-cy="meeting-type-detail-drawer"
         />
       </div>
     </Spin>

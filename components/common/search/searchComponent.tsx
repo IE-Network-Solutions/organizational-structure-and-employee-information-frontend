@@ -35,18 +35,25 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
     useFilterStore();
 
   return (
-    <div className="flex flex-wrap justify-start w-full">
+    <div
+      className="flex flex-wrap justify-start w-full"
+      data-cy="search-component"
+    >
       {fields.map((field) => {
         const isDateField = field?.type === 'start-end-date';
         const baseWidth = isDateField ? 'w-1/4 md:w-1/2' : 'w-3/4 md:w-1/2';
         const mdWidth = `md:w-${Math.round(field.widthRatio)}/12`;
 
         return (
-          <div key={field.key} className={`${baseWidth} ${mdWidth}`}>
+          <div
+            key={field.key}
+            className={`${baseWidth} ${mdWidth}`}
+            data-cy="search-field"
+          >
             {isDateField ? (
               <>
                 {/* Show modal button on small screens */}
-                <div className="block md:hidden">
+                <div className="block md:hidden" data-cy="search-field-mobile">
                   <Button
                     icon={<LuSettings2 className="text-gray-400 text-xl" />}
                     className="w-full h-14 border border-gray-200"
@@ -61,7 +68,12 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                     className="!rounded-2xl"
                     bodyStyle={{ padding: '1.5rem' }}
                   >
-                    <h2 className="text-lg font-semibold mb-4">Filter</h2>
+                    <h2
+                      data-cy="components-common-search-searchcomponent-tsx-searchcomponent-h2-71"
+                      className="text-lg font-semibold mb-4"
+                    >
+                      Filter
+                    </h2>
                     <RangePicker
                       className="w-full mb-6 h-12"
                       onChange={(dates, dateStrings) => {
@@ -71,7 +83,10 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                         triggerNode.parentElement || document.body
                       }
                     />
-                    <div className="flex justify-center gap-2">
+                    <div
+                      data-cy="components-common-search-searchcomponent-tsx-searchcomponent-div-81"
+                      className="flex justify-center gap-2"
+                    >
                       <Button onClick={() => setModalVisible(false)}>
                         Cancel
                       </Button>
@@ -89,7 +104,10 @@ const EmployeeSearchComponent: React.FC<DynamicSearchProps> = ({
                     </div>
                   </Modal>
                 </div>
-                <div className="hidden md:block pb-2 pl-2">
+                <div
+                  data-cy="components-common-search-searchcomponent-tsx-searchcomponent-div-99"
+                  className="hidden md:block pb-2 pl-2"
+                >
                   <RangePicker
                     onChange={(dates, dateStrings) => {
                       onChange?.({ key: field?.key, value: dateStrings });

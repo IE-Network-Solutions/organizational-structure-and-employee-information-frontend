@@ -14,8 +14,6 @@ RUN npm ci --include=dev
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-ENV DISABLE_PWA=true
-
 # Install tools: Vault CLI, jq, curl, unzip, bash
 RUN apk add --no-cache curl jq bash unzip && \
     curl -sSL -o /tmp/vault.zip https://releases.hashicorp.com/vault/1.14.4/vault_1.14.4_linux_amd64.zip && \
@@ -50,8 +48,8 @@ RUN set -e && \
     echo "Building Next.js app..." && \
     NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
     echo "✅ Build complete" && \
-    cp .env /tmp/.port.env && \
-    echo "✅ Copied .env to /tmp/.port.env"
+    cp .env /tmp/.env && \
+    echo "✅ Copied .env to /tmp/.env"
 
 # =========================
 # Stage 3: Runner
@@ -60,13 +58,11 @@ FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV DISABLE_PWA=true
 ENV HOSTNAME="0.0.0.0"
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs -G nodejs
-
 USER nextjs
 
 # Copy only necessary files for runtime
@@ -74,7 +70,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /tmp/.port.env /app/.port.env
+COPY --from=builder /tmp/.env /app/.env
 
 # Default command: dynamically start app on vault-provided port
-CMD ["/bin/sh", "-c", "export $(cat /app/.port.env | xargs) && echo \"Starting Next.js app on port $PORT\" && npx next start -p $PORT"]
+CMD ["/bin/sh", "-c", "export $(cat /app/.env | xargs) && echo \"Starting Next.js app on port $PORT\" && npx next start -p $PORT"]

@@ -107,7 +107,10 @@ const TnaApprovalTable = () => {
   const CurrencyName = ({ currencyId }: { currencyId: string }) => {
     const { data: tnaSingleCurrency } = useSingleCurrency(currencyId);
     return (
-      <div className="mx-1 text-sm">
+      <div
+        data-cy="my-training-components-approvaltabel-index-tsx-index-div-110"
+        className="mx-1 text-sm"
+      >
         {tnaSingleCurrency ? tnaSingleCurrency?.code : '-'}
       </div>
     );
@@ -115,7 +118,14 @@ const TnaApprovalTable = () => {
   const TnaName = ({ tnaId }: { tnaId: string }) => {
     const { data: tnaCategoryData } = useGetTnaCategory({});
     const tna = tnaCategoryData?.items?.find((tnas: any) => tnas.id === tnaId);
-    return <div className="mx-1 text-sm">{tnaId ? tna?.name : '-'}</div>;
+    return (
+      <div
+        data-cy="my-training-components-approvaltabel-index-tsx-index-div-118"
+        className="mx-1 text-sm"
+      >
+        {tnaId ? tna?.name : '-'}
+      </div>
+    );
   };
 
   const EmpRender = ({ userId }: any) => {
@@ -125,21 +135,41 @@ const TnaApprovalTable = () => {
       isError,
     } = useGetSimpleEmployee(userId);
 
-    if (isLoading) return <div>...</div>;
+    if (isLoading)
+      return (
+        <div data-cy="my-training-components-approvaltabel-index-tsx-index-div-128">
+          ...
+        </div>
+      );
     if (isError) return <>-</>;
 
     return employeeData ? (
-      <div className="flex items-center gap-1.5">
-        <div className="mx-1 text-sm">
+      <div
+        data-cy="my-training-components-approvaltabel-index-tsx-index-div-132"
+        className="flex items-center gap-1.5"
+      >
+        <div
+          data-cy="my-training-components-approvaltabel-index-tsx-index-div-133"
+          className="mx-1 text-sm"
+        >
           {employeeData?.employeeInformation?.employeeAttendanceId}
         </div>
         <Avatar size={24} icon={<UserOutlined />} />
-        <div className="flex-1">
-          <div className="text-xs text-gray-900">
+        <div
+          data-cy="my-training-components-approvaltabel-index-tsx-index-div-137"
+          className="flex-1"
+        >
+          <div
+            data-cy="my-training-components-approvaltabel-index-tsx-index-div-138"
+            className="text-xs text-gray-900"
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
-          <div className="text-[10px] leading-4 text-gray-600">
+          <div
+            data-cy="my-training-components-approvaltabel-index-tsx-index-div-142"
+            className="text-[10px] leading-4 text-gray-600"
+          >
             {employeeData?.email}
           </div>
         </div>
@@ -242,7 +272,10 @@ const TnaApprovalTable = () => {
         type: item?.trainingNeedCategoryId,
         status: item?.status,
         action: (
-          <div className="flex gap-4 ">
+          <div
+            data-cy="my-training-components-approvaltabel-index-tsx-index-div-245"
+            className="flex gap-4 "
+          >
             <Popconfirm
               title="Approve Request"
               description="Are you sure to approve this leave request?"
@@ -267,7 +300,9 @@ const TnaApprovalTable = () => {
               title="Reject Request"
               description={
                 <>
-                  <p>Are you sure you want to reject this leave request?</p>
+                  <p data-cy="my-training-components-approvaltabel-index-tsx-index-p-270">
+                    Are you sure you want to reject this leave request?
+                  </p>
                   <Input
                     placeholder="Add a comment"
                     value={rejectComment}
@@ -342,13 +377,29 @@ const TnaApprovalTable = () => {
     <>
       {currentApproverData?.items?.length > 0 ? (
         <>
-          <div className="flex items-center mb-6">
-            <div className="text-2xl font-bold text-gray-900">
+          <div
+            className="flex items-center mb-6"
+            id="tnaMyTrainingApprovalTableHeaderId"
+            data-cy="tna-my-training-approval-table-header"
+          >
+            <div
+              className="text-2xl font-bold text-gray-900"
+              id="tnaMyTrainingApprovalTableTitleId"
+              data-cy="tna-my-training-approval-table-title"
+            >
               Waiting for my approval
             </div>
           </div>
-          <div className="flex items-center justify-end mb-6">
-            <div className="flex flex-col p-2 bg-gray-100 rounded-lg mb-6 mx-3">
+          <div
+            className="flex items-center justify-end mb-6"
+            id="tnaMyTrainingApprovalTableActionsId"
+            data-cy="tna-my-training-approval-table-actions"
+          >
+            <div
+              className="flex flex-col p-2 bg-gray-100 rounded-lg mb-6 mx-3"
+              id="tnaMyTrainingApprovalTableTotalsId"
+              data-cy="tna-my-training-approval-table-totals"
+            >
               {Object.entries(currencyTotals).map(([currencyId, total]) => {
                 const currencyData = currencyMap[currencyId] || {
                   code: 'Unknown',
@@ -358,12 +409,22 @@ const TnaApprovalTable = () => {
                   <div
                     key={currencyId}
                     className="flex justify-between items-center mb-2"
+                    id={`tnaMyTrainingApprovalTableTotal${currencyId}Id`}
+                    data-cy={`tna-my-training-approval-table-total-${currencyId}`}
                   >
-                    <span className="text-xs font-normal text-gray-700">
+                    <span
+                      className="text-xs font-normal text-gray-700"
+                      data-cy="tna-my-training-approval-table-total-label"
+                      id="tnaMyTrainingApprovalTableTotalLabelId"
+                    >
                       Total TNA Price ({currencyData.code} {currencyData.symbol}
                       ):
                     </span>
-                    <span className="text-xs font-bold text-blue-600">
+                    <span
+                      className="text-xs font-bold text-blue-600"
+                      data-cy="tna-my-training-approval-table-total-value"
+                      id="tnaMyTrainingApprovalTableTotalValueId"
+                    >
                       {' ' + Number(total).toLocaleString()}
                     </span>
                   </div>
@@ -371,7 +432,11 @@ const TnaApprovalTable = () => {
               })}
             </div>
             ;
-            <div className="flex items-center space-x-2 mb-6">
+            <div
+              className="flex items-center space-x-2 mb-6"
+              id="tnaMyTrainingApprovalTableBulkActionsId"
+              data-cy="tna-my-training-approval-table-bulk-actions"
+            >
               <Popconfirm
                 title="All Approve Request"
                 description="Are you sure to approve all leave request?"
@@ -379,9 +444,19 @@ const TnaApprovalTable = () => {
                 onCancel={cancel}
                 okText="Approve All"
                 cancelText="Cancel"
+                id="tnaMyTrainingApprovalTableApproveAllPopconfirmId"
+                data-cy="tna-my-training-approval-table-approve-all-popconfirm"
               >
-                <Button disabled={allApproveIsLoading} type="primary">
-                  <Spin spinning={allApproveIsLoading} />
+                <Button
+                  disabled={allApproveIsLoading}
+                  type="primary"
+                  id="tnaMyTrainingApprovalTableApproveAllButtonId"
+                  data-cy="tna-my-training-approval-table-approve-all-button"
+                >
+                  <Spin
+                    spinning={allApproveIsLoading}
+                    data-cy="tna-my-training-approval-table-approve-all-spin"
+                  />
                   Approve All
                 </Button>
               </Popconfirm>
@@ -392,8 +467,15 @@ const TnaApprovalTable = () => {
                 onCancel={cancel}
                 okText="Reject All"
                 cancelText="Cancel"
+                id="tnaMyTrainingApprovalTableRejectAllPopconfirmId"
+                data-cy="tna-my-training-approval-table-reject-all-popconfirm"
               >
-                <Button disabled={allRejectIsLoading} danger>
+                <Button
+                  disabled={allRejectIsLoading}
+                  danger
+                  id="tnaMyTrainingApprovalTableRejectAllButtonId"
+                  data-cy="tna-my-training-approval-table-reject-all-button"
+                >
                   <Spin spinning={allRejectIsLoading} />
                   Reject All
                 </Button>
@@ -406,6 +488,8 @@ const TnaApprovalTable = () => {
             dataSource={allFilterData}
             pagination={false}
             scroll={{ x: 'min-content' }}
+            id="tnaMyTrainingApprovalTableId"
+            data-cy="tna-my-training-approval-table"
           />
           {isMobile || isTablet ? (
             <CustomMobilePagination
@@ -413,6 +497,7 @@ const TnaApprovalTable = () => {
               pageSize={pageSize}
               onChange={onPageChange}
               onShowSizeChange={onPageChange}
+              data-cy="tna-my-training-approval-table-mobile-pagination"
             />
           ) : (
             <CustomPagination
@@ -421,6 +506,7 @@ const TnaApprovalTable = () => {
               pageSize={pageSize}
               onChange={onPageChange}
               onShowSizeChange={onPageSizeChange}
+              data-cy="tna-my-training-approval-table-pagination"
             />
           )}
         </>

@@ -75,13 +75,16 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
   };
 
   const modalHeader = (
-    <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-      <p>
+    <div
+      className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="create-feedback-modal-header"
+    >
+      <p data-cy="create-feedback-modal-header-title">
         {selectedFeedback === null
           ? `Add New ${activeTabName}`
           : `Edit New ${activeTabName}`}
       </p>
-      <p>{variantType} type</p>
+      <p data-cy="create-feedback-modal-header-subtitle">{variantType} type</p>
     </div>
   );
 
@@ -91,15 +94,30 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
       onClose={onCloseHandler}
       modalHeader={modalHeader}
       footer={
-        <Form.Item>
-          <div className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5">
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
+        <Form.Item
+          data-cy="create-feedback-form-footer"
+          id="createFeedbackFormFooter"
+        >
+          <div
+            className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5"
+            data-cy="create-feedback-form-actions"
+            id="createFeedbackFormActions"
+          >
+            <Button
+              onClick={() => setOpen(false)}
+              data-cy="create-feedback-form-cancel-button"
+              id="createFeedbackFormCancelButton"
+            >
+              Cancel
+            </Button>
 
             {selectedFeedback?.id ? (
               <Button
                 type="primary"
                 loading={feedbackUpdateLoading}
                 onClick={() => form.submit()}
+                data-cy="create-feedback-form-update-button"
+                id="createFeedbackFormUpdateButton"
               >
                 Update
               </Button>
@@ -108,6 +126,8 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
                 loading={createFeedbackLoading}
                 type="primary"
                 onClick={() => form.submit()}
+                data-cy="create-feedback-form-submit-button"
+                id="createFeedbackFormSubmitButton"
               >
                 Submit
               </Button>
@@ -116,19 +136,29 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
         </Form.Item>
       }
       width="30%"
+      data-cy="create-feedback-drawer"
     >
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
         initialValues={{ points: 0 }}
+        data-cy="create-feedback-form"
+        id="createFeedbackForm"
       >
         {/* Appreciation Type Name */}
         {selectedFeedback?.id && <Form.Item name="id" />}
         {/* Appreciation Type Name */}
         <Form.Item
           className={commonClass}
-          label={<div className={commonClass}>Objective</div>}
+          label={
+            <div
+              className={commonClass}
+              data-cy="create-feedback-form-objective-label"
+            >
+              Objective
+            </div>
+          }
           name="name"
           rules={[
             {
@@ -137,13 +167,27 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
             },
             { max: 250, message: 'Name cannot exceed 250 characters.' },
           ]}
+          data-cy="create-feedback-form-objective-field"
+          id="createFeedbackFormObjectiveField"
         >
-          <Input className={commonClass} placeholder="Enter type name" />
+          <Input
+            className={commonClass}
+            placeholder="Enter type name"
+            data-cy="create-feedback-form-objective-input"
+            id="createFeedbackFormObjectiveInput"
+          />
         </Form.Item>
 
         {/* Description */}
         <Form.Item
-          label={<div className={commonClass}>Description</div>}
+          label={
+            <div
+              className={commonClass}
+              data-cy="create-feedback-form-description-label"
+            >
+              Description
+            </div>
+          }
           name="description"
           rules={[
             { required: true, message: 'Please enter a description!' },
@@ -152,11 +196,15 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
               message: 'Description cannot exceed 250 characters.',
             },
           ]}
+          data-cy="create-feedback-form-description-field"
+          id="createFeedbackFormDescriptionField"
         >
           <Input.TextArea
             className={commonClass}
             rows={4}
             placeholder="Enter description"
+            data-cy="create-feedback-form-description-textarea"
+            id="createFeedbackFormDescriptionTextarea"
           />
         </Form.Item>
         <Form.Item
@@ -168,13 +216,22 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
               message: 'Please select a perspective!',
             },
           ]}
+          data-cy="create-feedback-form-perspective-field"
+          id="createFeedbackFormPerspectiveField"
         >
           <Select
             loading={getPerspectiveLoading}
             placeholder="Select a perspective"
+            data-cy="create-feedback-form-perspective-select"
+            id="createFeedbackFormPerspectiveSelect"
           >
             {perspectiveData?.map((perspective: any) => (
-              <Select.Option key={perspective.id} value={perspective.id}>
+              <Select.Option
+                key={perspective.id}
+                value={perspective.id}
+                data-cy={`create-feedback-form-perspective-option-${perspective.id}`}
+                id={`createFeedbackFormPerspectiveOption${perspective.id}`}
+              >
                 {perspective.name}
               </Select.Option>
             ))}
@@ -183,7 +240,14 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
         {/* Weight */}
         <Form.Item
           className={commonClass}
-          label={<div className={commonClass}>Weight</div>}
+          label={
+            <div
+              className={commonClass}
+              data-cy="create-feedback-form-weight-label"
+            >
+              Weight
+            </div>
+          }
           name="points"
           rules={[
             { required: true, message: 'Please enter a weight!' },
@@ -194,11 +258,15 @@ const CreateFeedback: React.FC<DataProps> = ({ form, activeTabName }) => {
               message: 'Weight must be between 0 and 100.',
             },
           ]}
+          data-cy="create-feedback-form-weight-field"
+          id="createFeedbackFormWeightField"
         >
           <InputNumber
             className={commonClass}
             style={{ width: '100%' }}
             placeholder="Enter weight (e.g., 50)"
+            data-cy="create-feedback-form-weight-input"
+            id="createFeedbackFormWeightInput"
           />
         </Form.Item>
       </Form>

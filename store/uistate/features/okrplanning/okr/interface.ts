@@ -37,11 +37,13 @@ export interface KeyResult {
   key_type: string;
   metricTypeId: string;
   metricType?: MetricType;
+  previousMetricTypeId?: string;
   title: string;
   weight: number;
   deadline: any;
   progress?: number;
   initialValue: number;
+  currentValue?: number;
   targetValue: number | string;
   milestones: Milestone[];
   isAISuggestion?: boolean;
@@ -181,4 +183,14 @@ export interface OKRState {
   setFiscalYearId: (fiscalYearId: string) => void;
   sessionIds: string[];
   setSessionIds: (sessionId: string[]) => void;
+  deletedKeyResultIds: string[];
+  setDeletedKeyResultIds: (ids: string[]) => void;
+  deletedMilestoneIds: string[];
+  setDeletedMilestoneIds: (ids: string[]) => void;
+  okrMode: 'Basic' | 'Advanced' | null;
+  setOkrMode: (mode: 'Basic' | 'Advanced' | null) => void;
+  okrModalSelectedMode: 'Basic' | 'Advanced' | null;
+  setOkrModalSelectedMode: (mode: 'Basic' | 'Advanced' | null) => void;
+  okrModalIsSaving: boolean;
+  setOkrModalIsSaving: (isSaving: boolean) => void;
 }

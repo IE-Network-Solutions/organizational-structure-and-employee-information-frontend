@@ -40,15 +40,24 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   const { isMobile } = useIsMobile();
 
   return (
-    <div className="min-h-screen h-auto w-full bg-white p-4">
+    <div
+      className="min-h-screen h-auto w-full bg-white p-4"
+      data-cy="tab-landing-layout"
+    >
       <BlockWrapper className="bg-white ">
-        <div className="flex flex-wrap justify-between items-center">
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48"
+          className="flex flex-wrap justify-between items-center"
+        >
           <CustomBreadcrumb
             title={title}
             subtitle={subtitle ?? ''}
             isRecognition={true}
           />
-          <div className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8">
+          <div
+            data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-54"
+            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+          >
             {!buttonDisabled
               ? buttonTitle && (
                   <AccessGuard permissions={permissionsData}>
@@ -93,7 +102,10 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                         icon={buttonIcon ?? <FaPlus />}
                         className={`h-14 px-6 py-6 rounded-lg flex justify-start items-center gap-2 text-xs bg-blue-600 hover:bg-blue-700`}
                       >
-                        <div className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight">
+                        <div
+                          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-99"
+                          className="text-center text-base font-bold font-['Manrope'] leading-normal tracking-tight"
+                        >
                           {buttonTitle}
                         </div>
                       </Button>
@@ -114,7 +126,12 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
             )} */}
           </div>
         </div>
-        <div className="w-full h-auto">{children}</div>
+        <div
+          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
+          className="w-full h-auto"
+        >
+          {children}
+        </div>
       </BlockWrapper>
     </div>
   );

@@ -19,13 +19,14 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { FaPlus } from 'react-icons/fa';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import AddApprover from '../addApprover';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import EditWorkFLow from '../editWorkFLow';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
 import { IoMdSwap } from 'react-icons/io';
+import WorkflowModal from '../workflowModal';
 
 const ApprovalListTable = () => {
   const { data: employeeData, isLoading: isEmployeeDataLoading } =
@@ -52,7 +53,10 @@ const ApprovalListTable = () => {
     setWorkflowApplies,
     setApproverType,
     selectedItem,
+    setDepartmentApproval,
+    approverType,
   } = useApprovalStore();
+  const [workflowModal, setWorkflowModal] = useState(false);
   const { searchParams } = useApprovalStore();
   const { data: allFilterData, isLoading: isEmployeeLoading } =
     useApprovalFilter(
@@ -123,6 +127,18 @@ const ApprovalListTable = () => {
     }
   }, [allFilterData?.items, selectedItem]);
 
+  useEffect(() => {
+    if (transferModal) {
+      form.resetFields();
+      if (deletedItem) {
+        form.setFieldsValue({
+          currentWorkFlow: deletedItem,
+          workflow: undefined,
+        });
+      }
+    }
+  }, [transferModal, deletedItem, form]);
+
   const data =
     !isDataLoading && allFilterData?.items
       ? allFilterData.items.map((item: any, index: number) => {
@@ -162,6 +178,8 @@ const ApprovalListTable = () => {
                   overflow: 'hidden',
                   overflowY: 'scroll',
                 }}
+                id={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
+                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
               >
                 {[...(item?.approvers ?? [])]
                   .sort((a, b) => a.stepOrder - b.stepOrder)
@@ -191,15 +209,27 @@ const ApprovalListTable = () => {
                       <Tooltip
                         key={empIndex}
                         title={
-                          <div>
+                          <div
+                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip`}
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip`}
+                          >
                             {fullName}
-                            <br />
+                            <br data-cy="approvals-component-approvallisttable-index-tsx-index-br-217" />
                             {email}
                           </div>
                         }
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-tooltip-wrapper`}
                       >
-                        <div className="flex items-center flex-wrap sm:flex-row gap-2">
-                          <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                        <div
+                          className="flex items-center flex-wrap sm:flex-row gap-2"
+                          id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
+                        >
+                          <div
+                            className="relative w-6 h-6 rounded-full overflow-hidden"
+                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
+                          >
                             <Image
                               src={
                                 employeeInfo?.profileImage &&
@@ -226,11 +256,25 @@ const ApprovalListTable = () => {
                               alt="Description of image"
                               layout="fill"
                               className="object-cover"
+                              data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar`}
                             />
                           </div>
-                          <div className="flex flex-wrap flex-col justify-center">
-                            <p>{displayName}</p>
-                            <p className="font-extralight text-[12px]">
+                          <div
+                            className="flex flex-wrap flex-col justify-center"
+                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
+                          >
+                            <p
+                              id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
+                              data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
+                            >
+                              {displayName}
+                            </p>
+                            <p
+                              className="font-extralight text-[12px]"
+                              id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-email`}
+                              data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-email`}
+                            >
                               {displayEmail}
                             </p>
                           </div>
@@ -252,11 +296,22 @@ const ApprovalListTable = () => {
                 : item?.approvers?.length
               : '-',
             action: (
-              <div className="flex gap-4 text-white">
-                <AccessGuard permissions={[Permissions.CreateApprover]}>
-                  <Tooltip title={'Add Approver'}>
+              <div
+                className="flex gap-4 text-white"
+                id={`time-attendance-settings-approvals-table-row-${index}-actions-container`}
+                data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-container`}
+              >
+                <AccessGuard
+                  permissions={[Permissions.CreateApprover]}
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-access-guard`}
+                >
+                  <Tooltip
+                    title={'Add Approver'}
+                    data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-tooltip`}
+                  >
                     <Button
-                      id={`editUserButton${item?.id}`}
+                      id={`time-attendance-settings-approvals-table-row-${index}-add-approver-button`}
+                      data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-button`}
                       className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none "
                       onClick={() => {
                         setAddModal(true);
@@ -269,14 +324,23 @@ const ApprovalListTable = () => {
                         );
                       }}
                     >
-                      <FaPlus />
+                      <FaPlus
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-button-icon`}
+                      />
                     </Button>
                   </Tooltip>
                 </AccessGuard>
-                <AccessGuard permissions={[Permissions.UpdateApprover]}>
-                  <Tooltip title={'Edit Approver'}>
+                <AccessGuard
+                  permissions={[Permissions.UpdateApprover]}
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-access-guard`}
+                >
+                  <Tooltip
+                    title={'Edit Approver'}
+                    data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-tooltip`}
+                  >
                     <Button
                       id={`editUserButton${item?.id}`}
+                      data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-button-id`}
                       className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none "
                       onClick={() => {
                         setEditModal(true);
@@ -294,21 +358,32 @@ const ApprovalListTable = () => {
                         );
                       }}
                     >
-                      <FaPencil />
+                      <FaPencil
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-button-icon`}
+                      />
                     </Button>
                   </Tooltip>
                 </AccessGuard>
-                <AccessGuard permissions={[Permissions.DeleteApprover]}>
-                  <Tooltip title={'Delete Employee'}>
+                <AccessGuard
+                  permissions={[Permissions.DeleteApprover]}
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-access-guard`}
+                >
+                  <Tooltip
+                    title={'Delete Employee'}
+                    data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-tooltip`}
+                  >
                     <Button
                       id={`deleteUserButton${item?.id}`}
+                      data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-button-id`}
                       className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none "
                       onClick={() => {
                         setDeleteModal(true);
                         setDeletedItem(item?.id);
                       }}
                     >
-                      <RiDeleteBin6Line />
+                      <RiDeleteBin6Line
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-button-icon`}
+                      />
                     </Button>
                   </Tooltip>
                 </AccessGuard>
@@ -336,33 +411,86 @@ const ApprovalListTable = () => {
     }
   };
 
+  const onChange = (value: string) => {
+    setApproverType(value);
+    if (approverType) {
+      setDepartmentApproval(true);
+    }
+  };
+
+  const handleCreateNewWorkflow = () => {
+    // Find the current workflow from allFilterData
+    const currentWorkflow = allFilterData?.items?.find(
+      (item: any) => item.id === deletedItem,
+    );
+
+    // Set the workflowApplies type from the current workflow
+    if (currentWorkflow?.entityType) {
+      setWorkflowApplies(currentWorkflow.entityType);
+    }
+
+    setWorkflowModal(true);
+  };
+
+  const handleWorkflowModalCancel = () => {
+    setWorkflowModal(false);
+    setApproverType(null);
+    setDepartmentApproval(false);
+  };
+
+  const handleTransferModalCancel = () => {
+    setTransferModal(false);
+    form.resetFields();
+    setApproverType(null);
+    setDepartmentApproval(false);
+  };
+
   return (
-    <div className="mt-2">
+    <div
+      className="mt-2"
+      id="time-attendance-settings-approvals-table-wrapper"
+      data-cy="time-attendance-settings-approvals-table-wrapper"
+    >
       <DeleteModal
         loading={deleteLoading}
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
+        data-cy="time-attendance-settings-approvals-table-delete-modal"
       />
-      {editModal && <EditWorkFLow />}
-      {addModal && <AddApprover />}
+      {editModal && (
+        <EditWorkFLow data-cy="time-attendance-settings-approvals-table-edit-workflow" />
+      )}
+      {addModal && (
+        <AddApprover data-cy="time-attendance-settings-approvals-table-add-approver" />
+      )}
       <ApproverListTable
         data={isDataLoading ? [] : data}
         isEmployeeLoading={isDataLoading}
         allFilterData={allFilterData}
         onPageChange={onPageChange}
         pageSize={pageSize}
+        data-cy="time-attendance-settings-approvals-table-list"
       />
 
       <Modal
         title={
-          <p className={`${commonClass}`}>
-            Should be Transfer to Another WorkFlow
+          <p
+            className={`${commonClass} text-xl font-semibold`}
+            id="time-attendance-settings-approvals-table-transfer-modal-title"
+            data-cy="time-attendance-settings-approvals-table-transfer-modal-title"
+          >
+            In order to remove this workflow you have to transfer this workflow
+            to another workflow
           </p>
         }
         open={transferModal}
-        onCancel={() => setTransferModal(false)}
+        onCancel={handleTransferModalCancel}
         footer={null}
+        data-cy="time-attendance-settings-approvals-table-transfer-modal"
+        centered
+        className="p-5"
+        width={930}
       >
         <Form
           form={form}
@@ -371,68 +499,147 @@ const ApprovalListTable = () => {
           initialValues={{
             currentWorkFlow: deletedItem,
           }}
+          id="time-attendance-settings-approvals-table-transfer-modal-form"
+          data-cy="time-attendance-settings-approvals-table-transfer-modal-form"
         >
-          <div className="flex items-center gap-4">
+          <div
+            className="flex flex-col md:flex-row md:justify-between gap-4"
+            id="time-attendance-settings-approvals-table-transfer-modal-form-fields"
+            data-cy="time-attendance-settings-approvals-table-transfer-modal-form-fields"
+          >
             <Form.Item
-              label={<span className={`${commonClass}`}>Current Workflow</span>}
+              label={
+                <span
+                  data-cy="approvals-component-approvallisttable-index-tsx-index-span-511"
+                  className={`${commonClass}`}
+                >
+                  Current Workflow
+                </span>
+              }
               name="currentWorkFlow"
               rules={[{ required: true, message: 'Please enter a value!' }]}
+              id="time-attendance-settings-approvals-table-transfer-modal-current-workflow"
+              data-cy="time-attendance-settings-approvals-table-transfer-modal-current-workflow"
+              className="w-full"
             >
               <Select
+                className="h-10"
                 disabled
                 placeholder="Select Workflow"
-                style={{ width: '200px' }}
-                options={approvalWorkflowData?.items?.map((item) => ({
-                  label: item.name,
-                  value: item.id, // ✅ Use `value` instead of `id`
-                }))}
+                options={approvalWorkflowData?.items
+                  ?.filter(
+                    (item: any) => item.approvalType === APPROVALTYPES.LEAVE,
+                  )
+                  ?.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
+                id="time-attendance-settings-approvals-table-transfer-modal-current-workflow-select"
+                data-cy="time-attendance-settings-approvals-table-transfer-modal-current-workflow-select"
               />
             </Form.Item>
 
-            <div className="flex justify-center items-center text-2xl">
-              <IoMdSwap />
+            <div
+              className="flex justify-center items-center text-2xl"
+              id="time-attendance-settings-approvals-table-transfer-modal-swap-icon-container"
+              data-cy="time-attendance-settings-approvals-table-transfer-modal-swap-icon-container"
+            >
+              <IoMdSwap data-cy="time-attendance-settings-approvals-table-transfer-modal-swap-icon" />
             </div>
 
             <Form.Item
-              label={<span className={`${commonClass}`}>Select Workflow</span>}
+              label={
+                <span
+                  data-cy="approvals-component-approvallisttable-index-tsx-index-span-544"
+                  className={`${commonClass}`}
+                >
+                  Select Workflow
+                </span>
+              }
               name="workflow"
               rules={[{ required: true, message: 'Please select a workflow!' }]}
+              id="time-attendance-settings-approvals-table-transfer-modal-workflow"
+              data-cy="time-attendance-settings-approvals-table-transfer-modal-workflow"
+              className="w-full"
             >
               <Select
+                className="h-10"
                 placeholder="Select Workflow"
                 allowClear
-                style={{ width: '200px' }}
-                options={approvalWorkflowData?.items?.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                }))}
+                showSearch
+                optionFilterProp="label"
+                options={approvalWorkflowData?.items
+                  ?.filter(
+                    (item: any) => item.approvalType === APPROVALTYPES.LEAVE,
+                  )
+                  ?.map((item: any) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
+                id="time-attendance-settings-approvals-table-transfer-modal-workflow-select"
+                data-cy="time-attendance-settings-approvals-table-transfer-modal-workflow-select"
               />
             </Form.Item>
           </div>
 
           {/* Action Buttons */}
-          <Form.Item>
-            <div className="flex justify-end space-x-8">
-              <Button
-                loading={updateLoading}
-                className="text-sm"
-                type="primary"
-                htmlType="submit"
+          <Form.Item
+            id="time-attendance-settings-approvals-table-transfer-modal-actions"
+            data-cy="time-attendance-settings-approvals-table-transfer-modal-actions"
+          >
+            <div
+              className="flex flex-col md:flex-row md:justify-between gap-4 mt-4"
+              id="time-attendance-settings-approvals-table-transfer-modal-buttons"
+              data-cy="time-attendance-settings-approvals-table-transfer-modal-buttons"
+            >
+              <div
+                data-cy="time-attendance-settings-approvals-table-transfer-modal-create-button-container"
+                id="time-attendance-settings-approvals-table-transfer-modal-create-button-container"
               >
-                Transfer
-              </Button>
-              <Button
-                className={`${commonClass}`}
-                type="dashed"
-                danger
-                htmlType="reset"
+                <Button
+                  data-cy="time-attendance-settings-approvals-table-transfer-modal-create-button"
+                  id="time-attendance-settings-approvals-table-transfer-modal-create-button"
+                  className="text-sm px-10 h-10"
+                  type="primary"
+                  onClick={handleCreateNewWorkflow}
+                >
+                  Create New
+                </Button>
+              </div>
+              <div
+                data-cy="approvals-component-approvallisttable-index-tsx-index-div-595"
+                className="sm:space-x-8 space-x-2"
               >
-                Reset
-              </Button>
+                <Button
+                  className={`${commonClass} px-10 h-10`}
+                  type="default"
+                  htmlType="reset"
+                  id="time-attendance-settings-approvals-table-transfer-modal-reset-button"
+                  data-cy="time-attendance-settings-approvals-table-transfer-modal-reset-button"
+                >
+                  Reset
+                </Button>
+                <Button
+                  loading={updateLoading}
+                  className="text-sm px-10 h-10"
+                  type="primary"
+                  htmlType="submit"
+                  id="time-attendance-settings-approvals-table-transfer-modal-transfer-button"
+                  data-cy="time-attendance-settings-approvals-table-transfer-modal-transfer-button"
+                >
+                  Transfer
+                </Button>
+              </div>
             </div>
           </Form.Item>
         </Form>
       </Modal>
+      <WorkflowModal
+        open={workflowModal}
+        onCancel={handleWorkflowModalCancel}
+        onChange={onChange}
+        currentWorkFlow={deletedItem}
+      />
     </div>
   );
 };

@@ -195,7 +195,11 @@ const AllAllowanceTable = ({ searchQuery }: { searchQuery: string }) => {
       id="compensation-allowance-all-table-container"
       data-cy="compensation-allowance-all-table-container"
     >
-      <Spin data-cy="compensation-allowance-all-table-loading" spinning={isLoading} data-testid="allowance-table-loading">
+      <Spin
+        data-cy="compensation-allowance-all-table-loading"
+        spinning={isLoading}
+        data-testid="allowance-table-loading"
+      >
         <div
           className="overflow-x-auto"
           id="compensation-allowance-all-table-scroll"

@@ -39,17 +39,36 @@ const CustomFieldsSelector: React.FC = () => {
 
   if (isCustomFieldLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <Spin size="large" />
+      <div
+        className="flex justify-center items-center h-64"
+        data-cy="talent-acquisition-create-application-form-custom-field-loading"
+      >
+        <Spin
+          size="large"
+          data-cy="talent-acquisition-create-application-form-custom-field-spin"
+        />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-start gap-1">
-        <span className="text-md font-medium">Choose your Custom field</span>
-        <span className="text-red-500">*</span>
+    <div data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-div-55">
+      <div
+        data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-div-56"
+        className="flex items-center justify-start gap-1"
+      >
+        <span
+          className="text-md font-medium"
+          data-cy="talent-acquisition-create-application-form-custom-field-label"
+        >
+          Choose your Custom field
+        </span>
+        <span
+          data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-span-63"
+          className="text-red-500"
+        >
+          *
+        </span>
       </div>
       <Collapse defaultActiveKey={['1']}>
         <Collapse.Panel
@@ -74,7 +93,10 @@ const CustomFieldsSelector: React.FC = () => {
                   <Collapse key={question?.id}>
                     <Collapse.Panel
                       header={
-                        <div className="flex items-center">
+                        <div
+                          data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-div-88"
+                          className="flex items-center"
+                        >
                           <Checkbox
                             id={`talent-acquisition-create-application-form-checkbox-question-${question?.id}`}
                             data-cy={`talent-acquisition-create-application-form-checkbox-question-${question?.id}`}
@@ -156,7 +178,10 @@ const CustomFieldsSelector: React.FC = () => {
                 </div>
               ))
             ) : (
-              <div className="text-center my-5">
+              <div
+                data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-div-170"
+                className="text-center my-5"
+              >
                 No custom fields available.
               </div>
             )}

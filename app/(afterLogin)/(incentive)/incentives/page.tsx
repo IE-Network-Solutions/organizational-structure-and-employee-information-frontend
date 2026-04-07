@@ -80,9 +80,16 @@ const Page = () => {
     : [
         {
           key: '1',
-          label: <span className="font-semibold text-md p-3">All</span>,
+          label: (
+            <span
+              className="font-semibold text-md p-3"
+              data-cy="incentives-page-all-label"
+            >
+              All
+            </span>
+          ),
           children: (
-            <div className="mx-3">
+            <div className="mx-3" data-cy="incentives-page-all-children">
               {isPayrollView ? (
                 <PayRoleView operationSlot={''} />
               ) : (
@@ -94,10 +101,18 @@ const Page = () => {
         ...(parentRecognition ?? []).map((item: any) => ({
           key: item?.id,
           label: (
-            <span className="font-semibold text-md p-3">{item?.name}</span>
+            <span
+              className="font-semibold text-md p-3"
+              data-cy={`incentives-page-label-${item?.id}`}
+            >
+              {item?.name}
+            </span>
           ),
           children: (
-            <div className="mx-3">
+            <div
+              className="mx-3"
+              data-cy={`incentives-page-children-${item?.id}`}
+            >
               <DynamicIncentive parentRecognitionId={item?.id} />
             </div>
           ),
@@ -109,16 +124,33 @@ const Page = () => {
   const OperationsSlot = useMemo(() => {
     if (activeKey === '1') {
       return (
-        <div id="incentives-page-operations-slot-all" data-cy="incentives-page-operations-slot-all" className="flex items-center justify-center gap-3">
+        <div
+          id="incentives-page-operations-slot-all"
+          data-cy="incentives-page-operations-slot-all"
+          className="flex items-center justify-center gap-3"
+        >
           <CustomButton
             data-cy="incentives-page-send-to-payroll-button"
             title={
               !(isMobile || isTablet) && (
-                <span id="incentives-page-send-to-payroll-text" data-cy="incentives-page-send-to-payroll-text" className="hidden sm:inline">Send to Payroll</span>
+                <span
+                  id="incentives-page-send-to-payroll-text"
+                  data-cy="incentives-page-send-to-payroll-text"
+                  className="hidden sm:inline"
+                >
+                  Send to Payroll
+                </span>
               )
             }
             id="createUserButton"
-            icon={<MdOutlineSend className="md:mr-0 ml-2" size={18} id="incentives-page-send-to-payroll-icon" data-cy="incentives-page-send-to-payroll-icon" />}
+            icon={
+              <MdOutlineSend
+                className="md:mr-0 ml-2"
+                size={18}
+                id="incentives-page-send-to-payroll-icon"
+                data-cy="incentives-page-send-to-payroll-icon"
+              />
+            }
             onClick={() => handleSendToPayrollClick()}
             textClassName="!text-sm !font-lg"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -129,11 +161,24 @@ const Page = () => {
               data-cy="incentives-page-generate-button"
               title={
                 !(isMobile || isTablet) && (
-                  <span id="incentives-page-generate-text" data-cy="incentives-page-generate-text" className="hidden sm:inline">Generate</span>
+                  <span
+                    id="incentives-page-generate-text"
+                    data-cy="incentives-page-generate-text"
+                    className="hidden sm:inline"
+                  >
+                    Generate
+                  </span>
                 )
               }
               id="createUserButton"
-              icon={<FileDown className="md:mr-0 ml-2" size={18} id="incentives-page-generate-icon" data-cy="incentives-page-generate-icon" />}
+              icon={
+                <FileDown
+                  className="md:mr-0 ml-2"
+                  size={18}
+                  id="incentives-page-generate-icon"
+                  data-cy="incentives-page-generate-icon"
+                />
+              }
               onClick={() => setShowGenerateModal(!showGenerateModal)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -143,11 +188,24 @@ const Page = () => {
               data-cy="incentives-page-export-button"
               title={
                 !(isMobile || isTablet) && (
-                  <span id="incentives-page-export-text" data-cy="incentives-page-export-text" className="hidden sm:inline">Export</span>
+                  <span
+                    id="incentives-page-export-text"
+                    data-cy="incentives-page-export-text"
+                    className="hidden sm:inline"
+                  >
+                    Export
+                  </span>
                 )
               }
               id="createUserButton"
-              icon={<FileDown className="md:mr-0 ml-2" size={18} id="incentives-page-export-icon" data-cy="incentives-page-export-icon" />}
+              icon={
+                <FileDown
+                  className="md:mr-0 ml-2"
+                  size={18}
+                  id="incentives-page-export-icon"
+                  data-cy="incentives-page-export-icon"
+                />
+              }
               onClick={() => handleExport(searchParams, true)}
               textClassName="!text-sm !font-lg"
               className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -160,13 +218,24 @@ const Page = () => {
             data-cy="incentives-page-view-toggle-button"
             title={
               !(isMobile || isTablet) && (
-                <span id="incentives-page-view-toggle-text" data-cy="incentives-page-view-toggle-text" className="hidden sm:inline">
+                <span
+                  id="incentives-page-view-toggle-text"
+                  data-cy="incentives-page-view-toggle-text"
+                  className="hidden sm:inline"
+                >
                   {isPayrollView ? 'Session View' : 'Payroll View'}
                 </span>
               )
             }
             id="createUserButton"
-            icon={<Eye className="md:mr-0 ml-2" size={18} id="incentives-page-view-toggle-icon" data-cy="incentives-page-view-toggle-icon" />}
+            icon={
+              <Eye
+                className="md:mr-0 ml-2"
+                size={18}
+                id="incentives-page-view-toggle-icon"
+                data-cy="incentives-page-view-toggle-icon"
+              />
+            }
             onClick={() => setIsPayrollView(!isPayrollView)}
             textClassName="!text-sm !font-lg"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -176,16 +245,33 @@ const Page = () => {
     } else {
       // Show Import & Generate for all other tabs
       return (
-        <div id="incentives-page-operations-slot-other" data-cy="incentives-page-operations-slot-other" className="flex items-center justify-center gap-3">
+        <div
+          id="incentives-page-operations-slot-other"
+          data-cy="incentives-page-operations-slot-other"
+          className="flex items-center justify-center gap-3"
+        >
           <CustomButton
             data-cy="incentives-page-send-to-payroll-button-other"
             title={
               !(isMobile || isTablet) && (
-                <span id="incentives-page-send-to-payroll-text-other" data-cy="incentives-page-send-to-payroll-text-other" className="hidden sm:inline">Send to Payroll</span>
+                <span
+                  id="incentives-page-send-to-payroll-text-other"
+                  data-cy="incentives-page-send-to-payroll-text-other"
+                  className="hidden sm:inline"
+                >
+                  Send to Payroll
+                </span>
               )
             }
             id="createUserButton"
-            icon={<MdOutlineSend className="md:mr-0 ml-2" size={18} id="incentives-page-send-to-payroll-icon-other" data-cy="incentives-page-send-to-payroll-icon-other" />}
+            icon={
+              <MdOutlineSend
+                className="md:mr-0 ml-2"
+                size={18}
+                id="incentives-page-send-to-payroll-icon-other"
+                data-cy="incentives-page-send-to-payroll-icon-other"
+              />
+            }
             onClick={() => handleSendToPayrollClick()}
             textClassName="!text-sm !font-lg"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -195,11 +281,24 @@ const Page = () => {
             data-cy="incentives-page-export-button-other"
             title={
               !(isMobile || isTablet) && (
-                <span id="incentives-page-export-text-other" data-cy="incentives-page-export-text-other" className="hidden sm:inline">Export</span>
+                <span
+                  id="incentives-page-export-text-other"
+                  data-cy="incentives-page-export-text-other"
+                  className="hidden sm:inline"
+                >
+                  Export
+                </span>
               )
             }
             id="createUserButton"
-            icon={<FileUp className="md:mr-0 ml-2" size={18} id="incentives-page-export-icon-other" data-cy="incentives-page-export-icon-other" />}
+            icon={
+              <FileUp
+                className="md:mr-0 ml-2"
+                size={18}
+                id="incentives-page-export-icon-other"
+                data-cy="incentives-page-export-icon-other"
+              />
+            }
             onClick={() => handleExport(searchParams, false)}
             textClassName="!text-sm !font-lg"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -209,11 +308,24 @@ const Page = () => {
             data-cy="incentives-page-import-button"
             title={
               !(isMobile || isTablet) && (
-                <span id="incentives-page-import-text" data-cy="incentives-page-import-text" className="hidden sm:inline">Import Data</span>
+                <span
+                  id="incentives-page-import-text"
+                  data-cy="incentives-page-import-text"
+                  className="hidden sm:inline"
+                >
+                  Import Data
+                </span>
               )
             }
             id="createUserButton"
-            icon={<FileDown className="md:mr-0 ml-2" size={18} id="incentives-page-import-icon" data-cy="incentives-page-import-icon" />}
+            icon={
+              <FileDown
+                className="md:mr-0 ml-2"
+                size={18}
+                id="incentives-page-import-icon"
+                data-cy="incentives-page-import-icon"
+              />
+            }
             onClick={() => setProjectDrawer(true)}
             textClassName="!text-sm !font-lg"
             className="bg-blue-600 hover:bg-blue-700 w-8 sm:w-auto !h-6 !py-4 sm:h-6 sm:px-5 px-4 "
@@ -252,8 +364,15 @@ const Page = () => {
   };
 
   return (
-    <div id="incentives-page-container" data-cy="incentives-page-container" className="!pt-12 sm:pt-2 !mt:5 sm:m-1 ">
-      <div id="incentives-page-payroll-view-wrapper" data-cy="incentives-page-payroll-view-wrapper">
+    <div
+      id="incentives-page-container"
+      data-cy="incentives-page-container"
+      className="!pt-12 sm:pt-2 !mt:5 sm:m-1 "
+    >
+      <div
+        id="incentives-page-payroll-view-wrapper"
+        data-cy="incentives-page-payroll-view-wrapper"
+      >
         {isPayrollView && <PayRoleView operationSlot={OperationsSlot} />}
       </div>
 
@@ -278,7 +397,10 @@ const Page = () => {
           {/* )} */}
         </>
       )}
-      <ExportModal data-cy="incentives-page-export-modal" selectedRecognition={selectedRecognition?.id} />
+      <ExportModal
+        data-cy="incentives-page-export-modal"
+        selectedRecognition={selectedRecognition?.id}
+      />
 
       <ConfirmModal
         data-cy="incentives-page-confirm-modal"

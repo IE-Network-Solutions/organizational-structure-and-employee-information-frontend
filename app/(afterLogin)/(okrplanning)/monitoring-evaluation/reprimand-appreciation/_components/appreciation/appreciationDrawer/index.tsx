@@ -27,7 +27,10 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
   const { data: appTypes } = useGetAppreciationType();
 
   const renderEmployeeOption = (option: any) => (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
+    <div
+      style={{ display: 'flex', alignItems: 'center' }}
+      data-cy={`appreciation-drawer-employee-option-${option.id}`}
+    >
       <Avatar size={20} icon={<UserOutlined />} />
       {option.firstName}
     </div>
@@ -36,11 +39,18 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
   const customTagRender = (props: any) => {
     const { label, closable, onClose } = props;
     return (
-      <div className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1">
+      <div
+        className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1"
+        data-cy="appreciation-drawer-tag-container"
+      >
         <Avatar size={20} icon={<UserOutlined />} />
-        <span>{label}</span>
+        <span data-cy="appreciation-drawer-tag-label">{label}</span>
         {closable && (
-          <span onClick={onClose} className="text-black text-xs">
+          <span
+            onClick={onClose}
+            className="text-black text-xs"
+            data-cy="appreciation-drawer-tag-close"
+          >
             ✖
           </span>
         )}
@@ -77,13 +87,19 @@ const AppreciationDrawer: React.FC<AppDrawerProps> = ({
   };
 
   const modalHeader = (
-    <div className="flex justify-center text-xl font-extrabold text-gray-800 p-4">
+    <div
+      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
+      data-cy="appreciation-drawer-modal-header"
+    >
       Appreciate
     </div>
   );
 
   const footer = (
-    <div className="w-full flex justify-center items-center gap-4 pt-8">
+    <div
+      className="w-full flex justify-center items-center gap-4 pt-8"
+      data-cy="appreciation-drawer-footer"
+    >
       <CustomButton
         type="default"
         title="Cancel"

@@ -133,7 +133,7 @@ const MettingDataTable = ({
       title: 'Attendees',
       dataIndex: 'userId',
       render: (notused, record) => (
-        <div>
+        <div data-cy={`meeting-table-attendees-${record.id}`}>
           {record.userId
             ?.map((id: string) => getEmployeeData(id)?.firstName)
             .join(', ') ?? '-'}
@@ -146,13 +146,17 @@ const MettingDataTable = ({
       dataIndex: 'action',
       width: 100,
       render: (notused, record) => (
-        <div className="flex space-x-2">
+        <div
+          className="flex space-x-2"
+          data-cy={`meeting-table-action-${record.id}`}
+        >
           <Button
             type="primary"
             onClick={(e) => {
               e.stopPropagation();
               handleEdit(record.id);
             }}
+            data-cy={`meeting-table-edit-button-${record.id}`}
           >
             Edit
           </Button>
@@ -165,8 +169,14 @@ const MettingDataTable = ({
             }}
             okText="Yes"
             cancelText="No"
+            data-cy={`meeting-table-delete-popconfirm-${record.id}`}
           >
-            <Button type="primary" danger onClick={(e) => e.stopPropagation()}>
+            <Button
+              type="primary"
+              danger
+              onClick={(e) => e.stopPropagation()}
+              data-cy={`meeting-table-delete-button-${record.id}`}
+            >
               Delete
             </Button>
           </Popconfirm>
@@ -249,7 +259,7 @@ const MettingDataTable = ({
     router.push(`/feedback/conversation/${conversationTypeId}/${record.id}`);
   };
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto" data-cy="meeting-table-container">
       <EmployeeSearchComponent
         fields={searchField}
         onChange={handleSearchChange}
@@ -283,6 +293,7 @@ const MettingDataTable = ({
         }}
         modalHeader={'Edit Conversation Instance'}
         width="40%"
+        data-cy="meeting-table-edit-drawer"
       >
         <Form
           form={form}
@@ -292,6 +303,7 @@ const MettingDataTable = ({
           onFinish={handleEditConversationResponse}
           style={{ maxWidth: '100%' }}
           className="text-black"
+          data-cy="meeting-table-edit-form"
         >
           <ConversationInstanceForm
             initialValues={singleConvestionInstance}

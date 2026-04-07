@@ -1,34 +1,56 @@
-import { Button, Dropdown, Menu, Popconfirm } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { Button, Dropdown, MenuProps, Popconfirm } from 'antd';
+import { MoreOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+
 const CommentActionMenu = ({
   onEdit,
   onDelete,
+  showEdit = true,
 }: {
-  onEdit: any;
-  onDelete: any;
+  onEdit: () => void;
+  onDelete: () => void;
+  /** Report comments have no backend PATCH endpoint; hide Edit when false */
+  showEdit?: boolean;
 }) => {
-  const menu = (
-    <Menu>
-      <Menu.Item key="edit" onClick={onEdit}>
-        Edit
-      </Menu.Item>
-
-      <Menu.Item key="delete">
+  const items: MenuProps['items'] = [
+    ...(showEdit
+      ? [
+          {
+            key: 'edit',
+            label: 'Edit',
+            icon: <EditOutlined />,
+            onClick: onEdit,
+          },
+        ]
+      : []),
+    {
+      key: 'delete',
+      label: (
         <Popconfirm
           title="Are you sure you want to delete this comment?"
           onConfirm={onDelete}
           okText="Yes"
           cancelText="No"
         >
-          Delete
+          <span
+            data-cy="-components-comments-commentactionmenu-index-tsx-index-span-27"
+            className="w-full inline-block"
+          >
+            Delete
+          </span>
         </Popconfirm>
-      </Menu.Item>
-    </Menu>
-  );
+      ),
+      icon: <DeleteOutlined />,
+      danger: true,
+    },
+  ];
 
   return (
-    <Dropdown overlay={menu} trigger={['click']}>
-      <Button type="text" icon={<MoreOutlined />} />
+    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+      <Button
+        type="text"
+        icon={<MoreOutlined style={{ fontSize: '18px' }} />}
+        className="text-gray-400 hover:text-gray-600 flex items-center justify-center !w-8 !h-8"
+      />
     </Dropdown>
   );
 };

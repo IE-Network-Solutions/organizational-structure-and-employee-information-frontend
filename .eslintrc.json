@@ -5,7 +5,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended"
   ],
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint", "prettier", "local-rules"],
   "rules": {
     "no-console": "error",
     "@typescript-eslint/interface-name-prefix": "off",
@@ -47,9 +47,19 @@
       }
     ]
   },
+  "overrides": [
+    {
+      "files": ["*.jsx", "*.tsx"],
+      "rules": {
+        "local-rules/data-cy-required": "error"
+      }
+    }
+  ],
   "ignorePatterns": [
     "public/workbox-*.js",
     "public/sw.js",
-    "public/fallback-*.js"
+    "public/fallback-*.js",
+    "fix-data-cy.js",
+    "fix-data-cy-all.js"
   ]
 }

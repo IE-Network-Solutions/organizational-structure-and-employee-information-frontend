@@ -1,9 +1,10 @@
 import { useGetUserAttendanceHistory } from '@/store/server/features/timesheet/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
-import { Card, DatePicker, Select, Spin, Tag } from 'antd';
-import React from 'react';
+import { Card, DatePicker, Select, Spin, Tag, Modal } from 'antd';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
+import CustomButton from '@/components/common/buttons/customButton';
 
 const { RangePicker } = DatePicker;
 
@@ -22,6 +23,7 @@ interface AttendanceHistory {
 }
 
 const MyAttendanceReport: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { userId } = useAuthenticationStore();
   const {
     statusOnAttendance,
@@ -48,81 +50,251 @@ const MyAttendanceReport: React.FC = () => {
     { value: 'absent', label: 'Absent' },
   ];
 
-  return (
-    <Card bodyStyle={{ padding: '10px 16px' }} className="shadow">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-[16px] font-semibold">My Attendance Report</h3>
-        <div className="space-x-2 flex items-center ">
-          <Select
-            defaultValue="All"
-            className="w-32  h-12"
-            options={statusOptions}
-            onChange={(value) => setStatusOnAttendance(value)}
-          />
+  const MobileFilterContent = () => (
+    <div
+      className="flex flex-col gap-4"
+      data-cy="time-attendance-personal-attendance-report-mobile-filter-content-div"
+    >
+      <h3
+        className="text-lg font-medium mb-2"
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-title-h3"
+      >
+        Filter
+      </h3>
 
-          <RangePicker
-            className="w-32  h-12"
-            allowClear
-            onChange={(value) => {
-              if (value && value[0] && value[1]) {
-                setStartDateOnAttendance(value[0].format('YYYY-MM-DD'));
-                setEndDateOnAttendance(value[1].format('YYYY-MM-DD'));
-              }
-            }}
-          />
-        </div>
+      {/* Status Filter */}
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-status-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-status-label"
+        >
+          Status
+        </label>
+        <Select
+          placeholder="Select Status"
+          allowClear
+          value={statusOnAttendance}
+          className="w-full h-12"
+          onChange={(value) => setStatusOnAttendance(value)}
+          options={statusOptions}
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-status-select"
+        />
       </div>
-      <div className="flex flex-col h-48 overflow-y-auto scrollbar-none">
-        {isLoading && (
-          <div className="flex justify-center items-center h-full">
-            <Spin />
-          </div>
-        )}
-        {attendanceHistory?.myAttendanceHistory?.length === 0 && (
-          <div className="flex justify-center items-center h-full">
-            <p className="text-sm text-gray-500 font-semibold">
-              No attendance history found
-            </p>
-          </div>
-        )}
-        {attendanceHistory?.myAttendanceHistory?.map(
-          (req: AttendanceHistory) => {
-            let status = 'on time';
-            if (req.isAbsent) {
-              status = 'absent';
-            } else if (req.lateByMinutes > 0) {
-              status = 'late';
+
+      {/* Date Range */}
+      <div
+        className="flex flex-col gap-2"
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-date-range-div"
+      >
+        <label
+          className="text-sm text-gray-600"
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-date-range-label"
+        >
+          Date Range
+        </label>
+        <RangePicker
+          allowClear
+          className="w-full h-12"
+          onChange={(value) => {
+            if (value && value[0] && value[1]) {
+              setStartDateOnAttendance(value[0].format('YYYY-MM-DD'));
+              setEndDateOnAttendance(value[1].format('YYYY-MM-DD'));
+            } else {
+              setStartDateOnAttendance('');
+              setEndDateOnAttendance('');
             }
-            return (
-              <div key={req.id} className="mb-2 border p-4 rounded-md">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-sm">
-                      {dayjs(req.date).format('DD MMM YYYY')}
-                    </p>
-                  </div>
-                  <div className="flex flex-col justify-end items-end">
-                    <Tag
-                      style={{ marginInlineEnd: 0, border: 'none' }}
-                      className={` py-1 capitalize ${
-                        status === 'on time'
-                          ? ' text-[#3636F0] bg-[#B2B2FF]/10 font-bold'
-                          : status === 'late'
-                            ? 'text-[#FFD023] bg-[#FFDE6533] font-bold '
-                            : 'text-[#e03137] bg-[#f9d6d7] font-bold'
-                      }`}
+          }}
+          data-cy="time-attendance-personal-attendance-report-mobile-filter-date-range-picker"
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      data-cy="dashboard-components-personal-myattendancereport-tsx-myattendancereport-div-117"
+      className="px-3 sm:px-0"
+    >
+      <Card
+        bodyStyle={{ padding: '10px 16px' }}
+        className="shadow"
+        id="time-attendance-personal-attendance-report-card"
+        data-cy="time-attendance-personal-attendance-report-card"
+      >
+        <div
+          className="flex justify-between items-center mb-2"
+          id="time-attendance-personal-attendance-report-header-row"
+          data-cy="time-attendance-personal-attendance-report-header-row"
+        >
+          <h3
+            className="text-[16px] font-semibold"
+            id="time-attendance-personal-attendance-report-title-heading"
+            data-cy="time-attendance-personal-attendance-report-title-heading"
+          >
+            My Attendance Report
+          </h3>
+          <div
+            className="space-x-2 flex items-center "
+            id="time-attendance-personal-attendance-report-filter-row"
+            data-cy="time-attendance-personal-attendance-report-filter-row"
+          >
+            <Select
+              defaultValue="All"
+              className="w-32  h-12"
+              options={statusOptions}
+              onChange={(value) => setStatusOnAttendance(value)}
+              id="time-attendance-personal-attendance-report-status-select"
+              data-cy="time-attendance-personal-attendance-report-status-select"
+            />
+
+            <RangePicker
+              className="w-32  h-12"
+              allowClear
+              onChange={(value) => {
+                if (value && value[0] && value[1]) {
+                  setStartDateOnAttendance(value[0].format('YYYY-MM-DD'));
+                  setEndDateOnAttendance(value[1].format('YYYY-MM-DD'));
+                }
+              }}
+              id="time-attendance-personal-attendance-report-range-picker"
+              data-cy="time-attendance-personal-attendance-report-range-picker"
+            />
+          </div>
+        </div>
+        <div
+          className="flex flex-col h-48 overflow-y-auto scrollbar-none"
+          id="time-attendance-personal-attendance-report-list-scroll"
+          data-cy="time-attendance-personal-attendance-report-list-scroll"
+        >
+          {isLoading && (
+            <div
+              className="flex justify-center items-center h-full"
+              id="time-attendance-personal-attendance-report-loading-state"
+              data-cy="time-attendance-personal-attendance-report-loading-state"
+            >
+              <Spin data-cy="time-attendance-personal-attendance-report-loading-spin" />
+            </div>
+          )}
+          {attendanceHistory?.myAttendanceHistory?.length === 0 && (
+            <div
+              className="flex justify-center items-center h-full"
+              id="time-attendance-personal-attendance-report-empty-state"
+              data-cy="time-attendance-personal-attendance-report-empty-state"
+            >
+              <p
+                className="text-sm text-gray-500 font-semibold"
+                id="time-attendance-personal-attendance-report-empty-text"
+                data-cy="time-attendance-personal-attendance-report-empty-text"
+              >
+                No attendance history found
+              </p>
+            </div>
+          )}
+          {attendanceHistory?.myAttendanceHistory?.map(
+            (req: AttendanceHistory) => {
+              let status = 'on time';
+              if (req.isAbsent) {
+                status = 'absent';
+              } else if (req.lateByMinutes > 0) {
+                status = 'late';
+              }
+              return (
+                <div
+                  key={req.id}
+                  className="mb-2 border p-4 rounded-md"
+                  id={`time-attendance-personal-attendance-report-record-${req.id}`}
+                  data-cy={`time-attendance-personal-attendance-report-record-${req.id}`}
+                >
+                  <div
+                    className="flex justify-between items-center"
+                    id={`time-attendance-personal-attendance-report-record-${req.id}-content-row`}
+                    data-cy={`time-attendance-personal-attendance-report-record-${req.id}-content-row`}
+                  >
+                    <div
+                      id={`time-attendance-personal-attendance-report-record-${req.id}-details-column`}
+                      data-cy={`time-attendance-personal-attendance-report-record-${req.id}-details-column`}
                     >
-                      {status}{' '}
-                      {req.startTime && dayjs(req.startTime).format('h:mm A')}
-                    </Tag>{' '}
+                      <p
+                        className="font-semibold text-sm"
+                        id={`time-attendance-personal-attendance-report-record-${req.id}-date-text`}
+                        data-cy={`time-attendance-personal-attendance-report-record-${req.id}-date-text`}
+                      >
+                        {dayjs(req.date).format('DD MMM YYYY')}
+                      </p>
+                    </div>
+                    <div
+                      className="flex flex-col justify-end items-end"
+                      id={`time-attendance-personal-attendance-report-record-${req.id}-status-column`}
+                      data-cy={`time-attendance-personal-attendance-report-record-${req.id}-status-column`}
+                    >
+                      <Tag
+                        style={{ marginInlineEnd: 0, border: 'none' }}
+                        className={` py-1 capitalize ${
+                          status === 'on time'
+                            ? ' text-[#3636F0] bg-[#B2B2FF]/10 font-bold'
+                            : status === 'late'
+                              ? 'text-[#e6bb20] bg-[#fffdf7]  font-bold  '
+                              : 'text-[#e13c42] bg-[#fdf4f5] font-bold'
+                        }`}
+                        id={`time-attendance-personal-attendance-report-record-${req.id}-status-tag`}
+                        data-cy={`time-attendance-personal-attendance-report-record-${req.id}-status-tag`}
+                      >
+                        {status}{' '}
+                        {req.startTime && dayjs(req.startTime).format('h:mm A')}
+                      </Tag>{' '}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          },
-        )}
-      </div>
-    </Card>
+              );
+            },
+          )}
+        </div>
+      </Card>
+
+      {/* Mobile Filter Modal */}
+      <Modal
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={
+          <div
+            className="flex gap-2 justify-center mt-4"
+            data-cy="time-attendance-personal-attendance-report-mobile-filter-modal-footer-div"
+          >
+            <CustomButton
+              onClick={() => setIsModalOpen(false)}
+              className="px-6 py-2 border rounded-lg text-sm text-gray-900"
+              title="Cancel"
+              type="default"
+              data-cy="time-attendance-personal-attendance-report-mobile-filter-modal-cancel-button"
+            />
+            <CustomButton
+              title="Apply Filter"
+              type="primary"
+              onClick={() => {
+                setIsModalOpen(false);
+              }}
+              className="px-6 py-2 text-white rounded-lg text-sm"
+              data-cy="time-attendance-personal-attendance-report-mobile-filter-modal-apply-button"
+            />
+          </div>
+        }
+        className="!m-4 sm:hidden"
+        style={{
+          top: '20%',
+          transform: 'translateY(-50%)',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        width="90%"
+        centered
+        data-cy="time-attendance-personal-attendance-report-mobile-filter-modal"
+      >
+        <MobileFilterContent />
+      </Modal>
+    </div>
   );
 };
 

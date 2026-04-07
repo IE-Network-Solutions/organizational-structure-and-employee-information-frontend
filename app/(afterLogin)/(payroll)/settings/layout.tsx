@@ -13,30 +13,6 @@ interface OkrSettingsLayoutProps {
   children: ReactNode;
 }
 
-// type MenuItem = Required<MenuProps>['items'][number];
-
-// type MenuItemType = {
-//   item: MenuItem;
-//   link: string;
-
-// };
-
-// class NMenuItem {
-//   items: MenuItemType[];
-//   constructor(items: MenuItemType[]) {
-//     this.items = items;
-//   }
-
-//   get onlyItems(): MenuItem[] {
-//     return this.items.map((item) => item.item);
-//   }
-
-//   findItem(itemKey: string): MenuItemType {
-//     const iComponent = this.items.find((item) => item.item!.key === itemKey);
-//     return iComponent ? iComponent : this.items[0];
-//   }
-// }
-
 const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const [currentItem, setCurrentItem] = useState<string>('');
@@ -89,7 +65,6 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/settings/pension',
     },
-
     {
       item: {
         key: 'pay-period',
@@ -113,21 +88,29 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
       },
       link: '/settings/pay-period',
     },
-    // {
-    //   item: {
-    //     key: 'banks',
-    //     icon: (
-    //       <TbTargetArrow
-    //         className={
-    //           currentItem === 'banks' ? 'text-[#4DAEF0]' : 'text-gray-500'
-    //         }
-    //       />
-    //     ),
-    //     label: <p className="font-bold text-sm text-gray-900">Banks</p>,
-    //     className: currentItem === 'banks' ? 'px-4' : 'px-1',
-    //   },
-    //   link: '/settings/banks',
-    // },
+    {
+      item: {
+        key: 'approvals',
+        icon: !isMobile ? (
+          <GiSuspensionBridge
+            data-cy="payroll-settings-pension-icon-view-icon"
+            className={
+              currentItem === 'approvals' ? 'text-[#4DAEF0]' : 'text-gray-500'
+            }
+          />
+        ) : null,
+        label: (
+          <p
+            data-cy="payroll-settings-pension-label-view-text"
+            className={`font-bold text-sm ${isMobile ? (currentItem === 'approvals' ? 'text-[#3738f0]' : 'text-gray-900') : 'text-gray-900'}`}
+          >
+            Approval Workflow
+          </p>
+        ),
+        className: currentItem === 'approvals' ? 'px-4' : 'px-1',
+      },
+      link: '/settings/approvals',
+    },
   ]);
 
   useEffect(() => {
@@ -136,11 +119,6 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
 
     setCurrentItem(lastKey);
   }, [pathname]);
-
-  // const onMenuClick = (e: any) => {
-  //   const key = e['key'] as string;
-  //   router.push(menuItems.findItem(key).link);
-  // };
 
   return (
     <div
@@ -157,7 +135,11 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
           id="payroll-settings-page-header-view-container"
           data-cy="payroll-settings-page-header-view-container"
         >
-          <PageHeader data-cy="payroll-settings-page-header-title-view-text" title="Settings" description="Payroll Settings" />
+          <PageHeader
+            data-cy="payroll-settings-page-header-title-view-text"
+            title="Settings"
+            description="Payroll Settings"
+          />
         </div>
         <div
           id="payroll-settings-layout-view-container"
@@ -168,7 +150,10 @@ const PayrollSettingsLayout: FC<OkrSettingsLayoutProps> = ({ children }) => {
             id="payroll-settings-sidebar-view-container"
             data-cy="payroll-settings-sidebar-view-container"
           >
-            <SidebarMenu data-cy="payroll-settings-sidebar-menu-view-container" menuItems={menuItems} />
+            <SidebarMenu
+              data-cy="payroll-settings-sidebar-menu-view-container"
+              menuItems={menuItems}
+            />
           </div>
           <div
             id="payroll-settings-content-view-container"

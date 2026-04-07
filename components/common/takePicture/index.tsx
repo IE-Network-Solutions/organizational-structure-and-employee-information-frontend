@@ -54,6 +54,7 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
       <Spin spinning={isLoading}>
         <button
           type="button"
+          data-cy="components-common-takepicture-index-tsx-index-button-55"
           onClick={() => {
             setShowModal(true);
           }}
@@ -64,16 +65,35 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
           )}
         >
           <AiOutlineCamera size={50} className="text-primary" />
-          <div className="text-sm font-bold text-gray-900 mt-1">Camera</div>
-          <div className="text-xs font-semibold text-gray-400">
+          <div
+            data-cy="components-common-takepicture-index-tsx-index-div-67"
+            className="text-sm font-bold text-gray-900 mt-1"
+          >
+            Camera
+          </div>
+          <div
+            data-cy="components-common-takepicture-index-tsx-index-div-68"
+            className="text-xs font-semibold text-gray-400"
+          >
             Please allow your camera
           </div>
         </button>
 
         {imgSrc && (
-          <div className="flex items-center justify-between mt-6">
-            <div className="w-[192px] h-[108px]">
-              <Image src={imgSrc} width={192} height={108} />
+          <div
+            data-cy="components-common-takepicture-index-tsx-index-div-74"
+            className="flex items-center justify-between mt-6"
+          >
+            <div
+              data-cy="components-common-takepicture-index-tsx-index-div-75"
+              className="w-[192px] h-[108px]"
+            >
+              <Image
+                src={imgSrc}
+                width={192}
+                height={108}
+                alt="Captured image"
+              />
             </div>
 
             <Button
@@ -108,7 +128,10 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
         width="100vw"
       >
         {showModal && (
-          <div className="w-full h-full relative">
+          <div
+            data-cy="components-common-takepicture-index-tsx-index-div-116"
+            className="w-full h-full relative"
+          >
             <Webcam height="100%" width="100%" ref={webcamRef} />
             <Button
               className="absolute bottom-[20px] left-1/2 -translate-x-1/2"

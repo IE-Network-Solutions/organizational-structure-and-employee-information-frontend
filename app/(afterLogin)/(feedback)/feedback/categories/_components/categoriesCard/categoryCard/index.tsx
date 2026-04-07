@@ -45,17 +45,39 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   const menuItems: MenuProps['items'] = filteredItems.map((item) => ({
     key: item.key,
-    label: <span onClick={item.onClick}>{item.label}</span>,
+    label: (
+      <span
+        onClick={item.onClick}
+        data-cy={`category-card-menu-item-${item.key}`}
+      >
+        {item.label}
+      </span>
+    ),
   }));
 
   return (
     <Card
       hoverable
       className="w-[280px] relative bg-gray-100 h-min-screen flex flex-col justify-between"
+      data-cy={`feedback-categories-components-categoriescard-categorycard-card-${category?.id}`}
+      id={`feedback-categories-components-categoriescard-categorycard-card-${category?.id}`}
     >
-      <div className="flex justify-between items-center mb-2">
-        <Link href={`/feedback/categories/${category?.id}`}>
-          <Title level={4} className="m-0">
+      <div
+        className="flex justify-between items-center mb-2"
+        data-cy={`feedback-categories-components-categoriescard-categorycard-div-header-${category?.id}`}
+        id={`feedback-categories-components-categoriescard-categorycard-div-header-${category?.id}`}
+      >
+        <Link
+          href={`/feedback/categories/${category?.id}`}
+          data-cy={`feedback-categories-components-categoriescard-categorycard-link-${category?.id}`}
+          id={`feedback-categories-components-categoriescard-categorycard-link-${category?.id}`}
+        >
+          <Title
+            level={4}
+            className="m-0"
+            data-cy={`feedback-categories-components-categoriescard-categorycard-title-${category?.id}`}
+            id={`feedback-categories-components-categoriescard-categorycard-title-${category?.id}`}
+          >
             {category?.name}
           </Title>
         </Link>
@@ -63,40 +85,98 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           menu={{ items: menuItems }}
           trigger={['click']}
           placement="bottomRight"
+          data-cy={`feedback-categories-components-categoriescard-categorycard-dropdown-${category?.id}`}
         >
-          <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
+          <FaEllipsisVertical
+            className="text-lg text-gray-400 cursor-pointer"
+            data-cy={`feedback-categories-components-categoriescard-categorycard-icon-menu-${category?.id}`}
+            id={`feedback-categories-components-categoriescard-categorycard-icon-menu-${category?.id}`}
+          />
         </Dropdown>
       </div>
-      <Link href={`/feedback/categories/${category?.id}`}>
-        <Paragraph ellipsis={{ rows }} className="text-gray-600 h-[50px]">
+      <Link
+        href={`/feedback/categories/${category?.id}`}
+        data-cy={`feedback-categories-components-categoriescard-categorycard-link-content-${category?.id}`}
+        id={`feedback-categories-components-categoriescard-categorycard-link-content-${category?.id}`}
+      >
+        <Paragraph
+          ellipsis={{ rows }}
+          className="text-gray-600 h-[50px]"
+          data-cy={`feedback-categories-components-categoriescard-categorycard-paragraph-${category?.id}`}
+          id={`feedback-categories-components-categoriescard-categorycard-paragraph-${category?.id}`}
+        >
           {category?.description}
         </Paragraph>
-        <div className="flex items-center mt-4">
+        <div
+          className="flex items-center mt-4"
+          data-cy={`feedback-categories-components-categoriescard-categorycard-div-user-${category?.id}`}
+          id={`feedback-categories-components-categoriescard-categorycard-div-user-${category?.id}`}
+        >
           <Image
             src={userData?.profileImage ?? Avatar}
             alt="Profile pic"
             width={30}
             height={50}
             className="rounded-full object-fit"
+            data-cy={`feedback-categories-components-categoriescard-categorycard-image-${category?.id}`}
+            id={`feedback-categories-components-categoriescard-categorycard-image-${category?.id}`}
           />
-          <div className="ml-2 flex flex-col">
-            <div className="flex flex-wrap md:gap-0 items-center justify-between gap-4 ">
-              <div>
-                <Typography.Text strong>
+          <div
+            className="ml-2 flex flex-col"
+            data-cy={`feedback-categories-components-categoriescard-categorycard-div-user-info-${category?.id}`}
+            id={`feedback-categories-components-categoriescard-categorycard-div-user-info-${category?.id}`}
+          >
+            <div
+              className="flex flex-wrap md:gap-0 items-center justify-between gap-4 "
+              data-cy={`feedback-categories-components-categoriescard-categorycard-div-user-name-${category?.id}`}
+              id={`feedback-categories-components-categoriescard-categorycard-div-user-name-${category?.id}`}
+            >
+              <div
+                data-cy={`feedback-categories-components-categoriescard-categorycard-div-name-${category?.id}`}
+                id={`feedback-categories-components-categoriescard-categorycard-div-name-${category?.id}`}
+              >
+                <Typography.Text
+                  strong
+                  data-cy={`feedback-categories-components-categoriescard-categorycard-text-name-${category?.id}`}
+                  id={`feedback-categories-components-categoriescard-categorycard-text-name-${category?.id}`}
+                >
                   {(userData?.firstName ?? 'Unknown') +
                     ' ' +
                     (userData?.middleName ?? '-')}
                 </Typography.Text>
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <FaCircle size={8} color="#3636f0" />
-                <Typography.Text className="text-xs font-normal text-gray-400">
+              <div
+                className="flex justify-center items-center gap-1"
+                data-cy={`feedback-categories-components-categoriescard-categorycard-div-creator-${category?.id}`}
+                id={`feedback-categories-components-categoriescard-categorycard-div-creator-${category?.id}`}
+              >
+                <FaCircle
+                  size={8}
+                  color="#3636f0"
+                  data-cy={`feedback-categories-components-categoriescard-categorycard-icon-circle-${category?.id}`}
+                  id={`feedback-categories-components-categoriescard-categorycard-icon-circle-${category?.id}`}
+                />
+                <Typography.Text
+                  className="text-xs font-normal text-gray-400"
+                  data-cy={`feedback-categories-components-categoriescard-categorycard-text-creator-${category?.id}`}
+                  id={`feedback-categories-components-categoriescard-categorycard-text-creator-${category?.id}`}
+                >
                   Creator
                 </Typography.Text>
               </div>
             </div>
-            <Typography.Text type="secondary">
-              <span className="capitalize">{userData?.role?.name}</span>
+            <Typography.Text
+              type="secondary"
+              data-cy={`feedback-categories-components-categoriescard-categorycard-text-role-${category?.id}`}
+              id={`feedback-categories-components-categoriescard-categorycard-text-role-${category?.id}`}
+            >
+              <span
+                className="capitalize"
+                data-cy={`feedback-categories-components-categoriescard-categorycard-span-role-${category?.id}`}
+                id={`feedback-categories-components-categoriescard-categorycard-span-role-${category?.id}`}
+              >
+                {userData?.role?.name}
+              </span>
             </Typography.Text>
           </div>
         </div>

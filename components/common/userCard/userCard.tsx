@@ -21,22 +21,26 @@ const UserCard: FC<UserCardProps> = ({
 }) => {
   // const sizeWH = size === 'medium' ? 40 : 24;
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" data-cy="user-card">
       {data ? (
         <Avatar size={25} src={data?.profileImage} />
       ) : (
-        <Avatar size={25}>
+        <Avatar
+          size={25}
+          data-cy="components-common-usercard-usercard-tsx-usercard-avatar-35"
+        >
           {data?.firstName[0]?.toUpperCase()}
           {data?.middleName[0]?.toUpperCase()}
           {data?.lastName[0]?.toUpperCase()}
         </Avatar>
       )}
-      <div>
+      <div data-cy="components-common-usercard-usercard-tsx-usercard-div-34">
         <div
           className={classNames('text-gray-900 font-semibold', {
             'text-lg': size === 'medium',
             'text-xs': size === 'small',
           })}
+          data-cy="components-common-usercard-usercard-tsx-usercard-div-38"
         >
           {name}
         </div>
@@ -46,12 +50,18 @@ const UserCard: FC<UserCardProps> = ({
               'text-lg': size === 'medium',
               'text-xs': size === 'small',
             })}
+            data-cy="components-common-usercard-usercard-tsx-usercard-div-47"
           >
             {email}
           </div>
         )}
         {description && (
-          <div className="text-[10px] text-gray-500 mt-0.5">{description}</div>
+          <div
+            data-cy="components-common-usercard-usercard-tsx-usercard-div-54"
+            className="text-[10px] text-gray-500 mt-0.5"
+          >
+            {description}
+          </div>
         )}
       </div>
     </div>

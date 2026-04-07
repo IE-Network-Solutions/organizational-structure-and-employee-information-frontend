@@ -65,10 +65,18 @@ const All = () => {
         });
   }
   return (
-    <div className="p-0">
-      <h1 className="text-xl font-bold mb-4">General Insight</h1>
+    <div className="p-0" data-cy="all-appreciation-reprimand-container">
+      <h1
+        className="text-xl font-bold mb-4"
+        data-cy="all-appreciation-reprimand-title"
+      >
+        General Insight
+      </h1>
       <DashboardHeader />
-      <div className="flex  justify-between items-center mb-4 gap-5">
+      <div
+        className="flex  justify-between items-center mb-4 gap-5"
+        data-cy="reprimand-appreciation-all-filters-container"
+      >
         <Select
           showSearch
           placeholder="Select a person"

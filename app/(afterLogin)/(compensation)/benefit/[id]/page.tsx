@@ -29,7 +29,12 @@ const BenefitEntitlemetPage = () => {
     if (benefitData?.mode == 'CREDIT') {
       setBenefitDefaultAmount(benefitData?.defaultAmount);
     }
-  }, [benefitData, setBenefitMode]);
+  }, [
+    benefitData,
+    setBenefitMode,
+    setBenefitApplicableTo,
+    setBenefitDefaultAmount,
+  ]);
 
   const handleSearchChange = (value: any) => {
     setSearchQuery(value);
@@ -108,7 +113,10 @@ const BenefitEntitlemetPage = () => {
               </div>
 
               {/* Select and Button layout */}
-              <div className="flex flex-row w-full sm:w-auto gap-2">
+              <div
+                className="flex flex-row w-full sm:w-auto gap-2"
+                data-cy="benefit-page-actions-container"
+              >
                 {/* Select - takes 75% on mobile, fixed width on desktop */}
                 <div
                   className="w-10/12 mr-2 sm:hidden"
@@ -150,7 +158,9 @@ const BenefitEntitlemetPage = () => {
                       className="h-10 w-full sm:w-auto"
                       id="createNewClosedHolidayFieldId"
                       data-cy="compensation-benefit-create-button"
-                      icon={<FaPlus data-cy="compensation-benefit-create-button-icon" />}
+                      icon={
+                        <FaPlus data-cy="compensation-benefit-create-button-icon" />
+                      }
                       onClick={handleBenefitEntitlementAdd}
                       disabled={BenefitApplicableTo === 'GLOBAL'}
                     >

@@ -34,23 +34,47 @@ const LeaveBalance = () => {
   };
 
   return (
-    <div className="h-auto w-auto pr-6 pb-6 pl-3 bg-white rounded-lg">
-      <BlockWrapper className="bg-white p-2">
-        <div className="mb-2 flex justify-between">
+    <div
+      className="h-auto w-auto pr-6 pb-6 pl-3 bg-white rounded-lg"
+      id="time-attendance-leave-balance-page-container"
+      data-cy="time-attendance-leave-balance-page-container"
+    >
+      <BlockWrapper
+        className="bg-white p-2"
+        data-cy="time-attendance-leave-balance-block-wrapper"
+      >
+        <div
+          className="mb-2 flex justify-between"
+          id="time-attendance-leave-balance-header-row"
+          data-cy="time-attendance-leave-balance-header-row"
+        >
           <PageHeader
             title="Leave Balance"
             horizontalPadding="px-0"
-          ></PageHeader>
-          <div className="">
-            <DownloadLeaveBalance />
+            data-cy="time-attendance-leave-balance-header"
+          />
+          <div
+            id="time-attendance-leave-balance-download-container"
+            data-cy="time-attendance-leave-balance-download-container"
+          >
+            <DownloadLeaveBalance data-cy="time-attendance-leave-balance-download-button" />
           </div>
         </div>
-        <div>
-          <Form form={form} className=" flex justify-between gap-2">
+        <div
+          id="time-attendance-leave-balance-filter-form-container"
+          data-cy="time-attendance-leave-balance-filter-form-container"
+        >
+          <Form
+            form={form}
+            className="flex justify-between gap-2"
+            id="time-attendance-leave-balance-filter-form"
+            data-cy="time-attendance-leave-balance-filter-form"
+          >
             <Form.Item
               id="filterByLeaveRequestUserIds"
               name="userId"
               className="w-1/2"
+              data-cy="time-attendance-leave-balance-user-select-form-item"
             >
               <Select
                 showSearch
@@ -65,6 +89,8 @@ const LeaveBalance = () => {
                   value: list?.id,
                   label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
                 }))}
+                id="time-attendance-leave-balance-user-select"
+                data-cy="time-attendance-leave-balance-user-select"
               />
             </Form.Item>
             {selectedUserId && (
@@ -72,6 +98,7 @@ const LeaveBalance = () => {
                 id="filterByLeaveRequestLeaveTypeIds"
                 name="LeaveTypeId"
                 className="w-1/2"
+                data-cy="time-attendance-leave-balance-leave-type-select-form-item"
               >
                 <Select
                   showSearch
@@ -84,12 +111,19 @@ const LeaveBalance = () => {
                     value: list?.id,
                     label: `${list?.title ? list?.title : ''} `,
                   }))}
+                  id="time-attendance-leave-balance-leave-type-select"
+                  data-cy="time-attendance-leave-balance-leave-type-select"
                 />
               </Form.Item>
             )}
           </Form>
         </div>
-        <LeaveBalanceTable />
+        <div
+          id="time-attendance-leave-balance-table-wrapper"
+          data-cy="time-attendance-leave-balance-table-wrapper"
+        >
+          <LeaveBalanceTable data-cy="time-attendance-leave-balance-table" />
+        </div>
       </BlockWrapper>
     </div>
   );

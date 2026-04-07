@@ -1,8 +1,17 @@
 'use client';
-import React, { useState } from 'react';
-import { Button, Card, Dropdown, Pagination, Skeleton } from 'antd';
+import React, { useState, useMemo } from 'react';
+import {
+  Button,
+  Card,
+  Dropdown,
+  Input,
+  Pagination,
+  Skeleton,
+  Switch,
+} from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useActivateMonth } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import {
   FiscalYear,
   Session,
@@ -28,6 +37,8 @@ const FiscalYearListCard: React.FC = () => {
     setPageSize,
     setEditMode,
     setOpenFiscalYearDrawer,
+    searchQuery,
+    setSearchQuery,
   } = useFiscalYearDrawerStore();
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
@@ -54,6 +65,8 @@ const FiscalYearListCard: React.FC = () => {
 
   const { data: fiscalYears, isLoading: fiscalYearsFetchLoading } =
     useGetAllFiscalYears(pageSize, currentPage);
+  const { mutate: activateMonth, isLoading: isActivatingMonth } =
+    useActivateMonth();
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
@@ -65,6 +78,25 @@ const FiscalYearListCard: React.FC = () => {
       setDeleteMode(true);
     }
   };
+
+  const handelDrawerOpen = () => {
+    // Reset form state for create mode
+    setEditMode(false);
+    setSelectedFiscalYear(null);
+    setOpenFiscalYearDrawer(true);
+  };
+
+  const filteredFiscalYears = useMemo(() => {
+    if (!fiscalYears?.items) return [];
+    if (!searchQuery.trim()) return fiscalYears.items;
+
+    const query = searchQuery.toLowerCase().trim();
+    return fiscalYears.items.filter((fYear: FiscalYear) => {
+      const name = fYear.name?.toLowerCase() || '';
+      return name.includes(query);
+    });
+  }, [fiscalYears?.items, searchQuery]);
+
   if (fiscalYearsFetchLoading) {
     return (
       <Skeleton
@@ -74,13 +106,6 @@ const FiscalYearListCard: React.FC = () => {
       />
     );
   }
-
-  const handelDrawerOpen = () => {
-    // Reset form state for create mode
-    setEditMode(false);
-    setSelectedFiscalYear(null);
-    setOpenFiscalYearDrawer(true);
-  };
 
   return (
     <div
@@ -128,10 +153,33 @@ const FiscalYearListCard: React.FC = () => {
           </Button>
         </AccessGuard>
       </div>
+      <Input
+        placeholder="Search fiscal year"
+        className="flex-1 h-12 rounded-lg border-gray-200"
+        allowClear
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        id="org-settings-fiscal-year-search-input"
+        data-cy="org-settings-fiscal-year-search-input"
+      />
 
-      {fiscalYears?.items && fiscalYears.items.length > 0 ? (
-        fiscalYears.items.map((fYear: FiscalYear, index: number) => {
+      {filteredFiscalYears.length > 0 ? (
+        filteredFiscalYears.map((fYear: FiscalYear, index: number) => {
           const fiscalYearId = fYear?.id || `fiscal-year-${index}`;
+          const allMonthsForYear =
+            fYear.sessions?.flatMap((s: Session) => s.months ?? []) ?? [];
+          const activeMonthForYear = allMonthsForYear.find(
+            (m: Month) => m.active,
+          );
+          const nextMonthStartDateStr = activeMonthForYear
+            ? dayjs(activeMonthForYear.endDate)
+                .add(1, 'day')
+                .format('YYYY-MM-DD')
+            : null;
+          const isNextMonthAfterActive = (month: Month) =>
+            nextMonthStartDateStr != null &&
+            dayjs(month.startDate).format('YYYY-MM-DD') ===
+              nextMonthStartDateStr;
           return (
             <Card
               key={fYear?.id}
@@ -340,21 +388,47 @@ const FiscalYearListCard: React.FC = () => {
                                           )}
                                         </div>
                                       </div>
-                                      {month?.active && (
-                                        <div
-                                          className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text"
-                                          data-cy={`org-settings-fiscal-year-month-active-badge-${monthId}`}
-                                          id={`org-settings-fiscal-year-month-active-badge-${monthId}`}
-                                        >
-                                          <span
-                                            className="text-[#0BA259]"
-                                            data-cy="org-settings-fiscal-year-month-active-badge-text"
-                                            id="org-settings-fiscal-year-month-active-badge-text"
+                                      <div
+                                        className="flex items-center gap-2"
+                                        onClick={(e) => e.stopPropagation()}
+                                        data-cy={`org-settings-fiscal-year-month-activation-${monthId}`}
+                                      >
+                                        {month?.active && (
+                                          <div
+                                            className="flex items-center justify-end rounded-lg bg-[#55C79033] py-1 px-3 text"
+                                            data-cy={`org-settings-fiscal-year-month-active-badge-${monthId}`}
+                                            id={`org-settings-fiscal-year-month-active-badge-${monthId}`}
                                           >
-                                            Active
-                                          </span>
-                                        </div>
-                                      )}
+                                            <span
+                                              className="text-[#0BA259]"
+                                              data-cy="org-settings-fiscal-year-month-active-badge-text"
+                                              id="org-settings-fiscal-year-month-active-badge-text"
+                                            >
+                                              Active
+                                            </span>
+                                          </div>
+                                        )}
+                                        {isNextMonthAfterActive(month) && (
+                                          <AccessGuard
+                                            permissions={[
+                                              Permissions.UpdateCalendar,
+                                            ]}
+                                            data-cy={`org-settings-fiscal-year-month-toggle-guard-${monthId}`}
+                                          >
+                                            <Switch
+                                              data-cy={`org-settings-fiscal-year-month-toggle-${monthId}`}
+                                              id={`org-settings-fiscal-year-month-toggle-${monthId}`}
+                                              checked={!!month?.active}
+                                              loading={isActivatingMonth}
+                                              onChange={(checked) => {
+                                                if (checked) {
+                                                  activateMonth(month.id);
+                                                }
+                                              }}
+                                            />
+                                          </AccessGuard>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 );

@@ -24,8 +24,13 @@ const ShareToSocialMedia: React.FC = () => {
     setShareModalOpen(false);
   };
   const socialMediaShareModalHeader = (
-    <div className=" flex items-center justify-center text-xl font-extrabold px-2">
-      Share to other Media
+    <div
+      className=" flex items-center justify-center text-xl font-extrabold px-2"
+      data-cy="talent-acquisition-share-modal-header"
+    >
+      <span data-cy="talent-acquisition-share-modal-header-text">
+        Share to other Media
+      </span>
     </div>
   );
 
@@ -58,8 +63,16 @@ const ShareToSocialMedia: React.FC = () => {
         footer={null}
         centered
       >
-        <div className="text-lg font-bold">Share</div>
-        <div className="flex items-center justify-start gap-5 p-2 py-2">
+        <div
+          className="text-lg font-bold"
+          data-cy="talent-acquisition-share-modal-title"
+        >
+          Share
+        </div>
+        <div
+          data-cy="-components-modals-share-index-tsx-index-div-72"
+          className="flex items-center justify-start gap-5 p-2 py-2"
+        >
           <FaXTwitter
             id="talent-acquisition-share-icon-twitter"
             data-cy="talent-acquisition-share-icon-twitter"
@@ -90,8 +103,17 @@ const ShareToSocialMedia: React.FC = () => {
             color="#25D366"
           />
         </div>
-        <div className="flex items-center justify-center gap-3 border-[1px] p-2 rounded-md">
-          <div className="font-semibold "> {generatedUrl}</div>
+        <div
+          data-cy="-components-modals-share-index-tsx-index-div-103"
+          className="flex items-center justify-center gap-3 border-[1px] p-2 rounded-md"
+        >
+          <div
+            data-cy="-components-modals-share-index-tsx-index-div-104"
+            className="font-semibold "
+          >
+            {' '}
+            {generatedUrl}
+          </div>
           <Divider type="vertical" />
           <div
             id="talent-acquisition-share-button-copy"

@@ -77,10 +77,22 @@ const Branches = () => {
     </Menu>
   );
   return (
-    <div className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full">
-      <div className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold">
+    <div
+      className="flex-1 bg-gray-50 p-4 md:p-8 lg:p-12 rounded-lg my-4 md:my-8 items-center w-full h-full"
+      data-cy="onboarding-branches-container"
+    >
+      <div
+        className="bg-white p-4 md:p-8 lg:p-12 rounded-lg h-full w-full"
+        data-cy="onboarding-branches-content"
+      >
+        <div
+          className="flex justify-between items-center mb-8"
+          data-cy="onboarding-branches-header"
+        >
+          <h2
+            className="text-xl custom:text-xl md:text-2xl lg:text-4xl font-semibold"
+            data-cy="onboarding-branches-title"
+          >
             Branches
           </h2>
           <AccessGuard permissions={[Permissions.CreateBranch]}>
@@ -98,20 +110,37 @@ const Branches = () => {
               loading={isLoading}
               className="mt-3"
               title={
-                <div className="grid space-y-2 p-3">
+                <div
+                  className="grid space-y-2 p-3"
+                  data-cy={`branches-card-title-${item.name}`}
+                >
                   {item.name.includes('HQ') ? (
-                    <span className="flex justify-start items-center gap-4">
+                    <span
+                      className="flex justify-start items-center gap-4"
+                      data-cy={`branches-card-name-hq-${item.name}`}
+                    >
                       {item.name}{' '}
-                      <span className="bg-blue rounded-lg text-white p-1 text-xs border">
+                      <span
+                        className="bg-blue rounded-lg text-white p-1 text-xs border"
+                        data-cy={`branches-card-hq-badge-${item.name}`}
+                      >
                         HQ
                       </span>
                     </span>
                   ) : (
-                    <span className="flex justify-start items-center gap-4">
+                    <span
+                      className="flex justify-start items-center gap-4"
+                      data-cy={`branches-card-name-${item.name}`}
+                    >
                       {item.name}{' '}
                     </span>
                   )}
-                  <p className="text-sm font-light">{item.location}</p>
+                  <p
+                    className="text-sm font-light"
+                    data-cy={`branches-card-location-${item.name}`}
+                  >
+                    {item.location}
+                  </p>
                 </div>
               }
               extra={
@@ -123,13 +152,33 @@ const Branches = () => {
                 </Dropdown>
               }
             >
-              <p className="flex justify-start items-center text-gray-400 gap-6">
-                <p>Contact Number</p>
-                <span className="text-black">{item.contactNumber}</span>
+              <p
+                className="flex justify-start items-center text-gray-400 gap-6"
+                data-cy={`branches-card-contact-number-${item.name}`}
+              >
+                <p data-cy={`branches-card-contact-number-label-${item.name}`}>
+                  Contact Number
+                </p>
+                <span
+                  className="text-black"
+                  data-cy={`branches-card-contact-number-value-${item.name}`}
+                >
+                  {item.contactNumber}
+                </span>
               </p>
-              <p className="flex justify-start items-center text-gray-400 gap-6">
-                <p>Contact Email</p>
-                <span className="text-black">{item.contactEmail}</span>
+              <p
+                className="flex justify-start items-center text-gray-400 gap-6"
+                data-cy={`branches-card-contact-email-${item.name}`}
+              >
+                <p data-cy={`branches-card-contact-email-label-${item.name}`}>
+                  Contact Email
+                </p>
+                <span
+                  className="text-black"
+                  data-cy={`branches-card-contact-email-value-${item.name}`}
+                >
+                  {item.contactEmail}
+                </span>
               </p>
             </Card>
           )}

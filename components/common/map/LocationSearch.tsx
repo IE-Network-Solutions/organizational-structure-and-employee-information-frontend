@@ -116,8 +116,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   };
 
   return (
-    <div className="w-full">
-      <div className="relative">
+    <div className="w-full" data-cy="location-search">
+      <div className="relative" data-cy="location-search-input-container">
         <Input
           value={searchQuery}
           onChange={handleInputChange}
@@ -125,7 +125,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
           placeholder={placeholder}
           className="h-10 rounded-lg border-purple-200 focus:border-purple-400 focus:ring-purple-400"
           suffix={
-            <div className="flex items-center gap-2">
+            <div
+              data-cy="components-common-map-locationsearch-tsx-locationsearch-div-128"
+              className="flex items-center gap-2"
+            >
               {isLoading && <Spin size="small" />}
               <EnvironmentOutlined className="text-purple-400 text-lg" />
             </div>
@@ -145,17 +148,32 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       </div>
 
       {searchResults.length > 0 && (
-        <div className="border rounded-lg max-h-48 overflow-y-auto bg-white shadow-lg">
+        <div
+          data-cy="components-common-map-locationsearch-tsx-locationsearch-div-148"
+          className="border rounded-lg max-h-48 overflow-y-auto bg-white shadow-lg"
+        >
           {searchResults.map((result, index) => (
             <div
               key={index}
               className="p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center gap-2 bg-white"
               onClick={() => handleResultClick(result)}
+              data-cy="components-common-map-locationsearch-tsx-locationsearch-div-156"
             >
               <EnvironmentOutlined className="text-blue-500" />
-              <div className="flex-1">
-                <div className="font-medium text-sm">{result.display_name}</div>
-                <div className="text-xs text-gray-500">
+              <div
+                data-cy="components-common-map-locationsearch-tsx-locationsearch-div-156"
+                className="flex-1"
+              >
+                <div
+                  data-cy="components-common-map-locationsearch-tsx-locationsearch-div-157"
+                  className="font-medium text-sm"
+                >
+                  {result.display_name}
+                </div>
+                <div
+                  data-cy="components-common-map-locationsearch-tsx-locationsearch-div-158"
+                  className="text-xs text-gray-500"
+                >
                   Lat: {result.lat}, Lon: {result.lon}
                 </div>
               </div>

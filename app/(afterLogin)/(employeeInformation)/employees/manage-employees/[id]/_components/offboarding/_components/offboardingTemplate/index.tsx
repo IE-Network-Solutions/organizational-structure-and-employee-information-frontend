@@ -101,7 +101,10 @@ const OffboardingTemplate: React.FC<Ids> = ({ id: id }) => {
             data-cy="offboarding-template-employee-info"
           >
             <Avatar icon={<UserOutlined />} />
-            <div className="ml-3">
+            <div
+              className="ml-3"
+              data-cy="offboarding-template-employee-details"
+            >
               <div
                 className="font-bold"
                 id="offboarding-template-employee-name"

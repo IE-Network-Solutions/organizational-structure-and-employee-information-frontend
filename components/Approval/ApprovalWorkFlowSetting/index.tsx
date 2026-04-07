@@ -107,9 +107,12 @@ const ApprovalWorkFlowSettingComponent = ({
     setSelections({ SectionItemType: updatedSelections });
   };
   return (
-    <div>
-      <div className="mb-10">
-        <div className="text-2xl font-bold ">
+    <div data-cy="approval-workflow-setting-container">
+      <div className="mb-10" data-cy="approval-workflow-setting-header">
+        <div
+          className="text-2xl font-bold "
+          data-cy="approval-workflow-setting-title"
+        >
           {title
             ? title
             : approverType === 'Sequential'
@@ -131,7 +134,12 @@ const ApprovalWorkFlowSettingComponent = ({
         >
           <Input className="w-full h-10" placeholder="Enter WorkFlow Name" />
         </Form.Item>
-        <div className="font-medium mb-3 text-gray-500">WorkfLow Name </div>
+        <div
+          data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-137"
+          className="font-medium mb-3 text-gray-500"
+        >
+          WorkfLow Name{' '}
+        </div>
 
         <Form.Item
           className="text-lg font-bold mt-3 mb-1"
@@ -206,11 +214,22 @@ const ApprovalWorkFlowSettingComponent = ({
             })()}
           />
         </Form.Item>
-        <div className="font-medium mb-3 text-gray-500">
+        <div
+          data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-212"
+          className="font-medium mb-3 text-gray-500"
+        >
           Select to which {workflowApplies} this workflow applies to.
         </div>
-        <div className="my-3">
-          <div className="text-lg font-bold ">Number Of Level</div>
+        <div
+          data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-215"
+          className="my-3"
+        >
+          <div
+            data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-216"
+            className="text-lg font-bold "
+          >
+            Number Of Level
+          </div>
           <Select
             showSearch
             optionFilterProp="label"
@@ -231,7 +250,10 @@ const ApprovalWorkFlowSettingComponent = ({
             )}
           />
 
-          <div className="font-medium mb-3 text-gray-500">
+          <div
+            data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-237"
+            className="font-medium mb-3 text-gray-500"
+          >
             Select Number of specific approval stage or level within the process
           </div>
         </div>
@@ -241,8 +263,14 @@ const ApprovalWorkFlowSettingComponent = ({
             _,
             index,
           ) => (
-            <div key={index} className="px-10 my-1">
-              <div>Level: {index + 1}</div>
+            <div
+              data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-247"
+              key={index}
+              className="px-10 my-1"
+            >
+              <div data-cy="components-approval-approvalworkflowsetting-index-tsx-index-div-248">
+                Level: {index + 1}
+              </div>
               <Form.Item
                 className="font-semibold text-xs"
                 name={`assignedUser_${index}`}
@@ -294,7 +322,7 @@ const ApprovalWorkFlowSettingComponent = ({
         )}
 
         <Form.Item>
-          <Row className="flex justify-end gap-3">
+          <Row className="flex justify-center gap-3">
             <Button type="primary" htmlType="submit">
               Submit
             </Button>
