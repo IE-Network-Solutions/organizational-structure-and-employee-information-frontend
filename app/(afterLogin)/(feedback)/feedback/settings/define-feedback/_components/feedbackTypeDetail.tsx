@@ -7,6 +7,7 @@ import React from 'react';
 import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { SearchOutlined } from '@ant-design/icons';
 import { BsThreeDots } from 'react-icons/bs';
+import EmptyState from '@/components/empty';
 
 interface FeedbackTypeDetailProps {
   feedbackTypeDetail: any;
@@ -18,15 +19,31 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
 
   const {
     setSelectedFeedback,
+    setOpen,
     page,
     variantType,
     setPage,
     pageSize,
     setSearchAppreciationQuery,
     setSearchReprimandQuery,
+    searchAppreciationQuery,
+    searchReprimandQuery,
     feedbackOpenDropdownId,
     setFeedbackOpenDropdownId,
   } = ConversationStore();
+
+  const listItems = feedbackTypeDetail?.items ?? [];
+  const hasActiveSearch = Boolean(
+    (variantType === 'appreciation'
+      ? searchAppreciationQuery
+      : searchReprimandQuery
+    )?.trim(),
+  );
+
+  const openCreateFeedbackType = () => {
+    setSelectedFeedback(null);
+    setOpen(true);
+  };
 
   const handleDelete = (id: string) => {
     deleteFeedback(id);
@@ -77,7 +94,29 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
           </div>
         </div>
       </div>
-      {feedbackTypeDetail?.items?.map((item: any) => (
+      {listItems.length === 0 ? (
+        <div
+          className="flex min-h-[220px] items-center justify-center py-6"
+          data-cy={`feedback-type-detail-${variantType}-empty`}
+          id={`feedbackTypeDetail${variantType}EmptyId`}
+        >
+          <EmptyState
+            title={
+              hasActiveSearch
+                ? 'No feedback types match your search'
+                : `No ${variantType} types yet`
+            }
+            description={
+              hasActiveSearch
+                ? 'Try a different search term.'
+                : 'Create a type to use in feedback and conversations.'
+            }
+            actionText="Create type"
+            onAction={openCreateFeedbackType}
+          />
+        </div>
+      ) : (
+        listItems.map((item: any) => (
         <Card
           className={`mb-2 border-[#D9D9D9] ${isMobile ? 'mx-0 rounded-lg shadow-none' : 'mx-2'}`}
           key={item.id}
@@ -198,8 +237,10 @@ function FeedbackTypeDetail({ feedbackTypeDetail }: FeedbackTypeDetailProps) {
             </p>
           </div>
         </Card>
-      ))}
-      {feedbackTypeDetail?.meta && (
+        ))
+      )}
+      {feedbackTypeDetail?.meta &&
+        (feedbackTypeDetail?.meta?.totalItems ?? 0) > 0 && (
         <div
           className={isMobile ? 'px-0 pt-1' : ''}
           data-cy={`feedback-type-detail-${variantType}-pagination-wrap`}

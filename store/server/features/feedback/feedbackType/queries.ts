@@ -65,6 +65,7 @@ export const useFetchAllFeedbackTypesByVariant = (
   return useQuery(
     ['feedbackTypesByVariant', page, limit, variant, search],
     () => fetchAllFeedbackTypesByVariant(variant, search ?? '', page, limit),
+    { keepPreviousData: true },
   );
 };
 const fetchAllFeedbackTypesByVariant = async (

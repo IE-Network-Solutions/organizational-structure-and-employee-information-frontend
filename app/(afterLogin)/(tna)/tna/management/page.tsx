@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Divider } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
@@ -19,6 +19,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { localUserID } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import TnaManagementSkeleton from './_components/tnaManagementSkeleton';
+import EmptyState from '@/components/empty';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
@@ -32,6 +33,10 @@ const TnaManagementPage = () => {
   // Check if user has ViewAllCourse permission
   const hasViewAllCoursePermission = AccessGuard.checkAccess({
     permissions: [Permissions.ViewAllCourse],
+  });
+
+  const canCreateCourse = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateCourse],
   });
 
   // Fetch all courses for users with ViewAllCourse permission
@@ -63,6 +68,18 @@ const TnaManagementPage = () => {
     : Array.isArray(myCoursesData)
       ? myCoursesData
       : (myCoursesData?.items ?? []);
+
+  const displayCourses = useMemo(() => {
+    return normalizedCourses.filter((item) => {
+      if (hasViewAllCoursePermission) return true;
+      if (item.isDraft) return item.preparedBy === localUserID;
+      return true;
+    });
+  }, [normalizedCourses, hasViewAllCoursePermission]);
+
+  const hasActiveFilters = Boolean(
+    filter.modifiers?.search || filter.filter?.courseCategoryId?.length,
+  );
 
   useEffect(() => {
     if (!isShowCourseSidebar) {
@@ -203,6 +220,27 @@ const TnaManagementPage = () => {
             >
               <TnaManagementSkeleton />
             </div>
+          ) : displayCourses.length === 0 ? (
+            <div
+              className="w-full"
+              data-cy="tna-management-courses-empty"
+              id="tnaManagementCoursesEmptyId"
+            >
+              <EmptyState
+                title="No courses found"
+                description={
+                  hasActiveFilters
+                    ? 'Try adjusting your search or category filter.'
+                    : 'When courses are available, they will appear here.'
+                }
+                actionText={canCreateCourse ? 'New Course' : undefined}
+                onAction={
+                  canCreateCourse
+                    ? () => setIsShowCourseSidebar(true)
+                    : undefined
+                }
+              />
+            </div>
           ) : (
             <div
               className="col-span-12 "
@@ -213,42 +251,14 @@ const TnaManagementPage = () => {
                 className="grid w-full max-w-[380px] grid-cols-1 gap-[32px] md:max-w-none md:grid-cols-2 xl:grid-cols-3"
                 data-cy="settings-recognition-grid"
               >
-                {normalizedCourses.map((item) => {
-                  // Users with ViewAllCourse permission can see ALL courses including drafts
-                  if (hasViewAllCoursePermission) {
-                    return (
-                      <CourseCard
-                        item={item}
-                        key={item.id}
-                        refetch={refetch}
-                        data-cy={`tna-management-course-card-${item.id}`}
-                      />
-                    );
-                  }
-
-                  // Users without ViewAllCourse permission:
-                  // - Can only see their own drafts
-                  // - Can see all published courses they are assigned to
-                  if (item.isDraft) {
-                    return item.preparedBy === localUserID ? (
-                      <CourseCard
-                        item={item}
-                        key={item.id}
-                        refetch={refetch}
-                        data-cy={`tna-management-course-card-${item.id}`}
-                      />
-                    ) : null;
-                  }
-
-                  return (
-                    <CourseCard
-                      item={item}
-                      key={item.id}
-                      refetch={refetch}
-                      data-cy={`tna-management-course-card-${item.id}`}
-                    />
-                  );
-                })}
+                {displayCourses.map((item) => (
+                  <CourseCard
+                    item={item}
+                    key={item.id}
+                    refetch={refetch}
+                    data-cy={`tna-management-course-card-${item.id}`}
+                  />
+                ))}
               </div>
             </div>
           )}

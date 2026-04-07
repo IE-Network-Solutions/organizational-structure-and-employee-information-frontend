@@ -1,7 +1,9 @@
 'use client';
-import React, { useState } from 'react';
-import { Spin, Dropdown, MenuProps, Tag } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Dropdown, MenuProps, Tag } from 'antd';
 import ScoringModal from './_components/criteria-drawer';
+import CriteriaManagementPageSkeleton from './_components/criteriaManagementPageSkeleton';
+import EmptyState from '@/components/empty';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CriteriaFilters from './_components/criteria-filters';
 import {
@@ -38,8 +40,10 @@ function Page() {
     (item: any) => item.name,
   );
 
-  const assignedCriteriaData = vpScoringData?.items
-    ?.map((item: any) => ({
+  const rawItems = vpScoringData?.items ?? [];
+
+  const baseMappedCriteria = useMemo(() => {
+    return rawItems.map((item: any) => ({
       key: item.id,
       name: item.name,
       totalPercentage: `${item.totalPercentage}%`,
@@ -47,8 +51,11 @@ function Page() {
       types: item.vpScoringCriterions.map(
         (criterion: any) => criterion.vpCriteria.name,
       ),
-    }))
-    .filter((item: any) => {
+    }));
+  }, [rawItems]);
+
+  const assignedCriteriaData = useMemo(() => {
+    return baseMappedCriteria.filter((item: any) => {
       const matchesSearch = item.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -58,6 +65,23 @@ function Page() {
 
       return matchesSearch && matchesType;
     });
+  }, [baseMappedCriteria, searchTerm, selectedType]);
+
+  const hasActiveFilters =
+    searchTerm.trim().length > 0 || selectedType !== 'All Types';
+
+  const canCreateVpScoring = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateVpScoringConfigurations],
+  });
+
+  const openCreateScoring = () => {
+    openDrawer();
+  };
+
+  const isFilteredOnlyEmpty =
+    assignedCriteriaData.length === 0 &&
+    baseMappedCriteria.length > 0 &&
+    hasActiveFilters;
 
   const getMenuItems = (item: any): MenuProps['items'] => {
     return [
@@ -132,32 +156,55 @@ function Page() {
         />
 
         {vpScoringLoading ? (
+          <CriteriaManagementPageSkeleton />
+        ) : assignedCriteriaData.length === 0 ? (
           <div
-            className="flex justify-center items-center py-20"
-            data-cy="okr-criteria-management-loading"
+            className="flex min-h-[280px] items-center justify-center py-8"
+            data-cy="okr-criteria-management-empty"
+            id="okrCriteriaManagementEmptyId"
           >
-            <Spin size="large" />
+            <EmptyState
+              title={
+                isFilteredOnlyEmpty
+                  ? 'No scoring configurations match your filters'
+                  : 'No VP scoring configurations yet'
+              }
+              description={
+                isFilteredOnlyEmpty
+                  ? 'Try adjusting search or the criteria type filter.'
+                  : 'Add scoring to define how VP criteria contribute to targets.'
+              }
+              actionText={
+                canCreateVpScoring && !isFilteredOnlyEmpty
+                  ? 'Add scoring'
+                  : undefined
+              }
+              onAction={
+                canCreateVpScoring && !isFilteredOnlyEmpty
+                  ? openCreateScoring
+                  : undefined
+              }
+            />
           </div>
         ) : (
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
             id="okr-criteria-management-cards-grid"
             data-cy="okr-criteria-management-cards-grid"
           >
-            {assignedCriteriaData?.map((item: any) => (
+            {assignedCriteriaData.map((item: any) => (
               <div
                 key={item.key}
-                className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                className="relative rounded-[8px] border border-[#d9d9d9] bg-white p-5 transition-shadow hover:shadow-sm"
                 id={`okr-criteria-card-${item.key}`}
                 data-cy={`okr-criteria-card-${item.key}`}
               >
-                {/* Top Row: Name and Menu */}
                 <div
-                  className="flex justify-between items-start mb-6"
+                  className="mb-6 flex items-start justify-between"
                   data-cy={`okr-criteria-card-header-${item.key}`}
                 >
                   <p
-                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    className="mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
                     id={`okr-criteria-card-name-${item.key}`}
                     data-cy={`okr-criteria-card-name-${item.key}`}
                   >
@@ -173,7 +220,8 @@ function Page() {
                       placement="bottomRight"
                     >
                       <button
-                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-criteria-card-menu-button-${item.key}`}
                       >
@@ -183,20 +231,19 @@ function Page() {
                   </div>
                 </div>
 
-                {/* Bottom Row: Score and Count boxes */}
                 <div
                   className="flex items-center justify-between"
                   data-cy={`okr-criteria-card-footer-${item.key}`}
                 >
                   <Tag
-                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
+                    className="m-0 rounded-[4px] border-[#d9d9d9] bg-[#fafafa] px-2 py-0.5 text-[12px] font-medium text-[#595959]"
                     id={`okr-criteria-card-percentage-${item.key}`}
                     data-cy={`okr-criteria-card-percentage-${item.key}`}
                   >
                     Total %: {item.totalPercentage.replace('%', '')}
                   </Tag>
                   <Tag
-                    className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0"
+                    className="m-0 rounded-[4px] border-[#d9d9d9] bg-[#fafafa] px-2 py-0.5 text-[12px] font-medium text-[#595959]"
                     id={`okr-criteria-card-count-${item.key}`}
                     data-cy={`okr-criteria-card-count-${item.key}`}
                   >
