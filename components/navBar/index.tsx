@@ -23,7 +23,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { Layout, Button, theme, Skeleton, message } from 'antd';
-
+import { auth } from '@/utils/firebaseConfig';
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
 
@@ -1136,6 +1136,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      if (auth.currentUser) {
+        await auth.signOut();
+      }
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
@@ -1148,19 +1151,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setToken('');
       setUser2FA({ email: '', pass: '' });
 
-      // Then remove cookies
       removeCookie('token');
       removeCookie('tenantId');
       removeCookie('activeCalendar');
       removeCookie('loggedUserRole');
 
-      // Finally clear the remaining state
       setToken('');
       setTenantId('');
       setLocalId('');
 
       router.push('/authentication/login');
-    } catch (error) {}
+    } catch {
+      // ignore
+    }
   };
 
   const groupedMenuItems = React.useMemo(() => {

@@ -29,6 +29,7 @@ export const BASE_FRONT_URL = process.env.BASE_FRONT_URL;
 export const DATE_FORMAT = 'DD MMM YYYY';
 export const DATETIME_FORMAT = 'DD MMM YYYY hh:mm A';
 export const TIME_FORMAT = 'hh:mm A';
+export const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 
 export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID;
 export const TIME_AND_ATTENDANCE_URL =
