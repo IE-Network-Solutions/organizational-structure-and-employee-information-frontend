@@ -1572,12 +1572,12 @@ const RecognitionForm: React.FC<PropsData> = ({
                       data-cy={`create-recognition-form-criteria-item-scroll-${index}`}
                     >
                       <div
-                        className="mx-auto flex w-max flex-nowrap items-end justify-center gap-2"
+                        className="mx-auto flex w-max min-w-0 flex-nowrap justify-center gap-2 lg:w-full lg:max-w-none lg:justify-start"
                         data-cy={`create-recognition-form-criteria-item-row-${index}`}
                       >
                         {selectedRecognitionType !== '' && (
                           <Form.Item
-                            className="text-xs text-gray-950"
+                            className="!mb-0 text-xs text-gray-950"
                             name={['recognitionCriteria', index, 'id']}
                             initialValue={criteria.id}
                             hidden
@@ -1586,7 +1586,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                           ></Form.Item>
                         )}
                         <Form.Item
-                          className="text-xs text-gray-950"
+                          className="!mb-0 text-xs text-gray-950"
                           name={['recognitionCriteria', index, 'criteriaId']}
                           initialValue={
                             criteria.criteriaId ?? criteria.criteria?.id
@@ -1597,7 +1597,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                         ></Form.Item>
                         <Form.Item
                           labelAlign="left"
-                          className="min-w-[11rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className="!mb-0 min-w-[11rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                           label={getLabel('Criteria')}
                           name={['recognitionCriteria', index, 'criterionKey']}
                           initialValue={criteria.criterionKey}
@@ -1620,7 +1620,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                         </Form.Item>
 
                         <Form.Item
-                          className="min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          labelAlign="left"
+                          className="!mb-0 min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                           label={getLabel('Weight')}
                           name={['recognitionCriteria', index, 'weight']}
                           initialValue={criteria.weight}
@@ -1659,7 +1660,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                         </Form.Item>
 
                         <Form.Item
-                          className="min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          labelAlign="left"
+                          className="!mb-0 min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                           label={getLabel('Operator')}
                           name={['recognitionCriteria', index, 'operator']}
                           initialValue={criteria.operator}
@@ -1700,7 +1702,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                         </Form.Item>
 
                         <Form.Item
-                          className="min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          labelAlign="left"
+                          className="!mb-0 min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                           label={getLabel('Condition')}
                           name={['recognitionCriteria', index, 'condition']}
                           initialValue={criteria.condition}
@@ -1741,7 +1744,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                         </Form.Item>
 
                         <Form.Item
-                          className="min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          labelAlign="left"
+                          className="!mb-0 min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
                           label={getLabel('Value')}
                           name={['recognitionCriteria', index, 'value']}
                           initialValue={criteria.value}
@@ -1782,7 +1786,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 recognitionCriteria: updatedCriteria,
                               });
                             }}
-                            className="mb-2 shrink-0 cursor-pointer self-end"
+                            className="mb-1 shrink-0 cursor-pointer self-end"
                             data-cy={`create-recognition-form-criteria-remove-${index}`}
                             id={`createRecognitionFormCriteriaRemove${index}`}
                           />
