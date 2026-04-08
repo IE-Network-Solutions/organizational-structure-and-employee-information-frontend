@@ -181,14 +181,20 @@ function Reporting({
         className="mt-0 flex min-h-0 flex-1 flex-col"
       >
         {getReportLoading ? (
-          <div className="space-y-4">
+          <div
+            data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-184"
+            className="space-y-4"
+          >
             {[0, 1, 2].map((i) => (
               <PlanCardSkeleton key={i} reporting />
             ))}
           </div>
         ) : reportSummaries.length > 0 ? (
           isMobile || isTablet ? (
-            <div className="space-y-4">
+            <div
+              data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-191"
+              className="space-y-4"
+            >
               {allReporting?.items?.map((dataItem: any, index: number) => {
                 const plan = reportSummaries[index];
                 if (!plan) return null;
@@ -268,7 +274,10 @@ function Reporting({
               data-cy="reporting-empty-state"
               className="flex w-full max-w-md flex-col items-center justify-center px-6 py-14"
             >
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]">
+              <div
+                data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-271"
+                className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+              >
                 <BsFileEarmarkText
                   size={26}
                   className="text-[#D1D5DB]"
@@ -281,12 +290,18 @@ function Reporting({
               >
                 No reports yet
               </p>
-              <p className="mt-2 text-xs leading-relaxed text-[#8F94A3]">
+              <p
+                data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-284"
+                className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
+              >
                 {activeTabName
                   ? `There are no submitted reports for ${activeTabName} with the current filters and session.`
                   : 'There are no submitted reports for this period with the current filters and session.'}
               </p>
-              <p className="mt-2 text-xs leading-relaxed text-[#C4C7CE]">
+              <p
+                data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-289"
+                className="mt-2 text-xs leading-relaxed text-[#C4C7CE]"
+              >
                 {isDesktop
                   ? 'Submit a report from your plans using the actions on each plan card in the list.'
                   : 'Submit a report from each plan when you open it from your plan list.'}

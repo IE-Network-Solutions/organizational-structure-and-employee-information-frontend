@@ -128,15 +128,36 @@ function applyEqualWeightsToDailyDraftLines(lines: DraftLine[]): DraftLine[] {
 const priorityOptions = [
   {
     value: 'high',
-    label: <span className="text-[#EF4444] font-medium">High</span>,
+    label: (
+      <span
+        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-131"
+        className="text-[#EF4444] font-medium"
+      >
+        High
+      </span>
+    ),
   },
   {
     value: 'medium',
-    label: <span className="text-[#D97706] font-medium">Medium</span>,
+    label: (
+      <span
+        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-135"
+        className="text-[#D97706] font-medium"
+      >
+        Medium
+      </span>
+    ),
   },
   {
     value: 'low',
-    label: <span className="text-[#16A34A] font-medium">Low</span>,
+    label: (
+      <span
+        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-139"
+        className="text-[#16A34A] font-medium"
+      >
+        Low
+      </span>
+    ),
   },
 ];
 
@@ -231,6 +252,7 @@ function OutcomeTaskListIcon({ line }: { line: DraftLine }) {
   const isMilestone = !!line.milestoneId;
   return (
     <div
+      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-outcome-icon"
       className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#FAFBFC]"
       title={isMilestone ? 'Milestone outcome task' : 'Key result outcome task'}
     >
@@ -253,14 +275,21 @@ function OutcomeTaskCheckboxRow({
   onToggle: (next: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div
+      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-256"
+      className="flex items-center gap-1.5"
+    >
       <Checkbox checked={checked} onChange={(e) => onToggle(e.target.checked)}>
-        <span className="text-[13px] leading-snug text-[#575B7A]">
+        <span
+          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-258"
+          className="text-[13px] leading-snug text-[#575B7A]"
+        >
           {outcomeCheckboxLabel(milestoneId)}
         </span>
       </Checkbox>
       <Tooltip title={outcomeAsTaskTooltip(milestoneId)} placement="topLeft">
         <span
+          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-outcome-info"
           className="inline-flex cursor-help text-[#94A3B8] hover:text-[#64748B]"
           role="img"
           aria-label="About outcome tasks"
@@ -275,13 +304,31 @@ function OutcomeTaskCheckboxRow({
 /** Shown in Plan tasks empty body when no key result is selected yet */
 const INLINE_KEY_RESULT_INSTRUCTION = (
   <>
-    <span className="lg:hidden">
-      Click the <span className="font-semibold text-[#1E40AF]">+</span> on a key
-      result above to plan.
+    <span
+      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-278"
+      className="lg:hidden"
+    >
+      Click the{' '}
+      <span
+        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-279"
+        className="font-semibold text-[#1E40AF]"
+      >
+        +
+      </span>{' '}
+      on a key result above to plan.
     </span>
-    <span className="hidden lg:inline">
-      Click the <span className="font-semibold text-[#1E40AF]">+</span> on a key
-      result in the left panel to plan.
+    <span
+      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-282"
+      className="hidden lg:inline"
+    >
+      Click the{' '}
+      <span
+        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-283"
+        className="font-semibold text-[#1E40AF]"
+      >
+        +
+      </span>{' '}
+      on a key result in the left panel to plan.
     </span>
   </>
 );
@@ -869,8 +916,14 @@ const InlinePlanningWorkspace = forwardRef<
         className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white"
         data-cy="inline-plan-draft-card"
       >
-        <div className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#F1F2F6] bg-[#FAFBFC] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4">
-          <div className="flex min-w-0 flex-1 items-center gap-2 md:gap-3">
+        <div
+          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-872"
+          className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#F1F2F6] bg-[#FAFBFC] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4"
+        >
+          <div
+            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-873"
+            className="flex min-w-0 flex-1 items-center gap-2 md:gap-3"
+          >
             {!hideHeaderCloseButton ? (
               <button
                 type="button"
@@ -882,16 +935,41 @@ const InlinePlanningWorkspace = forwardRef<
                 <CloseOutlined className="text-[15px] md:text-[17px]" />
               </button>
             ) : null}
-            <span className="min-w-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm">
+            <span
+              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-885"
+              className="min-w-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm"
+            >
               {headerHeadline}
             </span>
           </div>
-          <div className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2 md:gap-3">
-            <span className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm">
+          <div
+            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-889"
+            className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2 md:gap-3"
+          >
+            <span
+              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-890"
+              className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
+            >
               {draftLines.length} task{draftLines.length !== 1 ? 's' : ''}
-              <span className="mx-1 text-[#CBD5E1] md:mx-2">·</span>
-              <span className={`font-bold ${weightTone}`}>{roundedTotal}</span>
-              <span className="font-medium text-[#94A3B8]"> / 100</span>
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-892"
+                className="mx-1 text-[#CBD5E1] md:mx-2"
+              >
+                ·
+              </span>
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-893"
+                className={`font-bold ${weightTone}`}
+              >
+                {roundedTotal}
+              </span>
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-894"
+                className="font-medium text-[#94A3B8]"
+              >
+                {' '}
+                / 100
+              </span>
             </span>
             {showDraftAndSubmit ? (
               <Tooltip
@@ -934,7 +1012,10 @@ const InlinePlanningWorkspace = forwardRef<
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div
+          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-937"
+          className="min-w-0"
+        >
           {loadingEditPlan && isEditMode && draftLines.length === 0 ? (
             <InlinePlanningEditSkeleton />
           ) : null}
@@ -944,7 +1025,10 @@ const InlinePlanningWorkspace = forwardRef<
               className="flex min-h-[336px] flex-col items-center justify-center px-6 py-12 text-center"
               data-cy="inline-plan-empty-draft"
             >
-              <p className="max-w-lg text-[15px] leading-8 text-[#575B7A]">
+              <p
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-947"
+                className="max-w-lg text-[15px] leading-8 text-[#575B7A]"
+              >
                 {INLINE_KEY_RESULT_INSTRUCTION}
               </p>
             </div>
@@ -955,22 +1039,36 @@ const InlinePlanningWorkspace = forwardRef<
           !editingDraftId &&
           !loadingEditPlan ? (
             <div
+              data-cy="inline-planning-workspace-composer"
               className={`space-y-4 px-3 py-3 md:px-5 md:py-5 ${
                 draftLines.length > 0 ? 'border-b border-[#F1F2F6]' : ''
               }`}
             >
-              <div className="flex items-center justify-between gap-3 md:items-start">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]">
+              <div
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-962"
+                className="flex items-center justify-between gap-3 md:items-start"
+              >
+                <div
+                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-963"
+                  className="min-w-0 flex-1"
+                >
+                  <p
+                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-964"
+                    className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                  >
                     Adding to
                   </p>
-                  <p className="mt-0.5 min-w-0 text-[13px] font-semibold leading-snug text-[#161A2C] line-clamp-3 md:line-clamp-4">
+                  <p
+                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-967"
+                    className="mt-0.5 min-w-0 text-[13px] font-semibold leading-snug text-[#161A2C] line-clamp-3 md:line-clamp-4"
+                  >
                     {(activeTarget.keyResultTitle || 'Key result').trim() ||
                       'Key result'}
                   </p>
                 </div>
                 <button
                   type="button"
+                  data-cy="inline-planning-clear-target"
                   onClick={onClearTarget}
                   className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
                   aria-label="Clear planning target"
@@ -979,8 +1077,14 @@ const InlinePlanningWorkspace = forwardRef<
                 </button>
               </div>
 
-              <div className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4">
-                <div className="space-y-4">
+              <div
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-982"
+                className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4"
+              >
+                <div
+                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-983"
+                  className="space-y-4"
+                >
                   <Input
                     value={task}
                     onChange={(e) => setTask(e.target.value)}
@@ -1002,8 +1106,14 @@ const InlinePlanningWorkspace = forwardRef<
                       }}
                     />
                   ) : null}
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5">
-                    <div className="grid min-w-0 flex-1 grid-cols-3 gap-2 sm:gap-3 [&>*]:min-w-0">
+                  <div
+                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
+                    className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5"
+                  >
+                    <div
+                      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1006"
+                      className="grid min-w-0 flex-1 grid-cols-3 gap-2 sm:gap-3 [&>*]:min-w-0"
+                    >
                       <Select
                         placeholder="Priority"
                         className={`w-full min-w-0 rounded-lg ${controlH40} [&_.ant-select-selector]:!rounded-lg`}
@@ -1045,34 +1155,61 @@ const InlinePlanningWorkspace = forwardRef<
           roundedTotal === 100 &&
           !editingDraftId ? (
             <div
+              data-cy="inline-planning-workspace-full-weight-notice"
               className={`px-4 md:px-5 ${
                 draftLines.length > 0
                   ? 'border-b border-[#F1F2F6] pb-3 pt-1'
                   : 'py-1'
               }`}
             >
-              <p className="text-[13px] leading-relaxed text-[#575B7A]">
+              <p
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1054"
+                className="text-[13px] leading-relaxed text-[#575B7A]"
+              >
                 You’ve reached{' '}
-                <span className="font-semibold text-[#161A2C]">100%</span>{' '}
+                <span
+                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1056"
+                  className="font-semibold text-[#161A2C]"
+                >
+                  100%
+                </span>{' '}
                 weight. Review your tasks below, then click{' '}
-                <span className="font-semibold text-[#161A2C]">Save plan</span>.
+                <span
+                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1058"
+                  className="font-semibold text-[#161A2C]"
+                >
+                  Save plan
+                </span>
+                .
               </p>
             </div>
           ) : null}
 
           {!activeTarget && draftLines.length > 0 ? (
-            <div className="border-b border-[#F1F2F6] px-4 py-3 text-[13px] text-[#575B7A] md:px-5">
-              <span className="lg:hidden">
+            <div
+              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1064"
+              className="border-b border-[#F1F2F6] px-4 py-3 text-[13px] text-[#575B7A] md:px-5"
+            >
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1065"
+                className="lg:hidden"
+              >
                 Use + above to pick a key result and add more tasks.
               </span>
-              <span className="hidden lg:inline">
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1068"
+                className="hidden lg:inline"
+              >
                 Use + on the left to pick a key result and add more tasks.
               </span>
             </div>
           ) : null}
 
           {showDraftAndSubmit ? (
-            <ul className="flex flex-col gap-2.5 p-3 md:gap-3 md:p-4 md:px-5">
+            <ul
+              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-ul-1075"
+              className="flex flex-col gap-2.5 p-3 md:gap-3 md:p-4 md:px-5"
+            >
               {draftLines.map((l) =>
                 editingDraftId === l.id ? (
                   <li
@@ -1081,17 +1218,35 @@ const InlinePlanningWorkspace = forwardRef<
                     className="list-none rounded-xl border border-[#574CFF]/35 bg-white p-3.5 shadow-[0_4px_14px_rgba(87,76,255,0.08)] md:p-4"
                     data-cy="inline-plan-edit-row"
                   >
-                    <div className="flex min-w-0 items-start gap-3">
+                    <div
+                      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1084"
+                      className="flex min-w-0 items-start gap-3"
+                    >
                       <OutcomeTaskListIcon line={l} />
-                      <div className="flex min-w-0 flex-1 flex-col gap-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]">
+                      <div
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1086"
+                        className="flex min-w-0 flex-1 flex-col gap-3"
+                      >
+                        <p
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1087"
+                          className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                        >
                           Edit task
                         </p>
-                        <p className="text-[12px] leading-relaxed text-[#575B7A]">
+                        <p
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1090"
+                          className="text-[12px] leading-relaxed text-[#575B7A]"
+                        >
                           {l.label}
                         </p>
-                        <div className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4">
-                          <div className="space-y-4">
+                        <div
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1093"
+                          className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4"
+                        >
+                          <div
+                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1094"
+                            className="space-y-4"
+                          >
                             <Input
                               value={task}
                               onChange={(e) => setTask(e.target.value)}
@@ -1124,8 +1279,14 @@ const InlinePlanningWorkspace = forwardRef<
                                 }}
                               />
                             ) : null}
-                            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5">
-                              <div className="grid min-w-0 flex-1 grid-cols-3 gap-2 sm:gap-3 [&>*]:min-w-0">
+                            <div
+                              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1127"
+                              className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5"
+                            >
+                              <div
+                                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1128"
+                                className="grid min-w-0 flex-1 grid-cols-3 gap-2 sm:gap-3 [&>*]:min-w-0"
+                              >
                                 <Select
                                   placeholder="Priority"
                                   className={`w-full min-w-0 rounded-lg ${controlH40} [&_.ant-select-selector]:!rounded-lg`}
@@ -1148,7 +1309,10 @@ const InlinePlanningWorkspace = forwardRef<
                                   onChange={(v) => setTargetValue(v ?? null)}
                                 />
                               </div>
-                              <div className="flex w-full shrink-0 flex-col gap-2 lg:ml-2 lg:w-auto lg:flex-row lg:justify-end">
+                              <div
+                                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1151"
+                                className="flex w-full shrink-0 flex-col gap-2 lg:ml-2 lg:w-auto lg:flex-row lg:justify-end"
+                              >
                                 <Button
                                   type="default"
                                   onClick={cancelEditDraft}
@@ -1173,22 +1337,42 @@ const InlinePlanningWorkspace = forwardRef<
                 ) : (
                   <li
                     key={l.id}
+                    data-cy={`inline-planning-draft-line-${l.id}`}
                     className="group flex items-start gap-3 rounded-xl border border-[#F1F2F6] bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] hover:border-[#574CFF]/18 hover:shadow-[0_4px_14px_rgba(87,76,255,0.07)] md:px-4 md:py-3.5"
                   >
                     <OutcomeTaskListIcon line={l} />
-                    <div className="flex min-w-0 flex-1 flex-col gap-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-semibold leading-snug text-[#161A2C] line-clamp-2">
+                    <div
+                      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1179"
+                      className="flex min-w-0 flex-1 flex-col gap-2"
+                    >
+                      <div
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1180"
+                        className="flex items-start justify-between gap-3"
+                      >
+                        <div
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1181"
+                          className="min-w-0 flex-1"
+                        >
+                          <p
+                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1182"
+                            className="text-[14px] font-semibold leading-snug text-[#161A2C] line-clamp-2"
+                          >
                             {l.task}
                           </p>
-                          <p className="mt-1 text-[12px] leading-relaxed text-[#8F94A3] line-clamp-2">
+                          <p
+                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1185"
+                            className="mt-1 text-[12px] leading-relaxed text-[#8F94A3] line-clamp-2"
+                          >
                             {l.label}
                           </p>
                         </div>
-                        <div className="flex flex-shrink-0 items-start gap-0.5">
+                        <div
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1189"
+                          className="flex flex-shrink-0 items-start gap-0.5"
+                        >
                           <button
                             type="button"
+                            data-cy={`inline-planning-edit-draft-${l.id}`}
                             onClick={() => beginEditDraft(l)}
                             className="flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
                             aria-label="Edit task"
@@ -1197,6 +1381,7 @@ const InlinePlanningWorkspace = forwardRef<
                           </button>
                           <button
                             type="button"
+                            data-cy={`inline-planning-remove-draft-${l.id}`}
                             onClick={() => removeLine(l.id)}
                             className="flex h-9 w-9 items-center justify-center rounded-lg text-[#9CA3AF] transition-colors hover:bg-[#F1F5F9] hover:text-[#64748B]"
                             aria-label="Remove task"
@@ -1205,17 +1390,30 @@ const InlinePlanningWorkspace = forwardRef<
                           </button>
                         </div>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1208"
+                        className="flex flex-wrap items-center gap-2"
+                      >
                         <span
+                          data-cy={`inline-planning-draft-priority-${l.id}`}
                           className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold capitalize ${draftPriorityPillClass(l.priority)}`}
                         >
                           {l.priority}
                         </span>
-                        <span className="inline-flex items-center rounded-full border border-[#E0E7FF] bg-[#F8F7FF] px-2.5 py-0.5 text-[11px] font-semibold tabular-nums text-[#574CFF]">
+                        <span
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1214"
+                          className="inline-flex items-center rounded-full border border-[#E0E7FF] bg-[#F8F7FF] px-2.5 py-0.5 text-[11px] font-semibold tabular-nums text-[#574CFF]"
+                        >
                           {l.weight}%
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[#475569]">
-                          <span className="font-normal text-[#94A3B8]">
+                        <span
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1217"
+                          className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[#475569]"
+                        >
+                          <span
+                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1218"
+                            className="font-normal text-[#94A3B8]"
+                          >
                             Target
                           </span>
                           {l.targetValue}

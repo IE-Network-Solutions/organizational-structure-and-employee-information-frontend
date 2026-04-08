@@ -356,7 +356,10 @@ function Page() {
               'sm:gap-3 lg:gap-x-8',
             )}
           >
-            <div className="flex shrink-0 items-center sm:min-h-10 sm:justify-center">
+            <div
+              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-359"
+              className="flex shrink-0 items-center sm:min-h-10 sm:justify-center"
+            >
               <ConfigProvider
                 theme={{
                   components: {
@@ -395,6 +398,7 @@ function Page() {
                 className="flex min-w-0 flex-1 items-center justify-end overflow-hidden sm:min-h-10"
               >
                 <div
+                  data-cy="planning-period-pills-scroll"
                   className={classNames(
                     'flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-webkit-overflow-scrolling:touch] scrollbar-hide',
                     'sm:gap-3 sm:pb-0',
@@ -403,6 +407,7 @@ function Page() {
                   <div
                     role="tablist"
                     aria-label="Planning period"
+                    data-cy="planning-period-tablist"
                     className="flex shrink-0 flex-nowrap items-center gap-2"
                   >
                     {processedPlanningPeriods.map(
@@ -432,7 +437,10 @@ function Page() {
                       },
                     )}
                   </div>
-                  <div className="shrink-0 self-center">
+                  <div
+                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
+                    className="shrink-0 self-center"
+                  >
                     <PlanningToolbarFilters />
                   </div>
                 </div>
@@ -443,6 +451,7 @@ function Page() {
           {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
           <div
             ref={containerRef}
+            data-cy="planning-reporting-main-grid"
             className={classNames(
               'grid min-h-0 w-full min-w-0 max-w-full grid-cols-1 gap-4',
               'lg:grid-cols-[clamp(260px,38%,28rem)_minmax(0,1fr)] xl:grid-cols-[clamp(280px,36%,30rem)_minmax(0,1fr)]',
@@ -487,6 +496,7 @@ function Page() {
               data-cy="planning-main-panel"
             >
               <div
+                data-cy="planning-tab-panel"
                 className={classNames(
                   'min-w-0 max-w-full',
                   activeTab === 1 ? 'flex flex-col' : 'hidden',
@@ -496,6 +506,7 @@ function Page() {
               >
                 {inlinePlanningMode && isDesktop ? (
                   <section
+                    data-cy="inline-planning-draft-section"
                     className="mb-8 shrink-0 border-b border-[#F1F2F6] pb-8 sm:mb-10 sm:pb-10"
                     aria-label="New plan draft"
                   >
@@ -514,6 +525,7 @@ function Page() {
                 />
               </div>
               <div
+                data-cy="reporting-tab-panel"
                 className="min-w-0 max-w-full"
                 style={{ display: activeTab === 2 ? 'block' : 'none' }}
               >
@@ -542,7 +554,10 @@ function Page() {
       <Drawer
         data-cy="planning-mobile-composer-drawer"
         title={
-          <span className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base">
+          <span
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-545"
+            className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base"
+          >
             New {inlinePlanningPeriodLabel}
           </span>
         }
@@ -586,8 +601,14 @@ function Page() {
         }}
         rootClassName="planning-mobile-composer-drawer [&_.ant-drawer-content-wrapper]:!max-h-[100dvh]"
       >
-        <div className="flex h-full min-h-0 flex-col bg-[#FAFBFC]">
-          <div className="min-h-0 max-h-[42vh] shrink-0 overflow-hidden border-b border-[#F1F2F6]">
+        <div
+          data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-589"
+          className="flex h-full min-h-0 flex-col bg-[#FAFBFC]"
+        >
+          <div
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-590"
+            className="min-h-0 max-h-[42vh] shrink-0 overflow-hidden border-b border-[#F1F2F6]"
+          >
             {krPanelBlockingLoading ? (
               <KRPanelSkeleton />
             ) : (
@@ -610,7 +631,10 @@ function Page() {
               />
             )}
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto bg-white p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3">
+          <div
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-613"
+            className="min-h-0 flex-1 overflow-y-auto bg-white p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3"
+          >
             <InlinePlanningWorkspace
               ref={mobileComposerWorkspaceRef}
               hideHeaderCloseButton

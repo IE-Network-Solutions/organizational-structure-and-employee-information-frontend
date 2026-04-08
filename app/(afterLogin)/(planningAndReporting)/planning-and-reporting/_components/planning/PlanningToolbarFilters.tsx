@@ -149,8 +149,16 @@ export default function PlanningToolbarFilters() {
       className="w-[min(100vw-2rem,520px)] rounded-lg bg-white shadow-lg ring-1 ring-black/5"
       data-cy="planning-toolbar-filter-popover"
     >
-      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-        <span className="text-base font-semibold text-gray-900">Filter</span>
+      <div
+        data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-152"
+        className="flex items-center justify-between border-b border-gray-100 px-4 py-3"
+      >
+        <span
+          data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-153"
+          className="text-base font-semibold text-gray-900"
+        >
+          Filter
+        </span>
         <button
           type="button"
           className="flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
@@ -161,12 +169,21 @@ export default function PlanningToolbarFilters() {
           <CloseOutlined />
         </button>
       </div>
-      <div className="max-h-[min(70vh,28rem)] overflow-y-auto px-4 pb-2 pt-4">
+      <div
+        data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-164"
+        className="max-h-[min(70vh,28rem)] overflow-y-auto px-4 pb-2 pt-4"
+      >
         {draft ? (
           <Row gutter={[16, 16]}>
             <Col span={24}>
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-gray-700">
+              <div
+                data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-168"
+                className="flex flex-col gap-2"
+              >
+                <span
+                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-169"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Employee
                 </span>
                 <Select
@@ -195,8 +212,14 @@ export default function PlanningToolbarFilters() {
               </div>
             </Col>
             <Col xs={24} sm={12}>
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-gray-700">
+              <div
+                data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-198"
+                className="flex flex-col gap-2"
+              >
+                <span
+                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-199"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Plan type
                 </span>
                 <Select
@@ -212,8 +235,14 @@ export default function PlanningToolbarFilters() {
               </div>
             </Col>
             <Col xs={24} sm={12}>
-              <div className="flex flex-col gap-2">
-                <span className="text-sm font-medium text-gray-700">
+              <div
+                data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-215"
+                className="flex flex-col gap-2"
+              >
+                <span
+                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-216"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Department
                 </span>
                 <Select
@@ -241,8 +270,14 @@ export default function PlanningToolbarFilters() {
             {activeTab === 2 ? (
               <>
                 <Col xs={24} sm={12}>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-gray-700">
+                  <div
+                    data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-244"
+                    className="flex flex-col gap-2"
+                  >
+                    <span
+                      data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-245"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Fiscal year
                     </span>
                     <Select
@@ -279,8 +314,14 @@ export default function PlanningToolbarFilters() {
                   </div>
                 </Col>
                 <Col xs={24} sm={12}>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-gray-700">
+                  <div
+                    data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-282"
+                    className="flex flex-col gap-2"
+                  >
+                    <span
+                      data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-283"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Session
                     </span>
                     <Select
@@ -320,7 +361,10 @@ export default function PlanningToolbarFilters() {
           </Row>
         ) : null}
       </div>
-      <div className="flex justify-end gap-2 border-t border-gray-100 px-4 py-3">
+      <div
+        data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-323"
+        className="flex justify-end gap-2 border-t border-gray-100 px-4 py-3"
+      >
         <Button
           size="middle"
           className="rounded-md border-gray-200"
@@ -376,7 +420,12 @@ export default function PlanningToolbarFilters() {
         data-cy="planning-toolbar-filter-trigger"
       >
         {showFilterLabel ? (
-          <span className="text-[14px] font-normal leading-none">Filter</span>
+          <span
+            data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-379"
+            className="text-[14px] font-normal leading-none"
+          >
+            Filter
+          </span>
         ) : null}
       </Button>
     </Popover>

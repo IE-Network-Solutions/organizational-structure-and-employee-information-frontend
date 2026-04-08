@@ -211,7 +211,10 @@ const CommentList = ({
       className="w-full"
     >
       {/* Comment thread */}
-      <div className="space-y-2">
+      <div
+        data-cy="-components-comments-commentlist-index-tsx-index-div-214"
+        className="space-y-2"
+      >
         {sortedComments.map((commentData) => {
           const { fullName, initials, profileImage } = getUserDetail(
             commentData.commentedBy,
@@ -239,20 +242,40 @@ const CommentList = ({
                 {!profileImage && initials}
               </Avatar>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[12px] font-semibold text-[#161A2C]">
+              <div
+                data-cy="-components-comments-commentlist-index-tsx-index-div-242"
+                className="flex-1 min-w-0"
+              >
+                <div
+                  data-cy="-components-comments-commentlist-index-tsx-index-div-243"
+                  className="flex items-baseline gap-2"
+                >
+                  <span
+                    data-cy="-components-comments-commentlist-index-tsx-index-span-244"
+                    className="text-[12px] font-semibold text-[#161A2C]"
+                  >
                     {fullName}
                   </span>
-                  <span className="text-[10px] text-[#B0B3C0]">{timeAgo}</span>
+                  <span
+                    data-cy="-components-comments-commentlist-index-tsx-index-span-247"
+                    className="text-[10px] text-[#B0B3C0]"
+                  >
+                    {timeAgo}
+                  </span>
                 </div>
-                <p className="text-[12px] text-[#4B5563] leading-relaxed mt-0.5 break-words">
+                <p
+                  data-cy="-components-comments-commentlist-index-tsx-index-p-249"
+                  className="text-[12px] text-[#4B5563] leading-relaxed mt-0.5 break-words"
+                >
                   {commentData.comment}
                 </p>
               </div>
 
               {isOwnComment && (
-                <div className="flex-shrink-0 opacity-0 group-hover/comment:opacity-100 transition-opacity">
+                <div
+                  data-cy="-components-comments-commentlist-index-tsx-index-div-255"
+                  className="flex-shrink-0 opacity-0 group-hover/comment:opacity-100 transition-opacity"
+                >
                   <CommentActionMenu
                     onEdit={() => handleEdit(commentData)}
                     onDelete={() => handleDelete(commentData.id)}
@@ -287,7 +310,10 @@ const CommentList = ({
             rules={[{ required: true, message: '' }]}
             className="w-full mb-0"
           >
-            <div className="flex items-center gap-2">
+            <div
+              data-cy="-components-comments-commentlist-index-tsx-index-div-290"
+              className="flex items-center gap-2"
+            >
               <Input
                 id={`planning-comment-textarea-${planId || 'new'}`}
                 data-cy={`planning-comment-textarea-${planId || 'new'}`}

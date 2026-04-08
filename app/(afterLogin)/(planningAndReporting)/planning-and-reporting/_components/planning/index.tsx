@@ -309,14 +309,20 @@ function Planning({
         className="mt-0 flex min-h-0 flex-1 flex-col"
       >
         {isPlanningListLoading ? (
-          <div className="space-y-4">
+          <div
+            data-cy="planning-and-reporting-components-planning-index-tsx-index-div-312"
+            className="space-y-4"
+          >
             {[0, 1, 2].map((i) => (
               <PlanCardSkeleton key={i} />
             ))}
           </div>
         ) : planSummaries.length > 0 ? (
           isMobile || isTablet ? (
-            <div className="space-y-6">
+            <div
+              data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
+              className="space-y-6"
+            >
               {planSummaries.map((plan: any) => {
                 const originalDataItem = transformedData?.find(
                   (item: any) => item.id === plan.id,
@@ -411,7 +417,10 @@ function Planning({
               data-cy="planning-empty-state"
               className="flex w-full max-w-md flex-col items-center justify-center px-6 py-14"
             >
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]">
+              <div
+                data-cy="planning-and-reporting-components-planning-index-tsx-index-div-414"
+                className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+              >
                 <BsClipboard2Check
                   size={26}
                   className="text-[#D1D5DB]"
@@ -424,12 +433,18 @@ function Planning({
               >
                 No plans yet
               </p>
-              <p className="mt-2 text-xs leading-relaxed text-[#8F94A3]">
+              <p
+                data-cy="planning-and-reporting-components-planning-index-tsx-index-p-427"
+                className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
+              >
                 {activeTabName
                   ? `There are no planned tasks for ${activeTabName} with the current filters.`
                   : 'There are no planned tasks for this period with the current filters.'}
               </p>
-              <p className="mt-2 text-xs leading-relaxed text-[#C4C7CE]">
+              <p
+                data-cy="planning-and-reporting-components-planning-index-tsx-index-p-432"
+                className="mt-2 text-xs leading-relaxed text-[#C4C7CE]"
+              >
                 {isDesktop
                   ? 'Add tasks from a key result using the + in the left panel.'
                   : 'Add tasks from a key result using + next to a key result.'}
