@@ -227,6 +227,7 @@ export default function EmployeePerformanceTable() {
     searchObjParams,
     employeePageSize,
     employeeCurrentPage,
+    undefined,
     { enabled: !USE_MOCK_EMPLOYEE_PERFORMANCE_DATA },
   );
 

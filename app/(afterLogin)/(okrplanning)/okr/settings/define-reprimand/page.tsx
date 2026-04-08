@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { Button, List } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ReprimandTypeDrawer from './_components/reprimand-type';
 import { useGetReprimandType } from '@/store/server/features/okrplanning/monitoring-evaluation/reprimand-type/queries';
 import { ReprimandType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-type/interface';
@@ -111,7 +112,7 @@ const DefineReprimand = () => {
               >
                 <Button
                   icon={
-                    <EditOutlined
+                    <EditOutlinedIcon
                       data-cy={`okr-define-reprimand-table-edit-button-icon-${item?.id}`}
                     />
                   }

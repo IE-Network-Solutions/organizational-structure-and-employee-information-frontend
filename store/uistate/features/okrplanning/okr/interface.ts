@@ -9,6 +9,8 @@ export interface OKRProps {
 export interface JobInformation {
   id: string;
   departmentId: string;
+  department?: { name: string };
+  position?: { name: string };
 }
 export interface User {
   firstName: string;
@@ -81,6 +83,11 @@ interface SearchObjParams {
   metricTypeId: string;
   departmentId: string;
 }
+interface EmployeeSearchObjParams {
+  userId: string;
+  metricTypeId: string;
+  departmentId: string;
+}
 export interface OKRProps {
   keyValue: KeyResult;
   index: number;
@@ -96,6 +103,14 @@ export interface OKRFormProps {
   removeKeyResult: (index: number) => void;
   addKeyResultValue: (value: any) => void;
   keyResults?: KeyResult;
+  /** When true, on mobile render the form inline (e.g. inside OKR Create Objective bottom sheet) instead of card + separate drawer */
+  embedInOkrSheet?: boolean;
+  /** When true, weight input is disabled (e.g. in Edit KR modal) */
+  disableWeightEdit?: boolean;
+  /** Called when Save succeeds (e.g. to collapse inline edit back to card view) */
+  onSaveSuccess?: () => void;
+  /** When true, the remove key result button is hidden (e.g. in Edit KR modal where delete is handled separately) */
+  hideRemoveButton?: boolean;
 }
 export interface ObjectiveProps {
   objective: Objective;
@@ -152,10 +167,16 @@ export interface OKRState {
     field: string,
   ) => void;
   updateKeyResult: (index: number, field: keyof KeyResult, value: any) => void;
+  updateKeyResultFields: (index: number, fields: Partial<KeyResult>) => void;
   removeKeyResult: (index: number) => void;
   removeKeyResultValue: (index: number) => void;
   searchObjParams: SearchObjParams;
   setSearchObjParams: (key: keyof SearchObjParams, value: string) => void;
+  employeeSearchObjParams: EmployeeSearchObjParams;
+  setEmployeeSearchObjParams: (
+    key: keyof EmployeeSearchObjParams,
+    value: string,
+  ) => void;
   pageSize: number;
   currentPage: number;
   setPageSize: (pageSize: number) => void;
@@ -177,12 +198,19 @@ export interface OKRState {
   setEmployeeCurrentPage: (employeeCurrentPage: number) => void;
   okrTab: number | string;
   setOkrTab: (okrTab: number | string) => void;
+  /** Quick status filter chips (desktop tab bar + mobile filter modal). Not wired to API yet. */
+  okrStatusPillId: string | null;
+  setOkrStatusPillId: (id: string | null) => void;
   alignment: boolean;
   setAlignment: (alignment: boolean) => void;
   fiscalYearId: string;
   setFiscalYearId: (fiscalYearId: string) => void;
   sessionIds: string[];
   setSessionIds: (sessionId: string[]) => void;
+  employeeFiscalYearId: string;
+  setEmployeeFiscalYearId: (employeeFiscalYearId: string) => void;
+  employeeSessionIds: string[];
+  setEmployeeSessionIds: (sessionIds: string[]) => void;
   deletedKeyResultIds: string[];
   setDeletedKeyResultIds: (ids: string[]) => void;
   deletedMilestoneIds: string[];
