@@ -1,3 +1,4 @@
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Button, Card, Popconfirm, Table } from 'antd';
 import React from 'react';
 import { FaPlus } from 'react-icons/fa';
@@ -11,8 +12,13 @@ import { Edit2, Trash2 } from 'lucide-react';
 interface PropsData {
   data: any;
   all?: boolean;
+  isLoading?: boolean;
 }
-const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
+const AllRecognition: React.FC<PropsData> = ({
+  data,
+  all = false,
+  isLoading = false,
+}) => {
   const {
     setOpen,
     setSelectedRecognitionType,
@@ -188,19 +194,23 @@ const AllRecognition: React.FC<PropsData> = ({ data, all = false }) => {
                 data-cy={`all-recognition-card-table-container-${item?.id}`}
                 id={`allRecognitionCardTableContainer${item?.id}`}
               >
-                <Table
-                  columns={columns}
-                  dataSource={
-                    item?.recognitionCriteria?.map((criteria: any) => ({
-                      ...criteria,
-                      recognitionTypeId: item?.id, // Add recognitionTypeId
-                    })) || []
-                  }
-                  rowKey="id" // Ensure rowKey is unique, changed from `criterionKey` to `id`
-                  pagination={false} // Disable pagination if not needed
-                  data-cy={`all-recognition-card-table-${item?.id}`}
-                  id={`allRecognitionCardTable${item?.id}`}
-                />
+                {isLoading ? (
+                  <TableSkeleton columns={columns} />
+                ) : (
+                  <Table
+                    columns={columns}
+                    dataSource={
+                      item?.recognitionCriteria?.map((criteria: any) => ({
+                        ...criteria,
+                        recognitionTypeId: item?.id, // Add recognitionTypeId
+                      })) || []
+                    }
+                    rowKey="id" // Ensure rowKey is unique, changed from `criterionKey` to `id`
+                    pagination={false} // Disable pagination if not needed
+                    data-cy={`all-recognition-card-table-${item?.id}`}
+                    id={`allRecognitionCardTable${item?.id}`}
+                  />
+                )}
               </div>
             }
           />

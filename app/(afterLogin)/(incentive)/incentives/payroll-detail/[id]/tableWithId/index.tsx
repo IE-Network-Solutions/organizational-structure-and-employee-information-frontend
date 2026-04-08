@@ -16,7 +16,9 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 import dayjs from 'dayjs';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import IncentiveDetailModal from './components/IncentiveDetailModal';
+import EmptyState from '@/components/empty';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -182,6 +184,9 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   };
   const { isMobile, isTablet } = useIsMobile();
 
+  const totalResultCount = dynamicRecognitionData?.meta?.totalItems ?? 0;
+  const showPagination = !responseLoading && totalResultCount > 0;
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (selectedRowKeys: any) => {
@@ -331,46 +336,64 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       data-cy="incentive-table-after-generate-container"
       className="overflow-x-auto scrollbar-hide"
     >
-      <Table
-        id="incentive-table-after-generate-table"
-        data-cy="incentive-table-after-generate-table"
-        rowSelection={{ type: 'checkbox', ...rowSelection }}
-        rowKey="id"
-        className="w-full cursor-pointer"
-        columns={columns}
-        dataSource={IncentiveByRecognitionTypeTableData}
-        pagination={false}
-        loading={responseLoading}
-        onRow={(record) => ({
-          onClick: () => {
-            setSelectedDetailId(record?.id);
-            setDetailModalOpen(true);
-          },
-        })}
-        rowHoverable={false}
-        rowClassName={(unusedRecord, rowIndex) => {
-          void unusedRecord;
-          return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
-        }}
-      />
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          data-cy="incentive-table-after-generate-mobile-pagination"
-          totalResults={dynamicRecognitionData?.meta?.totalItems}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
+      {responseLoading ? (
+        <TableSkeleton columns={columns} />
       ) : (
-        <CustomPagination
-          data-cy="incentive-table-after-generate-pagination"
-          current={currentPage}
-          total={dynamicRecognitionData?.meta?.totalItems}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
+        <Table
+          id="incentive-table-after-generate-table"
+          data-cy="incentive-table-after-generate-table"
+          rowSelection={{ type: 'checkbox', ...rowSelection }}
+          rowKey="id"
+          className="w-full cursor-pointer"
+          columns={columns}
+          dataSource={IncentiveByRecognitionTypeTableData}
+          pagination={false}
+          locale={{
+            emptyText: (
+              <div
+                className="py-8"
+                data-cy="incentive-table-after-generate-empty"
+              >
+                <EmptyState
+                  minimal
+                  description="No data found"
+                  data-cy="incentive-table-after-generate-empty-inner"
+                />
+              </div>
+            ),
+          }}
+          onRow={(record) => ({
+            onClick: () => {
+              setSelectedDetailId(record?.id);
+              setDetailModalOpen(true);
+            },
+          })}
+          rowHoverable={false}
+          rowClassName={(unusedRecord, rowIndex) => {
+            void unusedRecord;
+            return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
+          }}
         />
       )}
+      {showPagination &&
+        (isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="incentive-table-after-generate-mobile-pagination"
+            totalResults={totalResultCount}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="incentive-table-after-generate-pagination"
+            current={currentPage}
+            total={totalResultCount}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ))}
 
       <IncentiveDetailModal
         open={detailModalOpen}

@@ -16,12 +16,6 @@ import Link from 'next/link';
 import TwoFactorAuth from './_components/2fa';
 import SimpleLogo from '@/components/common/logo/simpleLogo';
 import { useGet2FACode } from '@/store/server/features/authentication/mutation';
-// Images from local _assets (bundled by Next.js)
-import imgGroup2 from './_assets/Group2.png';
-import imgGroup3 from './_assets/Group3.png';
-import img14 from './_assets/image14.png';
-import img15 from './_assets/image15.png';
-import img16 from './_assets/image16.png';
 
 type FieldType = {
   email: string;
@@ -31,11 +25,11 @@ type FieldType = {
 
 // Use imported assets from _assets folder (Next.js resolves these at build time)
 const IMG = {
-  backgroundLeft: imgGroup2.src,
-  backgroundRight: imgGroup3.src,
-  card1: img14.src,
-  card2: img15.src,
-  card3: img16.src,
+  backgroundLeft: '/images/auth-login/Group2.png',
+  backgroundRight: '/images/auth-login/Group3.png',
+  card1: '/images/auth-login/image14.png',
+  card2: '/images/auth-login/image15.png',
+  card3: '/images/auth-login/image16.png',
 } as const;
 
 const Login: FC = () => {

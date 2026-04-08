@@ -105,11 +105,11 @@ const AssignTargetModal: React.FC = () => {
   };
 
   const footer = (
-    <div className="flex justify-end gap-2" data-cy="okr-target-modal-footer">
+    <div className="flex justify-end gap-3" data-cy="okr-target-modal-footer">
       <Button
         type="default"
         onClick={handleModalClose}
-        className="h-[32px] w-[68px] rounded-[8px] border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-normal text-[14px] p-0 flex items-center justify-center"
+        className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
         id="okr-target-modal-cancel-button"
         data-cy="okr-target-modal-cancel-button"
       >
@@ -119,7 +119,7 @@ const AssignTargetModal: React.FC = () => {
         type="primary"
         onClick={() => form.submit()}
         loading={isCreateLoading || isUpdateLoading}
-        className="h-[32px] w-[68px] rounded-[8px] bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-normal text-[14px] p-0 flex items-center justify-center"
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
         id="okr-target-modal-submit-button"
         data-cy="okr-target-modal-submit-button"
       >
@@ -155,7 +155,6 @@ const AssignTargetModal: React.FC = () => {
       <Form
         form={form}
         layout="vertical"
-        requiredMark={false}
         onFinish={onSubmit}
         className=""
         id="okr-target-modal-form"
@@ -170,17 +169,10 @@ const AssignTargetModal: React.FC = () => {
                   data-cy="okr-target-modal-department-label"
                 >
                   <span
-                    className="text-[14px] font-normal text-[#030712]"
+                    className="text-[14px] font-medium text-[#262626]"
                     data-cy="okr-target-modal-department-label-text"
                   >
                     Department
-                  </span>
-                  <span
-                    className="text-[#ff4d4f] text-[14px] leading-none"
-                    aria-hidden
-                    data-cy="okr-target-modal-department-required-indicator"
-                  >
-                    *
                   </span>
                   <Tooltip title="Select the department for this assignment.">
                     <QuestionCircleOutlined
@@ -197,7 +189,7 @@ const AssignTargetModal: React.FC = () => {
             >
               <Select
                 placeholder="Select Department"
-                className="w-full h-10 custom-modal-select"
+                className="w-full h-11 custom-modal-select"
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-target-modal-department-select"
               >
@@ -221,17 +213,10 @@ const AssignTargetModal: React.FC = () => {
                   data-cy="okr-target-modal-criteria-label"
                 >
                   <span
-                    className="text-[14px] font-normal text-[#030712]"
+                    className="text-[14px] font-medium text-[#262626]"
                     data-cy="okr-target-modal-criteria-label-text"
                   >
                     Criteria
-                  </span>
-                  <span
-                    className="text-[#ff4d4f] text-[14px] leading-none"
-                    aria-hidden
-                    data-cy="okr-target-modal-criteria-required-indicator"
-                  >
-                    *
                   </span>
                   <Tooltip title="Select the criteria for this assignment.">
                     <QuestionCircleOutlined
@@ -248,7 +233,7 @@ const AssignTargetModal: React.FC = () => {
             >
               <Select
                 placeholder="Select Criteria"
-                className="w-full h-10 custom-modal-select"
+                className="w-full h-11 custom-modal-select"
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-target-modal-criteria-select"
               >
@@ -267,7 +252,7 @@ const AssignTargetModal: React.FC = () => {
         </Row>
 
         {/* Dynamic Month Targets Grid */}
-        <Row gutter={16} className="" data-cy="okr-target-modal-months-row">
+        <Row gutter={16} className="mt-2" data-cy="okr-target-modal-months-row">
           {selectedMonths?.map((month) => (
             <Col
               key={month}
@@ -281,17 +266,10 @@ const AssignTargetModal: React.FC = () => {
                     data-cy={`okr-target-modal-month-label-${month}`}
                   >
                     <span
-                      className="text-[14px] font-normal text-[#030712]"
+                      className="text-[14px] font-medium text-[#262626]"
                       data-cy={`okr-target-modal-month-label-text-${month}`}
                     >
                       {month} Target
-                    </span>
-                    <span
-                      className="text-[#ff4d4f] text-[14px] leading-none"
-                      aria-hidden
-                      data-cy={`okr-target-modal-month-required-indicator-${month}`}
-                    >
-                      *
                     </span>
                   </div>
                 }
@@ -303,7 +281,7 @@ const AssignTargetModal: React.FC = () => {
                 <Input
                   type="number"
                   placeholder="Input"
-                  className="h-10"
+                  className="h-11"
                   data-cy={`okr-target-modal-month-input-${month}`}
                 />
               </Form.Item>
@@ -324,7 +302,7 @@ const AssignTargetModal: React.FC = () => {
           .okr-settings-modal .custom-modal-select .ant-select-selector {
             display: flex !important;
             align-items: center !important;
-            height: 40px !important;
+            height: 44px !important;
           }
           .okr-settings-modal
             .custom-assignee-dropdown
@@ -336,34 +314,23 @@ const AssignTargetModal: React.FC = () => {
             border-radius: 8px !important;
           }
           .okr-settings-modal .ant-modal-title {
+            margin-bottom: 24px !important;
           }
           .okr-settings-modal .ant-modal-header {
-            padding: 20px 24px 8px 24px !important;
+            padding: 20px 24px 16px 24px !important;
             border-bottom: none !important;
-            margin-bottom: 0 !important;
           }
           .okr-settings-modal .ant-modal-body {
-            padding: 12px 24px !important;
+            padding: 24px !important;
           }
           .okr-settings-modal .ant-modal-footer {
-            padding: 1px 24px 20px 24px !important;
+            padding: 8px 24px 24px 24px !important;
             border-top: none !important;
-            margin-top: 0 !important;
           }
           .okr-settings-modal .ant-form-item-label > label {
             height: auto !important;
             line-height: 1.5 !important;
             padding-bottom: 4px !important;
-          }
-          .okr-settings-modal .ant-modal-body .ant-form-item,
-          .okr-settings-modal .ant-modal-body .ant-row {
-            margin-bottom: 12px !important;
-          }
-          .okr-settings-modal .ant-modal-body .ant-form-item + .flex-wrap {
-            margin-top: -8px !important;
-          }
-          .okr-settings-modal .ant-modal-body > *:last-child {
-            margin-bottom: 0 !important;
           }
         `}</style>
       </Form>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Dropdown, Popover, Skeleton, Spin, Table } from 'antd';
+import { Dropdown, Popover, Skeleton, Table } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -17,6 +17,7 @@ import { useFetchAllowanceEntitlements } from '@/store/server/features/compensat
 import { useParams } from 'next/navigation';
 import { useDeleteAllowanceEntitlement } from '@/store/server/features/compensation/allowance/mutations';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -339,17 +340,22 @@ const DeductionEntitlementTable: React.FC<DeductionEntitlementTableProps> = ({
     <div
       id="compensation-deduction-entitlement-table-container"
       data-cy="compensation-deduction-entitlement-table-container"
+      aria-busy={entitlementLoading}
     >
-      <Spin
-        data-cy="compensation-deduction-entitlement-table-loading"
-        spinning={entitlementLoading}
-      >
-        <>
-          <div
-            className="overflow-hidden [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-title]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-footer]:!rounded-none [&_.ant-table-footer]:!rounded-es-none [&_.ant-table-footer]:!rounded-ee-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-ss-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-se-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-es-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-ee-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
-            id="compensation-deduction-entitlement-table-scroll"
-            data-cy="compensation-deduction-entitlement-table-scroll"
-          >
+      <>
+        <div
+          className="overflow-hidden [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-title]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-footer]:!rounded-none [&_.ant-table-footer]:!rounded-es-none [&_.ant-table-footer]:!rounded-ee-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-ss-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-se-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-es-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-ee-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
+          id="compensation-deduction-entitlement-table-scroll"
+          data-cy="compensation-deduction-entitlement-table-scroll"
+        >
+          {entitlementLoading ? (
+            <div
+              data-cy="compensation-deduction-entitlement-table-loading"
+              aria-busy="true"
+            >
+              <TableSkeleton columns={columnsCompact} />
+            </div>
+          ) : (
             <Table
               data-cy="compensation-deduction-entitlement-table"
               className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
@@ -372,51 +378,51 @@ const DeductionEntitlementTable: React.FC<DeductionEntitlementTableProps> = ({
                 compact && (isMobile || isTablet) ? { x: 620 } : undefined
               }
             />
-          </div>
-          {isMobile || isTablet ? (
-            <div
-              className="mt-3 px-0"
-              id="compensation-deduction-entitlement-mobile-pagination"
-              data-cy="compensation-deduction-entitlement-mobile-pagination"
-            >
-              <CustomMobilePagination
-                data-cy="compensation-deduction-entitlement-mobile-pagination"
-                totalResults={filteredDataSource.length}
-                pageSize={pageSize}
-                currentPage={currentPage}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-              />
-            </div>
-          ) : (
-            <div
-              id="compensation-deduction-entitlement-pagination"
-              data-cy="compensation-deduction-entitlement-pagination"
-            >
-              <CustomPagination
-                data-cy="compensation-deduction-entitlement-pagination"
-                current={currentPage}
-                total={filteredDataSource.length}
-                pageSize={pageSize}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
           )}
-        </>
-      </Spin>
+        </div>
+        {isMobile || isTablet ? (
+          <div
+            className="mt-3 px-0"
+            id="compensation-deduction-entitlement-mobile-pagination"
+            data-cy="compensation-deduction-entitlement-mobile-pagination"
+          >
+            <CustomMobilePagination
+              data-cy="compensation-deduction-entitlement-mobile-pagination"
+              totalResults={filteredDataSource.length}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+            />
+          </div>
+        ) : (
+          <div
+            id="compensation-deduction-entitlement-pagination"
+            data-cy="compensation-deduction-entitlement-pagination"
+          >
+            <CustomPagination
+              data-cy="compensation-deduction-entitlement-pagination"
+              current={currentPage}
+              total={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        )}
+      </>
       <DeductionEntitlementSideBar data-cy="compensation-deduction-entitlement-sidebar" />
       <DeductionEntitlementSideBarEdit data-cy="compensation-deduction-entitlement-sidebar-edit" />
       <BenefitEntitlementSideBarEdit

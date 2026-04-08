@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const tableClassName = 'text-[#4d4d4d] text-base font-bold';
 
@@ -95,7 +96,7 @@ const UserTable = () => {
   const { userCurrentPage, pageSize, setUserCurrentPage, setPageSize } =
     useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
-  const { data: allFilterData } = useEmployeeAllFilter(
+  const { data: allFilterData, isLoading } = useEmployeeAllFilter(
     pageSize,
     userCurrentPage,
     searchParams.allOffices ? searchParams.allOffices : '',
@@ -270,28 +271,32 @@ const UserTable = () => {
         data-cy="user-table-wrapper"
         className="user-table-wrapper"
       >
-        <Table
-          className="w-full cursor-pointer"
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-          scroll={{ x: 1000 }}
-          id="user-table"
-          data-cy="user-table"
-          onRow={
-            hasAccess
-              ? (record) => ({
-                  onClick: () => {
-                    router.push(`manage-employees/${record?.key}`);
-                  },
-                })
-              : undefined
-          }
-          rowHoverable={false}
-          rowClassName={(notUsed, index) =>
-            index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-          }
-        />
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            className="w-full cursor-pointer"
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            scroll={{ x: 1000 }}
+            id="user-table"
+            data-cy="user-table"
+            onRow={
+              hasAccess
+                ? (record) => ({
+                    onClick: () => {
+                      router.push(`manage-employees/${record?.key}`);
+                    },
+                  })
+                : undefined
+            }
+            rowHoverable={false}
+            rowClassName={(notUsed, index) =>
+              index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+            }
+          />
+        )}
         {isMobile || isTablet ? (
           <CustomMobilePagination
             totalResults={allFilterData?.meta?.totalItems ?? 0}

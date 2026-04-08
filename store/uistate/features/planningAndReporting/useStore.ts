@@ -1,7 +1,6 @@
 // useStore.ts
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { useAuthenticationStore } from '../authentication';
 type MkAsATask = {
   title: string | null;
   mid: string | null;
@@ -69,8 +68,30 @@ export interface PlanningAndReporting {
 
   allSessionsOfYear: string[];
   setAllSessionsOfYear: (sessions: string[]) => void;
+
+  /** Planning tab: department / plan-type filters (toolbar popover) */
+  planningFilterDepartment: string | undefined;
+  setPlanningFilterDepartment: (id: string | undefined) => void;
+  planningFilterPlanType: string;
+  setPlanningFilterPlanType: (value: string) => void;
+
+  /** Page-embedded create plan (KR + composer) instead of drawer on desktop */
+  inlinePlanningMode: boolean;
+  setInlinePlanningMode: (value: boolean) => void;
+
+  /** Full-screen mobile/tablet sheet for KR pick + inline composer */
+  mobilePlanComposerOpen: boolean;
+  setMobilePlanComposerOpen: (value: boolean) => void;
+
+  /** Plan card: inline report form instead of drawer (plan row id) */
+  inlineReportPlanId: string | null;
+  setInlineReportPlanId: (id: string | null) => void;
+
+  /** InlinePlanningWorkspace: edit existing plan (plan id) */
+  inlineEditPlanId: string | null;
+  setInlineEditPlanId: (id: string | null) => void;
 }
-const userId = useAuthenticationStore.getState().userId;
+
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
   devtools((set) => ({
     newComment: '',
@@ -116,7 +137,7 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setActivePlanPeriodId: (activePlanPeriodId: string) =>
       set({ activePlanPeriodId }),
 
-    selectedUser: [userId],
+    selectedUser: ['all'],
     setSelectedUser: (selectedUser: string[]) => set({ selectedUser }),
     weights: {},
     totalWeight: 0,
@@ -170,5 +191,30 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     allSessionsOfYear: [],
     setAllSessionsOfYear: (allSessionsOfYear: string[]) =>
       set({ allSessionsOfYear }),
+
+    planningFilterDepartment: undefined,
+    setPlanningFilterDepartment: (
+      planningFilterDepartment: string | undefined,
+    ) => set({ planningFilterDepartment }),
+
+    planningFilterPlanType: 'all',
+    setPlanningFilterPlanType: (planningFilterPlanType: string) =>
+      set({ planningFilterPlanType }),
+
+    inlinePlanningMode: false,
+    setInlinePlanningMode: (inlinePlanningMode: boolean) =>
+      set({ inlinePlanningMode }),
+
+    mobilePlanComposerOpen: false,
+    setMobilePlanComposerOpen: (mobilePlanComposerOpen: boolean) =>
+      set({ mobilePlanComposerOpen }),
+
+    inlineReportPlanId: null,
+    setInlineReportPlanId: (inlineReportPlanId: string | null) =>
+      set({ inlineReportPlanId }),
+
+    inlineEditPlanId: null,
+    setInlineEditPlanId: (inlineEditPlanId: string | null) =>
+      set({ inlineEditPlanId }),
   })),
 );

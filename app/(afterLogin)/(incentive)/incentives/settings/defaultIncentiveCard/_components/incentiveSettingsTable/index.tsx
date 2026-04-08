@@ -10,6 +10,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import React from 'react';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useRouter } from 'next/navigation';
 
 const columns: TableColumnsType<IncentiveSettingParams> = [
@@ -143,11 +144,7 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
       data-cy="default-incentive-settings-table-container"
     >
       {responseLoading ? (
-        <Skeleton
-          data-cy="default-incentive-settings-table-skeleton"
-          active
-          paragraph={{ rows: 3 }}
-        />
+        <TableSkeleton columns={columns} />
       ) : (
         <Table
           id="default-incentive-settings-table"

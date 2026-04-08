@@ -7,6 +7,7 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { MdOutlineFilterAlt } from 'react-icons/md';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { UserOutlined } from '@ant-design/icons';
 
 const { RangePicker } = DatePicker;
@@ -394,28 +395,31 @@ export default function EmployeeAttendanceTable() {
           className="block overflow-x-auto"
           data-cy="time-attendance-employee-attendance-desktop-table-div"
         >
-          <Table
-            columns={columns}
-            dataSource={adminAttendanceUsers?.users}
-            pagination={false}
-            loading={loading}
-            rowKey="userId"
-            scroll={{ x: 900 }}
-            className="ant-table-thead-bg-white"
-            // Zebra striping for even rows
-            rowClassName={(unusedRecord, index) =>
-              index % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
-            }
-            // onRow={(record: Employee) => ({
-            //   onClick: () => {
-            //     router.push(
-            //       `/timesheet/dashboard?employeeAttendance&user=${record.userId}`,
-            //     );
-            //   },
-            //   style: { cursor: 'pointer' },
-            // })}
-            data-cy="time-attendance-employee-attendance-desktop-table"
-          />
+          {loading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={adminAttendanceUsers?.users}
+              pagination={false}
+              rowKey="userId"
+              scroll={{ x: 900 }}
+              className="ant-table-thead-bg-white"
+              // Zebra striping for even rows
+              rowClassName={(unusedRecord, index) =>
+                index % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
+              }
+              // onRow={(record: Employee) => ({
+              //   onClick: () => {
+              //     router.push(
+              //       `/timesheet/dashboard?employeeAttendance&user=${record.userId}`,
+              //     );
+              //   },
+              //   style: { cursor: 'pointer' },
+              // })}
+              data-cy="time-attendance-employee-attendance-desktop-table"
+            />
+          )}
         </div>
 
         {/* Pagination and Result Count */}

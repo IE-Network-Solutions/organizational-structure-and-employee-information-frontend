@@ -7,7 +7,7 @@ import type { MenuProps } from 'antd';
 import Image from 'next/image';
 import { useState } from 'react';
 import { FaPencil } from 'react-icons/fa6';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import { FaPlus } from 'react-icons/fa';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { APPROVALTYPES } from '@/types/enumTypes';
@@ -18,6 +18,7 @@ import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomPagination from '@/components/customPagination';
+import EmptyState from '@/components/empty';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -143,7 +144,7 @@ const ApprovalTable = () => {
 
     const getImageSrc = () => {
       if (imageError || !userInfo?.profileImage) {
-        return Avatar;
+        return GENDER_NEUTRAL_AVATAR_URL;
       }
 
       if (typeof userInfo.profileImage === 'string') {
@@ -151,14 +152,14 @@ const ApprovalTable = () => {
           const parsed = JSON.parse(userInfo.profileImage);
           return parsed.url && parsed.url.startsWith('http')
             ? parsed.url
-            : Avatar;
+            : GENDER_NEUTRAL_AVATAR_URL;
         } catch {
           return userInfo.profileImage.startsWith('http')
             ? userInfo.profileImage
-            : Avatar;
+            : GENDER_NEUTRAL_AVATAR_URL;
         }
       }
-      return Avatar;
+      return GENDER_NEUTRAL_AVATAR_URL;
     };
 
     return (
@@ -270,7 +271,7 @@ const ApprovalTable = () => {
                     className="relative w-6 h-6 rounded-full overflow-hidden bg-[#f0f0f0]"
                   >
                     <Image
-                      src={Avatar || '/placeholder.svg'}
+                      src={GENDER_NEUTRAL_AVATAR_URL}
                       alt="Default avatar"
                       layout="fill"
                       className="object-cover"
@@ -420,7 +421,10 @@ const ApprovalTable = () => {
                     >
                       <Popconfirm
                         title={
-                          <span className="text-base font-semibold text-gray-900" data-cy="settings-payroll-approvals-card-delete-popconfirm-title">
+                          <span
+                            className="text-base font-semibold text-gray-900"
+                            data-cy="settings-payroll-approvals-card-delete-popconfirm-title"
+                          >
                             Delete Approval
                           </span>
                         }
@@ -506,9 +510,13 @@ const ApprovalTable = () => {
             <div
               id="settings-payroll-approvals-empty-state"
               data-cy="settings-payroll-approvals-empty-state"
-              className="col-span-full py-10 text-center text-sm font-normal text-[#595959]"
+              className="col-span-full"
             >
-              No approval workflows found.
+              <EmptyState
+                minimal
+                description="No data found"
+                data-cy="settings-payroll-approvals-empty-state-inner"
+              />
             </div>
           )}
         </div>

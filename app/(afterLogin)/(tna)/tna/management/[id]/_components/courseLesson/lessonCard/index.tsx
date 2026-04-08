@@ -1,75 +1,131 @@
-import { CourseLesson } from '@/types/tna/course';
-import { FC } from 'react';
-import { Spin } from 'antd';
-import Link from 'next/link';
+'use client';
+
+import { CourseLesson, CourseLessonMaterial } from '@/types/tna/course';
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
+import { useSetCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
+import { FC, useEffect, useMemo, useState } from 'react';
+import { Button, Spin } from 'antd';
+import SortableLessonMaterialRow from './sortableLessonMaterialRow';
 
 interface LessonCardProps {
   lesson: CourseLesson;
+  onEditMaterial: (material: CourseLessonMaterial) => void;
+  onAddMaterial: () => void;
 }
 
-const LessonCard: FC<LessonCardProps> = ({ lesson }) => {
-  // Removed lesson-level ActionButton and plus Button
+const sortMaterialsStable = (materials: CourseLessonMaterial[]) =>
+  [...materials].sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+
+const LessonCard: FC<LessonCardProps> = ({
+  lesson,
+  onEditMaterial,
+  onAddMaterial,
+}) => {
+  const { refetchCourse } = useTnaManagementCoursePageStore();
+  const { mutate: setMaterial, isLoading } = useSetCourseLessonMaterial();
+
+  const sortedFromLesson = useMemo(
+    () => sortMaterialsStable(lesson.courseLessonMaterials),
+    [lesson.courseLessonMaterials],
+  );
+
+  const [orderedMaterials, setOrderedMaterials] =
+    useState<CourseLessonMaterial[]>(sortedFromLesson);
+
+  useEffect(() => {
+    setOrderedMaterials(sortedFromLesson);
+  }, [sortedFromLesson]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) {
+      return;
+    }
+    const oldIndex = orderedMaterials.findIndex((m) => m.id === active.id);
+    const newIndex = orderedMaterials.findIndex((m) => m.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) {
+      return;
+    }
+    const next = arrayMove(orderedMaterials, oldIndex, newIndex);
+    setOrderedMaterials(next);
+    const payload = next.map((m, index) => ({
+      ...m,
+      order: index,
+    }));
+    setMaterial(payload, {
+      onSuccess: () => {
+        void refetchCourse?.();
+      },
+      onError: () => {
+        void refetchCourse?.();
+      },
+    });
+  };
+
+  const sortableIds = orderedMaterials.map((m) => m.id);
+
   return (
-    <Spin spinning={false} data-cy={`tna-lesson-card-spinner-${lesson.id}`}>
+    <Spin spinning={isLoading} data-cy={`tna-lesson-card-spinner-${lesson.id}`}>
       <div
-        className="pl-9 flex"
+        className="flex flex-col gap-2"
         id={`tnaLessonCard${lesson.id}Id`}
         data-cy={`tna-lesson-card-${lesson.id}`}
       >
-        <div
-          className="flex-1"
-          id={`tnaLessonCardContent${lesson.id}Id`}
-          data-cy={`tna-lesson-card-content-${lesson.id}`}
-        >
-          {lesson.courseLessonMaterials.length ? (
-            [...lesson.courseLessonMaterials]
-              .sort((a, b) => a.order - b.order)
-              .map((item, index) => (
-                <div
-                  className="flex items-center justify-between mb-1 last:mb-0"
-                  key={item.id}
-                  id={`tnaLessonCardMaterial${item.id}Id`}
-                  data-cy={`tna-lesson-card-material-${item.id}`}
-                >
-                  <Link
-                    id="tnaRedirectToTnaManagment"
-                    data-cy={`tna-redirect-to-tna-management-${item.id}`}
-                    href={`/tna/management/${lesson.courseId}/${lesson.id}/${item.id}`}
-                    className="text-sm text-gray-600 hover:text-primary w-full md:w-auto pr-2"
-                  >
-                    {`${index + 1}. ${item.title}`}
-                  </Link>
-
-                  <div
-                    className="flex items-center gap-2 w-24 min-w-[100px]"
-                    id={`tnaLessonCardMaterialTime${item.id}Id`}
-                    data-cy={`tna-lesson-card-material-time-${item.id}`}
-                  >
-                    <div
-                      className="w-1 h-1 rounded-full bg-gray-900"
-                      id={`tnaLessonCardMaterialDot${item.id}Id`}
-                      data-cy={`tna-lesson-card-material-dot-${item.id}`}
-                    ></div>
-                    <div
-                      className="text-xs text-gray-400"
-                      id={`tnaLessonCardMaterialDuration${item.id}Id`}
-                      data-cy={`tna-lesson-card-material-duration-${item.id}`}
-                    >
-                      {item.timeToFinishMinutes} minutes
-                    </div>
-                  </div>
-                </div>
-              ))
-          ) : (
-            <div
-              className="text-sm text-gray-600"
-              id={`tnaLessonCardNoData${lesson.id}Id`}
-              data-cy={`tna-lesson-card-no-data-${lesson.id}`}
+        {orderedMaterials.length ? (
+          <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+            <SortableContext
+              items={sortableIds}
+              strategy={verticalListSortingStrategy}
             >
-              No-data
-            </div>
-          )}
-        </div>
+              {orderedMaterials.map((item) => (
+                <SortableLessonMaterialRow
+                  key={item.id}
+                  material={item}
+                  lessonCourseId={lesson.courseId}
+                  lessonId={lesson.id}
+                  onEditMaterial={onEditMaterial}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div
+            className="flex justify-center pt-2"
+            id={`tnaLessonCardNoData${lesson.id}Id`}
+            data-cy={`tna-lesson-card-no-data-${lesson.id}`}
+          >
+            <Button
+              type="primary"
+              size="middle"
+              className=" !font-normal"
+              onClick={onAddMaterial}
+              data-cy={`tna-lesson-card-add-material-${lesson.id}`}
+            >
+              Add Course Material
+            </Button>
+          </div>
+        )}
       </div>
     </Spin>
   );

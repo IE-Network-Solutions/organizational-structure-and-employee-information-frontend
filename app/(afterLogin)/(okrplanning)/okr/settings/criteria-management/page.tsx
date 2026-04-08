@@ -1,7 +1,9 @@
 'use client';
-import React, { useState } from 'react';
-import { Spin, Dropdown, MenuProps, Tag } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Dropdown, MenuProps, Tag } from 'antd';
 import ScoringModal from './_components/criteria-drawer';
+import CriteriaManagementPageSkeleton from './_components/criteriaManagementPageSkeleton';
+import EmptyState from '@/components/empty';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import CriteriaFilters from './_components/criteria-filters';
 import {
@@ -11,7 +13,8 @@ import {
 import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
+import { EllipsisOutlined } from '@ant-design/icons';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 
 function Page() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -37,8 +40,10 @@ function Page() {
     (item: any) => item.name,
   );
 
-  const assignedCriteriaData = vpScoringData?.items
-    ?.map((item: any) => ({
+  const rawItems = vpScoringData?.items ?? [];
+
+  const baseMappedCriteria = useMemo(() => {
+    return rawItems.map((item: any) => ({
       key: item.id,
       name: item.name,
       totalPercentage: `${item.totalPercentage}%`,
@@ -46,8 +51,11 @@ function Page() {
       types: item.vpScoringCriterions.map(
         (criterion: any) => criterion.vpCriteria.name,
       ),
-    }))
-    .filter((item: any) => {
+    }));
+  }, [rawItems]);
+
+  const assignedCriteriaData = useMemo(() => {
+    return baseMappedCriteria.filter((item: any) => {
       const matchesSearch = item.name
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
@@ -57,6 +65,23 @@ function Page() {
 
       return matchesSearch && matchesType;
     });
+  }, [baseMappedCriteria, searchTerm, selectedType]);
+
+  const hasActiveFilters =
+    searchTerm.trim().length > 0 || selectedType !== 'All Types';
+
+  const canCreateVpScoring = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateVpScoringConfigurations],
+  });
+
+  const openCreateScoring = () => {
+    openDrawer();
+  };
+
+  const isFilteredOnlyEmpty =
+    assignedCriteriaData.length === 0 &&
+    baseMappedCriteria.length > 0 &&
+    hasActiveFilters;
 
   const getMenuItems = (item: any): MenuProps['items'] => {
     return [
@@ -68,12 +93,12 @@ function Page() {
             data-cy={`okr-criteria-card-edit-access-guard-${item.key}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
+              className="flex items-center gap-3 py-1"
               onClick={() => handleEditClick(item.key)}
               id={`okr-criteria-card-edit-menu-item-${item.key}`}
               data-cy={`okr-criteria-card-edit-menu-item-${item.key}`}
             >
-              <MdOutlineEdit className="text-[#595959] text-xl" />
+              <MdModeEditOutline className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-criteria-card-edit-text-${item.key}`}
@@ -95,12 +120,12 @@ function Page() {
             data-cy={`okr-criteria-card-delete-access-guard-${item.key}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+              className="flex items-center gap-3 py-1 text-red-600"
               onClick={() => handleDelete(item.key)}
               id={`okr-criteria-card-delete-menu-item-${item.key}`}
               data-cy={`okr-criteria-card-delete-menu-item-${item.key}`}
             >
-              <MdDeleteOutline className="text-xl" />
+              <MdDeleteForever className="text-xl" />
               <span
                 className="text-[15px]"
                 data-cy={`okr-criteria-card-delete-text-${item.key}`}
@@ -131,32 +156,55 @@ function Page() {
         />
 
         {vpScoringLoading ? (
+          <CriteriaManagementPageSkeleton />
+        ) : assignedCriteriaData.length === 0 ? (
           <div
-            className="flex justify-center items-center py-20"
-            data-cy="okr-criteria-management-loading"
+            className="flex min-h-[280px] items-center justify-center py-8"
+            data-cy="okr-criteria-management-empty"
+            id="okrCriteriaManagementEmptyId"
           >
-            <Spin size="large" />
+            <EmptyState
+              title={
+                isFilteredOnlyEmpty
+                  ? 'No scoring configurations match your filters'
+                  : 'No VP scoring configurations yet'
+              }
+              description={
+                isFilteredOnlyEmpty
+                  ? 'Try adjusting search or the criteria type filter.'
+                  : 'Add scoring to define how VP criteria contribute to targets.'
+              }
+              actionText={
+                canCreateVpScoring && !isFilteredOnlyEmpty
+                  ? 'Add scoring'
+                  : undefined
+              }
+              onAction={
+                canCreateVpScoring && !isFilteredOnlyEmpty
+                  ? openCreateScoring
+                  : undefined
+              }
+            />
           </div>
         ) : (
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
             id="okr-criteria-management-cards-grid"
             data-cy="okr-criteria-management-cards-grid"
           >
-            {assignedCriteriaData?.map((item: any) => (
+            {assignedCriteriaData.map((item: any) => (
               <div
                 key={item.key}
-                className="bg-white border border-[#d9d9d9] rounded-[8px] py-3 px-4 min-h-[78px] hover:shadow-sm transition-shadow relative flex flex-col justify-between"
+                className="relative rounded-[8px] border border-[#d9d9d9] bg-white p-5 transition-shadow hover:shadow-sm"
                 id={`okr-criteria-card-${item.key}`}
                 data-cy={`okr-criteria-card-${item.key}`}
               >
-                {/* Top Row: Name and Menu */}
                 <div
-                  className="flex justify-between items-start"
+                  className="mb-6 flex items-start justify-between"
                   data-cy={`okr-criteria-card-header-${item.key}`}
                 >
                   <p
-                    className="text-[14px] font-normal text-black flex-1 mr-2 leading-tight"
+                    className="mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
                     id={`okr-criteria-card-name-${item.key}`}
                     data-cy={`okr-criteria-card-name-${item.key}`}
                   >
@@ -170,62 +218,32 @@ function Page() {
                       menu={{ items: getMenuItems(item) }}
                       trigger={['click']}
                       placement="bottomRight"
-                      overlayClassName="okr-settings-menu-dropdown"
                     >
                       <button
-                        className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-criteria-card-menu-button-${item.key}`}
                       >
-                        <svg
-                          width="14"
-                          height="4"
-                          viewBox="0 0 14 4"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          data-cy={`okr-criteria-card-menu-svg-${item.key}`}
-                        >
-                          <circle
-                            cx="2.5"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-criteria-card-menu-circle-1-${item.key}`}
-                          />
-                          <circle
-                            cx="7"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-criteria-card-menu-circle-2-${item.key}`}
-                          />
-                          <circle
-                            cx="11.5"
-                            cy="2"
-                            r="1.5"
-                            fill="currentColor"
-                            data-cy={`okr-criteria-card-menu-circle-3-${item.key}`}
-                          />
-                        </svg>
+                        <EllipsisOutlined className="text-lg" />
                       </button>
                     </Dropdown>
                   </div>
                 </div>
 
-                {/* Bottom Row: Score and Count boxes */}
                 <div
                   className="flex items-center justify-between"
                   data-cy={`okr-criteria-card-footer-${item.key}`}
                 >
                   <Tag
-                    className="h-[22px] px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0 inline-flex items-center"
+                    className="m-0 rounded-[4px] border-[#d9d9d9] bg-[#fafafa] px-2 py-0.5 text-[12px] font-medium text-[#595959]"
                     id={`okr-criteria-card-percentage-${item.key}`}
                     data-cy={`okr-criteria-card-percentage-${item.key}`}
                   >
                     Total %: {item.totalPercentage.replace('%', '')}
                   </Tag>
                   <Tag
-                    className="h-[22px] px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px] m-0 inline-flex items-center"
+                    className="m-0 rounded-[4px] border-[#d9d9d9] bg-[#fafafa] px-2 py-0.5 text-[12px] font-medium text-[#595959]"
                     id={`okr-criteria-card-count-${item.key}`}
                     data-cy={`okr-criteria-card-count-${item.key}`}
                   >

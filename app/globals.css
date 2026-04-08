@@ -326,7 +326,9 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-  /* Safari and Chrome */
+  width: 0;
+  height: 0;
+  /* Safari and Chrome — zero size avoids layout gutter */
 }
 
 /* Ensure Ant Design Sider children allow for flex scrolling */
@@ -552,10 +554,58 @@ h6 {
   gap: 8px !important;
 }
 
-.ant-pagination.invoice-table .ant-pagination-total-text {
-  position: absolute !important;
-  right: 130px !important;
-  margin: 0 !important;
+.ant-form-item-control .control-tarea {
+  @apply w-full py-4 px-5 mt-2.5;
+}
+
+.form-item {
+  @apply font-semibold text-xs;
+}
+
+.menu-item-label {
+  @apply font-bold text-sm;
+}
+
+.menu-item-icon {
+  @apply text-[#4DAEF0] !important;
+}
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header {
+  align-items: center !important;
+}
+
+.page-wrap {
+  @apply h-auto w-auto pr-6 pb-6 pl-3;
+}
+
+.tna-page-wrap {
+  @apply h-auto w-auto pb-6;
+}
+
+.lesson-card .ant-collapse-content {
+  border: none !important;
+}
+
+  .lesson-material-article {
+    @apply text-gray-600 text-base;
+  }
+.page-wrap {
+  @apply h-auto w-auto pb-6;
+}
+
+.lesson-material-article h3 {
+  @apply text-gray-900 text-[24px];
+}
+
+.ant-pagination.invoice-table {
+  display: flex !important;
+}
+
+.ant-pagination.invoice-table .ant-pagination-options {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
 }
 
 @media (max-width: 768px) {
@@ -1265,8 +1315,13 @@ h6 {
     height: 100%;
   }
 
+  /*
+   * Use 100% not 100vw: 100vw includes the scrollbar width on many browsers,
+   * which causes horizontal overflow and makes main content look off-center.
+   */
   body {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 100vh;
     margin: 0;
     padding: 0;
@@ -1374,6 +1429,68 @@ h6 {
   align-items: center !important;
   padding: 0 !important;
 }
+
+  /* TNA Course Category (...): Edit / Delete — 117×72 panel, 8px radius, spec icons */
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu {
+    background: #ffffff !important;
+    width: 117px !important;
+    min-width: 117px !important;
+    max-width: 117px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    overflow: hidden !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 1 0 !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    color: rgba(0, 0, 0, 0.7) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown
+    .ant-dropdown-menu-item
+    .ant-dropdown-menu-title-content {
+    width: 100%;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover,
+  .tna-course-category-menu-overlay.ant-dropdown
+    .ant-dropdown-menu-item-active {
+    background-color: #f5f5f5 !important;
+    color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  /* Survey Form Card (triple-dot): dropdown panel styling */
+  .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu {
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow:
+      0 12px 30px rgba(15, 23, 42, 0.12),
+      0 0 0 1px rgba(148, 163, 184, 0.12) !important;
+    padding: 4px 0 !important;
+    overflow: hidden !important;
+  }
 
 .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover {
   background-color: #f8faff !important;
@@ -1820,6 +1937,387 @@ h6 {
   color: rgba(0, 0, 0, 0.88) !important;
 }
 
+/*
+ * Recruitment /settings routes only — classes from app/(recruitment)/recruitment/settings/**
+ * Sourced from globals_backup.css; do not paste unrelated backup sections here.
+ */
+
+/* Talent acquisition settings: context menu (Edit/Delete) - white card, rounded corners */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu {
+  background: #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px 0 !important;
+  min-width: 120px;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item {
+  padding: 8px 12px !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item
+  .ant-dropdown-menu-item-icon {
+  color: #000 !important;
+}
+/* Remove red danger hover; use greyed-white for all items */
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item:hover,
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger:hover,
+.recruitment-settings-dropdown-overlay
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  background: #f3f4f6 !important;
+  color: #000 !important;
+}
+.recruitment-settings-dropdown-overlay .ant-dropdown-menu-item-danger {
+  color: #000 !important;
+}
+
+/* Talent acquisition settings: primary button blue #1E40AF */
+.recruitment-settings-primary-btn.ant-btn-primary,
+.recruitment-settings-primary-btn.ant-btn-primary:hover,
+.recruitment-settings-primary-btn.ant-btn-primary:focus {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+}
+.recruitment-settings-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
+}
+
+/* Talent acquisition settings: shared design tokens (cards, panels) */
+:root {
+  --recruitment-settings-border: #d9d9d9;
+  --recruitment-settings-radius: 8px;
+  --recruitment-settings-title-size: 14px;
+  --recruitment-settings-title-weight: 400;
+  --recruitment-settings-level-size: 12px;
+  --recruitment-settings-level-color: rgba(0, 0, 0, 0.7);
+  --recruitment-settings-description-size: 14px;
+  --recruitment-settings-description-color: rgba(0, 0, 0, 0.45);
+}
+
+.recruitment-settings-card {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: #ffffff;
+}
+
+.recruitment-settings-card-title {
+  font-size: var(--recruitment-settings-title-size);
+  font-weight: var(--recruitment-settings-title-weight);
+  color: #000;
+}
+
+.recruitment-settings-card-level {
+  font-size: var(--recruitment-settings-level-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-level-color);
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid #d9d9d9;
+}
+
+.recruitment-settings-card-description {
+  font-size: var(--recruitment-settings-description-size);
+  font-weight: 400;
+  color: var(--recruitment-settings-description-color);
+}
+
+.recruitment-settings-input-type-description {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.recruitment-settings-card-type-pill {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+  background: #f9fafb;
+  border: 1px solid #d1d5db;
+}
+
+.recruitment-settings-more-btn {
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+.recruitment-settings-more-btn:hover {
+  background: rgb(243 244 246);
+}
+
+.recruitment-settings-dragging-card {
+  transform: scale(0.98) rotate(8deg);
+  transform-origin: center center;
+  opacity: 0.7;
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.2s ease-out,
+    box-shadow 0.2s ease-out;
+}
+
+.recruitment-settings-status-drag-placeholder {
+  background: rgba(0, 0, 0, 0.02);
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* DragOverlay ghost (dnd-kit): Define Status & Template Questions */
+.recruitment-settings-drag-ghost {
+  transform: rotate(3deg);
+  transform-origin: center top;
+  box-shadow:
+    0 12px 28px -6px rgba(0, 0, 0, 0.18),
+    0 4px 10px -4px rgba(0, 0, 0, 0.1);
+  opacity: 0.95;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  cursor: grabbing;
+}
+
+.recruitment-settings-panel {
+  border: 1px solid var(--recruitment-settings-border);
+  border-radius: var(--recruitment-settings-radius);
+  background: #ffffff;
+}
+
+.recruitment-settings-question-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: #000;
+}
+
+.recruitment-settings-status-modal .ant-modal-content,
+.recruitment-settings-delete-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-status-modal .ant-modal-header,
+.recruitment-settings-delete-modal .ant-modal-header {
+  border-bottom: none;
+}
+.recruitment-settings-status-modal .ant-modal-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #000 !important;
+}
+.recruitment-settings-delete-modal .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.recruitment-settings-status-modal .ant-input,
+.recruitment-settings-status-modal .ant-input-affix-wrapper,
+.recruitment-settings-status-modal textarea.ant-input {
+  border-color: #d1d5db !important;
+  border-radius: 8px !important;
+  border-bottom: 1px solid #d1d5db !important;
+}
+.recruitment-settings-status-modal .ant-input-textarea textarea {
+  border-radius: 8px !important;
+}
+
+.recruitment-settings-status-modal .ant-form-item .ant-input,
+.recruitment-settings-status-modal .ant-form-item textarea.ant-input {
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+}
+
+.recruitment-settings-status-modal .ant-form-item-label > label {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #030712 !important;
+}
+
+.recruitment-settings-status-modal .ant-form-item-label {
+  padding-bottom: 6px !important;
+}
+
+.recruitment-settings-status-modal .ant-input::placeholder,
+.recruitment-settings-status-modal textarea.ant-input::placeholder,
+.recruitment-settings-status-modal .ant-input-affix-wrapper input::placeholder,
+.recruitment-settings-status-modal .ant-select-selection-placeholder {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::before {
+  display: none !important;
+}
+.recruitment-settings-status-modal
+  .ant-form-item-label
+  > label.ant-form-item-required::after {
+  display: inline-block !important;
+  margin-inline-start: 4px !important;
+  color: #ff4d4f !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  content: '*' !important;
+  visibility: visible !important;
+}
+
+.recruitment-settings-status-modal .ant-btn-default,
+.recruitment-settings-delete-modal .ant-btn-default {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* Anchored delete modals: keep triggerRect until afterClose (DeleteModal). */
+
+.recruitment-settings-reorder-modal .ant-modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.recruitment-settings-reorder-modal .ant-modal-header {
+  border-bottom: none;
+}
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-cancel-btn.ant-btn,
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-cancel-btn.ant-btn:hover {
+  border-color: #d1d5db !important;
+  background: #fff !important;
+  color: rgba(0, 0, 0, 0.7) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-confirm-btn.ant-btn-primary,
+.recruitment-settings-reorder-modal
+  .recruitment-settings-reorder-confirm-btn.ant-btn-primary:hover {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary {
+  background: #1e40af !important;
+  border-color: #1e40af !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+.recruitment-settings-status-modal
+  .recruitment-settings-status-primary-btn.ant-btn-primary:hover {
+  background: #1d3a9f !important;
+  border-color: #1d3a9f !important;
+}
+
+.recruitment-settings-delete-modal .ant-btn-primary.ant-btn-dangerous,
+.recruitment-settings-delete-modal .ant-btn-dangerous {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+/* Leave Management table: thin light gray borders, no vertical lines */
+.leave-management-table .ant-table {
+  border: none !important;
+}
+
+.leave-management-table .ant-table-thead > tr > th {
+  background: #f9fafb !important;
+  color: #374151;
+  font-weight: 700 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+
+.leave-management-table .ant-table-thead > tr > th,
+.leave-management-table .ant-table-thead > tr > th * {
+  font-weight: 700 !important;
+}
+
+.leave-management-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+
+/* Employee names in first column: not bold (override UserCard font-semibold) */
+.leave-management-table .ant-table-tbody td:first-child .font-semibold,
+.leave-management-table
+  .ant-table-tbody
+  td:first-child
+  [data-cy='components-common-usercard-usercard-tsx-usercard-div-38'] {
+  font-weight: 400 !important;
+}
+
+.leave-management-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Leave Management toolbar: thin light gray borders on search/filter controls */
+#time-attendance-leave-management-search-employee.ant-select
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select:hover
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select.ant-select-open
+  .ant-select-selector {
+  border-color: #f3f4f6 !important;
+  border-width: 1px !important;
+}
+
+#time-attendance-leave-management-search-employee.ant-select.ant-select-focused
+  .ant-select-selector {
+  border-color: #e5e7eb !important;
+  box-shadow: 0 0 0 1px #e5e7eb !important;
+}
+
+/* Leave Management filter: popover + date dropdown render inside filter root */
+#time-attendance-leave-management-filter-root {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+#time-attendance-leave-management-filter-root .ant-picker-dropdown {
+  z-index: 1060 !important;
+}
+
+#time-attendance-leave-management-filter-popover-content {
+  overflow: visible !important;
+}
+
+/* Leave Request Detail Modal – Figma node 1943-11843: size & colors */
+.leave-request-detail-modal.ant-modal .ant-modal-content {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.leave-request-detail-modal.ant-modal .ant-modal-body {
+  padding: 24px !important;
+  color: #111827;
+}
+
+.leave-request-detail-modal.ant-modal .ant-modal-close {
+  color: #6b7280;
+}
+
+.leave-request-detail-modal.ant-modal .ant-modal-close:hover {
+  color: #111827;
+}
+
+/* Org Structure: Add/Edit/Delete Department modals close button position */
+.org-structure-department-modal.ant-modal .ant-modal-close {
+  top: 15px !important;
+  right: 16px !important;
+  color: #00000073 !important;
+}
+
 /* Leave Management table: thin light gray borders, no vertical lines */
 .leave-management-table .ant-table {
   border: none !important;
@@ -1955,6 +2453,29 @@ h6 {
   background-color: #f0f4f8 !important;
 }
 
+/* Wide tables: empty row is one colspan cell as wide as all columns. Centering
+   in that cell puts content in the horizontal middle of the full table width
+   (often off-screen). This host + sticky strip uses the scrollport width so
+   "No data" stays centered in what the user actually sees. */
+.payroll-table-scroll-host {
+  container-type: inline-size;
+  container-name: payroll-table-scroll;
+}
+
+.payroll-table-empty-viewport-center {
+  position: sticky;
+  left: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(100cqw, 100%);
+}
+
+.payroll-table .ant-table-tbody > tr.ant-table-placeholder > td.ant-table-cell {
+  vertical-align: middle;
+}
+
 .payroll-zebra-row > td {
   background-color: #fafafa !important;
 }
@@ -1972,4 +2493,42 @@ h6 {
 .okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
   padding: 0 !important;
   margin: 0 !important;
+}
+
+/* Planning & Reporting: selected segment stays white after thumb motion ends (rc-segmented clears thumb; item-selected must contrast track) */
+.planning-reporting-toolbar-segmented.ant-segmented
+  .ant-segmented-item-selected {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+}
+.planning-reporting-toolbar-segmented.ant-segmented
+  .ant-segmented-item-selected
+  .ant-segmented-item-label {
+  color: #0f172a !important;
+}
+
+/* Planning inline: + dropdown — room for milestone / key result labels + helper text */
+.planning-target-pick-menu .ant-dropdown-menu {
+  min-width: 288px;
+  max-width: min(100vw - 24px, 420px);
+  padding: 6px 0;
+}
+.planning-target-pick-menu .ant-dropdown-menu-item {
+  border-radius: 8px;
+  margin-inline: 6px;
+}
+.planning-target-pick-menu .ant-dropdown-menu-title-content {
+  white-space: normal;
+}
+.planning-target-pick-menu .ant-dropdown-menu-item-group-title {
+  padding: 10px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #64748b;
+  line-height: 1.3;
+}
+.planning-target-pick-menu .ant-dropdown-menu-item-group-list {
+  margin: 0;
 }

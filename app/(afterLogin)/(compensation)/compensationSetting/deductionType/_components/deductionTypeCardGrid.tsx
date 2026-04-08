@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Dropdown, Popover, Spin } from 'antd';
+import { Card, Dropdown, Popover } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -15,6 +15,9 @@ import {
 } from '@/store/server/features/compensation/settings/mutations';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons';
+import { PayPeriodCardSkeleton } from '@/components/common/PayPeriodCardSkeleton';
+
+const DEDUCTION_TYPE_SKELETON_COUNT = 6;
 
 const pillStyle: React.CSSProperties = {
   display: 'inline-flex',
@@ -138,51 +141,65 @@ const DeductionTypeCardGrid = () => {
       id="compensation-settings-deduction-type-card-grid-container"
       data-cy="compensation-settings-deduction-type-card-grid-container"
     >
-      <Spin
-        spinning={isLoading}
-        data-testid="deduction-type-card-grid-loading"
-        data-cy="compensation-settings-deduction-type-card-grid-loading"
+      <div
+        className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        data-cy="compensation-settings-deduction-type-card-grid"
       >
-        <div
-          className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          data-cy="compensation-settings-deduction-type-card-grid"
+        <Card
+          key="all-deduction-summary"
+          style={deductionCardShellStyle}
+          bodyStyle={deductionCardBodyStyle}
+          data-cy="compensation-settings-deduction-type-card-all-summary"
+          onClick={() => router.push('/deduction/allDeduction')}
         >
-          <Card
-            key="all-deduction-summary"
-            style={deductionCardShellStyle}
-            bodyStyle={deductionCardBodyStyle}
-            data-cy="compensation-settings-deduction-type-card-all-summary"
-            onClick={() => router.push('/deduction/allDeduction')}
+          <div
+            className="flex items-start justify-between shrink-0"
+            style={{ gap: 8 }}
+            data-cy="compensation-settings-deduction-type-card-all-summary-header"
           >
-            <div
-              className="flex items-start justify-between shrink-0"
-              style={{ gap: 8 }}
-              data-cy="compensation-settings-deduction-type-card-all-summary-header"
+            <h3
+              className="text-base leading-tight flex-1 min-w-0 truncate m-0 font-normal"
+              style={{ color: '#000000' }}
+              data-cy="compensation-settings-deduction-type-card-all-summary-title"
             >
-              <h3
-                className="text-base leading-tight flex-1 min-w-0 truncate m-0 font-normal"
-                style={{ color: '#000000' }}
-                data-cy="compensation-settings-deduction-type-card-all-summary-title"
-              >
-                All Deduction
-              </h3>
-              <span
-                className="shrink-0"
-                style={{ width: 24, height: 24 }}
-                aria-hidden
-                data-cy="compensation-settings-deduction-type-card-all-summary-spacer"
-              />
-            </div>
-            <p
-              className="text-sm font-normal text-[#595959] leading-normal m-0 min-h-0 line-clamp-2"
-              title="Displays all deduction types assigned to employees, showing each employee's allocated deductions."
-              data-cy="compensation-settings-deduction-type-card-all-summary-description"
-            >
-              Displays all deduction types assigned to employees, showing each
-              employee&apos;s allocated deductions.
-            </p>
-          </Card>
-          {tableData.map((record: any) => {
+              All Deduction
+            </h3>
+            <span
+              className="shrink-0"
+              style={{ width: 24, height: 24 }}
+              aria-hidden
+              data-cy="compensation-settings-deduction-type-card-all-summary-spacer"
+            />
+          </div>
+          <p
+            className="text-sm font-normal text-[#595959] leading-normal m-0 min-h-0 line-clamp-2"
+            title="Displays all deduction types assigned to employees, showing each employee's allocated deductions."
+            data-cy="compensation-settings-deduction-type-card-all-summary-description"
+          >
+            Displays all deduction types assigned to employees, showing each
+            employee&apos;s allocated deductions.
+          </p>
+        </Card>
+        {isLoading ? (
+          <div
+            className="contents"
+            data-testid="deduction-type-card-grid-loading"
+            data-cy="compensation-settings-deduction-type-card-grid-loading"
+            aria-busy="true"
+          >
+            {Array.from(
+              { length: DEDUCTION_TYPE_SKELETON_COUNT },
+              (element: unknown, skeletonIndex: number) => (
+                <PayPeriodCardSkeleton
+                  key={`compensation-settings-deduction-type-card-sk-${skeletonIndex}`}
+                  index={skeletonIndex}
+                  dataCyPrefix="compensation-settings-deduction-type-card-skeleton"
+                />
+              ),
+            )}
+          </div>
+        ) : (
+          tableData.map((record: any) => {
             const menuItems: MenuProps['items'] = [
               {
                 key: 'edit',
@@ -390,9 +407,9 @@ const DeductionTypeCardGrid = () => {
                 </div>
               </Card>
             );
-          })}
-        </div>
-      </Spin>
+          })
+        )}
+      </div>
     </div>
   );
 };

@@ -7,6 +7,8 @@ type TnaSettingsState = {
   tnaCommitmentId: string | null;
   isShowCourseCategorySidebar: boolean;
   courseCategoryId: string | null;
+  /** Monotonic signal; course-category page opens create composer on change (mobile). */
+  courseCategoryCreateRequestedAt: number;
 };
 
 type TnaSettingsAction = {
@@ -18,6 +20,7 @@ type TnaSettingsAction = {
     isShowCourseCategorySidebar: boolean,
   ) => void;
   setCourseCategoryId: (courseCategoryId: string | null) => void;
+  requestOpenCourseCategoryCreate: () => void;
 };
 
 const tnaSettingsSlice: StateCreator<TnaSettingsState & TnaSettingsAction> = (
@@ -51,6 +54,11 @@ const tnaSettingsSlice: StateCreator<TnaSettingsState & TnaSettingsAction> = (
   courseCategoryId: null,
   setCourseCategoryId: (courseCategoryId) => {
     set({ courseCategoryId });
+  },
+
+  courseCategoryCreateRequestedAt: 0,
+  requestOpenCourseCategoryCreate: () => {
+    set({ courseCategoryCreateRequestedAt: Date.now() });
   },
 });
 

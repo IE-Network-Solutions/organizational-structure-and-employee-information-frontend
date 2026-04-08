@@ -5,7 +5,6 @@ import React, { useEffect, useMemo } from 'react';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import type { Subscription } from '@/types/tenant-management';
-import { Spin } from 'antd';
 
 /**
  * ConditionalNav component that conditionally renders the Nav component
@@ -39,21 +38,21 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
   const tenantId = useAuthenticationStore((s) => s.tenantId);
   const {
     data: subscriptionsData,
-    isLoading: subscriptionsLoading,
-    isFetching: subscriptionsFetching,
-    isFetched: subscriptionsFetched,
+    // isLoading: subscriptionsLoading,
+    // isFetching: subscriptionsFetching,
+    // isFetched: subscriptionsFetched,
   } = useGetSubscriptions(
     tenantId ? { filter: { tenantId: [tenantId] } } : {},
     true,
     !isExcludedPath && !!tenantId,
   );
 
-  const shouldGate =
-    !!pathname && !isExcludedPath && !isAdminPath && !!tenantId;
-  const isCheckingSubscription =
-    shouldGate &&
-    !subscriptionsFetched &&
-    (subscriptionsLoading || subscriptionsFetching);
+  // const shouldGate =
+  //   !!pathname && !isExcludedPath && !isAdminPath && !!tenantId;
+  // const isCheckingSubscription =
+  //   shouldGate &&
+  //   !subscriptionsFetched &&
+  //   (subscriptionsLoading || subscriptionsFetching);
 
   const isExpired = useMemo(() => {
     if (isExcludedPath || isAdminPath) return false;
@@ -80,29 +79,29 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     if (!pathname) return;
     if (isExcludedPath) return;
     if (isAdminPath) return;
-    if (isCheckingSubscription) return;
+    // if (isCheckingSubscription) return;
     if (!isExpired) return;
     router.replace('/admin/subscription-expired');
   }, [
     pathname,
     isExcludedPath,
     isAdminPath,
-    isCheckingSubscription,
+    // isCheckingSubscription,
     isExpired,
     router,
   ]);
 
   // Avoid flashing protected pages: wait for subscription check.
-  if (isCheckingSubscription) {
-    return (
-      <div
-        data-cy="work-pep-frontend-providers-conditionalnav-tsx-conditionalnav-div-97"
-        className="min-h-screen flex items-center justify-center"
-      >
-        <Spin size="large" />
-      </div>
-    );
-  }
+  // if (isCheckingSubscription) {
+  //   return (
+  //     <div
+  //       data-cy="work-pep-frontend-providers-conditionalnav-tsx-conditionalnav-div-97"
+  //       className="min-h-screen flex items-center justify-center"
+  //     >
+  //       <Spin size="large" />
+  //     </div>
+  //   );
+  // }
 
   // While redirecting, avoid flashing protected content.
   if (!isExcludedPath && !isAdminPath && isExpired) {

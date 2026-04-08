@@ -28,7 +28,6 @@ import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { MdClose } from 'react-icons/md';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -225,7 +224,7 @@ const AllCandidates: React.FC = () => {
           onClick={() => setShowFilters(false)}
           data-cy="talent-acquisition-candidate-page-filter-modal-close"
         >
-          <MdClose size={22} />
+          ×
         </button>
         <h3
           className="text-lg font-semibold text-gray-900 m-0"

@@ -12,6 +12,8 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+import { TableSkeleton } from '@/components/tableSkeleton';
+import EmptyState from '@/components/empty';
 
 interface TaxRule {
   id: string;
@@ -201,7 +203,10 @@ const TaxRules = () => {
           >
             <Popconfirm
               title={
-                <span className="text-base font-semibold text-gray-900" data-cy="payroll-tax-rule-delete-popconfirm-title">
+                <span
+                  className="text-base font-semibold text-gray-900"
+                  data-cy="payroll-tax-rule-delete-popconfirm-title"
+                >
                   Delete Tax Rule
                 </span>
               }
@@ -300,86 +305,102 @@ const TaxRules = () => {
         data-cy="payroll-tax-rule-page-view-container"
         className="overflow-hidden"
       >
-        <div className="overflow-hidden rounded-lg border border-gray-100 bg-white" data-cy="payroll-tax-rule-page-view-container-div-1">
-      <div
-        id="payroll-tax-rule-header-view-container"
-        data-cy="payroll-tax-rule-header-view-container"
-        className="hidden"
-      />
-      <div
-        id="payroll-tax-rule-hidden-primary-action-target"
-        data-cy="payroll-tax-rule-hidden-primary-action-target"
-        className="hidden"
-      >
-        <Button
-          id="payroll-tax-rule-add-click-button"
-          data-cy="payroll-tax-rule-add-click-button"
-          type="primary"
-          onClick={handleAddRule}
-        >
-          <span
-            id="payroll-tax-rule-add-click-button-text"
-            data-cy="payroll-tax-rule-add-click-button-text"
-          >
-            Add Tax Rule
-          </span>
-        </Button>
-      </div>
-      <div
-        id="payroll-tax-rule-table-wrapper-view-container"
-        data-cy="payroll-tax-rule-table-wrapper-view-container"
-        className="w-full overflow-x-auto scrollbar-hide px-4 pt-4 pb-2"
-      >
         <div
-          id="payroll-tax-rule-table-inner-view-container"
-          data-cy="payroll-tax-rule-table-inner-view-container"
-          className="w-full bg-white"
+          className="overflow-hidden rounded-lg border border-gray-100 bg-white"
+          data-cy="payroll-tax-rule-page-view-container-div-1"
         >
-          <Table
-            id="payroll-tax-rule-table-view-table"
-            data-cy="payroll-tax-rule-table-view-table"
-            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead_.ant-table-cell:first-child]:!rounded-tl-none [&_.ant-table-thead_.ant-table-cell:last-child]:!rounded-tr-none"
-            dataSource={paginatedData}
-            columns={columns}
-            pagination={false}
-            scroll={{ x: 'max-content' }}
-            bordered={false}
-            loading={isLoading}
-            rowHoverable={false}
-            // eslint-disable-next-line 
-            rowClassName={(_notUsed, index) =>
-              `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
-            }
+          <div
+            id="payroll-tax-rule-header-view-container"
+            data-cy="payroll-tax-rule-header-view-container"
+            className="hidden"
           />
-        </div>
-      </div>
-      <div
-        id="payroll-tax-rule-pagination-footer-view-container"
-        data-cy="payroll-tax-rule-pagination-footer-view-container"
-        className="p-4"
-      >
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            id="payroll-tax-rule-table-mobile-pagination"
-            data-cy="payroll-tax-rule-mobile-pagination-view-component"
-            totalResults={dataSource.length}
-            pageSize={pageSize}
-            currentPage={currentPage}
-            onChange={onMobilePaginationChange}
-            onShowSizeChange={onMobilePaginationChange}
-          />
-        ) : (
-          <CustomPagination
-            id="payroll-tax-rule-table-pagination"
-            data-cy="payroll-tax-rule-desktop-pagination-view-component"
-            current={currentPage}
-            total={dataSource.length}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageSizeChange}
-          />
-        )}
-      </div>
+          <div
+            id="payroll-tax-rule-hidden-primary-action-target"
+            data-cy="payroll-tax-rule-hidden-primary-action-target"
+            className="hidden"
+          >
+            <Button
+              id="payroll-tax-rule-add-click-button"
+              data-cy="payroll-tax-rule-add-click-button"
+              type="primary"
+              onClick={handleAddRule}
+            >
+              <span
+                id="payroll-tax-rule-add-click-button-text"
+                data-cy="payroll-tax-rule-add-click-button-text"
+              >
+                Add Tax Rule
+              </span>
+            </Button>
+          </div>
+          <div
+            id="payroll-tax-rule-table-wrapper-view-container"
+            data-cy="payroll-tax-rule-table-wrapper-view-container"
+            className="w-full overflow-x-auto scrollbar-hide px-4 pt-4 pb-2"
+          >
+            <div
+              id="payroll-tax-rule-table-inner-view-container"
+              data-cy="payroll-tax-rule-table-inner-view-container"
+              className="w-full bg-white"
+            >
+              {isLoading ? (
+                <TableSkeleton columns={columns} />
+              ) : (
+                <Table
+                  id="payroll-tax-rule-table-view-table"
+                  data-cy="payroll-tax-rule-table-view-table"
+                  className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead_.ant-table-cell:first-child]:!rounded-tl-none [&_.ant-table-thead_.ant-table-cell:last-child]:!rounded-tr-none"
+                  dataSource={paginatedData}
+                  columns={columns}
+                  pagination={false}
+                  scroll={{ x: 'max-content' }}
+                  bordered={false}
+                  rowHoverable={false}
+                  locale={{
+                    emptyText: (
+                      <EmptyState
+                        minimal
+                        description="No data found"
+                        data-cy="payroll-tax-rule-table-empty"
+                        className="!py-4"
+                      />
+                    ),
+                  }}
+                  // eslint-disable-next-line
+                rowClassName={(_notUsed, index) =>
+                    `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
+                  }
+                />
+              )}
+            </div>
+          </div>
+          <div
+            id="payroll-tax-rule-pagination-footer-view-container"
+            data-cy="payroll-tax-rule-pagination-footer-view-container"
+            className="p-4"
+          >
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                id="payroll-tax-rule-table-mobile-pagination"
+                data-cy="payroll-tax-rule-mobile-pagination-view-component"
+                totalResults={dataSource.length}
+                pageSize={pageSize}
+                currentPage={currentPage}
+                onChange={onMobilePaginationChange}
+                onShowSizeChange={onMobilePaginationChange}
+              />
+            ) : (
+              <CustomPagination
+                id="payroll-tax-rule-table-pagination"
+                data-cy="payroll-tax-rule-desktop-pagination-view-component"
+                current={currentPage}
+                total={dataSource.length}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            )}
+          </div>
         </div>
         <Drawer data-cy="payroll-tax-rule-drawer-view-component" />
       </div>
