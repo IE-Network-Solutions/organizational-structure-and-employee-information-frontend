@@ -13,10 +13,10 @@ function Page() {
   const { currentType, pageSizeType, setCurrentType, setPageSizeType } =
     useRecongnitionStore();
   const searchParams = useSearchParams();
-  const recognitionTypeId = searchParams.get('recognitionTypeId');
+  const recognitionTypeId = searchParams?.get('recognitionTypeId');
   const { data: recognitionTypeResponse, isLoading } =
     useGetRecognitionTypeChildById(
-      recognitionTypeId,
+      recognitionTypeId ?? '',
       pageSizeType,
       currentType,
     );

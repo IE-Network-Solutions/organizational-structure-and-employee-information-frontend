@@ -23,14 +23,19 @@ import { useGetWorkSchedules } from '@/store/server/features/employees/employeeM
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const { Option } = Select;
-const WorkScheduleComponent: React.FC = () => {
-  const params = useParams();
-  const userId = params.id as string;
+
+type WorkScheduleComponentProps = {
+  employeeId: string;
+};
+
+const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
+  employeeId,
+}) => {
+  const userId = employeeId;
   const { userId: loggedInUserId } = useAuthenticationStore();
   const {
     selectedWorkSchedule,

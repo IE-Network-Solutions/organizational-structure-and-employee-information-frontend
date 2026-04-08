@@ -66,14 +66,16 @@ const BenefitEntitlementSideBar = ({
   const { data: allUsers, isLoading: allUserLoading } = useGetAllUsers();
   const { data: departments, isLoading: depLoading } =
     useGetDepartmentsWithUsers();
-  const { id } = useParams();
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const [form] = Form.useForm();
   const { TextArea } = Input;
 
-  const { data: benefitDatas } = useFetchBenefit(id);
+  const { data: benefitDatas } = useFetchBenefit(id ?? '');
   const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
   const { data: existingEntitlements, isLoading: entitlementsLoading } =
-    useFetchBenefitEntitlement(id);
+    useFetchBenefitEntitlement(id ?? '');
 
   const selectedEmployeeIds = Form.useWatch('employeeIds', form) as
     | string[]
@@ -176,7 +178,7 @@ const BenefitEntitlementSideBar = ({
     createBenefitEntitlement(
       {
         ...formValues,
-        compensationItemId: id,
+        compensationItemId: id ?? '',
         employeeIds: formValues?.employeeIds || [],
         totalAmount: formValues?.totalAmount || 0,
         settlementPeriod: Number(formValues?.settlementPeriod || 0),

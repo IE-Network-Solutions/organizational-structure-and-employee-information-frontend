@@ -16,9 +16,6 @@ import { useParams } from 'next/navigation';
 import React, { useEffect, useRef } from 'react';
 
 const plainOptions = ['Fixed', 'Formula'];
-type Params = {
-  id: string;
-};
 
 interface IncentiveSettingsDrawerProps {
   recognitionData: any;
@@ -28,9 +25,10 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   recognitionData,
 }) => {
   const [form] = Form.useForm();
-  const { id } = useParams<Params>();
+  const params = useParams();
+  const idParam = params?.['id'];
+  const recognitionId = Array.isArray(idParam) ? idParam[0] : idParam;
 
-  const recognitionId = id;
 
   //   ===========> UI States <============
 

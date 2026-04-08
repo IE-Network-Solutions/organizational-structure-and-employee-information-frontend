@@ -89,10 +89,14 @@ const DeductionEntitlementSideBar = () => {
     string[]
   >([]);
 
-  const { id } = useParams();
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { data: deductionTypeData, isLoading: deductionTypeLoading } =
-    useFetchAllowance(id);
-  const { data: existingEntitlements } = useFetchAllowanceEntitlements(id);
+    useFetchAllowance(id ?? '');
+  const { data: existingEntitlements } = useFetchAllowanceEntitlements(
+    id ?? '',
+  );
 
   // Fetch basic salary for selected employee
   const { data: basicSalaryData, isLoading: basicSalaryLoading } =
@@ -254,7 +258,7 @@ const DeductionEntitlementSideBar = () => {
     // Use the /employee-settlement-tracking endpoint with 'payments' array format
     createAllowanceEntitlementSettlement(
       {
-        compensationItemId: id,
+        compensationItemId: id ?? '',
         employeeIds: [selectedEmployeeForDeduction],
         totalAmount: deductionTotalAmount,
         settlementPeriod: deductionPayPeriodSchedule.length,

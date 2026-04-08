@@ -1,6 +1,7 @@
 'use client';
 
 import React, { ReactNode } from 'react';
+import classNames from 'classnames';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomButton from '@/components/common/buttons/customButton';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
@@ -23,6 +24,12 @@ interface TabLandingLayoutProps {
   buttonDisabled?: boolean;
   handleSearchChange?: () => void;
   permissionsData?: string[];
+  /** Break out of nav inner padding for a full-width divider; header and body use horizontal inset. */
+  flushHorizontal?: boolean;
+  /** Desktop primary action (e.g. Create Meeting): full `className` for `CustomButton`. */
+  primaryActionButtonClassName?: string;
+  /** Label typography on desktop primary `CustomButton` (default semibold). */
+  primaryActionTextClassName?: string;
 }
 
 const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
@@ -36,27 +43,42 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   buttonDisabled = false,
   children,
   permissionsData = [],
+  flushHorizontal = false,
+  primaryActionButtonClassName,
+  primaryActionTextClassName = 'text-sm font-semibold',
 }) => {
   const { isMobile } = useIsMobile();
+  const desktopPrimaryClass =
+    primaryActionButtonClassName ??
+    'bg-blue-600 hover:bg-blue-700 h-11 px-6 rounded-lg border-none';
 
   return (
     <div
-      className="min-h-screen h-auto w-full bg-white p-4"
+      className={classNames(
+        'min-h-screen h-auto bg-white',
+        flushHorizontal
+          ? 'pt-8 pb-4 px-0 overflow-x-hidden -mx-2 w-[calc(100%+16px)] md:-mx-6 md:w-[calc(100%+48px)]'
+          : 'w-full p-4',
+      )}
       data-cy="tab-landing-layout"
     >
       <BlockWrapper className="bg-white ">
         <div
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48"
-          className="flex flex-wrap justify-between items-center"
+          className={classNames(
+            'flex justify-between items-center mb-6',
+            flushHorizontal && 'px-2 md:px-6',
+          )}
         >
           <CustomBreadcrumb
             title={title}
             subtitle={subtitle ?? ''}
             isRecognition={true}
+            compact={true}
           />
           <div
             data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-54"
-            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+            className="flex items-center gap-4"
           >
             {!buttonDisabled
               ? buttonTitle && (
@@ -75,7 +97,8 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
                         id={`${id}-createButtonId`}
                         icon={buttonIcon ?? <FaPlus />}
                         onClick={onClickHandler}
-                        className="text-xs bg-blue-600 hover:bg-blue-700 h-10 w-5 sm:w-auto sm:px-5 px-6 py-6"
+                        className={desktopPrimaryClass}
+                        textClassName={primaryActionTextClassName}
                       />
                     )}
                   </AccessGuard>
@@ -127,8 +150,12 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           </div>
         </div>
         <div
-          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120 border border-gray-200 "
-          className="w-full h-auto"
+          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
+          className={classNames(
+            'w-full h-auto border-t border-gray-100',
+            // Flush body: no extra inset so split layout (e.g. Meetings) uses full width; header row keeps px-2/md:px-6 above.
+            flushHorizontal ? 'pt-0 px-0' : 'pt-6',
+          )}
         >
           {children}
         </div>

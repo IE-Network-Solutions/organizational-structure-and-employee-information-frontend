@@ -1,12 +1,13 @@
 import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
 import { RcFile, UploadProps } from 'antd/es/upload';
 // import { fileUpload } from '@/utils/fileUpload';
-import { CloseOutlined, LinkOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Upload } from 'antd';
+import { Button, Flex, Form, Input, Upload } from 'antd';
+import { CloseOutlined, InboxOutlined, LinkOutlined } from '@ant-design/icons';
 import { classNames } from '@/utils/classNames';
 import { MdOutlineAddLink } from 'react-icons/md';
 import { TbFileUpload } from 'react-icons/tb';
 import { FaRegImage } from 'react-icons/fa6';
+import { LuPlus } from 'react-icons/lu';
 import { UploadFile } from 'antd/lib';
 import {
   formatFileNameToShort,
@@ -21,6 +22,8 @@ interface CustomUploadProps extends UploadProps {
   children?: ReactNode;
   className?: string;
   mode?: 'default' | 'draggable' | 'dragWithLink' | 'dragWithLinkStacked';
+  /** Ant Design Dragger look: inbox icon + `title` as main line + hint. */
+  presentation?: 'standard' | 'classic';
   icon?: ReactNode;
   title?: ReactNode;
   subtitle?: ReactNode;
@@ -43,6 +46,7 @@ const CustomUpload = ({
   children,
   setIsLoading,
   mode = 'default',
+  presentation = 'standard',
   icon = <FaRegImage size={24} />,
   title = 'Upload Your Certification',
   subtitle = 'or drag and drop it here',
@@ -175,6 +179,29 @@ const CustomUpload = ({
     triggerChange(effectiveFileList.filter((f) => f.uid !== uid));
   };
 
+  const classicDraggerContent = (
+    <>
+      <p
+        className="ant-upload-drag-icon"
+        data-cy="components-form-customupload-classic-drag-icon"
+      >
+        <InboxOutlined />
+      </p>
+      <p
+        className="ant-upload-text"
+        data-cy="components-form-customupload-classic-drag-text"
+      >
+        {title}
+      </p>
+      <p
+        className="ant-upload-hint"
+        data-cy="components-form-customupload-classic-drag-hint"
+      >
+        Support for a single or bulk upload.
+      </p>
+    </>
+  );
+
   const linkInputRules = [
     { required: true, message: 'Enter a URL' },
     { type: 'url' as const, message: 'Enter a valid URL' },
@@ -285,41 +312,58 @@ const CustomUpload = ({
             maxCount={maxCount} // Enforce single file
             {...otherProps}
           >
-            <div
-              data-cy="components-form-customupload-index-tsx-index-div-159"
-              className="flex flex-col items-center p-3 gap-1"
-            >
+            {presentation === 'classic' ? (
               <div
-                data-cy="components-form-customupload-index-tsx-index-div-160"
-                className="text-primary"
+                data-cy="components-form-customupload-classic-dragger"
+                className="py-0"
               >
-                {icon}
+                {classicDraggerContent}
               </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-161"
-                className={classNames(
-                  'text-[14px] leading-[22px] text-gray-900 font-normal',
-                  {},
-                  dragTitleClassName ? [dragTitleClassName] : [],
-                )}
-                style={{ fontFamily: 'Calibri' }}
-              >
-                {title}
-              </div>
-              {showDragSubtitle ? (
+            ) : (
+              <>
                 <div
-                  data-cy="components-form-customupload-index-tsx-index-div-162"
+                  data-cy="components-form-customupload-index-tsx-index-div-161"
                   className={classNames(
-                    'text-[14px] leading-[22px] text-gray-500 font-normal',
+                    'text-[14px] leading-[22px] text-gray-900 font-normal',
                     {},
-                    dragSubtitleClassName ? [dragSubtitleClassName] : [],
+                    dragTitleClassName ? [dragTitleClassName] : [],
                   )}
                   style={{ fontFamily: 'Calibri' }}
                 >
-                  {subtitle}
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-160"
+                    className="text-primary"
+                  >
+                    {icon}
+                  </div>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-161"
+                    className="text-xs text-gray-900 font-semibold"
+                  >
+                    {title}
+                  </div>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-162"
+                    className="text-xs text-gray-500"
+                  >
+                    or drag and drop it here
+                  </div>
                 </div>
-              ) : null}
-            </div>
+                {showDragSubtitle ? (
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-162"
+                    className={classNames(
+                      'text-[14px] leading-[22px] text-gray-500 font-normal',
+                      {},
+                      dragSubtitleClassName ? [dragSubtitleClassName] : [],
+                    )}
+                    style={{ fontFamily: 'Calibri' }}
+                  >
+                    {subtitle}
+                  </div>
+                ) : null}
+              </>
+            )}
           </Upload.Dragger>
         </div>
       );
@@ -349,26 +393,86 @@ const CustomUpload = ({
           >
             <div
               data-cy="components-form-customupload-index-tsx-index-div-190"
-              className="flex h-max flex-col items-center gap-1 p-3"
+              className={classNames('flex h-max w-full flex-col items-center', {
+                'py-4': presentation === 'classic',
+                'p-3 gap-1': presentation !== 'classic',
+              })}
             >
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-191"
-                className="text-primary"
+              {presentation === 'classic' ? (
+                <div
+                  className="w-full"
+                  data-cy="components-form-customupload-dragwithlink-classic-inner"
+                >
+                  {classicDraggerContent}
+                </div>
+              ) : (
+                <>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-191"
+                    className="text-primary"
+                  >
+                    {icon}
+                  </div>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-192"
+                    className="text-xs font-semibold text-gray-900"
+                  >
+                    {title}
+                  </div>
+                  <div
+                    data-cy="components-form-customupload-index-tsx-index-div-193"
+                    className="text-xs text-gray-500"
+                  >
+                    or drag and drop it here
+                  </div>
+                </>
+              )}
+              <Form
+                form={form}
+                onFinish={onFinishLink}
+                className={classNames('w-full', {
+                  'mt-4 pt-0': presentation === 'classic',
+                  'mt-2.5 h-10': presentation !== 'classic',
+                })}
               >
-                {icon}
-              </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-192"
-                className="text-xs font-normal text-gray-900"
-              >
-                {title}
-              </div>
-              <div
-                data-cy="components-form-customupload-index-tsx-index-div-193"
-                className="text-xs text-gray-500"
-              >
-                {subtitle ?? 'or drag and drop it here'}
-              </div>
+                <Flex gap={10} align="center" justify="center">
+                  <Form.Item
+                    className="max-w-[400px] flex-1"
+                    name="link"
+                    rules={[
+                      {
+                        required: true,
+                        type: 'url',
+                        message: 'Invalid URL',
+                      },
+                    ]}
+                  >
+                    <Input
+                      id={`tnaLinkHereFieldId-${targetState}`}
+                      placeholder="Enter link here to upload"
+                      size="large"
+                      className="h-10 text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    />
+                  </Form.Item>
+                  <Form.Item>
+                    <Button
+                      id={`tnaAddLinkHereButtonId-${targetState}`}
+                      htmlType="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        form.submit();
+                      }}
+                      size="large"
+                      icon={<LuPlus size={16} />}
+                    >
+                      Add link
+                    </Button>
+                  </Form.Item>
+                </Flex>
+              </Form>
               <div
                 className="mt-2.5 w-full space-y-2"
                 data-cy={`tna-custom-upload-dragwithlink-link-stack-${targetState ?? 'default'}`}

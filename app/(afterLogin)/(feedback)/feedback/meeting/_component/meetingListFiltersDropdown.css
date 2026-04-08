@@ -1,0 +1,11 @@
+/* Portaled Select dropdown — cannot live in CSS modules (not under local scope). */
+.meeting-list-filter-dept-dropdown .ant-select-item-option-selected {
+  background-color: #e6f7ff !important;
+  font-weight: 500;
+}
+
+.meeting-list-filter-dept-dropdown
+  .ant-select-item-option-selected
+  .ant-select-item-option-state {
+  color: #1890ff;
+}

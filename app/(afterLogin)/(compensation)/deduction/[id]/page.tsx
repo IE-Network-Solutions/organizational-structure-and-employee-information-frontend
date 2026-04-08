@@ -11,8 +11,10 @@ import { useBenefitEntitlementStore } from '@/store/uistate/features/compensatio
 import { useAllowanceEntitlementStore } from '@/store/uistate/features/compensation/allowance';
 
 const DeductionEntitlementPage = () => {
-  const { id } = useParams();
-  const { data: deductionData } = useFetchAllowance(id);
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
+  const { data: deductionData } = useFetchAllowance(id ?? '');
   const {
     setBenefitMode,
     setBenefitDefaultAmount,
