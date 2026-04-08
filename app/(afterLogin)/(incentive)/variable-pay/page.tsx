@@ -23,7 +23,7 @@ const VariablePayPage = () => {
     <div
       id="variable-pay-page-container"
       data-cy="variable-pay-page-container"
-      className="h-auto w-auto px-6 py-6"
+      className="h-auto w-full py-6"
     >
       <PageHeader
         data-cy="variable-pay-page-header"
