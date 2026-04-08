@@ -38,14 +38,14 @@ export const ObjectiveCardSkeleton: React.FC<ObjectiveCardSkeletonProps> = ({
       data-cy={dataCy}
       id="okr-objective-card-skeleton-list"
     >
-      /**eslint-disable-next-line */   
-      {Array.from({ length: count }).map((unusedValue, idx) => (
-        void unusedValue,
-        <div
-          key={idx}
-          className="mb-6"
-          data-cy={`okr-objective-card-skeleton-${idx}`}
-        >
+      {Array.from({ length: count }).map((unusedValue, idx) => {
+        void unusedValue;
+        return (
+          <div
+            key={idx}
+            className="mb-6"
+            data-cy={`okr-objective-card-skeleton-${idx}`}
+          >
           <div
             className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
             data-cy={`okr-objective-card-skeleton-card-${idx}`}
@@ -246,7 +246,8 @@ export const ObjectiveCardSkeleton: React.FC<ObjectiveCardSkeletonProps> = ({
             ) : null}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
