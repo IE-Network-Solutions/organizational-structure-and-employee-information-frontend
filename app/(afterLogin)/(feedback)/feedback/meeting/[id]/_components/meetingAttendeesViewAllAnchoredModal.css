@@ -10,5 +10,5 @@
 .meeting-attendees-view-all-anchored-wrap .ant-modal {
   margin: 0 !important;
   padding-bottom: 0 !important;
-  max-width: min(340px, calc(100vw - 16px)) !important;
+  max-width: min(425px, calc(100vw - 16px)) !important;
 }

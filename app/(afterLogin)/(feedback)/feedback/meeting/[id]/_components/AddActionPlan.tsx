@@ -1,4 +1,4 @@
-import React, { useEffect, forwardRef } from 'react';
+import React, { useEffect, forwardRef, useMemo, useState } from 'react';
 import {
   Form,
   Input,
@@ -20,6 +20,7 @@ import {
   useUpdateMeetingActionPlan,
 } from '@/store/server/features/CFR/meeting/action-plan/mutations';
 import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
+import ActionPlanCard from './ActionPlanCard';
 
 const { Option } = Select;
 
@@ -166,6 +167,7 @@ interface AddActionPlanModalProps {
   visible: boolean;
   onClose: () => void;
   meetingId: string;
+  canEdit: boolean;
   'data-cy'?: string;
 }
 
@@ -173,6 +175,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
   visible,
   onClose,
   meetingId,
+  canEdit,
   'data-cy': dataCy,
 }) => {
   const { actionPlanData, setActionPlanData } = useMeetingStore();
@@ -182,9 +185,11 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
     useUpdateMeetingActionPlan();
   const [form] = Form.useForm();
   const { data: allUsers } = useGetAllUsers();
+  const [draftAddedPlans, setDraftAddedPlans] = useState<any[]>([]);
 
   useEffect(() => {
     if (!visible) return;
+    setDraftAddedPlans([]);
     if (actionPlanData) {
       const mapped = {
         ...actionPlanData,
@@ -212,7 +217,10 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    const mapped = values.actionPlans.map((item: any) => ({
+    const mapped = [
+      ...draftAddedPlans,
+      ...(values.actionPlans ?? []),
+    ].map((item: any) => ({
       ...item,
       parent: 'Meeting',
       parentId: meetingId,
@@ -236,11 +244,53 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
       await updateMeetingActionPlan(finalValueEdit);
     }
     form.resetFields();
+    setDraftAddedPlans([]);
     setActionPlanData(null);
     onClose();
   };
 
   const modalTitle = actionPlanData ? 'Edit action plan' : 'Action Plan';
+
+  const alreadyAddedCardItems = useMemo(() => {
+    return (draftAddedPlans ?? []).map((item: any, index: number) => {
+      const deadlineValue = item?.deadline;
+      const deadline =
+        typeof deadlineValue === 'string'
+          ? deadlineValue
+          : deadlineValue?.toISOString?.() ?? '';
+      const responsibleUsers = (item?.responsibleUsers ?? []).map((id: any) => ({
+        responsibleId: String(id),
+      }));
+      return {
+        id: `draft-${index}`,
+        issue: String(item?.issue ?? ''),
+        description: String(item?.description ?? ''),
+        deadline,
+        status: 'Pending' as const,
+        priority: (item?.priority ?? 'Low') as 'High' | 'Medium' | 'Low',
+        responsibleUsers,
+      };
+    });
+  }, [draftAddedPlans]);
+
+  const handleAddAnother = async () => {
+    const values = await form.validateFields();
+    const current = values?.actionPlans?.[0];
+    if (!current) return;
+    setDraftAddedPlans((prev) => [...prev, current]);
+    form.setFieldsValue({ actionPlans: [{}] });
+  };
+
+  const handleEditDraftPlan = (index: number) => {
+    const target = draftAddedPlans[index];
+    if (!target) return;
+    setDraftAddedPlans((prev) => prev.filter((_, i) => i !== index));
+    form.setFieldsValue({ actionPlans: [target] });
+  };
+
+  const handleDeleteDraftPlan = (index: number) => {
+    setDraftAddedPlans((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const footer = (
     <div
@@ -302,8 +352,8 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
       >
         {`
           .meeting-action-plan-modal .ant-modal-body {
-            max-height: min(70vh, 640px);
-            overflow-y: auto;
+            max-height: none;
+            overflow-y: visible;
           }
           .meeting-action-plan-modal .ant-picker {
             height: 40px !important;
@@ -428,6 +478,25 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
         >
           {(fields, { add, remove }) => (
             <>
+              {actionPlanData == null && alreadyAddedCardItems.length > 0 ? (
+                <div
+                  className="mb-3 flex flex-col gap-3"
+                  data-cy="feedback-meeting-components-addactionplan-already-added-wrap"
+                >
+                  {alreadyAddedCardItems.map((item, index) => (
+                    <ActionPlanCard
+                      key={item.id}
+                      canEdit={canEdit}
+                      actionMode="icons"
+                      onEdit={() => handleEditDraftPlan(index)}
+                      onDelete={() => handleDeleteDraftPlan(index)}
+                      {...item}
+                      data-cy={`feedback-meeting-components-addactionplan-already-added-item-${index}`}
+                      id={`feedback-meeting-components-addactionplan-already-added-item-${index}`}
+                    />
+                  ))}
+                </div>
+              ) : null}
               {fields.map(({ key, name, ...restField }) => (
                 <div
                   key={key}
@@ -620,7 +689,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
                 >
                   <Button
                     type="primary"
-                    onClick={() => add()}
+                    onClick={handleAddAnother}
                     className="h-8 rounded-[8px] border-none bg-[#1E40AF] px-[15px] py-0 font-normal hover:bg-[#1e3a8a]"
                     data-cy="feedback-meeting-components-addactionplan-button-add-plan"
                     id="feedback-meeting-components-addactionplan-button-add-plan"

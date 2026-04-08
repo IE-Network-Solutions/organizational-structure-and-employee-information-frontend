@@ -1001,10 +1001,10 @@ export default function AddNewMeetingForm({
             id="addMeetingFormObjectiveField"
           >
             <Input.TextArea
-              placeholder="[[Meeting Type + Objective]]"
+              placeholder="meeting objective"
               rows={1}
               autoSize={{ minRows: 1, maxRows: 8 }}
-              className="min-h-8"
+              className="!min-h-[40px] !py-[8px] !leading-[22px]"
               data-cy="add-meeting-form-objective-textarea"
               id="addMeetingFormObjectiveTextarea"
             />

@@ -1,11 +1,12 @@
 import { useDeleteMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import { CloseOutlined, LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import { Dropdown, Button, Avatar, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
 import { FiMoreVertical } from 'react-icons/fi';
+import { MdOutlineEdit } from 'react-icons/md';
 
 interface ActionPlanCardProps {
   issue: string;
@@ -16,6 +17,9 @@ interface ActionPlanCardProps {
   priority: 'High' | 'Medium' | 'Low';
   responsibleUsers: { responsibleId: string }[];
   canEdit: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  actionMode?: 'menu' | 'icons';
 }
 
 function priorityBadgeClass(priority: ActionPlanCardProps['priority']) {
@@ -93,16 +97,27 @@ export default function ActionPlanCard({
   priority,
   responsibleUsers,
   canEdit,
+  onEdit,
+  onDelete,
+  actionMode = 'menu',
 }: ActionPlanCardProps) {
   const { setActionPlanData, setOpenAddActionPlan } = useMeetingStore();
   const { mutate: deleteActionPlan, isLoading } = useDeleteMeetingActionPlan();
 
   const handleEditActionPlan = (value: any) => {
+    if (onEdit) {
+      onEdit();
+      return;
+    }
     setActionPlanData(value);
     setOpenAddActionPlan(true);
   };
 
   const handleDeleteActionPlan = (planId: string) => {
+    if (onDelete) {
+      onDelete();
+      return;
+    }
     deleteActionPlan(planId);
   };
 
@@ -135,11 +150,17 @@ export default function ActionPlanCard({
     ? 'border-[#52C41A] bg-white text-[#52C41A]'
     : 'border-[#FAAD14] bg-[#FFFBE6] text-[#FAAD14]';
 
-  const bodyText = (description || issue || '—').trim();
+  const normalizedIssue = (issue ?? '').trim();
+  const normalizedDescription = (description ?? '').trim();
+  const bodyText = normalizedIssue || normalizedDescription || '—';
+  const cardShellClass =
+    actionMode === 'icons'
+      ? 'box-border flex h-[130px] w-full max-w-full min-w-0 shrink-0 flex-col justify-between gap-2 overflow-hidden rounded-lg border border-solid border-[#E5E7EB] bg-white p-[10px] opacity-100'
+      : 'box-border flex h-[108px] w-full max-w-full min-w-0 shrink-0 flex-col gap-2 overflow-hidden rounded-lg border border-solid border-[#E5E7EB] bg-white p-[10px] opacity-100';
 
   return (
     <div
-      className="box-border flex h-[108px] w-full max-w-full min-w-0 shrink-0 flex-col gap-2 overflow-hidden rounded-lg border border-solid border-[#E5E7EB] bg-white p-[10px] opacity-100"
+      className={cardShellClass}
       data-cy={`feedback-meeting-components-actionplancard-card-${id}`}
       id={`feedback-meeting-components-actionplancard-card-${id}`}
     >
@@ -168,37 +189,88 @@ export default function ActionPlanCard({
           </span>
         </div>
         <div
-          className="flex shrink-0 items-center gap-2"
+          className={`flex shrink-0 ${actionMode === 'icons' ? 'flex-col items-end gap-1' : 'items-center gap-2'}`}
           data-cy={`feedback-meeting-components-actionplancard-meta-col-${id}`}
         >
-          <span
-            className={neutralMetaTagClass}
-            data-cy={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
-            id={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
-          >
-            {deadline ? dayjs(deadline).format('MMM D YYYY') : '—'}
-          </span>
-          {canEdit ? (
-            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <Tooltip title="More actions">
-                <Button
-                  loading={isLoading}
-                  type="text"
-                  size="small"
-                  className="flex h-[22px] w-[22px] min-w-[22px] items-center justify-center p-0"
-                  data-cy={`feedback-meeting-components-actionplancard-button-more-${id}`}
-                  icon={
-                    <FiMoreVertical
-                      className="text-base text-gray-500"
-                      data-cy={`feedback-meeting-components-actionplancard-icon-more-${id}`}
-                      id={`feedback-meeting-components-actionplancard-icon-more-${id}`}
+          {actionMode === 'icons' ? (
+            <>
+              {canEdit ? (
+                <div
+                  className="flex items-center gap-1"
+                  data-cy={`feedback-meeting-components-actionplancard-inline-actions-${id}`}
+                >
+                  <Button
+                    loading={isLoading}
+                    type="text"
+                    size="small"
+                    className="flex h-6 w-6 min-w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white p-0 text-[#595959] hover:border-[#BFBFBF] hover:bg-[#FAFAFA] hover:text-[#262626]"
+                    onClick={() =>
+                      handleEditActionPlan({
+                        id,
+                        issue,
+                        description,
+                        deadline,
+                        status,
+                        priority,
+                        responsibleUsers,
+                      })
+                    }
+                    data-cy={`feedback-meeting-components-actionplancard-button-edit-${id}`}
+                    id={`feedback-meeting-components-actionplancard-button-edit-${id}`}
+                    icon={<MdOutlineEdit className="text-[12px] leading-none" />}
+                  />
+                  <Button
+                    loading={isLoading}
+                    type="text"
+                    size="small"
+                    className="flex h-6 w-6 min-w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white p-0 text-[#FF4D4F] hover:border-[#FF7875] hover:bg-[#FFF1F0] hover:text-[#FF4D4F]"
+                    onClick={() => handleDeleteActionPlan(id)}
+                    data-cy={`feedback-meeting-components-actionplancard-button-delete-${id}`}
+                    id={`feedback-meeting-components-actionplancard-button-delete-${id}`}
+                    icon={<CloseOutlined className="text-[12px] leading-none" />}
+                  />
+                </div>
+              ) : null}
+              <span
+                className={neutralMetaTagClass}
+                data-cy={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
+                id={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
+              >
+                {deadline ? dayjs(deadline).format('MMM D YYYY') : '—'}
+              </span>
+            </>
+          ) : (
+            <>
+              <span
+                className={neutralMetaTagClass}
+                data-cy={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
+                id={`feedback-meeting-components-actionplancard-value-deadline-${id}`}
+              >
+                {deadline ? dayjs(deadline).format('MMM D YYYY') : '—'}
+              </span>
+              {canEdit ? (
+                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                  <Tooltip title="More actions">
+                    <Button
+                      loading={isLoading}
+                      type="text"
+                      size="small"
+                      className="flex h-[22px] w-[22px] min-w-[22px] items-center justify-center p-0"
+                      data-cy={`feedback-meeting-components-actionplancard-button-more-${id}`}
+                      icon={
+                        <FiMoreVertical
+                          className="text-base text-gray-500"
+                          data-cy={`feedback-meeting-components-actionplancard-icon-more-${id}`}
+                          id={`feedback-meeting-components-actionplancard-icon-more-${id}`}
+                        />
+                      }
+                      id={`feedback-meeting-components-actionplancard-button-more-${id}`}
                     />
-                  }
-                  id={`feedback-meeting-components-actionplancard-button-more-${id}`}
-                />
-              </Tooltip>
-            </Dropdown>
-          ) : null}
+                  </Tooltip>
+                </Dropdown>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
 

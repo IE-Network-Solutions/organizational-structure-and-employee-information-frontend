@@ -89,34 +89,40 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
       }}
       bodyStyle={{
         height: 'calc(95vh - 108px)', // Adjust for title + footer
-        overflowY: 'auto',
+        overflowY: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
       data-cy="feedback-meeting-components-meetingagendamodal-modal"
     >
       <p
-        className="mb-5"
+        className="mb-5 shrink-0"
         data-cy="feedback-meeting-components-meetingagendamodal-description"
         id="feedback-meeting-components-meetingagendamodal-description"
       >
         Please add everything said for this agenda here
       </p>
-      <Editor
-        canEdit={canEdit}
-        meetingAgendaId={meetingAgenda?.id}
-        meetingId={meetingId}
-        data-cy="feedback-meeting-components-meetingagendamodal-editor"
-      />
+      <div
+        className="flex min-h-0 flex-1 flex-col"
+        data-cy="feedback-meeting-components-meetingagendamodal-editor-wrap"
+      >
+        <Editor
+          canEdit={canEdit}
+          meetingAgendaId={meetingAgenda?.id}
+          meetingId={meetingId}
+          data-cy="feedback-meeting-components-meetingagendamodal-editor"
+        />
+      </div>
       {canEdit && (
         <div
-          className="flex justify-center mt-4 relative"
+          className="flex shrink-0 justify-end gap-2 relative p-2"
           data-cy="feedback-meeting-components-meetingagendamodal-actions"
           id="feedback-meeting-components-meetingagendamodal-actions"
         >
           <Button
             loading={isLoading || updateLoading}
             onClick={handleClose}
-            style={{ marginRight: '8px' }}
-            className="h-10"
+            className="!h-8 !min-h-8 font-normal"
             data-cy="feedback-meeting-components-meetingagendamodal-button-cancel"
             id="feedback-meeting-components-meetingagendamodal-button-cancel"
           >
@@ -126,7 +132,7 @@ const MeetingAgendaModal: React.FC<MeetingAgendaModalProps> = ({
             loading={isLoading || updateLoading}
             type="primary"
             onClick={handleSubmit}
-            className="h-10"
+            className="!h-8 !min-h-8 font-normal"
             data-cy="feedback-meeting-components-meetingagendamodal-button-submit"
             id="feedback-meeting-components-meetingagendamodal-button-submit"
           >

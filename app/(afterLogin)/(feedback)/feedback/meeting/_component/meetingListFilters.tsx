@@ -177,7 +177,7 @@ export default function MeetingListFilters() {
       data-cy="feedback-meeting-filters-popover"
     >
       <div
-        className="flex items-start justify-between gap-3 border-b border-[#f0f0f0] px-4 pb-3 pt-4"
+        className="flex items-start justify-between gap-3 px-4 pb-0 pt-4"
         data-cy="feedback-meeting-filters-popover-header-row"
       >
         <div
@@ -199,7 +199,7 @@ export default function MeetingListFilters() {
         </div>
         <button
           type="button"
-          className="flex size-6 shrink-0 items-center justify-center rounded-md border border-solid border-[#D9D9D9] bg-white text-gray-600 transition-colors hover:border-[#D9D9D9] hover:bg-white hover:text-gray-800"
+          className="flex size-6 shrink-0 items-center justify-center rounded-md border-0 bg-transparent text-gray-600 transition-colors hover:bg-black/[0.04] hover:text-gray-800"
           aria-label="Close filters"
           onClick={() => setFilterOpen(false)}
           data-cy="feedback-meeting-filters-close"
@@ -289,13 +289,13 @@ export default function MeetingListFilters() {
       </div>
 
       <div
-        className="flex flex-wrap items-center justify-end gap-3 border-t border-[#f0f0f0] px-4 py-3"
+        className="flex flex-wrap items-center justify-end gap-3 px-4 pb-3 pt-0"
         data-cy="feedback-meeting-filters-popover-footer"
       >
         <Button
           type="default"
           onClick={handleResetDraft}
-          className="!h-9 !min-h-9 rounded-lg !border !border-solid !border-[#D9D9D9] !bg-white !px-4 text-[14px] font-normal !text-[#030712] shadow-none hover:!border-[#D9D9D9] hover:!bg-[#fafafa] hover:!text-[#030712]"
+          className="!h-8 !min-h-8 rounded-lg !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] text-[14px] font-normal !text-[#030712] shadow-none hover:!border-[#D9D9D9] hover:!bg-[#fafafa] hover:!text-[#030712]"
           data-cy="feedback-meeting-filters-reset"
         >
           Reset
@@ -303,7 +303,7 @@ export default function MeetingListFilters() {
         <Button
           type="primary"
           onClick={handleApplyFilters}
-          className="!h-9 !min-h-9 rounded-lg !border-none !bg-[#1E40AF] !px-4 text-[14px] font-bold !text-white shadow-none hover:!bg-[#1e3a8a] hover:!text-white"
+          className="!h-8 !min-h-8 rounded-lg !border-none !bg-[#1E40AF] !px-[15px] text-[14px] font-normal !text-white shadow-none hover:!bg-[#1e3a8a] hover:!text-white"
           data-cy="feedback-meeting-filters-save"
         >
           Save filter
@@ -358,12 +358,12 @@ export default function MeetingListFilters() {
         {appliedFilterChips.map(({ key, label, onRemove }) => (
           <span
             key={key}
-            className="inline-flex max-w-[min(100%,240px)] shrink-0 items-center gap-1.5 rounded-md border border-solid border-[#1677FF] bg-white px-2 py-0.5 text-[13px] font-normal leading-tight text-[#1677FF]"
+            className="inline-flex !h-[22px] !min-h-[22px] max-w-[min(100%,240px)] shrink-0 items-center gap-1.5 rounded-md border border-solid border-[#D9D9D9] bg-[rgba(0,0,0,0.02)] px-2 py-0 text-[12px] font-normal leading-none text-black/70"
             data-cy={`feedback-meeting-applied-filter-chip-${key}`}
           >
             <button
               type="button"
-              className="m-0 flex size-4 shrink-0 items-center justify-center border-0 bg-transparent p-0 text-[#1677FF] hover:text-[#0958d9]"
+              className="m-0 flex size-4 shrink-0 items-center justify-center border-0 bg-transparent p-0 text-black/60 hover:text-black/80"
               onClick={onRemove}
               aria-label={`Remove filter ${label}`}
               data-cy={`feedback-meeting-applied-filter-chip-remove-${key}`}

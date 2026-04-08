@@ -185,15 +185,16 @@ const MeetingList = ({
                       e.stopPropagation();
                       window.open(meeting.virtualLink, '_blank');
                     }}
-                    className="flex cursor-pointer items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-[12px] font-normal text-[#1677FF]"
-                    data-cy="feedback-meeting-meetinglist-virtual-link"
+                    className="flex h-[22px] min-h-[22px] cursor-pointer items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-0 text-[12px] font-normal leading-none text-[#1677FF]"
+                    data-cy="feedback-meeting-meetinglist-location-pill"
                   >
                     Zoom Meeting
                   </div>
                 ) : (
                   <div
-                    className="text-xs italic text-black/70"
-                    data-cy="feedback-meeting-meetinglist-location-text"
+                    className="flex h-[22px] min-h-[22px] items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-0 text-[12px] font-normal leading-none text-[#1677FF]"
+                    data-cy="feedback-meeting-meetinglist-location-pill"
+                    title={meeting.physicalLocation || meeting.locationType}
                   >
                     {meeting.physicalLocation || meeting.locationType}
                   </div>
@@ -202,7 +203,7 @@ const MeetingList = ({
             </div>
 
             <Tag
-              className="!m-0 !inline-flex !h-auto !w-[60px] !min-w-[60px] shrink-0 !items-center !justify-center !whitespace-nowrap !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-1 !py-1 !text-[14px] !font-normal !text-black/70"
+              className="!m-0 !inline-flex !h-[22px] !min-h-[22px] !w-[60px] !min-w-[60px] shrink-0 !items-center !justify-center !whitespace-nowrap !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-1 !py-0 !text-[12px] !font-normal !leading-none !text-black/70"
               data-cy="feedback-meeting-component-meetinglist-time-tag"
             >
               {dayjs(meeting.createdAt).format('h:mmA')}

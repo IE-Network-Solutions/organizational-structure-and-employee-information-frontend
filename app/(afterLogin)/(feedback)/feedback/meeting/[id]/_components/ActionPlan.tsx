@@ -33,6 +33,7 @@ export default function ActionPlan({
       meetingId={meetingId}
       visible={openAddActionPlan}
       onClose={() => setOpenAddActionPlan(false)}
+      canEdit={canEdit}
       data-cy="feedback-meeting-components-actionplan-modal"
     />
   );

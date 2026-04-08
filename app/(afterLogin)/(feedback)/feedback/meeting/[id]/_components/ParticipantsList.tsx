@@ -28,40 +28,63 @@ import { useGetMeetingAttendees } from '@/store/server/features/CFR/meeting/atte
 import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMark';
 import './meetingAttendeesViewAllAnchoredModal.css';
 
-const ATTENDEES_VIEW_ALL_MODAL_WIDTH = 340;
+const ATTENDEES_VIEW_ALL_MODAL_WIDTH = 425;
 
-const statusColorMap: Record<string, string> = {
-  absent: 'red',
-  Confirmed: 'green',
-  attended: 'blue',
-  late: 'orange',
-};
+function getAttendanceStatusPillClassName(status: string) {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'attended') {
+    return 'border-[#91CAFF] bg-[#E6F4FF] text-[#1677FF]';
+  }
+  if (s === 'late') {
+    return 'border-[#FFD666] bg-[#FFF7E6] text-[#FA8C16]';
+  }
+  if (s === 'absent') {
+    return 'border-[#FFA39E] bg-[#FFF1F0] text-[#FF4D4F]';
+  }
+  if (s === 'confirmed') {
+    return 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]';
+  }
+  // pending / unknown
+  return 'border-[#FFE58F] bg-[#FFFBE6] text-[#FAAD14]';
+}
 
 /** Attendees panel: show this many avatars before inline "View All" (when total exceeds this). */
 const ATTENDEES_PANEL_AVATAR_CAP = 10;
 
 /** Panel strip: photo fills the circle without letterboxing (object-fit cover). */
 const panelPreviewAvatarClassName =
-  'shrink-0 overflow-hidden opacity-100 rounded-[100px] border-[2px] border-solid border-[#D9D9D9] [&_img]:h-full [&_img]:w-full [&_img]:object-cover';
+  'shrink-0 overflow-hidden opacity-100 rounded-[100px] border-[2px] border-solid [&_img]:h-full [&_img]:w-full [&_img]:object-cover';
+
+function getAttendanceBorderColorClass(attendanceStatus?: string | null) {
+  const s = (attendanceStatus ?? '').toLowerCase();
+  if (s === 'attended') return 'border-[#B7EB8F]'; // greenish
+  if (s === 'absent') return 'border-[#FFA39E]'; // reddish
+  if (s === 'late') return 'border-[#FFD666]'; // yellowish/orange
+  // pending / unknown
+  return 'border-[#FFE58F]'; // yellowish
+}
 
 function ParticipantPreviewAvatar({
   userId,
   guestUser,
+  attendanceStatus,
 }: {
   userId?: string | null;
   guestUser?: any;
+  attendanceStatus?: string | null;
 }) {
   const isEmp = userId != null && userId !== '';
   const { data: userDetails, isLoading } = useGetEmployee(
     isEmp ? String(userId) : '',
   );
+  const borderClassName = getAttendanceBorderColorClass(attendanceStatus);
 
   if (isEmp && isLoading) {
     return (
       <Avatar
         size={28}
         icon={<UserOutlined />}
-        className={panelPreviewAvatarClassName}
+        className={`${panelPreviewAvatarClassName} ${borderClassName}`}
       />
     );
   }
@@ -81,8 +104,8 @@ function ParticipantPreviewAvatar({
         icon={isEmp && !profileImage ? <UserOutlined /> : undefined}
         className={
           !isEmp
-            ? `${panelPreviewAvatarClassName} !bg-[#E6F4FF] !text-[#1677FF] font-medium`
-            : panelPreviewAvatarClassName
+            ? `${panelPreviewAvatarClassName} ${borderClassName} !bg-[#E6F4FF] !text-[#1677FF] font-medium`
+            : `${panelPreviewAvatarClassName} ${borderClassName}`
         }
       >
         {!isEmp ? initial : null}
@@ -700,12 +723,9 @@ export default function ParticipantsList({
         deleteParticipantLoading == false ? (
           <>
             <Tag
-              className="font-bold border-none min-w-16 text-center capitalize text-[8px] mr-0"
-              color={
-                statusColorMap[
-                  p.acknowledgedMom ? 'Confirmed' : p.attendanceStatus
-                ]
-              }
+              className={`!m-0 !inline-flex !h-[22px] !min-h-[22px] min-w-[88px] items-center justify-center !rounded-md !border !border-solid px-3 !py-0 text-[12px] font-normal leading-none ${getAttendanceStatusPillClassName(
+                p.acknowledgedMom ? 'confirmed' : p.attendanceStatus,
+              )}`}
               onMouseEnter={() => (canEdit ? setHoveredIndex(i) : null)}
               data-cy={`feedback-meeting-components-participantslist-tag-status-${i}`}
               id={`feedback-meeting-components-participantslist-tag-status-${i}`}
@@ -744,7 +764,7 @@ export default function ParticipantsList({
       >
         <Button
           loading={updateAttendeesLoading}
-          className="text-[8px] py-1 bg-blue text-white border-none rounded-md h-5 min-w-16"
+          className="!h-[22px] !min-h-[22px] !rounded-[6px] !border-none !bg-[#1E40AF] !px-[15px] text-[14px] font-normal leading-none !text-white hover:!bg-[#1e3a8a]"
           data-cy={`feedback-meeting-components-participantslist-button-confirm-${i}`}
           id={`feedback-meeting-components-participantslist-button-confirm-${i}`}
         >
@@ -869,6 +889,7 @@ export default function ParticipantsList({
                   key={p.id ?? i}
                   userId={p.userId}
                   guestUser={p.guestUser}
+                  attendanceStatus={p.attendanceStatus}
                 />
               ))}
               {showAttendeesViewAll ? (
