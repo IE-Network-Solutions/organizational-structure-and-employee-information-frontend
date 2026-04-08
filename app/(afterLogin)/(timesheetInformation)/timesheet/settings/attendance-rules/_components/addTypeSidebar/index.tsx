@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Button, Form, Input, Modal, Radio, Space, Spin } from 'antd';
+import { Button, Form, Input, Modal, Radio, Space, Skeleton } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import React, { useEffect, useState } from 'react';
 import CustomRadio from '@/components/form/customRadio';
@@ -231,7 +231,7 @@ const AddTypesSidebar = () => {
               </Form.Item>
             </Space.Compact>
           </Form>
-        </Spin>
+          </Skeleton>
       </Modal>
     )
   );
