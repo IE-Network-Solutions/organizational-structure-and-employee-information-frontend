@@ -178,7 +178,7 @@ const Plan = () => {
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      className="bg-white p-3 border h-[272px] border-gray-200  rounded-lg overflow-hidden"
+      className="bg-white p-3 border h-[343px] border-gray-200  rounded-lg overflow-hidden"
     >
       {isDeterminingAvailability ? (
         <PlanCardSkeleton />
@@ -209,7 +209,7 @@ const Plan = () => {
             </div>
           </div>
           <div
-            className=" h-[220px] overflow-y-auto scrollbar-none"
+            className=" h-[270px] overflow-y-auto scrollbar-none"
             data-cy="plan-body"
           >
             {selectValue === 'Daily' ? (

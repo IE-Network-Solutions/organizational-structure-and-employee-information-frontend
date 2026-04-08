@@ -14,6 +14,7 @@ export interface ApiResponse<T> {
   items: T[];
   item: T;
   file?: string;
+  plan?: any;
 }
 export interface SingleApiResponse<T> {
   statusCode: number;
