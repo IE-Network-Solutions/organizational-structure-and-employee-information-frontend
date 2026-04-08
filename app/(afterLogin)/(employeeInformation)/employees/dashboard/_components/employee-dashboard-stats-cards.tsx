@@ -137,17 +137,17 @@ export default function EmployeeDashboardStatsCards({
 
   return (
     <div
-      className="flex flex-row overflow-x-auto gap-4 scrollbar-none px-1"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3"
       id="employee-dashboard-stats-grid"
       data-cy="employee-dashboard-stats-grid"
     >
       {loading
-        ? Array.from({ length: 7 }).map((item, i) => {
+        ? Array.from({ length: 6 }).map((item, i) => {
             void item;
             return (
               <div
                 key={i}
-                className="min-w-[280px]"
+                className="w-full"
                 data-cy={`employee-dashboard-stats-skeleton-${i}`}
               >
                 <Skeleton
@@ -167,8 +167,8 @@ export default function EmployeeDashboardStatsCards({
                 key={c.id}
                 className={
                   isAllEmployeesCard
-                    ? 'group relative min-w-[280px] [&_.ant-card]:transition-all'
-                    : 'min-w-[280px]'
+                    ? 'group relative w-full [&_.ant-card]:transition-all'
+                    : 'w-full'
                 }
                 data-cy={`employee-dashboard-stats-item-${c.id}`}
               >

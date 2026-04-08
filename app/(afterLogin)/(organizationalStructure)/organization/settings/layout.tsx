@@ -2,7 +2,7 @@
 import { FC, ReactNode, useEffect } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { Skeleton, Tabs, Breadcrumb, Button } from 'antd';
+import { Skeleton, Tabs, Button } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
@@ -11,6 +11,7 @@ import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 interface SettingsLayoutProps {
   children: ReactNode;
@@ -173,50 +174,44 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         id="org-settings-layout-div"
       >
         <div
-          className="px-4 md:px-6 pt-4"
+          className="pt-4"
           data-cy="org-settings-header-container"
         >
-          <h3
-            className="text-gray-900 text-2xl font-bold mb-0"
-            data-cy="org-settings-page-header-title"
-            id="org-settings-page-header-title"
-          >
-            Setting
-          </h3>
-          <Breadcrumb
-            className="mt-2 mb-0"
-            items={[
-              {
-                title: (
-                  <a
-                    href="/organization/chart"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      router.push('/organization/chart');
-                    }}
-                    data-cy="org-settings-breadcrumb-organization-link"
-                  >
-                    Organization
-                  </a>
-                ),
-              },
-              {
-                title: 'Setting',
-              },
-            ]}
+          <CustomBreadcrumb
+            title={
+              <span
+                className="text-gray-900 text-2xl font-bold mb-0"
+                data-cy="org-settings-page-header-title"
+                id="org-settings-page-header-title"
+              >
+                Setting
+              </span>
+            }
+            subtitle={
+              <>
+                <a
+                  href="/organization/chart"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/organization/chart');
+                  }}
+                  data-cy="org-settings-breadcrumb-organization-link"
+                >
+                  Organization
+                </a>
+                <span> / </span>
+                <span data-cy="org-settings-breadcrumb-current">Setting</span>
+              </>
+            }
             data-cy="org-settings-breadcrumb"
           />
         </div>
-        <hr
-          className="border-gray-200 my-4 w-full"
-          data-cy="org-settings-breadcrumb-divider"
-        />
         <div
           className="bg-white mb-4"
           data-cy="org-settings-tabs-container"
           id="org-settings-tabs-container"
         >
-          <div className="px-4 md:px-6" data-cy="org-settings-tabs-wrapper">
+          <div className="" data-cy="org-settings-tabs-wrapper">
             <Tabs
               activeKey={activeKey}
               onChange={handleTabChange}
@@ -275,14 +270,14 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                   </AccessGuard>
                 ) : null
               }
-              className="org-settings-tabs-foldfix [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+              className="org-settings-tabs-foldfix [&_.ant-tabs-tab]:py-2 [&_.ant-tabs-tab-btn]:py-1 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
             />
           </div>
         </div>
         <div
-          className="px-4 md:px-6 mb-4"
+          className="mb-4"
           data-cy="org-settings-content-wrapper"
           id="org-settings-content-wrapper"
         >

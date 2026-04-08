@@ -1,5 +1,5 @@
 'use client';
-import { Card, Dropdown, Button } from 'antd';
+import { Dropdown, Button } from 'antd';
 import { DownloadOutlined, ReloadOutlined } from '@ant-design/icons';
 import { exportToPDFOrJPEG } from '@/utils/exportOrgStructureToPdfAndPng';
 import React, {
@@ -139,172 +139,154 @@ export default function ChartLayout({
       >
         {/* ORG Structure Section - sticky on mobile so Download/Reset stay visible */}
         <div
-          className="w-full overflow-visible mt-6 max-sm:shrink-0 max-sm:flex-none"
+          className="w-full overflow-visible mt-0 max-sm:shrink-0 max-sm:flex-none"
           data-cy="org-structure-card-container"
           id="org-structure-card-container"
         >
-          <Card
+          <div
             data-cy="org-structure-card"
             id="org-structure-card"
-            className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
-            title={
-              <div
-                className="px-4 sm:px-6 py-0.5"
-                data-cy="org-structure-breadcrumb-container"
-              >
-                <CustomBreadcrumb
-                  compact
-                  title={
-                    <span
-                      className="text-lg sm:text-2xl font-bold text-[#000000B2]"
-                      data-cy="org-structure-breadcrumb-title"
-                    >
-                      Organization Structure
-                    </span>
-                  }
-                  subtitle={
-                    <>
-                      <span
-                        className="text-slate-500"
-                        data-cy="org-structure-breadcrumb-prefix"
-                      >
-                        Organization Structure /{' '}
-                      </span>
-                      <span
-                        className="text-[#000000B2]"
-                        data-cy="org-structure-breadcrumb-current"
-                      >
-                        Org Structure
-                      </span>
-                    </>
-                  }
-                  data-cy="org-structure-breadcrumb"
-                />
-              </div>
-            }
-            extra={
-              <div
-                className="py-1.5 sm:py-2 px-6 sm:px-8 flex items-center gap-3 shrink-0"
-                data-cy="org-structure-actions"
-                id="org-structure-actions"
-              >
-                <Dropdown
-                  menu={{
-                    items: [
-                      {
-                        key: 'pdf',
-                        label: 'PDF',
-                        onClick: handleDownloadPDF,
-                        disabled: chartDownloadLoading,
-                      },
-                      {
-                        key: 'png',
-                        label: 'PNG',
-                        onClick: handleDownloadPNG,
-                        disabled: chartDownloadLoading,
-                      },
-                    ],
-                  }}
-                  trigger={['click']}
-                  placement={isMobile ? 'bottomRight' : 'bottomRight'}
-                  data-cy="org-structure-export-dropdown"
-                  disabled={chartDownloadLoading}
-                >
-                  <Button
-                    title="Download"
-                    icon={
-                      <DownloadOutlined
-                        style={{ fontSize: 16 }}
-                        data-cy="org-structure-download-btn-icon"
-                        id="org-structure-download-btn-icon"
-                      />
-                    }
-                    type="default"
-                    className="h-8 sm:h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-[#000000B2] hover:border-[#4096FF] hover:text-[#4096FF] font-normal flex items-center justify-center gap-2"
-                    style={{ boxShadow: 'none', color: '#000000B2' }}
-                    data-cy="org-structure-download-btn"
-                    id="org-structure-download-btn"
-                    loading={chartDownloadLoading}
-                    disabled={chartDownloadLoading}
-                  >
-                    <span
-                      className="font-normal hidden sm:inline"
-                      data-cy="org-structure-download-btn-span"
-                      id="org-structure-download-btn-span"
-                    >
-                      {chartDownloadLoading ? 'Preparing…' : 'Download'}
-                    </span>
-                  </Button>
-                </Dropdown>
-                {canResetView && (
-                  <Button
-                    title="Reset view"
-                    icon={
-                      <ReloadOutlined
-                        style={{ fontSize: 16, color: '#1E40AF' }}
-                      />
-                    }
-                    type="default"
-                    className="h-8 sm:h-10 px-3 rounded-lg border border-[#1E40AF] text-[#1E40AF] hover:border-[#1E40AF] hover:bg-[#4096FF] hover:text-white font-normal flex items-center justify-center gap-2"
-                    style={{ boxShadow: 'none' }}
-                    data-cy="org-structure-reset-view-btn"
-                    id="org-structure-reset-view-btn"
-                    onClick={() => {
-                      if (typeof window !== 'undefined') {
-                        window.dispatchEvent(
-                          new CustomEvent('org-structure-reset-view'),
-                        );
-                      }
-                    }}
-                  >
-                    <span
-                      className="font-normal hidden sm:inline"
-                      data-cy="org-structure-reset-view-btn-span"
-                    >
-                      Reset View
-                    </span>
-                  </Button>
-                )}
-              </div>
-            }
+            className="w-full"
           >
-            <CustomDrawer
-              data-cy="org-structure-custom-drawer"
-              loading={transferDepartment ? isTransferLoading : isLoading}
-              visible={drawerVisible}
-              onClose={() => {
-                closeDrawer();
-                resetStore();
-                setDepartmentTobeDeletedId('');
-              }}
-              drawerContent={drawerContent}
-              footerButtonText={footerButtonText}
-              onSubmit={() => {
-                if (footerButtonText == 'Transfer') {
-                  if (transferDepartment) {
-                    transferDepartments(transferDepartment, {
-                      onSuccess: () => {
-                        closeDrawer();
-                        reset();
-                      },
-                    });
-                  }
-                } else if (footerButtonText == 'Merge') {
-                  mergeDepartments(mergeData, {
+            <div
+              className="py-0.5 w-full"
+              data-cy="org-structure-breadcrumb-container"
+            >
+              <CustomBreadcrumb
+                compact
+                title={
+                  <span
+                    className="text-lg sm:text-2xl font-bold text-[#000000B2]"
+                    data-cy="org-structure-breadcrumb-title"
+                  >
+                    Organization Structure
+                  </span>
+                }
+                titleExtra={
+                  <div
+                    className="py-1.5 sm:py-2 flex items-center gap-3 shrink-0"
+                    data-cy="org-structure-actions"
+                    id="org-structure-actions"
+                  >
+                    <Dropdown
+                      menu={{
+                        items: [
+                          {
+                            key: 'pdf',
+                            label: 'PDF',
+                            onClick: handleDownloadPDF,
+                            disabled: chartDownloadLoading,
+                          },
+                          {
+                            key: 'png',
+                            label: 'PNG',
+                            onClick: handleDownloadPNG,
+                            disabled: chartDownloadLoading,
+                          },
+                        ],
+                      }}
+                      trigger={['click']}
+                      placement={isMobile ? 'bottomRight' : 'bottomRight'}
+                      data-cy="org-structure-export-dropdown"
+                      disabled={chartDownloadLoading}
+                    >
+                      <Button
+                        title="Download"
+                        icon={
+                          <DownloadOutlined
+                            style={{ fontSize: 16 }}
+                            data-cy="org-structure-download-btn-icon"
+                            id="org-structure-download-btn-icon"
+                          />
+                        }
+                        type="default"
+                        className="h-8 sm:h-10 w-10 sm:w-[104px] rounded-lg border border-gray-300 text-[#000000B2] hover:border-[#4096FF] hover:text-[#4096FF] font-normal flex items-center justify-center gap-2"
+                        style={{ boxShadow: 'none', color: '#000000B2' }}
+                        data-cy="org-structure-download-btn"
+                        id="org-structure-download-btn"
+                        loading={chartDownloadLoading}
+                        disabled={chartDownloadLoading}
+                      >
+                        <span
+                          className="font-normal hidden sm:inline"
+                          data-cy="org-structure-download-btn-span"
+                          id="org-structure-download-btn-span"
+                        >
+                          {chartDownloadLoading ? 'Preparing…' : 'Download'}
+                        </span>
+                      </Button>
+                    </Dropdown>
+                    {canResetView && (
+                      <Button
+                        title="Reset view"
+                        icon={
+                          <ReloadOutlined
+                            style={{ fontSize: 16, color: '#1E40AF' }}
+                          />
+                        }
+                        type="default"
+                        className="h-8 sm:h-10 px-3 rounded-lg border border-[#1E40AF] text-[#1E40AF] hover:border-[#1E40AF] hover:bg-[#4096FF] hover:text-white font-normal flex items-center justify-center gap-2"
+                        style={{ boxShadow: 'none' }}
+                        data-cy="org-structure-reset-view-btn"
+                        id="org-structure-reset-view-btn"
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            window.dispatchEvent(
+                              new CustomEvent('org-structure-reset-view'),
+                            );
+                          }
+                        }}
+                      >
+                        <span
+                          className="font-normal hidden sm:inline"
+                          data-cy="org-structure-reset-view-btn-span"
+                        >
+                          Reset View
+                        </span>
+                      </Button>
+                    )}
+                  </div>
+                }
+                data-cy="org-structure-breadcrumb"
+              />
+            </div>
+          </div>
+          <CustomDrawer
+            data-cy="org-structure-custom-drawer"
+            loading={transferDepartment ? isTransferLoading : isLoading}
+            visible={drawerVisible}
+            onClose={() => {
+              closeDrawer();
+              resetStore();
+              setDepartmentTobeDeletedId('');
+            }}
+            drawerContent={drawerContent}
+            footerButtonText={footerButtonText}
+            onSubmit={() => {
+              if (footerButtonText == 'Transfer') {
+                if (transferDepartment) {
+                  transferDepartments(transferDepartment, {
                     onSuccess: () => {
                       closeDrawer();
                       reset();
                     },
                   });
-                } else {
-                  setIsDeleteConfirmVisible(true);
-                  closeDrawer();
                 }
-              }}
-              title={drawTitle}
-              form={form}
-            />
-          </Card>
+              } else if (footerButtonText == 'Merge') {
+                mergeDepartments(mergeData, {
+                  onSuccess: () => {
+                    closeDrawer();
+                    reset();
+                  },
+                });
+              } else {
+                setIsDeleteConfirmVisible(true);
+                closeDrawer();
+              }
+            }}
+            title={drawTitle}
+            form={form}
+          />
           {/* <OrgChartComponent /> */}
         </div>
 
