@@ -2,7 +2,7 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import React, { useEffect, useState } from 'react';
 import UserCard from '@/components/common/userCard/userCard';
-import { Col, Row, Space, Spin } from 'antd';
+import { Col, Row, Skeleton, Space } from 'antd';
 import InfoItem from './infoItem';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import CustomDrawerFooterButton, {
@@ -191,7 +191,10 @@ const ViewAttendanceSidebar = () => {
             id="time-attendance-view-attendance-sidebar-loading"
             data-cy="time-attendance-view-attendance-sidebar-loading"
           >
-            <Spin data-cy="time-attendance-view-attendance-sidebar-loading-spin" />
+            <Skeleton
+              active
+              data-cy="time-attendance-view-attendance-sidebar-loading-spin"
+            />
           </div>
         ) : (
           <>

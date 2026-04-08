@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { AttendanceImportLogsBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendanceImportLogs } from '@/store/server/features/timesheet/attendance/queries';
-import { Button, DatePicker, Modal, Spin } from 'antd';
+import { Button, DatePicker, Modal, Skeleton } from 'antd';
 import { DATE_FORMAT } from '@/utils/constants';
 import LogCard from './_components/logCard';
 import { LuSettings2 } from 'react-icons/lu';
@@ -81,8 +81,9 @@ const Page = () => {
       </div>
 
       {data && (
-        <Spin
-          spinning={isFetching}
+        <Skeleton
+          loading={isFetching}
+          active
           data-cy="time-attendance-settings-imported-logs-spin"
         >
           <div
@@ -98,7 +99,7 @@ const Page = () => {
               />
             ))}
           </div>
-        </Spin>
+        </Skeleton>
       )}
 
       {/* Mobile Filter Drawer */}

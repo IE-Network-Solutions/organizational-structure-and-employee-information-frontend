@@ -8,7 +8,7 @@ import {
   Modal,
   Row,
   Select,
-  Spin,
+  Skeleton,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import React, { useEffect } from 'react';
@@ -102,8 +102,9 @@ const CarryOverSidebar = () => {
         centered
         data-cy="time-attendance-settings-carry-over-rule-sidebar"
       >
-        <Spin
-          spinning={isLoading}
+        <Skeleton
+          loading={isLoading}
+          active
           data-cy="time-attendance-settings-carry-over-rule-sidebar-spin"
         >
           <Form
@@ -215,7 +216,7 @@ const CarryOverSidebar = () => {
               </Col>
             </Row>
           </Form>
-        </Spin>
+        </Skeleton>
       </Modal>
     )
   );

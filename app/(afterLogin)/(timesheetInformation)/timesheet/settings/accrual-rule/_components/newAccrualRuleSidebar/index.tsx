@@ -1,5 +1,5 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Button, Col, Form, Input, Modal, Row, Select, Spin } from 'antd';
+import { Button, Col, Form, Input, Modal, Row, Select, Skeleton } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useSetAccrualRule } from '@/store/server/features/timesheet/accrualRule/mutation';
 import { AccrualRulePeriod } from '@/types/timesheet/settings';
@@ -98,8 +98,9 @@ const AddTypesSidebar = () => {
         centered
         data-cy="time-attendance-settings-accrual-rule-sidebar"
       >
-        <Spin
-          spinning={isLoading}
+        <Skeleton
+          loading={isLoading}
+          active
           data-cy="time-attendance-settings-accrual-rule-sidebar-spin"
         >
           <Form
@@ -169,7 +170,7 @@ const AddTypesSidebar = () => {
               </Col>
             </Row>
           </Form>
-        </Spin>
+        </Skeleton>
       </Modal>
     )
   );

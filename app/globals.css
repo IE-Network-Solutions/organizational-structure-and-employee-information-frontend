@@ -350,6 +350,33 @@ body {
   font-family: 'Calibre', sans-serif;
 }
 
+:root {
+  --app-scrollbar-thumb: #d1d5db; /* light gray */
+  --app-scrollbar-track: transparent;
+}
+
+/* Global scrollbar styling */
+* {
+  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track); /* Firefox */
+  scrollbar-width: thin; /* Firefox (closest to 1px) */
+}
+
+/* Chromium/WebKit */
+::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+::-webkit-scrollbar-track {
+  background: var(--app-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--app-scrollbar-thumb);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #cbd5e1;
+}
+
 h1 {
   font-size: 48px !important;
   font-weight: bold !important;
@@ -860,10 +887,11 @@ h6 {
     -webkit-user-select: none;
   }
 
-  /* Hide scrollbars in standalone mode for better app-like experience */
+  /* Keep global scrollbar styling in standalone mode */
   ::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+    width: 1px;
+    height: 1px;
+    background: var(--app-scrollbar-track);
   }
 
   /* Hide install buttons when in standalone mode */
@@ -1770,6 +1798,171 @@ h6 {
     min-height: unset !important;
     min-width: unset !important;
   }
+}
+
+/* Custom OKR Tooltip Styles */
+.okr-tooltip-custom .ant-tooltip-inner {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 12px 16px !important;
+  max-width: 280px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.okr-tooltip-custom .ant-tooltip-arrow::before {
+  background-color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Desktop OKR objective modal alignment: keep title/body/footer on same vertical line */
+.okr-objective-modal .ant-modal-header,
+.okr-objective-modal .ant-modal-body,
+.okr-objective-modal .ant-modal-footer {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.okr-objective-modal .ant-modal-footer {
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Keep global Ant notifications above high-z-index OKR modals */
+.ant-notification {
+  z-index: 13001 !important;
+}
+
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft {
+  z-index: 13001 !important;
+}
+
+/* Mobile bottom-sheet modal style for OKR Create Objective – opens from bottom, full width, rounded top */
+@media (max-width: 768px) {
+  /* Align wrap so the modal sits at the bottom instead of centered */
+  .okr-mobile-bottom-sheet {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    pointer-events: auto;
+  }
+
+  /* Remove Ant Design horizontal padding on .ant-modal-content (paddingContentHorizontalLG) so it
+     does not stack with the 24px on header/body/footer — single 24px gutter to the fields. */
+  .okr-mobile-bottom-sheet .ant-modal-content {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-header,
+  .okr-mobile-bottom-sheet .ant-modal-body,
+  .okr-mobile-bottom-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Mobile filter modal – bottom sheet, rounded top, full width (My/Team/Company/All Employees OKR).
+     Use as Modal wrapClassName so the overlay is flex and the modal sits at the bottom. */
+  .okr-mobile-filter-sheet {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    pointer-events: auto;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal-content {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Match theme paddingLG (24px) with OKR objective bottom sheets */
+  .okr-mobile-filter-sheet .ant-modal-header,
+  .okr-mobile-filter-sheet .ant-modal-body,
+  .okr-mobile-filter-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Ensure hidden modal wrap and mask do not block clicks (fix for stuck UI on mobile) */
+  .okr-mobile-filter-sheet.ant-modal-wrap-hidden,
+  .okr-mobile-filter-sheet.ant-modal-wrap-hidden .ant-modal-mask {
+    pointer-events: none !important;
+  }
+}
+
+/* OKR three-dot dropdown: white card, rounded corners, shadow (Edit OKR / Delete OKR design) */
+.okr-actions-dropdown .ant-dropdown-menu {
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  padding: 4px 0 !important;
+  min-width: 160px !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item {
+  padding: 10px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger {
+  color: #ef4444 !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 /*

@@ -309,6 +309,10 @@ const AssignTargetModal: React.FC = () => {
             .ant-select-item-option-selected {
             background-color: #e6f7ff !important;
           }
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+            border-radius: 8px !important;
+          }
           .okr-settings-modal .ant-modal-title {
             margin-bottom: 24px !important;
           }

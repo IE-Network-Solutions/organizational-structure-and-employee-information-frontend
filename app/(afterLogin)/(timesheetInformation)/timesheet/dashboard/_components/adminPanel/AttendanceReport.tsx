@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Select, DatePicker, Avatar, Spin, Modal } from 'antd';
+import { Avatar, Card, DatePicker, Modal, Select, Skeleton } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -271,8 +271,9 @@ const AttendanceReport: React.FC = () => {
         </div>
 
         {/* Content */}
-        <Spin
-          spinning={loading}
+        <Skeleton
+          loading={loading}
+          active
           data-cy="time-attendance-attendance-report-loading-spin"
         >
           <div
@@ -470,7 +471,7 @@ const AttendanceReport: React.FC = () => {
               )}
             </div>
           </div>
-        </Spin>
+        </Skeleton>
       </Card>
 
       {/* Mobile Filter Modal */}

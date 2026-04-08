@@ -14,7 +14,6 @@ import {
   Select,
   Form,
   Tooltip,
-  Empty,
   Dropdown,
 } from 'antd';
 import Image from 'next/image';
@@ -37,7 +36,6 @@ import {
   useDeleteProbationTarget,
 } from '@/store/server/features/probation-target/mutation';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
-import { EmptyImage } from '@/components/emptyIndicator';
 import InlineTaskPanel from '../inlineTaskPanel';
 import { useGetEmployementTypes } from '@/store/server/features/employees/employeeManagment/employmentType/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -52,6 +50,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import AddIcon from '@mui/icons-material/Add';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import EmptyState from '@/components/empty';
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -654,11 +653,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
           id="probation-targets-empty-state"
           data-cy="probation-targets-empty-state"
         >
-          <Empty
-            description="No probation targets found"
-            image={<EmptyImage />}
-            data-cy="probation-targets-empty"
-          />
+          <EmptyState />
         </div>
       </Card>
     );
@@ -959,7 +954,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                       id={`probation-target-empty-tasks-wrapper-${targetSlug}`}
                       data-cy={`probation-target-empty-tasks-wrapper-${targetSlug}`}
                     >
-                      No tasks found for this probation target
+                      <EmptyState />
                     </div>
                   )}
                 </div>

@@ -10,7 +10,7 @@ import {
   InputNumber,
   Row,
   Select,
-  Spin,
+  Skeleton,
 } from 'antd';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -146,7 +146,7 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
                   data-cy="-components-createjobs-createnewjob-index-tsx-index-div-139"
                   className="flex items-center justify-center h-30"
                 >
-                  <Spin size="small" />
+                  <Skeleton.Button active size="small" />
                 </div>
               )}
               {departments &&

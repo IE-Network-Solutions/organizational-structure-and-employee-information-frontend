@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Card, Empty, Table, Tag } from 'antd';
+import { Card, Table, Tag } from 'antd';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import dayjs from 'dayjs';
 import { useGetJobApplicants } from '@/store/server/features/recruitment/ai-job-matching/queries';
+import EmptyState from '@/components/empty';
 
 const applicantColumns = [
   {
@@ -118,7 +119,7 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
           id="ai-job-applicants-empty-no-job"
           data-cy="ai-job-applicants-empty-no-job"
         >
-          <Empty description="Select a job to view applicants" />
+          <EmptyState />
         </div>
       </Card>
     );
@@ -165,7 +166,7 @@ const JobApplicantsList: React.FC<JobApplicantsListProps> = ({ jobId }) => {
           id="ai-job-applicants-empty-state"
           data-cy="ai-job-applicants-empty-state"
         >
-          <Empty description="No applicants yet" />
+          <EmptyState />
         </div>
       </Card>
     );

@@ -9,7 +9,7 @@ import {
   Row,
   Select,
   Space,
-  Spin,
+  Skeleton,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import CustomDrawerFooterButton, {
@@ -328,8 +328,9 @@ const LeaveRequestSidebar = () => {
         footer: { paddingTop: 0, marginTop: 0 },
       }}
     >
-      <Spin
-        spinning={isLoading || isLoadingRequest}
+      <Skeleton
+        loading={isLoading || isLoadingRequest}
+        active
         data-cy="time-attendance-leave-request-sidebar-spin"
       >
         <Form
@@ -553,7 +554,7 @@ const LeaveRequestSidebar = () => {
             )}
           </Space.Compact>
         </Form>
-      </Spin>
+      </Skeleton>
     </Modal>
   );
 };

@@ -2,7 +2,7 @@ import { useDeleteBreakType } from '@/store/server/features/timesheet/breakType/
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import AccessGuard from '@/utils/permissionGuard';
-import { Button, Dropdown, MenuProps, Spin } from 'antd';
+import { Button, Dropdown, MenuProps, Skeleton } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -46,8 +46,9 @@ const BreakTypeTable = () => {
   const list = breakTypeData?.items || [];
 
   return (
-    <Spin
-      spinning={breakTypeIsLoading}
+    <Skeleton
+      loading={breakTypeIsLoading}
+      active
       data-cy="time-attendance-settings-break-type-table-spin"
     >
       <div
@@ -130,7 +131,7 @@ const BreakTypeTable = () => {
           </div>
         ))}
       </div>
-    </Spin>
+    </Skeleton>
   );
 };
 

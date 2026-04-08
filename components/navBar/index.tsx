@@ -521,12 +521,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
           {
             title: (
-              <span
-                data-cy="nav-tree-recruitment-settings"
-                className="font-bold"
-              >
-                Settings
-              </span>
+              <span data-cy="nav-tree-recruitment-settings">Settings</span>
             ),
             key: '/recruitment/settings',
             className: 'font-bold',

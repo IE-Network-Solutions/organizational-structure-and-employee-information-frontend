@@ -4,7 +4,7 @@ import {
   Form,
   Input,
   Space,
-  Spin,
+  Skeleton,
   Switch,
   Select,
   Modal,
@@ -203,8 +203,9 @@ const LocationSidebar = () => {
         zIndex={10002}
         centered
       >
-        <Spin
-          spinning={isFetching || isLoading}
+        <Skeleton
+          loading={isFetching || isLoading}
+          active
           data-cy="time-attendance-settings-allowed-areas-sidebar-spin"
         >
           <Form
@@ -548,7 +549,7 @@ const LocationSidebar = () => {
               </Space.Compact>
             </div>
           </Form>
-        </Spin>
+        </Skeleton>
       </Modal>
     )
   );

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Spin, Tag } from 'antd';
+import { Skeleton, Tag } from 'antd';
 import ActionButton from '@/components/common/actionButton';
 import { LeaveType } from '@/types/timesheet/settings';
 import {
@@ -31,8 +31,9 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
   };
 
   return (
-    <Spin
-      spinning={isDeleteLoading || isActiveLoading}
+    <Skeleton
+      loading={isDeleteLoading || isActiveLoading}
+      active
       data-cy={`time-attendance-settings-leave-types-and-policies-card-${item.id}-spin`}
     >
       <div
@@ -202,7 +203,7 @@ const LeaveTypeCard: FC<LeaveTypeCardProps> = ({ item }) => {
           </div>
         </div>
       </div>
-    </Spin>
+    </Skeleton>
   );
 };
 

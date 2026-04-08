@@ -229,6 +229,10 @@ const OkrRuleModal: React.FC<OkrRuleModalProps> = ({
         </Row>
 
         <style jsx global data-cy="okr-rule-modal-styles">{`
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+            border-radius: 8px !important;
+          }
           .okr-settings-modal .ant-modal-title {
             margin-bottom: 24px !important;
           }

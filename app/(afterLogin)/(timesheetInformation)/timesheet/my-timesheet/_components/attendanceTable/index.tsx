@@ -7,7 +7,6 @@ import { DATE_FORMAT } from '@/utils/constants';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 
 // Types
@@ -570,12 +569,12 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
               data-cy="time-attendance-attendance-table-mobile-pagination"
             />
           ) : variant === 'myTimesheet' ? (
-            <MyTimesheetAttendancePagination
+            <CustomPagination
               current={currentPage}
               total={data?.meta?.totalItems ?? 0}
               totalPages={data?.meta?.totalPages}
               pageSize={pageSize}
-              wrapLayout={attendanceWrapPaginationManyPages}
+              wrapMainRow={attendanceWrapPaginationManyPages}
               onChange={onPageChange}
               onShowSizeChange={(size: number) => {
                 setPageSize(size);

@@ -850,6 +850,10 @@ const ScoringModal: React.FC = () => {
             .ant-select-item-option-state {
             color: #1890ff;
           }
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+            border-radius: 8px !important;
+          }
           .okr-settings-modal .ant-modal-header {
             padding: 20px 24px 16px 24px !important;
             border-bottom: none !important;

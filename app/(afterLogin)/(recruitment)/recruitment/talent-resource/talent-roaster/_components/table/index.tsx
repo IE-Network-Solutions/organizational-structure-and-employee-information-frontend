@@ -448,6 +448,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         ),
       };
     }) || [];
+
   const rowSelection: TableRowSelection<TableDataItem> = {
     selectedRowKeys: selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {

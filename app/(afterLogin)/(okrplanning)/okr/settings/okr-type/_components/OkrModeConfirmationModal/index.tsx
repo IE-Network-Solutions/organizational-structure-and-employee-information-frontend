@@ -31,7 +31,18 @@ const OkrModeConfirmationModal: React.FC<OkrModeConfirmationModalProps> = ({
       onCancel={onCancel}
       footer={null}
       centered
-      width={650}
+      width="min(621px, calc(100vw - 32px))"
+      wrapClassName="okr-settings-modal-responsive-wrap"
+      styles={{
+        content: {
+          padding: '20px 24px',
+          borderRadius: 8,
+          minHeight: 276,
+          minWidth: 0,
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+        },
+      }}
       closable={!loading}
       closeIcon={<CloseOutlined className="text-[#8c8c8c]" />}
       maskClosable={!loading}
