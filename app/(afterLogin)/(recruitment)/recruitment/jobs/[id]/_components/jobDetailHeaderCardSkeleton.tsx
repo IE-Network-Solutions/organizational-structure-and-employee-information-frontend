@@ -20,13 +20,19 @@ const JobDetailHeaderCardSkeleton: React.FC = () => {
       >
         {pulseBar('h-7 w-[72px]', 'talent-acquisition-job-detail-card-skeleton-status')}
       </div>
-      <div className="mb-4 pr-24">
+      <div
+        className="mb-4 pr-24"
+        data-cy="talent-acquisition-job-detail-card-skeleton-title-wrap"
+      >
         {pulseBar(
           'h-7 w-full max-w-[320px]',
           'talent-acquisition-job-detail-card-skeleton-title',
         )}
       </div>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:max-w-6xl sm:flex-wrap sm:justify-between sm:gap-y-4">
+      <div
+        className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:max-w-6xl sm:flex-wrap sm:justify-between sm:gap-y-4"
+        data-cy="talent-acquisition-job-detail-card-skeleton-fields-grid"
+      >
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}

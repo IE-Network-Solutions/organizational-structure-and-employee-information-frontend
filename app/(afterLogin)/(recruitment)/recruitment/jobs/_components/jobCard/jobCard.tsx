@@ -314,7 +314,7 @@ const JobCard: React.FC = () => {
         aria-busy="true"
         aria-label="Loading jobs"
       >
-        {Array.from({ length: pageSize }, (_, index) => (
+        {[...Array(pageSize).keys()].map((index) => (
           <JobCardSkeleton key={index} index={index} />
         ))}
       </div>
