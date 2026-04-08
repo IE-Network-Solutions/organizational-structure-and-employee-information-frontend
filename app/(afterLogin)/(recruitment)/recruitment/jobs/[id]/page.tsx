@@ -38,6 +38,8 @@ import TextEditor from '@/components/form/textEditor';
 import { IoHourglassOutline } from 'react-icons/io5';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import TalentAcquisitionFullBleedHeaderRule from '../../_components/TalentAcquisitionFullBleedHeaderRule';
+import JobDetailHeaderCardSkeleton from './_components/jobDetailHeaderCardSkeleton';
+import JobDetailInformationTabSkeleton from './_components/jobDetailInformationTabSkeleton';
 
 interface Params {
   id: string;
@@ -115,7 +117,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     currentPage,
     pageSize,
   } = useCandidateState();
-  const { data: jobById } = useGetJobsByID(id);
+  const { data: jobById, isLoading: isJobLoading } = useGetJobsByID(id);
   const { data: departments } = useGetDepartments();
   const updatedBy = useAuthenticationStore((s) => s.userId);
   const { mutate: updateJob } = useUpdateJobs();
@@ -471,7 +473,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
           <div
             id="talent-acquisition-job-detail-card"
             className={`relative mb-6 rounded-[8px] border border-solid border-[#D9D9D9] bg-white px-7 py-4 ${
-              isEditingHeader ? 'min-h-0' : 'min-h-[88px] sm:h-[122px]'
+              isEditingHeader || isJobLoading
+                ? 'min-h-0'
+                : 'min-h-[88px] sm:h-[122px]'
             }`}
             data-cy="talent-acquisition-job-detail-card"
           >
@@ -621,6 +625,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                   </Form.Item>
                 </div>
               </Form>
+            ) : isJobLoading ? (
+              <JobDetailHeaderCardSkeleton />
             ) : (
               <>
                 <div
@@ -751,6 +757,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                   ),
                   children: (
                     <div>
+                      {isJobLoading ? (
+                        <JobDetailInformationTabSkeleton />
+                      ) : (
                       <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:items-stretch">
                         {/* Left Column: Job Description */}
                         <div
@@ -1062,6 +1071,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                           </div>
                         </div>
                       </div>
+                      )}
                     </div>
                   ),
                 },
