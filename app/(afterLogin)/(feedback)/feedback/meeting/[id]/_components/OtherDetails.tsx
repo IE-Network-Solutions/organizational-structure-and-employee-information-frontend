@@ -221,362 +221,366 @@ export default function OtherDetails({
             </h2>
           ) : null}
           <Form
-        form={form}
-        layout="vertical"
-        className="meeting-form-field-spacing"
-        requiredMark={meetingFormRequiredMark}
-        onFinish={handleConfirm}
-        data-cy="feedback-meeting-components-otherdetails-form"
-        id="feedback-meeting-components-otherdetails-form"
-      >
-        {variant === 'panelSummary' && !isEditing ? (
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-            data-cy="feedback-meeting-components-otherdetails-summary-grid"
+            form={form}
+            layout="vertical"
+            className="meeting-form-field-spacing"
+            requiredMark={meetingFormRequiredMark}
+            onFinish={handleConfirm}
+            data-cy="feedback-meeting-components-otherdetails-form"
+            id="feedback-meeting-components-otherdetails-form"
           >
-            <button
-              type="button"
-              className="text-left w-full"
-              onClick={openEdit}
-              disabled={!canEdit}
-              data-cy="feedback-meeting-components-otherdetails-summary-start"
-            >
+            {variant === 'panelSummary' && !isEditing ? (
               <div
-                className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
-                data-cy="feedback-meeting-otherdetails-summary-start-inner"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                data-cy="feedback-meeting-components-otherdetails-summary-grid"
               >
-                <div
-                  className="flex h-6 w-6 shrink-0 items-center justify-center"
-                  data-cy="feedback-meeting-otherdetails-summary-start-icon-wrap"
-                >
-                  <GoClock size={20} className="text-black/45" />
-                </div>
-                <div
-                  className="min-w-0 flex-1"
-                  data-cy="feedback-meeting-otherdetails-summary-start-body"
+                <button
+                  type="button"
+                  className="text-left w-full"
+                  onClick={openEdit}
+                  disabled={!canEdit}
+                  data-cy="feedback-meeting-components-otherdetails-summary-start"
                 >
                   <div
-                    className="text-[14px] text-black/45 mb-0.5"
-                    data-cy="feedback-meeting-otherdetails-summary-start-label"
+                    className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
+                    data-cy="feedback-meeting-otherdetails-summary-start-inner"
                   >
-                    Start Time
+                    <div
+                      className="flex h-6 w-6 shrink-0 items-center justify-center"
+                      data-cy="feedback-meeting-otherdetails-summary-start-icon-wrap"
+                    >
+                      <GoClock size={20} className="text-black/45" />
+                    </div>
+                    <div
+                      className="min-w-0 flex-1"
+                      data-cy="feedback-meeting-otherdetails-summary-start-body"
+                    >
+                      <div
+                        className="text-[14px] text-black/45 mb-0.5"
+                        data-cy="feedback-meeting-otherdetails-summary-start-label"
+                      >
+                        Start Time
+                      </div>
+                      <div
+                        className="text-[14px] font-medium text-[#262626]"
+                        data-cy="feedback-meeting-otherdetails-summary-start-value"
+                      >
+                        {formatTimeDisplay(meeting?.startAt)}
+                      </div>
+                    </div>
                   </div>
+                </button>
+                <button
+                  type="button"
+                  className="text-left w-full"
+                  onClick={openEdit}
+                  disabled={!canEdit}
+                  data-cy="feedback-meeting-components-otherdetails-summary-end"
+                >
                   <div
-                    className="text-[14px] font-medium text-[#262626]"
-                    data-cy="feedback-meeting-otherdetails-summary-start-value"
+                    className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
+                    data-cy="feedback-meeting-otherdetails-summary-end-inner"
                   >
-                    {formatTimeDisplay(meeting?.startAt)}
+                    <div
+                      className="flex h-6 w-6 shrink-0 items-center justify-center"
+                      data-cy="feedback-meeting-otherdetails-summary-end-icon-wrap"
+                    >
+                      <GoClock size={20} className="text-black/45" />
+                    </div>
+                    <div
+                      className="min-w-0 flex-1"
+                      data-cy="feedback-meeting-otherdetails-summary-end-body"
+                    >
+                      <div
+                        className="text-[14px] text-black/45 mb-0.5"
+                        data-cy="feedback-meeting-otherdetails-summary-end-label"
+                      >
+                        End Time
+                      </div>
+                      <div
+                        className="text-[14px] font-medium text-[#262626]"
+                        data-cy="feedback-meeting-otherdetails-summary-end-value"
+                      >
+                        {formatTimeDisplay(meeting?.endAt)}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </button>
+                <button
+                  type="button"
+                  className="text-left w-full"
+                  onClick={openEdit}
+                  disabled={!canEdit}
+                  data-cy="feedback-meeting-components-otherdetails-summary-location"
+                >
+                  <div
+                    className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
+                    data-cy="feedback-meeting-otherdetails-summary-location-inner"
+                  >
+                    <div
+                      className="flex h-6 w-6 shrink-0 items-center justify-center"
+                      data-cy="feedback-meeting-otherdetails-summary-location-icon-wrap"
+                    >
+                      <IoLocationOutline size={20} className="text-black/45" />
+                    </div>
+                    <div
+                      className="min-w-0 flex-1"
+                      data-cy="feedback-meeting-otherdetails-summary-location-body"
+                    >
+                      <div
+                        className="text-[14px] text-black/45 mb-0.5"
+                        data-cy="feedback-meeting-otherdetails-summary-location-label"
+                      >
+                        Location
+                      </div>
+                      <div
+                        className="text-[14px] font-medium text-[#262626] break-words"
+                        data-cy="feedback-meeting-otherdetails-summary-location-value"
+                      >
+                        {locationSummaryText(meeting)}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+                <ChairPersonSummary chairpersonId={meeting?.chairpersonId} />
               </div>
-            </button>
-            <button
-              type="button"
-              className="text-left w-full"
-              onClick={openEdit}
-              disabled={!canEdit}
-              data-cy="feedback-meeting-components-otherdetails-summary-end"
-            >
-              <div
-                className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
-                data-cy="feedback-meeting-otherdetails-summary-end-inner"
-              >
-                <div
-                  className="flex h-6 w-6 shrink-0 items-center justify-center"
-                  data-cy="feedback-meeting-otherdetails-summary-end-icon-wrap"
-                >
-                  <GoClock size={20} className="text-black/45" />
-                </div>
-                <div
-                  className="min-w-0 flex-1"
-                  data-cy="feedback-meeting-otherdetails-summary-end-body"
-                >
-                  <div
-                    className="text-[14px] text-black/45 mb-0.5"
-                    data-cy="feedback-meeting-otherdetails-summary-end-label"
-                  >
-                    End Time
-                  </div>
-                  <div
-                    className="text-[14px] font-medium text-[#262626]"
-                    data-cy="feedback-meeting-otherdetails-summary-end-value"
-                  >
-                    {formatTimeDisplay(meeting?.endAt)}
-                  </div>
-                </div>
-              </div>
-            </button>
-            <button
-              type="button"
-              className="text-left w-full"
-              onClick={openEdit}
-              disabled={!canEdit}
-              data-cy="feedback-meeting-components-otherdetails-summary-location"
-            >
-              <div
-                className={`flex gap-3 items-center border border-[#D9D9D9] rounded-lg p-3 h-full bg-white ${canEdit ? 'cursor-pointer hover:border-[#91CAFF]' : ''}`}
-                data-cy="feedback-meeting-otherdetails-summary-location-inner"
-              >
-                <div
-                  className="flex h-6 w-6 shrink-0 items-center justify-center"
-                  data-cy="feedback-meeting-otherdetails-summary-location-icon-wrap"
-                >
-                  <IoLocationOutline size={20} className="text-black/45" />
-                </div>
-                <div
-                  className="min-w-0 flex-1"
-                  data-cy="feedback-meeting-otherdetails-summary-location-body"
-                >
-                  <div
-                    className="text-[14px] text-black/45 mb-0.5"
-                    data-cy="feedback-meeting-otherdetails-summary-location-label"
-                  >
-                    Location
-                  </div>
-                  <div
-                    className="text-[14px] font-medium text-[#262626] break-words"
-                    data-cy="feedback-meeting-otherdetails-summary-location-value"
-                  >
-                    {locationSummaryText(meeting)}
-                  </div>
-                </div>
-              </div>
-            </button>
-            <ChairPersonSummary chairpersonId={meeting?.chairpersonId} />
-          </div>
-        ) : null}
+            ) : null}
 
-        {showDetailRows ? (
-          <>
-            <div
-              className="flex gap-5"
-              data-cy="feedback-meeting-components-otherdetails-div-time"
-              id="feedback-meeting-components-otherdetails-div-time"
-            >
-              {isEditing ? (
-                <>
-                  <Form.Item
-                    name="startAt"
-                    rules={[
-                      { required: true, message: 'Please select start time' },
-                    ]}
-                    style={{ flex: 1, marginBottom: 0 }}
-                    data-cy="feedback-meeting-components-otherdetails-form-item-start"
-                    id="feedback-meeting-components-otherdetails-form-item-start"
+            {showDetailRows ? (
+              <>
+                <div
+                  className="flex gap-5"
+                  data-cy="feedback-meeting-components-otherdetails-div-time"
+                  id="feedback-meeting-components-otherdetails-div-time"
+                >
+                  {isEditing ? (
+                    <>
+                      <Form.Item
+                        name="startAt"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please select start time',
+                          },
+                        ]}
+                        style={{ flex: 1, marginBottom: 0 }}
+                        data-cy="feedback-meeting-components-otherdetails-form-item-start"
+                        id="feedback-meeting-components-otherdetails-form-item-start"
+                      >
+                        <TimePicker
+                          format="hh:mm A"
+                          use12Hours
+                          style={{ width: '100%' }}
+                          data-cy="feedback-meeting-components-otherdetails-timepicker-start"
+                          id="feedback-meeting-components-otherdetails-timepicker-start"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name="endAt"
+                        dependencies={['startAt']}
+                        rules={[
+                          { required: true, message: 'Please select end time' },
+                          ({ getFieldValue }) => ({
+                            validator(notused, value) {
+                              const start = getFieldValue('startAt');
+                              if (!value || !start || value.isAfter(start)) {
+                                return Promise.resolve();
+                              }
+                              NotificationMessage.warning({
+                                message: 'Warning',
+                                description:
+                                  'End time must be after start time',
+                              });
+                              return Promise.reject(
+                                new Error('End time must be after start time'),
+                              );
+                            },
+                          }),
+                        ]}
+                        style={{ flex: 1, marginBottom: 0 }}
+                        data-cy="feedback-meeting-components-otherdetails-form-item-end"
+                        id="feedback-meeting-components-otherdetails-form-item-end"
+                      >
+                        <TimePicker
+                          format="hh:mm A"
+                          use12Hours
+                          style={{ width: '100%' }}
+                          data-cy="feedback-meeting-components-otherdetails-timepicker-end"
+                          id="feedback-meeting-components-otherdetails-timepicker-end"
+                        />
+                      </Form.Item>
+                    </>
+                  ) : (
+                    <>
+                      <p
+                        className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
+                        onClick={() => (canEdit ? setIsEditing(true) : null)}
+                        title="Click to edit start time"
+                        data-cy="feedback-meeting-components-otherdetails-text-start"
+                        id="feedback-meeting-components-otherdetails-text-start"
+                      >
+                        {formatTimeDisplay(meeting?.startAt)}
+                      </p>
+                      <p
+                        className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
+                        onClick={() => (canEdit ? setIsEditing(true) : null)}
+                        title="Click to edit end time"
+                        data-cy="feedback-meeting-components-otherdetails-text-end"
+                        id="feedback-meeting-components-otherdetails-text-end"
+                      >
+                        {formatTimeDisplay(meeting?.endAt)}
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <div
+                  className="flex gap-5 mt-3"
+                  data-cy="feedback-meeting-components-otherdetails-div-summary"
+                  id="feedback-meeting-components-otherdetails-div-summary"
+                >
+                  <div
+                    className="w-full border p-3 rounded-lg flex items-center gap-3"
+                    data-cy="feedback-meeting-components-otherdetails-div-duration"
+                    id="feedback-meeting-components-otherdetails-div-duration"
                   >
-                    <TimePicker
-                      format="hh:mm A"
-                      use12Hours
-                      style={{ width: '100%' }}
-                      data-cy="feedback-meeting-components-otherdetails-timepicker-start"
-                      id="feedback-meeting-components-otherdetails-timepicker-start"
+                    <GoClock size={16} />
+                    <p
+                      data-cy="feedback-meeting-components-otherdetails-text-duration"
+                      id="feedback-meeting-components-otherdetails-text-duration"
+                    >
+                      {duration}
+                    </p>
+                  </div>
+
+                  <div
+                    className="w-full border p-3 rounded-lg flex items-center gap-3 capitalize"
+                    data-cy="feedback-meeting-components-otherdetails-div-location-type"
+                    id="feedback-meeting-components-otherdetails-div-location-type"
+                  >
+                    <EnvironmentOutlined
+                      id="feedback-meeting-components-otherdetails-icon-location-type"
+                      data-cy="feedback-meeting-components-otherdetails-icon-location-type"
                     />
-                  </Form.Item>
-                  <Form.Item
-                    name="endAt"
-                    dependencies={['startAt']}
-                    rules={[
-                      { required: true, message: 'Please select end time' },
-                      ({ getFieldValue }) => ({
-                        validator(notused, value) {
-                          const start = getFieldValue('startAt');
-                          if (!value || !start || value.isAfter(start)) {
-                            return Promise.resolve();
-                          }
-                          NotificationMessage.warning({
-                            message: 'Warning',
-                            description: 'End time must be after start time',
-                          });
-                          return Promise.reject(
-                            new Error('End time must be after start time'),
-                          );
-                        },
-                      }),
-                    ]}
-                    style={{ flex: 1, marginBottom: 0 }}
-                    data-cy="feedback-meeting-components-otherdetails-form-item-end"
-                    id="feedback-meeting-components-otherdetails-form-item-end"
-                  >
-                    <TimePicker
-                      format="hh:mm A"
-                      use12Hours
-                      style={{ width: '100%' }}
-                      data-cy="feedback-meeting-components-otherdetails-timepicker-end"
-                      id="feedback-meeting-components-otherdetails-timepicker-end"
-                    />
-                  </Form.Item>
-                </>
-              ) : (
-                <>
-                  <p
-                    className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
-                    onClick={() => (canEdit ? setIsEditing(true) : null)}
-                    title="Click to edit start time"
-                    data-cy="feedback-meeting-components-otherdetails-text-start"
-                    id="feedback-meeting-components-otherdetails-text-start"
-                  >
-                    {formatTimeDisplay(meeting?.startAt)}
-                  </p>
-                  <p
-                    className="w-full border p-3 rounded-lg cursor-pointer font-bold text-[#687588]"
-                    onClick={() => (canEdit ? setIsEditing(true) : null)}
-                    title="Click to edit end time"
-                    data-cy="feedback-meeting-components-otherdetails-text-end"
-                    id="feedback-meeting-components-otherdetails-text-end"
-                  >
-                    {formatTimeDisplay(meeting?.endAt)}
-                  </p>
-                </>
-              )}
-            </div>
+                    <p
+                      className="w-full cursor-pointer"
+                      onClick={() => (canEdit ? setIsEditing(true) : null)}
+                      title="Click to edit location type"
+                      data-cy="feedback-meeting-components-otherdetails-text-location-type"
+                      id="feedback-meeting-components-otherdetails-text-location-type"
+                    >
+                      {meeting?.locationType}
+                    </p>
+                  </div>
+                </div>
 
-            <div
-              className="flex gap-5 mt-3"
-              data-cy="feedback-meeting-components-otherdetails-div-summary"
-              id="feedback-meeting-components-otherdetails-div-summary"
-            >
-              <div
-                className="w-full border p-3 rounded-lg flex items-center gap-3"
-                data-cy="feedback-meeting-components-otherdetails-div-duration"
-                id="feedback-meeting-components-otherdetails-div-duration"
-              >
-                <GoClock size={16} />
-                <p
-                  data-cy="feedback-meeting-components-otherdetails-text-duration"
-                  id="feedback-meeting-components-otherdetails-text-duration"
-                >
-                  {duration}
-                </p>
-              </div>
-
-              <div
-                className="w-full border p-3 rounded-lg flex items-center gap-3 capitalize"
-                data-cy="feedback-meeting-components-otherdetails-div-location-type"
-                id="feedback-meeting-components-otherdetails-div-location-type"
-              >
-                <EnvironmentOutlined
-                  id="feedback-meeting-components-otherdetails-icon-location-type"
-                  data-cy="feedback-meeting-components-otherdetails-icon-location-type"
-                />
-                <p
-                  className="w-full cursor-pointer"
-                  onClick={() => (canEdit ? setIsEditing(true) : null)}
-                  title="Click to edit location type"
-                  data-cy="feedback-meeting-components-otherdetails-text-location-type"
-                  id="feedback-meeting-components-otherdetails-text-location-type"
-                >
-                  {meeting?.locationType}
-                </p>
-              </div>
-            </div>
-
-            {(meeting?.locationType === 'in-person' ||
-              meeting?.locationType === 'hybrid') && (
-              <div
-                className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3"
-                data-cy="feedback-meeting-components-otherdetails-div-physical"
-                id="feedback-meeting-components-otherdetails-div-physical"
-              >
-                <EnvironmentOutlined />
-                {isEditing ? (
-                  <Form.Item
-                    name="physicalLocation"
-                    style={{ flex: 1, marginBottom: 0 }}
-                    data-cy="feedback-meeting-components-otherdetails-form-item-physical"
-                    id="feedback-meeting-components-otherdetails-form-item-physical"
+                {(meeting?.locationType === 'in-person' ||
+                  meeting?.locationType === 'hybrid') && (
+                  <div
+                    className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3"
+                    data-cy="feedback-meeting-components-otherdetails-div-physical"
+                    id="feedback-meeting-components-otherdetails-div-physical"
                   >
-                    <Input
-                      placeholder="Physical Location"
-                      data-cy="feedback-meeting-components-otherdetails-input-physical"
-                      id="feedback-meeting-components-otherdetails-input-physical"
-                    />
-                  </Form.Item>
-                ) : (
-                  <p
-                    className="w-full cursor-pointer"
-                    onClick={() => (canEdit ? setIsEditing(true) : null)}
-                    title="Click to edit physical location"
-                    data-cy="feedback-meeting-components-otherdetails-text-physical"
-                    id="feedback-meeting-components-otherdetails-text-physical"
-                  >
-                    {meeting?.physicalLocation || '-'}
-                  </p>
+                    <EnvironmentOutlined />
+                    {isEditing ? (
+                      <Form.Item
+                        name="physicalLocation"
+                        style={{ flex: 1, marginBottom: 0 }}
+                        data-cy="feedback-meeting-components-otherdetails-form-item-physical"
+                        id="feedback-meeting-components-otherdetails-form-item-physical"
+                      >
+                        <Input
+                          placeholder="Physical Location"
+                          data-cy="feedback-meeting-components-otherdetails-input-physical"
+                          id="feedback-meeting-components-otherdetails-input-physical"
+                        />
+                      </Form.Item>
+                    ) : (
+                      <p
+                        className="w-full cursor-pointer"
+                        onClick={() => (canEdit ? setIsEditing(true) : null)}
+                        title="Click to edit physical location"
+                        data-cy="feedback-meeting-components-otherdetails-text-physical"
+                        id="feedback-meeting-components-otherdetails-text-physical"
+                      >
+                        {meeting?.physicalLocation || '-'}
+                      </p>
+                    )}
+                  </div>
                 )}
+
+                {(meeting?.locationType === 'virtual' ||
+                  meeting?.locationType === 'hybrid') && (
+                  <div
+                    className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3"
+                    data-cy="feedback-meeting-components-otherdetails-div-virtual"
+                    id="feedback-meeting-components-otherdetails-div-virtual"
+                  >
+                    <IoIosLink
+                      size={16}
+                      id="feedback-meeting-components-otherdetails-icon-virtual"
+                      data-cy="feedback-meeting-components-otherdetails-icon-virtual"
+                    />
+                    {isEditing ? (
+                      <Form.Item
+                        name="virtualLink"
+                        style={{ flex: 1, marginBottom: 0 }}
+                        data-cy="feedback-meeting-components-otherdetails-form-item-virtual"
+                        id="feedback-meeting-components-otherdetails-form-item-virtual"
+                      >
+                        <Input
+                          placeholder="Virtual Link"
+                          data-cy="feedback-meeting-components-otherdetails-input-virtual"
+                          id="feedback-meeting-components-otherdetails-input-virtual"
+                        />
+                      </Form.Item>
+                    ) : (
+                      <p
+                        className="w-full cursor-pointer"
+                        onClick={() => (canEdit ? setIsEditing(true) : null)}
+                        title="Click to edit virtual link"
+                        data-cy="feedback-meeting-components-otherdetails-text-virtual"
+                        id="feedback-meeting-components-otherdetails-text-virtual"
+                      >
+                        {meeting?.virtualLink}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : null}
+
+            {isEditing && (
+              <div
+                className="flex justify-end gap-2 mt-3"
+                data-cy="feedback-meeting-components-otherdetails-div-buttons"
+                id="feedback-meeting-components-otherdetails-div-buttons"
+              >
+                <Button
+                  htmlType="submit"
+                  type="primary"
+                  loading={isLoading}
+                  className="h-10 min-w-16 border-none shadow-none"
+                  data-cy="feedback-meeting-components-otherdetails-button-save"
+                  id="feedback-meeting-components-otherdetails-button-save"
+                >
+                  Save
+                </Button>
+                <Button
+                  onClick={() => {
+                    form.resetFields();
+                    setIsEditing(false);
+                  }}
+                  loading={isLoading}
+                  className="h-10 min-w-16"
+                  data-cy="feedback-meeting-components-otherdetails-button-cancel"
+                  id="feedback-meeting-components-otherdetails-button-cancel"
+                >
+                  Cancel
+                </Button>
               </div>
             )}
-
-            {(meeting?.locationType === 'virtual' ||
-              meeting?.locationType === 'hybrid') && (
-              <div
-                className="w-full border p-3 rounded-lg flex items-center gap-3 mt-3"
-                data-cy="feedback-meeting-components-otherdetails-div-virtual"
-                id="feedback-meeting-components-otherdetails-div-virtual"
-              >
-                <IoIosLink
-                  size={16}
-                  id="feedback-meeting-components-otherdetails-icon-virtual"
-                  data-cy="feedback-meeting-components-otherdetails-icon-virtual"
-                />
-                {isEditing ? (
-                  <Form.Item
-                    name="virtualLink"
-                    style={{ flex: 1, marginBottom: 0 }}
-                    data-cy="feedback-meeting-components-otherdetails-form-item-virtual"
-                    id="feedback-meeting-components-otherdetails-form-item-virtual"
-                  >
-                    <Input
-                      placeholder="Virtual Link"
-                      data-cy="feedback-meeting-components-otherdetails-input-virtual"
-                      id="feedback-meeting-components-otherdetails-input-virtual"
-                    />
-                  </Form.Item>
-                ) : (
-                  <p
-                    className="w-full cursor-pointer"
-                    onClick={() => (canEdit ? setIsEditing(true) : null)}
-                    title="Click to edit virtual link"
-                    data-cy="feedback-meeting-components-otherdetails-text-virtual"
-                    id="feedback-meeting-components-otherdetails-text-virtual"
-                  >
-                    {meeting?.virtualLink}
-                  </p>
-                )}
-              </div>
-            )}
-          </>
-        ) : null}
-
-        {isEditing && (
-          <div
-            className="flex justify-end gap-2 mt-3"
-            data-cy="feedback-meeting-components-otherdetails-div-buttons"
-            id="feedback-meeting-components-otherdetails-div-buttons"
-          >
-            <Button
-              htmlType="submit"
-              type="primary"
-              loading={isLoading}
-              className="h-10 min-w-16 border-none shadow-none"
-              data-cy="feedback-meeting-components-otherdetails-button-save"
-              id="feedback-meeting-components-otherdetails-button-save"
-            >
-              Save
-            </Button>
-            <Button
-              onClick={() => {
-                form.resetFields();
-                setIsEditing(false);
-              }}
-              loading={isLoading}
-              className="h-10 min-w-16"
-              data-cy="feedback-meeting-components-otherdetails-button-cancel"
-              id="feedback-meeting-components-otherdetails-button-cancel"
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
-      </Form>
+          </Form>
         </>
       )}
     </Card>

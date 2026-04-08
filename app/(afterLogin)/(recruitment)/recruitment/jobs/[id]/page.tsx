@@ -760,130 +760,38 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       {isJobLoading ? (
                         <JobDetailInformationTabSkeleton />
                       ) : (
-                      <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:items-stretch">
-                        {/* Left Column: Job Description */}
-                        <div
-                          id="job-detail-description-section"
-                          className="flex flex-col bg-white p-6 lg:col-span-2 lg:pr-8"
-                          data-cy="job-detail-description-section"
-                        >
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-[16px] font-bold text-black">
-                              Job Description
-                            </h3>
-                            {!isEditingDescription ? (
-                              <button
-                                type="button"
-                                id="job-detail-edit-description-btn"
-                                onClick={startDescriptionEdit}
-                                className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
-                                data-cy="talent-acquisition-job-detail-edit-description"
-                              >
-                                <EditPencilIcon />
-                              </button>
-                            ) : (
-                              <div
-                                className="flex items-center gap-2"
-                                data-cy="job-detail-description-edit-actions"
-                              >
-                                <button
-                                  type="button"
-                                  id="job-detail-description-cancel"
-                                  onClick={cancelDescriptionEdit}
-                                  className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
-                                  data-cy="job-detail-description-cancel"
-                                >
-                                  <FaTimes
-                                    style={{
-                                      width: '8.17px',
-                                      height: '8.17px',
-                                      color: '#FF4D4F',
-                                    }}
-                                  />
-                                </button>
-                                <button
-                                  type="button"
-                                  id="job-detail-description-save"
-                                  onClick={() =>
-                                    saveDescriptionEdit(descriptionDraft)
-                                  }
-                                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
-                                  data-cy="job-detail-description-save"
-                                >
-                                  <FaCheck
-                                    style={{
-                                      width: '8.17px',
-                                      height: '8.17px',
-                                      color: '#fff',
-                                    }}
-                                  />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          {isEditingDescription ? (
-                            <div data-cy="job-detail-description-editor">
-                              <span className="mb-2 block text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                Description{' '}
-                                <span className="text-[#FF4D4F]">*</span>
-                              </span>
-                              <TextEditor
-                                value={descriptionDraft}
-                                onChange={(html) => setDescriptionDraft(html)}
-                                placeholder="Enter job description"
-                                className="!rounded-[8px] !border !border-solid !border-[#91CAFF] [&_.border-gray-200]:!border-[#E5E7EB]"
-                              />
-                            </div>
-                          ) : (
-                            <div className="text-[16px] font-normal leading-relaxed text-black [&_p]:mb-3 [&_p:last-child]:mb-0">
-                              {jobById?.description ? (
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: jobById.description,
-                                  }}
-                                />
-                              ) : (
-                                <p className="text-gray-400 italic">
-                                  No job description available.
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Right Column: Closing Date + Preferences */}
-                        <div className="flex min-h-0 flex-col border-t border-solid border-[#E5E7EB] px-6 py-6 lg:border-l lg:border-t-0 lg:px-0 lg:pl-8">
-                          {/* Job Vacancy Closing Date + Job Preference */}
+                        <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:items-stretch">
+                          {/* Left Column: Job Description */}
                           <div
-                            id="job-detail-closing-date-section"
-                            className="bg-white p-0"
-                            data-cy="job-detail-closing-date-section"
+                            id="job-detail-description-section"
+                            className="flex flex-col bg-white p-6 lg:col-span-2 lg:pr-8"
+                            data-cy="job-detail-description-section"
                           >
                             <div className="flex items-center justify-between mb-4">
                               <h3 className="text-[16px] font-bold text-black">
-                                Job Vacancy Closing Date
+                                Job Description
                               </h3>
-                              {!isEditingInfo ? (
+                              {!isEditingDescription ? (
                                 <button
                                   type="button"
-                                  id="job-detail-edit-closing-date-btn"
-                                  onClick={startInfoEdit}
+                                  id="job-detail-edit-description-btn"
+                                  onClick={startDescriptionEdit}
                                   className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
-                                  data-cy="talent-acquisition-job-detail-edit-closing-date"
+                                  data-cy="talent-acquisition-job-detail-edit-description"
                                 >
                                   <EditPencilIcon />
                                 </button>
                               ) : (
                                 <div
                                   className="flex items-center gap-2"
-                                  data-cy="job-detail-info-edit-actions"
+                                  data-cy="job-detail-description-edit-actions"
                                 >
                                   <button
                                     type="button"
-                                    id="job-detail-info-cancel"
-                                    onClick={cancelInfoEdit}
+                                    id="job-detail-description-cancel"
+                                    onClick={cancelDescriptionEdit}
                                     className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
-                                    data-cy="job-detail-info-cancel"
+                                    data-cy="job-detail-description-cancel"
                                   >
                                     <FaTimes
                                       style={{
@@ -895,10 +803,12 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                                   </button>
                                   <button
                                     type="button"
-                                    id="job-detail-info-save"
-                                    onClick={saveInfoEdit}
+                                    id="job-detail-description-save"
+                                    onClick={() =>
+                                      saveDescriptionEdit(descriptionDraft)
+                                    }
                                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
-                                    data-cy="job-detail-info-save"
+                                    data-cy="job-detail-description-save"
                                   >
                                     <FaCheck
                                       style={{
@@ -911,166 +821,259 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                                 </div>
                               )}
                             </div>
-                            {isEditingInfo ? (
-                              <Form
-                                form={infoForm}
-                                layout="vertical"
-                                id="job-detail-info-form"
-                                data-cy="job-detail-info-form"
-                                requiredMark={(label, { required }) => (
-                                  <>
-                                    {label}
-                                    {required && (
-                                      <span className="ml-1 text-[#FF4D4F]">
-                                        *
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-                                className={`${INFO_FORM_LABEL_CLASS} [&_.ant-form-item-label_label::before]:!hidden`}
-                              >
-                                <Form.Item
-                                  name="jobDeadline"
-                                  label="Expected Closing Date"
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: 'Please select date!',
-                                    },
-                                  ]}
-                                >
-                                  <DatePicker
-                                    id="job-detail-edit-deadline"
-                                    placeholder="Select date"
-                                    className="w-full !h-10 [&_.ant-picker]:!h-10 [&_.ant-picker]:!min-h-10 [&_.ant-picker]:!rounded-[8px] [&_.ant-picker]:!border-[#D9D9D9] [&_.ant-picker-input>input]:!text-[16px] [&_.ant-picker-input>input]:!font-normal [&_.ant-picker-input>input]:!text-black"
-                                    getPopupContainer={() => document.body}
-                                    data-cy="job-detail-edit-deadline"
-                                  />
-                                </Form.Item>
-                                <h3 className="mb-3 mt-4 text-[16px] font-bold text-black">
-                                  Job Preference
-                                </h3>
-                                <Form.Item
-                                  name="quantity"
-                                  label="Quantity"
-                                  rules={[{ required: true }]}
-                                >
-                                  <InputNumber
-                                    id="job-detail-edit-quantity"
-                                    className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
-                                    controls={false}
-                                    placeholder="0"
-                                    min={0}
-                                    data-cy="job-detail-edit-quantity"
-                                  />
-                                </Form.Item>
-                                <Form.Item
-                                  name="yearOfExperience"
-                                  label="Years of experience"
-                                  rules={[{ required: true }]}
-                                >
-                                  <InputNumber
-                                    id="job-detail-edit-years"
-                                    className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
-                                    controls={false}
-                                    placeholder="0"
-                                    min={0}
-                                    data-cy="job-detail-edit-years"
-                                  />
-                                </Form.Item>
-                                <Form.Item
-                                  name="compensation"
-                                  label="Compensation"
-                                  rules={[{ required: true }]}
-                                >
-                                  <InputNumber
-                                    id="job-detail-edit-compensation"
-                                    className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
-                                    controls={false}
-                                    placeholder="0"
-                                    min={0}
-                                    data-cy="job-detail-edit-compensation"
-                                  />
-                                </Form.Item>
-                              </Form>
+                            {isEditingDescription ? (
+                              <div data-cy="job-detail-description-editor">
+                                <span className="mb-2 block text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                  Description{' '}
+                                  <span className="text-[#FF4D4F]">*</span>
+                                </span>
+                                <TextEditor
+                                  value={descriptionDraft}
+                                  onChange={(html) => setDescriptionDraft(html)}
+                                  placeholder="Enter job description"
+                                  className="!rounded-[8px] !border !border-solid !border-[#91CAFF] [&_.border-gray-200]:!border-[#E5E7EB]"
+                                />
+                              </div>
                             ) : (
-                              <>
-                                <div className="space-y-4">
-                                  <div className="flex items-center justify-between gap-4">
-                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                      Closed Date
-                                    </span>
-                                    <span className="text-right text-[16px] font-normal text-black">
-                                      {jobById?.jobDeadline
-                                        ? dayjs(jobById.jobDeadline).format(
-                                            'DD MMMM, YYYY',
-                                          )
-                                        : 'Not set'}
-                                    </span>
-                                  </div>
-                                  {daysRemaining !== null &&
-                                    jobById?.jobDeadline && (
-                                      <div className="rounded-lg border border-solid border-[#E5E7EB] bg-white p-4">
-                                        <div className="mb-2 flex items-center justify-between gap-2">
-                                          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                            Days Remaining
-                                          </span>
-                                          <span className="flex shrink-0 items-center gap-1.5 text-[14px] font-normal text-[#1677FF]">
-                                            <IoHourglassOutline
-                                              className="shrink-0"
-                                              style={{ width: 12, height: 12 }}
-                                            />
-                                            {daysRemaining} Days to go
-                                          </span>
-                                        </div>
-                                        <Progress
-                                          percent={progressPercent}
-                                          strokeColor="#1677FF"
-                                          trailColor="#F0F0F0"
-                                          showInfo={false}
-                                          className="mb-0"
-                                        />
-                                      </div>
-                                    )}
-                                </div>
-                                <div className="mt-6">
-                                  <h3 className="text-[16px] font-bold text-black mb-4">
-                                    Job Preference
-                                  </h3>
-                                  <div className="grid grid-cols-2 gap-y-3">
-                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                      Quantity
-                                    </span>
-                                    <span className="text-[16px] font-normal text-black">
-                                      {jobById?.quantity ?? '—'}
-                                    </span>
-                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                      Years of Experience
-                                    </span>
-                                    <span className="text-[16px] font-normal text-black">
-                                      {jobById?.yearOfExperience != null &&
-                                      jobById.yearOfExperience !== ''
-                                        ? typeof jobById.yearOfExperience ===
-                                          'string'
-                                          ? jobById.yearOfExperience
-                                          : String(jobById.yearOfExperience)
-                                        : '—'}
-                                    </span>
-                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                      Compensation
-                                    </span>
-                                    <span className="text-[16px] font-normal text-black">
-                                      {formatCompensationDisplay(
-                                        jobById?.compensation,
-                                      )}
-                                    </span>
-                                  </div>
-                                </div>
-                              </>
+                              <div className="text-[16px] font-normal leading-relaxed text-black [&_p]:mb-3 [&_p:last-child]:mb-0">
+                                {jobById?.description ? (
+                                  <div
+                                    dangerouslySetInnerHTML={{
+                                      __html: jobById.description,
+                                    }}
+                                  />
+                                ) : (
+                                  <p className="text-gray-400 italic">
+                                    No job description available.
+                                  </p>
+                                )}
+                              </div>
                             )}
                           </div>
+
+                          {/* Right Column: Closing Date + Preferences */}
+                          <div className="flex min-h-0 flex-col border-t border-solid border-[#E5E7EB] px-6 py-6 lg:border-l lg:border-t-0 lg:px-0 lg:pl-8">
+                            {/* Job Vacancy Closing Date + Job Preference */}
+                            <div
+                              id="job-detail-closing-date-section"
+                              className="bg-white p-0"
+                              data-cy="job-detail-closing-date-section"
+                            >
+                              <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-[16px] font-bold text-black">
+                                  Job Vacancy Closing Date
+                                </h3>
+                                {!isEditingInfo ? (
+                                  <button
+                                    type="button"
+                                    id="job-detail-edit-closing-date-btn"
+                                    onClick={startInfoEdit}
+                                    className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
+                                    data-cy="talent-acquisition-job-detail-edit-closing-date"
+                                  >
+                                    <EditPencilIcon />
+                                  </button>
+                                ) : (
+                                  <div
+                                    className="flex items-center gap-2"
+                                    data-cy="job-detail-info-edit-actions"
+                                  >
+                                    <button
+                                      type="button"
+                                      id="job-detail-info-cancel"
+                                      onClick={cancelInfoEdit}
+                                      className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
+                                      data-cy="job-detail-info-cancel"
+                                    >
+                                      <FaTimes
+                                        style={{
+                                          width: '8.17px',
+                                          height: '8.17px',
+                                          color: '#FF4D4F',
+                                        }}
+                                      />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      id="job-detail-info-save"
+                                      onClick={saveInfoEdit}
+                                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
+                                      data-cy="job-detail-info-save"
+                                    >
+                                      <FaCheck
+                                        style={{
+                                          width: '8.17px',
+                                          height: '8.17px',
+                                          color: '#fff',
+                                        }}
+                                      />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                              {isEditingInfo ? (
+                                <Form
+                                  form={infoForm}
+                                  layout="vertical"
+                                  id="job-detail-info-form"
+                                  data-cy="job-detail-info-form"
+                                  requiredMark={(label, { required }) => (
+                                    <>
+                                      {label}
+                                      {required && (
+                                        <span className="ml-1 text-[#FF4D4F]">
+                                          *
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+                                  className={`${INFO_FORM_LABEL_CLASS} [&_.ant-form-item-label_label::before]:!hidden`}
+                                >
+                                  <Form.Item
+                                    name="jobDeadline"
+                                    label="Expected Closing Date"
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: 'Please select date!',
+                                      },
+                                    ]}
+                                  >
+                                    <DatePicker
+                                      id="job-detail-edit-deadline"
+                                      placeholder="Select date"
+                                      className="w-full !h-10 [&_.ant-picker]:!h-10 [&_.ant-picker]:!min-h-10 [&_.ant-picker]:!rounded-[8px] [&_.ant-picker]:!border-[#D9D9D9] [&_.ant-picker-input>input]:!text-[16px] [&_.ant-picker-input>input]:!font-normal [&_.ant-picker-input>input]:!text-black"
+                                      getPopupContainer={() => document.body}
+                                      data-cy="job-detail-edit-deadline"
+                                    />
+                                  </Form.Item>
+                                  <h3 className="mb-3 mt-4 text-[16px] font-bold text-black">
+                                    Job Preference
+                                  </h3>
+                                  <Form.Item
+                                    name="quantity"
+                                    label="Quantity"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <InputNumber
+                                      id="job-detail-edit-quantity"
+                                      className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
+                                      controls={false}
+                                      placeholder="0"
+                                      min={0}
+                                      data-cy="job-detail-edit-quantity"
+                                    />
+                                  </Form.Item>
+                                  <Form.Item
+                                    name="yearOfExperience"
+                                    label="Years of experience"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <InputNumber
+                                      id="job-detail-edit-years"
+                                      className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
+                                      controls={false}
+                                      placeholder="0"
+                                      min={0}
+                                      data-cy="job-detail-edit-years"
+                                    />
+                                  </Form.Item>
+                                  <Form.Item
+                                    name="compensation"
+                                    label="Compensation"
+                                    rules={[{ required: true }]}
+                                  >
+                                    <InputNumber
+                                      id="job-detail-edit-compensation"
+                                      className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
+                                      controls={false}
+                                      placeholder="0"
+                                      min={0}
+                                      data-cy="job-detail-edit-compensation"
+                                    />
+                                  </Form.Item>
+                                </Form>
+                              ) : (
+                                <>
+                                  <div className="space-y-4">
+                                    <div className="flex items-center justify-between gap-4">
+                                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                        Closed Date
+                                      </span>
+                                      <span className="text-right text-[16px] font-normal text-black">
+                                        {jobById?.jobDeadline
+                                          ? dayjs(jobById.jobDeadline).format(
+                                              'DD MMMM, YYYY',
+                                            )
+                                          : 'Not set'}
+                                      </span>
+                                    </div>
+                                    {daysRemaining !== null &&
+                                      jobById?.jobDeadline && (
+                                        <div className="rounded-lg border border-solid border-[#E5E7EB] bg-white p-4">
+                                          <div className="mb-2 flex items-center justify-between gap-2">
+                                            <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                              Days Remaining
+                                            </span>
+                                            <span className="flex shrink-0 items-center gap-1.5 text-[14px] font-normal text-[#1677FF]">
+                                              <IoHourglassOutline
+                                                className="shrink-0"
+                                                style={{
+                                                  width: 12,
+                                                  height: 12,
+                                                }}
+                                              />
+                                              {daysRemaining} Days to go
+                                            </span>
+                                          </div>
+                                          <Progress
+                                            percent={progressPercent}
+                                            strokeColor="#1677FF"
+                                            trailColor="#F0F0F0"
+                                            showInfo={false}
+                                            className="mb-0"
+                                          />
+                                        </div>
+                                      )}
+                                  </div>
+                                  <div className="mt-6">
+                                    <h3 className="text-[16px] font-bold text-black mb-4">
+                                      Job Preference
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-y-3">
+                                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                        Quantity
+                                      </span>
+                                      <span className="text-[16px] font-normal text-black">
+                                        {jobById?.quantity ?? '—'}
+                                      </span>
+                                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                        Years of Experience
+                                      </span>
+                                      <span className="text-[16px] font-normal text-black">
+                                        {jobById?.yearOfExperience != null &&
+                                        jobById.yearOfExperience !== ''
+                                          ? typeof jobById.yearOfExperience ===
+                                            'string'
+                                            ? jobById.yearOfExperience
+                                            : String(jobById.yearOfExperience)
+                                          : '—'}
+                                      </span>
+                                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                        Compensation
+                                      </span>
+                                      <span className="text-[16px] font-normal text-black">
+                                        {formatCompensationDisplay(
+                                          jobById?.compensation,
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
                       )}
                     </div>
                   ),

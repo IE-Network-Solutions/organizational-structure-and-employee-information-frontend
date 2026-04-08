@@ -922,7 +922,11 @@ export default function ParticipantsList({
               <Skeleton.Avatar active size={28} />
               <Skeleton.Avatar active size={28} />
               <Skeleton.Avatar active size={28} />
-              <Skeleton.Input active size="small" style={{ width: 56, height: 14 }} />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 56, height: 14 }}
+              />
             </div>
           ) : (
             <div

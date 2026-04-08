@@ -24,9 +24,13 @@ const meetingTimelineTheme = {
   },
 };
 
-const timelineLoadingRows = Array.from({ length: 4 }, (unusedValue, rowIndex) => rowIndex);
+const timelineLoadingRows = Array.from(
+  { length: 4 },
+  (unusedValue, rowIndex) => rowIndex,
+);
 
-const getMeetingTimelineDate = (meeting: any) => meeting?.startAt ?? meeting?.createdAt;
+const getMeetingTimelineDate = (meeting: any) =>
+  meeting?.startAt ?? meeting?.createdAt;
 
 interface MeetingListProps {
   selectedMeetingId?: string;
@@ -118,116 +122,117 @@ const MeetingList = ({
 
     // Upcoming first (nearest first), then past (most recent first)
     if (aIsUpcoming !== bIsUpcoming) return aIsUpcoming ? -1 : 1;
-    return aIsUpcoming ? aDate.valueOf() - bDate.valueOf() : bDate.valueOf() - aDate.valueOf();
+    return aIsUpcoming
+      ? aDate.valueOf() - bDate.valueOf()
+      : bDate.valueOf() - aDate.valueOf();
   });
 
-  const timelineItems =
-    sortedMeetings.map((meeting: any) => ({
-      style: { height: '76px', paddingBottom: 0 },
-      dot: (
+  const timelineItems = sortedMeetings.map((meeting: any) => ({
+    style: { height: '76px', paddingBottom: 0 },
+    dot: (
+      <div
+        className="flex w-[90px] shrink-0 items-center gap-2"
+        data-cy="feedback-meeting-meetinglist-timeline-dot-wrap"
+      >
         <div
-          className="flex w-[90px] shrink-0 items-center gap-2"
-          data-cy="feedback-meeting-meetinglist-timeline-dot-wrap"
+          className="min-w-0 flex-1 whitespace-nowrap text-left text-[14px] font-medium leading-none text-black/70 tabular-nums"
+          data-cy="feedback-meeting-meetinglist-timeline-date"
         >
-          <div
-            className="min-w-0 flex-1 whitespace-nowrap text-left text-[14px] font-medium leading-none text-black/70 tabular-nums"
-            data-cy="feedback-meeting-meetinglist-timeline-date"
-          >
-            {dayjs(getMeetingTimelineDate(meeting)).format('YYYY-M-D')}
-          </div>
-          <div
-            className="size-[10px] shrink-0 rounded-full border-[2px] border-[#1E40AF] bg-white"
-            data-cy="feedback-meeting-meetinglist-timeline-node"
-          />
+          {dayjs(getMeetingTimelineDate(meeting)).format('YYYY-M-D')}
         </div>
-      ),
-      children: (
-        <Link
-          href={`/feedback/meeting?id=${encodeURIComponent(meeting.id)}`}
-          passHref
-          key={meeting.id}
-          scroll={false}
-          className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
-            selectedMeetingId === meeting.id
-              ? 'border-[#1E40AF] bg-transparent'
-              : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
-          }`}
+        <div
+          className="size-[10px] shrink-0 rounded-full border-[2px] border-[#1E40AF] bg-white"
+          data-cy="feedback-meeting-meetinglist-timeline-node"
+        />
+      </div>
+    ),
+    children: (
+      <Link
+        href={`/feedback/meeting?id=${encodeURIComponent(meeting.id)}`}
+        passHref
+        key={meeting.id}
+        scroll={false}
+        className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
+          selectedMeetingId === meeting.id
+            ? 'border-[#1E40AF] bg-transparent'
+            : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
+        }`}
+      >
+        <div
+          className="flex h-full w-full items-start justify-between"
+          data-cy="feedback-meeting-meetinglist-card-inner"
         >
           <div
-            className="flex h-full w-full items-start justify-between"
-            data-cy="feedback-meeting-meetinglist-card-inner"
+            className="flex flex-col gap-1"
+            data-cy="feedback-meeting-meetinglist-card-main"
           >
+            <span
+              className={`max-w-[500px] truncate text-[15px] font-medium transition-colors ${
+                selectedMeetingId === meeting.id
+                  ? 'text-[#1E40AF]'
+                  : 'text-black/70 group-hover:text-blue-600'
+              }`}
+              data-cy="feedback-meeting-meetinglist-card-title"
+            >
+              {meeting.title}
+            </span>
+
             <div
-              className="flex flex-col gap-1"
-              data-cy="feedback-meeting-meetinglist-card-main"
+              className="flex items-center gap-4"
+              data-cy="feedback-meeting-meetinglist-card-meta"
             >
-              <span
-                className={`max-w-[500px] truncate text-[15px] font-medium transition-colors ${
-                  selectedMeetingId === meeting.id
-                    ? 'text-[#1E40AF]'
-                    : 'text-black/70 group-hover:text-blue-600'
-                }`}
-                data-cy="feedback-meeting-meetinglist-card-title"
-              >
-                {meeting.title}
-              </span>
+              <Avatar.Group maxCount={3} size={24} className="border-none">
+                {meeting.attendees?.slice(0, 3).map((att: any) => (
+                  <EmployeeDetails
+                    key={att.userId}
+                    empId={att.userId}
+                    type="avatar"
+                  />
+                ))}
+              </Avatar.Group>
+              {meeting.attendees?.length > 3 && (
+                <span
+                  className="text-xs text-black/70"
+                  data-cy="feedback-meeting-meetinglist-attendees-more"
+                >
+                  +{meeting.attendees.length - 3}
+                </span>
+              )}
 
-              <div
-                className="flex items-center gap-4"
-                data-cy="feedback-meeting-meetinglist-card-meta"
-              >
-                <Avatar.Group maxCount={3} size={24} className="border-none">
-                  {meeting.attendees?.slice(0, 3).map((att: any) => (
-                    <EmployeeDetails
-                      key={att.userId}
-                      empId={att.userId}
-                      type="avatar"
-                    />
-                  ))}
-                </Avatar.Group>
-                {meeting.attendees?.length > 3 && (
-                  <span
-                    className="text-xs text-black/70"
-                    data-cy="feedback-meeting-meetinglist-attendees-more"
-                  >
-                    +{meeting.attendees.length - 3}
-                  </span>
-                )}
-
-                {meeting.virtualLink || meeting.locationType === 'virtual' ? (
-                  <div
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      window.open(meeting.virtualLink, '_blank');
-                    }}
-                    className="flex h-[22px] min-h-[22px] cursor-pointer items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-0 text-[12px] font-normal leading-none text-[#1677FF]"
-                    data-cy="feedback-meeting-meetinglist-location-pill"
-                  >
-                    Zoom Meeting
-                  </div>
-                ) : (
-                  <div
-                    className="flex h-[22px] min-h-[22px] items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-0 text-[12px] font-normal leading-none text-[#1677FF]"
-                    data-cy="feedback-meeting-meetinglist-location-pill"
-                    title={meeting.physicalLocation || meeting.locationType}
-                  >
-                    {meeting.physicalLocation || meeting.locationType}
-                  </div>
-                )}
-              </div>
+              {meeting.virtualLink || meeting.locationType === 'virtual' ? (
+                <div
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open(meeting.virtualLink, '_blank');
+                  }}
+                  className="flex h-[22px] min-h-[22px] cursor-pointer items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-0 text-[12px] font-normal leading-none text-[#1677FF]"
+                  data-cy="feedback-meeting-meetinglist-location-pill"
+                >
+                  Zoom Meeting
+                </div>
+              ) : (
+                <div
+                  className="flex h-[22px] min-h-[22px] items-center gap-2 rounded-md border border-solid border-[#91CAFF] bg-[#E6F4FF] px-3 py-0 text-[12px] font-normal leading-none text-[#1677FF]"
+                  data-cy="feedback-meeting-meetinglist-location-pill"
+                  title={meeting.physicalLocation || meeting.locationType}
+                >
+                  {meeting.physicalLocation || meeting.locationType}
+                </div>
+              )}
             </div>
-
-            <Tag
-              className="!m-0 !inline-flex !h-[22px] !min-h-[22px] !w-[60px] !min-w-[60px] shrink-0 !items-center !justify-center !whitespace-nowrap !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-1 !py-0 !text-[12px] !font-normal !leading-none !text-black/70"
-              data-cy="feedback-meeting-component-meetinglist-time-tag"
-            >
-              {dayjs(getMeetingTimelineDate(meeting)).format('h:mmA')}
-            </Tag>
           </div>
-        </Link>
-      ),
-    }));
+
+          <Tag
+            className="!m-0 !inline-flex !h-[22px] !min-h-[22px] !w-[60px] !min-w-[60px] shrink-0 !items-center !justify-center !whitespace-nowrap !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-1 !py-0 !text-[12px] !font-normal !leading-none !text-black/70"
+            data-cy="feedback-meeting-component-meetinglist-time-tag"
+          >
+            {dayjs(getMeetingTimelineDate(meeting)).format('h:mmA')}
+          </Tag>
+        </div>
+      </Link>
+    ),
+  }));
 
   const timelineClassName = `${styles.meetingTimeline} custom-meeting-timeline ${hideFilters ? 'mt-0' : 'mt-2'}`;
 
@@ -314,7 +319,7 @@ const MeetingList = ({
           className="flex min-h-[200px] flex-col gap-2"
           data-cy="feedback-meeting-meetinglist-loading-wrap"
         >
-            {timelineLoadingRows.map((loadingRowDefault, index) => (
+          {timelineLoadingRows.map((loadingRowDefault, index) => (
             <div
               key={`meeting-loading-row-default-${loadingRowDefault}`}
               className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2"

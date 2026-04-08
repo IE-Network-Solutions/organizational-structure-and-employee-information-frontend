@@ -217,17 +217,16 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    const mapped = [
-      ...draftAddedPlans,
-      ...(values.actionPlans ?? []),
-    ].map((item: any) => ({
-      ...item,
-      parent: 'Meeting',
-      parentId: meetingId,
-      responsibleUsers: item.responsibleUsers?.map((p: any) => ({
-        responsibleId: p,
-      })),
-    }));
+    const mapped = [...draftAddedPlans, ...(values.actionPlans ?? [])].map(
+      (item: any) => ({
+        ...item,
+        parent: 'Meeting',
+        parentId: meetingId,
+        responsibleUsers: item.responsibleUsers?.map((p: any) => ({
+          responsibleId: p,
+        })),
+      }),
+    );
 
     const finalValue = { actionPlans: mapped };
     const finalValueEdit = {
@@ -257,10 +256,12 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
       const deadline =
         typeof deadlineValue === 'string'
           ? deadlineValue
-          : deadlineValue?.toISOString?.() ?? '';
-      const responsibleUsers = (item?.responsibleUsers ?? []).map((id: any) => ({
-        responsibleId: String(id),
-      }));
+          : (deadlineValue?.toISOString?.() ?? '');
+      const responsibleUsers = (item?.responsibleUsers ?? []).map(
+        (id: any) => ({
+          responsibleId: String(id),
+        }),
+      );
       return {
         id: `draft-${index}`,
         issue: String(item?.issue ?? ''),

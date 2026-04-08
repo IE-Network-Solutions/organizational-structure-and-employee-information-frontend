@@ -1,12 +1,6 @@
 import React from 'react';
 
-const Bar = ({
-  className,
-  dataCy,
-}: {
-  className: string;
-  dataCy: string;
-}) => (
+const Bar = ({ className, dataCy }: { className: string; dataCy: string }) => (
   <div
     className={`animate-pulse rounded bg-gray-200 ${className}`}
     data-cy={dataCy}

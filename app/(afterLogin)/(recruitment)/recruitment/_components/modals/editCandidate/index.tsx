@@ -234,9 +234,7 @@ const EditCandidate: React.FC<EditCandidateProps> = ({
       centered={false}
       width={760}
       style={{ maxWidth: 'calc(100vw - 16px)' }}
-      closeIcon={
-        <CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />
-      }
+      closeIcon={<CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />}
       footer={null}
       maskClosable={false}
       destroyOnClose
