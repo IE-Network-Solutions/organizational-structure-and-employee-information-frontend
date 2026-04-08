@@ -13,8 +13,9 @@ import {
 import dayjs from 'dayjs';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LocationType } from '@/types/enumTypes';
-import TextEditor from '@/components/form/textEditor';
 import { TaRequiredMark } from '../../../../_components/taRequiredMark';
+
+const { TextArea } = Input;
 
 const { Option } = Select;
 
@@ -29,6 +30,9 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
   close,
   stepChange,
 }) => {
+  const labelClass =
+    'inline-flex items-center gap-1.5 text-sm font-normal text-[#030712]';
+
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
 
@@ -47,9 +51,12 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
   };
 
   return (
-    <div className="p-2" data-cy="talent-acquisition-create-job-details-step">
+    <div
+      className="flex min-h-[440px] flex-col"
+      data-cy="talent-acquisition-create-job-details-step"
+    >
       <div
-        className="mx-auto max-w-4xl rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+        className="mx-auto w-full max-w-[602px] rounded-lg border border-[#E5E7EB] bg-white px-4 py-4 shadow-none [&_.ant-form-item]:!mb-4 [&_.ant-form-item:last-child]:!mb-0"
         data-cy="talent-acquisition-create-job-details-form-container"
       >
         {/* Row 1: Job Name full width */}
@@ -57,7 +64,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
           name="jobTitle"
           label={
             <span
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+              className={labelClass}
               data-cy="talent-acquisition-create-job-label-job-title"
             >
               Job Name
@@ -68,7 +75,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
         >
           <Input
             placeholder="Job Name"
-            className="h-11 rounded-lg"
+            className="h-10 rounded-md"
             allowClear
             data-cy="talent-acquisition-create-job-input-job-title"
           />
@@ -76,14 +83,14 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
 
         {/* Row 2: Department and Location side by side */}
         <div
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2"
+          className="grid grid-cols-1 gap-y-4 sm:grid-cols-[206px_1fr] sm:gap-x-5"
           data-cy="talent-acquisition-create-job-details-row-department-location"
         >
           <Form.Item
             name="department"
             label={
               <span
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                className={labelClass}
                 data-cy="talent-acquisition-create-job-label-department"
               >
                 Department
@@ -96,7 +103,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
           >
             <Select
               placeholder="Department"
-              className="h-11 rounded-lg"
+              className="h-10 rounded-md [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selection-item]:!leading-[38px]"
               loading={isDepartmentLoading}
               allowClear
               data-cy="talent-acquisition-create-job-select-department"
@@ -112,7 +119,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             name="jobLocation"
             label={
               <span
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                className={labelClass}
                 data-cy="talent-acquisition-create-job-label-location"
               >
                 Location
@@ -122,7 +129,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             rules={[{ required: true, message: 'Please select the location!' }]}
           >
             <Radio.Group
-              className="flex flex-wrap gap-3 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-11 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:rounded-lg [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-gray-300 [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-4 [&_.ant-radio-wrapper]:shadow-none"
+              className="grid grid-cols-3 gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!w-full [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-10 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:justify-center [&_.ant-radio-wrapper]:whitespace-nowrap [&_.ant-radio-wrapper]:rounded-md [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-[#D9D9D9] [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:text-[14px] [&_.ant-radio-wrapper]:font-normal [&_.ant-radio-wrapper]:text-[rgba(0,0,0,0.7)] [&_.ant-radio-wrapper]:shadow-none"
               data-cy="talent-acquisition-create-job-radio-location"
             >
               <Radio value={LocationType.ONSITE}>Onsite</Radio>
@@ -132,16 +139,16 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
           </Form.Item>
         </div>
 
-        {/* Row 3: Job Status and Expected Closing Date side by side */}
+        {/* Row 3: Job Status and Expected Closing Date – same column split as Row 2 */}
         <div
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2"
+          className="grid grid-cols-1 gap-y-4 sm:grid-cols-[206px_1fr] sm:gap-x-5"
           data-cy="talent-acquisition-create-job-details-row-status-deadline"
         >
           <Form.Item
             name="jobStatus"
             label={
               <span
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                className={labelClass}
                 data-cy="talent-acquisition-create-job-label-status"
               >
                 Job Status
@@ -153,7 +160,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             ]}
           >
             <Radio.Group
-              className="flex flex-wrap gap-3 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-11 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:rounded-lg [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-gray-300 [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-4 [&_.ant-radio-wrapper]:shadow-none [&_.ant-radio-wrapper-checked]:!border [&_.ant-radio-wrapper-checked]:!border-transparent [&_.ant-radio-wrapper-checked]:!border-b-2 [&_.ant-radio-wrapper-checked]:!border-b-[#1E40AF] [&_.ant-radio-wrapper-checked]:!bg-white [&_.ant-radio-wrapper-checked]:!text-gray-800"
+              className="grid grid-cols-2 gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!w-full [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-10 [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:justify-center [&_.ant-radio-wrapper]:whitespace-nowrap [&_.ant-radio-wrapper]:rounded-md [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-[#D9D9D9] [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:text-[14px] [&_.ant-radio-wrapper]:font-normal [&_.ant-radio-wrapper]:text-[rgba(0,0,0,0.7)] [&_.ant-radio-wrapper]:shadow-none"
               data-cy="talent-acquisition-create-job-radio-status"
             >
               <Radio value="Open">Open</Radio>
@@ -164,7 +171,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             name="jobDeadline"
             label={
               <span
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                className={labelClass}
                 data-cy="talent-acquisition-create-job-label-deadline"
               >
                 Expected Closing Date
@@ -192,7 +199,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             ]}
           >
             <DatePicker
-              className="w-full h-11 rounded-lg"
+              className="w-full h-10 rounded-md"
               placeholder="Select date"
               disabledDate={(current) => {
                 if (!current) return false;
@@ -208,7 +215,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
           name="description"
           label={
             <span
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+              className={labelClass}
               data-cy="talent-acquisition-create-job-label-description"
             >
               Description
@@ -236,21 +243,22 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             },
           ]}
         >
-          <TextEditor
+          <TextArea
             placeholder="Job description"
-            className="[&_.ql-container]:!min-h-[100px] [&_.ql-editor]:!min-h-[100px] [&_.ql-editor]:max-h-[120px]"
+            className="!h-[52px] !min-h-[52px] !max-h-[52px] w-full !resize-none !rounded-md !border-[#D9D9D9] !text-sm !font-normal"
+            style={{ height: 52 }}
             data-cy="talent-acquisition-create-job-text-editor-description"
           />
         </Form.Item>
       </div>
 
       <div
-        className="mt-6 flex justify-end gap-2"
+        className="mt-auto flex justify-end gap-2 pt-4"
         data-cy="talent-acquisition-create-job-details-step-actions"
       >
         <Button
           onClick={close}
-          className="!h-9 min-w-[100px] !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
+          className="!h-8 min-w-[72px] !rounded-md !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
           data-cy="talent-acquisition-create-job-button-cancel"
         >
           Cancel
@@ -258,7 +266,7 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
         <Button
           type="primary"
           onClick={handleContinue}
-          className="!h-9 min-w-[100px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+          className="!h-8 min-w-[76px] !rounded-md !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
           data-cy="talent-acquisition-create-job-button-continue"
         >
           Continue

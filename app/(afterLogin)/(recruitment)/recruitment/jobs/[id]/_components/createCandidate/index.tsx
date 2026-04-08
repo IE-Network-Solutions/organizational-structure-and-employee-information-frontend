@@ -162,6 +162,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
         </span>
       }
       width={760}
+      style={{ maxWidth: 'calc(100vw - 16px)' }}
       footer={null}
       closeIcon={<CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />}
       maskClosable={false}
@@ -436,27 +437,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
                 </Form.Item>
               </Col>
             </Row>
-
-            <Form.Item
-              name="coverLetter"
-              label={
-                <span
-                  className="text-[14px] font-normal text-[#030712]"
-                  data-cy="talent-acquisition-create-candidate-cover-letter-label"
-                >
-                  Cover Letter{' '}
-                  <span
-                    className="text-red-500"
-                    data-cy="talent-acquisition-create-candidate-cover-letter-required"
-                  >
-                    *
-                  </span>
-                </span>
-              }
-              rules={[{ required: true, message: 'Please input cover letter' }]}
-            >
-              <Input.TextArea placeholder="Job description" rows={2} />
-            </Form.Item>
 
             <Form.Item
               id="documentNameId"

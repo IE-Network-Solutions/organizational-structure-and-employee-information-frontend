@@ -81,7 +81,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       data-cy="delete-confirmation-modal-footer"
     >
       <Button
-        className="px-6 py-2 rounded-md"
+        className="!h-8 !px-6 !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#D9D9D9] hover:!text-[rgba(0,0,0,0.7)]"
         id="deleteModalCancelButtonId"
         onClick={onCancel}
       >
@@ -89,7 +89,11 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       </Button>
       <Button
         id="confirmDeleteId"
-        className="px-6 py-2 rounded-md"
+        className={`!h-8 !px-6 !text-[14px] !font-normal ${
+          danger
+            ? '!rounded-[8px] !border-[#FF4D4F] !bg-[#FF4D4F] !text-white hover:!border-[#FF7875] hover:!bg-[#FF7875] hover:!text-white'
+            : '!rounded-[6px]'
+        }`}
         type="primary"
         danger={danger}
         loading={loading ?? false}

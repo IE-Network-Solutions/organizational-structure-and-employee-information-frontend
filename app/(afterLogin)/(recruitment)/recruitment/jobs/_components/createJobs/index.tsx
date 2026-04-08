@@ -60,51 +60,65 @@ const CreateJobs: React.FC = () => {
         data-cy="talent-acquisition-create-jobs-drawer-title-wrap"
       >
         <h2
-          className="text-xl font-bold text-gray-900"
+          className="text-[20px] font-bold leading-tight text-black"
           data-cy="talent-acquisition-create-jobs-drawer-title"
         >
           Create New Job
         </h2>
         <p
-          className="mt-1 text-sm text-gray-500"
+          className="mt-1 text-sm font-normal text-black"
           data-cy="talent-acquisition-create-jobs-drawer-subtitle"
         >
           Please Fill in all the information correctly
         </p>
       </div>
       <div
-        className="mt-4 flex w-full flex-wrap items-center gap-y-2"
+        className="mx-auto mt-5 w-full max-w-[560px]"
         data-cy="talent-acquisition-create-jobs-step-indicators"
       >
-        {STEP_LABELS.map((label, index) => (
-          <React.Fragment key={label}>
-            <div
-              className="flex items-center gap-2 shrink-0"
+        <div className="relative grid grid-cols-3 items-start">
+          <div className="pointer-events-none absolute left-[16.67%] right-[16.67%] top-[5px] h-[2px] bg-[#D9D9D9]" />
+          <div
+            className={`pointer-events-none absolute left-[16.67%] top-[5px] h-[2px] ${
+              currentStep === 0
+                ? 'w-[16.67%]'
+                : currentStep === 1
+                  ? 'w-1/2'
+                  : 'w-2/3'
+            } bg-[#1E40AF] transition-all`}
+          />
+          {STEP_LABELS.map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => {
+                if (index <= currentStep) {
+                  setCurrentStep(index);
+                }
+              }}
+              disabled={index > currentStep}
+              className="z-[1] flex min-w-0 flex-1 flex-col items-center gap-2 bg-transparent p-0 disabled:cursor-default"
               data-cy={`talent-acquisition-create-jobs-step-${index}`}
             >
               <div
-                className={`h-3 w-3 shrink-0 rounded-full ${currentStep >= index ? 'bg-[#1E40AF]' : 'bg-gray-300'}`}
+                className={`h-[10px] w-[10px] shrink-0 rounded-full border-2 ${
+                  currentStep >= index
+                    ? 'border-[#1E40AF] bg-[#1E40AF]'
+                    : 'border-[#D9D9D9] bg-white'
+                }`}
                 data-cy={`talent-acquisition-create-jobs-step-dot-${index}`}
               />
               <span
-                className="text-xs text-gray-700 whitespace-nowrap"
+                className={`whitespace-nowrap text-[12px] font-normal leading-none sm:text-[14px] ${
+                  currentStep >= index ? 'text-[#1E40AF]' : 'text-[#8C8C8C]'
+                }`}
                 data-cy={`talent-acquisition-create-jobs-step-label-${index}`}
               >
                 {label}
               </span>
-            </div>
-            {index < STEP_LABELS.length - 1 && (
-              <div
-                className="mx-1 sm:mx-2 h-0.5 min-w-[12px] sm:min-w-[24px] flex-1 shrink min-w-0"
-                style={{
-                  backgroundColor: currentStep > index ? '#1E40AF' : '#d1d5db',
-                }}
-                aria-hidden
-                data-cy={`talent-acquisition-create-jobs-step-connector-${index}`}
-              />
-            )}
-          </React.Fragment>
-        ))}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -167,7 +181,7 @@ const CreateJobs: React.FC = () => {
       open={addNewDrawer}
       onCancel={handleCloseDrawer}
       footer={null}
-      width={isMobile ? '100%' : 960}
+      width={isMobile ? 'calc(100vw - 16px)' : 809}
       style={
         isMobile
           ? { maxWidth: '100vw', width: '100%', top: 16, margin: 0 }
@@ -177,12 +191,29 @@ const CreateJobs: React.FC = () => {
       closable={false}
       destroyOnClose
       className="talent-acquisition-create-job-modal"
+      classNames={{
+        header: '!mb-0 !px-6 !pb-0 !pt-6',
+        body: isMobile
+          ? '!px-6 !pb-6 !pt-4'
+          : currentStep === 2
+            ? '!h-[612px] !overflow-hidden !px-6 !pb-6 !pt-4'
+            : '!h-[560px] !overflow-hidden !px-6 !pb-6 !pt-4',
+      }}
+      styles={{
+        content: isMobile
+          ? { borderRadius: 8, padding: 0 }
+          : {
+              borderRadius: 8,
+              padding: 0,
+              height: currentStep === 2 ? 740 : 688,
+            },
+        body: isMobile
+          ? {}
+          : { overflow: 'hidden' },
+      }}
       data-cy="talent-acquisition-create-jobs-modal"
       title={
-        <div
-          className={`pr-8 ${isMobile ? 'pr-10' : ''}`}
-          data-cy="talent-acquisition-create-jobs-modal-header"
-        >
+        <div data-cy="talent-acquisition-create-jobs-modal-header">
           {addNewDrawerHeader}
         </div>
       }
@@ -194,6 +225,7 @@ const CreateJobs: React.FC = () => {
         requiredMark={false}
         onValuesChange={() => handleAddJobStateUpdate(form.getFieldsValue())}
         onFinish={handlePublish}
+        className="[&_.ant-form-item-label]:!pb-2"
       >
         <div
           hidden={currentStep !== 0}
@@ -209,7 +241,11 @@ const CreateJobs: React.FC = () => {
           hidden={currentStep !== 1}
           data-cy="talent-acquisition-create-jobs-form-step-1"
         >
-          <HiringOfferStep form={form} stepChange={handleStepChange} />
+          <HiringOfferStep
+            form={form}
+            stepChange={handleStepChange}
+            close={handleCloseDrawer}
+          />
         </div>
         <div
           hidden={currentStep !== 2}
@@ -217,8 +253,8 @@ const CreateJobs: React.FC = () => {
         >
           <CreateApplicationForm
             form={form}
-            stepChange={handleStepChange}
             isLoading={isCreatingJob}
+            close={handleCloseDrawer}
           />
         </div>
       </Form>

@@ -2,7 +2,16 @@ import { useEmployeeDepartments } from '@/store/server/features/employees/employ
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
-import { Button, Col, DatePicker, Form, Modal, Row, Select } from 'antd';
+import {
+  Button,
+  Col,
+  DatePicker,
+  Form,
+  Modal,
+  Popover,
+  Row,
+  Select,
+} from 'antd';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../whatYouNeed';
@@ -367,6 +376,7 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
                 footer={filterModalFooter}
                 centered
                 width={493}
+                style={{ maxWidth: 'calc(100vw - 16px)' }}
                 closeIcon={<CloseOutlined className="h-4 w-4 text-gray-500" />}
                 bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
                 className="[&_.ant-modal-content]:!rounded-[14px] [&_.ant-modal-content]:!p-7 [&_.ant-modal-header]:!pb-2 [&_.ant-modal-title]:!font-['Calibri']"
@@ -413,31 +423,37 @@ const SearchOptions: React.FC<OptionParams> = ({ jobId, embedded = false }) => {
                     </span>
                   ))}
                 </div>
-                <Button
-                  icon={
-                    <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
+                <Popover
+                  open={filterModalOpen}
+                  onOpenChange={(open) => setFilterModalOpen(open)}
+                  trigger="click"
+                  placement="bottomRight"
+                  overlayClassName="talent-acquisition-job-candidate-search-filter-popover"
+                  getPopupContainer={(triggerNode) =>
+                    triggerNode?.parentElement ?? document.body
                   }
-                  className="!inline-flex !h-8 !items-center !gap-2 !rounded-[4px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
-                  onClick={() => setFilterModalOpen(true)}
-                  data-cy="talent-acquisition-job-candidate-search-button-filter"
+                  title={filterModalTitle}
+                  content={
+                    <div
+                      className="w-[493px] max-w-[calc(100vw-32px)]"
+                      data-cy="talent-acquisition-job-candidate-search-modal-filter"
+                    >
+                      {filterFormContent}
+                      {filterModalFooter}
+                    </div>
+                  }
                 >
-                  Filter
-                </Button>
+                  <Button
+                    icon={
+                      <FunnelFilterIcon className="[&_path]:fill-[rgba(0,0,0,0.7)]" />
+                    }
+                    className="!inline-flex !h-8 !items-center !gap-2 !rounded-[4px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF] [&:hover_path]:!fill-[#1E40AF]"
+                    data-cy="talent-acquisition-job-candidate-search-button-filter"
+                  >
+                    Filter
+                  </Button>
+                </Popover>
               </div>
-              <Modal
-                title={filterModalTitle}
-                open={filterModalOpen}
-                onCancel={closeFilter}
-                footer={filterModalFooter}
-                centered
-                width={493}
-                closeIcon={<CloseOutlined className="h-4 w-4 text-gray-500" />}
-                bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
-                className="[&_.ant-modal-content]:!rounded-[14px] [&_.ant-modal-content]:!p-7 [&_.ant-modal-header]:!pb-2 [&_.ant-modal-title]:!font-['Calibri']"
-                data-cy="talent-acquisition-job-candidate-search-modal-filter"
-              >
-                {filterFormContent}
-              </Modal>
             </>
           )}
         </>

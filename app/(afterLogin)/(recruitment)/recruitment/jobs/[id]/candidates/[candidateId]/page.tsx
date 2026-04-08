@@ -49,8 +49,7 @@ const CandidateDetailPage: React.FC = () => {
     router.push(`/recruitment/jobs/${jobId}`);
   };
 
-  const stageId =
-    candidate?.jobCandidate?.[0]?.applicantStatusStageId ?? null;
+  const stageId = candidate?.jobCandidate?.[0]?.applicantStatusStageId ?? null;
   const stageTitle =
     candidate?.jobCandidate?.[0]?.applicantStatusStage?.title ?? 'Applied';
 
@@ -120,7 +119,7 @@ const CandidateDetailPage: React.FC = () => {
   return (
     <div
       id="talent-acquisition-candidate-detail-page"
-      className="min-h-screen w-full bg-white font-['Calibri']"
+      className="min-h-screen w-full max-w-full overflow-x-hidden bg-white font-['Calibri']"
       data-cy="talent-acquisition-candidate-detail-page"
     >
       {/* ── Page header — identical to job details page ─────── */}
@@ -131,17 +130,17 @@ const CandidateDetailPage: React.FC = () => {
               type="button"
               id="candidate-detail-back"
               onClick={handleBack}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
               data-cy="talent-acquisition-candidate-detail-back"
               aria-label="Back to jobs"
             >
-              <IoIosArrowBack className="h-5 w-5" />
+              <IoIosArrowBack className="h-4 w-4" />
             </button>
             <CustomBreadcrumb
               data-cy="talent-acquisition-candidate-detail-breadcrumb"
               title={
                 <span data-cy="talent-acquisition-candidate-detail-title">
-                  Job Details
+                  Candidate Detail
                 </span>
               }
               subtitle={
@@ -154,7 +153,7 @@ const CandidateDetailPage: React.FC = () => {
                     /{' '}
                   </span>
                   <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                    Jobs
+                    Candidates
                   </span>
                 </>
               }
@@ -165,10 +164,10 @@ const CandidateDetailPage: React.FC = () => {
             />
           </div>
         </div>
-        <div className="relative left-1/2 mt-3 w-[calc(100vw-16px)] -translate-x-1/2 border-b border-solid border-[#E5E7EB] sm:mt-4" />
+        <div className="mt-3 w-full max-w-full border-b border-solid border-[#E5E7EB] sm:mt-4" />
       </header>
 
-      <div className="p-4 sm:p-6">
+      <div className="overflow-x-hidden p-4 sm:p-6">
         {/* ── Summary card ───────────────────────────────────── */}
         <div
           id="candidate-detail-summary-card"
@@ -322,12 +321,12 @@ const CandidateDetailPage: React.FC = () => {
         {/* ── CV / Cover-letter content ───────────────────────── */}
         <div
           id="candidate-detail-cv-content"
-          className="rounded-[8px] border border-solid border-[#D9D9D9] bg-white p-6"
+          className="overflow-x-hidden rounded-[8px] border border-solid border-[#D9D9D9] bg-white p-6"
           data-cy="candidate-detail-cv-content"
         >
           {candidate?.jobCandidate?.[0]?.coverLetter ? (
             <div
-              className="text-[14px] font-normal leading-relaxed text-black"
+              className="max-w-full overflow-x-hidden text-[14px] font-normal leading-relaxed text-black"
               id="candidate-detail-cover-letter"
               data-cy="candidate-detail-cover-letter"
             >

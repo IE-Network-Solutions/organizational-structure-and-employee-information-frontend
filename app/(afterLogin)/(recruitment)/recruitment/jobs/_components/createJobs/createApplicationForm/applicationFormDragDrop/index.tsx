@@ -16,7 +16,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { IoClose } from 'react-icons/io5';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { TaRequiredMark } from '../../../../../_components/taRequiredMark';
 
 const FIELD_TYPES = [
   {
@@ -462,12 +461,19 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
   return (
     <>
       <Modal
-        title="Custom Field"
+        title={
+          <span
+            className="text-[16px] font-bold leading-tight text-[rgba(0,0,0,0.7)]"
+            data-cy="talent-acquisition-create-job-custom-field-modal-title"
+          >
+            Custom Field
+          </span>
+        }
         open={customFieldModalOpen}
         onCancel={handleCustomFieldCancel}
         footer={null}
         closable
-        width={isMobile ? 'calc(100vw - 2rem)' : 480}
+        width={isMobile ? 'calc(100vw - 2rem)' : 520}
         style={isMobile ? { maxWidth: 480 } : undefined}
         centered
         destroyOnClose
@@ -479,6 +485,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
           <Form
             form={customFieldForm}
             layout="vertical"
+            requiredMark={false}
             onFinish={handleCustomFieldCreate}
             initialValues={{ fieldMode: 'active' }}
             onValuesChange={(changedValues) => {
@@ -489,16 +496,22 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               }
             }}
             data-cy="talent-acquisition-create-job-custom-field-form"
+            className="[&_.ant-form-item-required]:before:!hidden [&_.ant-form-item-required]:after:!hidden"
           >
             <Form.Item
               name="fieldName"
               label={
                 <span
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                  className="inline-flex items-center text-[14px] font-normal text-[#030712]"
                   data-cy="talent-acquisition-create-job-custom-field-name-label"
                 >
                   Field Name
-                  <TaRequiredMark data-cy="talent-acquisition-create-job-custom-field-name-required" />
+                  <span
+                    className="ml-1 text-[#FF4D4F]"
+                    data-cy="talent-acquisition-create-job-custom-field-name-required"
+                  >
+                    *
+                  </span>
                 </span>
               }
               rules={[
@@ -531,11 +544,16 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                   name="fieldValidation"
                   label={
                     <span
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700"
+                      className="inline-flex items-center text-[14px] font-normal text-[#030712]"
                       data-cy="talent-acquisition-create-job-custom-field-validation-label"
                     >
                       Field Validation
-                      <TaRequiredMark data-cy="talent-acquisition-create-job-custom-field-validation-required" />
+                      <span
+                        className="ml-1 text-[#FF4D4F]"
+                        data-cy="talent-acquisition-create-job-custom-field-validation-required"
+                      >
+                        *
+                      </span>
                     </span>
                   }
                   rules={[
@@ -574,7 +592,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 >
                   <Radio value="active">
                     <span
-                      className="font-medium text-gray-900"
+                      className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
                       data-cy="talent-acquisition-create-job-custom-field-mode-active-label"
                     >
                       Active
@@ -590,7 +608,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 <div data-cy="talent-acquisition-create-job-custom-field-mode-required">
                   <Radio value="required">
                     <span
-                      className="font-medium text-gray-900"
+                      className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
                       data-cy="talent-acquisition-create-job-custom-field-mode-required-label"
                     >
                       Required
@@ -612,7 +630,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
             >
               <Button
                 onClick={handleCustomFieldCancel}
-                className="h-10 rounded-lg border-gray-300 text-gray-700"
+                className="!h-8 !rounded-md !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
                 data-cy="talent-acquisition-create-job-custom-field-cancel"
               >
                 Cancel
@@ -620,7 +638,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
               <Button
                 type="primary"
                 onClick={() => customFieldForm.submit()}
-                className="h-10 rounded-lg !bg-[#6366F1] hover:!bg-[#4F46E5]"
+                className="!h-8 !rounded-md !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
                 data-cy="talent-acquisition-create-job-custom-field-create"
               >
                 Create Field
@@ -635,7 +653,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
         data-cy="talent-acquisition-create-job-custom-fields-layout"
       >
         <div
-          className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 space-y-3"
+          className="space-y-3 rounded-lg border border-[#E5E7EB] bg-white p-3"
           data-cy="talent-acquisition-create-job-custom-fields-palette"
         >
           {FIELD_TYPES.map((item) => (
@@ -660,7 +678,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 isMobile ? undefined : (e) => handleDragStart(e, item.id)
               }
               onDragEnd={isMobile ? undefined : handleDragEnd}
-              className={`rounded-lg border border-gray-200 bg-white p-4 cursor-grab active:cursor-grabbing transition-all duration-200 ease-out ${
+              className={`cursor-grab rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 active:cursor-grabbing transition-all duration-200 ease-out ${
                 !isMobile && draggingFieldType === item.id
                   ? 'recruitment-settings-dragging-card'
                   : ''
@@ -682,18 +700,18 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                 data-cy={`talent-acquisition-create-job-field-type-header-${item.id}`}
               >
                 <span
-                  className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-gray-400"
+                  className="h-5 w-5 flex-shrink-0 rounded-full border border-[#D9D9D9]"
                   data-cy={`talent-acquisition-create-job-field-type-dot-${item.id}`}
                 />
                 <p
-                  className="text-sm font-medium text-gray-900"
+                  className="text-sm font-normal text-[#030712]"
                   data-cy={`talent-acquisition-create-job-field-type-label-${item.id}`}
                 >
                   {item.label}
                 </p>
               </div>
               <p
-                className="text-xs text-gray-500 mt-1 pl-7"
+                className="mt-1 pl-7 text-[12px] font-normal text-[rgba(0,0,0,0.45)]"
                 data-cy={`talent-acquisition-create-job-field-type-description-${item.id}`}
               >
                 {item.description}
@@ -716,7 +734,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
         >
           {questions.length === 0 ? (
             <div
-              className="flex min-h-[180px] items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50/30 px-4 text-center text-sm text-gray-500"
+              className="flex min-h-[180px] items-center justify-center rounded-lg border border-dashed border-[#D9D9D9] bg-white px-4 text-center text-sm text-[rgba(0,0,0,0.45)]"
               data-cy="talent-acquisition-create-job-form-drop-empty"
             >
               {isMobile
@@ -774,7 +792,7 @@ const ApplicationFormDragDrop: React.FC<ApplicationFormDragDropProps> = ({
                     data-cy={`talent-acquisition-create-job-question-label-${q.id}`}
                   />
                   <span
-                    className="shrink-0 rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
+                    className="shrink-0 rounded-[4px] border border-[#D9D9D9] bg-white px-2 py-1 text-[10px] font-normal text-[rgba(0,0,0,0.45)]"
                     data-cy={`talent-acquisition-create-job-question-type-${q.id}`}
                   >
                     {badgeLabel(q.fieldType)}

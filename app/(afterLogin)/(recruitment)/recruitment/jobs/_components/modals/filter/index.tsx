@@ -342,6 +342,7 @@ const JobsFilterModal: React.FC<JobsFilterProps> = ({
       centered
       closable={false}
       width={560}
+      style={{ maxWidth: 'calc(100vw - 16px)' }}
       styles={{
         content: { overflowX: 'hidden' },
         body: { overflowX: 'hidden' },

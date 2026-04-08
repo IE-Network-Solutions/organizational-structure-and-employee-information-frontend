@@ -30,8 +30,6 @@ import {
   Radio,
   DatePicker,
   InputNumber,
-  Row,
-  Col,
 } from 'antd';
 import { usePathname } from 'next/navigation';
 import dayjs from 'dayjs';
@@ -257,7 +255,9 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
             : undefined,
           yearOfExperience: Number(jobById!.yearOfExperience) ?? 0,
           quantity: jobById!.quantity ?? 0,
-          compensation: jobById!.compensation ? Number(jobById!.compensation) : 0,
+          compensation: jobById!.compensation
+            ? Number(jobById!.compensation)
+            : 0,
         };
         updateJob(
           { data: payload, id },
@@ -427,11 +427,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               <button
                 type="button"
                 onClick={handleBackClick}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
                 data-cy="talent-acquisition-job-detail-button-back"
                 aria-label="Back to jobs"
               >
-                <IoIosArrowBack className="h-5 w-5" />
+                <IoIosArrowBack className="h-4 w-4" />
               </button>
               <CustomBreadcrumb
                 data-cy="talent-acquisition-job-detail-breadcrumb"
@@ -464,102 +464,112 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
           <div className="relative left-1/2 mt-3 w-[calc(100vw-16px)] -translate-x-1/2 border-b border-solid border-[#E5E7EB] sm:mt-4" />
         </header>
         <div className="p-4 sm:p-6">
-
-      {/* Job information card */}
-      <div
-        id="talent-acquisition-job-detail-card"
-        className={`relative mb-6 rounded-[8px] border border-solid border-[#D9D9D9] bg-white px-7 py-4 ${
-          isEditingHeader ? 'min-h-0' : 'h-[122px]'
-        }`}
-        data-cy="talent-acquisition-job-detail-card"
-      >
-        {isEditingHeader ? (
-          <Form
-            form={headerForm}
-            layout="vertical"
-            className={`relative ${INFO_FORM_LABEL_CLASS} [&_.ant-form-item-label_label::before]:!hidden`}
-            id="talent-acquisition-job-detail-header-form"
-            data-cy="talent-acquisition-job-detail-header-form"
-            requiredMark={(label, { required }) => (
-              <>
-                {label}
-                {required && (
-                  <span className="ml-1 text-[#FF4D4F]">*</span>
-                )}
-              </>
-            )}
+          {/* Job information card */}
+          <div
+            id="talent-acquisition-job-detail-card"
+            className={`relative mb-6 rounded-[8px] border border-solid border-[#D9D9D9] bg-white px-7 py-4 ${
+              isEditingHeader ? 'min-h-0' : 'min-h-[88px] sm:h-[122px]'
+            }`}
+            data-cy="talent-acquisition-job-detail-card"
           >
-            <div
-              className="absolute top-0 right-0 flex items-center gap-2"
-              id="job-detail-edit-actions"
-              data-cy="job-detail-edit-actions"
-            >
-              <Form.Item
-                name="jobStatus"
-                label={null}
-                rules={[{ required: true }]}
-                className="!mb-0"
+            {isEditingHeader ? (
+              <Form
+                form={headerForm}
+                layout="vertical"
+                className={`relative ${INFO_FORM_LABEL_CLASS} [&_.ant-form-item-label_label::before]:!hidden`}
+                id="talent-acquisition-job-detail-header-form"
+                data-cy="talent-acquisition-job-detail-header-form"
+                requiredMark={(label, { required }) => (
+                  <>
+                    {label}
+                    {required && <span className="ml-1 text-[#FF4D4F]">*</span>}
+                  </>
+                )}
               >
-                <Select
-                  id="job-detail-edit-status"
-                  placeholder="Status"
-                  className="!min-w-[100px] [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selector]:!px-3 [&_.ant-select-focused_.ant-select-selector]:!border-[#1677FF] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)]"
-                  optionLabelProp="label"
-                  data-cy="talent-acquisition-job-detail-edit-status"
+                <div
+                  className="absolute top-0 right-0 flex items-center gap-2"
+                  id="job-detail-edit-actions"
+                  data-cy="job-detail-edit-actions"
                 >
-                  <Select.Option value="Open" label="Open">
-                    Open
-                  </Select.Option>
-                  <Select.Option value="Closed" label="Closed">
-                    Closed
-                  </Select.Option>
-                </Select>
-              </Form.Item>
-              <button
-                type="button"
-                id="job-detail-edit-cancel"
-                onClick={cancelHeaderEdit}
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white"
-                data-cy="talent-acquisition-job-detail-cancel-header"
-              >
-                <FaTimes
-                  style={{ width: '8.17px', height: '8.17px', color: '#FF4D4F' }}
-                />
-              </button>
-              <button
-                type="button"
-                id="job-detail-edit-save"
-                onClick={saveHeaderEdit}
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
-                data-cy="talent-acquisition-job-detail-save-header"
-              >
-                <FaCheck
-                  style={{ width: '8.17px', height: '8.17px', color: '#fff' }}
-                />
-              </button>
-            </div>
-            <div className="pr-52">
-              <Form.Item
-                name="jobTitle"
-                label="Job Name"
-                rules={[
-                  { required: true, message: 'Please input the job name!' },
-                ]}
-              >
-                <Input
-                  id="job-detail-edit-job-title"
-                  placeholder="Job title"
-                  className="!h-10 max-w-[280px] !rounded-[8px] !border-[#D9D9D9] !text-[16px] !font-normal !text-black"
-                  data-cy="talent-acquisition-job-detail-edit-job-title"
-                />
-              </Form.Item>
-              <Row gutter={[16, 0]} className="!flex !flex-wrap">
-                <Col xs={24} sm={24} md={12} lg={8}>
+                  <Form.Item
+                    name="jobStatus"
+                    label={null}
+                    rules={[{ required: true }]}
+                    className="!mb-0"
+                  >
+                    <Select
+                      id="job-detail-edit-status"
+                      placeholder="Status"
+                      className="!min-w-[100px] [&_.ant-select-selector]:!flex [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!items-center [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selector]:!px-3 [&_.ant-select-focused_.ant-select-selector]:!border-[#1677FF] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!leading-[40px] [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)] [&_.ant-select-selection-search]:!inset-y-0 [&_.ant-select-selection-search-input]:!h-full [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!top-1/2 [&_.ant-select-arrow]:!-translate-y-1/2 [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-center"
+                      optionLabelProp="label"
+                      data-cy="talent-acquisition-job-detail-edit-status"
+                    >
+                      <Select.Option value="Open" label="Open">
+                        Open
+                      </Select.Option>
+                      <Select.Option value="Closed" label="Closed">
+                        Closed
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
+                  <button
+                    type="button"
+                    id="job-detail-edit-cancel"
+                    onClick={cancelHeaderEdit}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white"
+                    data-cy="talent-acquisition-job-detail-cancel-header"
+                  >
+                    <FaTimes
+                      style={{
+                        width: '8.17px',
+                        height: '8.17px',
+                        color: '#FF4D4F',
+                      }}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    id="job-detail-edit-save"
+                    onClick={saveHeaderEdit}
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
+                    data-cy="talent-acquisition-job-detail-save-header"
+                  >
+                    <FaCheck
+                      style={{
+                        width: '8.17px',
+                        height: '8.17px',
+                        color: '#fff',
+                      }}
+                    />
+                  </button>
+                </div>
+                {/* Job Name: right-padded to avoid overlap with the absolute status+buttons */}
+                <div className="pr-[168px] sm:pr-52">
+                  <Form.Item
+                    name="jobTitle"
+                    label="Job Name"
+                    rules={[
+                      { required: true, message: 'Please input the job name!' },
+                    ]}
+                  >
+                    <Input
+                      id="job-detail-edit-job-title"
+                      placeholder="Job title"
+                      className="!h-10 max-w-[280px] !rounded-[8px] !border-[#D9D9D9] !text-[16px] !font-normal !text-black"
+                      data-cy="talent-acquisition-job-detail-edit-job-title"
+                    />
+                  </Form.Item>
+                </div>
+                {/* Department / Job Type / Location: full card width so Location sits under the status area */}
+                <div className="grid grid-cols-1 gap-y-4 lg:grid-cols-3 lg:gap-x-12">
                   <Form.Item
                     name="department"
                     label="Department"
                     rules={[
-                      { required: true, message: 'Please select department!' },
+                      {
+                        required: true,
+                        message: 'Please select department!',
+                      },
                     ]}
                     className="!mb-0"
                   >
@@ -577,8 +587,6 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       ))}
                     </Select>
                   </Form.Item>
-                </Col>
-                <Col xs={24} sm={24} md={12} lg={8}>
                   <Form.Item
                     name="employmentType"
                     label="Job Type"
@@ -593,8 +601,6 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       <Radio value={EmploymentType.PARTTIME}>Part-time</Radio>
                     </Radio.Group>
                   </Form.Item>
-                </Col>
-                <Col xs={24} sm={24} md={12} lg={8}>
                   <Form.Item
                     name="jobLocation"
                     label="Location"
@@ -610,473 +616,502 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       <Radio value={LocationType.HYBRID}>Hybrid</Radio>
                     </Radio.Group>
                   </Form.Item>
-                </Col>
-              </Row>
-            </div>
-          </Form>
-        ) : (
-          <>
-            <div
-              className="absolute top-5 right-5 flex items-center gap-2"
-              id="job-detail-view-actions"
-              data-cy="job-detail-view-actions"
-            >
-              <span
-                id="job-detail-status-badge"
-                className={`inline-flex items-center rounded-[4px] border border-solid px-3 py-1 text-[12px] font-normal ${
-                  displayStatus === 'Closed'
-                    ? 'border-gray-200 bg-gray-100 text-gray-600'
-                    : 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]'
-                }`}
-                data-cy="talent-acquisition-job-detail-status"
-              >
-                {displayStatus}
-              </span>
-              {activeTabKey === 'information' && (
-                <button
-                  type="button"
-                  id="job-detail-edit-card"
-                  onClick={handleEditJob}
-                  className="flex aspect-square shrink-0 items-center justify-center self-stretch rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-1.5 hover:bg-gray-50"
-                  data-cy="talent-acquisition-job-detail-edit-card"
+                </div>
+              </Form>
+            ) : (
+              <>
+                <div
+                  className="absolute top-5 right-5 flex items-center gap-2"
+                  id="job-detail-view-actions"
+                  data-cy="job-detail-view-actions"
                 >
-                  <EditPencilIcon />
-                </button>
-              )}
-            </div>
-            <h2
-              id="job-detail-job-title"
-              className="mb-4 pr-24 text-[20px] font-bold leading-none text-black"
-              data-cy="talent-acquisition-job-detail-job-title"
-            >
-              {jobById?.jobTitle ?? '—'}
-            </h2>
-            <div className="flex max-w-6xl flex-wrap justify-between gap-y-4">
-              <div className="flex flex-col">
-                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                  Department
-                </span>
-                <span className="mt-0.5 text-[16px] font-normal text-black">
-                  {getDepartmentName(jobById?.departmentId) ?? '—'}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                  Employment type
-                </span>
-                <span className="mt-0.5 text-[16px] font-normal text-black">
-                  {jobById?.employmentType ?? '—'}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                  Location
-                </span>
-                <span className="mt-0.5 text-[16px] font-normal text-black">
-                  {jobById?.jobLocation ?? '—'}
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                  Created at
-                </span>
-                <span className="mt-0.5 text-[16px] font-normal text-black">
-                  {jobById?.createdAt
-                    ? dayjs(jobById.createdAt).format('DD MMMM, YYYY')
-                    : '—'}
-                </span>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Tabs */}
-      <div className="mb-4">
-        <Tabs
-          activeKey={activeTabKey}
-          onChange={setActiveTabKey}
-          className="talent-acquisition-job-detail-tabs"
-          items={[
-            {
-              key: 'candidates',
-              label: (
-                <span
-                  className="inline-flex items-center gap-2"
-                  data-cy="talent-acquisition-job-detail-tab-candidates"
-                >
-                  Candidates
-                  <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-[4px] border border-solid border-[#1E40AF] px-1.5 text-[12px] font-normal text-[#1E40AF]">
-                    {candidateCount}
+                  <span
+                    id="job-detail-status-badge"
+                    className={`inline-flex items-center rounded-[4px] border border-solid px-3 py-1 text-[12px] font-normal ${
+                      displayStatus === 'Closed'
+                        ? 'border-gray-200 bg-gray-100 text-gray-600'
+                        : 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]'
+                    }`}
+                    data-cy="talent-acquisition-job-detail-status"
+                  >
+                    {displayStatus}
                   </span>
-                </span>
-              ),
-              children: (
-                <div className="pt-0">
-                  <div className="mt-7 rounded-[8px] border border-solid border-[#E5E7EB] bg-white pt-4">
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-3 px-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="min-w-0 flex-1 sm:max-w-[299px]">
-                          <WhatYouNeed fullWidth placeholder="Search Employee" />
-                        </div>
-                        <div className="flex shrink-0 items-center justify-end">
-                          <SearchOptions jobId={id} />
-                        </div>
-                      </div>
-                      <CandidateTable
-                        data-cy="talent-acquisition-job-detail-candidate-table"
-                        jobId={id}
-                      />
-                    </div>
+                  {activeTabKey === 'information' && (
+                    <button
+                      type="button"
+                      id="job-detail-edit-card"
+                      onClick={handleEditJob}
+                      className="flex aspect-square shrink-0 items-center justify-center self-stretch rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-1.5 hover:bg-gray-50"
+                      data-cy="talent-acquisition-job-detail-edit-card"
+                    >
+                      <EditPencilIcon />
+                    </button>
+                  )}
+                </div>
+                <h2
+                  id="job-detail-job-title"
+                  className="mb-4 pr-24 text-[20px] font-bold leading-none text-black"
+                  data-cy="talent-acquisition-job-detail-job-title"
+                >
+                  {jobById?.jobTitle ?? '—'}
+                </h2>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:flex sm:max-w-6xl sm:flex-wrap sm:justify-between sm:gap-y-4">
+                  <div className="flex flex-col">
+                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      Department
+                    </span>
+                    <span className="mt-0.5 text-[16px] font-normal text-black">
+                      {getDepartmentName(jobById?.departmentId) ?? '—'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      Employment type
+                    </span>
+                    <span className="mt-0.5 text-[16px] font-normal text-black">
+                      {jobById?.employmentType ?? '—'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      Location
+                    </span>
+                    <span className="mt-0.5 text-[16px] font-normal text-black">
+                      {jobById?.jobLocation ?? '—'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      Created at
+                    </span>
+                    <span className="mt-0.5 text-[16px] font-normal text-black">
+                      {jobById?.createdAt
+                        ? dayjs(jobById.createdAt).format('DD MMMM, YYYY')
+                        : '—'}
+                    </span>
                   </div>
                 </div>
-              ),
-            },
-            {
-              key: 'information',
-              label: (
-                <span data-cy="talent-acquisition-job-detail-tab-information">
-                  Information
-                </span>
-              ),
-              children: (
-                <div>
-                  <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:items-stretch">
-                    {/* Left Column: Job Description */}
-                    <div
-                      id="job-detail-description-section"
-                      className="flex flex-col bg-white p-6 lg:col-span-2 lg:pr-8"
-                      data-cy="job-detail-description-section"
+              </>
+            )}
+          </div>
+
+          {/* Tabs */}
+          <div className="mb-4">
+            <Tabs
+              activeKey={activeTabKey}
+              onChange={setActiveTabKey}
+              className="talent-acquisition-job-detail-tabs"
+              items={[
+                {
+                  key: 'candidates',
+                  label: (
+                    <span
+                      className="inline-flex items-center gap-2"
+                      data-cy="talent-acquisition-job-detail-tab-candidates"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[16px] font-bold text-black">
-                          Job Description
-                        </h3>
-                        {!isEditingDescription ? (
-                          <button
-                            type="button"
-                            id="job-detail-edit-description-btn"
-                            onClick={startDescriptionEdit}
-                            className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
-                            data-cy="talent-acquisition-job-detail-edit-description"
-                          >
-                            <EditPencilIcon />
-                          </button>
-                        ) : (
-                          <div
-                            className="flex items-center gap-2"
-                            data-cy="job-detail-description-edit-actions"
-                          >
-                            <button
-                              type="button"
-                              id="job-detail-description-cancel"
-                              onClick={cancelDescriptionEdit}
-                              className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
-                              data-cy="job-detail-description-cancel"
-                            >
-                              <FaTimes style={{ width: '8.17px', height: '8.17px', color: '#FF4D4F' }} />
-                            </button>
-                            <button
-                              type="button"
-                              id="job-detail-description-save"
-                              onClick={() =>
-                                saveDescriptionEdit(descriptionDraft)
-                              }
-                              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
-                              data-cy="job-detail-description-save"
-                            >
-                              <FaCheck style={{ width: '8.17px', height: '8.17px', color: '#fff' }} />
-                            </button>
+                      Candidates
+                      <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-[4px] border border-solid border-[#1E40AF] px-1.5 text-[12px] font-normal text-[#1E40AF]">
+                        {candidateCount}
+                      </span>
+                    </span>
+                  ),
+                  children: (
+                    <div className="pt-0">
+                      <div className="mt-7 rounded-[8px] border border-solid border-[#E5E7EB] bg-white pt-4">
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-3 px-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0 flex-1 sm:max-w-[299px]">
+                              <WhatYouNeed
+                                fullWidth
+                                placeholder="Search Employee"
+                              />
+                            </div>
+                            <div className="flex shrink-0 items-center justify-end">
+                              <SearchOptions jobId={id} />
+                            </div>
                           </div>
-                        )}
-                      </div>
-                        {isEditingDescription ? (
-                          <div data-cy="job-detail-description-editor">
-                            <span className="mb-2 block text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                              Description{' '}
-                              <span className="text-[#FF4D4F]">*</span>
-                            </span>
-                          <TextEditor
-                            value={descriptionDraft}
-                            onChange={(html) => setDescriptionDraft(html)}
-                            placeholder="Enter job description"
-                            className="!rounded-[8px] !border !border-solid !border-[#91CAFF] [&_.border-gray-200]:!border-[#E5E7EB]"
+                          <CandidateTable
+                            data-cy="talent-acquisition-job-detail-candidate-table"
+                            jobId={id}
                           />
                         </div>
-                      ) : (
-                        <div className="text-[16px] font-normal leading-relaxed text-black [&_p]:mb-3 [&_p:last-child]:mb-0">
-                          {jobById?.description ? (
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html: jobById.description,
-                              }}
-                            />
-                          ) : (
-                            <p className="text-gray-400 italic">
-                              No job description available.
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Right Column: Closing Date + Preferences */}
-                    <div className="flex min-h-0 flex-col border-l border-solid border-[#E5E7EB] py-6 pl-8">
-                      {/* Job Vacancy Closing Date + Job Preference */}
-                      <div
-                        id="job-detail-closing-date-section"
-                        className="bg-white p-0"
-                        data-cy="job-detail-closing-date-section"
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-[16px] font-bold text-black">
-                            Job Vacancy Closing Date
-                          </h3>
-                          {!isEditingInfo ? (
-                            <button
-                              type="button"
-                              id="job-detail-edit-closing-date-btn"
-                              onClick={startInfoEdit}
-                              className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
-                              data-cy="talent-acquisition-job-detail-edit-closing-date"
-                            >
-                              <EditPencilIcon />
-                            </button>
-                          ) : (
-                            <div
-                              className="flex items-center gap-2"
-                              data-cy="job-detail-info-edit-actions"
-                            >
-                              <button
-                                type="button"
-                                id="job-detail-info-cancel"
-                                onClick={cancelInfoEdit}
-                                className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
-                                data-cy="job-detail-info-cancel"
-                              >
-                                <FaTimes style={{ width: '8.17px', height: '8.17px', color: '#FF4D4F' }} />
-                              </button>
-                              <button
-                                type="button"
-                                id="job-detail-info-save"
-                                onClick={saveInfoEdit}
-                                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
-                                data-cy="job-detail-info-save"
-                              >
-                                <FaCheck style={{ width: '8.17px', height: '8.17px', color: '#fff' }} />
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                        {isEditingInfo ? (
-                          <Form
-                            form={infoForm}
-                            layout="vertical"
-                            id="job-detail-info-form"
-                            data-cy="job-detail-info-form"
-                            requiredMark={(label, { required }) => (
-                              <>
-                                {label}
-                                {required && (
-                                  <span className="ml-1 text-[#FF4D4F]">*</span>
-                                )}
-                              </>
-                            )}
-                            className={`${INFO_FORM_LABEL_CLASS} [&_.ant-form-item-label_label::before]:!hidden`}
-                          >
-                            <Form.Item
-                              name="jobDeadline"
-                              label="Expected Closing Date"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: 'Please select date!',
-                                },
-                              ]}
-                            >
-                              <DatePicker
-                                id="job-detail-edit-deadline"
-                                placeholder="Select date"
-                                className="w-full !h-10 [&_.ant-picker]:!h-10 [&_.ant-picker]:!min-h-10 [&_.ant-picker]:!rounded-[8px] [&_.ant-picker]:!border-[#D9D9D9] [&_.ant-picker-input>input]:!text-[16px] [&_.ant-picker-input>input]:!font-normal [&_.ant-picker-input>input]:!text-black"
-                                getPopupContainer={() => document.body}
-                                data-cy="job-detail-edit-deadline"
-                              />
-                            </Form.Item>
-                            <h3 className="mb-3 mt-4 text-[16px] font-bold text-black">
-                              Job Preference
-                            </h3>
-                            <Form.Item
-                              name="quantity"
-                              label="Quantity"
-                              rules={[{ required: true }]}
-                            >
-                              <InputNumber
-                                id="job-detail-edit-quantity"
-                                className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
-                                controls={false}
-                                placeholder="0"
-                                min={0}
-                                data-cy="job-detail-edit-quantity"
-                              />
-                            </Form.Item>
-                            <Form.Item
-                              name="yearOfExperience"
-                              label="Years of experience"
-                              rules={[{ required: true }]}
-                            >
-                              <InputNumber
-                                id="job-detail-edit-years"
-                                className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
-                                controls={false}
-                                placeholder="0"
-                                min={0}
-                                data-cy="job-detail-edit-years"
-                              />
-                            </Form.Item>
-                            <Form.Item
-                              name="compensation"
-                              label="Compensation"
-                              rules={[{ required: true }]}
-                            >
-                              <InputNumber
-                                id="job-detail-edit-compensation"
-                                className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
-                                controls={false}
-                                placeholder="0"
-                                min={0}
-                                data-cy="job-detail-edit-compensation"
-                              />
-                            </Form.Item>
-                          </Form>
-                        ) : (
-                          <>
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between gap-4">
-                                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                  Closed Date
-                                </span>
-                                <span className="text-right text-[16px] font-normal text-black">
-                                  {jobById?.jobDeadline
-                                    ? dayjs(jobById.jobDeadline).format(
-                                        'DD MMMM, YYYY',
-                                      )
-                                    : 'Not set'}
-                                </span>
-                              </div>
-                              {daysRemaining !== null &&
-                                jobById?.jobDeadline && (
-                                  <div className="rounded-lg border border-solid border-[#E5E7EB] bg-white p-4">
-                                    <div className="mb-2 flex items-center justify-between gap-2">
-                                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                        Days Remaining
-                                      </span>
-                                      <span className="flex shrink-0 items-center gap-1.5 text-[14px] font-normal text-[#1677FF]">
-                                        <IoHourglassOutline
-                                          className="shrink-0"
-                                          style={{ width: 12, height: 12 }}
-                                        />
-                                        {daysRemaining} Days to go
-                                      </span>
-                                    </div>
-                                    <Progress
-                                      percent={progressPercent}
-                                      strokeColor="#1677FF"
-                                      trailColor="#F0F0F0"
-                                      showInfo={false}
-                                      className="mb-0"
-                                    />
-                                  </div>
-                                )}
-                            </div>
-                            <div className="mt-6">
-                              <h3 className="text-[16px] font-bold text-black mb-4">
-                                Job Preference
-                              </h3>
-                              <div className="grid grid-cols-2 gap-y-3">
-                                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                  Quantity
-                                </span>
-                                <span className="text-[16px] font-normal text-black">
-                                  {jobById?.quantity ?? '—'}
-                                </span>
-                                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                  Years of Experience
-                                </span>
-                                <span className="text-[16px] font-normal text-black">
-                                  {jobById?.yearOfExperience != null &&
-                                  jobById.yearOfExperience !== ''
-                                    ? typeof jobById.yearOfExperience ===
-                                      'string'
-                                      ? jobById.yearOfExperience
-                                      : String(jobById.yearOfExperience)
-                                    : '—'}
-                                </span>
-                                <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
-                                  Compensation
-                                </span>
-                                <span className="text-[16px] font-normal text-black">
-                                  {formatCompensationDisplay(
-                                    jobById?.compensation,
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          </>
-                        )}
                       </div>
                     </div>
-                  </div>
-                </div>
-              ),
-            },
-          ]}
-          tabBarExtraContent={
-            activeTabKey === 'candidates' ? (
-              <div className="flex flex-wrap items-center gap-2 pb-2 pr-0">
-                {selectedCandidate?.length > 0 && (
-                  <Button
-                    type="primary"
-                    icon={<MoveToTalentPoolIcon />}
-                    onClick={handleMoveToTalentsPool}
-                    className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
-                    data-cy="talent-acquisition-job-detail-button-move-talent-pool"
-                  >
-                    {isMobile || isTablet ? 'Move' : 'Move to Talent Pool'}
-                  </Button>
-                )}
-                <Button
-                  type="default"
-                  icon={
-                    <MdOutlineFileDownload
-                      size={18}
-                      className="text-[rgba(0,0,0,0.45)]"
-                    />
-                  }
-                  onClick={handleDownloadExcel}
-                  loading={isDownloading}
-                  className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
-                  data-cy="talent-acquisition-job-detail-button-download-excel"
-                >
-                  Download
-                </Button>
-                <Button
-                  type="primary"
-                  icon={<FaUserPlus size={14} />}
-                  onClick={showDrawer}
-                  className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
-                  data-cy="talent-acquisition-job-detail-button-add-candidate"
-                >
-                  Add Candidate
-                </Button>
-              </div>
-            ) : null
-          }
-        />
-      </div>
+                  ),
+                },
+                {
+                  key: 'information',
+                  label: (
+                    <span data-cy="talent-acquisition-job-detail-tab-information">
+                      Information
+                    </span>
+                  ),
+                  children: (
+                    <div>
+                      <div className="grid grid-cols-1 gap-0 lg:grid-cols-3 lg:items-stretch">
+                        {/* Left Column: Job Description */}
+                        <div
+                          id="job-detail-description-section"
+                          className="flex flex-col bg-white p-6 lg:col-span-2 lg:pr-8"
+                          data-cy="job-detail-description-section"
+                        >
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-[16px] font-bold text-black">
+                              Job Description
+                            </h3>
+                            {!isEditingDescription ? (
+                              <button
+                                type="button"
+                                id="job-detail-edit-description-btn"
+                                onClick={startDescriptionEdit}
+                                className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
+                                data-cy="talent-acquisition-job-detail-edit-description"
+                              >
+                                <EditPencilIcon />
+                              </button>
+                            ) : (
+                              <div
+                                className="flex items-center gap-2"
+                                data-cy="job-detail-description-edit-actions"
+                              >
+                                <button
+                                  type="button"
+                                  id="job-detail-description-cancel"
+                                  onClick={cancelDescriptionEdit}
+                                  className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
+                                  data-cy="job-detail-description-cancel"
+                                >
+                                  <FaTimes
+                                    style={{
+                                      width: '8.17px',
+                                      height: '8.17px',
+                                      color: '#FF4D4F',
+                                    }}
+                                  />
+                                </button>
+                                <button
+                                  type="button"
+                                  id="job-detail-description-save"
+                                  onClick={() =>
+                                    saveDescriptionEdit(descriptionDraft)
+                                  }
+                                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
+                                  data-cy="job-detail-description-save"
+                                >
+                                  <FaCheck
+                                    style={{
+                                      width: '8.17px',
+                                      height: '8.17px',
+                                      color: '#fff',
+                                    }}
+                                  />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {isEditingDescription ? (
+                            <div data-cy="job-detail-description-editor">
+                              <span className="mb-2 block text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                Description{' '}
+                                <span className="text-[#FF4D4F]">*</span>
+                              </span>
+                              <TextEditor
+                                value={descriptionDraft}
+                                onChange={(html) => setDescriptionDraft(html)}
+                                placeholder="Enter job description"
+                                className="!rounded-[8px] !border !border-solid !border-[#91CAFF] [&_.border-gray-200]:!border-[#E5E7EB]"
+                              />
+                            </div>
+                          ) : (
+                            <div className="text-[16px] font-normal leading-relaxed text-black [&_p]:mb-3 [&_p:last-child]:mb-0">
+                              {jobById?.description ? (
+                                <div
+                                  dangerouslySetInnerHTML={{
+                                    __html: jobById.description,
+                                  }}
+                                />
+                              ) : (
+                                <p className="text-gray-400 italic">
+                                  No job description available.
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
 
-      <CreateCandidate jobId={id} onClose={onClose} />
+                        {/* Right Column: Closing Date + Preferences */}
+                        <div className="flex min-h-0 flex-col border-t border-solid border-[#E5E7EB] px-6 py-6 lg:border-l lg:border-t-0 lg:px-0 lg:pl-8">
+                          {/* Job Vacancy Closing Date + Job Preference */}
+                          <div
+                            id="job-detail-closing-date-section"
+                            className="bg-white p-0"
+                            data-cy="job-detail-closing-date-section"
+                          >
+                            <div className="flex items-center justify-between mb-4">
+                              <h3 className="text-[16px] font-bold text-black">
+                                Job Vacancy Closing Date
+                              </h3>
+                              {!isEditingInfo ? (
+                                <button
+                                  type="button"
+                                  id="job-detail-edit-closing-date-btn"
+                                  onClick={startInfoEdit}
+                                  className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0"
+                                  data-cy="talent-acquisition-job-detail-edit-closing-date"
+                                >
+                                  <EditPencilIcon />
+                                </button>
+                              ) : (
+                                <div
+                                  className="flex items-center gap-2"
+                                  data-cy="job-detail-info-edit-actions"
+                                >
+                                  <button
+                                    type="button"
+                                    id="job-detail-info-cancel"
+                                    onClick={cancelInfoEdit}
+                                    className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-solid border-[#FF4D4F] bg-white shrink-0"
+                                    data-cy="job-detail-info-cancel"
+                                  >
+                                    <FaTimes
+                                      style={{
+                                        width: '8.17px',
+                                        height: '8.17px',
+                                        color: '#FF4D4F',
+                                      }}
+                                    />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    id="job-detail-info-save"
+                                    onClick={saveInfoEdit}
+                                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] !border-0 !bg-[#1E40AF]"
+                                    data-cy="job-detail-info-save"
+                                  >
+                                    <FaCheck
+                                      style={{
+                                        width: '8.17px',
+                                        height: '8.17px',
+                                        color: '#fff',
+                                      }}
+                                    />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            {isEditingInfo ? (
+                              <Form
+                                form={infoForm}
+                                layout="vertical"
+                                id="job-detail-info-form"
+                                data-cy="job-detail-info-form"
+                                requiredMark={(label, { required }) => (
+                                  <>
+                                    {label}
+                                    {required && (
+                                      <span className="ml-1 text-[#FF4D4F]">
+                                        *
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                                className={`${INFO_FORM_LABEL_CLASS} [&_.ant-form-item-label_label::before]:!hidden`}
+                              >
+                                <Form.Item
+                                  name="jobDeadline"
+                                  label="Expected Closing Date"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: 'Please select date!',
+                                    },
+                                  ]}
+                                >
+                                  <DatePicker
+                                    id="job-detail-edit-deadline"
+                                    placeholder="Select date"
+                                    className="w-full !h-10 [&_.ant-picker]:!h-10 [&_.ant-picker]:!min-h-10 [&_.ant-picker]:!rounded-[8px] [&_.ant-picker]:!border-[#D9D9D9] [&_.ant-picker-input>input]:!text-[16px] [&_.ant-picker-input>input]:!font-normal [&_.ant-picker-input>input]:!text-black"
+                                    getPopupContainer={() => document.body}
+                                    data-cy="job-detail-edit-deadline"
+                                  />
+                                </Form.Item>
+                                <h3 className="mb-3 mt-4 text-[16px] font-bold text-black">
+                                  Job Preference
+                                </h3>
+                                <Form.Item
+                                  name="quantity"
+                                  label="Quantity"
+                                  rules={[{ required: true }]}
+                                >
+                                  <InputNumber
+                                    id="job-detail-edit-quantity"
+                                    className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
+                                    controls={false}
+                                    placeholder="0"
+                                    min={0}
+                                    data-cy="job-detail-edit-quantity"
+                                  />
+                                </Form.Item>
+                                <Form.Item
+                                  name="yearOfExperience"
+                                  label="Years of experience"
+                                  rules={[{ required: true }]}
+                                >
+                                  <InputNumber
+                                    id="job-detail-edit-years"
+                                    className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
+                                    controls={false}
+                                    placeholder="0"
+                                    min={0}
+                                    data-cy="job-detail-edit-years"
+                                  />
+                                </Form.Item>
+                                <Form.Item
+                                  name="compensation"
+                                  label="Compensation"
+                                  rules={[{ required: true }]}
+                                >
+                                  <InputNumber
+                                    id="job-detail-edit-compensation"
+                                    className="w-full !h-10 !min-h-10 !rounded-[8px] !border-[#D9D9D9] [&_.ant-input-number-input]:!h-10 [&_.ant-input-number-input]:!text-[16px] [&_.ant-input-number-input]:!font-normal [&_.ant-input-number-input]:!text-black"
+                                    controls={false}
+                                    placeholder="0"
+                                    min={0}
+                                    data-cy="job-detail-edit-compensation"
+                                  />
+                                </Form.Item>
+                              </Form>
+                            ) : (
+                              <>
+                                <div className="space-y-4">
+                                  <div className="flex items-center justify-between gap-4">
+                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                      Closed Date
+                                    </span>
+                                    <span className="text-right text-[16px] font-normal text-black">
+                                      {jobById?.jobDeadline
+                                        ? dayjs(jobById.jobDeadline).format(
+                                            'DD MMMM, YYYY',
+                                          )
+                                        : 'Not set'}
+                                    </span>
+                                  </div>
+                                  {daysRemaining !== null &&
+                                    jobById?.jobDeadline && (
+                                      <div className="rounded-lg border border-solid border-[#E5E7EB] bg-white p-4">
+                                        <div className="mb-2 flex items-center justify-between gap-2">
+                                          <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                            Days Remaining
+                                          </span>
+                                          <span className="flex shrink-0 items-center gap-1.5 text-[14px] font-normal text-[#1677FF]">
+                                            <IoHourglassOutline
+                                              className="shrink-0"
+                                              style={{ width: 12, height: 12 }}
+                                            />
+                                            {daysRemaining} Days to go
+                                          </span>
+                                        </div>
+                                        <Progress
+                                          percent={progressPercent}
+                                          strokeColor="#1677FF"
+                                          trailColor="#F0F0F0"
+                                          showInfo={false}
+                                          className="mb-0"
+                                        />
+                                      </div>
+                                    )}
+                                </div>
+                                <div className="mt-6">
+                                  <h3 className="text-[16px] font-bold text-black mb-4">
+                                    Job Preference
+                                  </h3>
+                                  <div className="grid grid-cols-2 gap-y-3">
+                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                      Quantity
+                                    </span>
+                                    <span className="text-[16px] font-normal text-black">
+                                      {jobById?.quantity ?? '—'}
+                                    </span>
+                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                      Years of Experience
+                                    </span>
+                                    <span className="text-[16px] font-normal text-black">
+                                      {jobById?.yearOfExperience != null &&
+                                      jobById.yearOfExperience !== ''
+                                        ? typeof jobById.yearOfExperience ===
+                                          'string'
+                                          ? jobById.yearOfExperience
+                                          : String(jobById.yearOfExperience)
+                                        : '—'}
+                                    </span>
+                                    <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                                      Compensation
+                                    </span>
+                                    <span className="text-[16px] font-normal text-black">
+                                      {formatCompensationDisplay(
+                                        jobById?.compensation,
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                },
+              ]}
+              tabBarExtraContent={
+                activeTabKey === 'candidates' ? (
+                  <div className="flex flex-wrap items-center gap-2 pb-2 pr-0">
+                    {selectedCandidate?.length > 0 && (
+                      <Button
+                        type="primary"
+                        icon={<MoveToTalentPoolIcon />}
+                        onClick={handleMoveToTalentsPool}
+                        className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-3 sm:!px-4 !text-[14px] !font-normal hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+                        data-cy="talent-acquisition-job-detail-button-move-talent-pool"
+                      >
+                        <span className="hidden sm:inline">
+                          Move to Talent Pool
+                        </span>
+                      </Button>
+                    )}
+                    <Button
+                      type="default"
+                      icon={
+                        <MdOutlineFileDownload
+                          size={18}
+                          className="text-[rgba(0,0,0,0.45)]"
+                        />
+                      }
+                      onClick={handleDownloadExcel}
+                      loading={isDownloading}
+                      className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#D9D9D9] !bg-white !px-3 sm:!px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
+                      data-cy="talent-acquisition-job-detail-button-download-excel"
+                    >
+                      <span className="hidden sm:inline">Download</span>
+                    </Button>
+                    <Button
+                      type="primary"
+                      icon={<FaUserPlus size={14} />}
+                      onClick={showDrawer}
+                      className="!inline-flex !h-10 !items-center !rounded-[6px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-3 sm:!px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+                      data-cy="talent-acquisition-job-detail-button-add-candidate"
+                    >
+                      <span className="hidden sm:inline">Add Candidate</span>
+                    </Button>
+                  </div>
+                ) : null
+              }
+            />
+          </div>
+
+          <CreateCandidate jobId={id} onClose={onClose} />
+        </div>
       </div>
-    </div>
     </div>
   );
 };

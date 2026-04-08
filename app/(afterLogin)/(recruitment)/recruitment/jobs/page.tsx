@@ -250,11 +250,11 @@ const RecruitmentPage: React.FC = () => {
                     setSearchValue(value);
                     onSearchChange(value.trim());
                   }}
-                  className="w-full h-11 rounded-lg border-gray-300"
+                  className="w-full rounded-lg border-gray-300 !h-8 [&_.ant-input-affix-wrapper]:!min-h-[32px] [&_.ant-input-affix-wrapper]:!h-8 [&_.ant-input-affix-wrapper]:!py-0 [&_.ant-input]:!text-sm"
                   allowClear
                   suffix={
                     <span
-                      className="inline-flex items-center h-full min-h-[1.5rem] border-l border-gray-200 pl-2.5 ml-0"
+                      className="inline-flex h-8 min-h-[32px] items-center border-l border-gray-200 pl-2.5"
                       data-cy="talent-acquisition-jobs-search-suffix"
                     >
                       <AiOutlineSearch className="text-gray-400 w-4 h-4 shrink-0" />
@@ -339,7 +339,7 @@ const RecruitmentPage: React.FC = () => {
                 >
                   <button
                     type="button"
-                    className="flex w-[84px] h-8 items-center justify-center gap-1.5 rounded-[6px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0 transition-colors px-0"
+                    className="flex h-[32px] min-h-[32px] w-[84px] items-center justify-center gap-1.5 rounded-[6px] border border-solid border-[#D9D9D9] bg-white hover:bg-gray-50 shrink-0 transition-colors px-0"
                     data-cy="talent-acquisition-jobs-filter-button"
                   >
                     <FunnelFilterIcon className="shrink-0" />

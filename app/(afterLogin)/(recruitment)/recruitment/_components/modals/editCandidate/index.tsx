@@ -216,6 +216,7 @@ const EditCandidate: React.FC = () => {
         onCancel={() => setEditCandidateModal(false)}
         centered
         width={760}
+        style={{ maxWidth: 'calc(100vw - 16px)' }}
         closeIcon={
           <CloseOutlined className="h-4 w-4 text-[rgba(0,0,0,0.65)]" />
         }
