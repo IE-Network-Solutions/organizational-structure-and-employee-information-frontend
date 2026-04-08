@@ -20,6 +20,7 @@ interface CustomPaginationProps {
   id?: string;
   'data-cy'?: string;
   className?: string;
+  showGoTo?: boolean;
 }
 
 export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
@@ -30,6 +31,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
   onChange,
   onShowSizeChange,
   stackPagerAndGoTo = false,
+  showGoTo = true,
   id,
   'data-cy': dataCy,
   className,
@@ -131,7 +133,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`w-full rounded-lg border border-gray-200 bg-white px-2 py-3 sm:px-3 ${className ?? ''}`}
+      className={`w-full bg-white px-2 py-2 sm:px-3 ${className ?? ''}`}
     >
       <div
         data-cy="components-custompagination-mobilepagination-index-tsx-index-div-61"
@@ -152,10 +154,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
         <div
           className={
             stackPagerAndGoTo
-              ? 'flex w-full items-center justify-between gap-1 sm:gap-2'
+              ? 'flex w-[320px] max-w-full mx-auto items-center justify-between gap-1 sm:gap-2'
               : keepPagerAndGoToOnOneRow
-                ? 'flex min-w-0 flex-1 items-center justify-between gap-1 sm:gap-2'
-                : 'flex w-full max-[520px]:max-w-full min-[521px]:min-w-0 min-[521px]:flex-1 items-center justify-between gap-1 sm:gap-2'
+                ? 'flex w-[320px] max-w-full mx-auto items-center justify-between gap-1 sm:gap-2'
+                : 'flex w-[320px] max-w-full mx-auto items-center justify-between gap-1 sm:gap-2'
           }
           data-cy="components-custompagination-mobilepagination-index-tsx-index-div-71"
         >
@@ -164,10 +166,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
             data-cy="components-custompagination-mobilepagination-index-tsx-index-button-11"
             onClick={handlePrevious}
             disabled={activeCurrentPage === 1}
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-0 bg-transparent text-base ${
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-sm transition-colors ${
               activeCurrentPage === 1
-                ? 'cursor-not-allowed text-gray-300'
-                : 'cursor-pointer text-gray-600 hover:bg-gray-50 active:bg-gray-100'
+                ? 'cursor-not-allowed border-[#E2E8F0] text-gray-300'
+                : 'cursor-pointer border-[#CBD5E1] text-gray-600 hover:bg-gray-100'
             }`}
             aria-label="Previous page"
           >
@@ -187,7 +189,7 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
                   return (
                     <span
                       key="ellipsis"
-                      className="flex h-8 w-8 shrink-0 items-center justify-center text-gray-500"
+                      className="flex h-7 w-7 shrink-0 items-center justify-center text-gray-500"
                       aria-hidden
                       data-cy="components-custompagination-mobilepagination-ellipsis"
                     >
@@ -201,10 +203,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
                     type="button"
                     key={item}
                     onClick={() => handlePageClick(item)}
-                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-sm font-semibold transition-colors ${
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold transition-colors ${
                       isActive
-                        ? 'border border-[#1e40af] bg-white text-[#1e40af]'
-                        : 'border-0 bg-transparent text-gray-700 hover:text-gray-900'
+                        ? 'border border-[#1D4ED8] bg-white text-[#1D4ED8]'
+                        : 'border border-transparent bg-transparent text-gray-700 hover:bg-gray-100'
                     }`}
                     data-cy={`mobile-pagination-page-${item}`}
                     aria-label={`Go to page ${item}`}
@@ -222,10 +224,10 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
             data-cy="components-custompagination-mobilepagination-index-tsx-index-button-12"
             onClick={handleNext}
             disabled={activeCurrentPage === totalPages}
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-0 bg-transparent text-base ${
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-sm transition-colors ${
               activeCurrentPage === totalPages
-                ? 'cursor-not-allowed text-gray-300'
-                : 'cursor-pointer text-gray-600 hover:bg-gray-50 active:bg-gray-100'
+                ? 'cursor-not-allowed border-[#E2E8F0] text-gray-300'
+                : 'cursor-pointer border-[#CBD5E1] text-gray-600 hover:bg-gray-100'
             }`}
             aria-label="Next page"
           >
@@ -233,22 +235,22 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
           </button>
         </div>
 
-        {totalPages > 0 && (
+        {showGoTo && totalPages > 0 && (
           <div
             className={
               stackPagerAndGoTo
-                ? 'flex w-full shrink-0 items-center justify-start gap-2'
+                ? 'hidden min-[521px]:flex w-full shrink-0 items-center justify-start gap-2'
                 : keepPagerAndGoToOnOneRow
-                  ? 'flex shrink-0 items-center gap-2'
-                  : 'flex shrink-0 items-center gap-2 max-[520px]:ml-0 max-[520px]:w-full max-[520px]:justify-start min-[521px]:ml-auto min-[521px]:justify-end'
+                  ? 'hidden min-[521px]:flex shrink-0 items-center gap-2'
+                  : 'hidden min-[521px]:flex shrink-0 items-center gap-2 min-[521px]:ml-auto min-[521px]:justify-end'
             }
             data-cy="mobile-pagination-goto"
           >
             <span
-              className="text-sm text-[#718096]"
+              className="text-xs text-[#718096]"
               data-cy="mobile-pagination-goto-label"
             >
-              Go to :
+              Go:
             </span>
             <Input
               type="text"
@@ -257,13 +259,13 @@ export const CustomMobilePagination: React.FC<CustomPaginationProps> = ({
               onChange={handleGoToInputChange}
               onBlur={commitGoToPage}
               onPressEnter={commitGoToPage}
-              className="w-16 text-center"
-              size="middle"
+              className="w-12 rounded-md border-[#CBD5E1] text-center text-xs"
+              size="small"
               data-cy="mobile-pagination-goto-input"
               aria-label="Go to page number"
             />
             <span
-              className="text-sm text-[#718096]"
+              className="text-xs text-[#718096]"
               data-cy="mobile-pagination-goto-page-suffix"
             >
               page

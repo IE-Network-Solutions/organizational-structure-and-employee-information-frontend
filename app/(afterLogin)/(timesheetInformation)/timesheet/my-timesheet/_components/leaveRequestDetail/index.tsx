@@ -10,7 +10,7 @@ import {
   Modal,
   Row,
   Select,
-  Spin,
+  Skeleton,
   Steps,
   Tag,
   Tooltip,
@@ -340,11 +340,15 @@ const LeaveRequestDetail = () => {
           className="flex justify-center py-10"
           data-cy="time-attendance-leave-request-detail-loading"
         >
-          <Spin data-cy="time-attendance-leave-request-detail-loading-spin" />
+          <Skeleton
+            active
+            data-cy="time-attendance-leave-request-detail-loading-spin"
+          />
         </div>
       ) : (
-        <Spin
-          spinning={isLoading || isUpdating}
+        <Skeleton
+          loading={isLoading || isUpdating}
+          active
           data-cy="time-attendance-leave-request-detail-content-spin"
         >
           {/* Title: leave type name; subtitle: X Days + status tag */}
@@ -692,7 +696,7 @@ const LeaveRequestDetail = () => {
               Edit Request
             </Button>
           </div>
-        </Spin>
+        </Skeleton>
       )}
     </Modal>
   );

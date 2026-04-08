@@ -7,13 +7,14 @@ import {
 } from '@/store/server/features/CFR/recognition/queries';
 import CustomPagination from '@/components/customPagination';
 import RecognitionStatsCards from './_components/RecognitionStatsCards';
-import { Breadcrumb, Card, Empty, Input, Skeleton } from 'antd';
+import { Breadcrumb, Card, Input, Skeleton } from 'antd';
 import React from 'react';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import { IoSearchOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MdOutlineEmojiEvents } from 'react-icons/md';
+import EmptyState from '@/components/empty';
 
 function Page() {
   const navigate = useRouter();
@@ -100,12 +101,12 @@ function Page() {
             data-cy="recognition-search-category-input"
           />
         </Input.Group>
-        {recognitionType?.items?.length === 0 && (
+        {recognitionType?.items?.length == 0 && (
           <div
             className="flex justify-center items-center h-full"
             data-cy="recognition-categories-empty-wrap"
           >
-            <Empty />
+            <EmptyState />
           </div>
         )}
         <div

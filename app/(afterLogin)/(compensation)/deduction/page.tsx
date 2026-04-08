@@ -6,7 +6,7 @@ import DeductionTypeCardGrid from '../compensationSetting/deductionType/_compone
 
 const DeductionPage = () => {
   return (
-    <BlockWrapper className="h-auto w-full bg-white px-3 pb-6 pt-4 sm:px-4">
+    <BlockWrapper className="h-auto w-full bg-white px-0 pb-6 pt-4">
       <DeductionTypeCardGrid data-cy="compensation-deduction-type-card-grid" />
     </BlockWrapper>
   );

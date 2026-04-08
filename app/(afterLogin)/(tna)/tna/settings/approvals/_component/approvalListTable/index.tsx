@@ -1,5 +1,6 @@
 import ApproverListTableComponent from '@/components/Approval/ApprovalListTable';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
 import { APPROVALTYPES } from '@/types/enumTypes';
@@ -17,8 +18,11 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import EditWorkFLow from '../editWorkFlow';
 import AddApprover from '../addApprover';
+import EmptyState from '@/components/empty';
+import TnaApprovalsPageSkeleton from '../tnaApprovalsPageSkeleton';
 
 const ApprovalListTable = () => {
+  const router = useRouter();
   const {
     userCurrentPage,
     pageSize,
@@ -48,7 +52,7 @@ const ApprovalListTable = () => {
   };
   const { mutate: deleteApproval } = useDeleteApprovalWorkFLow();
 
-  const { data: allFilterData, isLoading: isEmployeeLoading } =
+  const { data: allFilterData, isLoading: isApprovalListLoading } =
     useApprovalFilter(
       pageSize,
       userCurrentPage,
@@ -57,6 +61,20 @@ const ApprovalListTable = () => {
       searchParams?.name || '',
       APPROVALTYPES.TNA,
     );
+
+  const listItems = allFilterData?.items ?? [];
+  const hasActiveFilters = Boolean(
+    searchParams.name?.trim() ||
+    searchParams.entityType ||
+    searchParams.entityId,
+  );
+  const canCreateApprovalWorkflow = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateApprovalWorkFlow],
+  });
+  const goToWorkflowSetup = () => {
+    router.push('/tna/settings/approvals/workFlow');
+    setApproverType('');
+  };
 
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
@@ -72,7 +90,7 @@ const ApprovalListTable = () => {
     setDeleteModal(false);
     deleteApproval(id);
   };
-  const data = allFilterData?.items?.map((item: any, index: number) => {
+  const data = listItems.map((item: any, index: number) => {
     return {
       key: index,
       workflow_name: item?.name ? item?.name : '-',
@@ -314,14 +332,39 @@ const ApprovalListTable = () => {
         <EditWorkFLow data-cy="tna-approval-list-table-edit-modal" />
       )}
       {addModal && <AddApprover data-cy="tna-approval-list-table-add-modal" />}
-      <ApproverListTableComponent
-        data={data}
-        isEmployeeLoading={isEmployeeLoading}
-        allFilterData={allFilterData}
-        onPageChange={onPageChange}
-        pageSize={pageSize}
-        data-cy="tna-approval-list-table-component"
-      />
+      {isApprovalListLoading ? (
+        <TnaApprovalsPageSkeleton />
+      ) : listItems.length === 0 ? (
+        <div
+          className="w-full min-h-[240px] flex items-center justify-center mt-2"
+          id="tnaApprovalsPageEmptyId"
+          data-cy="tna-approvals-page-empty"
+        >
+          <EmptyState
+            title={
+              hasActiveFilters
+                ? 'No approvals match your filters'
+                : 'No approval workflows yet'
+            }
+            description={
+              hasActiveFilters
+                ? 'Try adjusting your search or filters.'
+                : 'Set up an approval workflow to manage training approvals.'
+            }
+            actionText={canCreateApprovalWorkflow ? 'Set Approval' : undefined}
+            onAction={canCreateApprovalWorkflow ? goToWorkflowSetup : undefined}
+          />
+        </div>
+      ) : (
+        <ApproverListTableComponent
+          data={data}
+          isEmployeeLoading={false}
+          allFilterData={allFilterData}
+          onPageChange={onPageChange}
+          pageSize={pageSize}
+          data-cy="tna-approval-list-table-component"
+        />
+      )}
     </div>
   );
 };

@@ -1,13 +1,13 @@
 'use client';
 
 import {
-  Table,
   Input,
   Select,
   DatePicker,
   notification,
   Tag,
   Popconfirm,
+  Table,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
@@ -32,6 +32,7 @@ import { useDeleteManageInvoice } from '@/store/server/features/tenant-managemen
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 dayjs.extend(isBetween);
 
@@ -543,39 +544,40 @@ const InvoicesTable = ({
           isMobile || isTablet ? 'w-full min-w-0 max-w-full' : undefined
         }
       >
-        <Table
-          id="invoices-table"
-          data-cy="invoices-table"
-          className={[
-            '[&_.ant-table-tbody_.ant-table-cell]:!text-[#000000]/[0.7]',
-            isMobile || isTablet
-              ? [
-                  '[&_.ant-table-thead_.ant-table-cell]:!whitespace-nowrap',
-                  '[&_.ant-table-tbody_.ant-table-cell]:!whitespace-nowrap',
-                  '[&_.ant-table-wrapper]:!w-full [&_.ant-table-wrapper]:!max-w-full',
-                  '[&_.ant-table]:!w-full [&_.ant-table]:!min-w-0 [&_.ant-table]:!max-w-full',
-                  '[&_.ant-table-container]:!w-full [&_.ant-table-container]:!max-w-full',
-                  '[&_.ant-table-content]:!w-full [&_.ant-table-content]:!max-w-full',
-                ].join(' ')
-              : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          columns={columns}
-          dataSource={paginatedData}
-          rowKey="id"
-          scroll={{ x: 'max-content' }}
-          loading={loading}
-          onRow={(record) => ({
-            onClick: () => handleRowClick(record.id),
-          })}
-          rowClassName={(record, index) =>
-            `${record.id ? 'cursor-pointer' : 'cursor-pointer'} ${
-              index % 2 === 1 ? '!bg-[#FAFAFA]' : '!bg-white'
-            }`
-          }
-          pagination={false}
-        />
+        {loading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            id="invoices-table"
+            data-cy="invoices-table"
+            className={[
+              '[&_.ant-table-tbody_.ant-table-cell]:!text-[#000000]/[0.7]',
+              isMobile || isTablet
+                ? [
+                    '[&_.ant-table-thead_.ant-table-cell]:!whitespace-nowrap',
+                    '[&_.ant-table-tbody_.ant-table-cell]:!whitespace-nowrap',
+                    '[&_.ant-table-wrapper]:!w-full [&_.ant-table-wrapper]:!max-w-full',
+                    '[&_.ant-table]:!w-full [&_.ant-table]:!min-w-0 [&_.ant-table]:!max-w-full',
+                    '[&_.ant-table-container]:!w-full [&_.ant-table-container]:!max-w-full',
+                    '[&_.ant-table-content]:!w-full [&_.ant-table-content]:!max-w-full',
+                  ].join(' ')
+                : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            columns={columns}
+            dataSource={paginatedData}
+            rowKey="id"
+            scroll={{ x: 'max-content' }}
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record.id),
+            })}
+            rowClassName={(record, index) =>
+              `${record.id ? 'cursor-pointer' : 'cursor-pointer'} ${index % 2 === 1 ? '!bg-[#FAFAFA]' : '!bg-white'}`
+            }
+            pagination={false}
+          />
+        )}
       </div>
       {paginationTotal > 0 && (
         <>

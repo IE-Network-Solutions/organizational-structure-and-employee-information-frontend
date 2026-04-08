@@ -326,7 +326,9 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-  /* Safari and Chrome */
+  width: 0;
+  height: 0;
+  /* Safari and Chrome — zero size avoids layout gutter */
 }
 
 /* Ensure Ant Design Sider children allow for flex scrolling */
@@ -346,6 +348,33 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Calibre', sans-serif;
+}
+
+:root {
+  --app-scrollbar-thumb: #d1d5db; /* light gray */
+  --app-scrollbar-track: transparent;
+}
+
+/* Global scrollbar styling */
+* {
+  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track); /* Firefox */
+  scrollbar-width: thin; /* Firefox (closest to 1px) */
+}
+
+/* Chromium/WebKit */
+::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+::-webkit-scrollbar-track {
+  background: var(--app-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--app-scrollbar-thumb);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #cbd5e1;
 }
 
 h1 {
@@ -858,10 +887,11 @@ h6 {
     -webkit-user-select: none;
   }
 
-  /* Hide scrollbars in standalone mode for better app-like experience */
+  /* Keep global scrollbar styling in standalone mode */
   ::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+    width: 1px;
+    height: 1px;
+    background: var(--app-scrollbar-track);
   }
 
   /* Hide install buttons when in standalone mode */
@@ -1313,8 +1343,13 @@ h6 {
     height: 100%;
   }
 
+  /*
+   * Use 100% not 100vw: 100vw includes the scrollbar width on many browsers,
+   * which causes horizontal overflow and makes main content look off-center.
+   */
   body {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 100vh;
     margin: 0;
     padding: 0;
@@ -1422,6 +1457,68 @@ h6 {
   align-items: center !important;
   padding: 0 !important;
 }
+
+  /* TNA Course Category (...): Edit / Delete — 117×72 panel, 8px radius, spec icons */
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu {
+    background: #ffffff !important;
+    width: 117px !important;
+    min-width: 117px !important;
+    max-width: 117px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 1px 2px rgba(0, 0, 0, 0.06) !important;
+    padding: 4px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    overflow: hidden !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item {
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 1 1 0 !important;
+    line-height: 1.2 !important;
+    border-radius: 4px !important;
+    color: rgba(0, 0, 0, 0.7) !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown
+    .ant-dropdown-menu-item
+    .ant-dropdown-menu-title-content {
+    width: 100%;
+  }
+
+  .tna-course-category-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover,
+  .tna-course-category-menu-overlay.ant-dropdown
+    .ant-dropdown-menu-item-active {
+    background-color: #f5f5f5 !important;
+    color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  /* Survey Form Card (triple-dot): dropdown panel styling */
+  .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu {
+    border-radius: 10px !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow:
+      0 12px 30px rgba(15, 23, 42, 0.12),
+      0 0 0 1px rgba(148, 163, 184, 0.12) !important;
+    padding: 4px 0 !important;
+    overflow: hidden !important;
+  }
 
 .form-card-menu-overlay.ant-dropdown .ant-dropdown-menu-item:hover {
   background-color: #f8faff !important;
@@ -1701,6 +1798,171 @@ h6 {
     min-height: unset !important;
     min-width: unset !important;
   }
+}
+
+/* Custom OKR Tooltip Styles */
+.okr-tooltip-custom .ant-tooltip-inner {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 12px 16px !important;
+  max-width: 280px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.okr-tooltip-custom .ant-tooltip-arrow::before {
+  background-color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Desktop OKR objective modal alignment: keep title/body/footer on same vertical line */
+.okr-objective-modal .ant-modal-header,
+.okr-objective-modal .ant-modal-body,
+.okr-objective-modal .ant-modal-footer {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.okr-objective-modal .ant-modal-footer {
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Keep global Ant notifications above high-z-index OKR modals */
+.ant-notification {
+  z-index: 13001 !important;
+}
+
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft {
+  z-index: 13001 !important;
+}
+
+/* Mobile bottom-sheet modal style for OKR Create Objective – opens from bottom, full width, rounded top */
+@media (max-width: 768px) {
+  /* Align wrap so the modal sits at the bottom instead of centered */
+  .okr-mobile-bottom-sheet {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    pointer-events: auto;
+  }
+
+  /* Remove Ant Design horizontal padding on .ant-modal-content (paddingContentHorizontalLG) so it
+     does not stack with the 24px on header/body/footer — single 24px gutter to the fields. */
+  .okr-mobile-bottom-sheet .ant-modal-content {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-header,
+  .okr-mobile-bottom-sheet .ant-modal-body,
+  .okr-mobile-bottom-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Mobile filter modal – bottom sheet, rounded top, full width (My/Team/Company/All Employees OKR).
+     Use as Modal wrapClassName so the overlay is flex and the modal sits at the bottom. */
+  .okr-mobile-filter-sheet {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    pointer-events: auto;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal-content {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Match theme paddingLG (24px) with OKR objective bottom sheets */
+  .okr-mobile-filter-sheet .ant-modal-header,
+  .okr-mobile-filter-sheet .ant-modal-body,
+  .okr-mobile-filter-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Ensure hidden modal wrap and mask do not block clicks (fix for stuck UI on mobile) */
+  .okr-mobile-filter-sheet.ant-modal-wrap-hidden,
+  .okr-mobile-filter-sheet.ant-modal-wrap-hidden .ant-modal-mask {
+    pointer-events: none !important;
+  }
+}
+
+/* OKR three-dot dropdown: white card, rounded corners, shadow (Edit OKR / Delete OKR design) */
+.okr-actions-dropdown .ant-dropdown-menu {
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  padding: 4px 0 !important;
+  min-width: 160px !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item {
+  padding: 10px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger {
+  color: #ef4444 !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 /*
@@ -2084,6 +2346,103 @@ h6 {
   color: #00000073 !important;
 }
 
+/* Leave Management table: thin light gray borders, no vertical lines */
+.leave-management-table .ant-table {
+  border: none !important;
+}
+
+.leave-management-table .ant-table-thead > tr > th {
+  background: #f9fafb !important;
+  color: #374151;
+  font-weight: 700 !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+
+.leave-management-table .ant-table-thead > tr > th,
+.leave-management-table .ant-table-thead > tr > th * {
+  font-weight: 700 !important;
+}
+
+.leave-management-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: none !important;
+}
+
+/* Employee names in first column: not bold (override UserCard font-semibold) */
+.leave-management-table .ant-table-tbody td:first-child .font-semibold,
+.leave-management-table
+  .ant-table-tbody
+  td:first-child
+  [data-cy='components-common-usercard-usercard-tsx-usercard-div-38'] {
+  font-weight: 400 !important;
+}
+
+.leave-management-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+
+/* Leave Management toolbar: thin light gray borders on search/filter controls */
+#time-attendance-leave-management-search-employee.ant-select
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select:hover
+  .ant-select-selector,
+#time-attendance-leave-management-search-employee.ant-select.ant-select-open
+  .ant-select-selector {
+  border-color: #f3f4f6 !important;
+  border-width: 1px !important;
+}
+
+#time-attendance-leave-management-search-employee.ant-select.ant-select-focused
+  .ant-select-selector {
+  border-color: #e5e7eb !important;
+  box-shadow: 0 0 0 1px #e5e7eb !important;
+}
+
+/* Leave Management filter: popover + date dropdown render inside filter root */
+#time-attendance-leave-management-filter-root {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+#time-attendance-leave-management-filter-root .ant-picker-dropdown {
+  z-index: 1060 !important;
+}
+
+#time-attendance-leave-management-filter-popover-content {
+  overflow: visible !important;
+}
+
+/* Leave Request Detail Modal – Figma node 1943-11843: size & colors */
+.leave-request-detail-modal.ant-modal .ant-modal-content {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.leave-request-detail-modal.ant-modal .ant-modal-body {
+  padding: 24px !important;
+  color: #111827;
+}
+
+.leave-request-detail-modal.ant-modal .ant-modal-close {
+  color: #6b7280;
+}
+
+.leave-request-detail-modal.ant-modal .ant-modal-close:hover {
+  color: #111827;
+}
+
+/* Org Structure: Add/Edit/Delete Department modals close button position */
+.org-structure-department-modal.ant-modal .ant-modal-close {
+  top: 15px !important;
+  right: 16px !important;
+  color: #00000073 !important;
+}
+
 /* Prevent close (×) button overflow on mobile */
 @media (max-width: 640px) {
   .org-structure-department-modal.ant-modal .ant-modal-close {
@@ -2122,6 +2481,29 @@ h6 {
   background-color: #f0f4f8 !important;
 }
 
+/* Wide tables: empty row is one colspan cell as wide as all columns. Centering
+   in that cell puts content in the horizontal middle of the full table width
+   (often off-screen). This host + sticky strip uses the scrollport width so
+   "No data" stays centered in what the user actually sees. */
+.payroll-table-scroll-host {
+  container-type: inline-size;
+  container-name: payroll-table-scroll;
+}
+
+.payroll-table-empty-viewport-center {
+  position: sticky;
+  left: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(100cqw, 100%);
+}
+
+.payroll-table .ant-table-tbody > tr.ant-table-placeholder > td.ant-table-cell {
+  vertical-align: middle;
+}
+
 .payroll-zebra-row > td {
   background-color: #fafafa !important;
 }
@@ -2139,4 +2521,42 @@ h6 {
 .okr-settings-menu-dropdown .ant-dropdown-menu-title-content {
   padding: 0 !important;
   margin: 0 !important;
+}
+
+/* Planning & Reporting: selected segment stays white after thumb motion ends (rc-segmented clears thumb; item-selected must contrast track) */
+.planning-reporting-toolbar-segmented.ant-segmented
+  .ant-segmented-item-selected {
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+}
+.planning-reporting-toolbar-segmented.ant-segmented
+  .ant-segmented-item-selected
+  .ant-segmented-item-label {
+  color: #0f172a !important;
+}
+
+/* Planning inline: + dropdown — room for milestone / key result labels + helper text */
+.planning-target-pick-menu .ant-dropdown-menu {
+  min-width: 288px;
+  max-width: min(100vw - 24px, 420px);
+  padding: 6px 0;
+}
+.planning-target-pick-menu .ant-dropdown-menu-item {
+  border-radius: 8px;
+  margin-inline: 6px;
+}
+.planning-target-pick-menu .ant-dropdown-menu-title-content {
+  white-space: normal;
+}
+.planning-target-pick-menu .ant-dropdown-menu-item-group-title {
+  padding: 10px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #64748b;
+  line-height: 1.3;
+}
+.planning-target-pick-menu .ant-dropdown-menu-item-group-list {
+  margin: 0;
 }

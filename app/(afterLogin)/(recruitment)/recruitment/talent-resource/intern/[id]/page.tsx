@@ -1,5 +1,14 @@
 'use client';
-import { Button, Card, Divider, Row, Col, Typography, Spin, Space } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Row,
+  Skeleton,
+  Space,
+  Typography,
+} from 'antd';
 import { useParams, useRouter } from 'next/navigation';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
 import dayjs from 'dayjs';
@@ -23,7 +32,7 @@ const InternDetails = () => {
     const { data: department, isLoading: isDeptLoading } =
       useGetDepartmentByID(departmentId);
 
-    if (isDeptLoading) return <Spin size="small" />;
+    if (isDeptLoading) return <Skeleton.Button active size="small" />;
     return <Text>{department?.name || 'N/A'}</Text>;
   };
 
@@ -33,7 +42,7 @@ const InternDetails = () => {
         data-cy="talent-resource-intern-id-page-tsx-page-div-32"
         className="flex justify-center items-center min-h-96"
       >
-        <Spin size="large" />
+        <Skeleton active />
       </div>
     );
   }

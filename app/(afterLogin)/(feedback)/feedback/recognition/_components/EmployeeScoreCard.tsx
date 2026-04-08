@@ -1,3 +1,4 @@
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Card, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -46,8 +47,12 @@ const columns: ColumnsType<any> = [
 
 interface EmployeeScoreCardProps {
   data: any; // Replace 'any' with a more specific type if possible
+  isLoading?: boolean;
 }
-export default function EmployeeScoreCard({ data }: EmployeeScoreCardProps) {
+export default function EmployeeScoreCard({
+  data,
+  isLoading = false,
+}: EmployeeScoreCardProps) {
   const totalPoints = data?.reduce((acc: any, item: any) => {
     // You can customize the score logic based on item.operator and item.weight
     const weightedScore = ((item.score ?? 0) * 100) / (item.weight ?? 1);
@@ -55,7 +60,22 @@ export default function EmployeeScoreCard({ data }: EmployeeScoreCardProps) {
   }, 0);
   return (
     <>
-      {data?.length > 0 ? (
+      {isLoading ? (
+        <div
+          className="flex p-4 space-y-6 items-center"
+          data-cy="employee-score-card-container"
+          id="employeeScoreCardContainer"
+        >
+          <Card
+            bodyStyle={{ padding: 0 }}
+            className="p-4 border-none"
+            data-cy="employee-score-card-table-card"
+            id="employeeScoreCardTableCard"
+          >
+            <TableSkeleton columns={columns} />
+          </Card>
+        </div>
+      ) : data?.length > 0 ? (
         <div
           className="flex p-4 space-y-6 items-center"
           data-cy="employee-score-card-container"

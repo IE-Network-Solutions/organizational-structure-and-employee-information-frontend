@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import { Modal, Button } from 'antd';
 import Image from 'next/image';
 
@@ -52,13 +53,14 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   cancelText,
   loading,
   id,
+  title = 'Delete',
   'data-cy': dataCy,
-  title,
   hideImage = false,
   danger = false,
   modalClassName,
 }) => {
   const isPositioned = Boolean(triggerRect);
+
   const modalStyle: React.CSSProperties | undefined = isPositioned
     ? (() => {
         const modalWidth = 440;
@@ -75,6 +77,11 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       })()
     : undefined;
 
+  const messageContent =
+    customMessage ??
+    deleteMessage ??
+    'Are you sure you want to delete this item?';
+
   const deleteModalFooter = (
     <div
       className="w-full flex flex-row justify-end items-center gap-3 mt-4"
@@ -87,6 +94,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       >
         {cancelText ?? 'Cancel'}
       </Button>
+
       <Button
         id="confirmDeleteId"
         className={`!h-8 !px-6 !text-[14px] !font-normal ${
@@ -99,22 +107,31 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         loading={loading ?? false}
         onClick={onConfirm}
       >
-        {deleteText ?? 'Delete'}
+        {deleteText ?? 'OK'}
       </Button>
     </div>
   );
+
   return (
     <Modal
       open={open}
-      title={title}
       width={hideImage ? 440 : 500}
       onCancel={onCancel}
       afterClose={onAfterClose}
       footer={deleteModalFooter}
       closable
       centered={!isPositioned}
+      {...(isPositioned && { transitionName: '', maskTransitionName: '' })}
       style={modalStyle}
       rootClassName={modalClassName}
+      title={
+        <span
+          className="text-base font-semibold text-gray-900"
+          data-cy="delete-confirmation-modal-title"
+        >
+          {title}
+        </span>
+      }
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
           {modal}
@@ -146,7 +163,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
           className="mt-4 text-center"
         >
-          {customMessage ?? 'Are you sure you want to delete this item?'}
+          {messageContent}
         </div>
       )}
     </Modal>

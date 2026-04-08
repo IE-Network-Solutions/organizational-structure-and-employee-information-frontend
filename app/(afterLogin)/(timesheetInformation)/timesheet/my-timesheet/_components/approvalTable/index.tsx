@@ -7,7 +7,7 @@ import {
   Input,
   Popconfirm,
   Table,
-  Spin,
+  Skeleton,
   Card,
   Select,
   Tag,
@@ -26,9 +26,10 @@ import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
-import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
+import CustomPagination from '@/components/customPagination';
 import { usePathname } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
@@ -442,17 +443,6 @@ const ApprovalTable = () => {
       ? meta.totalPages * pageSize
       : null);
   const totalItems = totalFromApi ?? 0;
-  const safeApprovalPageSize = pageSize > 0 ? pageSize : 1;
-  const approvalMetaTotalPages = meta?.totalPages;
-  const approvalResolvedTotalPages = Math.max(
-    1,
-    typeof approvalMetaTotalPages === 'number' &&
-      !Number.isNaN(approvalMetaTotalPages) &&
-      approvalMetaTotalPages >= 1
-      ? approvalMetaTotalPages
-      : Math.ceil((totalItems || 0) / safeApprovalPageSize),
-  );
-  const approvalWrapPaginationManyPages = approvalResolvedTotalPages > 3;
 
   const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {
@@ -551,8 +541,9 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-reject-all-button"
                   data-cy="time-attendance-approval-table-reject-all-button"
                 >
-                  <Spin
-                    spinning={allRejectIsLoading}
+                  <Skeleton
+                    active
+                    loading={allRejectIsLoading}
                     data-cy="time-attendance-approval-table-reject-all-spin"
                   />
                   Reject All
@@ -580,9 +571,10 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-approve-all-button"
                   data-cy="time-attendance-approval-table-approve-all-button"
                 >
-                  <Spin
+                  <Skeleton
+                    active
                     data-cy="time-attendance-approval-table-approve-all-spin"
-                    spinning={allApproveIsLoading}
+                    loading={allApproveIsLoading}
                   />
                   Approve All
                 </Button>
@@ -601,37 +593,36 @@ const ApprovalTable = () => {
           />
         </div>
       </div>
-      <Table
-        rowSelection={rowSelection}
-        columns={columns}
-        loading={{
-          spinning: isApprovalListLoading,
-        }}
-        dataSource={allFilterData}
-        pagination={false}
-        // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
-        scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
-        locale={{ emptyText: 'No leave requests' }}
-        className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
-        rowClassName={(record, index) => {
-          void record;
-          return index % 2 === 1
-            ? 'my-timesheet-approval-table-row-even'
-            : 'my-timesheet-approval-table-row-odd';
-        }}
-        id="time-attendance-approval-table"
-        data-cy="time-attendance-approval-table"
-      />
+      {isApprovalListLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={allFilterData}
+          pagination={false}
+          // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
+          scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
+          locale={{ emptyText: 'No leave requests' }}
+          className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
+          rowClassName={(record, index) => {
+            void record;
+            return index % 2 === 1
+              ? 'my-timesheet-approval-table-row-even'
+              : 'my-timesheet-approval-table-row-odd';
+          }}
+          id="time-attendance-approval-table"
+          data-cy="time-attendance-approval-table"
+        />
+      )}
       <div
         className="mx-3"
         data-cy="time-attendance-approval-table-pagination-wrapper"
       >
-        <MyTimesheetAttendancePagination
+        <CustomPagination
           current={userCurrentPage}
           total={totalItems}
-          totalPages={meta?.totalPages}
           pageSize={pageSize}
-          wrapLayout={approvalWrapPaginationManyPages}
           onChange={onPageChange}
           onShowSizeChange={(newPageSize) => {
             setPageSize(newPageSize);

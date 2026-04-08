@@ -73,6 +73,7 @@ const RecentModesTimelineModal: React.FC<RecentModesTimelineModalProps> = ({
       closeIcon={<CloseOutlined />}
       width={420}
       data-cy="recent-modes-timeline-modal"
+      styles={{ content: { borderRadius: 8 } }}
       destroyOnClose
     >
       <div className="py-2" data-cy="recent-modes-timeline-content">

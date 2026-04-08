@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Card, Checkbox, Button, Dropdown, Empty, Input, message } from 'antd';
+import { Card, Checkbox, Button, Dropdown, Input, message } from 'antd';
 import Image from 'next/image';
 import {
   DownOutlined,
@@ -12,7 +12,6 @@ import ProbationTemplate from '../probationTemplate';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { MdDelete } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EmptyImage } from '@/components/emptyIndicator';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
@@ -20,6 +19,7 @@ import {
   ProbationTask,
 } from '@/store/uistate/features/probation';
 import AddTaskModal from '../addTaskModal';
+import EmptyState from '@/components/empty';
 
 // ProbationTask interface is now imported from the store
 
@@ -384,11 +384,7 @@ const ProbationTasksTemplate: React.FC<Ids> = ({ id }) => {
               id="probation-tasks-empty-state"
               data-cy="probation-tasks-empty-state"
             >
-              <Empty
-                description={'No probation tasks found'}
-                image={<EmptyImage data-cy="probation-tasks-empty-image" />}
-                data-cy="probation-tasks-empty"
-              />
+              <EmptyState />
             </div>
           )}
         </div>

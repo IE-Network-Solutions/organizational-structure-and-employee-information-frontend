@@ -20,7 +20,8 @@ const config: Config = {
         'tablet-lg': '1024px',
       },
       colors: {
-        primary: '#1E40AF',
+        primary: '#3636F0',
+        'okr-primary': '#1E40AF',
         secondary: '#1D9BF0',
         success: '#0BA259',
         ['success-second']: '#55c790',

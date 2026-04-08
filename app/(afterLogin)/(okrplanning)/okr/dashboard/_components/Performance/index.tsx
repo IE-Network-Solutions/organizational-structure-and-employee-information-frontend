@@ -880,7 +880,7 @@ const Performance: React.FC = () => {
               onClick={() => setActiveTab('admin')}
               className={
                 activeTab === 'admin'
-                  ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
+                  ? 'px-6 h-8 bg-white text-black text-xs rounded-lg shadow-md'
                   : 'px-3 h-full bg-transparent text-black text-xs'
               }
               id="okr-performance-admin-tab-button"
@@ -893,7 +893,7 @@ const Performance: React.FC = () => {
             onClick={() => setActiveTab('personal')}
             className={
               activeTab === 'personal'
-                ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
+                ? 'px-6 h-8 bg-white text-black text-xs rounded-lg shadow-md'
                 : 'px-3 h-full bg-transparent text-black text-xs'
             }
             id="okr-performance-personal-tab-button"

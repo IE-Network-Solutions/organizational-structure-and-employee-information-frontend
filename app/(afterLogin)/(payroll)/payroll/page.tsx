@@ -69,6 +69,9 @@ import { TbFileExport } from 'react-icons/tb';
 import GeneratePayrollModal, { Incentive } from './_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import PayrollTableLoadingSkeleton from './_components/PayrollTableLoadingSkeleton';
+import EmptyState from '@/components/empty';
+import PayrollSummaryCardsSkeleton from './_components/PayrollSummaryCardsSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
@@ -123,13 +126,16 @@ const Payroll = () => {
 
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(
-    searchQuery,
-    pageSize,
-    currentPage,
-  );
-  const { data: payrollForExport, refetch: refetchExportData } =
-    useGetActivePayrollsForExport(searchQuery);
+  const {
+    data: payroll,
+    refetch,
+    isLoading: payrollTableLoading,
+  } = useGetActivePayroll(searchQuery, pageSize, currentPage);
+  const {
+    data: payrollForExport,
+    refetch: refetchExportData,
+    isLoading: payrollForExportLoading,
+  } = useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
@@ -182,67 +188,76 @@ const Payroll = () => {
 
     // Handle paginated payroll data for display
     if (payroll?.items) {
-      let mergedData;
+      if (payroll.items.length === 0) {
+        setMergedPayroll([]);
+        setSelectedRowKeys([]);
+      } else {
+        let mergedData;
 
-      if (hasDivisionFilter && payroll?.divisionUsers) {
-        // Use division users from backend when division filter is applied
-        mergedData = payroll?.items.map((pay: any) => {
-          const employee = payroll.divisionUsers.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      } else if (allEmployees?.items) {
-        // Use all employees when no division filter is applied
-        mergedData = payroll?.items.map((pay: any) => {
-          const employee = allEmployees.items.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      }
+        if (hasDivisionFilter && payroll?.divisionUsers) {
+          // Use division users from backend when division filter is applied
+          mergedData = payroll?.items.map((pay: any) => {
+            const employee = payroll.divisionUsers.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        } else if (allEmployees?.items) {
+          // Use all employees when no division filter is applied
+          mergedData = payroll?.items.map((pay: any) => {
+            const employee = allEmployees.items.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        }
 
-      if (mergedData) {
-        setMergedPayroll(mergedData);
+        if (mergedData) {
+          setMergedPayroll(mergedData);
+        }
       }
     }
 
     // Handle non-paginated payroll data for export
     if (payrollForExport?.items) {
-      let mergedExportData;
+      if (payrollForExport.items.length === 0) {
+        setMergedPayrollForExport([]);
+      } else {
+        let mergedExportData;
 
-      if (hasDivisionFilter && payrollForExport?.divisionUsers) {
-        // Use division users from backend when division filter is applied
-        mergedExportData = payrollForExport?.items.map((pay: any) => {
-          const employee = payrollForExport.divisionUsers.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      } else if (allEmployees?.items) {
-        // Use all employees when no division filter is applied
-        mergedExportData = payrollForExport?.items.map((pay: any) => {
-          const employee = allEmployees.items.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      }
+        if (hasDivisionFilter && payrollForExport?.divisionUsers) {
+          // Use division users from backend when division filter is applied
+          mergedExportData = payrollForExport?.items.map((pay: any) => {
+            const employee = payrollForExport.divisionUsers.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        } else if (allEmployees?.items) {
+          // Use all employees when no division filter is applied
+          mergedExportData = payrollForExport?.items.map((pay: any) => {
+            const employee = allEmployees.items.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        }
 
-      if (mergedExportData) {
-        setMergedPayrollForExport(mergedExportData);
+        if (mergedExportData) {
+          setMergedPayrollForExport(mergedExportData);
+        }
       }
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
@@ -1193,20 +1208,10 @@ const Payroll = () => {
       data-cy="payroll-dashboard-view-container"
       className={
         isMobile
-          ? 'bg-white overflow-x-hidden pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 -mx-2 w-[calc(100%+16px)] px-4'
-          : 'min-h-screen bg-white overflow-x-hidden py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6'
+          ? 'bg-white overflow-x-hidden pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 w-full'
+          : 'min-h-screen bg-white overflow-x-hidden py-4 w-full'
       }
     >
-      <style data-cy="payroll-dashboard-full-bleed-divider-styles">{`
-        @media (min-width: 640px) {
-        .payroll-dashboard-full-bleed-header-divider {
-          width: calc(100% + 96px) !important;
-          margin-left: -48px !important;
-          margin-right: -48px !important;
-          min-width: calc(100% + 96px) !important;
-        }
-      }
-      `}</style>
       <div
         id="payroll-dashboard-inner-wrapper"
         data-cy="payroll-dashboard-inner-wrapper"
@@ -1538,7 +1543,7 @@ const Payroll = () => {
         data-cy="payroll-header-divider-view-container"
       >
         <Divider
-          className="payroll-dashboard-full-bleed-header-divider"
+          data-cy="payroll-dashboard-header-divider"
           style={{ margin: '16px 0 24px 0', borderColor: '#f0f0f0' }}
         />
       </div>
@@ -1546,7 +1551,7 @@ const Payroll = () => {
       <div
         id="payroll-dashboard-content-wrapper"
         data-cy="payroll-dashboard-content-wrapper"
-        className={isMobile ? '' : 'max-w-[1536px] mx-auto'}
+        className="w-full"
       >
         {/* Content Card (border starts below header + filters) */}
         <div
@@ -1596,114 +1601,138 @@ const Payroll = () => {
             />
           </div>
 
-          <div
-            id="payroll-summary-cards-view-row"
-            data-cy="payroll-summary-cards-view-row"
-            className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
-          >
-            <PayrollCard
-              title="Total Amount"
-              data-cy="payroll-summary-card-total-amount-view-component"
-              value={payrollForExport?.totalGrossPaymentAmount}
-              icon={
-                <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
-              }
-              iconBg="bg-[#E6F4FF]"
-              iconText="text-[#1E40AF]"
-            />
-            <PayrollCard
-              title="Net Paid Amount"
-              data-cy="payroll-summary-card-net-paid-view-component"
-              value={payrollForExport?.totalNetPayAmount}
-              icon={
-                <LocalAtmIcon
-                  data-cy="payroll-summary-card-net-paid-amount-icon"
-                  className="w-5 h-5"
-                />
-              }
-              iconBg="bg-[#F9F0FF]"
-              iconText="text-[#722ED1]"
-            />
-            <PayrollCard
-              title="Total Allowance"
-              data-cy="payroll-summary-card-total-allowance-view-component"
-              value={payrollForExport?.totalAllowanceAmount}
-              icon={
-                <PaymentsIcon
-                  data-cy="payroll-summary-card-total-allowance-icon"
-                  className="w-5 h-5"
-                />
-              }
-              iconBg="bg-[#F6FFED]"
-              iconText="text-[#52C41A]"
-            />
-            <PayrollCard
-              title="Total Benefit"
-              data-cy="payroll-summary-card-total-benefit-view-component"
-              value={payrollForExport?.totalMeritAmount}
-              icon={
-                <MdCardGiftcard
-                  data-cy="payroll-summary-card-total-benefit-icon"
-                  className="w-5 h-5"
-                />
-              }
-              iconBg="bg-[#FFFBE6]"
-              iconText="text-[#FBB221]"
-            />
-            <PayrollCard
-              title="Total Deduction"
-              data-cy="payroll-summary-card-total-deduction-view-component"
-              value={payrollForExport?.totalDeductionsAmount}
-              icon={
-                <MoneyOffIcon
-                  data-cy="payroll-summary-card-total-deduction-icon"
-                  className="w-5 h-5"
-                />
-              }
-              iconBg="bg-[#FFF2F0]"
-              iconText="text-[#FF4D4F]"
-            />
-          </div>
+          {payrollForExportLoading ? (
+            <PayrollSummaryCardsSkeleton />
+          ) : (
+            <div
+              id="payroll-summary-cards-view-row"
+              data-cy="payroll-summary-cards-view-row"
+              className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
+            >
+              <PayrollCard
+                title="Total Amount"
+                data-cy="payroll-summary-card-total-amount-view-component"
+                value={payrollForExport?.totalGrossPaymentAmount}
+                icon={
+                  <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
+                }
+                iconBg="bg-[#E6F4FF]"
+                iconText="text-[#1E40AF]"
+              />
+              <PayrollCard
+                title="Net Paid Amount"
+                data-cy="payroll-summary-card-net-paid-view-component"
+                value={payrollForExport?.totalNetPayAmount}
+                icon={
+                  <LocalAtmIcon
+                    data-cy="payroll-summary-card-net-paid-amount-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#F9F0FF]"
+                iconText="text-[#722ED1]"
+              />
+              <PayrollCard
+                title="Total Allowance"
+                data-cy="payroll-summary-card-total-allowance-view-component"
+                value={payrollForExport?.totalAllowanceAmount}
+                icon={
+                  <PaymentsIcon
+                    data-cy="payroll-summary-card-total-allowance-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#F6FFED]"
+                iconText="text-[#52C41A]"
+              />
+              <PayrollCard
+                title="Total Benefit"
+                data-cy="payroll-summary-card-total-benefit-view-component"
+                value={payrollForExport?.totalMeritAmount}
+                icon={
+                  <MdCardGiftcard
+                    data-cy="payroll-summary-card-total-benefit-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#FFFBE6]"
+                iconText="text-[#FBB221]"
+              />
+              <PayrollCard
+                title="Total Deduction"
+                data-cy="payroll-summary-card-total-deduction-view-component"
+                value={payrollForExport?.totalDeductionsAmount}
+                icon={
+                  <MoneyOffIcon
+                    data-cy="payroll-summary-card-total-deduction-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#FFF2F0]"
+                iconText="text-[#FF4D4F]"
+              />
+            </div>
+          )}
           <div
             id="payroll-table-wrapper-view-container"
             data-cy="payroll-table-wrapper-view-container"
-            className="overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
+            className="payroll-table-scroll-host overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
           >
-            <Table
-              id="payroll-table-view-table"
-              data-cy="payroll-table-view-table"
-              className="payroll-table"
-              dataSource={mergedPayroll || []}
-              columns={columns}
-              pagination={false}
-              rowClassName={(record: any, index: number) => {
-                void record;
-                return index % 2 === 1 ? 'payroll-zebra-row' : '';
-              }}
-              rowSelection={{
-                selectedRowKeys,
-                onChange: (newSelectedRowKeys: React.Key[]) => {
-                  setSelectedRowKeys(newSelectedRowKeys);
-                },
-                onSelectAll: (isSelected: boolean) => {
-                  if (isSelected) {
-                    const allKeys = mergedPayroll.map(
-                      (item: any) => item.id || item.employeeId,
-                    );
-                    setSelectedRowKeys(allKeys);
-                  } else {
-                    setSelectedRowKeys([]);
-                  }
-                },
-              }}
-              rowKey={(record: any) => record.id || record.employeeId}
-            />
+            {payrollTableLoading ? (
+              <PayrollTableLoadingSkeleton columns={columns} rows={pageSize} />
+            ) : (
+              <Table
+                id="payroll-table-view-table"
+                data-cy="payroll-table-view-table"
+                className="payroll-table"
+                dataSource={mergedPayroll || []}
+                columns={columns}
+                pagination={false}
+                locale={{
+                  // Same pattern as feedback tables / redesign empty state
+                  emptyText: (
+                    <div
+                      className="payroll-table-empty-viewport-center py-10"
+                      data-cy="payroll-table-empty-wrap"
+                    >
+                      <EmptyState
+                        minimal
+                        description="No data found"
+                        data-cy="payroll-table-empty"
+                        className="!py-2"
+                      />
+                    </div>
+                  ),
+                }}
+                rowClassName={(record: any, index: number) => {
+                  void record;
+                  return index % 2 === 1 ? 'payroll-zebra-row' : '';
+                }}
+                rowSelection={{
+                  selectedRowKeys,
+                  onChange: (newSelectedRowKeys: React.Key[]) => {
+                    setSelectedRowKeys(newSelectedRowKeys);
+                  },
+                  onSelectAll: (isSelected: boolean) => {
+                    if (isSelected) {
+                      const allKeys = mergedPayroll.map(
+                        (item: any) => item.id || item.employeeId,
+                      );
+                      setSelectedRowKeys(allKeys);
+                    } else {
+                      setSelectedRowKeys([]);
+                    }
+                  },
+                }}
+                rowKey={(record: any) => record.id || record.employeeId}
+              />
+            )}
           </div>
           {/* Pagination footer — outside scrollable table wrapper */}
           <div
             id="payroll-pagination-footer"
             data-cy="payroll-pagination-footer"
-            className="bg-white px-4"
+            className="bg-white px-0"
           >
             {isMobile || isTablet ? (
               <CustomMobilePagination

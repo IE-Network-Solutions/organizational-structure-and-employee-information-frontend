@@ -10,6 +10,7 @@ import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
 } from '@/types/timesheet/settings';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import {
   Avatar,
   Button,
@@ -342,21 +343,24 @@ const ApprovalTable = () => {
               Waiting for my approval
             </div>
           </div>
-          <Table
-            columns={columns}
-            loading={isFetching}
-            dataSource={allFilterData}
-            pagination={{
-              total: allFilterData?.meta?.totalItems,
-              current: allFilterData?.meta?.currentPage,
-              pageSize: pageSize,
-              onChange: onPageChange,
-              showSizeChanger: true,
-              onShowSizeChange: onPageChange,
-            }}
-            id="department-request-approval-table-grid"
-            data-cy="department-request-approval-table-grid"
-          />
+          {isFetching ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={allFilterData}
+              pagination={{
+                total: allFilterData?.meta?.totalItems,
+                current: allFilterData?.meta?.currentPage,
+                pageSize: pageSize,
+                onChange: onPageChange,
+                showSizeChanger: true,
+                onShowSizeChange: onPageChange,
+              }}
+              id="department-request-approval-table-grid"
+              data-cy="department-request-approval-table-grid"
+            />
+          )}
         </>
       ) : (
         <span

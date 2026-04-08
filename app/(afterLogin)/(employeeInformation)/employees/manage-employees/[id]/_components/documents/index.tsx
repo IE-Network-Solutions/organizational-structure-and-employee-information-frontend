@@ -15,6 +15,7 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import dayjs from 'dayjs';
 import { Inbox } from 'lucide-react';
+import EmptyState from '@/components/empty';
 
 const { Dragger } = Upload;
 
@@ -53,7 +54,7 @@ const Documents = ({ id }: { id: string }) => {
           id="documents-empty"
           data-cy="documents-empty"
         >
-          No documents uploaded yet
+          <EmptyState />
         </div>
       );
     }

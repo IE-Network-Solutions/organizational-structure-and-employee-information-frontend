@@ -1,5 +1,6 @@
 import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Avatar, Button, Card, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -282,14 +283,18 @@ export default function RecognitionDetail({
             className="mt-6 max-h-[min(45vh,260px)] overflow-y-auto scrollbar-none md:h-[200px] md:max-h-none"
             data-cy="recognition-detail-criteria-table-wrap"
           >
-            <Table
-              columns={columns}
-              dataSource={criteriaRows}
-              pagination={false}
-              size={isNarrow ? 'small' : 'middle'}
-              className="rounded-xl overflow-hidden text-black/70"
-              tableLayout={isNarrow ? 'fixed' : 'auto'}
-            />
+            {loading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={criteriaRows}
+                pagination={false}
+                size={isNarrow ? 'small' : 'middle'}
+                className="rounded-xl overflow-hidden text-black/70"
+                tableLayout={isNarrow ? 'fixed' : 'auto'}
+              />
+            )}
           </div>
 
           <div

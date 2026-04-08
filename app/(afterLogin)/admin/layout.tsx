@@ -135,7 +135,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     <div className="h-auto w-auto py-6" data-cy="admin-layout">
       <div
         data-cy="app-afterlogin-admin-layout-tsx-layout-div-136"
-        className="flex items-start justify-between gap-2 px-6 flex-nowrap"
+        className="flex items-start justify-between gap-2 flex-nowrap"
       >
         <div
           data-cy="app-afterlogin-admin-layout-tsx-layout-div-137"
@@ -224,7 +224,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       />
       <div
         data-cy="app-afterlogin-admin-layout-tsx-layout-div-202"
-        className="px-6 pt-[24px] pb-6"
+        className="pt-[24px] pb-6"
       >
         {children}
       </div>

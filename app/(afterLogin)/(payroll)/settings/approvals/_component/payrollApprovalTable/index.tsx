@@ -3,6 +3,7 @@ import React from 'react';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const columns: TableColumnsType<any> = [
   {
@@ -65,15 +66,18 @@ const PayrollApprovalTable = ({
           id="approval-payroll-list-table-scroll-container"
           data-cy="approval-payroll-list-table-scroll-container"
         >
-          <Table
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            loading={isEmployeeLoading}
-            scroll={{ x: 730 }}
-            id="approval-payroll-list-table-scroll"
-            data-cy="approval-payroll-list-table-scroll"
-          />
+          {isEmployeeLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+              scroll={{ x: 730 }}
+              id="approval-payroll-list-table-scroll"
+              data-cy="approval-payroll-list-table-scroll"
+            />
+          )}
         </div>
       </div>
       {isMobile || isTablet ? (

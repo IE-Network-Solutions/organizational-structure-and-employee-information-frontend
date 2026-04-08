@@ -8,7 +8,7 @@ import { useGetSingleTransferRequest } from '@/store/server/features/employees/a
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetSingleApprovalLog } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useMyBranchApprovalStore } from '@/store/uistate/features/employees/branchTransfer/myrequest';
-import { Spin, Steps } from 'antd';
+import { Skeleton, Steps } from 'antd';
 import React from 'react';
 
 const toSlug = (value: string | number | null | undefined) =>
@@ -89,7 +89,11 @@ const RequestDetail = () => {
         width="400px"
         data-cy="department-request-detail-drawer"
       >
-        <Spin spinning={isLoading} data-cy="department-request-detail-spinner">
+        <Skeleton
+          loading={isLoading}
+          active
+          data-cy="department-request-detail-spinner"
+        >
           <div
             className=" p-6 rounded-lg  space-y-4 max-w-sm mx-auto"
             id="department-request-detail-info"
@@ -216,7 +220,7 @@ const RequestDetail = () => {
             />
             {logData?.items ? '' : 'No Approval Log'}
           </div>
-        </Spin>
+        </Skeleton>
       </CustomDrawerLayout>
     )
   );

@@ -13,9 +13,8 @@ import {
   MdAccountBalanceWallet,
   MdCardGiftcard,
   MdWidgets,
-  MdHowToReg,
   MdAdminPanelSettings,
-  MdSpeed,
+  MdSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -40,6 +39,14 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
     ) {
       return true;
     }
+  }
+
+  // Time & Attendance → Settings: one nav item should stay active for all settings sub-routes
+  if (routePattern === '/timesheet/settings/closed-date') {
+    return (
+      pathname === '/timesheet/settings' ||
+      pathname.startsWith('/timesheet/settings/')
+    );
   }
 
   // Match [id] to UUIDs (or any non-slash segment)
@@ -89,6 +96,7 @@ interface CustomMenuItem {
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
 import { AiOutlineRight } from 'react-icons/ai';
+import Link from 'next/link';
 
 interface MyComponentProps {
   children: ReactNode;
@@ -111,6 +119,8 @@ const NavMenuItem: React.FC<{
     React.SetStateAction<(string | number | bigint)[]>
   >;
   navigationDisabled?: boolean;
+  /** Mobile: close off-canvas sidebar after navigating to a route */
+  onNavigate?: () => void;
 }> = ({
   item,
   collapsed,
@@ -124,6 +134,7 @@ const NavMenuItem: React.FC<{
   expandedKeys,
   setExpandedKeys,
   navigationDisabled,
+  onNavigate,
 }) => {
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
@@ -148,11 +159,7 @@ const NavMenuItem: React.FC<{
   const handleToggle = () => {
     if (isItemDisabled) return;
     if (hasChildren) {
-      setExpandedKeys((prev) =>
-        prev.includes(item.key)
-          ? prev.filter((k) => k !== item.key)
-          : [...prev, item.key],
-      );
+      setExpandedKeys((prev) => (prev.includes(item.key) ? [] : [item.key]));
     } else {
       const path = String(item.key);
       if (pathname !== path) {
@@ -160,6 +167,7 @@ const NavMenuItem: React.FC<{
         router.push(path);
         setSelectedKeys([path]);
       }
+      onNavigate?.();
     }
   };
 
@@ -220,6 +228,7 @@ const NavMenuItem: React.FC<{
                     router.push(path);
                     setSelectedKeys([path]);
                   }
+                  onNavigate?.();
                 }}
                 className={`
                   py-2 rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
@@ -487,27 +496,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'RECRUITMENT',
         children: [
           {
-            title: (
-              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
-            ),
-            key: '/recruitment/dashboard',
-            className: 'font-bold',
-            permissions: ['view_recruitment_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
             key: '/recruitment/jobs',
             className: 'font-bold',
             permissions: ['manage_recruitment_jobs'],
-          },
-          {
-            title: (
-              <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
-            ),
-            key: '/recruitment/ai-job-matching',
-            className: 'font-bold',
-            permissions: ['manage_recruitment_jobs'],
-            disabled: hasEndedFiscalYear,
           },
           {
             title: <span data-cy="nav-tree-candidates">Candidates</span>,
@@ -525,27 +517,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
           {
             title: (
-              <span
-                data-cy="nav-tree-recruitment-settings"
-                className="font-bold"
-              >
-                Settings
-              </span>
+              <span data-cy="nav-tree-recruitment-settings">Settings</span>
             ),
             key: '/recruitment/settings',
             className: 'font-bold',
             permissions: ['manage_recruitment_settings'],
           },
         ],
-      },
-      {
-        icon: <MdSpeed style={{ fontSize: 20 }} />,
-        title: 'Dashboard',
-        key: '/performance-menu',
-        className: 'font-bold',
-        permissions: ['view_okr'],
-        disabled: hasEndedFiscalYear,
-        moduleCode: 'OKR',
       },
       {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
@@ -557,12 +535,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'OKR',
         children: [
           {
-            title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
-            key: '/okr/dashboard',
-            className: 'font-bold',
-            permissions: ['view_okr_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-okr">OKR</span>,
             key: '/okr',
             className: 'font-bold',
@@ -570,9 +542,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
           {
             title: (
-              <span data-cy="nav-tree-planning-reporting">
-                Planning and Reporting
-              </span>
+              <span data-cy="nav-tree-planning-reporting">Plan & Report</span>
             ),
             key: '/planning-and-reporting',
             className: 'font-bold',
@@ -705,14 +675,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'TIMESHEET',
         children: [
           {
-            title: (
-              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
-            ),
-            key: '/timesheet/dashboard',
-            className: 'font-bold',
-            permissions: ['view_timesheet_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
             key: '/timesheet/my-timesheet',
             className: 'font-bold',
@@ -771,14 +733,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_deduction'],
           },
-          {
-            title: (
-              <span data-cy="nav-tree-compensation-settings">Settings</span>
-            ),
-            key: '/compensationSetting',
-            className: 'font-bold',
-            permissions: ['manage_compensation_settings'],
-          },
+          // {
+          //   title: (
+          //     <span data-cy="nav-tree-compensation-settings">Settings</span>
+          //   ),
+          //   key: '/compensationSetting',
+          //   className: 'font-bold',
+          //   permissions: ['manage_compensation_settings'],
+          // },
         ],
       },
       {
@@ -802,12 +764,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_variable_pay'],
           },
-          {
-            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
-            key: '/incentives/settings',
-            className: 'font-bold',
-            permissions: ['manage_incentive_settings'],
-          },
+          // {
+          //   title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+          //   key: '/incentives/settings',
+          //   className: 'font-bold',
+          //   permissions: ['manage_incentive_settings'],
+          // },
         ],
       },
       {
@@ -1163,6 +1125,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     } catch (error) {}
   };
 
+  const groupRouteMap: Record<string, string> = {
+    performance: '/performance',
+    finance: '/finance-bashboard',
+  };
+
   const groupedMenuItems = React.useMemo(() => {
     const normalizeRoute = (value?: string | null) => {
       if (!value) return '';
@@ -1274,7 +1241,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     const groupedByParent = new Map<
       string,
-      { type: 'group'; key: string; label: string; children: any[] }
+      {
+        type: 'group';
+        key: string;
+        label: string;
+        linkKey: string;
+        children: any[];
+      }
     >();
 
     const sortedModules = modules
@@ -1304,6 +1277,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           type: 'group',
           key: `group-${groupKey}`,
           label: groupLabelRaw,
+          linkKey: groupRouteMap[groupKey] || '',
           children: [],
         });
       }
@@ -1418,7 +1392,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // Render the component with the layout and navigation on the left
 
   return (
-    <Layout style={{ background: '#fff' }}>
+    <Layout
+      style={{
+        background: '#fff',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+      }}
+    >
       <Sider
         theme="light"
         width={280}
@@ -1488,10 +1469,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           {!isMobile && (
             <button
+              type="button"
               data-cy="nav-sider-toggle"
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               onClick={toggleCollapsed}
-              className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
-              style={{ zIndex: 101, backgroundColor: colorPrimary }}
+              className="absolute -right-3 top-[37px] z-[101] flex h-6 w-6 min-h-6 min-w-6 shrink-0 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A] hover:opacity-100"
             >
               {collapsed ? (
                 <AiOutlineRight size={12} />
@@ -1574,7 +1556,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         data-cy="nav-sider-group-header"
                         className="mb-2 mt-4 first:mt-2"
                       >
-                        <div
+                        <Link
+                          href={
+                            group.linkKey || `/${group.label.toLowerCase()}`
+                          }
                           data-cy="nav-sider-group-label-wrap"
                           className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'text-center truncate' : ''
@@ -1582,7 +1567,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
-                        </div>
+                        </Link>
                       </div>
 
                       <div
@@ -1609,6 +1594,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                               subscriptionExpired &&
                               !String(item.key).startsWith('/admin')
                             }
+                            onNavigate={
+                              isMobile
+                                ? () => setMobileCollapsed(true)
+                                : undefined
+                            }
                           />
                         ))}
                       </div>
@@ -1624,26 +1614,70 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           }) && (
             <div
               data-cy="nav-sider-admin-wrap"
-              className="w-full flex justify-center py-3 mt-4 bg-[#F5fbff]"
+              className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
+                collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+              }`}
             >
-              <Button
-                data-cy="nav-sider-admin-btn"
-                type="primary"
-                size="large"
-                icon={<MdHowToReg size={22} />}
-                className={`
-                  flex items-center justify-center border-none shadow-lg transition-all duration-300 font-normal hover:opacity-90
+              <div
+                data-cy="nav-sider-admin-inner"
+                className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
+              >
+                <Button
+                  data-cy="nav-sider-admin-btn"
+                  type="text"
+                  block={!collapsed}
+                  icon={
+                    <span
+                      data-cy="nav-sider-admin-icon-wrap"
+                      className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
+                        pathname.startsWith('/admin') ? '' : 'text-black'
+                      }`}
+                      style={
+                        pathname.startsWith('/admin')
+                          ? { color: colorPrimary }
+                          : undefined
+                      }
+                    >
+                      <MdSettings size={21} />
+                    </span>
+                  }
+                  className={`
+                  !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
+                  ${
+                    pathname.startsWith('/admin')
+                      ? '!font-bold'
+                      : '!font-medium !text-black hover:!bg-[#E6F4FF]'
+                  }
                   ${
                     collapsed
-                      ? 'w-[52px] h-[52px] rounded-[10px]'
-                      : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
+                      ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
+                      : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
                   }
                 `}
-                style={{ backgroundColor: colorPrimary }}
-                onClick={() => router.push('/admin/dashboard')}
-              >
-                {!collapsed && 'Admin Console'}
-              </Button>
+                  style={
+                    pathname.startsWith('/admin')
+                      ? { color: colorPrimary }
+                      : undefined
+                  }
+                  onClick={() => {
+                    triggerRouteLoaderStart();
+                    router.push('/admin/dashboard');
+                    if (isMobile) {
+                      setMobileCollapsed(true);
+                    }
+                  }}
+                >
+                  {!collapsed && (
+                    <span
+                      data-cy="nav-sider-admin-label"
+                      className="flex-1 text-left transition-colors"
+                      style={{ fontSize }}
+                    >
+                      Admin Console
+                    </span>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -1653,6 +1687,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           marginLeft: 0,
           transition: 'margin-left 0.3s ease',
           background: '#ffffff',
+          flex: 1,
+          minWidth: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <Header
@@ -1698,18 +1737,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         {/* Mobile drawer close button: on the right edge of the drawer, aligned with header */}
         {isMobile && !mobileCollapsed && (
           <button
+            type="button"
             data-cy="nav-mobile-drawer-close"
             onClick={toggleMobileCollapsed}
-            className="fixed flex items-center justify-center rounded-full text-white shadow-md transition-all hover:opacity-90"
+            className="fixed z-[320] flex h-8 w-8 min-h-8 min-w-8 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A]"
             style={{
-              zIndex: 320,
               top: 30,
               // Position the close button outside the right edge of the 280px drawer.
               left: 302,
-              width: 32,
-              height: 32,
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: colorPrimary,
             }}
             aria-label="Close menu"
           >
@@ -1717,11 +1752,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </button>
         )}
         <Content
-          className="overflow-y-hidden min-h-screen"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? 0 : 24,
+            paddingRight: 0,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
@@ -1730,21 +1765,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           {isMounted && isCheckingPermissions ? (
             <div
               data-cy="nav-content-loading"
-              className="flex justify-center items-center h-screen"
+              className="flex min-h-0 flex-1 items-center justify-center"
             >
               <Skeleton active />
             </div>
           ) : (
             <div
               data-cy="nav-content-inner"
-              className="overflow-auto scrollbar-hide"
+              className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                width: isMobile ? '100%' : '102%',
-                paddingRight: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 8 : 24,
+                width: '100%',
+                maxWidth: '100%',
+                paddingInline: isMobile ? 8 : 24,
                 background: '#ffffff',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
               }}
             >
               {children}

@@ -1,4 +1,4 @@
-import { Card, Select, Skeleton, Spin, Tag, Tooltip } from 'antd';
+import { Card, Select, Skeleton, Tag, Tooltip } from 'antd';
 import React from 'react';
 import { useGetUserLeaveBalance } from '@/store/server/features/timesheet/dashboard/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
@@ -358,8 +358,9 @@ const MyleaveBalance: React.FC = () => {
           id="time-attendance-personal-leave-balance-utilization-card"
           data-cy="time-attendance-personal-leave-balance-utilization-card"
         >
-          <Spin
-            spinning={userLeaveBalanceLoading}
+          <Skeleton
+            loading={userLeaveBalanceLoading}
+            active
             data-cy="time-attendance-personal-leave-balance-utilization-spin"
           >
             <div
@@ -458,7 +459,7 @@ const MyleaveBalance: React.FC = () => {
                 </div>
               )}
             </div>
-          </Spin>
+          </Skeleton>
         </Card>
       </div>
     </div>

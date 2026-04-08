@@ -4,18 +4,23 @@ import {
   DatePicker,
   Form,
   Input,
+  InputNumber,
   Select,
   Modal,
-  Dropdown,
-  Menu,
+  Tooltip,
 } from 'antd';
-import { GoPlus } from 'react-icons/go';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import dayjs from 'dayjs';
-import CustomButton from '@/components/common/buttons/customButton';
-import KeyResultView from '../../keyresultView';
 import KeyResultForm from '../../keyresultForm';
+import {
+  KeyResultSelectedBadge,
+  KeyResultFieldLabel,
+  KEY_RESULT_TOOLTIP,
+  WEIGHT_TOOLTIP,
+  DEADLINE_TOOLTIP,
+} from '../../keyresultForm/_ui';
 import {
   useUpdateObjective,
   useDeleteKeyResult,
@@ -27,7 +32,8 @@ import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/key
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
+import { useIsBasicOkr } from '../../../_utils/okrMode';
+import { hasAnyProgress } from '../../../_utils/keyResultGuards';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -52,6 +58,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     setDeletedKeyResultIds,
     deletedMilestoneIds,
     setDeletedMilestoneIds,
+    handleKeyResultChange,
   } = useOKRStore();
   const { userId } = useAuthenticationStore();
   const { data: userData } = useGetEmployee(userId);
@@ -63,11 +70,19 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const { mutate: deleteMilestone } = useDeleteMilestone();
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
-  const [showAISuggestions, setShowAISuggestions] = React.useState(false);
+  const isBasic = useIsBasicOkr();
+  /** Advanced mode: show inline metric type pills (same as Create OKR) instead of dropdown. */
+  const [showMetricSelector, setShowMetricSelector] = React.useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
+  /** Advanced mode: index in merged KR list being edited (null = no inline edit). */
+  const [editingKeyResultIndex, setEditingKeyResultIndex] = React.useState<
+    number | null
+  >(null);
+  /** Basic mode: show inline form for adding new KR (form first, then save to add card). */
+  const [showAddKrForm, setShowAddKrForm] = React.useState(false);
+  const [krForm] = Form.useForm();
 
-  const isEditDisabled =
-    objectiveValue && Number(objectiveValue?.objectiveProgress) > 0;
+  const isEditDisabled = hasAnyProgress(objectiveValue?.keyResults || []);
   const objectiveValueNew = { ...objectiveValue }; // Create a copy of objectiveValue
   delete objectiveValueNew.daysLeft;
   delete objectiveValueNew.completedKeyResults;
@@ -132,6 +147,10 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const handleModalClose = () => {
     // Close modal immediately without validation when Cancel is clicked
     setHasUnsavedChanges(false);
+    setShowMetricSelector(false);
+    setEditingKeyResultIndex(null);
+    setShowAddKrForm(false);
+    krForm.resetFields();
     form.resetFields(); // Reset all form fields
     setObjectiveValue(defaultObjective); // Reset the objectiveValue state
     setObjective(defaultObjective); // Reset the objective state (which contains keyResults)
@@ -305,9 +324,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     <div
       id="okr-edit-objective-modal-header"
       data-cy="okr-edit-objective-modal-header"
-      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+      className="text-lg font-semibold text-gray-900"
     >
-      Edit OKR
+      Edit Objective
     </div>
   );
 
@@ -315,46 +334,37 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     <div
       id="okr-edit-objective-modal-footer"
       data-cy="okr-edit-objective-modal-footer"
-      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+      className="w-full flex justify-end items-center pt-2 gap-3"
     >
-      <CustomButton
+      <Button
         id="okr-edit-objective-cancel-button"
         data-cy="okr-edit-objective-cancel-button"
-        type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        style={{ marginRight: 8, height: '40px' }}
-      />
-      <CustomButton
+        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm border-gray-300 text-gray-700 inline-flex items-center justify-center"
+      >
+        Cancel
+      </Button>
+      <Button
         id="okr-edit-objective-save-button"
         data-cy="okr-edit-objective-save-button"
-        loading={isLoading}
-        title={'Save'}
         type="primary"
         onClick={onSubmit}
-        style={{ height: '40px' }}
-      />
+        loading={isLoading}
+        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm inline-flex items-center justify-center bg-okr-primary border-okr-primary"
+      >
+        Save
+      </Button>
     </div>
   );
 
-  const objectiveTitle = keyResultByUser?.items?.find(
-    (i: any) => i.id === objectiveValue?.allignedKeyResultId,
-  )?.title;
   const handleObjectiveChange = (value: any, field: string) => {
-    const newObjectiveName = value;
+    const latest = useOKRStore.getState().objectiveValue;
     setObjectiveValue({
-      ...objectiveValue,
+      ...latest,
       userId: userId,
-      [field]: newObjectiveName,
+      [field]: value,
     });
   };
-
-  useEffect(() => {
-    setObjectiveValue({
-      ...objectiveValue,
-      title: objectiveTitle || '',
-    });
-  }, [objectiveTitle, objectiveValue?.allignedKeyResultId]);
   useEffect(() => {
     setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
   }, [objectiveValue?.allignedKeyResultId]);
@@ -424,37 +434,62 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
 
     // Add key result with the correct metricTypeId
     addKeyResult(key, metricTypeId);
+    // Open the form for the newly added KR so user can enter title/weight (like Create modal)
+    const newIndex =
+      (objectiveValue?.keyResults ?? []).length +
+      (objective?.keyResults ?? []).length;
+    setEditingKeyResultIndex(newIndex);
   };
 
-  const getCurrentTotalWeight = () => {
-    const existingWeight =
-      objectiveValue.keyResults?.reduce(
-        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-        0,
-      ) || 0;
-    const newWeight =
-      objective?.keyResults?.reduce(
-        (sum: number, kr: any) => sum + Number(kr?.weight || 0),
-        0,
-      ) || 0;
-    return existingWeight + newWeight;
+  /** Basic mode: show inline form to add new KR. User fills and saves, then card appears. */
+  const handleAddBasicKeyResult = () => {
+    setShowAddKrForm(true);
   };
 
-  const keyResultMenu = (
-    <Menu
-      data-cy="okr-edit-objective-key-result-menu"
-      onClick={handleAddKeyResultType}
-    >
-      {keyResultTypes.map((type) => (
-        <Menu.Item
-          data-cy="okr-edit-objective-key-result-menu-item"
-          key={type.value}
-        >
-          {type.label}
-        </Menu.Item>
-      ))}
-    </Menu>
-  );
+  /** Basic mode: save from add-KR form to local state, then show card. */
+  const handleSaveAddKrForm = () => {
+    const metricType = metrics?.items?.find(
+      (metric: any) => metric.name === 'Achieve',
+    );
+    const metricTypeId = metricType?.id || '';
+    krForm
+      .validateFields(['krTitle', 'krWeight', 'krDeadline'])
+      .then((values) => {
+        const deadline =
+          values.krDeadline != null
+            ? dayjs(values.krDeadline).format('YYYY-MM-DD')
+            : null;
+        const title = (values.krTitle ?? '').toString().trim();
+        const weight = Number(values.krWeight) ?? 0;
+        addKeyResult('Achieved', metricTypeId, { title, weight, deadline });
+        krForm.resetFields(['krTitle', 'krWeight', 'krDeadline']);
+        setShowAddKrForm(false);
+      })
+      .catch(() => {});
+  };
+
+  /** Advanced mode: merged list (existing first, then new). */
+  const existingKRs = objectiveValue?.keyResults ?? [];
+  const newKRs = objective?.keyResults ?? [];
+  const mergedKRs = [...existingKRs, ...newKRs];
+  const existingKRCount = existingKRs.length;
+
+  const getMetricLabel = (kr: any) => {
+    const name = kr?.metricType?.name || kr?.key_type || '';
+    if (name === 'Achieve') return 'Achieve or not';
+    if (name === 'Achieved') return 'Achieve or not';
+    return name || 'Key Result';
+  };
+
+  /** Normalize key result for KeyResultForm (ensure key_type set from metricType, weight as number). Basic mode: force Achieve. */
+  const normalizeKeyItemForForm = (kr: any) => ({
+    ...kr,
+    key_type: isBasic
+      ? kr?.key_type || kr?.metricType?.name || 'Achieve'
+      : kr?.key_type || kr?.metricType?.name || '',
+    weight:
+      kr?.weight != null && kr?.weight !== '' ? Number(kr.weight) : kr?.weight,
+  });
 
   return (
     <Modal
@@ -463,19 +498,22 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
       onCancel={handleModalClose}
       footer={footer}
       title={modalHeader}
-      centered
-      width={isMobile ? '100vw' : 1200}
-      styles={{
-        body: {
-          padding: isMobile ? 12 : 32,
-          maxHeight: '80vh',
-          overflow: 'hidden',
-        },
+      centered={!isMobile}
+      width={isMobile ? '100%' : 1200}
+      zIndex={12000}
+      wrapClassName={
+        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
+      }
+      bodyStyle={{
+        padding: isMobile ? '24px 24px' : 24,
+        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
+        overflowY: isMobile ? 'auto' : undefined,
       }}
-      style={{ top: isMobile ? 0 : 32, padding: 0 }}
+      styles={{ content: { borderRadius: 8 } }}
+      style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
-      destroyOnHidden
-      closable={false}
+      destroyOnClose
+      closable
     >
       <Form
         id="edit-objective-form"
@@ -491,7 +529,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             : null,
         }}
       >
-        {/* OKR Section Title */}
+        {/* OKR Section Title - same style for Basic and Advanced */}
         <div
           id="objective-section-header"
           data-cy="okr-edit-objective-section-header"
@@ -500,10 +538,21 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           <h2
             id="okr-edit-objective-section-title"
             data-cy="okr-edit-objective-section-title"
-            className="text-xl font-semibold text-gray-800 mb-4"
+            className="text-base font-bold text-gray-900"
           >
-            Objective
+            Set your Objective
           </h2>
+          <p
+            id="okr-edit-objective-section-subtitle"
+            data-cy="okr-edit-objective-section-subtitle"
+            className="text-sm text-gray-500 mt-1"
+          >
+            Please select objective alignment to add objective.
+          </p>
+          <div
+            className="border-b border-gray-200 mt-4"
+            data-cy="okr-edit-objective-section-divider"
+          />
         </div>
 
         {isMobile ? (
@@ -609,29 +658,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   }}
                 />
               </Form.Item>
-            </div>
-            <div
-              id="okr-edit-objective-mobile-add-keyresult-container"
-              data-cy="okr-edit-objective-mobile-add-keyresult-container"
-              className="w-full flex justify-end mb-10"
-            >
-              <Dropdown
-                overlay={keyResultMenu}
-                trigger={['click']}
-                className=""
-                data-cy="okr-edit-objective-mobile-add-keyresult-dropdown"
-              >
-                <Button
-                  type="default"
-                  id="mobile-add-keyresult-button"
-                  data-cy="okr-edit-objective-mobile-add-keyresult-button"
-                  disabled={isEditDisabled}
-                  className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center justify-center text-sm h-11 w-11 p-0"
-                  aria-label="Add Key Result"
-                >
-                  <GoPlus size={24} />
-                </Button>
-              </Dropdown>
             </div>
           </div>
         ) : (
@@ -743,132 +769,409 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         <div
           id="key-result-section-header"
           data-cy="okr-edit-objective-key-result-section-header"
-          className="flex justify-between items-center mb-6 mt-8"
+          className="mt-8 mb-4"
         >
-          <h2
-            id="okr-edit-objective-key-result-section-title"
-            data-cy="okr-edit-objective-key-result-section-title"
-            className="text-xl font-semibold text-gray-800"
-          >
-            Key Result
-          </h2>
           <div
-            id="okr-edit-objective-key-result-actions"
-            data-cy="okr-edit-objective-key-result-actions"
-            className="flex gap-2"
+            className="flex justify-between items-center"
+            data-cy="okr-edit-objective-key-result-header-row"
           >
-            <Button
-              id="okr-edit-ai-inline-suggestions-toggle-button"
-              data-cy="okr-edit-ai-inline-suggestions-toggle-button"
-              type="primary"
-              ghost
-              onClick={() => setShowAISuggestions(!showAISuggestions)}
-              disabled={
-                !objectiveValue?.title ||
-                objectiveValue.title.trim() === '' ||
-                isEditDisabled
-              }
-              className="flex items-center gap-1 border-indigo-500 text-indigo-600 hover:text-indigo-700 hover:border-indigo-600"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-                data-cy="okr-edit-objective-ai-suggestions-icon"
+            <div data-cy="okr-edit-objective-key-result-header-text">
+              <h2
+                id="okr-edit-objective-key-result-section-title"
+                data-cy="okr-edit-objective-key-result-section-title"
+                className="text-base font-bold text-gray-900"
               >
-                <path
-                  d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"
-                  data-cy="okr-edit-objective-ai-suggestions-path"
-                />
-              </svg>
-              AI Suggestions
-            </Button>
-            <Dropdown
-              overlay={keyResultMenu}
-              trigger={['click']}
-              data-cy="okr-edit-objective-add-keyresult-dropdown"
-            >
-              <Button
-                type="default"
-                id="desktop-add-keyresult-button"
-                data-cy="okr-edit-objective-desktop-add-keyresult-button"
-                disabled={isEditDisabled}
-                className="bg-[#2B3CF1] hover:bg-[#1d2bb8] text-white border-none shadow-none bg-none flex items-center gap-2 text-sm px-4 py-2 rounded-lg"
-                aria-label="Add Key Result"
+                Set your Key Result
+              </h2>
+              <p
+                id="okr-edit-objective-key-result-section-subtitle"
+                data-cy="okr-edit-objective-key-result-section-subtitle"
+                className="text-sm text-gray-500 mt-1"
               >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-white"
-                  data-cy="okr-edit-objective-add-keyresult-icon"
+                Please add your key results.
+              </p>
+            </div>
+            <div
+              id="okr-edit-objective-key-result-actions"
+              data-cy="okr-edit-objective-key-result-actions"
+              className="flex gap-2"
+            >
+              {isBasic ? (
+                <Button
+                  type="primary"
+                  id="desktop-add-keyresult-button"
+                  data-cy="okr-edit-objective-desktop-add-keyresult-button"
+                  disabled={isEditDisabled}
+                  className={
+                    isMobile
+                      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg !text-white hover:!text-white'
+                      : 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg !text-white hover:!text-white'
+                  }
+                  aria-label="Add Key Result"
+                  onClick={handleAddBasicKeyResult}
                 >
-                  <path
-                    d="M12 5V19M5 12H19"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    data-cy="okr-edit-objective-add-keyresult-path"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Add key Result
-              </Button>
-            </Dropdown>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-white"
+                    data-cy="okr-edit-objective-add-keyresult-icon"
+                  >
+                    <path
+                      d="M12 5V19M5 12H19"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      data-cy="okr-edit-objective-add-keyresult-path"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {!isMobile && 'Add key Result'}
+                </Button>
+              ) : (
+                <Button
+                  type="primary"
+                  id="desktop-add-keyresult-button"
+                  data-cy="okr-edit-objective-desktop-add-keyresult-button"
+                  disabled={isEditDisabled}
+                  className={
+                    isMobile
+                      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg !text-white hover:!text-white'
+                      : 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center gap-2 text-sm px-4 py-2 rounded-lg !text-white hover:!text-white'
+                  }
+                  aria-label="Add Key Result"
+                  onClick={() => setShowMetricSelector(!showMetricSelector)}
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-white"
+                    data-cy="okr-edit-objective-add-keyresult-icon"
+                  >
+                    <path
+                      d="M12 5V19M5 12H19"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      data-cy="okr-edit-objective-add-keyresult-path"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  {!isMobile && 'Add key Result'}
+                </Button>
+              )}
+            </div>
           </div>
+          <div
+            className="border-b border-gray-200 mt-4"
+            data-cy="okr-edit-objective-key-result-section-divider"
+          />
         </div>
 
-        {/* AI Inline Suggestions */}
-        <OKRInlineSuggestions
-          data-cy="okr-edit-objective-ai-suggestions"
-          objectiveTitle={objectiveValue?.title || ''}
-          addKeyResult={addKeyResult}
-          getCurrentTotalWeight={getCurrentTotalWeight}
-          metrics={metrics}
-          isVisible={showAISuggestions}
-          onClose={() => setShowAISuggestions(false)}
-        />
+        {/* Basic mode: inline add-KR form (same layout as Create modal) */}
+        {isBasic && showAddKrForm && (
+          <Form
+            form={krForm}
+            layout="vertical"
+            requiredMark={false}
+            className="mt-5"
+          >
+            <div
+              id="okr-edit-objective-add-kr-inline-form"
+              data-cy="okr-edit-objective-add-kr-inline-form"
+              className="bg-white border border-gray-200 rounded-lg p-6"
+            >
+              <div
+                className="flex flex-row flex-wrap gap-4 items-end"
+                data-cy="okr-edit-objective-add-kr-form-row"
+              >
+                <Form.Item
+                  name="krTitle"
+                  label={
+                    <KeyResultFieldLabel
+                      label="Key Result"
+                      tooltip={KEY_RESULT_TOOLTIP}
+                    />
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please enter the Key Result name',
+                    },
+                  ]}
+                  className="flex-1 min-w-[200px] mb-0"
+                >
+                  <Input
+                    placeholder="Input"
+                    className="h-10 rounded-lg"
+                    aria-label="Key Result"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="krWeight"
+                  label={
+                    <KeyResultFieldLabel
+                      label="Weight"
+                      tooltip={WEIGHT_TOOLTIP}
+                    />
+                  }
+                  rules={[
+                    { required: true, message: 'Please enter the Weight' },
+                    {
+                      type: 'number',
+                      min: 0,
+                      max: 100,
+                      transform: (v: any) =>
+                        v != null && v !== '' ? Number(v) : v,
+                      message: 'Weight must be between 0 and 100',
+                    },
+                  ]}
+                  className="w-28 mb-0"
+                >
+                  <InputNumber
+                    placeholder="Input"
+                    min={0}
+                    max={100}
+                    suffix="%"
+                    className="w-full h-10 rounded-lg"
+                    aria-label="Weight"
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="krDeadline"
+                  label={
+                    <KeyResultFieldLabel
+                      label="Deadline"
+                      tooltip={DEADLINE_TOOLTIP}
+                    />
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select a deadline',
+                    },
+                  ]}
+                  className="w-44 mb-0"
+                >
+                  <DatePicker
+                    placeholder="Select date"
+                    format="YYYY-MM-DD"
+                    className="w-full h-10 rounded-lg"
+                    disabledDate={(current) => {
+                      if (!current) return false;
+                      if (current < dayjs().startOf('day')) return true;
+                      if (
+                        objectiveValue?.deadline &&
+                        current > dayjs(objectiveValue.deadline).endOf('day')
+                      )
+                        return true;
+                      return false;
+                    }}
+                    aria-label="Deadline"
+                  />
+                </Form.Item>
+                <Form.Item className="mb-0 flex gap-2 items-center">
+                  <Button
+                    type="primary"
+                    htmlType="button"
+                    onClick={handleSaveAddKrForm}
+                    className="h-10 px-6 rounded-lg bg-okr-primary border-okr-primary"
+                    data-cy="okr-edit-objective-save-add-kr"
+                  >
+                    Save
+                  </Button>
+                </Form.Item>
+              </div>
+            </div>
+          </Form>
+        )}
 
-        {/* Key Results Section */}
+        {/* Metric type pill selector – same as Create OKR modal (Advanced only) */}
+        {!isBasic && showMetricSelector && (
+          <div
+            id="okr-edit-objective-metric-selector"
+            data-cy="okr-edit-objective-metric-selector"
+            className="border border-gray-200 rounded-lg p-4 mb-6 flex flex-nowrap md:flex-wrap items-center gap-3 overflow-x-auto md:overflow-visible"
+          >
+            <span
+              className="text-sm text-gray-600 mr-2 flex-shrink-0 whitespace-nowrap"
+              data-cy="okr-edit-objective-metric-selector-label"
+            >
+              Please Select a Key Result Metric :
+            </span>
+            <div
+              className="flex flex-nowrap items-center gap-3 flex-shrink-0"
+              data-cy="okr-edit-objective-metric-selector-pills"
+            >
+              {keyResultTypes.map((type) => (
+                <button
+                  key={type.value}
+                  type="button"
+                  id={`okr-edit-objective-metric-pill-${type.value}`}
+                  data-cy={`okr-edit-objective-metric-pill-${type.value}`}
+                  className="h-9 px-3 inline-flex items-center justify-center leading-none border border-gray-300 rounded-lg text-sm text-gray-700 hover:border-okr-primary hover:text-okr-primary transition-colors flex-shrink-0 whitespace-nowrap"
+                  onClick={() => {
+                    handleAddKeyResultType({ key: type.value });
+                    setShowMetricSelector(false);
+                  }}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Key Results Section - scrollable when many items, like Create modal */}
         <div
           id="key-results-container"
           data-cy="okr-edit-objective-key-results-container"
-          className="bg-white rounded-lg mt-5 w-full h-96 overflow-y-auto scrollbar-hide"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-          }}
+          className={`rounded-lg mt-5 w-full ${
+            mergedKRs.length > 2 ? 'max-h-96 overflow-y-auto' : ''
+          }`}
         >
           <div
             id="key-results-list"
             data-cy="okr-edit-objective-key-results-list"
             className="space-y-4"
           >
-            {objectiveValue?.keyResults?.map((keyValue: any, index: number) => (
-              <KeyResultView
-                data-cy="okr-edit-objective-key-result-view"
-                key={index}
-                objective={objective}
-                keyValue={keyValue}
-                index={index}
-                isEdit={false}
-              />
-            ))}
-            {objective?.keyResults?.map((keyItem: any, index: number) => (
-              <KeyResultForm
-                data-cy="okr-edit-objective-key-result-form"
-                key={index}
-                keyItem={keyItem}
-                index={index}
-                updateKeyResult={updateKeyResult}
-                removeKeyResult={removeKeyResult}
-                addKeyResultValue={addKeyResultValue}
-              />
-            ))}
+            {mergedKRs.map((kr: any, listIndex: number) => {
+              const isEditing = editingKeyResultIndex === listIndex;
+              const isExisting = listIndex < existingKRCount;
+              const normalizedKr = normalizeKeyItemForForm(kr);
+              const updateForMerged = (
+                idx: number,
+                field: keyof typeof kr,
+                value: any,
+              ) => {
+                if (idx < existingKRCount) {
+                  handleKeyResultChange(value, idx, field as string);
+                } else {
+                  updateKeyResult(idx - existingKRCount, field as any, value);
+                }
+              };
+              const removeForMerged = (idx: number) => {
+                if (idx < existingKRCount) {
+                  const id = mergedKRs[idx]?.id;
+                  if (id) setDeletedKeyResultIds([...deletedKeyResultIds, id]);
+                  setObjectiveValue({
+                    ...objectiveValue,
+                    keyResults: objectiveValue.keyResults.filter(
+                      //eslint-disable-next-line
+                      (_: any, i: number) => i !== idx,
+                    ),
+                  });
+                } else {
+                  removeKeyResult(idx - existingKRCount);
+                }
+                setEditingKeyResultIndex(null);
+              };
+              if (isEditing) {
+                return (
+                  <div
+                    key={
+                      isExisting ? `existing-${listIndex}` : `new-${listIndex}`
+                    }
+                    className="mb-4"
+                    data-cy={`okr-edit-objective-inline-kr-form-${listIndex}`}
+                  >
+                    <KeyResultForm
+                      data-cy="okr-edit-objective-key-result-form"
+                      keyItem={normalizedKr}
+                      index={listIndex}
+                      updateKeyResult={updateForMerged}
+                      removeKeyResult={removeForMerged}
+                      addKeyResultValue={addKeyResultValue}
+                      embedInOkrSheet={isMobile}
+                      onSaveSuccess={() => setEditingKeyResultIndex(null)}
+                    />
+                  </div>
+                );
+              }
+              return (
+                <div
+                  key={
+                    isExisting ? `existing-${listIndex}` : `new-${listIndex}`
+                  }
+                  id={`okr-edit-objective-kr-card-${listIndex}`}
+                  data-cy={`okr-edit-objective-kr-card-${listIndex}`}
+                  className="mb-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4"
+                >
+                  <KeyResultSelectedBadge
+                    label={getMetricLabel(kr)}
+                    data-cy={`okr-edit-objective-kr-card-badge-${listIndex}`}
+                  />
+                  <div
+                    className="flex flex-wrap gap-2 mb-2"
+                    data-cy={`okr-edit-objective-kr-card-meta-${listIndex}`}
+                  >
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                      data-cy={`okr-edit-objective-kr-card-weight-${listIndex}`}
+                    >
+                      Weight {kr?.weight ?? 0}%
+                    </span>
+                    {(kr?.metricType?.name === 'Numeric' ||
+                      kr?.metricType?.name === 'Currency' ||
+                      kr?.metricType?.name === 'Percentage' ||
+                      kr?.key_type === 'Numeric' ||
+                      kr?.key_type === 'Currency' ||
+                      kr?.key_type === 'Percentage') && (
+                      <>
+                        <span
+                          className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                          data-cy={`okr-edit-objective-kr-card-initial-${listIndex}`}
+                        >
+                          Initial Value : {kr?.initialValue ?? 0}
+                        </span>
+                        <span
+                          className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                          data-cy={`okr-edit-objective-kr-card-target-${listIndex}`}
+                        >
+                          Target Value : {kr?.targetValue ?? 0}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div
+                    className="flex items-start justify-between gap-3"
+                    data-cy={`okr-edit-objective-kr-card-content-${listIndex}`}
+                  >
+                    <p
+                      className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0"
+                      data-cy={`okr-edit-objective-kr-card-title-${listIndex}`}
+                    >
+                      {kr?.title?.trim() ? (
+                        kr.title
+                      ) : (
+                        <span
+                          className="text-gray-400 italic font-normal"
+                          data-cy={`okr-edit-objective-kr-card-untitled-${listIndex}`}
+                        >
+                          Untitled key result
+                        </span>
+                      )}
+                    </p>
+                    <Tooltip title="Edit">
+                      <button
+                        type="button"
+                        onClick={() => setEditingKeyResultIndex(listIndex)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
+                        aria-label="Edit key result"
+                        data-cy={`okr-edit-objective-kr-card-edit-${listIndex}`}
+                      >
+                        <EditOutlinedIcon className="text-sm" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Total Key Results Weight */}

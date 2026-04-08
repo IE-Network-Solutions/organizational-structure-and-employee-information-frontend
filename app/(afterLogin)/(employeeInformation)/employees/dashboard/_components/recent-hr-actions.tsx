@@ -1,15 +1,25 @@
 'use client';
 
 import React from 'react';
-import { Steps } from 'antd';
+import { Skeleton, Steps } from 'antd';
 import Link from 'next/link';
+import { AuditLog } from '@/types/tenant-management';
+import EmptyState from '@/components/empty';
 import {
-  MdArrowUpward,
-  MdAutorenew,
+  MdAlbum,
+  MdAccountBalance,
+  MdAccountBalanceWallet,
   MdCardGiftcard,
-  MdOutlinePersonAdd,
-  MdOutlineTextSnippet,
+  MdChatBubble,
+  MdDeleteOutline,
+  MdFactCheck,
+  MdPersonSearch,
+  MdSchool,
+  MdTrendingDown,
   MdTrendingUp,
+  MdUpdate,
+  MdWorkspacesOutline,
+  MdOutlineAccessTimeFilled,
 } from 'react-icons/md';
 
 type RecentHrAction = {
@@ -22,82 +32,188 @@ type RecentHrAction = {
   iconClassName: string;
 };
 
-const RECENT_HR_ACTIONS: RecentHrAction[] = [
-  {
-    id: 'new-hire-onboarding',
-    title: 'New Hire Onboarding Started',
-    description: 'Jordan Lee joined as UX Designer in Product team',
-    time: '2 hours ago',
-    icon: <MdOutlinePersonAdd className="w-4 h-4" />,
-    iconBgClassName: 'bg-greenlight',
-    iconClassName: 'text-greenbg',
-  },
-  {
-    id: 'promotion',
-    title: 'Promotion',
-    description: 'Michael Demeke promoted to Sr. Engineering Lead',
-    time: '4 hours ago',
-    icon: <MdArrowUpward className="w-4 h-4" />,
-    iconBgClassName: 'bg-blue/30',
-    iconClassName: 'text-blue',
-  },
-  {
-    id: 'department-transfer',
-    title: 'Department Transfer',
-    description: 'Nahon Bekle moved from Sales to Account Management',
-    time: 'Yesterday',
-    icon: <MdAutorenew className="w-4 h-4" />,
-    iconBgClassName: 'bg-light_purple',
-    iconClassName: 'text-purple',
-  },
-  {
-    id: 'policy-update',
-    title: 'Policy Update',
-    description: 'Remote work Policy Update',
-    time: 'Yesterday',
-    icon: <MdOutlineTextSnippet className="w-4 h-4" />,
-    iconBgClassName: 'bg-gray-100',
-    iconClassName: 'text-gray-600',
-  },
-  {
-    id: 'benefits-enrollment',
-    title: 'Benefits enrollment open',
-    description: 'Q2 benefits enrollment window open',
-    time: '2 days ago',
-    icon: <MdCardGiftcard className="w-4 h-4" />,
-    iconBgClassName: 'bg-pink-100',
-    iconClassName: 'text-pink-700',
-  },
-  {
-    id: 'department-transfer',
-    title: 'Department Transfer',
-    description: 'Nahon Bekle moved from Sales to Account Management',
-    time: 'Yesterday',
-    icon: <MdAutorenew className="w-4 h-4" />,
-    iconBgClassName: 'bg-light_purple',
-    iconClassName: 'text-purple',
-  },
-];
-
-/** Prefill audit log module filter when opening “View all” from the HR dashboard. */
-const RECENT_HR_ACTIONS_AUDIT_MODULES = ['OrgAndEmpAuditLog'];
-
 type RecentHrActionsProps = {
-  /** When set, “View all” opens audit log filtered to these modules (e.g. payroll vs OKR dashboards). */
+  auditLogs?: AuditLog[];
+  isLoading?: boolean;
   auditLogModules?: string[];
+  height?: string;
+};
+
+const SKELETON_ITEMS_COUNT = 5;
+
+const formatTime = (date?: string) => {
+  if (!date) return '--';
+  const dateObject = new Date(date);
+  if (Number.isNaN(dateObject.getTime())) return '--';
+  return dateObject.toLocaleString();
+};
+
+const getActionTitle = (action?: string) => {
+  const actionLower = action?.toLowerCase();
+  if (
+    actionLower === 'create' ||
+    actionLower === 'created' ||
+    actionLower === 'creation'
+  )
+    return 'Creation';
+  if (actionLower === 'update' || actionLower === 'updated') return 'Update';
+  if (actionLower === 'delete' || actionLower === 'deleted') return 'Delete';
+  return action || 'Activity';
+};
+
+const getIconDataByAction = (action?: string, module?: string) => {
+  const actionLower = action?.toLowerCase();
+  const moduleKey = module;
+
+  if (
+    actionLower === 'create' ||
+    actionLower === 'created' ||
+    actionLower === 'creation'
+  ) {
+    if (moduleKey === 'PensionAuditLog') {
+      return {
+        icon: <MdAccountBalance className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#1E40AF]/15',
+        iconClassName: 'text-[#1E40AF]',
+      };
+    }
+    if (moduleKey === 'PayrollAuditLog') {
+      return {
+        icon: <MdAccountBalanceWallet className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#323232]/15',
+        iconClassName: 'text-[#323232]',
+      };
+    }
+    if (moduleKey === 'IncentiveAuditLog') {
+      return {
+        icon: <MdCardGiftcard className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#EB2F96]/15',
+        iconClassName: 'text-[#EB2F96]',
+      };
+    }
+    if (moduleKey === 'DeductionAuditLog') {
+      return {
+        icon: <MdTrendingDown className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#FF4D4F]/15',
+        iconClassName: 'text-[#FF4D4F]',
+      };
+    }
+    if (moduleKey === 'AllowanceAuditLog') {
+      return {
+        icon: <MdTrendingUp className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#52C41A]/15',
+        iconClassName: 'text-[#52C41A]',
+      };
+    }
+    if (moduleKey === 'OrgAndEmpAuditLog') {
+      return {
+        icon: <MdFactCheck className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#FFEC3D]/20',
+        iconClassName: 'text-[#FFEC3D]',
+      };
+    }
+    if (moduleKey === 'PayrollAuditLog') {
+      return {
+        icon: <MdWorkspacesOutline className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#4096FF]/15',
+        iconClassName: 'text-[#4096FF]',
+      };
+    }
+    if (moduleKey === 'OKRAuditLog') {
+      return {
+        icon: <MdAlbum className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#1E40AF]/15',
+        iconClassName: 'text-[#1E40AF]',
+      };
+    }
+    if (moduleKey === 'TimesheetAuditLog') {
+      return {
+        icon: <MdOutlineAccessTimeFilled className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#4096FF]/15',
+        iconClassName: 'text-[#4096FF]',
+      };
+    }
+    if (moduleKey === 'RecruitmentAuditLog') {
+      return {
+        icon: <MdPersonSearch className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#52C41A]/15',
+        iconClassName: 'text-[#52C41A]',
+      };
+    }
+    if (moduleKey === 'CFRAuditLog') {
+      return {
+        icon: <MdChatBubble className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#FFEC3D]/20',
+        iconClassName: 'text-[#FFEC3D]',
+      };
+    }
+    if (moduleKey === 'TNAAuditLog') {
+      return {
+        icon: <MdSchool className="w-4 h-4" />,
+        iconBgClassName: 'bg-[#323232]/15',
+        iconClassName: 'text-[#323232]',
+      };
+    }
+    return {
+      icon: <MdCardGiftcard className="w-4 h-4" />,
+      iconBgClassName: 'bg-[#4096FF]/15',
+      iconClassName: 'text-[#4096FF]',
+    };
+  }
+  if (actionLower === 'update' || actionLower === 'updated') {
+    return {
+      icon: <MdUpdate className="w-4 h-4" />,
+      iconBgClassName: 'bg-[#722ED1]/15',
+      iconClassName: 'text-[#722ED1]',
+    };
+  }
+  if (actionLower === 'delete' || actionLower === 'deleted') {
+    return {
+      icon: <MdDeleteOutline className="w-4 h-4" />,
+      iconBgClassName: 'bg-[#FF4D4F]/15',
+      iconClassName: 'text-[#FF4D4F]',
+    };
+  }
+  return {
+    icon: <MdCardGiftcard className="w-4 h-4" />,
+    iconBgClassName: 'bg-[#4096FF]/15',
+    iconClassName: 'text-[#4096FF]',
+  };
 };
 
 export default function RecentHrActions({
-  auditLogModules,
-}: RecentHrActionsProps = {}) {
-  const modulesForAuditLink =
-    auditLogModules && auditLogModules.length > 0
-      ? auditLogModules
-      : RECENT_HR_ACTIONS_AUDIT_MODULES;
+  auditLogs = [],
+  isLoading = false,
+  auditLogModules = [],
+  height,
+}: RecentHrActionsProps) {
+  const hasServerData = Array.isArray(auditLogs) && auditLogs.length > 0;
+
+  const actionItems: RecentHrAction[] = hasServerData
+    ? auditLogs.map((log) => {
+        const iconData = getIconDataByAction(log.action, log.module);
+        const userName = log.performedByUser
+          ? `${log.performedByUser.firstName || ''} ${log.performedByUser.lastName || ''}`.trim()
+          : '';
+        const performedByText = userName || log.performedBy || 'Unknown User';
+
+        return {
+          id: log.id,
+          title: getActionTitle(log.action),
+          description:
+            log.remarks ||
+            `${performedByText} ${log.action?.toLowerCase() || 'performed action'} in ${log.module || 'module'}`,
+          time: formatTime(log.performedAt || log.createdAt),
+          icon: iconData.icon,
+          iconBgClassName: iconData.iconBgClassName,
+          iconClassName: iconData.iconClassName,
+        };
+      })
+    : [];
 
   return (
     <div
-      className="border border-gray-200 rounded-lg p-4 bg-white md:h-[490px] min-h-[430px]"
+      className={`border border-gray-200 rounded-lg p-4 bg-white h-[${height}]`}
       id="recent-hr-actions-card"
       data-cy="recent-hr-actions-card"
     >
@@ -118,7 +234,7 @@ export default function RecentHrActions({
             id="recent-hr-actions-title-icon"
           />
           <h3
-            className="text-[14px] font-bold text-gray-900 truncate"
+            className="text-[16px] font-bold text-gray-900 truncate"
             data-cy="recent-hr-actions-title"
             id="recent-hr-actions-title"
           >
@@ -127,8 +243,8 @@ export default function RecentHrActions({
         </div>
 
         <Link
-          href={`/audit-log?modules=${encodeURIComponent(modulesForAuditLink.join(','))}`}
-          className="text-sm font-normal text-primary "
+          href={`/audit-log?modules=${encodeURIComponent(auditLogModules?.join(',') ?? '')}`}
+          className="text-sm font-medium text-blue hover:underline whitespace-nowrap"
           id="recent-hr-actions-view-all"
           data-cy="recent-hr-actions-view-all"
           aria-label="View all recent HR actions"
@@ -138,55 +254,113 @@ export default function RecentHrActions({
       </div>
 
       <div id="recent-hr-actions-timeline" data-cy="recent-hr-actions-timeline">
-        <Steps
-          direction="vertical"
-          items={RECENT_HR_ACTIONS.map((action) => ({
-            key: action.id,
-            status: 'wait',
-            icon: (
-              <span
-                className={[
-                  'w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0',
-                  action.iconBgClassName,
-                  action.iconClassName,
-                ].join(' ')}
-                id={`recent-hr-actions-icon-${action.id}`}
-                data-cy={`recent-hr-actions-icon-${action.id}`}
-              >
-                {action.icon}
-              </span>
-            ),
-            title: (
-              <div
-                className="text-sm font-bold text-black leading-5"
-                data-cy={`recent-hr-actions-title-${action.id}`}
-              >
-                {action.title}
-              </div>
-            ),
-            description: (
-              <div
-                className="min-w-0"
-                data-cy={`recent-hr-actions-desc-${action.id}`}
-              >
-                <div
-                  className="text-xs font-normal text-gray-500 leading-4"
-                  data-cy={`recent-hr-actions-desc-text-${action.id}`}
-                  id={`recent-hr-actions-desc-text-${action.id}`}
+        {isLoading ? (
+          <div
+            className="space-y-4"
+            data-cy="recent-hr-actions-loading-skeleton"
+          >
+            {Array.from({ length: SKELETON_ITEMS_COUNT }).map(
+              (unusedItem, index) => {
+                void unusedItem;
+                return (
+                  <div
+                    key={`recent-hr-actions-skeleton-${index}`}
+                    className="flex items-start gap-3"
+                    data-cy={`recent-hr-actions-skeleton-row-${index}`}
+                  >
+                    <Skeleton.Avatar
+                      active
+                      shape="circle"
+                      size={28}
+                      className="flex-shrink-0"
+                      data-cy={`recent-hr-actions-skeleton-icon-${index}`}
+                    />
+                    <div
+                      className="flex-1 min-w-0 space-y-2 pt-1"
+                      data-cy={`recent-hr-actions-skeleton-content-${index}`}
+                    >
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        style={{ width: 128 }}
+                        data-cy={`recent-hr-actions-skeleton-title-${index}`}
+                      />
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        style={{ width: '90%' }}
+                        data-cy={`recent-hr-actions-skeleton-desc-${index}`}
+                      />
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        style={{ width: 96 }}
+                        data-cy={`recent-hr-actions-skeleton-time-${index}`}
+                      />
+                    </div>
+                  </div>
+                );
+              },
+            )}
+          </div>
+        ) : actionItems.length === 0 ? (
+          <div data-cy="recent-hr-actions-empty-state">
+            <EmptyState
+              description="No recent actions found"
+              data-cy="recent-hr-actions-empty-state-inner"
+            />
+          </div>
+        ) : (
+          <Steps
+            direction="vertical"
+            items={actionItems.map((action) => ({
+              key: action.id,
+              status: 'wait',
+              icon: (
+                <span
+                  className={[
+                    'w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0',
+                    action.iconBgClassName,
+                    action.iconClassName,
+                  ].join(' ')}
+                  id={`recent-hr-actions-icon-${action.id}`}
+                  data-cy={`recent-hr-actions-icon-${action.id}`}
                 >
-                  {action.description}
-                </div>
+                  {action.icon}
+                </span>
+              ),
+              title: (
                 <div
-                  className="text-xs font-normal text-gray-400 leading-4 mt-1"
-                  data-cy={`recent-hr-actions-time-${action.id}`}
-                  id={`recent-hr-actions-time-${action.id}`}
+                  className="text-sm font-bold text-black/70 leading-5"
+                  data-cy={`recent-hr-actions-title-${action.id}`}
                 >
-                  {action.time}
+                  {action.title}
                 </div>
-              </div>
-            ),
-          }))}
-        />
+              ),
+              description: (
+                <div
+                  className="min-w-0"
+                  data-cy={`recent-hr-actions-desc-${action.id}`}
+                >
+                  <div
+                    className="text-sm font-normal text-black/45 leading-4"
+                    data-cy={`recent-hr-actions-desc-text-${action.id}`}
+                    id={`recent-hr-actions-desc-text-${action.id}`}
+                  >
+                    {action.description}
+                  </div>
+                  <div
+                    className="text-sm font-normal text-black/25 leading-4 mt-1"
+                    data-cy={`recent-hr-actions-time-${action.id}`}
+                    id={`recent-hr-actions-time-${action.id}`}
+                  >
+                    {action.time}
+                  </div>
+                </div>
+              ),
+            }))}
+          />
+        )}
       </div>
     </div>
   );

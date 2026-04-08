@@ -4,13 +4,11 @@ import {
   Tag,
   Button,
   Space,
-  Spin,
   Avatar,
   Typography,
   Breadcrumb,
   Card,
   Divider,
-  Pagination,
   Dropdown,
 } from 'antd';
 import { UserOutlined, EyeOutlined } from '@ant-design/icons';
@@ -26,6 +24,8 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const { Title, Text } = Typography;
 
@@ -380,24 +380,9 @@ const EmployeeInformation = () => {
     currentPage * pageSize,
   );
 
-  const onPageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
-
   return (
     <div
-      className="responsive-container"
-      style={{
-        padding: '24px 24px',
-        backgroundColor: '#fff',
-        minHeight: '100vh',
-        marginLeft: '-24px',
-        marginRight: '-24px',
-        width: 'calc(100% + 48px)',
-      }}
+      className="responsive-container w-full min-h-screen bg-white py-4"
       id="payroll-employee-information-view-container"
       data-cy="payroll-employee-information-view-container"
     >
@@ -436,43 +421,10 @@ const EmployeeInformation = () => {
 
         @media (max-width: 768px) {
           .page-title { font-size: 18px !important; }
-          .responsive-container { padding: 16px !important; }
           .responsive-container .ant-card-body { padding: 16px 0 !important; }
           .breadcrumb-container { padding: 0 !important; }
           .filter-container { padding: 0 16px !important; }
           .pagination-container { padding: 0 16px !important; }
-        }
-
-        .custom-pagination {
-          display: flex !important;
-          width: 100% !important;
-          justify-content: flex-start !important;
-          align-items: center !important;
-        }
-        .custom-pagination .ant-pagination-options {
-          margin-left: auto !important;
-          display: flex;
-          align-items: center;
-        }
-        .custom-pagination .ant-pagination-options-quick-jumper {
-          color: #8c8c8c;
-          font-size: 13px;
-        }
-        .custom-pagination .ant-pagination-options-quick-jumper input {
-          border-radius: 4px;
-        }
-        .full-bleed-header-divider {
-          width: calc(100% + 48px) !important;
-          margin-left: -24px !important;
-          margin-right: -24px !important;
-          min-width: calc(100% + 48px) !important;
-        }
-        @media (max-width: 768px) {
-          .full-bleed-header-divider {
-            width: calc(100% + 48px) !important;
-            margin-left: -24px !important;
-            margin-right: -24px !important;
-          }
         }
       `}</style>
 
@@ -499,9 +451,8 @@ const EmployeeInformation = () => {
       </div>
 
       <Divider
-        className="full-bleed-header-divider"
-        style={{ margin: '0 0 24px 0', borderColor: '#f0f0f0' }}
         data-cy="payroll-employee-information-header-divider"
+        style={{ margin: '0 0 24px 0', borderColor: '#f0f0f0' }}
       />
 
       <Card
@@ -524,48 +475,43 @@ const EmployeeInformation = () => {
           />
         </div>
 
-        <Spin
-          spinning={responseLoading || Loading}
-          data-cy="payroll-employee-information-loading-view-spin"
-        >
-          <Table
-            id="payroll-employee-information-view-table"
-            data-cy="payroll-employee-information-view-table"
-            dataSource={paginatedData}
-            columns={columns}
-            rowClassName={(record, index) =>
-              index % 2 !== 0 ? 'table-row-gray' : ''
-            }
-            onRow={(record) => ({
-              onClick: () => handleDetail(record),
-              style: { cursor: 'pointer' },
-            })}
-            pagination={false}
-            scroll={{ x: 'max-content' }}
-            style={{ marginBottom: '24px' }}
-          />
+        {responseLoading || Loading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <>
+            <Table
+              id="payroll-employee-information-view-table"
+              data-cy="payroll-employee-information-view-table"
+              dataSource={paginatedData}
+              columns={columns}
+              rowClassName={(record, index) =>
+                index % 2 !== 0 ? 'table-row-gray' : ''
+              }
+              onRow={(record) => ({
+                onClick: () => handleDetail(record),
+                style: { cursor: 'pointer' },
+              })}
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              style={{ marginBottom: '24px' }}
+            />
 
-          <div
-            className="pagination-container"
-            style={{ marginTop: '24px' }}
-            data-cy="payroll-employee-information-pagination-wrapper"
-          >
-            <Pagination
-              className="custom-pagination"
+            <CustomPagination
               current={currentPage}
               total={filteredData?.length || 0}
               pageSize={pageSize}
-              onChange={onPageChange}
-              showSizeChanger={false}
-              showQuickJumper
-              itemRender={(page, type, originalElement) => {
-                if (type === 'jump-prev' || type === 'jump-next') return '...';
-                return originalElement;
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
               }}
               data-cy="payroll-employee-information-pagination"
             />
-          </div>
-        </Spin>
+          </>
+        )}
       </Card>
       <Drawer data-cy="payroll-employee-information-drawer-view-component" />
     </div>

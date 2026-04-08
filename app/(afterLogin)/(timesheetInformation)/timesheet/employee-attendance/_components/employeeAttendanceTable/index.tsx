@@ -28,6 +28,7 @@ import { useGetSimpleEmployee } from '@/store/server/features/employees/employee
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { EmployeeAttendance } from '@/types/timesheet/employeeAttendance';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
@@ -556,29 +557,32 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           id="time-attendance-employee-attendance-table-scroll-wrapper"
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
-          <Table
-            loading={isFetching}
-            columns={columns}
-            dataSource={tableData}
-            rowSelection={{
-              checkStrictly: false,
-              selectedRowKeys: getCurrentPageSelectedKeys(),
-              onChange: handleRowSelection,
-            }}
-            pagination={false}
-            scroll={{ x: 'max-content' }}
-            className="w-full [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd):hover>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr.ant-table-row:nth-child(even):hover>td]:!bg-white"
-            onChange={handleTableChange}
-            id="time-attendance-employee-attendance-table"
-            data-cy="time-attendance-employee-attendance-table"
-            rowClassName={(record, index) => {
-              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-              const selected = getCurrentPageSelectedKeys().includes(
-                record.key,
-              );
-              return selected ? `${base} [&>td]:!bg-white` : base;
-            }}
-          />
+          {isFetching ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={tableData}
+              rowSelection={{
+                checkStrictly: false,
+                selectedRowKeys: getCurrentPageSelectedKeys(),
+                onChange: handleRowSelection,
+              }}
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              className="w-full [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd):hover>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr.ant-table-row:nth-child(even):hover>td]:!bg-white"
+              onChange={handleTableChange}
+              id="time-attendance-employee-attendance-table"
+              data-cy="time-attendance-employee-attendance-table"
+              rowClassName={(record, index) => {
+                const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+                const selected = getCurrentPageSelectedKeys().includes(
+                  record.key,
+                );
+                return selected ? `${base} [&>td]:!bg-white` : base;
+              }}
+            />
+          )}
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination

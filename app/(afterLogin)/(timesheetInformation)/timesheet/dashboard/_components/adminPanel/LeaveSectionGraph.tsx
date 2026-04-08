@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Spin } from 'antd';
+import { Skeleton } from 'antd';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -196,8 +196,9 @@ const LeaveSectionGraph: React.FC = () => {
         </p>
       </div>
 
-      <Spin
-        spinning={loading}
+      <Skeleton
+        loading={loading}
+        active
         data-cy="time-attendance-leave-section-graph-loading-spin"
       >
         {employeeAdminLeave?.monthlyStats?.length === 0 ? (
@@ -224,7 +225,7 @@ const LeaveSectionGraph: React.FC = () => {
             data-cy="time-attendance-leave-section-graph-line-chart"
           />
         )}
-      </Spin>
+      </Skeleton>
     </div>
   );
 };

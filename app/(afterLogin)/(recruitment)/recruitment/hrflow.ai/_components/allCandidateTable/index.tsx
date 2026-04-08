@@ -20,6 +20,7 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const AllCandidateTable: React.FC = () => {
   const { data: statusStage } = useGetStages();
@@ -287,23 +288,26 @@ const AllCandidateTable: React.FC = () => {
       id="talent-acquisition-hrflow-table-div-container"
       data-cy="talent-acquisition-hrflow-table-div-container"
     >
-      <Table
-        className="w-full"
-        id="talent-acquisition-hrflow-table"
-        data-cy="talent-acquisition-hrflow-table"
-        columns={columns}
-        dataSource={data}
-        pagination={{
-          total: candidateList?.meta?.totalItems,
-          current: currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
-        loading={isResponseLoading}
-        scroll={{ x: 1000 }}
-      />
+      {isResponseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          className="w-full"
+          id="talent-acquisition-hrflow-table"
+          data-cy="talent-acquisition-hrflow-table"
+          columns={columns}
+          dataSource={data}
+          pagination={{
+            total: candidateList?.meta?.totalItems,
+            current: currentPage,
+            pageSize: pageSize,
+            onChange: onPageChange,
+            showSizeChanger: true,
+            onShowSizeChange: onPageChange,
+          }}
+          scroll={{ x: 1000 }}
+        />
+      )}
       <CandidateDetail data-cy="talent-acquisition-hrflow-table-candidate-detail" />
       <DeleteCandidate data-cy="talent-acquisition-hrflow-table-delete-candidate" />
       <EditCandidate data-cy="talent-acquisition-hrflow-table-edit-candidate" />

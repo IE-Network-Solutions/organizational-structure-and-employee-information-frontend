@@ -25,7 +25,7 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
       >
         <div
           data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-23"
-          className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-gray-200 flex-shrink-0"
+          className="h-9 w-9 rounded-full bg-gray-200 flex-shrink-0"
         ></div>
         <div
           data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-24"
@@ -33,7 +33,7 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
         >
           <div
             data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-25"
-            className="h-4 md:h-5 w-32 bg-gray-200 rounded"
+            className="h-3.5 w-32 bg-gray-200 rounded"
           ></div>
           <div
             data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-26"
@@ -74,29 +74,14 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
         className="flex-shrink-0"
       >
         <Avatar
-          size={32}
+          size={36}
           src={owner.avatar}
-          className="md:hidden"
           style={{
             backgroundColor: '#E0E7FF',
             color: '#4C1D95',
-            fontSize: '14px',
+            fontSize: '13px',
             fontWeight: 600,
-            lineHeight: '32px',
-          }}
-        >
-          {owner.avatarInitials}
-        </Avatar>
-        <Avatar
-          size={48}
-          src={owner.avatar}
-          className="hidden md:block"
-          style={{
-            backgroundColor: '#E0E7FF',
-            color: '#4C1D95',
-            fontSize: '16px',
-            fontWeight: 600,
-            lineHeight: '48px',
+            lineHeight: '36px',
           }}
         >
           {owner.avatarInitials}
@@ -107,7 +92,7 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
         className="min-w-0 flex-1"
       >
         <p
-          className="text-xs md:text-base font-semibold leading-tight text-[#161A2C] truncate"
+          className="text-[14px] font-semibold leading-tight text-[#161A2C] truncate"
           title={owner.name}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
         >
