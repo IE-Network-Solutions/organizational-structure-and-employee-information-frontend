@@ -470,7 +470,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           data-cy="talent-acquisition-candidate-table-pagination"
         />
       )}
-      <EditCandidate />
+      <EditCandidate jobId={jobId} />
       <MoveToTalentPool />
       <DeleteModal
         open={isDeleteModalOpen}

@@ -92,6 +92,18 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     setIsClient(true);
   }, [setIsClient]);
 
+  useEffect(() => {
+    if (!createJobDrawer) return;
+    form.resetFields();
+    setDocumentFileList([]);
+  }, [createJobDrawer, form, setDocumentFileList]);
+
+  const handleClose = () => {
+    form.resetFields();
+    setDocumentFileList([]);
+    onClose();
+  };
+
   if (!isClient) {
     return null;
   }
@@ -139,9 +151,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
 
     createCandidate(formData, {
       onSuccess: () => {
-        setCreateJobDrawer(false);
-        form.resetFields();
-        setDocumentFileList([]);
+        handleClose();
       },
     });
   };
@@ -152,7 +162,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
       // className="ta-candidate-modal"
 
       open={createJobDrawer}
-      onCancel={onClose}
+      onCancel={handleClose}
       title={
         <span
           className="text-[20px] font-bold leading-none text-black"
@@ -509,7 +519,7 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
             <Button
               id="talent-acquisition-job-create-candidate-button-cancel"
               data-cy="talent-acquisition-job-create-candidate-button-cancel"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex h-8 justify-center rounded-[6px] border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 hover:border-[#4096FF] hover:text-[#4096FF]"
               disabled={isCreatingCandidate}
             >
