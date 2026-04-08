@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { Avatar } from 'antd';
 import { classNames } from '@/utils/classNames';
+import { UserOutlined } from '@ant-design/icons';
 
 interface UserCardProps {
   data: any;
@@ -43,6 +44,8 @@ const UserCard: FC<UserCardProps> = ({
   contentClassName,
   contentStyle,
 }) => {
+  const hasProfileImage = Boolean(data?.profileImage);
+
   return (
     <div
       className={classNames(
@@ -53,18 +56,12 @@ const UserCard: FC<UserCardProps> = ({
       style={style}
       data-cy="user-card"
     >
-      {data ? (
-        <Avatar size={25} src={data?.profileImage} />
-      ) : (
-        <Avatar
-          size={25}
-          data-cy="components-common-usercard-usercard-tsx-usercard-avatar-35"
-        >
-          {data?.firstName[0]?.toUpperCase()}
-          {data?.middleName[0]?.toUpperCase()}
-          {data?.lastName[0]?.toUpperCase()}
-        </Avatar>
-      )}
+      <Avatar
+        size={25}
+        src={hasProfileImage ? data?.profileImage : undefined}
+        icon={!hasProfileImage ? <UserOutlined /> : undefined}
+        data-cy="components-common-usercard-usercard-tsx-usercard-avatar-35"
+      />
       <div
         className={contentClassName ?? ''}
         style={contentStyle}
