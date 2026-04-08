@@ -92,7 +92,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         </div>
 
         <div
-          className="mb-4 min-h-0 px-3 sm:px-8"
+          className="mb-4 min-h-0"
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
@@ -164,7 +164,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         <div
           id="talent-acquisition-settings-layout-content-wrapper"
           data-cy="talent-acquisition-settings-layout-content-wrapper"
-          className="flex-1 px-3"
+          className="flex-1"
         >
           <BlockWrapper
             padding="0px"

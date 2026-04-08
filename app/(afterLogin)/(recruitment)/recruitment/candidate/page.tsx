@@ -11,15 +11,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
-import {
-  Button,
-  Card,
-  DatePicker,
-  Row,
-  Col,
-  Select,
-  Popover,
-} from 'antd';
+import { Button, Card, DatePicker, Row, Col, Select, Popover } from 'antd';
 import { theme } from 'antd';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
