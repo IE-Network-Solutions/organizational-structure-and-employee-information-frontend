@@ -76,8 +76,14 @@ const CreateJobs: React.FC = () => {
         className="mx-auto mt-5 w-full max-w-[560px]"
         data-cy="talent-acquisition-create-jobs-step-indicators"
       >
-        <div className="relative grid grid-cols-3 items-start">
-          <div className="pointer-events-none absolute left-[16.67%] right-[16.67%] top-[5px] h-[2px] bg-[#D9D9D9]" />
+        <div
+          className="relative grid grid-cols-3 items-start"
+          data-cy="talent-acquisition-create-jobs-step-progress-wrapper"
+        >
+          <div
+            className="pointer-events-none absolute left-[16.67%] right-[16.67%] top-[5px] h-[2px] bg-[#D9D9D9]"
+            data-cy="talent-acquisition-create-jobs-step-progress-track"
+          />
           <div
             className={`pointer-events-none absolute left-[16.67%] top-[5px] h-[2px] ${
               currentStep === 0
@@ -86,6 +92,7 @@ const CreateJobs: React.FC = () => {
                   ? 'w-1/2'
                   : 'w-2/3'
             } bg-[#1E40AF] transition-all`}
+            data-cy="talent-acquisition-create-jobs-step-progress-fill"
           />
           {STEP_LABELS.map((label, index) => (
             <button

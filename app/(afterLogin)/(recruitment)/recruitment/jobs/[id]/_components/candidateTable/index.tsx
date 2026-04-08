@@ -38,6 +38,7 @@ interface TriggerRect {
 
 const ViewDetailIcon = () => (
   <svg
+    data-cy="talent-acquisition-candidate-table-view-icon"
     width="15"
     height="10"
     viewBox="0 0 15 10"
@@ -46,6 +47,7 @@ const ViewDetailIcon = () => (
     aria-hidden
   >
     <path
+      data-cy="talent-acquisition-candidate-table-view-icon-path"
       d="M7.33333 1.33333C9.86 1.33333 12.1133 2.75333 13.2133 5C12.1133 7.24667 9.86667 8.66667 7.33333 8.66667C4.8 8.66667 2.55333 7.24667 1.45333 5C2.55333 2.75333 4.80667 1.33333 7.33333 1.33333ZM7.33333 0C4 0 1.15333 2.07333 0 5C1.15333 7.92667 4 10 7.33333 10C10.6667 10 13.5133 7.92667 14.6667 5C13.5133 2.07333 10.6667 0 7.33333 0ZM7.33333 3.33333C8.25333 3.33333 9 4.08 9 5C9 5.92 8.25333 6.66667 7.33333 6.66667C6.41333 6.66667 5.66667 5.92 5.66667 5C5.66667 4.08 6.41333 3.33333 7.33333 3.33333ZM7.33333 2C5.68 2 4.33333 3.34667 4.33333 5C4.33333 6.65333 5.68 8 7.33333 8C8.98667 8 10.3333 6.65333 10.3333 5C10.3333 3.34667 8.98667 2 7.33333 2Z"
       fill="#323232"
     />
@@ -54,6 +56,7 @@ const ViewDetailIcon = () => (
 
 const EditIcon = () => (
   <svg
+    data-cy="talent-acquisition-candidate-table-edit-icon"
     width="12"
     height="12"
     viewBox="0 0 12 12"
@@ -62,6 +65,7 @@ const EditIcon = () => (
     aria-hidden
   >
     <path
+      data-cy="talent-acquisition-candidate-table-edit-icon-path"
       d="M11.8067 2.69333C12.0667 2.43333 12.0667 2.01333 11.8067 1.75333L10.2467 0.193333C10.1133 0.06 9.94667 0 9.77333 0C9.6 0 9.43333 0.0666666 9.30667 0.193333L8.08667 1.41333L10.5867 3.91333L11.8067 2.69333V2.69333ZM0 9.5V12H2.5L9.87333 4.62667L7.37333 2.12667L0 9.5ZM1.94667 10.6667H1.33333V10.0533L7.37333 4.01333L7.98667 4.62667L1.94667 10.6667Z"
       fill="#323232"
     />
@@ -70,6 +74,7 @@ const EditIcon = () => (
 
 const DeleteIcon = () => (
   <svg
+    data-cy="talent-acquisition-candidate-table-delete-icon"
     width="10"
     height="12"
     viewBox="0 0 10 12"
@@ -78,6 +83,7 @@ const DeleteIcon = () => (
     aria-hidden
   >
     <path
+      data-cy="talent-acquisition-candidate-table-delete-icon-path"
       d="M0.666667 10.6667C0.666667 11.4 1.26667 12 2 12H7.33333C8.06667 12 8.66667 11.4 8.66667 10.6667V2.66667H0.666667V10.6667ZM2 4H7.33333V10.6667H2V4ZM7 0.666667L6.33333 0H3L2.33333 0.666667H0V2H9.33333V0.666667H7Z"
       fill="#323232"
     />
@@ -341,7 +347,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
                   {
                     key: 'view',
                     label: (
-                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      <span
+                        className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                        data-cy={`talent-acquisition-job-candidate-table-menu-view-${item?.id}`}
+                      >
                         View Detail
                       </span>
                     ),
@@ -351,7 +360,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
                   {
                     key: 'edit',
                     label: (
-                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      <span
+                        className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                        data-cy={`talent-acquisition-job-candidate-table-menu-edit-${item?.id}`}
+                      >
                         Edit
                       </span>
                     ),
@@ -361,7 +373,10 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
                   {
                     key: 'delete',
                     label: (
-                      <span className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]">
+                      <span
+                        className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                        data-cy={`talent-acquisition-job-candidate-table-menu-delete-${item?.id}`}
+                      >
                         Delete
                       </span>
                     ),

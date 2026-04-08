@@ -18,7 +18,6 @@ import { useUpdateJobs } from '@/store/server/features/recruitment/job/mutation'
 import { useGetCandidates } from '@/store/server/features/recruitment/candidate/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { IoIosArrowBack } from 'react-icons/io';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   Button,
   Tabs,
@@ -136,7 +135,6 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     pageSize,
     currentPage,
   );
-  const { isMobile, isTablet } = useIsMobile();
   const pathname = usePathname();
 
   const candidateCount = candidateList?.meta?.totalItems ?? 0;
