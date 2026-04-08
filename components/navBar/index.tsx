@@ -96,6 +96,7 @@ interface CustomMenuItem {
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
 import { AiOutlineRight } from 'react-icons/ai';
+import Link from 'next/link';
 
 interface MyComponentProps {
   children: ReactNode;
@@ -1128,6 +1129,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     } catch (error) {}
   };
 
+  const groupRouteMap: Record<string, string> = {
+    performance: '/performance',
+    finance: '/finance-bashboard',
+  };
+
   const groupedMenuItems = React.useMemo(() => {
     const normalizeRoute = (value?: string | null) => {
       if (!value) return '';
@@ -1239,7 +1245,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     const groupedByParent = new Map<
       string,
-      { type: 'group'; key: string; label: string; children: any[] }
+      {
+        type: 'group';
+        key: string;
+        label: string;
+        linkKey: string;
+        children: any[];
+      }
     >();
 
     const sortedModules = modules
@@ -1269,6 +1281,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           type: 'group',
           key: `group-${groupKey}`,
           label: groupLabelRaw,
+          linkKey: groupRouteMap[groupKey] || '',
           children: [],
         });
       }
@@ -1547,7 +1560,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         data-cy="nav-sider-group-header"
                         className="mb-2 mt-4 first:mt-2"
                       >
-                        <div
+                        <Link
+                          href={
+                            group.linkKey || `/${group.label.toLowerCase()}`
+                          }
                           data-cy="nav-sider-group-label-wrap"
                           className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'text-center truncate' : ''
@@ -1555,7 +1571,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
-                        </div>
+                        </Link>
                       </div>
 
                       <div

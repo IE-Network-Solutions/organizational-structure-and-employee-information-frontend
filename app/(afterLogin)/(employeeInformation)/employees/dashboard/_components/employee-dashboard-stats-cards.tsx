@@ -137,7 +137,7 @@ export default function EmployeeDashboardStatsCards({
 
   return (
     <div
-      className="flex flex-row overflow-x-auto gap-4 scrollbar-none px-1"
+      className="flex flex-row overflow-x-auto gap-4 scrollbar-none mb-2"
       id="employee-dashboard-stats-grid"
       data-cy="employee-dashboard-stats-grid"
     >
