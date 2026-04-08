@@ -65,8 +65,8 @@ const ApprovalListTable = () => {
   const listItems = allFilterData?.items ?? [];
   const hasActiveFilters = Boolean(
     searchParams.name?.trim() ||
-      searchParams.entityType ||
-      searchParams.entityId,
+    searchParams.entityType ||
+    searchParams.entityId,
   );
   const canCreateApprovalWorkflow = AccessGuard.checkAccess({
     permissions: [Permissions.CreateApprovalWorkFlow],
@@ -351,12 +351,8 @@ const ApprovalListTable = () => {
                 ? 'Try adjusting your search or filters.'
                 : 'Set up an approval workflow to manage training approvals.'
             }
-            actionText={
-              canCreateApprovalWorkflow ? 'Set Approval' : undefined
-            }
-            onAction={
-              canCreateApprovalWorkflow ? goToWorkflowSetup : undefined
-            }
+            actionText={canCreateApprovalWorkflow ? 'Set Approval' : undefined}
+            onAction={canCreateApprovalWorkflow ? goToWorkflowSetup : undefined}
           />
         </div>
       ) : (

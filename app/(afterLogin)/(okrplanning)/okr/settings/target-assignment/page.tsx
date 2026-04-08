@@ -87,9 +87,7 @@ function Page() {
   };
 
   const isFilteredOnlyEmpty =
-    groupedData.length === 0 &&
-    baseGrouped.length > 0 &&
-    hasActiveFilters;
+    groupedData.length === 0 && baseGrouped.length > 0 && hasActiveFilters;
 
   const handleEditClick = (id: string) => {
     openDrawer(id);

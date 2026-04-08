@@ -11,7 +11,7 @@ const DefineOkrRulePageSkeleton = () => {
       data-cy="okr-define-okr-rule-skeleton-grid"
       id="okrDefineOkrRuleSkeletonGrid"
     >
-      {Array.from({ length: CARD_COUNT }).map((_, idx) => (
+      {Array.from({ length: CARD_COUNT }).map((unusedValue, idx) => (
         <div
           key={idx}
           className="rounded-[12px] border border-[#d9d9d9] bg-white p-5"

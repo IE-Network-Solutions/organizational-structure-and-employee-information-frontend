@@ -40,9 +40,7 @@ function useLgUp() {
 
 const TnaCourseCategoryPage = () => {
   const isLgUp = useLgUp();
-  const { data, isLoading: isCourseCategoryLoading } = useGetCourseCategory(
-    {},
-  );
+  const { data, isLoading: isCourseCategoryLoading } = useGetCourseCategory({});
   const { mutate: setCourseCategory, isLoading: isSaving } =
     useSetCourseCategory();
 
@@ -164,8 +162,7 @@ const TnaCourseCategoryPage = () => {
   const isEditing = !!selectedCategoryId;
 
   const hasCategoryRows = (data?.items?.length ?? 0) > 0;
-  const isSearchFilteredEmpty =
-    hasCategoryRows && filteredItems.length === 0;
+  const isSearchFilteredEmpty = hasCategoryRows && filteredItems.length === 0;
 
   const openCreateCategory = () => {
     setSelectedCategoryId(null);

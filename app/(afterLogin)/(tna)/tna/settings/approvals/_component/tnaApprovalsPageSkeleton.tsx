@@ -15,7 +15,7 @@ const TnaApprovalsPageSkeleton = () => {
         className="grid grid-cols-1 lg:grid-cols-2 gap-4"
         data-cy="tna-approvals-skeleton-grid"
       >
-        {Array.from({ length: CARD_COUNT }).map((_, idx) => (
+        {Array.from({ length: CARD_COUNT }).map((unusedValue, idx) => (
           <div
             key={idx}
             className="rounded-lg border border-[#D9D9D9] bg-white p-3"
@@ -26,7 +26,10 @@ const TnaApprovalsPageSkeleton = () => {
               data-cy={`tna-approvals-skeleton-card-header-${idx}`}
             >
               <Skeleton.Button active className="!h-6 !w-20 !min-w-0" />
-              <div className="flex gap-2">
+              <div
+                className="flex gap-2"
+                data-cy={`tna-approvals-skeleton-card-actions-${idx}`}
+              >
                 <Skeleton.Button active className="!h-7 !w-7 !min-w-7" />
                 <Skeleton.Button active className="!h-7 !w-7 !min-w-7" />
                 <Skeleton.Button active className="!h-7 !w-7 !min-w-7" />
@@ -50,9 +53,15 @@ const TnaApprovalsPageSkeleton = () => {
                 size="small"
                 className="!h-4 !w-24 !min-w-0"
               />
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                data-cy={`tna-approvals-skeleton-card-user-row-${idx}`}
+              >
                 <Skeleton.Avatar active size="small" />
-                <div className="flex-1 space-y-1">
+                <div
+                  className="flex-1 space-y-1"
+                  data-cy={`tna-approvals-skeleton-card-user-detail-${idx}`}
+                >
                   <Skeleton.Input
                     active
                     size="small"

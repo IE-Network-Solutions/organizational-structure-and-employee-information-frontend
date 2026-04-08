@@ -14,8 +14,11 @@ import EmptyState from '@/components/empty';
 const TnaCommitmentRulePage = () => {
   const { isShowCommitmentSidebar, setIsShowCommitmentSidebar } =
     useTnaSettingsStore();
-  const { data, isLoading: isCommitmentListLoading, refetch } =
-    useGetTnaCommitment({});
+  const {
+    data,
+    isLoading: isCommitmentListLoading,
+    refetch,
+  } = useGetTnaCommitment({});
 
   const items = useMemo(() => data?.items ?? [], [data?.items]);
 

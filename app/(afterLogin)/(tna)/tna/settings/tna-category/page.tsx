@@ -14,9 +14,11 @@ import EmptyState from '@/components/empty';
 const TnaCategoryPage = () => {
   const { isShowTnaCategorySidebar, setIsShowTnaCategorySidebar } =
     useTnaSettingsStore();
-  const { data, isLoading: isTnaCategoryLoading, refetch } = useGetTnaCategory(
-    {},
-  );
+  const {
+    data,
+    isLoading: isTnaCategoryLoading,
+    refetch,
+  } = useGetTnaCategory({});
 
   const items = useMemo(() => data?.items ?? [], [data?.items]);
 
@@ -92,9 +94,7 @@ const TnaCategoryPage = () => {
               <EmptyState
                 title="No TNA categories yet"
                 description="Create a category to organize training needs."
-                actionText={
-                  canCreateTnaCategory ? 'New Category' : undefined
-                }
+                actionText={canCreateTnaCategory ? 'New Category' : undefined}
                 onAction={
                   canCreateTnaCategory
                     ? () => setIsShowTnaCategorySidebar(true)

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button, Skeleton } from 'antd';
+import { Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -15,13 +15,10 @@ interface OkrSettingsLayoutProps {
   children: React.ReactNode;
 }
 
-
-
 const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>('okr-type');
-  const [isTabLoading, setIsTabLoading] = useState(false);
   const [pendingTabPath, setPendingTabPath] = useState<string | null>(null);
   const { setOpen: setPlanningOpen } = usePlanningAssignationStore();
   const { openDrawer: setCriteriaOpen } = useDrawerStore();
@@ -88,9 +85,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       setActiveTab(tabMap[lastKey]);
     }
 
-    // Clear tab loading state once we've navigated to the target path
     if (pendingTabPath && pathname === pendingTabPath) {
-      setIsTabLoading(false);
       setPendingTabPath(null);
     }
   }, [pathname, pendingTabPath]);
@@ -99,7 +94,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     if (pathname === path) return;
     setActiveTab(key);
     setPendingTabPath(path);
-    setIsTabLoading(true);
     router.push(path);
   };
 
@@ -288,7 +282,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
           id="okr-settings-layout-children-wrapper-display-div"
           data-cy="okr-settings-layout-children-wrapper-display-div"
         >
-           {children}
+          {children}
         </div>
       </div>
     </div>

@@ -173,7 +173,7 @@ function EditReport() {
         <Button
           id="update-report-button-for-planning-and-reporting"
           type="primary"
-          className="py-6 px-10 rounded-xl bg-[#574CFF] hover:bg-[#4F46EF]"
+          className="rounded-xl bg-[#1E40AF] px-10 py-6 text-white hover:bg-[#1E3A8A]"
           loading={editReportLoading}
           onClick={() => form.submit()}
         >
@@ -334,7 +334,7 @@ function EditReport() {
               >
                 <div
                   data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-300"
-                  className="flex items-center gap-4 bg-gray-50 p-1.5 rounded-lg border border-gray-100"
+                  className="flex items-center gap-4 bg-white p-1.5 rounded-lg border border-gray-100"
                 >
                   {/* Done Option */}
                   <div
