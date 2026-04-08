@@ -21,7 +21,7 @@ export default function RecruitmentLayout({
       }}
     >
       <div
-        className="min-h-0 max-w-full overflow-x-hidden"
+        className="box-border -mx-2 min-h-0 w-[calc(100%+16px)] px-2 md:-mx-6 md:w-[calc(100%+48px)] md:px-6"
         style={{ fontFamily: TA_FONT }}
         data-cy="talent-acquisition-recruitment-layout"
       >

@@ -11,6 +11,7 @@ import JobsFilterModal from './_components/modals/filter';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import TalentAcquisitionFullBleedHeaderRule from '../_components/TalentAcquisitionFullBleedHeaderRule';
 import { Input } from 'antd';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { useDebounce } from '@/utils/useDebounce';
@@ -126,7 +127,7 @@ const RecruitmentPage: React.FC = () => {
     <div
       id="talent-acquisition-jobs-page-div-container"
       data-cy="talent-acquisition-jobs-page-div-container"
-      className="min-h-screen max-w-full overflow-x-hidden bg-white font-['Calibri']"
+      className="min-h-screen max-w-full bg-white font-['Calibri']"
     >
       <header className="w-full" data-cy="talent-acquisition-jobs-page-header">
         <div
@@ -213,14 +214,14 @@ const RecruitmentPage: React.FC = () => {
             </AccessGuard>
           </div>
         </div>
-        <div
-          className="relative left-1/2 mt-3 w-[calc(100vw-16px)] -translate-x-1/2 border-0 border-b border-solid border-gray-200 sm:mt-4"
-          aria-hidden
-          data-cy="talent-acquisition-jobs-page-header-divider"
+        <TalentAcquisitionFullBleedHeaderRule
+          className="mt-3 sm:mt-4"
+          borderClassName="border-gray-200"
+          dataCy="talent-acquisition-jobs-page-header-divider"
         />
       </header>
       <div
-        className="px-2 pb-4 sm:px-3 sm:pb-5 md:px-4"
+        className="overflow-x-hidden px-2 pb-4 sm:px-3 sm:pb-5 md:px-4"
         data-cy="talent-acquisition-jobs-page-main"
       >
         <div

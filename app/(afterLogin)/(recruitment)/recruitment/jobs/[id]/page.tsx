@@ -37,6 +37,7 @@ import { EmploymentType, LocationType } from '@/types/enumTypes';
 import TextEditor from '@/components/form/textEditor';
 import { IoHourglassOutline } from 'react-icons/io5';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import TalentAcquisitionFullBleedHeaderRule from '../../_components/TalentAcquisitionFullBleedHeaderRule';
 
 interface Params {
   id: string;
@@ -47,7 +48,7 @@ interface CandidateProps {
 }
 
 const RADIO_GROUP_CLASS =
-  'flex flex-wrap gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:h-10 [&_.ant-radio-wrapper]:cursor-pointer [&_.ant-radio-wrapper]:select-none [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:gap-2 [&_.ant-radio-wrapper]:rounded-[8px] [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-solid [&_.ant-radio-wrapper]:border-[#D9D9D9] [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:shadow-none [&_.ant-radio-wrapper]:text-[14px] [&_.ant-radio-wrapper]:font-normal [&_.ant-radio-wrapper]:text-[rgba(0,0,0,0.7)] [&_.ant-radio-wrapper:hover]:!border-[#1677FF] [&_.ant-radio-wrapper-checked]:!border-[#1677FF]';
+  'flex flex-nowrap w-full gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:!flex-1 [&_.ant-radio-wrapper]:!justify-center [&_.ant-radio-wrapper]:!whitespace-nowrap [&_.ant-radio-wrapper]:h-10 [&_.ant-radio-wrapper]:cursor-pointer [&_.ant-radio-wrapper]:select-none [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:gap-2 [&_.ant-radio-wrapper]:rounded-[8px] [&_.ant-radio-wrapper]:border [&_.ant-radio-wrapper]:border-solid [&_.ant-radio-wrapper]:border-[#D9D9D9] [&_.ant-radio-wrapper]:bg-white [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:shadow-none [&_.ant-radio-wrapper]:text-[14px] [&_.ant-radio-wrapper]:font-normal [&_.ant-radio-wrapper]:text-[rgba(0,0,0,0.7)] [&_.ant-radio-wrapper:hover]:!border-[#1677FF] [&_.ant-radio-wrapper-checked]:!border-[#1677FF]';
 
 const INFO_FORM_LABEL_CLASS =
   '[&_.ant-form-item-label>label]:!text-[14px] [&_.ant-form-item-label>label]:!font-normal [&_.ant-form-item-label>label]:!text-[rgba(0,0,0,0.7)] [&_.ant-form-item-label]:!pb-2';
@@ -459,7 +460,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               />
             </div>
           </div>
-          <div className="relative left-1/2 mt-3 w-[calc(100vw-16px)] -translate-x-1/2 border-b border-solid border-[#E5E7EB] sm:mt-4" />
+          <TalentAcquisitionFullBleedHeaderRule
+            className="mt-3 sm:mt-4"
+            borderClassName="border-[#E5E7EB]"
+            dataCy="talent-acquisition-job-detail-header-divider"
+          />
         </header>
         <div className="p-4 sm:p-6">
           {/* Job information card */}
@@ -498,7 +503,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                     <Select
                       id="job-detail-edit-status"
                       placeholder="Status"
-                      className="!min-w-[100px] [&_.ant-select-selector]:!flex [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!items-center [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selector]:!px-3 [&_.ant-select-focused_.ant-select-selector]:!border-[#1677FF] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!leading-[40px] [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)] [&_.ant-select-selection-search]:!inset-y-0 [&_.ant-select-selection-search-input]:!h-full [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!top-1/2 [&_.ant-select-arrow]:!-translate-y-1/2 [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-center"
+                      className="!h-10 !min-w-[100px] [&_.ant-select-selector]:!flex [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!items-center [&_.ant-select-selector]:!rounded-[8px] [&_.ant-select-selector]:!border-[#D9D9D9] [&_.ant-select-selector]:!px-3 [&_.ant-select-focused_.ant-select-selector]:!border-[#1677FF] [&_.ant-select-selection-item]:!text-[16px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!leading-[40px] [&_.ant-select-selection-item]:!text-[rgba(0,0,0,0.7)] [&_.ant-select-selection-search]:!inset-y-0 [&_.ant-select-selection-search-input]:!h-full"
                       optionLabelProp="label"
                       data-cy="talent-acquisition-job-detail-edit-status"
                     >
@@ -558,8 +563,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                     />
                   </Form.Item>
                 </div>
-                {/* Department / Job Type / Location: full card width so Location sits under the status area */}
-                <div className="grid grid-cols-1 gap-y-4 lg:grid-cols-3 lg:gap-x-12">
+                {/* Department / Job Type / Location: at ≤1330px Location spans full row below Dept + Job Type */}
+                <div className="grid gap-x-5 gap-y-4 max-[1330px]:grid-cols-2 min-[1331px]:grid-cols-[206px_auto_auto] min-[1331px]:justify-start min-[1331px]:gap-x-[52px]">
                   <Form.Item
                     name="department"
                     label="Department"
@@ -569,7 +574,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                         message: 'Please select department!',
                       },
                     ]}
-                    className="!mb-0"
+                    className="!mb-0 min-w-0"
                   >
                     <Select
                       id="job-detail-edit-department"
@@ -589,7 +594,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                     name="employmentType"
                     label="Job Type"
                     rules={[{ required: true }]}
-                    className="!mb-0"
+                    className="!mb-0 min-w-0"
                   >
                     <Radio.Group
                       className={RADIO_GROUP_CLASS}
@@ -603,7 +608,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                     name="jobLocation"
                     label="Location"
                     rules={[{ required: true }]}
-                    className="!mb-0"
+                    className="!mb-0 min-w-0 max-[1330px]:col-span-2"
                   >
                     <Radio.Group
                       className={RADIO_GROUP_CLASS}

@@ -214,9 +214,7 @@ const CreateJobs: React.FC = () => {
               padding: 0,
               height: currentStep === 2 ? 740 : 688,
             },
-        body: isMobile
-          ? {}
-          : { overflow: 'hidden' },
+        body: isMobile ? {} : { overflow: 'hidden' },
       }}
       data-cy="talent-acquisition-create-jobs-modal"
       title={

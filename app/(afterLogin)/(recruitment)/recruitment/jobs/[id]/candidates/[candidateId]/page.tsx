@@ -15,6 +15,7 @@ import { useUpdateCandidate } from '@/store/server/features/recruitment/candidat
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import HtmlStringDisplayer from '@/components/HtmlStringDisplayer';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import TalentAcquisitionFullBleedHeaderRule from '@/app/(afterLogin)/(recruitment)/recruitment/_components/TalentAcquisitionFullBleedHeaderRule';
 
 const CandidateDetailPage: React.FC = () => {
   const router = useRouter();
@@ -119,7 +120,7 @@ const CandidateDetailPage: React.FC = () => {
   return (
     <div
       id="talent-acquisition-candidate-detail-page"
-      className="min-h-screen w-full max-w-full overflow-x-hidden bg-white font-['Calibri']"
+      className="min-h-screen w-full max-w-full bg-white font-['Calibri']"
       data-cy="talent-acquisition-candidate-detail-page"
     >
       {/* ── Page header — identical to job details page ─────── */}
@@ -164,7 +165,11 @@ const CandidateDetailPage: React.FC = () => {
             />
           </div>
         </div>
-        <div className="mt-3 w-full max-w-full border-b border-solid border-[#E5E7EB] sm:mt-4" />
+        <TalentAcquisitionFullBleedHeaderRule
+          className="mt-3 sm:mt-4"
+          borderClassName="border-[#E5E7EB]"
+          dataCy="talent-acquisition-candidate-detail-header-divider"
+        />
       </header>
 
       <div className="overflow-x-hidden p-4 sm:p-6">
