@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Spin, Table, Progress, Button, Modal, Select, Skeleton } from 'antd';
+import { Table, Progress, Button, Modal, Select, Skeleton } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
@@ -831,15 +831,12 @@ const VariablePayTable = () => {
             </div>
           </div>
         </Modal>
-        <Spin
-          spinning={isLoading || isFetching || refreshLoading}
-          data-testid="variable-pay-table-loading"
-          data-cy="compensation-benefit-variable-pay-table-loading"
-        >
+        <>
           <div
             className={`${isMobile || isTablet ? 'overflow-x-auto' : 'overflow-x-hidden'}`}
             id="compensation-benefit-variable-pay-scroll-container"
             data-cy="compensation-benefit-variable-pay-scroll-container"
+            data-testid="variable-pay-table-loading"
           >
             {isLoading || isFetching || refreshLoading ? (
               <TableSkeleton columns={columns} />
@@ -916,7 +913,7 @@ const VariablePayTable = () => {
             data-cy="compensation-benefit-variable-pay-modal"
             data={filteredDataSource}
           />
-        </Spin>
+        </>
       </div>
     </div>
   );
