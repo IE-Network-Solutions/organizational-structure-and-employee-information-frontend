@@ -85,7 +85,10 @@ export function PlanningReportingHeaderActions() {
 
     return (
       <Tooltip title={tooltipTitle}>
-        <div className="inline-block">
+        <div
+          className="inline-block"
+          data-cy="planning-reporting-header-actions-create-wrap"
+        >
           {userPlanningPeriodId && (
             <CustomButton
               disabled={createPlanDisabled}

@@ -121,6 +121,7 @@ export function PlanCardInlineReportFields({
       >
         {/* Single row when achieved fields show: task truncates (ellipsis) so controls stay inline */}
         <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-div-L123"
           className={classNames(
             'flex w-full min-w-0 items-center overflow-hidden',
             showActualValue
@@ -134,11 +135,13 @@ export function PlanCardInlineReportFields({
             rules={[{ required: true, message: '' }]}
           >
             <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-div-L136"
               className="flex items-center gap-1"
               role="group"
               aria-label="Task outcome"
             >
               <button
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-button-L141"
                 type="button"
                 id={`inline-report-done-${task.taskId}`}
                 aria-label="Done"
@@ -162,6 +165,7 @@ export function PlanCardInlineReportFields({
                 <CheckOutlined className="text-[10px]" />
               </button>
               <button
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-button-L164"
                 type="button"
                 id={`inline-report-not-${task.taskId}`}
                 aria-label="Not completed"
@@ -187,6 +191,7 @@ export function PlanCardInlineReportFields({
             </div>
           </Form.Item>
           <p
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-p-L189"
             className={classNames(
               'm-0 min-w-0 flex-1 transition-colors duration-200',
               showActualValue
@@ -206,6 +211,7 @@ export function PlanCardInlineReportFields({
               data-cy={`inline-report-actual-row-${task.taskId}`}
             >
               <span
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-span-L208"
                 className={classNames(
                   fieldLabel,
                   'hidden min-[380px]:inline shrink-0 leading-none',
@@ -225,7 +231,10 @@ export function PlanCardInlineReportFields({
                   placeholder="0"
                   aria-label="Achieved value"
                   addonAfter={
-                    <span className="text-[10px] font-semibold tabular-nums leading-none text-[#64748B]">
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-span-L228"
+                      className="text-[10px] font-semibold tabular-nums leading-none text-[#64748B]"
+                    >
                       {metricAddonSymbol(keyresult)}
                     </span>
                   }
@@ -236,8 +245,12 @@ export function PlanCardInlineReportFields({
                   controls={false}
                 />
               </Form.Item>
-              <div className="inline-flex h-7 shrink-0 items-center gap-0.5 rounded-md bg-[#F1F5F9] px-1.5 sm:gap-1 sm:px-2">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-div-L239"
+                className="inline-flex h-7 shrink-0 items-center gap-0.5 rounded-md bg-[#F1F5F9] px-1.5 sm:gap-1 sm:px-2"
+              >
                 <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-span-L240"
                   className={classNames(
                     fieldLabel,
                     '!text-[8px] !normal-case !tracking-normal text-[#94A3B8] sm:!text-[9px]',
@@ -245,7 +258,10 @@ export function PlanCardInlineReportFields({
                 >
                   Target
                 </span>
-                <span className="max-w-[4rem] truncate text-[10px] font-semibold tabular-nums text-[#334155] sm:max-w-none sm:text-[11px]">
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-span-L248"
+                  className="max-w-[4rem] truncate text-[10px] font-semibold tabular-nums text-[#334155] sm:max-w-none sm:text-[11px]"
+                >
                   {formatTarget(task?.targetValue)}
                 </span>
               </div>
@@ -255,15 +271,22 @@ export function PlanCardInlineReportFields({
 
         {/* Row 3: reason when Not */}
         <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-div-L257"
           className={classNames(
             'grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none',
             isNot ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
           )}
           aria-hidden={!isNot}
         >
-          <div className="min-h-0 overflow-hidden">
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-div-L264"
+            className="min-h-0 overflow-hidden"
+          >
             {isNot ? (
-              <div className="mt-1.5 border-t border-[#FECACA]/60 pt-1.5">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-div-L266"
+                className="mt-1.5 border-t border-[#FECACA]/60 pt-1.5"
+              >
                 <Form.Item
                   name={[task.taskId, 'customReason']}
                   className="mb-0"

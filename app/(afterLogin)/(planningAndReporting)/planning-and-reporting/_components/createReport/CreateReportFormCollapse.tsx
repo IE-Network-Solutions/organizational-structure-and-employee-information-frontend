@@ -54,6 +54,7 @@ export function CreateReportFormCollapse({
             md={showActualValue ? 10 : 16}
           >
             <p
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-p-L56"
               className="m-0 truncate text-xs font-medium leading-relaxed text-gray-800 sm:text-sm"
               title={task.taskName}
             >
@@ -66,7 +67,10 @@ export function CreateReportFormCollapse({
             sm={showActualValue ? 16 : 10}
             md={showActualValue ? 14 : 8}
           >
-            <div className="no-scrollbar flex items-center justify-end gap-2 overflow-x-auto sm:gap-4">
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L69"
+              className="no-scrollbar flex items-center justify-end gap-2 overflow-x-auto sm:gap-4"
+            >
               {showActualValue && (
                 <Form.Item
                   name={[task.taskId, 'actualValue']}
@@ -123,7 +127,12 @@ export function CreateReportFormCollapse({
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
                     addonAfter={
-                      <span className="text-[10px]">{metricSymbol}</span>
+                      <span
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-span-L126"
+                        className="text-[10px]"
+                      >
+                        {metricSymbol}
+                      </span>
                     }
                     controls={false}
                   />
@@ -135,7 +144,10 @@ export function CreateReportFormCollapse({
                 className="mb-0"
                 rules={[{ required: true, message: '' }]}
               >
-                <div className="flex items-center gap-2 border-none bg-transparent p-0 sm:gap-4">
+                <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L138"
+                  className="flex items-center gap-2 border-none bg-transparent p-0 sm:gap-4"
+                >
                   <div
                     id={`create-report-status-done-${task.taskId}`}
                     data-cy={`create-report-status-done-${task.taskId}`}
@@ -151,13 +163,17 @@ export function CreateReportFormCollapse({
                     }}
                   >
                     <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L153"
                       className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-all ${isDone ? 'border-[#00C48C] bg-[#00C48C]' : 'border-[#E5E7EB] bg-white'}`}
                     >
                       {isDone && (
                         <CheckOutlined className="text-[10px] text-white" />
                       )}
                     </div>
-                    <span className="text-[12px] text-[#161A2C] sm:text-[13px]">
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-span-L160"
+                      className="text-[12px] text-[#161A2C] sm:text-[13px]"
+                    >
                       Done
                     </span>
                   </div>
@@ -177,13 +193,17 @@ export function CreateReportFormCollapse({
                     }}
                   >
                     <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L179"
                       className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-all ${isNot ? 'border-[#FF4D4F] bg-[#FF4D4F]' : 'border-[#E5E7EB] bg-white'}`}
                     >
                       {isNot && (
                         <CloseOutlined className="text-[10px] text-white" />
                       )}
                     </div>
-                    <span className="text-[12px] text-[#161A2C] sm:text-[13px]">
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-span-L186"
+                      className="text-[12px] text-[#161A2C] sm:text-[13px]"
+                    >
                       Not
                     </span>
                   </div>
@@ -194,7 +214,10 @@ export function CreateReportFormCollapse({
         </Row>
 
         {isNot && (
-          <div className="animate-in fade-in slide-in-from-top-2 mt-3 duration-200">
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L197"
+            className="animate-in fade-in slide-in-from-top-2 mt-3 duration-200"
+          >
             <Form.Item
               name={[task.taskId, 'customReason']}
               className="mb-0"
@@ -237,13 +260,20 @@ export function CreateReportFormCollapse({
               id={`create-report-panel-${objective.id || ''}-${index}`}
               data-cy={`create-report-panel-${objective.id || ''}-${index}`}
               header={
-                <div className="flex min-w-0 w-full items-center gap-2">
-                  <span className="flex-shrink-0 whitespace-nowrap font-bold text-gray-900">
+                <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L240"
+                  className="flex min-w-0 w-full items-center gap-2"
+                >
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-span-L241"
+                    className="flex-shrink-0 whitespace-nowrap font-bold text-gray-900"
+                  >
                     {planningPeriodName
                       ? `${planningPeriodName}-task :`
                       : 'Task :'}
                   </span>
                   <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-span-L246"
                     className="min-w-0 flex-1 truncate font-normal text-gray-700"
                     title={keyresult?.title}
                   >
@@ -255,7 +285,10 @@ export function CreateReportFormCollapse({
               className={`mb-3 overflow-hidden rounded-xl last:mb-0 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-header]:!bg-[#F9FAFB] ${headerPad}`}
               style={{ border: '1px solid #e5e7eb' }}
             >
-              <div className={embedded ? 'py-1.5' : 'py-2'}>
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-createreport-createreportformcollapse-tsx-div-L258"
+                className={embedded ? 'py-1.5' : 'py-2'}
+              >
                 {keyresult?.milestones?.map((milestone: any) =>
                   milestone?.tasks?.map((task: any) =>
                     renderTaskRow(task, keyresult),

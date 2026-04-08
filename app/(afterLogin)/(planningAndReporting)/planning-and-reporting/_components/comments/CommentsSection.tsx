@@ -69,7 +69,10 @@ export default function CommentsSection({
   if (onOpenThread) {
     return (
       <div data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-92">
-        <div className="flex items-center justify-between">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L72"
+          className="flex items-center justify-between"
+        >
           <button
             type="button"
             onClick={onOpenThread}
@@ -77,7 +80,10 @@ export default function CommentsSection({
             data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-101"
           >
             {commentCount > 0 && uniqueCommenters.length > 0 && (
-              <div className="flex -space-x-1.5">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L80"
+                className="flex -space-x-1.5"
+              >
                 {uniqueCommenters.map((commentData, index) => {
                   const userDetail = getUserDetail(commentData.commentedBy);
                   return (
@@ -101,19 +107,33 @@ export default function CommentsSection({
                 })}
               </div>
             )}
-            <div className="flex items-center gap-1.5">
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L104"
+              className="flex items-center gap-1.5"
+            >
               {commentCount === 0 && (
                 <MessageOutlined className="text-[12px] text-[#B0B3C0]" />
               )}
-              <span className="text-[12px] font-medium text-[#574CFF] group-hover:text-[#4F46EF] transition-colors">
+              <span
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L108"
+                className="text-[12px] font-medium text-[#574CFF] group-hover:text-[#4F46EF] transition-colors"
+              >
                 {commentCount > 0
                   ? `${commentCount} comment${commentCount !== 1 ? 's' : ''}`
                   : 'No comments'}
               </span>
               {commentCount > 0 && lastCommentTime && (
                 <>
-                  <span className="text-[10px] text-[#D1D5DB]">·</span>
-                  <span className="text-[10px] text-[#B0B3C0]">
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L115"
+                    className="text-[10px] text-[#D1D5DB]"
+                  >
+                    ·
+                  </span>
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L116"
+                    className="text-[10px] text-[#B0B3C0]"
+                  >
                     Last {lastCommentTime}
                   </span>
                 </>
@@ -122,9 +142,13 @@ export default function CommentsSection({
           </button>
 
           {!isPlanCard && (
-            <span className="text-[11px] text-[#8F94A3]">
+            <span
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L125"
+              className="text-[11px] text-[#8F94A3]"
+            >
               Points:{' '}
               <span
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L127"
                 className={`font-semibold ${
                   formattedAchieved > 84
                     ? 'text-[#10B981]'
@@ -157,7 +181,10 @@ export default function CommentsSection({
 
   return (
     <div data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-div-92">
-      <div className="flex items-center justify-between">
+      <div
+        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L160"
+        className="flex items-center justify-between"
+      >
         <button
           type="button"
           onClick={handleCommentsClick}
@@ -165,7 +192,10 @@ export default function CommentsSection({
           data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-101"
         >
           {commentCount > 0 && uniqueCommenters.length > 0 && (
-            <div className="flex -space-x-1.5">
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L168"
+              className="flex -space-x-1.5"
+            >
               {uniqueCommenters.map((commentData, index) => {
                 const userDetail = getUserDetail(commentData.commentedBy);
                 return (
@@ -189,11 +219,17 @@ export default function CommentsSection({
               })}
             </div>
           )}
-          <div className="flex items-center gap-1.5">
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L192"
+            className="flex items-center gap-1.5"
+          >
             {commentCount === 0 && (
               <MessageOutlined className="text-[12px] text-[#B0B3C0]" />
             )}
-            <span className="text-[12px] font-medium text-[#8F94A3] group-hover:text-[#574CFF] transition-colors">
+            <span
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L196"
+              className="text-[12px] font-medium text-[#8F94A3] group-hover:text-[#574CFF] transition-colors"
+            >
               {commentCount > 0
                 ? `${commentCount} comment${commentCount !== 1 ? 's' : ''}`
                 : 'No comments'}
@@ -201,11 +237,18 @@ export default function CommentsSection({
           </div>
         </button>
 
-        <div className="flex items-center gap-3">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L204"
+          className="flex items-center gap-3"
+        >
           {!isPlanCard && (
-            <span className="text-[11px] text-[#8F94A3]">
+            <span
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L206"
+              className="text-[11px] text-[#8F94A3]"
+            >
               Points:{' '}
               <span
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-L208"
                 className={`font-semibold ${
                   formattedAchieved > 84
                     ? 'text-[#10B981]'
@@ -231,7 +274,10 @@ export default function CommentsSection({
       </div>
 
       {showComments && (
-        <div className="mt-3">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-L234"
+          className="mt-3"
+        >
           {isLoading ? (
             <Skeleton
               active

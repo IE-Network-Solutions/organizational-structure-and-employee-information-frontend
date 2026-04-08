@@ -115,8 +115,18 @@ function priorityChipText(priorityKey: string): React.ReactNode {
   if (priorityKey === 'Medium') {
     return (
       <>
-        <span className="md:hidden">Med</span>
-        <span className="hidden md:inline">Medium</span>
+        <span
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L118"
+          className="md:hidden"
+        >
+          Med
+        </span>
+        <span
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L119"
+          className="hidden md:inline"
+        >
+          Medium
+        </span>
       </>
     );
   }
@@ -372,27 +382,51 @@ export default function PlanCard({
         data-active-cadence={activeCadence}
       >
         {/* Header */}
-        <div className="px-4 pt-3.5 pb-3 md:px-5">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L375"
+          className="px-4 pt-3.5 pb-3 md:px-5"
+        >
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L376"
+            className="flex items-center justify-between gap-2"
+          >
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L377"
+              className="flex items-center gap-3 flex-1 min-w-0"
+            >
               <UserInfo
                 owner={plan.owner}
                 notificationCount={plan.notificationCount}
               />
             </div>
 
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L384"
+              className="flex items-center gap-1.5 flex-shrink-0"
+            >
               {plan.reprimandCount && plan.reprimandCount > 0 ? (
-                <div className="flex items-center gap-1 rounded-full bg-[#FEE2E2] px-2 py-0.5 text-[#991B1B]">
-                  <span className="text-[10px] font-bold">
+                <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L386"
+                  className="flex items-center gap-1 rounded-full bg-[#FEE2E2] px-2 py-0.5 text-[#991B1B]"
+                >
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L387"
+                    className="text-[10px] font-bold"
+                  >
                     {plan.reprimandCount}
                   </span>
                   <FaBomb className="text-[9px]" />
                 </div>
               ) : null}
               {plan.appreciationCount && plan.appreciationCount > 0 ? (
-                <div className="flex items-center gap-1 rounded-full bg-[#D1FAE5] px-2 py-0.5 text-[#059669]">
-                  <span className="text-[10px] font-bold">
+                <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L394"
+                  className="flex items-center gap-1 rounded-full bg-[#D1FAE5] px-2 py-0.5 text-[#059669]"
+                >
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L395"
+                    className="text-[10px] font-bold"
+                  >
                     {plan.appreciationCount}
                   </span>
                   <FaRegThumbsUp className="text-[9px]" />
@@ -401,6 +435,7 @@ export default function PlanCard({
               {plan.status && <StatusBadge status={plan.status} />}
               {inlineReportActive && onCloseInlineReport ? (
                 <button
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-button-L403"
                   type="button"
                   id={`plan-card-${plan.id}-cancel-inline-report`}
                   onClick={onCloseInlineReport}
@@ -446,18 +481,37 @@ export default function PlanCard({
 
         {/* Task list (hidden while inline report form is open) */}
         {!inlineReportActive ? (
-          <div className="px-3 md:px-4 pb-2">
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L449"
+            className="px-3 md:px-4 pb-2"
+          >
             {reportTasks.length > 0 && (
-              <div className="flex items-center px-2.5 pb-1 mb-0.5 mt-1">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <span className="text-[10px] font-medium text-[#8F94A3]">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L451"
+                className="flex items-center px-2.5 pb-1 mb-0.5 mt-1"
+              >
+                <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L452"
+                  className="flex items-center gap-2 flex-1 min-w-0"
+                >
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L453"
+                    className="text-[10px] font-medium text-[#8F94A3]"
+                  >
                     {getDateLabel()}
                   </span>
-                  <span className="text-[10px] font-medium text-[#8F94A3]">
+                  <span
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L456"
+                    className="text-[10px] font-medium text-[#8F94A3]"
+                  >
                     {completedCount}/{reportTotal}
                   </span>
-                  <div className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]">
+                  <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L459"
+                    className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                  >
                     <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L460"
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${reportPct}%`,
@@ -471,24 +525,62 @@ export default function PlanCard({
                     />
                   </div>
                 </div>
-                <div className="flex flex-shrink-0 items-center">
-                  <div className={classNames(meta.pri, metaHead)}>
-                    <span className="sm:hidden">Pri</span>
-                    <span className="hidden sm:inline">Priority</span>
-                  </div>
-                  <div className={classNames(meta.wt, metaHead)}>Wt</div>
-                  <div className={classNames(meta.tgt, metaHead)}>
-                    <span className="sm:hidden">Scr</span>
-                    <span className="hidden sm:inline">Score</span>
+                <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L474"
+                  className="flex flex-shrink-0 items-center"
+                >
+                  <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L475"
+                    className={classNames(meta.pri, metaHead)}
+                  >
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L476"
+                      className="sm:hidden"
+                    >
+                      Pri
+                    </span>
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L477"
+                      className="hidden sm:inline"
+                    >
+                      Priority
+                    </span>
                   </div>
                   <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L479"
+                    className={classNames(meta.wt, metaHead)}
+                  >
+                    Wt
+                  </div>
+                  <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L480"
+                    className={classNames(meta.tgt, metaHead)}
+                  >
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L481"
+                      className="sm:hidden"
+                    >
+                      Scr
+                    </span>
+                    <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L482"
+                      className="hidden sm:inline"
+                    >
+                      Score
+                    </span>
+                  </div>
+                  <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L484"
                     className={classNames(meta.out, 'flex-shrink-0')}
                     aria-hidden
                   />
                 </div>
               </div>
             )}
-            <div className="space-y-[2px]">
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L491"
+              className="space-y-[2px]"
+            >
               {reportTasks.map((task: any) => {
                 const taskAny = task as any;
                 const taskName =
@@ -529,6 +621,7 @@ export default function PlanCard({
 
                 const row = (
                   <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L531"
                     className={rowClassName}
                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
                       task._krId && onHoverKR?.(task._krId);
@@ -564,17 +657,24 @@ export default function PlanCard({
                       }
                     }}
                   >
-                    <div className="mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center">
+                    <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L567"
+                      className="mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center"
+                    >
                       {isCompleted ? (
                         <CheckOutlined className="text-[11px] text-[#10B981]" />
                       ) : isFailed ? (
                         <ExclamationCircleFilled className="text-[13px] text-[#EF4444]/80" />
                       ) : (
-                        <span className="inline-block h-2 w-2 rounded-full bg-[#D1D5DB]" />
+                        <span
+                          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L573"
+                          className="inline-block h-2 w-2 rounded-full bg-[#D1D5DB]"
+                        />
                       )}
                     </div>
 
                     <p
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-p-L577"
                       className={`min-w-0 flex-1 break-words text-[12.5px] leading-snug line-clamp-2 transition-all duration-200 ${
                         isCompleted
                           ? 'line-through text-[#B0B3C0]'
@@ -587,13 +687,21 @@ export default function PlanCard({
                       {taskName}
                     </p>
 
-                    <div className="flex flex-shrink-0 items-center self-center">
-                      <div className={classNames(meta.pri, 'flex justify-end')}>
+                    <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L590"
+                      className="flex flex-shrink-0 items-center self-center"
+                    >
+                      <div
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L591"
+                        className={classNames(meta.pri, 'flex justify-end')}
+                      >
                         <span
+                          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L592"
                           className="inline-flex max-w-full items-center gap-0.5 rounded-full px-1 py-[3px] text-[8px] font-bold leading-none sm:gap-1 sm:px-1.5 sm:py-0.5 sm:text-[9px]"
                           style={{ backgroundColor: pc.bg, color: pc.text }}
                         >
                           <span
+                            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L596"
                             className="inline-block h-1.5 w-1.5 shrink-0 rounded-full max-sm:h-1 max-sm:w-1"
                             style={{ backgroundColor: pc.dot }}
                           />
@@ -601,15 +709,25 @@ export default function PlanCard({
                         </span>
                       </div>
 
-                      <div className={classNames(meta.wt, 'text-right')}>
-                        <span className="text-[9px] font-semibold text-[#8F94A3] tabular-nums sm:text-[10px]">
+                      <div
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L604"
+                        className={classNames(meta.wt, 'text-right')}
+                      >
+                        <span
+                          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L605"
+                          className="text-[9px] font-semibold text-[#8F94A3] tabular-nums sm:text-[10px]"
+                        >
                           {formatNum(task.weight)}
                         </span>
                       </div>
 
-                      <div className={classNames(meta.tgt, 'text-right')}>
+                      <div
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L610"
+                        className={classNames(meta.tgt, 'text-right')}
+                      >
                         {task.achieved !== undefined ? (
                           <span
+                            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L612"
                             className={`text-[9px] font-semibold tabular-nums sm:text-[10px] ${
                               isCompleted
                                 ? 'text-[#10B981]'
@@ -624,6 +742,7 @@ export default function PlanCard({
                       </div>
 
                       <div
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L626"
                         className={classNames(
                           meta.out,
                           'flex flex-shrink-0 items-center justify-center self-center',
@@ -649,7 +768,11 @@ export default function PlanCard({
                 );
 
                 return (
-                  <div key={task.id} className="w-full min-w-0">
+                  <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L652"
+                    key={task.id}
+                    className="w-full min-w-0"
+                  >
                     {row}
                   </div>
                 );
@@ -659,7 +782,10 @@ export default function PlanCard({
         ) : null}
 
         {/* Footer: comments + points */}
-        <div className="border-t border-[#F1F2F6] px-4 py-2 md:px-5">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L662"
+          className="border-t border-[#F1F2F6] px-4 py-2 md:px-5"
+        >
           <CommentsSection
             commentCount={plan.commentCount}
             commentAvatars={plan.commentAvatars}
@@ -676,6 +802,7 @@ export default function PlanCard({
           typeof document !== 'undefined' &&
           createPortal(
             <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L678"
               role="tooltip"
               className="pointer-events-none fixed z-[10000] max-w-[min(340px,80vw)] rounded-[10px] px-3.5 py-2.5"
               style={{
@@ -725,27 +852,51 @@ export default function PlanCard({
       data-active-cadence={activeCadence}
     >
       {/* ── Header ────────────────────────────────────────────── */}
-      <div className="px-4 pt-3.5 pb-3 md:px-5">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div
+        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L728"
+        className="px-4 pt-3.5 pb-3 md:px-5"
+      >
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L729"
+          className="flex items-center justify-between gap-2"
+        >
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L730"
+            className="flex items-center gap-3 flex-1 min-w-0"
+          >
             <UserInfo
               owner={plan.owner}
               notificationCount={plan.notificationCount}
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-1.5 flex-shrink-0">
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L737"
+            className="flex flex-wrap items-center justify-end gap-1.5 flex-shrink-0"
+          >
             {plan.reprimandCount && plan.reprimandCount > 0 ? (
-              <div className="flex items-center gap-1 rounded-full bg-[#FEE2E2] px-2 py-0.5 text-[#991B1B]">
-                <span className="text-[10px] font-bold">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L739"
+                className="flex items-center gap-1 rounded-full bg-[#FEE2E2] px-2 py-0.5 text-[#991B1B]"
+              >
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L740"
+                  className="text-[10px] font-bold"
+                >
                   {plan.reprimandCount}
                 </span>
                 <FaBomb className="text-[9px]" />
               </div>
             ) : null}
             {plan.appreciationCount && plan.appreciationCount > 0 ? (
-              <div className="flex items-center gap-1 rounded-full bg-[#D1FAE5] px-2 py-0.5 text-[#059669]">
-                <span className="text-[10px] font-bold">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L747"
+                className="flex items-center gap-1 rounded-full bg-[#D1FAE5] px-2 py-0.5 text-[#059669]"
+              >
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L748"
+                  className="text-[10px] font-bold"
+                >
                   {plan.appreciationCount}
                 </span>
                 <FaRegThumbsUp className="text-[9px]" />
@@ -754,6 +905,7 @@ export default function PlanCard({
             {plan.status && <StatusBadge status={plan.status} />}
             {inlineReportActive && onCloseInlineReport ? (
               <button
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-button-L756"
                 type="button"
                 id={`plan-card-${plan.id}-cancel-inline-report`}
                 onClick={onCloseInlineReport}
@@ -816,19 +968,38 @@ export default function PlanCard({
         : null}
 
       {/* ── Task list ─────────────────────────────────────────── */}
-      <div className="px-3 md:px-4 pb-2">
+      <div
+        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L819"
+        className="px-3 md:px-4 pb-2"
+      >
         {/* Column titles + date + progress */}
         {!inlineReportActive && allTasks.length > 0 && (
-          <div className="flex items-center px-2.5 pb-1 mb-0.5 mt-1">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <span className="text-[10px] font-medium text-[#8F94A3]">
+          <div
+            data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L822"
+            className="flex items-center px-2.5 pb-1 mb-0.5 mt-1"
+          >
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L823"
+              className="flex items-center gap-2 flex-1 min-w-0"
+            >
+              <span
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L824"
+                className="text-[10px] font-medium text-[#8F94A3]"
+              >
                 {getDateLabel()}
               </span>
-              <span className="text-[10px] font-medium text-[#8F94A3]">
+              <span
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L827"
+                className="text-[10px] font-medium text-[#8F94A3]"
+              >
                 {checkedCount}/{totalTasks}
               </span>
-              <div className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]">
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L830"
+                className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]"
+              >
                 <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L831"
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${progressPct}%`,
@@ -842,24 +1013,62 @@ export default function PlanCard({
                 />
               </div>
             </div>
-            <div className="flex flex-shrink-0 items-center">
-              <div className={classNames(meta.pri, metaHead)}>
-                <span className="sm:hidden">Pri</span>
-                <span className="hidden sm:inline">Priority</span>
-              </div>
-              <div className={classNames(meta.wt, metaHead)}>Wt</div>
-              <div className={classNames(meta.tgt, metaHead)}>
-                <span className="sm:hidden">Tgt</span>
-                <span className="hidden sm:inline">Target</span>
+            <div
+              data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L845"
+              className="flex flex-shrink-0 items-center"
+            >
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L846"
+                className={classNames(meta.pri, metaHead)}
+              >
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L847"
+                  className="sm:hidden"
+                >
+                  Pri
+                </span>
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L848"
+                  className="hidden sm:inline"
+                >
+                  Priority
+                </span>
               </div>
               <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L850"
+                className={classNames(meta.wt, metaHead)}
+              >
+                Wt
+              </div>
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L851"
+                className={classNames(meta.tgt, metaHead)}
+              >
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L852"
+                  className="sm:hidden"
+                >
+                  Tgt
+                </span>
+                <span
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L853"
+                  className="hidden sm:inline"
+                >
+                  Target
+                </span>
+              </div>
+              <div
+                data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L855"
                 className={classNames(meta.out, 'flex-shrink-0')}
                 aria-hidden
               />
             </div>
           </div>
         )}
-        <div className="space-y-[2px]">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L862"
+          className="space-y-[2px]"
+        >
           {!inlineReportActive &&
             allTasks.map((task: any) => {
               const taskAny = task as any;
@@ -896,6 +1105,7 @@ export default function PlanCard({
 
               return (
                 <div
+                  data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L898"
                   key={task.id}
                   className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
                     isChecked ? 'bg-[#2563EB]/[0.03]' : 'hover:bg-[#FAFBFC]'
@@ -906,6 +1116,7 @@ export default function PlanCard({
                   {/* Pre-achieve: owner uses interactive control; teammates see same visuals, read-only */}
                   {isTeammatePlan ? (
                     <span
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L908"
                       className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
                         isCompleted
                           ? 'border-[#D1D5DB] bg-[#F3F4F6]'
@@ -921,6 +1132,7 @@ export default function PlanCard({
                         />
                       ) : (
                         <span
+                          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L923"
                           className="inline-block h-1.5 w-1.5 rounded-full bg-current"
                           aria-hidden
                         />
@@ -928,6 +1140,7 @@ export default function PlanCard({
                     </span>
                   ) : (
                     <button
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-button-L930"
                       type="button"
                       onClick={() =>
                         !isPlanReadOnly &&
@@ -955,6 +1168,7 @@ export default function PlanCard({
                   )}
 
                   <p
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-p-L957"
                     className={`min-w-0 flex-1 break-words text-[12.5px] leading-snug line-clamp-2 transition-all duration-200 ${
                       isChecked
                         ? 'line-through text-[#B0B3C0]'
@@ -968,13 +1182,21 @@ export default function PlanCard({
                   </p>
 
                   {/* Right-side meta columns — fixed widths for alignment */}
-                  <div className="flex flex-shrink-0 items-center self-center">
-                    <div className={classNames(meta.pri, 'flex justify-end')}>
+                  <div
+                    data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L971"
+                    className="flex flex-shrink-0 items-center self-center"
+                  >
+                    <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L972"
+                      className={classNames(meta.pri, 'flex justify-end')}
+                    >
                       <span
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L973"
                         className="inline-flex max-w-full items-center gap-0.5 rounded-full px-1 py-[3px] text-[8px] font-bold leading-none sm:gap-1 sm:px-1.5 sm:py-0.5 sm:text-[9px]"
                         style={{ backgroundColor: pc.bg, color: pc.text }}
                       >
                         <span
+                          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L977"
                           className="inline-block h-1.5 w-1.5 shrink-0 rounded-full max-sm:h-1 max-sm:w-1"
                           style={{ backgroundColor: pc.dot }}
                         />
@@ -982,21 +1204,34 @@ export default function PlanCard({
                       </span>
                     </div>
 
-                    <div className={classNames(meta.wt, 'text-right')}>
-                      <span className="text-[9px] font-semibold text-[#8F94A3] tabular-nums sm:text-[10px]">
+                    <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L985"
+                      className={classNames(meta.wt, 'text-right')}
+                    >
+                      <span
+                        data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L986"
+                        className="text-[9px] font-semibold text-[#8F94A3] tabular-nums sm:text-[10px]"
+                      >
                         {formatNum(task.weight)}
                       </span>
                     </div>
 
-                    <div className={classNames(meta.tgt, 'text-right')}>
+                    <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L991"
+                      className={classNames(meta.tgt, 'text-right')}
+                    >
                       {showTarget ? (
-                        <span className="text-[9px] font-semibold text-[#10B981] tabular-nums sm:text-[10px]">
+                        <span
+                          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-span-L993"
+                          className="text-[9px] font-semibold text-[#10B981] tabular-nums sm:text-[10px]"
+                        >
                           {formatNum(task.target)}
                         </span>
                       ) : null}
                     </div>
 
                     <div
+                      data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L999"
                       className={classNames(
                         meta.out,
                         'flex flex-shrink-0 items-center justify-center self-center',
@@ -1026,7 +1261,10 @@ export default function PlanCard({
 
       {/* ── Footer: comments (hidden during inline report submit) ─ */}
       {!inlineReportActive ? (
-        <div className="border-t border-[#F1F2F6] px-4 py-2 md:px-5">
+        <div
+          data-cy="auto-app-afterlogin-planningandreporting-planning-and-reporting-components-cards-plancard-tsx-div-L1029"
+          className="border-t border-[#F1F2F6] px-4 py-2 md:px-5"
+        >
           <CommentsSection
             commentCount={plan.commentCount}
             commentAvatars={plan.commentAvatars}
