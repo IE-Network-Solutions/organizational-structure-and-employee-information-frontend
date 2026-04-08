@@ -147,7 +147,7 @@ const MeetingList = ({
           passHref
           key={meeting.id}
           scroll={false}
-          className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.08)] transition-all ${
+          className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
             selectedMeetingId === meeting.id
               ? 'border-[#1E40AF] bg-transparent'
               : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
