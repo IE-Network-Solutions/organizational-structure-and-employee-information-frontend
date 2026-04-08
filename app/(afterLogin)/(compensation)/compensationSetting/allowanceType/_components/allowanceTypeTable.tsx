@@ -14,6 +14,7 @@ import {
   useCompensationTypeTablesStore,
 } from '@/store/uistate/features/compensation/settings';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 
@@ -252,15 +253,19 @@ const AllowanceTypeTable = () => {
           id="compensation-settings-allowance-type-table-scroll"
           data-cy="compensation-settings-allowance-type-table-scroll"
         >
-          <Table
-            className="mt-6"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            data-testid="allowance-type-table"
-            id="compensation-settings-allowance-type-table"
-            data-cy="compensation-settings-allowance-type-table"
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="mt-6"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              data-testid="allowance-type-table"
+              id="compensation-settings-allowance-type-table"
+              data-cy="compensation-settings-allowance-type-table"
+            />
+          )}
         </div>
 
         {isMobile || isTablet ? (

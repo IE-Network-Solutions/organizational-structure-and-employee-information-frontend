@@ -13,6 +13,7 @@ import { useGetAdminAttendanceUsers } from '@/store/server/features/timesheet/da
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useGetEmployees } from '@/store/server/features/employees/employeeManagment/queries';
 import CustomButton from '@/components/common/buttons/customButton';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { LuSettings2 } from 'react-icons/lu';
 
 const { RangePicker } = DatePicker;
@@ -431,23 +432,26 @@ export default function EmployeeAttendanceTable() {
           className="hidden md:block"
           data-cy="time-attendance-employee-attendance-desktop-table-div"
         >
-          <Table
-            columns={columns}
-            dataSource={adminAttendanceUsers?.users}
-            pagination={false}
-            loading={loading}
-            rowKey="userId"
-            className="ant-table-thead-bg-white"
-            onRow={(record) => ({
-              onClick: () => {
-                router.push(
-                  `/timesheet/dashboard?employeeAttendance&user=${record.userId}`,
-                );
-              },
-              style: { cursor: 'pointer' },
-            })}
-            data-cy="time-attendance-employee-attendance-desktop-table"
-          />
+          {loading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={adminAttendanceUsers?.users}
+              pagination={false}
+              rowKey="userId"
+              className="ant-table-thead-bg-white"
+              onRow={(record) => ({
+                onClick: () => {
+                  router.push(
+                    `/timesheet/dashboard?employeeAttendance&user=${record.userId}`,
+                  );
+                },
+                style: { cursor: 'pointer' },
+              })}
+              data-cy="time-attendance-employee-attendance-desktop-table"
+            />
+          )}
         </div>
 
         {/* Mobile Cards */}

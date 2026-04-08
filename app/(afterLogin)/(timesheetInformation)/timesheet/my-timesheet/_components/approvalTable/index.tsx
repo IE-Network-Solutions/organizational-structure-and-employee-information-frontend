@@ -29,6 +29,7 @@ import dayjs from 'dayjs';
 import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
 import { usePathname } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
@@ -618,24 +619,28 @@ const ApprovalTable = () => {
           />
         </div>
       </div>
-      <Table
-        rowSelection={isApprovalListLoading ? undefined : rowSelection}
-        columns={approvalTableColumns}
-        dataSource={approvalTableDataSource}
-        pagination={false}
-        // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
-        scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
-        locale={{ emptyText: 'No leave requests' }}
-        className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
-        rowClassName={(record, index) => {
-          void record;
-          return index % 2 === 1
-            ? 'my-timesheet-approval-table-row-even'
-            : 'my-timesheet-approval-table-row-odd';
-        }}
-        id="time-attendance-approval-table"
-        data-cy="time-attendance-approval-table"
-      />
+      {isApprovalListLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={allFilterData}
+          pagination={false}
+          // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
+          scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
+          locale={{ emptyText: 'No leave requests' }}
+          className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
+          rowClassName={(record, index) => {
+            void record;
+            return index % 2 === 1
+              ? 'my-timesheet-approval-table-row-even'
+              : 'my-timesheet-approval-table-row-odd';
+          }}
+          id="time-attendance-approval-table"
+          data-cy="time-attendance-approval-table"
+        />
+      )}
       <div
         className="mx-3"
         data-cy="time-attendance-approval-table-pagination-wrapper"

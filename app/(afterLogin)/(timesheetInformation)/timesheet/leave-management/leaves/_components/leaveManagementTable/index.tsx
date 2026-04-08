@@ -20,6 +20,7 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import UserCard from '@/components/common/userCard/userCard';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { usePathname } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
@@ -423,43 +424,37 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           id="time-attendance-leave-management-table-scroll-wrapper"
           data-cy="time-attendance-leave-management-table-scroll-wrapper"
         >
-          <Table
-            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
-            rowClassName={() =>
-              isFetching ? 'h-[60px]' : 'h-[60px] cursor-pointer'
-            }
-            scroll={{ x: 'max-content' }}
-            columns={tableColumns}
-            dataSource={tableDataSource}
-            onRow={
-              isFetching
-                ? undefined
-                : (record) => ({
-                    onClick: (e) => {
-                      const target = e.target as HTMLElement;
-                      if (target.closest('.ant-checkbox-wrapper')) return;
-                      if (record.id && record.approvalWorkflowId) {
-                        setLeaveRequestId(record.id);
-                        setLeaveRequestWorkflowId(record.approvalWorkflowId);
-                        setIsShowLeaveRequestManagementSidebar(true);
-                      }
-                    },
-                  })
-            }
-            rowSelection={
-              isFetching
-                ? undefined
-                : {
-                    checkStrictly: false,
-                    selectedRowKeys: getCurrentPageSelectedKeys(),
-                    onChange: handleRowSelection,
+          {isFetching ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold"
+              rowClassName={() => 'h-[60px] cursor-pointer'}
+              scroll={{ x: 'max-content' }}
+              columns={columns}
+              dataSource={tableData}
+              onRow={(record) => ({
+                onClick: (e) => {
+                  const target = e.target as HTMLElement;
+                  if (target.closest('.ant-checkbox-wrapper')) return;
+                  if (record.id && record.approvalWorkflowId) {
+                    setLeaveRequestId(record.id);
+                    setLeaveRequestWorkflowId(record.approvalWorkflowId);
+                    setIsShowLeaveRequestManagementSidebar(true);
                   }
-            }
-            pagination={false}
-            onChange={handleTableChange}
-            id="time-attendance-leave-management-table"
-            data-cy="time-attendance-leave-management-table"
-          />
+                },
+              })}
+              rowSelection={{
+                checkStrictly: false,
+                selectedRowKeys: getCurrentPageSelectedKeys(),
+                onChange: handleRowSelection,
+              }}
+              pagination={false}
+              onChange={handleTableChange}
+              id="time-attendance-leave-management-table"
+              data-cy="time-attendance-leave-management-table"
+            />
+          )}
         </div>
         {isMobile || isTablet ? (
           <CustomMobilePagination

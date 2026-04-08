@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
-import { Skeleton, Table } from 'antd';
+import { Table } from 'antd';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LoadingOutlined } from '@ant-design/icons';
 import CustomPagination from '@/components/customPagination';
@@ -59,11 +60,9 @@ export default function CandidateTable({
       id="talent-acquisition-dashboard-candidate-table-div-container"
       data-cy="talent-acquisition-dashboard-candidate-table-div-container"
     >
-      <Skeleton
-        data-cy="talent-acquisition-dashboard-candidate-table-spin"
-        loading={isLoading}
-        active
-      >
+      {isLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
         <Table
           id="talent-acquisition-dashboard-candidate-table"
           data-cy="talent-acquisition-dashboard-candidate-table"
@@ -73,22 +72,22 @@ export default function CandidateTable({
           bordered={false}
           className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0 md:w-full w-full overflow-x-auto scrollbar-hide"
         />
+      )}
 
-        <CustomPagination
-          data-cy="talent-acquisition-dashboard-candidate-pagination"
-          total={data?.total}
-          pageSize={limit}
-          current={page}
-          onChange={(page: number, pageSize?: number) => {
-            setPage(page);
-            if (pageSize) setLimit(pageSize);
-          }}
-          onShowSizeChange={(size: number) => {
-            setPage(1);
-            setLimit(size);
-          }}
-        />
-      </Skeleton>
+      <CustomPagination
+        data-cy="talent-acquisition-dashboard-candidate-pagination"
+        total={data?.total}
+        pageSize={limit}
+        current={page}
+        onChange={(page: number, pageSize?: number) => {
+          setPage(page);
+          if (pageSize) setLimit(pageSize);
+        }}
+        onShowSizeChange={(size: number) => {
+          setPage(1);
+          setLimit(size);
+        }}
+      />
     </div>
   );
 }

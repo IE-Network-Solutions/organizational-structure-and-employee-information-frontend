@@ -18,7 +18,10 @@ const Incentive = () => {
     setStatus,
   } = useDashboardIncentiveStore();
 
-  const { data: incentivizeRecognition } = useGetIncentivizeRecognition();
+  const {
+    data: incentivizeRecognition,
+    isLoading: incentivizeRecognitionLoading,
+  } = useGetIncentivizeRecognition();
   const { data: IncentiveData, isLoading: incentiveIsLoading } =
     useGetIncentiveSummery(status, recognitionType);
   const { isMobile, isTablet } = useIsMobile();
@@ -30,6 +33,7 @@ const Incentive = () => {
         <AllRecognition
           data={incentivizeRecognition?.recognitionTypes}
           all={true}
+          isLoading={incentivizeRecognitionLoading}
         />
       ),
     },
@@ -37,7 +41,12 @@ const Incentive = () => {
       (recognitionType: any) => ({
         key: `${recognitionType?.id}`, // Ensure unique keys
         label: recognitionType?.name,
-        children: <AllRecognition data={[recognitionType]} />,
+        children: (
+          <AllRecognition
+            data={[recognitionType]}
+            isLoading={incentivizeRecognitionLoading}
+          />
+        ),
       }),
     ) || []),
   ];

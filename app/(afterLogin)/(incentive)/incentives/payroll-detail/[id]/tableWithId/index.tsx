@@ -16,6 +16,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import { useDeleteIncentive } from '@/store/server/features/incentive/other/mutation';
 import dayjs from 'dayjs';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import IncentiveDetailModal from './components/IncentiveDetailModal';
 
 export type IncentiveTableDataParams = {
@@ -331,28 +332,31 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       data-cy="incentive-table-after-generate-container"
       className="overflow-x-auto scrollbar-hide"
     >
-      <Table
-        id="incentive-table-after-generate-table"
-        data-cy="incentive-table-after-generate-table"
-        rowSelection={{ type: 'checkbox', ...rowSelection }}
-        rowKey="id"
-        className="w-full cursor-pointer"
-        columns={columns}
-        dataSource={IncentiveByRecognitionTypeTableData}
-        pagination={false}
-        loading={responseLoading}
-        onRow={(record) => ({
-          onClick: () => {
-            setSelectedDetailId(record?.id);
-            setDetailModalOpen(true);
-          },
-        })}
-        rowHoverable={false}
-        rowClassName={(unusedRecord, rowIndex) => {
-          void unusedRecord;
-          return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
-        }}
-      />
+      {responseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          id="incentive-table-after-generate-table"
+          data-cy="incentive-table-after-generate-table"
+          rowSelection={{ type: 'checkbox', ...rowSelection }}
+          rowKey="id"
+          className="w-full cursor-pointer"
+          columns={columns}
+          dataSource={IncentiveByRecognitionTypeTableData}
+          pagination={false}
+          onRow={(record) => ({
+            onClick: () => {
+              setSelectedDetailId(record?.id);
+              setDetailModalOpen(true);
+            },
+          })}
+          rowHoverable={false}
+          rowClassName={(unusedRecord, rowIndex) => {
+            void unusedRecord;
+            return rowIndex % 2 === 1 ? 'bg-[#fafafa]' : '';
+          }}
+        />
+      )}
       {isMobile || isTablet ? (
         <CustomMobilePagination
           data-cy="incentive-table-after-generate-mobile-pagination"

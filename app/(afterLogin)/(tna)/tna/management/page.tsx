@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Button, Divider, Spin } from 'antd';
+import { Button, Divider } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
@@ -18,6 +18,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { localUserID } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import TnaManagementSkeleton from './_components/tnaManagementSkeleton';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
@@ -196,11 +197,11 @@ const TnaManagementPage = () => {
 
           {isLoading ? (
             <div
-              className="flex justify-center py-10 w-full"
+              className="w-full"
               id="tnaManagementLoadingId"
               data-cy="tna-management-loading"
             >
-              <Spin data-cy="tna-management-spinner-spin" />
+              <TnaManagementSkeleton />
             </div>
           ) : (
             <div

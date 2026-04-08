@@ -1294,6 +1294,7 @@
 'use client';
 
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Button, Card, Col, Row, Select, Table, Tag } from 'antd';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
@@ -1791,12 +1792,15 @@ const PayrollReconcilation = () => {
           data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-405"
           className="w-full mt-6 overflow-x-auto"
         >
-          <Table
-            loading={isLoading}
-            dataSource={payrollVarianceData}
-            columns={columns}
-            pagination={false}
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              dataSource={payrollVarianceData}
+              columns={columns}
+              pagination={false}
+            />
+          )}
         </div>
         <PayrollReconcilationModal
           isModalOpen={isModalOpen}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { message, Skeleton, Table } from 'antd';
+import { message, Table } from 'antd';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { TableColumnsType } from '@/types/table/table';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
@@ -123,20 +124,20 @@ const ClosedDateTable = () => {
   ];
 
   return (
-    <Skeleton
-      loading={fiscalActiveYearFetchLoading}
-      active
-      data-cy="time-attendance-settings-closed-date-table-spin"
-    >
-      <Table
-        className="mt-6"
-        columns={columns}
-        dataSource={fiscalActiveYear?.closedDates || []}
-        pagination={false}
-        id="time-attendance-settings-closed-date-table"
-        data-cy="time-attendance-settings-closed-date-table"
-      />
-    </Skeleton>
+    <>
+      {fiscalActiveYearFetchLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          className="mt-6"
+          columns={columns}
+          dataSource={fiscalActiveYear?.closedDates || []}
+          pagination={false}
+          id="time-attendance-settings-closed-date-table"
+          data-cy="time-attendance-settings-closed-date-table"
+        />
+      )}
+    </>
   );
 };
 

@@ -7,6 +7,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetSessionById } from '@/store/server/features/payroll/payroll/queries';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -208,16 +209,19 @@ const EmployeeOKRTable: React.FC = () => {
       data-cy="okr-employee-okr-table-container"
       className="py-6"
     >
-      <Table
-        id="okr-employee-okr-table"
-        data-cy="okr-employee-okr-table"
-        columns={columns}
-        dataSource={dataSource}
-        pagination={false}
-        loading={isLoading}
-        scroll={{ y: 400 }} // Add vertical scrolling with fixed height
-        rowKey="id" // Ensure each row has a unique key
-      />
+      {isLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          id="okr-employee-okr-table"
+          data-cy="okr-employee-okr-table"
+          columns={columns}
+          dataSource={dataSource}
+          pagination={false}
+          scroll={{ y: 400 }} // Add vertical scrolling with fixed height
+          rowKey="id" // Ensure each row has a unique key
+        />
+      )}
 
       {isMobile || isTablet ? (
         <CustomMobilePagination

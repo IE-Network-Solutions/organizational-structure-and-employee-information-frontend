@@ -287,6 +287,7 @@
 // export default PayrollReconcilationModal;
 
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetReconciliationDetails } from '@/store/server/features/payroll/reconcilation/queries';
@@ -516,13 +517,16 @@ const PayrollReconcilationModal = ({
           data-cy="reconcilation-components-modal-index-tsx-index-div-205"
           className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full"
         >
-          <Table
-            loading={isLoadingReconciliationDetails}
-            dataSource={payrollVarianceData}
-            columns={columns}
-            pagination={false}
-            className="custom-payroll-table"
-          />
+          {isLoadingReconciliationDetails ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              dataSource={payrollVarianceData}
+              columns={columns}
+              pagination={false}
+              className="custom-payroll-table"
+            />
+          )}
         </div>
 
         {isMobile || isTablet ? (

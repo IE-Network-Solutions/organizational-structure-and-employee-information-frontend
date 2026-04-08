@@ -12,6 +12,7 @@ import { Skeleton, Table, TableColumnsType } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import React from 'react';
@@ -160,14 +161,17 @@ const IncentiveSettingsTable: React.FC = () => {
       id="incentive-settings-table-container"
       data-cy="incentive-settings-table-container"
     >
-      <Table
-        id="incentive-settings-table"
-        data-cy="incentive-settings-table"
-        columns={columns}
-        dataSource={[incentiveTableData]}
-        pagination={false}
-        loading={responseLoading}
-      />
+      {responseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          id="incentive-settings-table"
+          data-cy="incentive-settings-table"
+          columns={columns}
+          dataSource={[incentiveTableData]}
+          pagination={false}
+        />
+      )}
     </div>
   );
 };

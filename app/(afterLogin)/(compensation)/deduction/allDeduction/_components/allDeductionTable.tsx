@@ -4,6 +4,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
 import { fetchAllowanceEntitlements } from '@/store/server/features/compensation/allowance/queries';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Spin, Table } from 'antd';
@@ -193,22 +194,26 @@ const AllDeductionTable = ({ searchText = '' }: AllDeductionTableProps) => {
           id="compensation-deduction-all-table-scroll"
           data-cy="compensation-deduction-all-table-scroll"
         >
-          <Table
-            rowKey="employeeId"
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            scroll={{ x: 'max-content' }}
-            rowHoverable={false}
-            rowClassName={(unusedRow, rowIndex) => {
-              void unusedRow;
-              return rowIndex % 2 === 0
-                ? 'benefit-row-even'
-                : 'benefit-row-odd';
-            }}
-            className="[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-tbody>tr.benefit-row-even>td]:!bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr>td]:border-0 [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr:hover>td]:!bg-[#f5f5f5]"
-            data-cy="compensation-deduction-all-table"
-          />
+          {tableLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              rowKey="employeeId"
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              scroll={{ x: 'max-content' }}
+              rowHoverable={false}
+              rowClassName={(unusedRow, rowIndex) => {
+                void unusedRow;
+                return rowIndex % 2 === 0
+                  ? 'benefit-row-even'
+                  : 'benefit-row-odd';
+              }}
+              className="[&_.ant-table]:text-sm [&_.ant-table]:!rounded-none [&_.ant-table-container]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-content]:!rounded-none [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-tbody>tr.benefit-row-even>td]:!bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:!bg-[#FAFAFA] [&_.ant-table-tbody>tr>td]:border-0 [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr:hover>td]:!bg-[#f5f5f5]"
+              data-cy="compensation-deduction-all-table"
+            />
+          )}
         </div>
 
         {isMobile || isTablet ? (
