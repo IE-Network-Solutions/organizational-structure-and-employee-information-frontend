@@ -38,7 +38,7 @@ export const ObjectiveCardSkeleton: React.FC<ObjectiveCardSkeletonProps> = ({
       data-cy={dataCy}
       id="okr-objective-card-skeleton-list"
     >
-      //eslint-disable-next-line 
+      /**eslint-disable-next-line */   
       {Array.from({ length: count }).map((unusedValue, idx) => (
         void unusedValue,
         <div
