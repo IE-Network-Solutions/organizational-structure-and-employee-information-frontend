@@ -66,7 +66,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
         <div
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48"
           className={classNames(
-            'flex justify-between items-start mb-6',
+            'flex justify-between items-center mb-6',
             flushHorizontal && 'px-2 md:px-6',
           )}
         >
