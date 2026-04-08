@@ -1413,7 +1413,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           bottom: 0,
           // On mobile, the drawer overlays the whole viewport above header.
           zIndex: isMobile ? 300 : 100,
-          backgroundColor: '#F5fbff',
+          backgroundColor: 'var(--nav-sider-background, #eff6ff)',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
