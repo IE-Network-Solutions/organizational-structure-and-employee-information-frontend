@@ -1,5 +1,5 @@
-import { Col, Input, Row, Skeleton } from 'antd';
-import React, { useEffect, useMemo } from 'react';
+import { Input, Skeleton } from 'antd';
+import React, { useEffect } from 'react';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import {
   useGetPermissions,
@@ -51,16 +51,6 @@ const Permission: React.FC<any> = () => {
   };
   const hasSelected = selectedRowKeys?.length > 0;
   const items = displayData?.items ?? [];
-  const columnsCount = 3;
-  const chunkSize = Math.ceil(items.length / columnsCount) || 1;
-  const columnChunks = useMemo(() => {
-    return [
-      items.slice(0, chunkSize),
-      items.slice(chunkSize, chunkSize * 2),
-      items.slice(chunkSize * 2, items.length),
-    ];
-  }, [items, chunkSize]);
-
   const handleSearchChange = (e: any, termKey: string) => {
     if (e === undefined || e === '') {
       setSearchTerm({
@@ -80,6 +70,7 @@ const Permission: React.FC<any> = () => {
       <div
         id="settings-permission-filters"
         data-cy="settings-permission-filters"
+        className="mb-4"
       >
         <Input
           className="w-full h-10"
@@ -111,35 +102,28 @@ const Permission: React.FC<any> = () => {
         </div>
       )}
       {!(permissionLoading || isSearching) && items.length > 0 && (
-        <Row
-          gutter={[16, 8]}
+        <div
           id="settings-permission-table"
           data-cy="settings-permission-table"
+          className="rounded-xl border border-[#E5E7EB] bg-white p-3"
         >
-          {columnChunks.map((chunk, colIndex) => (
-            <Col key={colIndex} xs={24} sm={24} md={8} lg={8}>
-              <div
-                data-cy="settings-permission-table-column-container"
-                className="flex flex-col gap-2"
-              >
-                {chunk.map(
-                  (
-                    item: { id?: string; name?: string; slug?: string },
-                    index: number,
-                  ) => (
-                    <div
-                      key={item?.id ?? item?.slug ?? `${colIndex}-${index}`}
-                      className="text-gray-800 py-1"
-                      data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
-                    >
-                      {item?.name ?? 'N/A'}
-                    </div>
-                  ),
-                )}
-              </div>
-            </Col>
-          ))}
-        </Row>
+          <div
+            data-cy="settings-permission-horizontal-list"
+            className="flex flex-wrap items-center gap-2"
+          >
+            {items.map(
+              (item: { id?: string; name?: string; slug?: string }, index: number) => (
+                <div
+                  key={item?.id ?? item?.slug ?? `${index}`}
+                  className="inline-flex max-w-full items-center rounded-lg bg-white px-2.5 py-2 text-sm text-[#334155] ring-1 ring-[#EEF2F7]"
+                  data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
+                >
+                  <span className="truncate">{item?.name ?? 'N/A'}</span>
+                </div>
+              ),
+            )}
+          </div>
+        </div>
       )}
       {!(permissionLoading || isSearching) &&
         items.length === 0 &&

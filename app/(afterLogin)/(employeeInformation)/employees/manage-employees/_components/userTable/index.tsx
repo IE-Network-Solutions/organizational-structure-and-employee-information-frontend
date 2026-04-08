@@ -16,7 +16,7 @@ import { TableSkeleton } from '@/components/tableSkeleton';
 
 const tableClassName = 'text-[#4d4d4d] text-base font-bold';
 
-const columns: TableColumnsType<EmployeeData> = [
+const getBaseColumns = (isMobileView: boolean): TableColumnsType<EmployeeData> => [
   {
     title: (
       <span data-cy="user-table-id-span" className={tableClassName}>
@@ -29,7 +29,7 @@ const columns: TableColumnsType<EmployeeData> = [
     //   const idB = b.employee_attendance_id ?? 0;
     //   return idA - idB;
     // },
-    width: 70,
+    width: isMobileView ? undefined : 70,
   },
   {
     title: (
@@ -39,7 +39,7 @@ const columns: TableColumnsType<EmployeeData> = [
     ),
     dataIndex: 'employee_name',
     ellipsis: true,
-    width: 200,
+    width: isMobileView ? undefined : 200,
   },
   {
     title: (
@@ -48,7 +48,7 @@ const columns: TableColumnsType<EmployeeData> = [
       </span>
     ),
     dataIndex: 'job_title',
-    width: 300,
+    width: isMobileView ? undefined : 300,
     // sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
   {
@@ -58,19 +58,10 @@ const columns: TableColumnsType<EmployeeData> = [
       </span>
     ),
     dataIndex: 'department',
-    width: 250,
+    width: isMobileView ? undefined : 250,
     // sorter: (a, b) => a.department.localeCompare(b.department),
   },
 
-  {
-    title: (
-      <span data-cy="user-table-type-span" className={tableClassName}>
-        Type
-      </span>
-    ),
-    dataIndex: 'employee_status',
-    width: 120,
-  },
   {
     title: (
       <span data-cy="user-table-status-span" className={tableClassName}>
@@ -78,7 +69,7 @@ const columns: TableColumnsType<EmployeeData> = [
       </span>
     ),
     dataIndex: 'account',
-    width: 120,
+    width: isMobileView ? undefined : 120,
   },
   {
     title: (
@@ -87,7 +78,7 @@ const columns: TableColumnsType<EmployeeData> = [
       </span>
     ),
     dataIndex: 'role',
-    width: 100,
+    width: isMobileView ? undefined : 100,
     // sorter: (a, b) => a.role.localeCompare(b.role),
   },
 ];
@@ -225,16 +216,6 @@ const UserTable = () => {
             : '-'}
         </span>
       ),
-      employee_status: (
-        <div
-          data-cy="user-table-employee-status-div"
-          className="pr-2 text-[#4d4d4d] text-sm font-normal"
-        >
-          {userTypeButton(
-            item?.employeeJobInformation[0]?.employementType?.name,
-          )}
-        </div>
-      ),
       account: (
         <div data-cy="user-table-employee-account-div" className="pr-2">
           {userTypeButton(!item?.deletedAt ? 'Active' : 'InActive')}
@@ -252,6 +233,13 @@ const UserTable = () => {
       ),
     };
   });
+
+  const baseColumns = getBaseColumns(isMobile);
+  const columns = isMobile
+    ? baseColumns.filter(
+        (col) => col.dataIndex !== 'account' && col.dataIndex !== 'job_title',
+      )
+    : baseColumns;
 
   const onPageChange = (page: number, pageSize?: number) => {
     setUserCurrentPage(page);
@@ -279,7 +267,7 @@ const UserTable = () => {
             columns={columns}
             dataSource={data}
             pagination={false}
-            scroll={{ x: 1000 }}
+            scroll={{ x: isMobile ? 'max-content' : 1000 }}
             id="user-table"
             data-cy="user-table"
             onRow={
