@@ -112,13 +112,21 @@ const Permission: React.FC<any> = () => {
             className="flex flex-wrap items-center gap-2"
           >
             {items.map(
-              (item: { id?: string; name?: string; slug?: string }, index: number) => (
+              (
+                item: { id?: string; name?: string; slug?: string },
+                index: number,
+              ) => (
                 <div
                   key={item?.id ?? item?.slug ?? `${index}`}
                   className="inline-flex max-w-full items-center rounded-lg bg-white px-2.5 py-2 text-sm text-[#334155] ring-1 ring-[#EEF2F7]"
                   data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
                 >
-                  <span className="truncate">{item?.name ?? 'N/A'}</span>
+                  <span
+                    className="truncate"
+                    data-cy={`settings-permission-item-text-${item?.id ?? item?.slug ?? index}`}
+                  >
+                    {item?.name ?? 'N/A'}
+                  </span>
                 </div>
               ),
             )}

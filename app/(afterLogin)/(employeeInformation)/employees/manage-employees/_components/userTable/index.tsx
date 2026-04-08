@@ -16,7 +16,9 @@ import { TableSkeleton } from '@/components/tableSkeleton';
 
 const tableClassName = 'text-[#4d4d4d] text-base font-bold';
 
-const getBaseColumns = (isMobileView: boolean): TableColumnsType<EmployeeData> => [
+const getBaseColumns = (
+  isMobileView: boolean,
+): TableColumnsType<EmployeeData> => [
   {
     title: (
       <span data-cy="user-table-id-span" className={tableClassName}>

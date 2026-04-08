@@ -364,7 +364,10 @@ const ManageEmployees: React.FC<any> = () => {
           className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-4"
           data-cy="manage-employees-stats-grid"
         >
-          <div className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink">
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-total-employees-wrapper"
+          >
             <StatsCard
               icon={<GroupsIcon />}
               title="Total Employees"
@@ -374,7 +377,10 @@ const ManageEmployees: React.FC<any> = () => {
               data-cy="stats-total-employees"
             />
           </div>
-          <div className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink">
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-new-hires-wrapper"
+          >
             <StatsCard
               icon={<GroupAddIcon />}
               title="New Hires This Month"
@@ -384,7 +390,10 @@ const ManageEmployees: React.FC<any> = () => {
               data-cy="stats-new-hires"
             />
           </div>
-          <div className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink">
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-active-departments-wrapper"
+          >
             <StatsCard
               icon={<BusinessIcon />}
               title="Active Departments"
@@ -396,7 +405,10 @@ const ManageEmployees: React.FC<any> = () => {
               data-cy="stats-active-departments"
             />
           </div>
-          <div className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink">
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-active-accounts-wrapper"
+          >
             <StatsCard
               icon={<HowToRegIcon />}
               title="Active Accounts"
