@@ -24,6 +24,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import RecruitmentPagination from '../../../../_components';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface TableProps {
   jobId: string;
@@ -435,20 +436,28 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           margin-inline-start: 0 !important;
         }
       `}</style>
-      <Table
-        className="ta-job-detail-candidate-table w-full min-w-[960px] [&_.ant-table]:rounded-none [&_.ant-table-container]:!border-0 [&_.ant-table-cell]:!px-3 [&_.ant-table-cell]:!py-[11px] [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#F0F0F0] [&_.ant-table-thead>tr>th]:!bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:!py-[10px] [&_.ant-table-thead>tr>th]:!text-[14px] [&_.ant-table-thead>tr>th]:!font-semibold [&_.ant-table-thead>tr>th]:!text-[rgba(0,0,0,0.65)] [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#F5F5F5] [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left]:!bg-inherit [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left-last]:!bg-inherit [&_.ant-table-tbody>tr.ant-table-row-selected>td]:!bg-inherit [&_.ant-table-tbody>tr.ant-table-row-selected:hover>td]:!bg-inherit"
-        columns={columns}
-        dataSource={data}
-        loading={isResponseLoading}
-        scroll={{ x: 'max-content' }}
-        rowSelection={rowSelection}
-        pagination={false}
-        rowClassName={(record, index) => {
-          void record;
-          return index % 2 === 1 ? '!bg-[#F9FAFB]' : '!bg-white';
-        }}
-        data-cy="talent-acquisition-job-candidate-table"
-      />
+      {isResponseLoading ? (
+        <div
+          className="ta-job-detail-candidate-table-skeleton w-full min-w-[960px]"
+          data-cy="talent-acquisition-job-candidate-table-skeleton"
+        >
+          <TableSkeleton columns={columns} />
+        </div>
+      ) : (
+        <Table
+          className="ta-job-detail-candidate-table w-full min-w-[960px] [&_.ant-table]:rounded-none [&_.ant-table-container]:!border-0 [&_.ant-table-cell]:!px-3 [&_.ant-table-cell]:!py-[11px] [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#F0F0F0] [&_.ant-table-thead>tr>th]:!bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:!py-[10px] [&_.ant-table-thead>tr>th]:!text-[14px] [&_.ant-table-thead>tr>th]:!font-semibold [&_.ant-table-thead>tr>th]:!text-[rgba(0,0,0,0.65)] [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#F5F5F5] [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left]:!bg-inherit [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left-last]:!bg-inherit [&_.ant-table-tbody>tr.ant-table-row-selected>td]:!bg-inherit [&_.ant-table-tbody>tr.ant-table-row-selected:hover>td]:!bg-inherit"
+          columns={columns}
+          dataSource={data}
+          scroll={{ x: 'max-content' }}
+          rowSelection={rowSelection}
+          pagination={false}
+          rowClassName={(record, index) => {
+            void record;
+            return index % 2 === 1 ? '!bg-[#F9FAFB]' : '!bg-white';
+          }}
+          data-cy="talent-acquisition-job-candidate-table"
+        />
+      )}
 
       {isMobile || isTablet ? (
         <CustomMobilePagination

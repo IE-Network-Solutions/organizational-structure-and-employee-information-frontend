@@ -1,7 +1,7 @@
 'use client';
 /* eslint-disable local-rules/data-cy-required */
 import React, { useEffect, useMemo, useState } from 'react';
-import { Dropdown, Tooltip, Spin, Popover, Button } from 'antd';
+import { Dropdown, Tooltip, Skeleton, Popover, Button } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';
 import { CloseOutlined, DeleteOutlined, SwapOutlined } from '@ant-design/icons';
 import {
@@ -27,6 +27,62 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
+
+const JobCardSkeleton: React.FC<{ index: number }> = ({ index }) => (
+  <div
+    className="flex flex-col rounded-xl border border-gray-200 bg-white p-5"
+    data-cy={`talent-acquisition-job-card-skeleton-${index}`}
+    aria-hidden
+  >
+    <div className="mb-3 flex items-start justify-between gap-2">
+      <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+        <Skeleton.Button
+          active
+          size="small"
+          className="!h-7 !min-w-[52px] !rounded"
+        />
+        <Skeleton.Button
+          active
+          size="small"
+          className="!h-7 !min-w-[128px] !rounded"
+        />
+      </div>
+      <div className="flex shrink-0 gap-2">
+        <Skeleton.Avatar active size={32} shape="square" />
+        <Skeleton.Avatar active size={32} shape="square" />
+      </div>
+    </div>
+    <div className="mb-2 flex items-start justify-between gap-2">
+      <Skeleton
+        active
+        title={{ width: '85%' }}
+        paragraph={false}
+        className="min-w-0 flex-1"
+      />
+      <Skeleton.Button
+        active
+        size="small"
+        className="!h-8 !w-8 shrink-0 !rounded-md"
+      />
+    </div>
+    <Skeleton active paragraph={{ rows: 1, width: ['45%'] }} className="mb-3" />
+    <div className="mb-3 flex flex-wrap gap-2">
+      <Skeleton.Button
+        active
+        size="small"
+        className="!h-6 !min-w-[72px] !rounded"
+      />
+      <Skeleton.Button
+        active
+        size="small"
+        className="!h-6 !min-w-[88px] !rounded"
+      />
+    </div>
+    <div className="mt-auto border-t border-gray-200 pt-3">
+      <Skeleton.Input active size="small" className="!h-4 !w-32" />
+    </div>
+  </div>
+);
 
 const JobCardAiMark: React.FC = () => {
   const uid = React.useId().replace(/:/g, '');
@@ -254,12 +310,13 @@ const JobCard: React.FC = () => {
       <div
         id="talent-acquisition-job-card-div-loading-initial"
         data-cy="talent-acquisition-job-card-div-loading-initial"
-        className="flex justify-center items-center h-64"
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+        aria-busy="true"
+        aria-label="Loading jobs"
       >
-        <Spin
-          data-cy="talent-acquisition-job-card-spin-loading-initial"
-          size="large"
-        />
+        {[...Array(pageSize).keys()].map((index) => (
+          <JobCardSkeleton key={index} index={index} />
+        ))}
       </div>
     );
 
