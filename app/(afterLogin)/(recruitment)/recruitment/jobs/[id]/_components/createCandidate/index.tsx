@@ -40,7 +40,6 @@ const CreateCandidate: React.FC<CreateCandidateProps> = ({
     removeDocument,
     isClient,
     setIsClient,
-    setCreateJobDrawer,
     currentPage,
     pageSize,
   } = useCandidateState();
