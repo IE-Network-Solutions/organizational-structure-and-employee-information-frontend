@@ -10,7 +10,6 @@ import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
