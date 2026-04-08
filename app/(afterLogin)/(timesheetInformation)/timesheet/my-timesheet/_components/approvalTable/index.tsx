@@ -26,7 +26,7 @@ import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
-import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
+import CustomPagination from '@/components/customPagination';
 import { usePathname } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TableSkeleton } from '@/components/tableSkeleton';
@@ -630,12 +630,10 @@ const ApprovalTable = () => {
         className="mx-3"
         data-cy="time-attendance-approval-table-pagination-wrapper"
       >
-        <MyTimesheetAttendancePagination
+        <CustomPagination
           current={userCurrentPage}
           total={totalItems}
-          totalPages={meta?.totalPages}
           pageSize={pageSize}
-          wrapLayout={approvalWrapPaginationManyPages}
           onChange={onPageChange}
           onShowSizeChange={(newPageSize) => {
             setPageSize(newPageSize);
