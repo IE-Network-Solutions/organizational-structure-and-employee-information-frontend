@@ -60,7 +60,6 @@
     "public/sw.js",
     "public/fallback-*.js",
     "fix-data-cy.js",
-    "fix-data-cy-all.js",
-    "patch-planning-data-cy.js"
+    "fix-data-cy-all.js"
   ]
 }
