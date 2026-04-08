@@ -429,7 +429,7 @@ export default function HireVsResignationTrendChart({
       </div>
 
       <div
-        className="h-[220px] sm:h-[330px]"
+        className="h-[220px] sm:h-[390px]"
         id="hire-vs-resignation-trend-chart-wrapper"
         data-cy="hire-vs-resignation-trend-chart-wrapper"
       >
