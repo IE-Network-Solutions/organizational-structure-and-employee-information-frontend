@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo  } from 'react';
 import Link from 'next/link';
 import { Breadcrumb, Select } from 'antd';
 import dayjs from 'dayjs';
@@ -13,6 +13,7 @@ import PaymentCards from './_components/payment-cards';
 import PieChart from './_components/pie-chart';
 import PayrollCards from './_components/cards';
 import RecentHrActions from '../../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
+import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 
 const { Option } = Select;
 
@@ -28,8 +29,22 @@ const DashboardPayroll = () => {
   const { data: payPeriodData } = useGetPayPeriod();
   const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
   const setPayPeriodId = useDashboardPayrollStore((s) => s.setPayPeriodId);
-  const auditLogModules = ['PayrollAuditLog'];
-
+  const modules = ['PayrollAuditLog'];
+ 
+  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
+    useGetAggregateAuditPostLogs(
+      {
+        modules: modules,
+        page: 1,
+        limit: 5,
+        orderBy: 'performedAt',
+        orderDirection: 'DESC',
+      },
+      true,
+    );
+  const auditLogsData = useMemo(() => {
+    return auditLogs?.items ?? [];
+  }, [auditLogs]);
   useEffect(() => {
     if (
       Array.isArray(payPeriodData) &&
@@ -155,7 +170,7 @@ const DashboardPayroll = () => {
                 className="w-full min-w-0"
                 data-cy="dashboard-payroll-action-cards-inner"
               >
-                <RecentHrActions auditLogModules={auditLogModules} />
+                <RecentHrActions auditLogs={auditLogsData} isLoading={isLoadingAuditLogs} auditLogModules={modules} />
               </div>
             </div>
           </div>

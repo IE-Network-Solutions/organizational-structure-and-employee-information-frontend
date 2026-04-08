@@ -143,6 +143,7 @@ const Daily = ({
                     <div
                       key={dailyTask?.id}
                       data-cy={`dashboard-plan-daily-task-item-${dailyTask?.id}`}
+                      className="mb-4"
                     >
                       <Checkbox
                         className="[&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-[#52C41A] [&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-[#52C41A]"
@@ -161,7 +162,7 @@ const Daily = ({
                           className={`text-sm font-medium truncate max-w-full ${
                             dailyTask?.status == 'pre_achieved'
                               ? 'line-through text-gray-400'
-                              : 'text-gray-900'
+                              : 'text-black/70'
                           }`}
                           data-cy={`dashboard-plan-daily-task-text-${dailyTask?.id}`}
                           title={dailyTask?.task}

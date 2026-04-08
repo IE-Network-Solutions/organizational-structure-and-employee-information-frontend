@@ -62,7 +62,7 @@ const ApprovalStatus = ({ type }: { type: string }) => {
 
   return (
     <div
-      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 ${type !== 'Essential Plan ' ? 'h-[272px]' : 'h-[343px]'}`}
+      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 ${type !== 'Essential Plan ' ? 'h-[343px]' : 'h-[343px]'}`}
       data-cy="dashboard-approval-status-container"
     >
       <div
@@ -152,7 +152,7 @@ const ApprovalStatus = ({ type }: { type: string }) => {
         )}
       </div>
       <div
-        className={`${type !== 'Essential Plan ' ? 'h-[210px]' : 'h-[270px]'} overflow-y-auto scrollbar-none`}
+        className={`${type !== 'Essential Plan ' ? 'h-[270px]' : 'h-[270px]'} overflow-y-auto scrollbar-none`}
         data-cy="dashboard-approval-status-content"
       >
         {approverType === 'Personal' ? (

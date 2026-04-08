@@ -1,30 +1,24 @@
 'use client';
-import VPChart from '../../(okrplanning)/okr/dashboard/_components/vpDashboard/chart';
-import CriteriaCard from '../../(okrplanning)/okr/dashboard/_components/vpDashboard/criteriaCard';
 
-const VPDashBoard = () => {
+import Header from './_components/header';
+import TotalScoreCard from './_components/total-score-card';
+import CriteriaBreakdown from './_components/criteria-breakdown';
+import VPScoreBreakdownChart from './_components/vp-score-breakdown-chart';
+
+const VPUpdatePage = () => {
   return (
-    <div data-cy="vp-dashboard-container">
-      <div
-        className="flex items-center justify-start px-6 "
-        data-cy="vp-dashboard-header-container"
-      >
-        <div className="my-5 pr-2" data-cy="vp-dashboard-header-content">
-          <div className="text-2xl font-bold" data-cy="vp-dashboard-title">
-            VP
-          </div>
-          <div
-            className="text-sm text-gray-500 font-medium"
-            data-cy="vp-dashboard-subtitle"
-          >
-            Manage your variable pay
-          </div>
+    <div className="min-h-screen  p-4">
+      <div className="space-y-4">
+        <Header />
+        <TotalScoreCard />
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <CriteriaBreakdown />
+          <VPScoreBreakdownChart />
         </div>
       </div>
-
-      <VPChart />
-      <CriteriaCard />
     </div>
   );
 };
-export default VPDashBoard;
+
+export default VPUpdatePage;

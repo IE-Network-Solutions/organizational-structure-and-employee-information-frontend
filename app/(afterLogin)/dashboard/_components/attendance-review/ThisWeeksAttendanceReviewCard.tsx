@@ -19,6 +19,7 @@ type AttendanceDayStatus = 'present' | 'late' | 'absent' | 'leave';
 
 type AttendanceDayRow = {
   day: string;
+  dateValue: string;
   hours: string;
   startTime: string;
   endTime: string;
@@ -87,14 +88,6 @@ function getBarWidth(status: AttendanceDayStatus) {
   }
 }
 
-/** Monday 00:00 local time of the ISO work week containing `reference`. */
-function startOfMondayWeek(reference = dayjs()) {
-  const d = reference.startOf('day');
-  const dow = d.day();
-  const daysSinceMonday = dow === 0 ? 6 : dow - 1;
-  return d.subtract(daysSinceMonday, 'day');
-}
-
 /** Local calendar date key for bucketing an attendance record (works for ISO and SQL datetime strings). */
 function attendanceDateKey(isoOrLocalDateTime: string) {
   return dayjs(isoOrLocalDateTime).startOf('day').format('YYYY-MM-DD');
@@ -102,9 +95,10 @@ function attendanceDateKey(isoOrLocalDateTime: string) {
 
 export default function ThisWeeksAttendanceReviewCard() {
   const { userId } = useAuthenticationStore();
-  const mondayThisWeek = startOfMondayWeek(dayjs());
-  const weekStart = mondayThisWeek.format('YYYY-MM-DD');
-  const weekEnd = mondayThisWeek.add(6, 'day').format('YYYY-MM-DD');
+  const rangeEnd = dayjs().startOf('day');
+  const rangeStart = rangeEnd.subtract(6, 'day');
+  const startDate = rangeStart.format('YYYY-MM-DD');
+  const endDate = rangeEnd.format('YYYY-MM-DD');
 
   const { filter, setFilter } = useEmployeeAttendanceStore();
 
@@ -127,19 +121,19 @@ export default function ThisWeeksAttendanceReviewCard() {
     setFilter({
       userIds: [userId],
       date: {
-        from: weekStart,
-        to: weekEnd,
+        from: startDate,
+        to: endDate,
       },
     });
-  }, [userId, weekStart, weekEnd, setFilter]);
+  }, [userId, startDate, endDate, setFilter]);
 
   const isWeekUserFilterReady = Boolean(
     userId &&
       filter &&
       filter.userIds?.length === 1 &&
       filter.userIds[0] === userId &&
-      filter.date?.from === weekStart &&
-      filter.date?.to === weekEnd,
+      filter.date?.from === startDate &&
+      filter.date?.to === endDate,
   );
 
   const { data, isFetching } = useGetAttendances(
@@ -162,9 +156,9 @@ export default function ThisWeeksAttendanceReviewCard() {
       }
 
       const today = dayjs().startOf('day');
-      const monday = dayjs(weekStart).startOf('day');
-      const workWeekDays = [0, 1, 2, 3, 4].map((i) =>
-        monday.add(i, 'day').startOf('day'),
+      const daysInRange = rangeEnd.diff(rangeStart, 'day') + 1;
+      const workWeekDays = Array.from({ length: daysInRange }, (_, i) =>
+        rangeStart.add(i, 'day').startOf('day'),
       );
 
       const rowList: AttendanceDayRow[] = [];
@@ -183,6 +177,7 @@ export default function ThisWeeksAttendanceReviewCard() {
         if (isFuture) {
           rowList.push({
             day: dDay.format('ddd'),
+            dateValue: dKey,
             hours: '—',
             startTime: '—',
             endTime: '—',
@@ -195,6 +190,7 @@ export default function ThisWeeksAttendanceReviewCard() {
         if (!record) {
           rowList.push({
             day: dDay.format('ddd'),
+            dateValue: dKey,
             hours: '—',
             startTime: '—',
             endTime: '—',
@@ -222,6 +218,7 @@ export default function ThisWeeksAttendanceReviewCard() {
 
         rowList.push({
           day: dDay.format('ddd'),
+          dateValue: dKey,
           hours:
             workMs > 0
               ? `Hours: ${hoursDec.toFixed(1)}h`
@@ -235,6 +232,8 @@ export default function ThisWeeksAttendanceReviewCard() {
         });
       }
 
+      rowList.sort((a, b) => dayjs(b.dateValue).valueOf() - dayjs(a.dateValue).valueOf());
+
       const totalHoursDisplay =
         totalMs > 0 ? `${(totalMs / (60 * 60 * 1000)).toFixed(1)}h` : '0h';
 
@@ -244,12 +243,12 @@ export default function ThisWeeksAttendanceReviewCard() {
         onTimeDenominator: onDen > 0 ? onDen : workWeekDays.length || 5,
         totalHoursDisplay,
       };
-    }, [data?.items, weekStart]);
+    }, [data?.items, rangeStart, rangeEnd]);
 
   return (
     <Card
       bordered={false}
-      className="bg-white rounded-lg border border-[#E5E7EB] shadow-none h-[343px]"
+      className="bg-white rounded-lg border border-[#E5E7EB] shadow-none "
       bodyStyle={{ padding: 12 }}
       data-cy="this-weeks-attendance-review-card"
     >
@@ -277,7 +276,7 @@ export default function ThisWeeksAttendanceReviewCard() {
             </div>
           </div>
           <div
-            className="flex items-center gap-4"
+            className="flex items-center gap-2"
             data-cy="this-weeks-attendance-review-stats"
           >
             <div data-cy="this-weeks-attendance-review-on-time-block">
@@ -335,14 +334,14 @@ export default function ThisWeeksAttendanceReviewCard() {
 
       {/* Rows */}
       <Spin spinning={isFetching} size="small">
-        <div className="mt-2" data-cy="this-weeks-attendance-review-rows">
+        <div className="mt-2 h-[270px] overflow-y-auto scrollbar-none" data-cy="this-weeks-attendance-review-rows">
           {rows.map((row, idx) => {
             const barWidth = progressPercent(row.status, row.workMs);
             const dotClass =
               row.status != null ? statusDotClass[row.status] : 'bg-gray-300';
             return (
               <div
-                key={`${row.day}-${idx}`}
+                key={row.dateValue}
                 className="flex flex-col mb-3"
                 data-cy={`this-weeks-attendance-review-row-${idx}`}
               >
@@ -367,6 +366,9 @@ export default function ThisWeeksAttendanceReviewCard() {
                         data-cy={`this-weeks-attendance-review-row-${idx}-day`}
                       >
                         {row.day}
+                      </div>
+                      <div className="text-gray-400 text-[11px]">
+                        {dayjs(row.dateValue).format('DD MMM')}
                       </div>
                     </div>
                     <div
@@ -405,7 +407,7 @@ export default function ThisWeeksAttendanceReviewCard() {
                       {row.endTime}
                     </div>
                     <div
-                      className="w-[50px] flex justify-start items-center"
+                      className=" flex justify-start items-center"
                       data-cy={`this-weeks-attendance-review-row-${idx}-pill-wrap`}
                     >
                       {row.status != null ? (

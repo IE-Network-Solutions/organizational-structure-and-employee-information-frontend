@@ -89,7 +89,7 @@ export default function Home() {
           data-cy="dashboard-desktop-grid"
         >
           <div
-            className="md:col-span-7 col-span-12"
+            className="md:col-span-4 col-span-12"
             data-cy="dashboard-desktop-leftbar-container"
           >
             {selectedTenatType !== 'Essential Plan ' ? (
@@ -99,7 +99,15 @@ export default function Home() {
             )}
           </div>
           <div
-            className="md:col-span-5 col-span-12"
+            className="md:col-span-4 col-span-12"
+            data-cy="dashboard-desktop-leftbar-container"
+          >
+            {selectedTenatType !== 'Essential Plan ' && (
+              <ThisWeeksAttendanceReviewCard />
+            )}
+          </div>
+          <div
+            className="md:col-span-4 col-span-12"
             data-cy="dashboard-desktop-rightbar-container"
           >
             {selectedTenatType !== 'Essential Plan ' &&

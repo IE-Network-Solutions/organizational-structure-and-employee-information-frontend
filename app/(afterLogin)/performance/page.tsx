@@ -10,10 +10,26 @@ import ActionPlanCard from './_components/actionPlan';
 import { Select } from 'antd';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import RecentHrActions from '../(employeeInformation)/employees/dashboard/_components/recent-hr-actions';
+import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 
 export default function PerformanceDashboardPage() {
   const { data: activeFiscalYears } = useGetActiveFiscalYears();
-  const auditLogModules = ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'];
+  const modules = ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'];
+
+  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
+    useGetAggregateAuditPostLogs(
+      {
+        modules: modules,
+        page: 1,
+        limit: 5,
+        orderBy: 'performedAt',
+        orderDirection: 'DESC',
+      },
+      true,
+    );
+  const auditLogsData = useMemo(() => {
+    return auditLogs?.items ?? [];
+  }, [auditLogs]);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null,
   );
@@ -175,7 +191,7 @@ export default function PerformanceDashboardPage() {
               sessionId={sessionId}
               monthOptions={monthOptions}
             />
-            <RecentHrActions auditLogModules={auditLogModules} />
+            <RecentHrActions auditLogs={auditLogsData} isLoading={isLoadingAuditLogs} auditLogModules={modules} height="444px" />
           </div>
         </div>
       </div>
