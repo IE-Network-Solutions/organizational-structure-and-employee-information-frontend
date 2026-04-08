@@ -202,7 +202,7 @@ const ManageEmployees: React.FC<any> = () => {
               >
                 Employee
               </span>
-              <span> / </span>
+              <span data-cy="manage-employees-breadcrumb-separator"> / </span>
               <span
                 className="text-xs sm:text-sm text-[#4d4d4d]"
                 data-cy="manage-employees-breadcrumb-employee-management"
@@ -347,7 +347,10 @@ const ManageEmployees: React.FC<any> = () => {
           >
             <StatsCard
               icon={
-                <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                <span
+                  className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center"
+                  data-cy="stats-total-employees-icon-wrap"
+                >
                   <GroupsIcon className="text-orangebg" fontSize="small" />
                 </span>
               }
@@ -364,7 +367,10 @@ const ManageEmployees: React.FC<any> = () => {
           >
             <StatsCard
               icon={
-                <span className="w-8 h-8 rounded-sm bg-[#F6FFED] flex items-center justify-center">
+                <span
+                  className="w-8 h-8 rounded-sm bg-[#F6FFED] flex items-center justify-center"
+                  data-cy="stats-new-hires-icon-wrap"
+                >
                   <GroupAddIcon className="text-greenbg" fontSize="small" />
                 </span>
               }
@@ -381,7 +387,10 @@ const ManageEmployees: React.FC<any> = () => {
           >
             <StatsCard
               icon={
-                <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                <span
+                  className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center"
+                  data-cy="stats-active-departments-icon-wrap"
+                >
                   <BusinessIcon className="text-blue" fontSize="small" />
                 </span>
               }
@@ -400,7 +409,10 @@ const ManageEmployees: React.FC<any> = () => {
           >
             <StatsCard
               icon={
-                <span className="w-8 h-8 rounded-sm bg-[#F6FFED] flex items-center justify-center">
+                <span
+                  className="w-8 h-8 rounded-sm bg-[#F6FFED] flex items-center justify-center"
+                  data-cy="stats-active-accounts-icon-wrap"
+                >
                   <HowToRegIcon className="text-greenbg" fontSize="small" />
                 </span>
               }

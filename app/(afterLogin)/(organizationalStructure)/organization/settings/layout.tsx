@@ -173,10 +173,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         data-cy="org-settings-layout-div"
         id="org-settings-layout-div"
       >
-        <div
-          className="pt-4"
-          data-cy="org-settings-header-container"
-        >
+        <div className="pt-4" data-cy="org-settings-header-container">
           <CustomBreadcrumb
             title={
               <span
@@ -199,7 +196,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
                 >
                   Organization
                 </a>
-                <span> / </span>
+                <span data-cy="org-settings-breadcrumb-separator"> / </span>
                 <span data-cy="org-settings-breadcrumb-current">Setting</span>
               </>
             }

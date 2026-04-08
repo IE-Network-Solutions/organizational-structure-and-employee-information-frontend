@@ -162,17 +162,19 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         id={`settings-layout-content-${layoutSlug}`}
         data-cy={`settings-layout-content-${layoutSlug}`}
       >
-        <div
-          className="py-2"
-          data-cy={`settings-page-header-${layoutSlug}`}
-        >
+        <div className="py-2" data-cy={`settings-page-header-${layoutSlug}`}>
           <CustomBreadcrumb
             title="Employee Settings"
             subtitle={
               <>
                 <Link href="/employees/manage-employees">Employee</Link>
-                <span> / </span>
-                <span>Employee Settings</span>
+                <span data-cy="employee-settings-breadcrumb-separator">
+                  {' '}
+                  /{' '}
+                </span>
+                <span data-cy="employee-settings-breadcrumb-current">
+                  Employee Settings
+                </span>
               </>
             }
             data-cy="employee-settings-breadcrumb"

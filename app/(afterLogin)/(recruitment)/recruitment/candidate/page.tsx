@@ -12,7 +12,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
 import {
-  Breadcrumb,
   Button,
   Card,
   DatePicker,
@@ -423,41 +422,32 @@ const AllCandidates: React.FC = () => {
               <CustomBreadcrumb
                 title={
                   <span
-                    className="text-xl text-[#000000B2]"
+                    className="text-xl font-bold text-black"
                     data-cy="talent-acquisition-candidate-breadcrumb-title"
                   >
                     Candidates
                   </span>
                 }
                 subtitle={
-                  <Breadcrumb
-                    data-cy="talent-acquisition-candidate-breadcrumb-trail"
-                    items={[
-                      {
-                        title: (
-                          <span
-                            className="text-xs text-slate-500"
-                            data-cy="talent-acquisition-candidate-breadcrumb-prefix"
-                          >
-                            Talent Acquisition
-                          </span>
-                        ),
-                      },
-                      {
-                        title: (
-                          <span
-                            className="text-xs text-[#000000B2]"
-                            data-cy="talent-acquisition-candidate-breadcrumb-current"
-                          >
-                            Candidates
-                          </span>
-                        ),
-                      },
-                    ]}
-                  />
+                  <>
+                    <span
+                      className="text-xs sm:text-sm"
+                      data-cy="talent-acquisition-candidate-breadcrumb-prefix"
+                    >
+                      Talent Acquisition
+                    </span>
+                    <span data-cy="talent-acquisition-candidate-breadcrumb-separator">
+                      {' '}
+                      /{' '}
+                    </span>
+                    <span
+                      className="text-xs sm:text-sm text-[#4d4d4d]"
+                      data-cy="talent-acquisition-candidate-breadcrumb-current"
+                    >
+                      Candidates
+                    </span>
+                  </>
                 }
-                titleClassName="!text-xl !font-bold !leading-7 !text-[#000000B2]"
-                rootClassName="gap-1.5 py-1"
                 data-cy="talent-acquisition-candidate-breadcrumb"
               />
             </div>

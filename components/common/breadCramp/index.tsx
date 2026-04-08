@@ -53,7 +53,10 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           !titleExtra && 'justify-start',
         )}
       >
-        <div className="min-w-0 flex-1 flex flex-col gap-1" data-cy="breadcrumb-main">
+        <div
+          className="min-w-0 flex-1 flex flex-col gap-1"
+          data-cy="breadcrumb-main"
+        >
           <div
             className={classNames(
               'min-w-0 text-2xl font-bold leading-[31.20px] text-black',
