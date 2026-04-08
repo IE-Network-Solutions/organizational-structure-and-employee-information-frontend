@@ -215,13 +215,12 @@ const PositionCards: React.FC = () => {
           data-cy="settings-position-custom-mobile-pagination"
         />
       ) : (
-        <CustomPagination
-          current={currentPage}
-          total={positions?.meta?.totalItems ?? 0}
+        <CustomMobilePagination
+          totalResults={positions?.meta?.totalItems ?? 0}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          data-cy="settings-position-custom-pagination"
+          onShowSizeChange={onPageChange}
+          data-cy="settings-position-custom-mobile-pagination"
         />
       )}
     </>
