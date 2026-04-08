@@ -238,9 +238,10 @@ const UserTable = () => {
 
   const baseColumns = getBaseColumns(isMobile);
   const columns = isMobile
-    ? baseColumns.filter(
-        (col) => col.dataIndex !== 'account' && col.dataIndex !== 'job_title',
-      )
+    ? baseColumns.filter((col) => {
+        if (!('dataIndex' in col)) return true;
+        return col.dataIndex !== 'account' && col.dataIndex !== 'job_title';
+      })
     : baseColumns;
 
   const onPageChange = (page: number, pageSize?: number) => {
