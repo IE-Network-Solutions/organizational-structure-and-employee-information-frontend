@@ -85,10 +85,7 @@ export function PlanningReportingHeaderActions() {
 
     return (
       <Tooltip title={tooltipTitle}>
-        <div
-          data-cy="-planningandreporting-planning-and-reporting-components-planningreportingheaderactions-tsx-planningreportingheaderactions-div-88"
-          className="inline-block"
-        >
+        <div className="inline-block">
           {userPlanningPeriodId && (
             <CustomButton
               disabled={createPlanDisabled}

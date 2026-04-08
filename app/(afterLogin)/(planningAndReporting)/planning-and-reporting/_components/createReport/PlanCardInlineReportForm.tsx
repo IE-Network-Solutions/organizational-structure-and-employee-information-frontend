@@ -173,33 +173,13 @@ export function PlanCardInlineReportForm({
           className="px-0"
         >
           <PlanCardInlineReportFields formattedData={formattedData} />
-          <div
-            data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-176"
-            className="mt-3 flex flex-col gap-2 border-t border-[#F1F2F6] pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-          >
-            <div
-              data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-177"
-              className="flex items-center gap-2 px-0.5"
-            >
-              <span
-                data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-span-178"
-                className="text-[10px] font-medium text-[#8F94A3]"
-              >
-                <span
-                  data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-span-179"
-                  className="sm:hidden"
-                >
-                  WP{' '}
-                </span>
-                <span
-                  data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-span-180"
-                  className="hidden sm:inline"
-                >
-                  Weight{' '}
-                </span>
+          <div className="mt-3 flex flex-col gap-2 border-t border-[#F1F2F6] pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+            <div className="flex items-center gap-2 px-0.5">
+              <span className="text-[10px] font-medium text-[#8F94A3]">
+                <span className="sm:hidden">WP </span>
+                <span className="hidden sm:inline">Weight </span>
               </span>
               <span
-                data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-span-total-weight"
                 className={classNames(
                   'text-[11px] font-bold tabular-nums sm:text-xs',
                   totalWeight > 84
@@ -212,10 +192,7 @@ export function PlanCardInlineReportForm({
                 {totalWeight}%
               </span>
             </div>
-            <div
-              data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-195"
-              className="flex flex-wrap justify-end gap-2"
-            >
+            <div className="flex flex-wrap justify-end gap-2">
               <Button
                 type="default"
                 onClick={handleClose}
@@ -242,10 +219,7 @@ export function PlanCardInlineReportForm({
       ) : showReportTasksLoading || (isEditMode && reportingByIdLoading) ? (
         <PlanCardInlineReportFormSkeleton />
       ) : (
-        <div
-          data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-222"
-          className="flex justify-center py-3"
-        >
+        <div className="flex justify-center py-3">
           <Button
             type="default"
             onClick={handleClose}

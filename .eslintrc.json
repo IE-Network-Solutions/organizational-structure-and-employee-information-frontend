@@ -54,6 +54,7 @@
         "local-rules/data-cy-required": "error"
       }
     }
+ 
   ],
   "ignorePatterns": [
     "public/workbox-*.js",

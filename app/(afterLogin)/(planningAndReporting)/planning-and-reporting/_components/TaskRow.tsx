@@ -45,12 +45,7 @@ export default function TaskRow({
       if (task.status === 'failed' || (task as any).isAchieved === false) {
         return <CloseCircleOutlined className="text-[#EF4444] text-sm" />;
       }
-      return (
-        <div
-          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-48"
-          className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] mt-0.5"
-        />
-      );
+      return <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] mt-0.5" />;
     }
     return null;
   };
@@ -61,32 +56,22 @@ export default function TaskRow({
       className="relative flex items-center gap-2 py-1.5 pl-5 md:pl-7 group"
     >
       {/* Horizontal connector */}
-      <div
-        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-59"
-        className="absolute left-[6.5px] top-1/2 w-[12px] md:w-[20px] h-[1px] bg-[#E5E7EB]"
-      />
+      <div className="absolute left-[6.5px] top-1/2 w-[12px] md:w-[20px] h-[1px] bg-[#E5E7EB]" />
 
       {/* Last-item vertical cover */}
       {isLast && (
-        <div
-          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-63"
-          className="absolute left-[6.5px] top-1/2 bottom-0 w-[1px] bg-[#FAFBFC] z-20"
-        />
+        <div className="absolute left-[6.5px] top-1/2 bottom-0 w-[1px] bg-[#FAFBFC] z-20" />
       )}
 
       {/* Status icon (reporting only) */}
       {viewMode === 'reporting' && (
-        <div
-          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-68"
-          className="flex-shrink-0 w-4 flex items-center justify-center"
-        >
+        <div className="flex-shrink-0 w-4 flex items-center justify-center">
           {getStatusIcon()}
         </div>
       )}
 
       {/* Task name */}
       <p
-        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-p-88"
         className="flex-1 min-w-0 text-[11px] md:text-[13px] font-medium leading-snug text-[#5A5C80] truncate"
         title={getTaskName()}
       >
@@ -94,14 +79,8 @@ export default function TaskRow({
       </p>
 
       {/* Meta tags */}
-      <div
-        data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-82"
-        className="flex items-center gap-1.5 flex-shrink-0"
-      >
-        <div
-          data-cy="-planningandreporting-planning-and-reporting-components-taskrow-tsx-taskrow-div-83"
-          className="scale-90 md:scale-100 origin-right"
-        >
+      <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="scale-90 md:scale-100 origin-right">
           <PriorityTag priority={task.priority} />
         </div>
 
