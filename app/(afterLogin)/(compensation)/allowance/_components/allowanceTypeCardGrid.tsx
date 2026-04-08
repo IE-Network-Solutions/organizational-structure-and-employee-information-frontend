@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Dropdown, Popover, Spin } from 'antd';
+import { Card, Dropdown, Popover } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import {
@@ -19,6 +19,7 @@ import {
   useUpdateCompensationStatus,
 } from '@/store/server/features/compensation/settings/mutations';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
+import { PayPeriodCardSkeleton } from '@/components/common/PayPeriodCardSkeleton';
 
 const pillStyle: React.CSSProperties = {
   display: 'inline-flex',
@@ -77,6 +78,8 @@ const allowanceCardBodyStyle: React.CSSProperties = {
   boxSizing: 'border-box',
   overflow: 'hidden',
 };
+
+const ALLOWANCE_TYPE_SKELETON_COUNT = 6;
 
 type DeleteModalRecord = { id: string; name: string } | null;
 
@@ -144,52 +147,66 @@ const AllowanceTypeCardGrid = () => {
       id="compensation-allowance-type-card-grid-container"
       data-cy="compensation-allowance-type-card-grid-container"
     >
-      <Spin
-        spinning={isLoading}
-        data-testid="allowance-type-card-grid-loading"
-        data-cy="compensation-allowance-type-card-grid-loading"
+      <div
+        className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        data-cy="compensation-allowance-type-card-grid"
       >
-        <div
-          className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          data-cy="compensation-allowance-type-card-grid"
+        <Card
+          key="all-allowances-summary"
+          style={allowanceCardShellStyle}
+          bodyStyle={allowanceCardBodyStyle}
+          data-cy="compensation-allowance-type-card-all-summary"
+          onClick={() => router.push('/allowance/allAllowance')}
         >
-          <Card
-            key="all-allowances-summary"
-            style={allowanceCardShellStyle}
-            bodyStyle={allowanceCardBodyStyle}
-            data-cy="compensation-allowance-type-card-all-summary"
-            onClick={() => router.push('/allowance/allAllowance')}
+          <div
+            className="flex items-start justify-between shrink-0"
+            style={{ gap: 8 }}
+            data-cy="compensation-allowance-type-card-all-summary-header"
           >
-            <div
-              className="flex items-start justify-between shrink-0"
-              style={{ gap: 8 }}
-              data-cy="compensation-allowance-type-card-all-summary-header"
+            <h3
+              className="text-base leading-tight flex-1 min-w-0 truncate m-0 font-normal"
+              style={{ color: '#000000' }}
+              data-cy="compensation-allowance-type-card-all-summary-title"
             >
-              <h3
-                className="text-base leading-tight flex-1 min-w-0 truncate m-0 font-normal"
-                style={{ color: '#000000' }}
-                data-cy="compensation-allowance-type-card-all-summary-title"
-              >
-                All Allowances
-              </h3>
-              <span
-                className="shrink-0"
-                style={{ width: 24, height: 24 }}
-                aria-hidden
-                data-cy="compensation-allowance-type-card-all-summary-spacer"
-              />
-            </div>
-            <p
-              className="text-sm font-normal text-[#595959] leading-normal m-0 min-h-0 line-clamp-2"
-              title="Displays all allowance types assigned to employees, showing each employee's allocated allowances."
-              data-cy="compensation-allowance-type-card-all-summary-description"
-            >
-              Displays all allowance types assigned to employees, showing each
-              employee&apos;s allocated allowances.
-            </p>
-          </Card>
+              All Allowances
+            </h3>
+            <span
+              className="shrink-0"
+              style={{ width: 24, height: 24 }}
+              aria-hidden
+              data-cy="compensation-allowance-type-card-all-summary-spacer"
+            />
+          </div>
+          <p
+            className="text-sm font-normal text-[#595959] leading-normal m-0 min-h-0 line-clamp-2"
+            title="Displays all allowance types assigned to employees, showing each employee's allocated allowances."
+            data-cy="compensation-allowance-type-card-all-summary-description"
+          >
+            Displays all allowance types assigned to employees, showing each
+            employee&apos;s allocated allowances.
+          </p>
+        </Card>
 
-          {tableData.map((record: any) => {
+        {isLoading ? (
+          <div
+            className="contents"
+            data-testid="allowance-type-card-grid-loading"
+            data-cy="compensation-allowance-type-card-grid-loading"
+            aria-busy="true"
+          >
+            {Array.from(
+              { length: ALLOWANCE_TYPE_SKELETON_COUNT },
+              (element: unknown, skeletonIndex: number) => (
+                <PayPeriodCardSkeleton
+                  key={`compensation-allowance-type-card-sk-${skeletonIndex}`}
+                  index={skeletonIndex}
+                  dataCyPrefix="compensation-allowance-type-card-skeleton"
+                />
+              ),
+            )}
+          </div>
+        ) : (
+          tableData.map((record: any) => {
             const menuItems: MenuProps['items'] = [
               {
                 key: 'edit',
@@ -390,9 +407,9 @@ const AllowanceTypeCardGrid = () => {
                 </div>
               </Card>
             );
-          })}
-        </div>
-      </Spin>
+          })
+        )}
+      </div>
     </div>
   );
 };

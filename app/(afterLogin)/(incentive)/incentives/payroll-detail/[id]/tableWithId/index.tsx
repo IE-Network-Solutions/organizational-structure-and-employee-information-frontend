@@ -18,6 +18,7 @@ import { useDeleteIncentive } from '@/store/server/features/incentive/other/muta
 import dayjs from 'dayjs';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import IncentiveDetailModal from './components/IncentiveDetailModal';
+import EmptyState from '@/components/empty';
 
 export type IncentiveTableDataParams = {
   recognition: string;
@@ -183,6 +184,9 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   };
   const { isMobile, isTablet } = useIsMobile();
 
+  const totalResultCount = dynamicRecognitionData?.meta?.totalItems ?? 0;
+  const showPagination = !responseLoading && totalResultCount > 0;
+
   const rowSelection = {
     selectedRowKeys,
     onChange: (selectedRowKeys: any) => {
@@ -344,6 +348,20 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
           columns={columns}
           dataSource={IncentiveByRecognitionTypeTableData}
           pagination={false}
+          locale={{
+            emptyText: (
+              <div
+                className="py-8"
+                data-cy="incentive-table-after-generate-empty"
+              >
+                <EmptyState
+                  minimal
+                  description="No data found"
+                  data-cy="incentive-table-after-generate-empty-inner"
+                />
+              </div>
+            ),
+          }}
           onRow={(record) => ({
             onClick: () => {
               setSelectedDetailId(record?.id);
@@ -357,24 +375,25 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
           }}
         />
       )}
-      {isMobile || isTablet ? (
-        <CustomMobilePagination
-          data-cy="incentive-table-after-generate-mobile-pagination"
-          totalResults={dynamicRecognitionData?.meta?.totalItems}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      ) : (
-        <CustomPagination
-          data-cy="incentive-table-after-generate-pagination"
-          current={currentPage}
-          total={dynamicRecognitionData?.meta?.totalItems}
-          pageSize={pageSize}
-          onChange={onPageChange}
-          onShowSizeChange={onPageChange}
-        />
-      )}
+      {showPagination &&
+        (isMobile || isTablet ? (
+          <CustomMobilePagination
+            data-cy="incentive-table-after-generate-mobile-pagination"
+            totalResults={totalResultCount}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ) : (
+          <CustomPagination
+            data-cy="incentive-table-after-generate-pagination"
+            current={currentPage}
+            total={totalResultCount}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+          />
+        ))}
 
       <IncentiveDetailModal
         open={detailModalOpen}

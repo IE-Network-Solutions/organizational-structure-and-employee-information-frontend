@@ -15,7 +15,7 @@ function page({ params: { id } }: IncentiveTableDetailsProps) {
     <div
       id="incentive-payroll-detail-page-container"
       data-cy="incentive-payroll-detail-page-container"
-      className="m-4"
+      className="mx-0 mt-4 mb-6"
     >
       <DetailPageTabs data-cy="incentive-payroll-detail-page-tabs" />
       <DynamicIncentiveFilter data-cy="incentive-payroll-detail-page-filter" />

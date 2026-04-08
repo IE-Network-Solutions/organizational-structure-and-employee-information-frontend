@@ -512,7 +512,7 @@ const Page = () => {
         </>
       ) : (
         <div
-          className="mx-3 mt-4"
+          className="mx-0 mt-4"
           data-cy="incentives-page-selected-recognition-view"
         >
           <div

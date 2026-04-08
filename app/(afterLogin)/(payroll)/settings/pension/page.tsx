@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Input, Spin, Tooltip } from 'antd';
+import { Button, Card, Input, Skeleton, Tooltip } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import React, { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mu
 import { FaPlus } from 'react-icons/fa';
 import Drawer from './_components/drawer';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
+import EmptyState from '@/components/empty';
 
 // type PensionRule = {
 //   id: string;
@@ -100,6 +101,34 @@ const pensionCardBodyEditStyle: React.CSSProperties = {
   overflow: 'auto',
 };
 
+const PENSION_SKELETON_COUNT = 4;
+
+function PensionCardSkeleton({ index }: { index: number }) {
+  return (
+    <Card
+      className="relative"
+      style={pensionCardShellStyle}
+      bodyStyle={pensionCardBodyStyle}
+      data-cy={`payroll-pension-card-skeleton-${index}`}
+    >
+      <div
+        className="flex shrink-0 items-start justify-between"
+        style={{ gap: 8 }}
+      >
+        <Skeleton.Input active size="small" style={{ width: 200, height: 24 }} />
+        <Skeleton.Button active size="small" style={{ width: 24, height: 24 }} />
+      </div>
+      <div
+        className="flex min-h-0 shrink flex-wrap items-center"
+        style={{ gap: 6 }}
+      >
+        <Skeleton.Input active size="small" style={{ width: 220, height: 22 }} />
+        <Skeleton.Input active size="small" style={{ width: 220, height: 22 }} />
+      </div>
+    </Card>
+  );
+}
+
 const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
   const { mutate: pensionRuleUpdate, isLoading: updatePensionRule } =
@@ -175,16 +204,21 @@ const Pension = () => {
             </Button>
           </div>
         )}
-        <Spin data-cy="payroll-pension-list-spinner" spinning={isLoading}>
+        <div
+          id="payroll-pension-list-view-container"
+          data-cy="payroll-pension-list-view-container"
+        >
           <div
-            id="payroll-pension-list-view-container"
-            data-cy="payroll-pension-list-view-container"
+            id="payroll-pension-list-inner-view-container"
+            data-cy="payroll-pension-list-inner-view-container"
+            className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2"
           >
-            <div
-              id="payroll-pension-list-inner-view-container"
-              data-cy="payroll-pension-list-inner-view-container"
-              className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2"
-            >
+            {isLoading ? (
+              Array.from({ length: PENSION_SKELETON_COUNT }, (_, i) => (
+                <PensionCardSkeleton key={`pension-card-sk-${i}`} index={i} />
+              ))
+            ) : (
+              <>
               {(pensionRule ?? []).map((rule: any, idx: number) => {
                 const record = {
                   ...rule,
@@ -446,18 +480,23 @@ const Pension = () => {
                 );
               })}
 
-              {!isLoading && (pensionRule ?? []).length === 0 && (
+              {(pensionRule ?? []).length === 0 && (
                 <div
                   id="payroll-pension-empty-state"
                   data-cy="payroll-pension-empty-state"
-                  className="py-10 text-center text-gray-500"
+                  className="col-span-full"
                 >
-                  No pension rules found.
+                  <EmptyState
+                    minimal
+                    description="No data found"
+                    data-cy="payroll-pension-empty-state-inner"
+                  />
                 </div>
               )}
-            </div>
+              </>
+            )}
           </div>
-        </Spin>
+        </div>
         <Drawer />
       </div>
     </BlockWrapper>

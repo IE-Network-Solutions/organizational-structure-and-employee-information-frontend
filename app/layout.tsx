@@ -9,7 +9,6 @@ import UserSessionRefresher from '@/providers/UserSessionRefresher';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
-import ChatBotButton from '@/components/ai/ChatBotButton';
 import RouteTopLoader from '@/components/RouteTopLoader';
 
 // Disable static prerendering globally; ensure all pages are rendered dynamically
@@ -349,7 +348,7 @@ export default function RootLayout({
                       <RecaptchaProvider>
                         <UserSessionRefresher />
                         <ConditionalNav>{children}</ConditionalNav>
-                        <ChatBotButton />
+                        {/* <ChatBotButton /> */}
                       </RecaptchaProvider>
                     </NotificationSocketProvider>
                   </AntdApp>

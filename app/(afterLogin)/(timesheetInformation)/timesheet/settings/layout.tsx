@@ -33,7 +33,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     setIsShowCreateRuleSidebar,
     setAttendanceNotificationType,
     attendanceNotificationType,
-    setIsShowRulesAddTypeSidebar,
     setIsShowNewAccrualRuleSidebar,
     setIsShowCarryOverRuleSidebar,
   } = useTimesheetSettingsStore();
@@ -299,36 +298,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
             data-cy="time-attendance-settings-breadcrumb"
           />
         </div>
-        {activeKey === 'attendance-rules' && (
-          <div
-            id="time-attendance-settings-attendance-rules-add-type-button-container"
-            data-cy="time-attendance-settings-attendance-rules-add-type-button-container"
-          >
-            <AccessGuard
-              permissions={[Permissions.CreateAttendanceRuleType]}
-              data-cy="time-attendance-settings-attendance-rules-add-type-button-access-guard"
-            >
-              <Button
-                id="time-attendance-settings-attendance-rules-add-type-button"
-                data-cy="time-attendance-settings-attendance-rules-add-type-button"
-                className="h-10 w-10 sm:w-auto"
-                icon={
-                  <FaPlus data-cy="time-attendance-settings-attendance-rules-add-type-button-icon" />
-                }
-                onClick={() => setIsShowRulesAddTypeSidebar(true)}
-                type="primary"
-              >
-                <span
-                  id="time-attendance-settings-attendance-rules-add-type-button-label"
-                  data-cy="time-attendance-settings-attendance-rules-add-type-button-label"
-                  className="hidden md:inline"
-                >
-                  {!isMobile && 'Add Type'}
-                </span>
-              </Button>
-            </AccessGuard>
-          </div>
-        )}
       </div>
 
       <div
@@ -457,11 +426,11 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                     <Button
                       id="time-attendance-settings-attendance-rules-add-rule-button"
                       data-cy="time-attendance-settings-attendance-rules-add-rule-button"
-                      type="default"
+                      type="primary"
                       icon={
                         <AddIcon data-cy="time-attendance-settings-attendance-rules-add-rule-button-icon" />
                       }
-                      className="h-10 w-10 sm:w-auto"
+                      className="h-10 text-base font-normal"
                       disabled={!attendanceNotificationType.length}
                       onClick={() => setIsShowCreateRuleSidebar(true)}
                     >
