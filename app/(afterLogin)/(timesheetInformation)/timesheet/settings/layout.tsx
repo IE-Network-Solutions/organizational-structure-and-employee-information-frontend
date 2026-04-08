@@ -1,6 +1,8 @@
 'use client';
 import { FC, ReactNode, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Breadcrumb, Button, Tabs, TabsProps } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -260,42 +262,42 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       data-cy="time-attendance-settings-layout-wrapper"
     >
       <div
-        className="pt-4 flex items-center justify-between"
         data-cy="time-attendance-settings-header-container"
       >
         <div
           id="time-attendance-settings-page-header-container"
           data-cy="time-attendance-settings-page-header-container"
         >
-          <h3
-            className="text-gray-900 text-2xl font-bold mb-0"
-            data-cy="time-attendance-settings-page-header-title"
-            id="time-attendance-settings-page-header-title"
-          >
-            Settings
-          </h3>
-          <Breadcrumb
-            className="mt-2 mb-4"
-            items={[
-              {
-                title: (
-                  <a
-                    href="/timesheet/settings/closed-date"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      router.push('/timesheet/settings/closed-date');
-                    }}
-                    data-cy="time-attendance-settings-breadcrumb-timesheet-link"
-                  >
-                    Timesheet
-                  </a>
-                ),
-              },
-              {
-                title: 'Settings',
-              },
-            ]}
-            data-cy="time-attendance-settings-breadcrumb"
+          <CustomBreadcrumb
+            title={
+              <span
+                data-cy="time-attendance-settings-page-header-title"
+                id="time-attendance-settings-page-header-title"
+              >
+                Settings
+              </span>
+            }
+            subtitle={
+              <Breadcrumb
+                className="mt-2 mb-4"
+                items={[
+                  {
+                    title: (
+                      <Link
+                        href="/timesheet/settings/closed-date"
+                        data-cy="time-attendance-settings-breadcrumb-timesheet-link"
+                      >
+                        Timesheet
+                      </Link>
+                    ),
+                  },
+                  {
+                    title: 'Settings',
+                  },
+                ]}
+                data-cy="time-attendance-settings-breadcrumb"
+              />
+            }
           />
         </div>
       </div>

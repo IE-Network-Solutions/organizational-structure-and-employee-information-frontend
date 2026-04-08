@@ -12,11 +12,9 @@ import AddFormResult from './_components/modals/result';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useIsMobile } from '@/hooks/useIsMobile';
 
 const RecruitmentPage: React.FC = () => {
   const { setAddNewDrawer } = useJobState();
-  const { isTablet } = useIsMobile();
 
   const handleAddNewDrawer = () => {
     setAddNewDrawer(true);
@@ -31,39 +29,44 @@ const RecruitmentPage: React.FC = () => {
       <div
         id="talent-acquisition-jobs-page-div-header"
         data-cy="talent-acquisition-jobs-page-div-header"
-        className={`flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-1 ${isTablet ? 'flex-wrap gap-y-4' : ''}`}
+        className="mb-4"
       >
-        <CustomBreadcrumb
-          data-cy="talent-acquisition-jobs-page-breadcrumb"
-          title="Jobs"
-          subtitle="Here's all job list"
-        />
-        <div
-          id="talent-acquisition-jobs-div-buttons"
-          data-cy="talent-acquisition-jobs-div-buttons"
-          className="flex items-center sm:justify-between gap-10 md:gap-8 sm:gap-4"
-        >
-          <WhatYouNeed data-cy="talent-acquisition-jobs-page-what-you-need" />
-          <AccessGuard
-            data-cy="talent-acquisition-jobs-page-access-guard"
-            permissions={[Permissions.CreateJobDescription]}
-          >
-            <CustomButton
-              title={
-                <span
-                  data-cy="-recruitment-recruitment-jobs-page-tsx-page-span-52"
-                  className="hidden sm:inline sm:mr-2"
+        <div data-cy="talent-acquisition-jobs-page-breadcrumb">
+          <CustomBreadcrumb
+            title="Jobs"
+            subtitle={"Here's all job list"}
+            showBottomSeparator={false}
+            rootClassName="w-full !mb-0"
+            titleExtra={
+              <div
+                id="talent-acquisition-jobs-div-buttons"
+                data-cy="talent-acquisition-jobs-div-buttons"
+                className="flex items-center sm:justify-between gap-10 md:gap-8 sm:gap-4"
+              >
+                <WhatYouNeed data-cy="talent-acquisition-jobs-page-what-you-need" />
+                <AccessGuard
+                  data-cy="talent-acquisition-jobs-page-access-guard"
+                  permissions={[Permissions.CreateJobDescription]}
                 >
-                  Add New
-                </span>
-              }
-              id="createJobButton"
-              data-cy="talent-acquisition-jobs-button-add-new"
-              icon={<FaPlus className="md:mr-0 ml-2" />}
-              onClick={() => handleAddNewDrawer()}
-              className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
-            />
-          </AccessGuard>
+                  <CustomButton
+                    title={
+                      <span
+                        data-cy="-recruitment-recruitment-jobs-page-tsx-page-span-52"
+                        className="hidden sm:inline sm:mr-2"
+                      >
+                        Add New
+                      </span>
+                    }
+                    id="createJobButton"
+                    data-cy="talent-acquisition-jobs-button-add-new"
+                    icon={<FaPlus className="md:mr-0 ml-2" />}
+                    onClick={() => handleAddNewDrawer()}
+                    className="bg-blue-600 hover:bg-blue-700 w-5 sm:w-auto sm:px-5 !h-14 px-6 py-6 "
+                  />
+                </AccessGuard>
+              </div>
+            }
+          />
         </div>
       </div>
       <div

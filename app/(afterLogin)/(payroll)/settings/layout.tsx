@@ -2,6 +2,8 @@
 
 import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Breadcrumb, Button, Divider, theme } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { FaPencil } from 'react-icons/fa6';
@@ -125,7 +127,6 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
     <div
       id="payroll-settings-page-view-container"
       data-cy="payroll-settings-page-view-container"
-      className="min-h-screen bg-white text-gray-800 font-sans py-4 -mx-2 md:-mx-6 w-[calc(100%+16px)] md:w-[calc(100%+48px)] px-4 md:px-6"
     >
       <div
         id="payroll-settings-page-content-view-container"
@@ -135,71 +136,62 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
         <div
           id="payroll-settings-header-view-container"
           data-cy="payroll-settings-header-view-container"
-          className="mb-8"
+         
         >
-          <h1
-            id="payroll-settings-header-title-view-text"
-            data-cy="payroll-settings-header-title-view-text"
-            className="text-2xl font-bold text-gray-900 mb-1"
-          >
-            Settings
-          </h1>
           <div
             id="payroll-settings-breadcrumb-view-container"
             data-cy="payroll-settings-breadcrumb-view-container"
-            className="text-sm text-gray-400 flex flex-col items-start"
+            // className="text-sm text-gray-400 flex flex-col items-start w-full"
           >
             <div
               id="payroll-settings-breadcrumb"
               data-cy="payroll-settings-breadcrumb"
+              className="w-full"
             >
-              <Breadcrumb
-                className="mt-2 mb-0 whitespace-nowrap"
-                style={{ whiteSpace: 'nowrap' }}
-                items={[
-                  {
-                    title: (
-                      <a
-                        href="/payroll/payroll"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          router.push('/payroll/payroll');
-                        }}
-                        data-cy="payroll-settings-breadcrumb-payroll-link"
-                        id="payroll-settings-breadcrumb-payroll-link"
-                        className="text-xs sm:text-sm"
-                      >
-                        Payroll
-                      </a>
-                    ),
-                  },
-                  {
-                    title: (
-                      <span
-                        data-cy="payroll-settings-breadcrumb-settings"
-                        id="payroll-settings-breadcrumb-settings"
-                        className="text-xs sm:text-sm"
-                      >
-                        Settings
-                      </span>
-                    ),
-                  },
-                ]}
+              <CustomBreadcrumb
+                title={
+                  <span
+                    id="payroll-settings-header-title-view-text"
+                    data-cy="payroll-settings-header-title-view-text"
+                  >
+                    Settings
+                  </span>
+                }
+                subtitle={
+                  <Breadcrumb
+                    className="mt-2 mb-0 whitespace-nowrap"
+                   
+                    items={[
+                      {
+                        title: (
+                          <Link
+                            href="/payroll/payroll"
+                            data-cy="payroll-settings-breadcrumb-payroll-link"
+                            id="payroll-settings-breadcrumb-payroll-link"
+                            className="text-xs sm:text-sm"
+                          >
+                            Payroll
+                          </Link>
+                        ),
+                      },
+                      {
+                        title: (
+                          <span
+                            data-cy="payroll-settings-breadcrumb-settings"
+                            id="payroll-settings-breadcrumb-settings"
+                            className="text-xs sm:text-sm"
+                          >
+                            Settings
+                          </span>
+                        ),
+                      },
+                    ]}
+                  />
+                }
               />
             </div>
           </div>
-          <div
-            id="payroll-settings-breadcrumb-tabs-divider-bleed"
-            data-cy="payroll-settings-breadcrumb-tabs-divider-bleed"
-            className="-mx-4 md:-mx-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)]"
-          >
-            <div
-              id="payroll-settings-breadcrumb-tabs-divider"
-              data-cy="payroll-settings-breadcrumb-tabs-divider"
-            >
-              <Divider className="!my-0 !mt-4 !border-gray-200" />
-            </div>
-          </div>
+       
         </div>
         <div
           id="payroll-settings-tabs-row-view-container"

@@ -85,7 +85,9 @@ import {
   useLastApprovingPayroll,
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
@@ -1209,7 +1211,7 @@ const Payroll = () => {
       className={
         isMobile
           ? 'bg-white overflow-x-hidden pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 w-full'
-          : 'min-h-screen bg-white overflow-x-hidden py-4 w-full'
+          : ''
       }
     >
       <div
@@ -1221,54 +1223,8 @@ const Payroll = () => {
         <div
           id="payroll-dashboard-header-view-container"
           data-cy="payroll-dashboard-header-view-container"
-          className="flex justify-between items-center mb-6"
+          className="mb-6"
         >
-          <div
-            id="payroll-dashboard-title-wrapper"
-            data-cy="payroll-dashboard-title-wrapper"
-            className="flex flex-col justify-center"
-          >
-            <h2
-              id="payroll-dashboard-title-view-text"
-              data-cy="payroll-dashboard-title-view-text"
-              className="text-2xl font-bold leading-snug mb-1"
-              style={{ margin: 0 }}
-            >
-              Payroll
-            </h2>
-            <Breadcrumb
-              data-cy="payroll-dashboard-breadcrumb"
-              className="mt-2 mb-0 whitespace-nowrap"
-              style={{ whiteSpace: 'nowrap' }}
-              items={[
-                {
-                  title: (
-                    <a
-                      href="/payroll/payroll"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        router.push('/payroll/payroll');
-                      }}
-                      data-cy="payroll-reconciliation-breadcrumb-payroll-link"
-                      className="text-xs sm:text-sm"
-                    >
-                      Payroll
-                    </a>
-                  ),
-                },
-                {
-                  title: (
-                    <span
-                      data-cy="payroll-breadcrumb-current"
-                      className="text-xs sm:text-sm"
-                    >
-                      Payroll
-                    </span>
-                  ),
-                },
-              ]}
-            />
-          </div>
           <h2
             id="payroll-dashboard-query-view-text"
             data-cy="payroll-dashboard-query-view-text"
@@ -1278,10 +1234,56 @@ const Payroll = () => {
             {payPeriodQuery}
           </h2>
           <div
-            id="payroll-dashboard-actions-view-container"
-            data-cy="payroll-dashboard-actions-view-container"
-            className="flex gap-3 items-center"
+            id="payroll-dashboard-title-wrapper"
+            data-cy="payroll-dashboard-title-wrapper"
+            className="w-full"
           >
+            <CustomBreadcrumb
+              
+              title={
+                <span
+                  id="payroll-dashboard-title-view-text"
+                  data-cy="payroll-dashboard-title-view-text"
+                >
+                  Payroll
+                </span>
+              }
+              subtitle={
+                <Breadcrumb
+                  data-cy="payroll-dashboard-breadcrumb"
+                  className="mt-2 mb-0 whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap' }}
+                  items={[
+                    {
+                      title: (
+                        <Link
+                          href="/payroll/payroll"
+                          data-cy="payroll-reconciliation-breadcrumb-payroll-link"
+                          className="text-xs sm:text-sm"
+                        >
+                          Payroll
+                        </Link>
+                      ),
+                    },
+                    {
+                      title: (
+                        <span
+                          data-cy="payroll-breadcrumb-current"
+                          className="text-xs sm:text-sm"
+                        >
+                          Payroll
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
+              }
+              titleExtra={
+                <div
+                  id="payroll-dashboard-actions-view-container"
+                  data-cy="payroll-dashboard-actions-view-container"
+                  className="flex gap-3 items-center"
+                >
             {/* More actions dropdown */}
             <Dropdown
               data-cy="payroll-more-actions-dropdown"
@@ -1420,6 +1422,9 @@ const Payroll = () => {
                 </AccessGuard>
               </Popconfirm>
             )}
+                </div>
+              }
+            />
           </div>
         </div>
 
@@ -1537,16 +1542,6 @@ const Payroll = () => {
         </Modal>
       </div>
 
-      {/* Divider between header and content card */}
-      <div
-        id="payroll-header-divider-view-container"
-        data-cy="payroll-header-divider-view-container"
-      >
-        <Divider
-          data-cy="payroll-dashboard-header-divider"
-          style={{ margin: '16px 0 24px 0', borderColor: '#f0f0f0' }}
-        />
-      </div>
 
       <div
         id="payroll-dashboard-content-wrapper"

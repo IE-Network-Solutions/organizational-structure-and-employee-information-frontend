@@ -333,11 +333,10 @@ function Page() {
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
-      className="h-auto min-w-0 w-full max-w-full bg-white p-3 sm:p-4 rounded-md"
+      className="h-auto min-w-0 w-full max-w-full bg-white  rounded-md"
     >
       <div
         data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132"
-        className="flex min-w-0 max-w-full flex-col gap-3 sm:gap-4"
       >
         <CustomBreadcrumb
           title="Plan & Report"

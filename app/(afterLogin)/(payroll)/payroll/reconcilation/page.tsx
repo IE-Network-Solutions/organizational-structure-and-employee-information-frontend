@@ -1314,7 +1314,6 @@ import {
 import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { useRouter } from 'next/navigation';
-import { MdKeyboardArrowLeft } from 'react-icons/md';
 
 const { Option } = Select;
 const impactColors = {
@@ -1583,57 +1582,50 @@ const PayrollReconcilation = () => {
   }));
   return (
     <div
-      className="min-h-screen w-full px-3 sm:px-6 "
+      className="min-h-screen w-full  "
       id="manage-employees-page"
       data-cy="manage-employees-page"
     >
       <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex flex-wrap justify-between items-center"
+          className="w-full"
           id="manage-employees-header"
           data-cy="manage-employees-header"
         >
-          <Button
-            value={'back'}
-            name="back"
-            onClick={handleGoBack}
-            className="border-none bg-transparent p-0 mr-2"
-            id="payroll-reconciliation-back-btn"
-            data-cy="payroll-reconciliation-back-btn"
-          >
-            <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
-          </Button>
           <CustomBreadcrumb
+            onBack={handleGoBack}
             title="Payroll Reconciliation"
             subtitle="Employee Payroll Reconciliation"
-          />
-
-          <div
-            data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
-            className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-          >
-            <Button
-              type="default"
-              size="small"
-              className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
-              icon={<SaveAltIcon className="text-sm" />}
-              loading={isExporting}
-              disabled={!previousPayPeriodId || !currentPayPeriodId}
-              onClick={() =>
-                exportReconciliation({
-                  previousPayPeriodId,
-                  currentPayPeriodId,
-                })
-              }
-            >
-              <span
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
-                className="hidden sm:inline"
+            rootClassName="w-full !mb-0"
+            titleExtra={
+              <div
+                data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
+                className="flex flex-wrap justify-start items-center gap-4 md:gap-8"
               >
-                Export
-              </span>
-            </Button>
-          </div>
+                <Button
+                  type="default"
+                  size="small"
+                  className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
+                  icon={<SaveAltIcon className="text-sm" />}
+                  loading={isExporting}
+                  disabled={!previousPayPeriodId || !currentPayPeriodId}
+                  onClick={() =>
+                    exportReconciliation({
+                      previousPayPeriodId,
+                      currentPayPeriodId,
+                    })
+                  }
+                >
+                  <span
+                    data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
+                    className="hidden sm:inline"
+                  >
+                    Export
+                  </span>
+                </Button>
+              </div>
+            }
+          />
         </div>
         <Row gutter={[16, 16]} align="middle" className="mb-6">
           <Col xs={24} sm={24} md={4} lg={4} xl={4}>

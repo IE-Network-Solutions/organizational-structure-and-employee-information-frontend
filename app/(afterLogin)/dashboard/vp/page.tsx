@@ -7,7 +7,7 @@ import VPScoreBreakdownChart from './_components/vp-score-breakdown-chart';
 
 const VPUpdatePage = () => {
   return (
-    <div className="min-h-screen  p-4" data-cy="vp-update-page">
+    <div className="min-h-screen" data-cy="vp-update-page">
       <div className="space-y-4" data-cy="vp-update-page-content">
         <Header />
         <TotalScoreCard />

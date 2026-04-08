@@ -16,6 +16,7 @@ import {
   Button,
 } from 'antd';
 import CustomPagination from '@/components/customPagination';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import EmptyState from '@/components/empty';
 import { DownloadOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
@@ -37,7 +38,7 @@ import {
 } from '@/store/server/features/payroll/settlementTracking/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const InfoItem = ({
   label,
@@ -529,32 +530,35 @@ export default function MyPayroll() {
           }
         }
       `}</style>
-      <Title
-        level={2}
-        className="page-title"
-        style={{ fontWeight: 600, margin: 0 }}
-        data-cy="my-payroll-title"
-      >
-        My Payroll Information
-      </Title>
-
-      <Breadcrumb
-        style={{ marginBottom: '24px', fontSize: '14px' }}
-        data-cy="my-payroll-breadcrumb"
-      >
-        <Breadcrumb.Item data-cy="my-payroll-breadcrumb-employee">
-          Payroll
-        </Breadcrumb.Item>
-        <Breadcrumb.Item data-cy="my-payroll-breadcrumb-my-payroll">
-          My Payroll
-        </Breadcrumb.Item>
-      </Breadcrumb>
-
-      <Divider
-        className="full-bleed-header-divider"
-        style={{ marginTop: 0, marginBottom: 24, borderColor: '#f0f0f0' }}
-        data-cy="my-payroll-header-divider"
+      <CustomBreadcrumb
+        
+        title={
+          <span data-cy="my-payroll-title">My Payroll Information</span>
+        }
+        subtitle={
+          <Breadcrumb
+            style={{ marginBottom: '0px', fontSize: '14px' }}
+            data-cy="my-payroll-breadcrumb"
+            items={[
+              {
+                title: (
+                  <span data-cy="my-payroll-breadcrumb-employee">
+                    Payroll
+                  </span>
+                ),
+              },
+              {
+                title: (
+                  <span data-cy="my-payroll-breadcrumb-my-payroll">
+                    My Payroll
+                  </span>
+                ),
+              },
+            ]}
+          />
+        }
       />
+
 
       <Tabs
         defaultActiveKey="1"

@@ -138,7 +138,7 @@ function Page() {
     <div
       id="survey-detail-page-container"
       data-cy="survey-detail-page-container"
-      className="box-border flex h-[calc(100dvh-74px)] w-full min-h-0 flex-col overflow-hidden bg-white pt-5 md:pt-6"
+      // className="box-border flex h-[calc(100dvh-74px)] w-full min-h-0 flex-col overflow-hidden bg-white pt-5 md:pt-6"
     >
       <div
         className="mb-4 w-full min-w-0 shrink-0 bg-white px-4 md:mb-6 lg:px-0"

@@ -6,7 +6,6 @@ import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import EmployeeAttendance from './_components/EmployeeAttendance';
 import { Breadcrumb } from 'antd';
 import Link from 'next/link';
-import { MdKeyboardArrowLeft } from 'react-icons/md';
 
 export default function TimesheetDashboardPage() {
   return (
@@ -17,24 +16,32 @@ export default function TimesheetDashboardPage() {
     >
       <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex flex-wrap justify-between items-center px-3 sm:px-6"
+          className=""
           id="timesheet-dashboard-header"
           data-cy="timesheet-dashboard-header"
         >
           <div
-            className="flex items-center gap-2"
+            className=""
             data-cy="timesheet-dashboard-header-left"
             id="timesheet-dashboard-header-left"
           >
-            <Link
-              href="/employees/dashboard"
-              className="w-9 h-9 !text-black flex items-center justify-center rounded bg-white hover:bg-gray-200 border border-gray-300 transition"
-              data-cy="timesheet-dashboard-back-button"
-            >
-              <MdKeyboardArrowLeft className="text-lg sm:text-2xl" />
-            </Link>
+          
             <CustomBreadcrumb
-              title="Dashboard"
+              href="/employees/dashboard"
+                title={
+                  <div
+                    className="flex items-start gap-3"
+                    data-cy="timesheet-dashboard-title"
+                  >
+                   
+                    <span
+                      className="text-[30px] leading-9 font-semibold text-[#1f1f1f]"
+                      data-cy="vp-update-header-title-text"
+                    >
+                      Dashboard
+                    </span>
+                  </div>
+                }
               subtitle={
                 <Breadcrumb
                   items={[

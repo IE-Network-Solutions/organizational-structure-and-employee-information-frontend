@@ -25,9 +25,10 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import CustomPagination from '@/components/customPagination';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import { TableSkeleton } from '@/components/tableSkeleton';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface Employee {
   id: string;
@@ -382,7 +383,7 @@ const EmployeeInformation = () => {
 
   return (
     <div
-      className="responsive-container w-full min-h-screen bg-white py-4"
+      className="responsive-container w-full min-h-screen bg-white"
       id="payroll-employee-information-view-container"
       data-cy="payroll-employee-information-view-container"
     >
@@ -428,32 +429,30 @@ const EmployeeInformation = () => {
         }
       `}</style>
 
-      <Title
-        level={2}
-        className="page-title"
-        style={{ fontWeight: 600 }}
-        data-cy="payroll-employee-information-title"
-      >
-        Employee Payroll Information
-      </Title>
-
       <div
         className="breadcrumb-container"
         data-cy="payroll-employee-information-breadcrumb-container"
       >
-        <Breadcrumb
-          style={{ marginBottom: '20px', fontSize: '14px' }}
-          data-cy="payroll-employee-information-breadcrumb"
-        >
-          <Breadcrumb.Item>Payroll</Breadcrumb.Item>
-          <Breadcrumb.Item>Employee Payroll Information</Breadcrumb.Item>
-        </Breadcrumb>
+        <CustomBreadcrumb
+         
+          title={
+            <span data-cy="payroll-employee-information-title">
+              Employee Payroll Information
+            </span>
+          }
+          subtitle={
+            <Breadcrumb
+              style={{ marginBottom: '20px', fontSize: '14px' }}
+              data-cy="payroll-employee-information-breadcrumb"
+              items={[
+                { title: 'Payroll' },
+                { title: 'Employee Payroll Information' },
+              ]}
+            />
+          }
+        />
       </div>
 
-      <Divider
-        data-cy="payroll-employee-information-header-divider"
-        style={{ margin: '0 0 24px 0', borderColor: '#f0f0f0' }}
-      />
 
       <Card
         bordered

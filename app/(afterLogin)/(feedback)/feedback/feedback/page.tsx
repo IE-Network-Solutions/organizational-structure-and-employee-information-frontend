@@ -28,6 +28,7 @@ import { useDeleteFeedbackRecordById } from '@/store/server/features/feedback/fe
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomPagination from '@/components/customPagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { useFeedbackExport } from './_components/useFeedbackExport';
@@ -438,7 +439,7 @@ const Page = () => {
 
   return (
     <div
-      className="feedback-page-mobile-root min-h-screen h-auto w-full bg-white py-1 md:py-4"
+      className="feedback-page-mobile-root min-h-screen h-auto w-full bg-white pb-4"
       data-cy="feedback-page"
     >
       {/*
@@ -446,87 +447,95 @@ const Page = () => {
         is items-center aligned with the stacked title + breadcrumb column.
       */}
       <div
-        className="feedback-page-header mb-4 -mx-9 border-b border-solid border-[#E5E7EB] px-9 pb-4 pt-0 text-left md:-mx-7 md:mb-8 md:px-7 md:pb-5"
+        // className="feedback-page-header mb-4 -mx-9 border-b border-solid border-[#E5E7EB] px-9 pb-4 pt-0 text-left md:-mx-7 md:mb-8 md:px-7 md:pb-5"
         data-cy="feedback-page-header"
       >
         <div
-          className="flex w-full flex-row flex-nowrap items-center justify-between gap-3"
+          className="w-full"
           data-cy="feedback-page-header-layout"
         >
-          <div
-            className="flex min-w-0 flex-1 flex-col gap-1 md:gap-2"
-            data-cy="feedback-page-header-title-container"
-          >
-            <div
-              className="flex flex-row flex-nowrap items-center justify-between gap-3 md:justify-start md:gap-0"
-              data-cy="feedback-page-header-title-row"
-            >
-              <h1
-                className="m-0 min-w-0 shrink-0 text-2xl font-bold leading-8 tracking-tight text-black md:text-[28px] md:leading-tight md:text-gray-900"
-                data-cy="feedback-page-title"
-              >
-                Feedback
-              </h1>
-              <AccessGuard
-                permissions={[Permissions.ViewAllEmployeeFeedback]}
-                data-cy="feedback-page-toggle-guard"
+          <CustomBreadcrumb
+            
+            title={
+              <div
+                className="flex w-full min-w-0 flex-col gap-1 md:gap-2"
+                data-cy="feedback-page-header-title-container"
               >
                 <div
-                  className="shrink-0 md:hidden"
-                  data-cy="feedback-page-toggle-mobile-wrap"
+                  className="flex flex-row flex-nowrap items-center justify-between gap-3 md:justify-start md:gap-0"
+                  data-cy="feedback-page-header-title-row"
                 >
-                  <Tooltip title={viewToggleLabel} placement="bottom">
-                    <Button
-                      onClick={handleToggleView}
-                      type="default"
-                      icon={
-                        <AiOutlineEye
-                          className="block text-[18px] leading-none text-gray-700"
-                          aria-hidden
+                  <h1
+                    className="m-0 min-w-0 shrink-0 text-2xl font-bold leading-8 tracking-tight text-black md:text-[28px] md:leading-tight md:text-gray-900"
+                    data-cy="feedback-page-title"
+                  >
+                    Feedback
+                  </h1>
+                  <AccessGuard
+                    permissions={[Permissions.ViewAllEmployeeFeedback]}
+                    data-cy="feedback-page-toggle-guard"
+                  >
+                    <div
+                      className="shrink-0 md:hidden"
+                      data-cy="feedback-page-toggle-mobile-wrap"
+                    >
+                      <Tooltip title={viewToggleLabel} placement="bottom">
+                        <Button
+                          onClick={handleToggleView}
+                          type="default"
+                          icon={
+                            <AiOutlineEye
+                              className="block text-[18px] leading-none text-gray-700"
+                              aria-hidden
+                            />
+                          }
+                          aria-label={viewToggleLabel}
+                          className="feedback-header-view-toggle !flex !h-8 !w-8 !min-h-8 !min-w-8 !items-center !justify-center !rounded-lg !border !border-gray-300 !bg-white !p-0 !leading-[0] !text-gray-900 shadow-none hover:!border-gray-400 [&_.ant-btn-icon]:!mr-0 [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!h-full [&_.ant-btn-icon]:!w-full [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center [&_.ant-btn-icon]:!leading-[0]"
+                          data-cy="feedback-page-toggle-view-btn"
                         />
-                      }
-                      aria-label={viewToggleLabel}
-                      className="feedback-header-view-toggle !flex !h-8 !w-8 !min-h-8 !min-w-8 !items-center !justify-center !rounded-lg !border !border-gray-300 !bg-white !p-0 !leading-[0] !text-gray-900 shadow-none hover:!border-gray-400 [&_.ant-btn-icon]:!mr-0 [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!h-full [&_.ant-btn-icon]:!w-full [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center [&_.ant-btn-icon]:!leading-[0]"
-                      data-cy="feedback-page-toggle-view-btn"
+                      </Tooltip>
+                    </div>
+                  </AccessGuard>
+                </div>
+                <p
+                  className="m-0 text-sm leading-[22px] text-black/[0.45] md:text-gray-400"
+                  data-cy="feedback-page-breadcrumb"
+                >
+                  CFR / Feedback
+                </p>
+              </div>
+            }
+            subtitle={null}
+            titleExtra={
+              <AccessGuard
+                permissions={[Permissions.ViewAllEmployeeFeedback]}
+                data-cy="feedback-page-toggle-guard-desktop"
+              >
+                <div
+                  className="hidden shrink-0 md:block"
+                  data-cy="feedback-page-toggle-desktop-wrap"
+                >
+                  <Button
+                    onClick={handleToggleView}
+                    type="default"
+                    className="m-0 !inline-flex !h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 text-sm font-medium !leading-[22px] !text-gray-900 shadow-none hover:!border-gray-400 hover:!text-gray-900"
+                    data-cy="feedback-page-toggle-view-btn"
+                  >
+                    <AiOutlineEye
+                      className="size-[18px] shrink-0 text-gray-700"
+                      aria-hidden
                     />
-                  </Tooltip>
+                    <span
+                      className="leading-[22px]"
+                      data-cy="feedback-page-toggle-view-label"
+                    >
+                      {viewToggleLabel}
+                    </span>
+                  </Button>
                 </div>
               </AccessGuard>
-            </div>
-            <p
-              className="m-0 text-sm leading-[22px] text-black/[0.45] md:text-gray-400"
-              data-cy="feedback-page-breadcrumb"
-            >
-              CFR / Feedback
-            </p>
-          </div>
-          <AccessGuard
-            permissions={[Permissions.ViewAllEmployeeFeedback]}
-            data-cy="feedback-page-toggle-guard-desktop"
-          >
-            <div
-              className="hidden shrink-0 md:block"
-              data-cy="feedback-page-toggle-desktop-wrap"
-            >
-              <Button
-                onClick={handleToggleView}
-                type="default"
-                className="m-0 !inline-flex !h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 text-sm font-medium !leading-[22px] !text-gray-900 shadow-none hover:!border-gray-400 hover:!text-gray-900"
-                data-cy="feedback-page-toggle-view-btn"
-              >
-                <AiOutlineEye
-                  className="size-[18px] shrink-0 text-gray-700"
-                  aria-hidden
-                />
-                <span
-                  className="leading-[22px]"
-                  data-cy="feedback-page-toggle-view-label"
-                >
-                  {viewToggleLabel}
-                </span>
-              </Button>
-            </div>
-          </AccessGuard>
+            }
+          />
         </div>
       </div>
 

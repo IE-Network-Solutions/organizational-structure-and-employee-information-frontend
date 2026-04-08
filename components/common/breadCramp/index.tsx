@@ -1,10 +1,15 @@
 'use client';
 import React from 'react';
+import type { ComponentProps } from 'react';
 import classNames from 'classnames';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
+import { MdKeyboardArrowLeft } from 'react-icons/md';
+import Link from 'next/link';
 // import { Breadcrumb } from 'antd';
 
-interface CustomBreadcrumbProps extends BreadcrumbProps {
+type BackLinkHref = ComponentProps<typeof Link>['href'];
+
+interface CustomBreadcrumbProps extends Omit<BreadcrumbProps, 'href'> {
   title: JSX.Element | string;
   /** Omit, empty string, or null to hide the subtitle row */
   subtitle?: JSX.Element | string | null;
@@ -19,6 +24,12 @@ interface CustomBreadcrumbProps extends BreadcrumbProps {
   rootClassName?: string;
   /** Controls visibility of bottom separator line */
   showBottomSeparator?: boolean;
+  /** Next.js route for the back control (string or object). Use `onBack` for `router.back()`. */
+  href?: BackLinkHref;
+  /** Renders the back control as a button (e.g. `() => router.back()`). Takes precedence over `href`. */
+  onBack?: () => void;
+  /** `data-cy` for the back Link or button (default: timesheet-dashboard-back-link). */
+  backControlDataCy?: string;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
@@ -30,6 +41,9 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   titleClassName,
   rootClassName,
   showBottomSeparator = true,
+  href,
+  onBack,
+  backControlDataCy = 'timesheet-dashboard-back-link',
   // className,
   // ...rest
 }) => {
@@ -57,6 +71,33 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           className="min-w-0 flex-1 flex flex-col gap-1"
           data-cy="breadcrumb-main"
         >
+          <div className='flex items-center gap-2'>
+            {(onBack != null || href) ? (
+              <div className='shrink-0'>
+                {onBack != null ? (
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                    data-cy={backControlDataCy}
+                    aria-label="Go back"
+                  >
+                    <MdKeyboardArrowLeft size={18} />
+                  </button>
+                ) : (
+                  <Link
+                    href={href as BackLinkHref}
+                    className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                    data-cy={backControlDataCy}
+                    aria-label="Go back"
+                  >
+                    <MdKeyboardArrowLeft size={18} />
+                  </Link>
+                )}
+              </div>
+            ) : null}
+         
+          <div className=''>
           <div
             className={classNames(
               'min-w-0 text-2xl font-bold leading-[31.20px] text-black',
@@ -74,6 +115,8 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
               {subtitle}
             </div>
           ) : null}
+          </div>
+          </div>
         </div>
         {titleExtra ? (
           <div
@@ -84,17 +127,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           </div>
         ) : null}
       </div>
-      {showBottomSeparator ? (
-        <div
-          className="mt-1 h-px bg-[#E5E7EB]"
-          style={{
-            width: 'calc(100% + 48px)',
-            marginLeft: '-24px',
-            maxWidth: 'none',
-          }}
-          data-cy="breadcrumb-bottom-separator"
-        />
-      ) : null}
+     
       {/* <Breadcrumb className={`self-stretch ${className}`} {...rest} /> */}
     </div>
   );
