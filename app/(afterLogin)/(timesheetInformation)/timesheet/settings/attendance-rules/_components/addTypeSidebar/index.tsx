@@ -231,7 +231,7 @@ const AddTypesSidebar = () => {
               </Form.Item>
             </Space.Compact>
           </Form>
-          </Skeleton>
+        </Skeleton>
       </Modal>
     )
   );

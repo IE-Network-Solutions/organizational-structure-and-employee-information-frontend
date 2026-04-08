@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import LeaveManagementTableFilter from './tableFilter';
-import { Skeleton, Table } from 'antd';
+import { Table } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import LeaveRequestStatusTag from '../LeaveRequestStatusTag';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
@@ -382,21 +382,6 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
       selectedRowKeys?.filter((key) => currentPageKeys.includes(key)) || []
     );
   };
-
-  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
-  const tableDataSource = isFetching
-    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
-        key: `skeleton-${index}`,
-      }))
-    : tableData;
-
-  const tableColumns = isFetching
-    ? (columns.map((column: any) => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
-      })) as any)
-    : columns;
 
   return (
     <div

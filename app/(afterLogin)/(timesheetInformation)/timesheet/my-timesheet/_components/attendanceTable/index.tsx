@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Button, Dropdown, message, Skeleton, Space, Table, Tag } from 'antd';
+import { Button, Dropdown, message, Space, Table, Tag } from 'antd';
 import { AiOutlineReload } from 'react-icons/ai';
 import { GoLocation } from 'react-icons/go';
 import dayjs from 'dayjs';
@@ -406,21 +406,6 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
   const columns =
     variant === 'myTimesheet' ? myTimesheetColumns : defaultColumns;
-
-  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
-  const tableDataSource = isFetching
-    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
-        id: `skeleton-${index}`,
-      }))
-    : (data?.items ?? []);
-
-  const tableColumns = isFetching
-    ? (columns.map((column: any) => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
-      })) as any)
-    : columns;
 
   const onFilterChange = (val: CommonObject) => {
     const nFilter: Partial<AttendanceRequestBody['filter']> = { ...userFilter };

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import HistoryTableFilter from './tableFilter';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Skeleton, Table, Tag } from 'antd';
+import { Button, Table, Tag } from 'antd';
 import {
   useGetLeaveRequest,
   useGetSingleApproval,
@@ -223,21 +223,6 @@ const HistoryTable = () => {
       },
     },
   ];
-
-  const skeletonRowCount = limit > 0 ? Math.min(limit, 8) : 5;
-  const historyTableDataSource = isFetching
-    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
-        key: `skeleton-${index}`,
-      }))
-    : tableData;
-
-  const historyTableColumns = isFetching
-    ? columns.map((column: any) => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
-      }))
-    : columns;
 
   const safeHistoryLimit = limit > 0 ? limit : 1;
   const historyMetaTotalPages = data?.meta?.totalPages;

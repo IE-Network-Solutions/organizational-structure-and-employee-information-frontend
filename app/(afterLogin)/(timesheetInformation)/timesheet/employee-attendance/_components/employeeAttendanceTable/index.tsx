@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { Avatar, Button, Dropdown, Skeleton, Table } from 'antd';
+import { Avatar, Button, Dropdown, Table } from 'antd';
 import TableFilter from './tableFilter';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
@@ -531,21 +531,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       selectedRowKeys?.filter((key) => currentPageKeys.includes(key)) || []
     );
   };
-
-  const skeletonRowCount = pageSize > 0 ? Math.min(pageSize, 8) : 6;
-  const tableDataSource = isFetching
-    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
-        key: `skeleton-${index}`,
-      }))
-    : tableData;
-
-  const tableColumns = isFetching
-    ? (columns.map((column: any) => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
-      })) as any)
-    : columns;
 
   return (
     <div

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Skeleton, Table } from 'antd';
+import { Button, Table } from 'antd';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
@@ -219,20 +219,6 @@ const TalentPoolTable: React.FC<any> = () => {
   ];
 
   const filteredItems = candidates?.items || [];
-  const skeletonRowCount = 6;
-  const tableDataSource = responseLoading
-    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
-        key: `skeleton-${index}`,
-      }))
-    : filteredItems;
-
-  const tableColumns = responseLoading
-    ? columns.map((column: any) => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
-      }))
-    : columns;
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);

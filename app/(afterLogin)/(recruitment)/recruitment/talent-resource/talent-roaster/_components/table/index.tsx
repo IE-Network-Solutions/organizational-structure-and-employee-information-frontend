@@ -4,7 +4,6 @@ import {
   Col,
   Row,
   Select,
-  Skeleton,
   Table,
   TableColumnsType,
   DatePicker,
@@ -449,21 +448,6 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         ),
       };
     }) || [];
-
-  const skeletonRowCount = 6;
-  const tableDataSource = isLoading
-    ? Array.from({ length: skeletonRowCount }).map((notUsed, index) => ({
-        key: `skeleton-${index}`,
-      }))
-    : data;
-
-  const tableColumns = isLoading
-    ? (columns.map((column: any) => ({
-        ...column,
-        sorter: false,
-        render: () => <Skeleton.Input active className="!h-5 !w-full" />,
-      })) as TableColumnsType<any>)
-    : columns;
 
   const rowSelection: TableRowSelection<TableDataItem> = {
     selectedRowKeys: selectedRowKeys,
