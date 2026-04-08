@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Avatar, Button, Card, Empty, Skeleton, Tag } from 'antd';
+import { Avatar, Button, Card, Skeleton, Tag } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -12,6 +12,7 @@ import {
   useGetAIMatchDetails,
 } from '@/store/server/features/recruitment/ai-job-matching/queries';
 import type { AIMatchedCandidate } from '@/store/server/features/recruitment/ai-job-matching/interface';
+import EmptyState from '@/components/empty';
 
 dayjs.extend(relativeTime);
 
@@ -171,7 +172,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
           id="ai-job-detail-not-found-empty"
           data-cy="ai-job-detail-not-found-empty"
         >
-          <Empty description="Job not found" />
+          <EmptyState />
         </div>
       </div>
     );
@@ -351,7 +352,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                   id="ai-job-detail-candidates-empty-state"
                   data-cy="ai-job-detail-candidates-empty-state"
                 >
-                  <Empty description="No candidates available yet" />
+                  <EmptyState />
                 </div>
               </div>
             ) : (

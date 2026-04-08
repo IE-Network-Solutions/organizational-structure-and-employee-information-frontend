@@ -443,16 +443,6 @@ const ApprovalTable = () => {
       ? meta.totalPages * pageSize
       : null);
   const totalItems = totalFromApi ?? 0;
-  const safeApprovalPageSize = pageSize > 0 ? pageSize : 1;
-  const approvalMetaTotalPages = meta?.totalPages;
-  const approvalResolvedTotalPages = Math.max(
-    1,
-    typeof approvalMetaTotalPages === 'number' &&
-      !Number.isNaN(approvalMetaTotalPages) &&
-      approvalMetaTotalPages >= 1
-      ? approvalMetaTotalPages
-      : Math.ceil((totalItems || 0) / safeApprovalPageSize),
-  );
 
   const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {

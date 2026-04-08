@@ -1,9 +1,9 @@
-import { Card, Empty, Pagination, Skeleton } from 'antd';
+import { Card, Pagination, Skeleton } from 'antd';
 import React, { useState } from 'react';
 import EditAndDeleteButtonCard from './editDeleteButtonCard';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { useGetRoles } from '@/store/server/features/employees/settings/role/queries';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
+import EmptyState from '@/components/empty';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -86,16 +86,7 @@ const RoleComponent: React.FC = () => {
           id={`settings-permission-role-empty-${componentSlug}`}
           data-cy={`settings-permission-role-empty-${componentSlug}`}
         >
-          {' '}
-          <Empty
-            description={'data not found'}
-            image={
-              <EmptyImage
-                data-cy={`settings-permission-role-empty-icon-${componentSlug}`}
-              />
-            }
-            data-cy={`settings-permission-role-empty-image-${componentSlug}`}
-          />
+          <EmptyState />
         </div>
       )}
     </Card>

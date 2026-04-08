@@ -46,6 +46,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import EmptyState from '@/components/empty';
 
 const TEMPLATE_DROPPABLE_ID = 'template-tasks';
 const EMPLOYEE_DROPPABLE_ID = 'employee-tasks';
@@ -547,7 +548,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   id="offboarding-tasks-empty-wrapper"
                   data-cy="offboarding-tasks-empty-wrapper"
                 >
-                  No offboarding tasks
+                  <EmptyState />
                 </div>
               )}
             </DroppableArea>

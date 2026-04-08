@@ -1,12 +1,12 @@
-import { Card, Empty, Skeleton } from 'antd';
+import { Card, Skeleton } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
 import { useGetPermissionGroups } from '@/store/server/features/employees/settings/groupPermission/queries';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import EmptyState from '@/components/empty';
 
 const GroupPermissionComponent = () => {
   const { isMobile, isTablet } = useIsMobile();
@@ -101,13 +101,7 @@ const GroupPermissionComponent = () => {
           id="settings-role-permission-group-empty-wrapper"
           data-cy="settings-role-permission-group-empty-wrapper"
         >
-          <Empty
-            description={'data not found'}
-            image={
-              <EmptyImage data-cy="settings-role-permission-group-empty-icon" />
-            }
-            data-cy="settings-role-permission-group-empty"
-          />
+          <EmptyState />
         </div>
       )}
     </Card>

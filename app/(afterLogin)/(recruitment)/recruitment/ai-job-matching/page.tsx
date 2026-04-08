@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Empty, Input, Skeleton } from 'antd';
+import { Card, Input, Skeleton } from 'antd';
 import {
   SearchOutlined,
   EnvironmentOutlined,
@@ -15,6 +15,7 @@ import {
   useGetJobMetadata,
 } from '@/store/server/features/recruitment/ai-job-matching/queries';
 import type { JobMatchSummary } from '@/store/server/features/recruitment/ai-job-matching/interface';
+import EmptyState from '@/components/empty';
 
 dayjs.extend(relativeTime);
 
@@ -248,7 +249,7 @@ const AIJobMatchingPage: React.FC = () => {
             id="ai-job-matching-error-empty"
             data-cy="ai-job-matching-error-empty"
           >
-            <Empty description="Failed to load jobs" />
+            <EmptyState />
           </div>
         </div>
       </div>
@@ -315,7 +316,7 @@ const AIJobMatchingPage: React.FC = () => {
               id="ai-job-matching-empty-state"
               data-cy="ai-job-matching-empty-state"
             >
-              <Empty description="No jobs available" />
+              <EmptyState />
             </div>
           </div>
         ) : (
