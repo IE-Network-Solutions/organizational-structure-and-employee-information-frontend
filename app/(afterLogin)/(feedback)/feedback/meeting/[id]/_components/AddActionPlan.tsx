@@ -284,12 +284,16 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
   const handleEditDraftPlan = (index: number) => {
     const target = draftAddedPlans[index];
     if (!target) return;
-    setDraftAddedPlans((prev) => prev.filter((_, i) => i !== index));
+    setDraftAddedPlans((prev) =>
+      prev.filter((draftPlan, draftIndex) => draftIndex !== index),
+    );
     form.setFieldsValue({ actionPlans: [target] });
   };
 
   const handleDeleteDraftPlan = (index: number) => {
-    setDraftAddedPlans((prev) => prev.filter((_, i) => i !== index));
+    setDraftAddedPlans((prev) =>
+      prev.filter((draftPlan, draftIndex) => draftIndex !== index),
+    );
   };
 
   const footer = (
@@ -476,7 +480,7 @@ const AddActionPlanModal: React.FC<AddActionPlanModalProps> = ({
           name="actionPlans"
           data-cy="feedback-meeting-components-addactionplan-list"
         >
-          {(fields, { add, remove }) => (
+          {(fields, { remove }) => (
             <>
               {actionPlanData == null && alreadyAddedCardItems.length > 0 ? (
                 <div
