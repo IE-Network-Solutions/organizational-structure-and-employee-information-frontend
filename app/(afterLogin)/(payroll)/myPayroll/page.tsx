@@ -531,10 +531,7 @@ export default function MyPayroll() {
         }
       `}</style>
       <CustomBreadcrumb
-        
-        title={
-          <span data-cy="my-payroll-title">My Payroll Information</span>
-        }
+        title={<span data-cy="my-payroll-title">My Payroll Information</span>}
         subtitle={
           <Breadcrumb
             style={{ marginBottom: '0px', fontSize: '14px' }}
@@ -542,9 +539,7 @@ export default function MyPayroll() {
             items={[
               {
                 title: (
-                  <span data-cy="my-payroll-breadcrumb-employee">
-                    Payroll
-                  </span>
+                  <span data-cy="my-payroll-breadcrumb-employee">Payroll</span>
                 ),
               },
               {
@@ -558,7 +553,6 @@ export default function MyPayroll() {
           />
         }
       />
-
 
       <Tabs
         defaultActiveKey="1"

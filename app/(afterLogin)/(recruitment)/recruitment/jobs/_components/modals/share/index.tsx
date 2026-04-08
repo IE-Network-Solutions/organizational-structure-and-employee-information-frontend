@@ -1,9 +1,9 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { PUBLIC_DOMAIN } from '@/utils/constants';
-import { Divider, Modal } from 'antd';
-import { CheckCheck, Copy } from 'lucide-react';
-import React, { useEffect } from 'react';
+import { Modal } from 'antd';
+import { CheckCheck, Link2 } from 'lucide-react';
+import React, { useEffect, useMemo } from 'react';
 import { FaFacebook, FaLinkedin, FaTelegram, FaWhatsapp } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -23,16 +23,6 @@ const ShareToSocialMedia: React.FC = () => {
   const handleClose = () => {
     setShareModalOpen(false);
   };
-  const socialMediaShareModalHeader = (
-    <div
-      className=" flex items-center justify-center text-xl font-extrabold px-2"
-      data-cy="talent-acquisition-share-modal-header"
-    >
-      <span data-cy="talent-acquisition-share-modal-header-text">
-        Share to other Media
-      </span>
-    </div>
-  );
 
   const tenantId = currentTenantId;
   const jobId = selectedJobId;
@@ -44,7 +34,29 @@ const ShareToSocialMedia: React.FC = () => {
     }
   }, [selectedJobId, tenantId, jobId, setGeneratedUrl]);
 
+  const encodedUrl = useMemo(
+    () => encodeURIComponent(generatedUrl || ''),
+    [generatedUrl],
+  );
+
+  const shareTargets = useMemo(
+    () => ({
+      twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      telegram: `https://t.me/share/url?url=${encodedUrl}`,
+      whatsapp: `https://api.whatsapp.com/send?text=${encodedUrl}`,
+    }),
+    [encodedUrl],
+  );
+
+  const openShare = (url: string) => {
+    if (!generatedUrl) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   const handleCopy = () => {
+    if (!generatedUrl) return;
     navigator.clipboard.writeText(generatedUrl).then(() => {
       setIsChecked(true);
       setTimeout(() => {
@@ -53,86 +65,166 @@ const ShareToSocialMedia: React.FC = () => {
     });
   };
 
+  const socialButtonClass =
+    'inline-flex h-[28px] w-[28px] shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white transition-colors hover:bg-[#FAFAFA]';
+
+  const socialIconColor = 'rgba(0,0,0,0.7)';
+  const socialIconSize = 18;
+
   return (
-    shareModalOpen && (
-      <Modal
-        data-cy="talent-acquisition-share-modal"
-        title={socialMediaShareModalHeader}
-        open={shareModalOpen}
-        onCancel={handleClose}
-        footer={null}
-        centered
-      >
-        <div
-          className="text-lg font-bold"
-          data-cy="talent-acquisition-share-modal-title"
+    <Modal
+      data-cy="talent-acquisition-share-modal"
+      title={
+        <span
+          className="text-base font-bold leading-tight text-[rgba(0,0,0,0.7)]"
+          data-cy="talent-acquisition-share-modal-header-text"
         >
-          Share
-        </div>
-        <div
-          data-cy="-components-modals-share-index-tsx-index-div-72"
-          className="flex items-center justify-start gap-5 p-2 py-2"
-        >
-          <FaXTwitter
-            id="talent-acquisition-share-icon-twitter"
-            data-cy="talent-acquisition-share-icon-twitter"
-            size={35}
-          />
-          <FaFacebook
-            id="talent-acquisition-share-icon-facebook"
-            data-cy="talent-acquisition-share-icon-facebook"
-            size={35}
-            color="#0866FF"
-          />
-          <FaLinkedin
-            id="talent-acquisition-share-icon-linkedin"
-            data-cy="talent-acquisition-share-icon-linkedin"
-            size={35}
-            color="#0A66C2"
-          />
-          <FaTelegram
-            id="talent-acquisition-share-icon-telegram"
-            data-cy="talent-acquisition-share-icon-telegram"
-            size={35}
-            color="#2AABEE"
-          />
-          <FaWhatsapp
-            id="talent-acquisition-share-icon-whatsapp"
-            data-cy="talent-acquisition-share-icon-whatsapp"
-            size={35}
-            color="#25D366"
-          />
-        </div>
-        <div
-          data-cy="-components-modals-share-index-tsx-index-div-103"
-          className="flex items-center justify-center gap-3 border-[1px] p-2 rounded-md"
-        >
+          Share to other Media
+        </span>
+      }
+      open={shareModalOpen}
+      onCancel={handleClose}
+      footer={null}
+      centered
+      width={480}
+      style={{ maxWidth: 'calc(100vw - 16px)' }}
+      destroyOnClose
+      classNames={{
+        header: '!mb-0 !px-6 !pb-3 !pt-6 !text-left',
+        body: '!px-6 !pb-6 !pt-0',
+      }}
+      styles={{
+        content: { borderRadius: 8, padding: 0 },
+        header: { borderBottom: 'none' },
+      }}
+    >
+      <div className="space-y-4" data-cy="talent-acquisition-share-modal-body">
+        <div data-cy="talent-acquisition-share-modal-copy-section">
           <div
-            data-cy="-components-modals-share-index-tsx-index-div-104"
-            className="font-semibold "
+            className="mb-2 text-sm font-normal leading-normal text-[#030712]"
+            data-cy="talent-acquisition-share-modal-copy-label"
           >
-            {' '}
-            {generatedUrl}
+            Copy to share link
           </div>
-          <Divider type="vertical" />
           <div
-            id="talent-acquisition-share-button-copy"
-            data-cy="talent-acquisition-share-button-copy"
-            onClick={handleCopy}
+            className="flex min-h-10 items-center gap-2 rounded-md border border-solid border-[#D9D9D9] bg-white px-3 py-2"
+            data-cy="talent-acquisition-share-modal-link-row"
           >
-            {isChecked ? (
-              <CheckCheck
-                size={16}
-                strokeWidth={1.75}
-                className="text-green-500"
-              />
-            ) : (
-              <Copy color="#BDBDBD" size={20} strokeWidth={2.25} />
-            )}
+            <span
+              className="min-w-0 flex-1 truncate text-sm font-normal leading-normal text-[#4B5563]"
+              data-cy="talent-acquisition-share-modal-link-text"
+            >
+              {generatedUrl}
+            </span>
+            <button
+              type="button"
+              id="talent-acquisition-share-button-copy"
+              data-cy="talent-acquisition-share-button-copy"
+              onClick={handleCopy}
+              aria-label={isChecked ? 'Link copied' : 'Copy link'}
+              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded text-[rgba(0,0,0,0.7)] hover:bg-[#F3F4F6]"
+            >
+              {isChecked ? (
+                <CheckCheck
+                  className="h-3.5 w-3.5 text-emerald-600"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+              ) : (
+                <Link2
+                  className="h-3.5 w-3.5 text-[rgba(0,0,0,0.7)]"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+              )}
+            </button>
           </div>
         </div>
-      </Modal>
-    )
+
+        <p
+          className="text-center text-sm font-normal leading-normal text-[rgba(0,0,0,0.45)]"
+          data-cy="talent-acquisition-share-modal-social-divider-text"
+        >
+          Or Share using social media
+        </p>
+
+        <div
+          className="flex flex-wrap items-center justify-center gap-3"
+          data-cy="talent-acquisition-share-modal-social-row"
+        >
+          <button
+            type="button"
+            className={socialButtonClass}
+            data-cy="talent-acquisition-share-social-twitter"
+            aria-label="Share on X"
+            onClick={() => openShare(shareTargets.twitter)}
+          >
+            <FaXTwitter
+              id="talent-acquisition-share-icon-twitter"
+              data-cy="talent-acquisition-share-icon-twitter"
+              size={socialIconSize}
+              color={socialIconColor}
+            />
+          </button>
+          <button
+            type="button"
+            className={socialButtonClass}
+            data-cy="talent-acquisition-share-social-facebook"
+            aria-label="Share on Facebook"
+            onClick={() => openShare(shareTargets.facebook)}
+          >
+            <FaFacebook
+              id="talent-acquisition-share-icon-facebook"
+              data-cy="talent-acquisition-share-icon-facebook"
+              size={socialIconSize}
+              color={socialIconColor}
+            />
+          </button>
+          <button
+            type="button"
+            className={socialButtonClass}
+            data-cy="talent-acquisition-share-social-linkedin"
+            aria-label="Share on LinkedIn"
+            onClick={() => openShare(shareTargets.linkedin)}
+          >
+            <FaLinkedin
+              id="talent-acquisition-share-icon-linkedin"
+              data-cy="talent-acquisition-share-icon-linkedin"
+              size={socialIconSize}
+              color={socialIconColor}
+            />
+          </button>
+          <button
+            type="button"
+            className={socialButtonClass}
+            data-cy="talent-acquisition-share-social-telegram"
+            aria-label="Share on Telegram"
+            onClick={() => openShare(shareTargets.telegram)}
+          >
+            <FaTelegram
+              id="talent-acquisition-share-icon-telegram"
+              data-cy="talent-acquisition-share-icon-telegram"
+              size={socialIconSize}
+              color={socialIconColor}
+            />
+          </button>
+          <button
+            type="button"
+            className={socialButtonClass}
+            data-cy="talent-acquisition-share-social-whatsapp"
+            aria-label="Share on WhatsApp"
+            onClick={() => openShare(shareTargets.whatsapp)}
+          >
+            <FaWhatsapp
+              id="talent-acquisition-share-icon-whatsapp"
+              data-cy="talent-acquisition-share-icon-whatsapp"
+              size={socialIconSize}
+              color={socialIconColor}
+            />
+          </button>
+        </div>
+      </div>
+    </Modal>
   );
 };
 

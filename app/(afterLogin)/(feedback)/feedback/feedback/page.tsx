@@ -450,12 +450,8 @@ const Page = () => {
         // className="feedback-page-header mb-4 -mx-9 border-b border-solid border-[#E5E7EB] px-9 pb-4 pt-0 text-left md:-mx-7 md:mb-8 md:px-7 md:pb-5"
         data-cy="feedback-page-header"
       >
-        <div
-          className="w-full"
-          data-cy="feedback-page-header-layout"
-        >
+        <div className="w-full" data-cy="feedback-page-header-layout">
           <CustomBreadcrumb
-            
             title={
               <div
                 className="flex w-full min-w-0 flex-col gap-1 md:gap-2"

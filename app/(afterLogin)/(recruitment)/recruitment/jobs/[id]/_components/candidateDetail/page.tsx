@@ -5,7 +5,6 @@ import React from 'react';
 import { FaPhone } from 'react-icons/fa';
 import { MdOutlineMail } from 'react-icons/md';
 import CoverLetter from '../tabs/coverLetter';
-import JobResponse from '../tabs/response';
 import CustomButton from '@/components/common/buttons/customButton';
 
 const CandidateDetail: React.FC = ({}) => {
@@ -29,25 +28,6 @@ const CandidateDetail: React.FC = ({}) => {
         </span>
       ),
       children: <CoverLetter selectedCandidate={selectedCandidate} />,
-    },
-    {
-      key: '2',
-      label: (
-        <span
-          className="mt-4"
-          data-cy="talent-acquisition-job-candidate-detail-tab-response-label"
-        >
-          <p
-            className="font-semibold"
-            data-cy="talent-acquisition-job-candidate-detail-tab-response-text"
-          >
-            <span data-cy="talent-acquisition-job-candidate-detail-tab-response-text-content">
-              Response
-            </span>
-          </p>
-        </span>
-      ),
-      children: <JobResponse selectedCandidate={selectedCandidate} />,
     },
     // {
     //   key: '3',

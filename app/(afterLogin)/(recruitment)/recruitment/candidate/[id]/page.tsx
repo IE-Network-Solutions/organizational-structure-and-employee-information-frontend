@@ -8,7 +8,7 @@ import { useChangeCandidateStatus } from '@/store/server/features/recruitment/ca
 import { useGetAllCandidates } from '@/store/server/features/recruitment/candidate/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import HtmlStringDisplayer from '@/components/HtmlStringDisplayer';
-import { Button, Card, Select } from 'antd';
+import { Button, Select } from 'antd';
 import React from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -155,39 +155,36 @@ const CandidateDetailPage: React.FC = () => {
       id="talent-acquisition-candidate-detail-page"
       data-cy="talent-acquisition-candidate-detail-page"
     >
-     
-            <div data-cy="talent-acquisition-candidate-detail-page-breadcrumb">
-              <CustomBreadcrumb
-                href="/recruitment/candidate"
-                backControlDataCy="talent-acquisition-candidate-detail-page-back"
-                title={
-                  <span
-                    className="text-lg sm:text-2xl font-bold text-[#000000B2]"
-                    data-cy="talent-acquisition-candidate-detail-page-breadcrumb-title"
-                  >
-                    Candidate Detail
-                  </span>
-                }
-                subtitle={
-                  <>
-                    <span
-                      className="text-slate-500"
-                      data-cy="talent-acquisition-candidate-detail-page-breadcrumb-prefix"
-                    >
-                      Talent Acquisition /{' '}
-                    </span>
-                    <span
-                      className="text-[#000000B2]"
-                      data-cy="talent-acquisition-candidate-detail-page-breadcrumb-current"
-                    >
-                      Candidates
-                    </span>
-                  </>
-                }
-              />
-            </div>
-    
-     
+      <div data-cy="talent-acquisition-candidate-detail-page-breadcrumb">
+        <CustomBreadcrumb
+          href="/recruitment/candidate"
+          backControlDataCy="talent-acquisition-candidate-detail-page-back"
+          title={
+            <span
+              className="text-lg sm:text-2xl font-bold text-[#000000B2]"
+              data-cy="talent-acquisition-candidate-detail-page-breadcrumb-title"
+            >
+              Candidate Detail
+            </span>
+          }
+          subtitle={
+            <>
+              <span
+                className="text-slate-500"
+                data-cy="talent-acquisition-candidate-detail-page-breadcrumb-prefix"
+              >
+                Talent Acquisition /{' '}
+              </span>
+              <span
+                className="text-[#000000B2]"
+                data-cy="talent-acquisition-candidate-detail-page-breadcrumb-current"
+              >
+                Candidates
+              </span>
+            </>
+          }
+        />
+      </div>
 
       {/* Section 1: Candidate header (name, status, nav, contact grid) */}
       <div

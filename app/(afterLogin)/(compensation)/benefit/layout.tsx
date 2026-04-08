@@ -17,15 +17,6 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-/** Breaks out of Nav content padding (navBar `px-2` / `sm:px-6`) for a full-width rule. */
-const BreadcrumbRule = () => (
-  <div
-    className="pointer-events-none box-border max-w-none shrink-0 border-0 border-t border-solid border-gray-200 -mx-2 w-[calc(100%+1rem)] sm:-mx-6 sm:w-[calc(100%+3rem)]"
-    aria-hidden
-    data-cy="compensation-benefit-breadcrumb-rule"
-  />
-);
-
 const BenefitDetailHeader = () => {
   const params = useParams();
   const id = params?.id as string | undefined;
@@ -92,7 +83,9 @@ const BenefitDetailHeader = () => {
                 className="flex flex-shrink-0 flex-wrap justify-end items-center gap-2 sm:gap-4 mr-3"
                 data-cy="compensation-benefit-detail-header-actions"
               >
-                <AccessGuard permissions={[Permissions.CreateBenefitEntitlement]}>
+                <AccessGuard
+                  permissions={[Permissions.CreateBenefitEntitlement]}
+                >
                   <Button
                     type="primary"
                     icon={<FaUserPlus className="text-base sm:text-lg" />}
@@ -223,23 +216,27 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     title="Benefit"
                     titleClassName="!text-[#000000]"
                     rootClassName="!py-0 gap-1.5"
-                    titleExtra={  <div
-                      className="flex flex-shrink-0 flex-wrap items-center justify-end gap-4 mr-3"
-                      id="compensation-benefit-layout-actions"
-                      data-cy="compensation-benefit-layout-actions"
-                    >
-                      <AccessGuard permissions={[Permissions.CreateBenefitType]}>
-                        <Button
-                          type="primary"
-                          icon={<MdOutlinePayments className="text-lg" />}
-                          className="h-10 font-normal"
-                          onClick={handleAddBenefitType}
-                          data-cy="compensation-benefit-add-benefit-type-button"
+                    titleExtra={
+                      <div
+                        className="flex flex-shrink-0 flex-wrap items-center justify-end gap-4 mr-3"
+                        id="compensation-benefit-layout-actions"
+                        data-cy="compensation-benefit-layout-actions"
+                      >
+                        <AccessGuard
+                          permissions={[Permissions.CreateBenefitType]}
                         >
-                          Add Benefit Type
-                        </Button>
-                      </AccessGuard>
-                    </div>}
+                          <Button
+                            type="primary"
+                            icon={<MdOutlinePayments className="text-lg" />}
+                            className="h-10 font-normal"
+                            onClick={handleAddBenefitType}
+                            data-cy="compensation-benefit-add-benefit-type-button"
+                          >
+                            Add Benefit Type
+                          </Button>
+                        </AccessGuard>
+                      </div>
+                    }
                     subtitle={
                       <Breadcrumb
                         separator="/"
@@ -271,7 +268,6 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     data-cy="compensation-benefit-layout-breadcrumb"
                   />
                 </div>
-              
               </div>
             </BlockWrapper>
           </>

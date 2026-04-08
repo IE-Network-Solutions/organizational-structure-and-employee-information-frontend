@@ -168,7 +168,9 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
             title="Employee Settings"
             subtitle={
               <>
-                <Link className='text-black' href="/employees/manage-employees">Employee</Link>
+                <Link className="text-black" href="/employees/manage-employees">
+                  Employee
+                </Link>
                 <span data-cy="employee-settings-breadcrumb-separator">
                   {' '}
                   /{' '}

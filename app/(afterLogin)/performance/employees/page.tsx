@@ -10,9 +10,8 @@ export default function EmployeesOKRPage() {
   return (
     <div className="min-h-screen " data-cy="okr-all-employee-page">
       <header className="mb-4" data-cy="performance-employees-header">
-
         <CustomBreadcrumb
-        href="/performance"
+          href="/performance"
           title={
             <div
               className="flex items-center gap-3"

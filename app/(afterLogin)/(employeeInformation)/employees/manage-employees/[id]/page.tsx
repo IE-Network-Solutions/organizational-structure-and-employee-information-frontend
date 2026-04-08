@@ -267,16 +267,12 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           <CustomBreadcrumb
             onBack={handleGoBack}
             title={
-              <span
-                id="employee-detail-title"
-                data-cy="employee-detail-title"
-              >
+              <span id="employee-detail-title" data-cy="employee-detail-title">
                 Employee Details
               </span>
             }
             titleClassName="text-lg sm:text-xl md:text-2xl !text-gray-900"
             rootClassName="w-full !mb-0 !py-4"
-  
             subtitle={
               <Breadcrumb
                 className="text-xs sm:text-sm"

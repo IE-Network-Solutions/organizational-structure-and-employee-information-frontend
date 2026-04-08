@@ -104,7 +104,6 @@ const LeaveManagement = () => {
             data-cy="time-attendance-leave-management-header"
           >
             <CustomBreadcrumb
-            
               title="Leave Management"
               subtitle="Time and Attendance / Leave Management"
               titleExtra={

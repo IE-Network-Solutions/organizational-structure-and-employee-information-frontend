@@ -65,8 +65,8 @@ const ApprovalListTable = () => {
   const listItems = allFilterData?.items ?? [];
   const hasActiveFilters = Boolean(
     searchParams.name?.trim() ||
-    searchParams.entityType ||
-    searchParams.entityId,
+      searchParams.entityType ||
+      searchParams.entityId,
   );
   const canCreateApprovalWorkflow = AccessGuard.checkAccess({
     permissions: [Permissions.CreateApprovalWorkFlow],

@@ -147,12 +147,9 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
           data-cy="time-attendance-my-timesheet-header-container"
           id="time-attendance-my-timesheet-header-container"
         >
-          <div
-            data-cy="time-attendance-my-timesheet-header-actions"
-          >
+          <div data-cy="time-attendance-my-timesheet-header-actions">
             <div data-cy="time-attendance-my-timesheet-header-title-area">
               <CustomBreadcrumb
-              
                 title={
                   <span
                     data-cy="time-attendance-my-timesheet-page-title"

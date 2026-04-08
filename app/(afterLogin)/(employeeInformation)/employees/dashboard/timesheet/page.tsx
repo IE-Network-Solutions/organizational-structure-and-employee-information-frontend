@@ -25,23 +25,21 @@ export default function TimesheetDashboardPage() {
             data-cy="timesheet-dashboard-header-left"
             id="timesheet-dashboard-header-left"
           >
-          
             <CustomBreadcrumb
               href="/employees/dashboard"
-                title={
-                  <div
-                    className="flex items-start gap-3"
-                    data-cy="timesheet-dashboard-title"
+              title={
+                <div
+                  className="flex items-start gap-3"
+                  data-cy="timesheet-dashboard-title"
+                >
+                  <span
+                    className="text-[30px] leading-9 font-semibold text-[#1f1f1f]"
+                    data-cy="vp-update-header-title-text"
                   >
-                   
-                    <span
-                      className="text-[30px] leading-9 font-semibold text-[#1f1f1f]"
-                      data-cy="vp-update-header-title-text"
-                    >
-                      Dashboard
-                    </span>
-                  </div>
-                }
+                    Dashboard
+                  </span>
+                </div>
+              }
               subtitle={
                 <Breadcrumb
                   items={[

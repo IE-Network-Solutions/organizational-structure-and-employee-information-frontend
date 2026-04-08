@@ -25,12 +25,9 @@ const VariablePayPage = () => {
       data-cy="variable-pay-page-container"
       className="h-auto w-full"
     >
-      <div  data-cy="variable-pay-page-header">
+      <div data-cy="variable-pay-page-header">
         <CustomBreadcrumb
-        
-          title={
-            <span data-cy="page-header-title">Variable Pay</span>
-          }
+          title={<span data-cy="page-header-title">Variable Pay</span>}
           subtitle={
             <span
               className="m-1 block font-medium text-gray-600 sm:mt-2"
@@ -94,7 +91,7 @@ const VariablePayPage = () => {
           }
         />
       </div>
-      
+
       <VPScoreCard />
       <VariablePayTable data-cy="variable-pay-table" />
     </div>

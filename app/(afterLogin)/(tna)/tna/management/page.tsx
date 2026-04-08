@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Divider } from 'antd';
+import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
@@ -135,7 +135,6 @@ const TnaManagementPage = () => {
               data-cy="tna-management-page-header-content"
             >
               <CustomBreadcrumb
-               
                 title={
                   <span data-cy="tna-management-page-title">
                     Learning and Growth
@@ -201,7 +200,6 @@ const TnaManagementPage = () => {
               />
             </div>
           </div>
-         
         </header>
 
         <div

@@ -3,16 +3,7 @@ import {
   useAllChildrenRecognition,
   useParentRecognition,
 } from '@/store/server/features/incentive/other/queries';
-import {
-  Button,
-  Card,
-  Divider,
-  Dropdown,
-  Empty,
-  Input,
-  Skeleton,
-  Tag,
-} from 'antd';
+import { Button, Card, Dropdown, Empty, Input, Skeleton, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
@@ -514,9 +505,7 @@ const Page = () => {
           className="mx-0 mt-4"
           data-cy="incentives-page-selected-recognition-view"
         >
-          <div
-            data-cy="incentives-page-selected-recognition-view-container"
-          >
+          <div data-cy="incentives-page-selected-recognition-view-container">
             <div
               data-cy="incentives-page-selected-recognition-view-container-content"
               className="w-full min-w-0"

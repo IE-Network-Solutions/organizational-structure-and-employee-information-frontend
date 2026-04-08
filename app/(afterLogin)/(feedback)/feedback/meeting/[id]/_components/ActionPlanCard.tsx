@@ -1,7 +1,11 @@
 import { useDeleteMeetingActionPlan } from '@/store/server/features/CFR/meeting/action-plan/mutations';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-import { CloseOutlined, LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { Dropdown, Button, Avatar, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
@@ -217,7 +221,9 @@ export default function ActionPlanCard({
                     }
                     data-cy={`feedback-meeting-components-actionplancard-button-edit-${id}`}
                     id={`feedback-meeting-components-actionplancard-button-edit-${id}`}
-                    icon={<MdOutlineEdit className="text-[12px] leading-none" />}
+                    icon={
+                      <MdOutlineEdit className="text-[12px] leading-none" />
+                    }
                   />
                   <Button
                     loading={isLoading}
@@ -227,7 +233,9 @@ export default function ActionPlanCard({
                     onClick={() => handleDeleteActionPlan(id)}
                     data-cy={`feedback-meeting-components-actionplancard-button-delete-${id}`}
                     id={`feedback-meeting-components-actionplancard-button-delete-${id}`}
-                    icon={<CloseOutlined className="text-[12px] leading-none" />}
+                    icon={
+                      <CloseOutlined className="text-[12px] leading-none" />
+                    }
                   />
                 </div>
               ) : null}

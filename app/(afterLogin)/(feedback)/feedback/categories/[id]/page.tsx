@@ -49,7 +49,6 @@ function Form({ params: { id } }: CategoryForms) {
         >
           <CustomBreadcrumb
             data-cy="category-form-page-breadcrumb"
-            
             title="Survey"
             subtitle={
               <>

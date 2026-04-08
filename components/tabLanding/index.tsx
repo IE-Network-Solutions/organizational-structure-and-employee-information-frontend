@@ -25,7 +25,6 @@ interface TabLandingLayoutProps {
   handleSearchChange?: () => void;
   permissionsData?: string[];
   /** Break out of nav inner padding for a full-width divider; header and body use horizontal inset. */
-  flushHorizontal?: boolean;
   /** Desktop primary action (e.g. Create Meeting): full `className` for `CustomButton`. */
   primaryActionButtonClassName?: string;
   /** Label typography on desktop primary `CustomButton` (default semibold). */
@@ -43,7 +42,6 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
   buttonDisabled = false,
   children,
   permissionsData = [],
-  flushHorizontal = false,
   primaryActionButtonClassName,
   primaryActionTextClassName = 'text-sm font-semibold',
 }) => {
@@ -54,16 +52,11 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
 
   return (
     <div
-      className={classNames(
-        'min-h-screen h-auto bg-white',
-        
-      )}
+      className={classNames('min-h-screen h-auto bg-white')}
       data-cy="tab-landing-layout"
     >
       <BlockWrapper className="bg-white ">
-        <div
-          data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48"
-        >
+        <div data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-48">
           <CustomBreadcrumb
             title={title}
             subtitle={subtitle ?? ''}
@@ -134,7 +127,7 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
           />
         </div>
         <div
-        className='mt-4'
+          className="mt-4"
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
           // className={classNames(
           //   'w-full h-auto border-t border-gray-100',

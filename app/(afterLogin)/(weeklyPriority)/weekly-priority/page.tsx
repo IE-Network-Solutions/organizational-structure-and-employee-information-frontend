@@ -47,14 +47,9 @@ function Page(): JSX.Element {
         data-cy="weekly-priority-page"
         className="min-h-screen bg-white font-sans"
       >
-        <div
-       
-          data-cy="weekly-priority-content"
-        >
+        <div data-cy="weekly-priority-content">
           {/* Header */}
-          <div
-            data-cy="weekly-priority-header"
-          >
+          <div data-cy="weekly-priority-header">
             <div data-cy="weekly-priority-header-title">
               <CustomBreadcrumb
                 title={
@@ -65,7 +60,13 @@ function Page(): JSX.Element {
                     className="flex items-center gap-1 text-[12px] md:text-[13px] text-gray-400"
                     data-cy="weekly-priority-breadcrumb"
                   >
-                    <Link className=" !text-gray-400" data-cy="weekly-priority-breadcrumb-okr" href="/okr">OKR</Link>
+                    <Link
+                      className=" !text-gray-400"
+                      data-cy="weekly-priority-breadcrumb-okr"
+                      href="/okr"
+                    >
+                      OKR
+                    </Link>
                     <span data-cy="weekly-priority-breadcrumb-separator">
                       /
                     </span>
@@ -96,8 +97,6 @@ function Page(): JSX.Element {
               />
             </div>
           </div>
-
-  
 
           {/* Tabs and Filter */}
           <div className="relative" data-cy="weekly-priority-tabs-container">

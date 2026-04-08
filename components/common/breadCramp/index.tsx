@@ -30,6 +30,8 @@ interface CustomBreadcrumbProps extends Omit<BreadcrumbProps, 'href'> {
   onBack?: () => void;
   /** `data-cy` for the back Link or button (default: timesheet-dashboard-back-link). */
   backControlDataCy?: string;
+
+  subtitleClassName?: string;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
@@ -44,6 +46,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   href,
   onBack,
   backControlDataCy = 'timesheet-dashboard-back-link',
+  subtitleClassName,
   // className,
   // ...rest
 }) => {
@@ -71,9 +74,12 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           className="min-w-0 flex-1 flex flex-col gap-1"
           data-cy="breadcrumb-main"
         >
-          <div className='flex items-center gap-2'>
-            {(onBack != null || href) ? (
-              <div className='shrink-0'>
+          <div
+            className="flex items-center gap-2"
+            data-cy="breadcrumb-title-inner-row"
+          >
+            {onBack != null || href ? (
+              <div className="shrink-0" data-cy="breadcrumb-back-control-wrap">
                 {onBack != null ? (
                   <button
                     type="button"
@@ -96,26 +102,29 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
                 )}
               </div>
             ) : null}
-         
-          <div className=''>
-          <div
-            className={classNames(
-              'min-w-0 text-2xl font-bold leading-[31.20px] text-black',
-              titleClassName,
-            )}
-            data-cy="breadcrumb-title"
-          >
-            {title}
-          </div>
-          {showSubtitle ? (
-            <div
-              className="w-full text-slate-500 text-sm font-medium leading-snug"
-              data-cy="breadcrumb-subtitle"
-            >
-              {subtitle}
+
+            <div className="" data-cy="breadcrumb-title-text-column">
+              <div
+                className={classNames(
+                  'min-w-0 text-2xl font-bold leading-[31.20px] text-black',
+                  titleClassName,
+                )}
+                data-cy="breadcrumb-title"
+              >
+                {title}
+              </div>
+              {showSubtitle ? (
+                <div
+                  className={classNames(
+                    'w-full text-slate-500 text-sm font-medium leading-snug',
+                    subtitleClassName,
+                  )}
+                  data-cy="breadcrumb-subtitle"
+                >
+                  {subtitle}
+                </div>
+              ) : null}
             </div>
-          ) : null}
-          </div>
           </div>
         </div>
         {titleExtra ? (
@@ -127,8 +136,18 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           </div>
         ) : null}
       </div>
-     
-      {/* <Breadcrumb className={`self-stretch ${className}`} {...rest} /> */}
+
+      {showBottomSeparator ? (
+        <div
+          className="mt-1 h-px bg-[#E5E7EB]"
+          style={{
+            width: 'calc(100% + 48px)',
+            marginLeft: '-24px',
+            maxWidth: 'none',
+          }}
+          data-cy="breadcrumb-bottom-separator"
+        />
+      ) : null}
     </div>
   );
 };

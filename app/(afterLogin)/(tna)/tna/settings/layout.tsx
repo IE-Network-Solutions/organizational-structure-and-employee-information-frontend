@@ -38,10 +38,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
       {/* Title + breadcrumb */}
       <div className="" data-cy="tna-settings-header">
         <CustomBreadcrumb
-         
-          title={
-            <span data-cy="tna-settings-title">Settings</span>
-          }
+          title={<span data-cy="tna-settings-title">Settings</span>}
           subtitle={
             <div
               className="flex items-center gap-1 mt-1"
@@ -71,7 +68,6 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
       </div>
 
       {/* Full viewport–width rule under breadcrumbs (tab strip bottom rule stays padded below) */}
-    
 
       {/* Course Category tab (+ mobile add when on this tab) */}
       <div

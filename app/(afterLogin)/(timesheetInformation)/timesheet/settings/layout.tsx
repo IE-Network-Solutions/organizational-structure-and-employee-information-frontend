@@ -261,9 +261,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       id="time-attendance-settings-layout-wrapper"
       data-cy="time-attendance-settings-layout-wrapper"
     >
-      <div
-        data-cy="time-attendance-settings-header-container"
-      >
+      <div data-cy="time-attendance-settings-header-container">
         <div
           id="time-attendance-settings-page-header-container"
           data-cy="time-attendance-settings-page-header-container"

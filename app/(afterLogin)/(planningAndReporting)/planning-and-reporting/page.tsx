@@ -335,9 +335,7 @@ function Page() {
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
       className="h-auto min-w-0 w-full max-w-full bg-white  rounded-md"
     >
-      <div
-        data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132"
-      >
+      <div data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132">
         <CustomBreadcrumb
           title="Plan & Report"
           subtitle="Manage your plans and reports in one place."

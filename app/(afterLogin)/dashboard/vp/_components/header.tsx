@@ -16,10 +16,7 @@ const Header = () => {
     isRefetching,
   } = useGetVpScoreCalculate(userId, false);
   return (
-    <div
-      className=""
-      data-cy="vp-update-header"
-    >
+    <div className="" data-cy="vp-update-header">
       <div data-cy="vp-update-header-breadcrumb-wrap">
         <CustomBreadcrumb
           href="/dashboard"
@@ -28,7 +25,6 @@ const Header = () => {
               className="flex items-start gap-3"
               data-cy="vp-update-header-title"
             >
-             
               <span
                 className="text-[30px] leading-9 font-semibold text-[#1f1f1f]"
                 data-cy="vp-update-header-title-text"
@@ -57,27 +53,25 @@ const Header = () => {
           }
           titleExtra={
             <div className="pt-1" data-cy="vp-update-header-refresh-wrap">
-            <Button
-              type="primary"
-              icon={<ReloadOutlined />}
-              className="!bg-[#2145b7] !h-10 !rounded-md !font-medium !shadow-none"
-              onClick={() => refetch()}
-              disabled={isRefreshing || isRefetching}
-              data-cy="vp-update-header-refresh-button"
-            >
-              <span
-                className="hidden md:inline"
-                data-cy="vp-update-header-refresh-text"
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                className="!bg-[#2145b7] !h-10 !rounded-md !font-medium !shadow-none"
+                onClick={() => refetch()}
+                disabled={isRefreshing || isRefetching}
+                data-cy="vp-update-header-refresh-button"
               >
-                Refresh VP
-              </span>
-            </Button>
-          </div>
+                <span
+                  className="hidden md:inline"
+                  data-cy="vp-update-header-refresh-text"
+                >
+                  Refresh VP
+                </span>
+              </Button>
+            </div>
           }
         />
       </div>
-
-     
     </div>
   );
 };

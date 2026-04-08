@@ -2,15 +2,7 @@
 import React, { FC, ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import {
-  Breadcrumb,
-  Divider,
-  Tabs,
-  Button,
-  Form,
-  Input,
-  Modal,
-} from 'antd';
+import { Breadcrumb, Tabs, Button, Form, Input, Modal } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import type { TabsProps } from 'antd';
@@ -176,16 +168,13 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           data-cy={`settings-page-header-${layoutSlug}`}
         >
           <CustomBreadcrumb
-           
             title="Setting"
             subtitle={
               <Breadcrumb
                 className="text-sm text-gray-400"
                 items={[
                   {
-                    title: (
-                      <Link href="/feedback/conversation">CFR</Link>
-                    ),
+                    title: <Link href="/feedback/conversation">CFR</Link>,
                   },
                   {
                     title: 'Settings',
@@ -201,10 +190,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           data-cy={`settings-layout-body-${layoutSlug}`}
         >
           {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
-          <div
-            data-cy="settings-layout-tabs-container"
-            
-          >
+          <div data-cy="settings-layout-tabs-container">
             <Tabs
               activeKey={getActiveKey()}
               onChange={handleTabChange}

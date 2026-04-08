@@ -23,7 +23,6 @@ type FieldType = {
   remember?: string;
 };
 
-// Use imported assets from _assets folder (Next.js resolves these at build time)
 const IMG = {
   backgroundLeft: '/images/auth-login/Group2.png',
   backgroundRight: '/images/auth-login/Group3.png',

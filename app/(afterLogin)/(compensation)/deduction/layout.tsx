@@ -297,7 +297,6 @@ const DeductionLayout: FC<DeductionLayoutProps> = ({ children }) => {
                   data-cy="compensation-deduction-layout-desktop-breadcrumb-wrap"
                 >
                   <CustomBreadcrumb
-              
                     title={
                       <span data-cy="compensation-deduction-layout-desktop-title">
                         Deduction
@@ -342,7 +341,9 @@ const DeductionLayout: FC<DeductionLayoutProps> = ({ children }) => {
                         id="compensation-deduction-layout-actions"
                         data-cy="compensation-deduction-layout-actions"
                       >
-                        <AccessGuard permissions={[Permissions.CreateBenefitType]}>
+                        <AccessGuard
+                          permissions={[Permissions.CreateBenefitType]}
+                        >
                           <Button
                             type="primary"
                             icon={<MdOutlinePayments className="text-lg" />}

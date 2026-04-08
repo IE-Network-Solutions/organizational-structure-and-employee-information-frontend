@@ -8,23 +8,26 @@ const DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 25, 50, 75, 100];
 interface CustomPaginationProps {
   current: number;
   total: number;
-  pageSize: number;
-  /** When set (e.g. `meta.totalPages`), preferred over `ceil(total / pageSize)`. */
+  /** Optional override for page count (legacy usage compatibility) */
   totalPages?: number;
+  pageSize: number;
   onChange: (page: number, pageSize: number) => void;
   onShowSizeChange: (size: number) => void;
   /** When omitted, uses 5 / 10 / 25 / 50 / 75 / 100. Current `pageSize` is always included in the list. */
   pageSizeOptions?: number[];
-  /** When true, main row may wrap (e.g. many page buttons + selectors). */
-  wrapMainRow?: boolean;
   id?: string;
   'data-cy'?: string;
   className?: string;
-  /** When true, pagination row uses `bg-gray-100` (employees table leaves this false). */
-  grayBackground?: boolean;
+  /** Legacy layout flag; when true allows pagination row wrapping */
+  wrapMainRow?: boolean;
+  grayBackground?: boolean; // Only for planning and reporting page
   showPageSizeChanger?: boolean;
   /** When true, renders "Go to" section on the right side */
   goToOnRight?: boolean;
+  /** When false, hides the "Go to page" input (desktop only). Default true. */
+  showGoToPage?: boolean;
+  /** Optional Tailwind classes for the active page number button */
+  activePageButtonClassName?: string;
   /** Placeholder for the go-to page input (e.g. "Input") */
   goToInputPlaceholder?: string;
 }
@@ -32,19 +35,20 @@ interface CustomPaginationProps {
 const CustomPagination: React.FC<CustomPaginationProps> = ({
   current,
   total,
-  pageSize,
   totalPages: totalPagesProp,
+  pageSize,
   onChange,
   onShowSizeChange,
   pageSizeOptions,
-  wrapMainRow = false,
   id,
   'data-cy': dataCy,
   className,
+  wrapMainRow = false,
   grayBackground = false,
-  // hidePageSizeSelect = false,
   showPageSizeChanger = true,
   goToOnRight = false,
+  showGoToPage = true,
+  activePageButtonClassName,
   goToInputPlaceholder,
 }) => {
   const basePageSizes = pageSizeOptions ?? DEFAULT_PAGE_SIZE_OPTIONS;
@@ -59,17 +63,17 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     onShowSizeChange(value);
   };
 
-  const safePageSize = pageSize > 0 ? pageSize : 1;
-  const fromMeta =
-    typeof totalPagesProp === 'number' &&
-    !Number.isNaN(totalPagesProp) &&
-    totalPagesProp >= 1
-      ? totalPagesProp
-      : null;
-  const totalPages = Math.max(1, fromMeta ?? Math.ceil(total / safePageSize));
+  const totalPages = totalPagesProp ?? Math.ceil(total / pageSize);
   const { isMobile } = useIsMobile();
 
   const [goToPageValue, setGoToPageValue] = useState<string>('');
+
+  const defaultActivePageBtnClass =
+    'border border-[#1D4ED8] bg-white text-[#1D4ED8] font-semibold';
+  const activePageBtnClass =
+    activePageButtonClassName ?? defaultActivePageBtnClass;
+  const inactivePageBtnClass =
+    'border border-transparent text-[#111827] font-normal hover:bg-gray-100';
 
   const handleGoToPage = () => {
     const page = parseInt(goToPageValue, 10);
@@ -91,9 +95,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             key={i}
             onClick={() => handlePageChange(i)}
             className={`h-7 w-7 flex items-center justify-center rounded-md text-xs transition-colors ${
-              current === i
-                ? 'border border-[#1D4ED8] bg-white text-[#1D4ED8] font-semibold'
-                : 'border border-transparent text-[#111827] font-normal hover:bg-gray-100'
+              current === i ? activePageBtnClass : inactivePageBtnClass
             }`}
             data-cy="pagination-page-button"
           >
@@ -111,9 +113,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           key={1}
           onClick={() => handlePageChange(1)}
           className={`h-7 w-7 flex items-center justify-center rounded-md text-xs transition-colors ${
-            current === 1
-              ? 'border border-[#1D4ED8] bg-white text-[#1D4ED8] font-semibold'
-              : 'border border-transparent text-[#111827] font-normal hover:bg-gray-100'
+            current === 1 ? activePageBtnClass : inactivePageBtnClass
           }`}
           data-cy="pagination-page-button"
         >
@@ -154,9 +154,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             key={i}
             onClick={() => handlePageChange(i)}
             className={`h-7 w-7 flex items-center justify-center rounded-md text-xs transition-colors ${
-              current === i
-                ? 'border border-[#1D4ED8] bg-white text-[#1D4ED8] font-semibold'
-                : 'border border-transparent text-[#111827] font-normal hover:bg-gray-100'
+              current === i ? activePageBtnClass : inactivePageBtnClass
             }`}
             data-cy="pagination-page-button"
           >
@@ -184,9 +182,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
           className={`h-7 w-7 flex items-center justify-center rounded-md text-xs transition-colors ${
-            current === totalPages
-              ? 'border border-[#1D4ED8] bg-white text-[#1D4ED8] font-semibold'
-              : 'border border-transparent text-[#111827] font-normal hover:bg-gray-100'
+            current === totalPages ? activePageBtnClass : inactivePageBtnClass
           }`}
           data-cy="pagination-page-button"
         >
@@ -213,7 +209,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         className="flex shrink-0 flex-wrap items-center gap-2 md:gap-3 text-xs text-gray-500"
       >
         <button
-          type="button"
           onClick={() => current > 1 && handlePageChange(current - 1)}
           disabled={current === 1}
           data-cy="pagination-prev-button"
@@ -227,7 +222,6 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         </button>
         {renderPageNumbers()}
         <button
-          type="button"
           onClick={() => current < totalPages && handlePageChange(current + 1)}
           disabled={current === totalPages}
           data-cy="pagination-next-button"
@@ -240,7 +234,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
           <RightOutlined className="text-sm" />
         </button>
 
-        {!goToOnRight && !isMobile && totalPages > 0 && (
+        {!goToOnRight && !isMobile && totalPages > 0 && showGoToPage && (
           <div
             className="flex items-center gap-2 ml-2"
             data-cy="pagination-goto"
@@ -272,12 +266,12 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
         )}
       </div>
 
-      {/* Info and Page Size Selector (or Go to page when hidePageSizeSelect) */}
+      {/* Info and Page Size Selector */}
       <div
         className="flex w-full min-w-0 flex-wrap items-center justify-center gap-2 text-xs text-gray-600 md:ml-auto md:w-auto md:justify-end md:pl-3"
         data-cy="components-custompagination-index-tsx-index-div-203"
       >
-        {goToOnRight && !isMobile && totalPages > 0 && (
+        {goToOnRight && !isMobile && totalPages > 0 && showGoToPage && (
           <div className="flex items-center gap-2" data-cy="pagination-goto">
             <span
               className="text-xs text-[#64748B]"
@@ -309,27 +303,9 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-206"
             className="mr-2 text-xs text-[#718096]"
           >
-            Showing{' '}
-            <span
-              className="inline-flex items-center gap-1.5 mx-0.5"
-              data-cy="pagination-desktop-showing-range"
-            >
-              <span data-cy="pagination-desktop-range-start">
-                {Math.min(total, (current - 1) * pageSize + 1) || 0}
-              </span>
-              <span
-                className="select-none"
-                aria-hidden="true"
-                data-cy="pagination-desktop-range-separator"
-              >
-                -
-              </span>
-              <span data-cy="pagination-desktop-range-end">
-                {Math.min(total, current * pageSize) || 0}
-              </span>
-            </span>
-            {' '}
-            out of {total || 0} entries
+            Showing {Math.min(total, (current - 1) * pageSize + 1) || 0} -{' '}
+            {Math.min(total, current * pageSize) || 0} out of {total || 0}{' '}
+            entries
           </span>
         )}
 
@@ -339,25 +315,8 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
             data-cy="organizational-structure-and-employee-information-frontend-components-custompagination-index-tsx-index-span-215"
             className="text-sm text-[#718096] mr-2"
           >
-            <span
-              className="inline-flex items-center gap-1"
-              data-cy="pagination-mobile-showing-range"
-            >
-              <span data-cy="pagination-mobile-range-start">
-                {Math.min(total, (current - 1) * pageSize + 1) || 0}
-              </span>
-              <span
-                className="select-none"
-                aria-hidden="true"
-                data-cy="pagination-mobile-range-separator"
-              >
-                -
-              </span>
-              <span data-cy="pagination-mobile-range-end">
-                {Math.min(total, current * pageSize) || 0}
-              </span>
-            </span>{' '}
-            of {total || 0}
+            {Math.min(total, (current - 1) * pageSize + 1) || 0}-
+            {Math.min(total, current * pageSize) || 0} of {total || 0}
           </span>
         )}
 

@@ -19,8 +19,6 @@ interface TimesheetSettingsLayoutProps {
   children: ReactNode;
 }
 
-
-
 const AllowanceDetailHeader = ({ allowanceId }: { allowanceId: string }) => {
   const { data: allowanceData } = useFetchAllowance(allowanceId);
   const { setIsAllowanceEntitlementSidebarOpen } =
@@ -125,8 +123,7 @@ const AllAllowancePageHeader = () => (
       >
         <CustomBreadcrumb
           href="/allowance"
-            backControlDataCy="compensation-allowance-all-layout-back"
-          
+          backControlDataCy="compensation-allowance-all-layout-back"
           title={
             <span data-cy="compensation-allowance-all-layout-title">
               All Allowance
@@ -194,12 +191,10 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         {isDetailPage && allowanceId ? (
           <>
             <AllowanceDetailHeader allowanceId={allowanceId as string} />
-          
           </>
         ) : isAllAllowancePage ? (
           <>
             <AllAllowancePageHeader />
-           
           </>
         ) : (
           <>
@@ -283,7 +278,6 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   data-cy="compensation-allowance-layout-desktop-breadcrumb-wrap"
                 >
                   <CustomBreadcrumb
-                
                     title={
                       <span data-cy="compensation-allowance-layout-desktop-title">
                         Allowance

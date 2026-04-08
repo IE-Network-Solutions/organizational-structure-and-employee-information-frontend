@@ -16,7 +16,7 @@ import { useOkrSetting } from '@/hooks/useOkrSetting';
 import OkrModeSelectionModal from './_components/okrModeSelectionModal';
 import OkrPageLoadingSkeleton from '@/components/okr/okrPageLoadingSkeleton';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Button, Divider } from 'antd';
+import { Button } from 'antd';
 import Link from 'next/link';
 import { toKeyResultDeadlineFilter } from './_constants/okrStatusPills';
 
@@ -131,15 +131,8 @@ const OKR: React.FC<any> = () => {
   }
 
   return (
-    <div
-      id="okr-page-div-container"
-      data-cy="okr-page-div-container"
-    >
-      <div
-        id="okr-page-div-header"
-        data-cy="okr-page-div-header"
-      
-      >
+    <div id="okr-page-div-container" data-cy="okr-page-div-container">
+      <div id="okr-page-div-header" data-cy="okr-page-div-header">
         <div data-cy="okr-page-header-content">
           <CustomBreadcrumb
             titleClassName="!text-gray-900"

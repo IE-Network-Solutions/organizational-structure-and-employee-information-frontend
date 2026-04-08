@@ -4,7 +4,7 @@ import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Breadcrumb, Button, Divider, theme } from 'antd';
+import { Breadcrumb, Button, theme } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { FaPencil } from 'react-icons/fa6';
 import useApprovalsSettingsStore from '@/store/uistate/features/payroll/settings/approvals/approvalsSettingsStore';
@@ -136,7 +136,6 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
         <div
           id="payroll-settings-header-view-container"
           data-cy="payroll-settings-header-view-container"
-         
         >
           <div
             id="payroll-settings-breadcrumb-view-container"
@@ -160,7 +159,6 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
                 subtitle={
                   <Breadcrumb
                     className="mt-2 mb-0 whitespace-nowrap"
-                   
                     items={[
                       {
                         title: (
@@ -191,7 +189,6 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
               />
             </div>
           </div>
-       
         </div>
         <div
           id="payroll-settings-tabs-row-view-container"

@@ -114,7 +114,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
         {!showNotReportedList && (
           <div className="mb-4" data-cy="okr-settings-header-section">
             <CustomBreadcrumb
-             
               title={
                 <span
                   id="okr-settings-header-title"
@@ -124,18 +123,27 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                 </span>
               }
               subtitle={
-                <div className="flex items-center gap-2 mt-1">
-                <Link className=" !text-gray-400" data-cy="weekly-priority-breadcrumb-okr" href="/okr">OKR</Link>
-                <span data-cy="weekly-priority-breadcrumb-separator">
-                  /
-                </span>
-                <span className=" !text-gray-800" data-cy="weekly-priority-breadcrumb-current">Settings</span>
+                <div
+                  className="flex items-center gap-2 mt-1"
+                  data-cy="okr-settings-breadcrumb-subtitle-row"
+                >
+                  <Link
+                    className=" !text-gray-400"
+                    data-cy="weekly-priority-breadcrumb-okr"
+                    href="/okr"
+                  >
+                    OKR
+                  </Link>
+                  <span data-cy="weekly-priority-breadcrumb-separator">/</span>
+                  <span
+                    className=" !text-gray-800"
+                    data-cy="weekly-priority-breadcrumb-current"
+                  >
+                    Settings
+                  </span>
                 </div>
-              
-
               }
             />
-            
           </div>
         )}
 

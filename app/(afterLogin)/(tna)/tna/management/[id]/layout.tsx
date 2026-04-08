@@ -162,10 +162,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   }, [routeCourseId, lessonId, materialId, lessonMaterial, course]);
 
   return (
-    <div
-      id="tnaManagementLayoutId"
-      data-cy="tna-management-layout"
-    >
+    <div id="tnaManagementLayoutId" data-cy="tna-management-layout">
       {isLoading ? (
         <div
           className="flex justify-center p-5"
@@ -176,13 +173,8 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
         </div>
       ) : course ? (
         <>
-          <div
-            data-cy="tna-management-layout-header"
-          >
-            <div
-              
-              data-cy="tna-management-layout-header-content"
-            >
+          <div data-cy="tna-management-layout-header">
+            <div data-cy="tna-management-layout-header-content">
               <CustomBreadcrumb
                 href={
                   routeCourseId
@@ -190,15 +182,11 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
                     : '/tna/management'
                 }
                 backControlDataCy="tna-management-layout-back"
-                
-             
                 title={
                   <span
                     className="block font-bold text-2xl text-gray-900"
                     data-cy="tna-management-layout-page-header"
-                    title={
-                      isPageHeaderTruncated ? pageHeaderTitle : undefined
-                    }
+                    title={isPageHeaderTruncated ? pageHeaderTitle : undefined}
                   >
                     {pageHeaderDisplay}
                   </span>
@@ -226,7 +214,10 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
                 titleExtra={
                   isCourseCurriculumPage ||
                   (isMobile && lessonId && materialId) ? (
-                    <div className="flex shrink-0 flex-row items-center gap-2 md:gap-4">
+                    <div
+                      className="flex shrink-0 flex-row items-center gap-2 md:gap-4"
+                      data-cy="tna-management-layout-title-extra-actions"
+                    >
                       {isCourseCurriculumPage ? (
                         <Button
                           type="primary"

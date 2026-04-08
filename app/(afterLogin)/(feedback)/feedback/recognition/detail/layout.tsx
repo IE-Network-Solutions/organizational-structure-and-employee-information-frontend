@@ -36,15 +36,15 @@ function RecognitionDetailLayoutShell({
 
   return (
     <div className="" data-cy="recognition-detail-layout">
-      <div
-        className="mb-1 py-3"
-        data-cy="recognition-detail-layout-toolbar"
-      >
+      <div className="mb-1 py-3" data-cy="recognition-detail-layout-toolbar">
         <div
           className="w-full min-w-0"
           data-cy="recognition-detail-layout-breadcrumb-row"
         >
-          <div className="min-w-0 w-full" data-cy="recognition-detail-layout-title-area">
+          <div
+            className="min-w-0 w-full"
+            data-cy="recognition-detail-layout-title-area"
+          >
             <div
               className="min-w-0 w-full"
               data-cy="recognition-detail-layout-breadcrumb-wrap"
@@ -53,9 +53,7 @@ function RecognitionDetailLayoutShell({
                 href="/feedback/recognition"
                 backControlDataCy="recognition-detail-back"
                 titleClassName={
-                  isRecognitionTypeLoading
-                    ? '!block !min-h-8'
-                    : undefined
+                  isRecognitionTypeLoading ? '!block !min-h-8' : undefined
                 }
                 title={
                   isRecognitionTypeLoading ? (

@@ -8,7 +8,6 @@ import {
   Typography,
   Breadcrumb,
   Card,
-  Divider,
   Dropdown,
 } from 'antd';
 import { UserOutlined, EyeOutlined } from '@ant-design/icons';
@@ -434,7 +433,6 @@ const EmployeeInformation = () => {
         data-cy="payroll-employee-information-breadcrumb-container"
       >
         <CustomBreadcrumb
-         
           title={
             <span data-cy="payroll-employee-information-title">
               Employee Payroll Information
@@ -452,7 +450,6 @@ const EmployeeInformation = () => {
           }
         />
       </div>
-
 
       <Card
         bordered
