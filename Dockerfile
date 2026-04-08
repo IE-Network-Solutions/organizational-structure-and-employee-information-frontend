@@ -6,7 +6,8 @@ WORKDIR /app
 
 # Install dependencies with caching support
 COPY package.json package-lock.json* ./
-RUN npm ci --include=dev
+# RUN npm ci --include=dev
+RUN npm install
 
 # =========================
 # Stage 2: Builder
