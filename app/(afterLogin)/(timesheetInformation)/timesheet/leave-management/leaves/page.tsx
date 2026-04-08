@@ -97,7 +97,7 @@ const LeaveManagement = () => {
       >
         <BlockWrapper
           data-cy="time-attendance-leave-management-block-wrapper"
-          className="bg-white p-2"
+          className="bg-white px-0 py-2"
         >
           <PageHeader
             data-cy="time-attendance-leave-management-header"

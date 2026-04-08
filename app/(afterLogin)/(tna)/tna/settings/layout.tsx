@@ -16,21 +16,6 @@ const TABS = [
     label: 'Course Category',
     href: '/tna/settings/course-category',
   },
-  {
-    key: 'tna-category',
-    label: 'TNA Category',
-    href: '/tna/settings/tna-category',
-  },
-  {
-    key: 'commitment-rule',
-    label: 'Commitment Rule',
-    href: '/tna/settings/commitment-rule',
-  },
-  {
-    key: 'approvals',
-    label: 'Approval Workflow',
-    href: '/tna/settings/approvals',
-  },
 ];
 
 const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
@@ -89,7 +74,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
         aria-hidden="true"
       />
 
-      {/* Horizontal tab bar — scroll on small screens; + add on Course Category (mobile) */}
+      {/* Course Category tab (+ mobile add when on this tab) */}
       <div
         className="px-3 sm:px-6 pt-3 border-b border-[#D9D9D9]"
         data-cy="tna-settings-tabs"

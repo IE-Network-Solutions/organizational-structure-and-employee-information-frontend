@@ -34,7 +34,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
     <div
       id="payroll-view-container"
       data-cy="payroll-view-container"
-      className="m-3"
+      className="mx-0 mt-3 mb-3"
     >
       <div
         id="payroll-view-header"
@@ -56,7 +56,7 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
       <div
         id="payroll-view-cards-container"
         data-cy="payroll-view-cards-container"
-        className="mx-3 my-2"
+        className="mx-0 my-2"
       >
         <Row
           id="payroll-view-cards-row"

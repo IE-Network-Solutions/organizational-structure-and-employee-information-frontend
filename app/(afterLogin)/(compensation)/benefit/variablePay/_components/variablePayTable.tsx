@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Spin, Table, Progress, Button, Modal, Select } from 'antd';
+import { Spin, Table, Progress, Button, Modal, Select, Skeleton } from 'antd';
 import { TableColumnsType } from '@/types/table/table';
 import { EmployeeDetails } from '../../../_components/employeeDetails';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
@@ -24,6 +24,135 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
+const EXPANDED_VP_SKELETON_METRIC_COUNT = 3;
+
+const ExpandedVPDetailsSkeleton = () => (
+  <div
+    className="w-full min-w-0 max-w-full"
+    data-cy="expanded-vp-details-skeleton-wrapper"
+    aria-busy="true"
+  >
+    <div
+      className="min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+      data-cy="expanded-vp-details-skeleton-cards-grid"
+    >
+      <div
+        className="flex w-max flex-nowrap items-center gap-4 lg:gap-6 pb-0.5"
+        data-cy="expanded-vp-details-skeleton-cards-strip"
+      >
+        <div
+          className="box-border flex w-[256px] min-w-[256px] max-w-[256px] flex-shrink-0 flex-col justify-between overflow-hidden border border-gray-200 bg-white p-4 shadow-sm [&_.ant-skeleton-input]:!max-w-full"
+          style={{ height: '136px', borderRadius: '8px' }}
+          data-cy="expanded-vp-details-skeleton-total-card"
+        >
+          <div
+            className="flex min-w-0 items-center justify-between gap-2"
+            data-cy="expanded-vp-details-skeleton-total-header"
+          >
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 72, height: 18, minWidth: 0 }}
+            />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 80, height: 18, minWidth: 0 }}
+            />
+          </div>
+          <div
+            className="flex min-w-0 items-center gap-2"
+            data-cy="expanded-vp-details-skeleton-total-score-row"
+          >
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 64, height: 28, minWidth: 0, flexShrink: 0 }}
+            />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 132, height: 8, minWidth: 0, maxWidth: '100%' }}
+            />
+          </div>
+          <div
+            className="flex min-w-0 items-center justify-between gap-2"
+            data-cy="expanded-vp-details-skeleton-total-footer"
+          >
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 112, height: 14, minWidth: 0 }}
+            />
+            <Skeleton.Button
+              active
+              size="small"
+              style={{ width: 28, height: 28, minWidth: 28, flexShrink: 0 }}
+            />
+          </div>
+        </div>
+        {Array.from(
+          { length: EXPANDED_VP_SKELETON_METRIC_COUNT },
+          (unused: unknown, metricIndex: number) => (
+            <div
+              key={`expanded-vp-sk-metric-${metricIndex}`}
+              className="box-border flex h-[108px] w-[256px] min-w-[256px] max-w-[256px] flex-shrink-0 flex-col justify-between overflow-hidden border border-gray-200 bg-white p-4 shadow-sm [&_.ant-skeleton-input]:!max-w-full"
+              style={{ borderRadius: '8px' }}
+              data-cy={`expanded-vp-details-skeleton-metric-card-${metricIndex}`}
+            >
+              <div
+                className="flex min-w-0 items-center justify-between gap-2"
+                data-cy={`expanded-vp-details-skeleton-metric-header-${metricIndex}`}
+              >
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 92, height: 18, minWidth: 0 }}
+                />
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 72, height: 18, minWidth: 0 }}
+                />
+              </div>
+              <div
+                className="flex min-w-0 items-center gap-2"
+                data-cy={`expanded-vp-details-skeleton-metric-progress-${metricIndex}`}
+              >
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{
+                    width: 140,
+                    height: 8,
+                    minWidth: 0,
+                    maxWidth: 'calc(100% - 40px)',
+                  }}
+                />
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 28, height: 16, minWidth: 0, flexShrink: 0 }}
+                />
+              </div>
+              <div
+                className="flex min-w-0 items-center justify-between"
+                data-cy={`expanded-vp-details-skeleton-metric-footer-${metricIndex}`}
+              >
+                <Skeleton.Input
+                  active
+                  size="small"
+                  style={{ width: 88, height: 14, minWidth: 0 }}
+                />
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 const ExpandedVPDetails = ({ userId }: { userId: string }) => {
   const { data: vpScore, isLoading } = useGetVPScore(userId);
   const {
@@ -33,14 +162,7 @@ const ExpandedVPDetails = ({ userId }: { userId: string }) => {
   } = useGetVpScoreCalculate(userId, false);
 
   if (isLoading) {
-    return (
-      <div
-        className="flex min-h-[136px] w-full items-center justify-center"
-        data-cy="expanded-vp-details-loading-wrapper"
-      >
-        <Spin data-cy="expanded-vp-details-loading-spinner" />
-      </div>
-    );
+    return <ExpandedVPDetailsSkeleton />;
   }
 
   const totalScore = vpScore?.score ?? 0;

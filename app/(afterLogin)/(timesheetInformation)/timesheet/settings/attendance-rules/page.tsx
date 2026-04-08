@@ -4,7 +4,7 @@ import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/se
 import { useGetAttendanceNotificationTypes } from '@/store/server/features/timesheet/attendanceNotificationType/queries';
 import TypeTable from './_components/typeTable';
 import AddTypeSidebar from './_components/addTypeSidebar';
-import CreateRuleSidebar from './_components/ createRuleSidebar';
+import CreateRuleSidebar from './_components/createRuleSidebar';
 
 const Page = () => {
   const { setAttendanceNotificationType, attendanceNotificationType } =

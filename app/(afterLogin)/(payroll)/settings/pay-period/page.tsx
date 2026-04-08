@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Card, Spin, Tooltip } from 'antd';
+import { Button, Card, Skeleton, Tooltip } from 'antd';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import PayPeriodSideBar from './_components/payPeriodSideBar';
@@ -17,6 +17,8 @@ import { FaPlus } from 'react-icons/fa';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import EmptyState from '@/components/empty';
+import { PayPeriodCardSkeleton } from '@/components/common/PayPeriodCardSkeleton';
 
 const payPeriodTagTextColor = 'rgba(0, 0, 0, 0.7)';
 const payPeriodTagBackgroundColor = 'rgba(0, 0, 0, 0.02)';
@@ -83,6 +85,8 @@ const payPeriodCardBodyStyle: React.CSSProperties = {
   boxSizing: 'border-box',
   overflow: 'hidden',
 };
+
+const PAY_PERIOD_SKELETON_COUNT = 6;
 
 interface DataSource {
   key: string;
@@ -198,17 +202,39 @@ const PayPeriod = () => {
             </Button>
           </AccessGuard>
         </div>
-        <Spin data-cy="payroll-payperiod-table-spinner" spinning={isLoading}>
+        <div
+          id="payroll-payperiod-grid-wrapper-view-container"
+          data-cy="payroll-payperiod-grid-wrapper-view-container"
+        >
           <div
-            id="payroll-payperiod-grid-wrapper-view-container"
-            data-cy="payroll-payperiod-grid-wrapper-view-container"
+            id="payroll-payperiod-grid-view-container"
+            data-cy="payroll-payperiod-grid-view-container"
+            className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
           >
-            <div
-              id="payroll-payperiod-grid-view-container"
-              data-cy="payroll-payperiod-grid-view-container"
-              className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            >
-              {paginatedData.map((period) => {
+            {isLoading ? (
+              Array.from(
+                { length: PAY_PERIOD_SKELETON_COUNT },
+                (element: unknown, skeletonIndex: number) => (
+                  <PayPeriodCardSkeleton
+                    key={`payperiod-card-sk-${skeletonIndex}`}
+                    index={skeletonIndex}
+                  />
+                ),
+              )
+            ) : dataSource.length === 0 ? (
+              <div
+                id="payroll-payperiod-empty-state"
+                data-cy="payroll-payperiod-empty-state"
+                className="col-span-full"
+              >
+                <EmptyState
+                  minimal
+                  description="No data found"
+                  data-cy="payroll-payperiod-empty-state-inner"
+                />
+              </div>
+            ) : (
+              paginatedData.map((period) => {
                 const isOpen = period.status === 'OPEN';
                 return (
                   <Card
@@ -292,35 +318,43 @@ const PayPeriod = () => {
                     </div>
                   </Card>
                 );
-              })}
-            </div>
-
-            <div
-              id="payroll-payperiod-pagination-view-container"
-              data-cy="payroll-payperiod-pagination-view-container"
-              className="mt-4 pt-4"
-            >
-              {isMobile || isTablet ? (
-                <CustomMobilePagination
-                  data-cy="payroll-payperiod-mobile-pagination-view-component"
-                  totalResults={dataSource?.length || 0}
-                  pageSize={pageSize}
-                  onChange={onPageChange}
-                  onShowSizeChange={onPageSizeChange}
-                />
-              ) : (
-                <CustomPagination
-                  data-cy="payroll-payperiod-desktop-pagination-view-component"
-                  current={currentPage}
-                  total={dataSource?.length || 0}
-                  pageSize={pageSize}
-                  onChange={onPageChange}
-                  onShowSizeChange={onPageSizeChange}
-                />
-              )}
-            </div>
+              })
+            )}
           </div>
-        </Spin>
+
+          <div
+            id="payroll-payperiod-pagination-view-container"
+            data-cy="payroll-payperiod-pagination-view-container"
+            className="mt-4 pt-4"
+          >
+            {isLoading ? (
+              <div data-cy="payroll-payperiod-pagination-skeleton">
+                <Skeleton
+                  active
+                  title={false}
+                  paragraph={{ rows: 1, width: ['100%'] }}
+                />
+              </div>
+            ) : isMobile || isTablet ? (
+              <CustomMobilePagination
+                data-cy="payroll-payperiod-mobile-pagination-view-component"
+                totalResults={dataSource?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            ) : (
+              <CustomPagination
+                data-cy="payroll-payperiod-desktop-pagination-view-component"
+                current={currentPage}
+                total={dataSource?.length || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            )}
+          </div>
+        </div>
         <PayPeriodSideBar data-cy="payroll-payperiod-sidebar-view-component" />
         <CustomDrawer
           data-cy="payroll-payperiod-edit-drawer-view-component"
