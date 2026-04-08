@@ -40,7 +40,17 @@ const OkrModeEffectsModal: React.FC<OkrModeEffectsModalProps> = ({
       onCancel={onClose}
       footer={null}
       centered
-      width={600}
+      width="min(600px, calc(100vw - 32px))"
+      wrapClassName="okr-settings-modal-responsive-wrap"
+      styles={{
+        content: {
+          padding: '32px',
+          borderRadius: 8,
+          minWidth: 0,
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+        },
+      }}
       closable={true}
       closeIcon={<CloseOutlined className="text-[#8c8c8c]" />}
       data-cy="okr-mode-effects-modal"

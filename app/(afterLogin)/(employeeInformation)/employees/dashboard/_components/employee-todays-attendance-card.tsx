@@ -2,7 +2,7 @@
 
 import type { Dayjs } from 'dayjs';
 import React, { useMemo, useRef, useState } from 'react';
-import { Card, DatePicker, Spin } from 'antd';
+import { Card, DatePicker, Skeleton } from 'antd';
 import { MdFiberManualRecord } from 'react-icons/md';
 
 import {
@@ -190,7 +190,7 @@ export default function EmployeeTodaysAttendanceCard() {
       id="employee-todays-attendance-card"
       data-cy="employee-todays-attendance-card"
     >
-      <Spin spinning={isLoading}>
+      <Skeleton loading={isLoading} active>
         <div
           className="flex items-start justify-between gap-2 sm:gap-4"
           id="employee-todays-attendance-header-row"
@@ -466,7 +466,7 @@ export default function EmployeeTodaysAttendanceCard() {
             </span>
           </div>
         </div>
-      </Spin>
+      </Skeleton>
     </Card>
   );
 }

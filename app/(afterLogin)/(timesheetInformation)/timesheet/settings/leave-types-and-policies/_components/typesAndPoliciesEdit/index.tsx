@@ -10,7 +10,7 @@ import {
   InputNumber,
   Switch,
   Select,
-  Spin,
+  Skeleton,
   Modal,
   Button,
 } from 'antd';
@@ -168,8 +168,9 @@ const TypesAndPoliciesEdit = () => {
         centered
         width={660}
       >
-        <Spin
-          spinning={getIsLoading}
+        <Skeleton
+          loading={getIsLoading}
+          active
           data-cy="time-attendance-settings-leave-types-and-policies-edit-sidebar-spin"
         >
           <Form
@@ -599,7 +600,7 @@ const TypesAndPoliciesEdit = () => {
               />
             </Form.Item>
           </Form>
-        </Spin>
+        </Skeleton>
       </Modal>
     )
   );

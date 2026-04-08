@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import {
   Modal,
-  Spin,
+  Skeleton,
   Form,
   Input,
   DatePicker,
@@ -183,11 +183,15 @@ const LeaveRequestDetailModal = () => {
           className="flex justify-center py-10"
           data-cy="time-attendance-leave-request-detail-modal-loading"
         >
-          <Spin data-cy="time-attendance-leave-request-detail-modal-spin" />
+          <Skeleton
+            active
+            data-cy="time-attendance-leave-request-detail-modal-spin"
+          />
         </div>
       ) : (
-        <Spin
-          spinning={isLoading}
+        <Skeleton
+          loading={isLoading}
+          active
           data-cy="time-attendance-leave-request-detail-modal-content-spin"
         >
           <div
@@ -247,7 +251,7 @@ const LeaveRequestDetailModal = () => {
                     className="h-10 w-full flex items-center justify-center"
                     data-cy="time-attendance-leave-request-detail-modal-approval-loading"
                   >
-                    <Spin size="small" />
+                    <Skeleton.Button active size="small" />
                   </div>
                 ) : (
                   (() => {
@@ -616,7 +620,7 @@ const LeaveRequestDetailModal = () => {
               </Form.Item>
             </Form>
           </div>
-        </Spin>
+        </Skeleton>
       )}
     </Modal>
   );

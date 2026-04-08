@@ -13,6 +13,7 @@ import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { TableSkeleton } from '@/components/tableSkeleton';
+import EmptyState from '@/components/empty';
 
 interface TaxRule {
   id: string;
@@ -355,6 +356,16 @@ const TaxRules = () => {
                   scroll={{ x: 'max-content' }}
                   bordered={false}
                   rowHoverable={false}
+                  locale={{
+                    emptyText: (
+                      <EmptyState
+                        minimal
+                        description="No data found"
+                        data-cy="payroll-tax-rule-table-empty"
+                        className="!py-4"
+                      />
+                    ),
+                  }}
                   // eslint-disable-next-line
                 rowClassName={(_notUsed, index) =>
                     `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`

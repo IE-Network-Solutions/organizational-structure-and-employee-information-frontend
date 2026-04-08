@@ -7,7 +7,7 @@ import {
   Input,
   Popconfirm,
   Table,
-  Spin,
+  Skeleton,
   Card,
   Select,
   Tag,
@@ -26,7 +26,7 @@ import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
-import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
+import CustomPagination from '@/components/customPagination';
 import { usePathname } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TableSkeleton } from '@/components/tableSkeleton';
@@ -443,17 +443,6 @@ const ApprovalTable = () => {
       ? meta.totalPages * pageSize
       : null);
   const totalItems = totalFromApi ?? 0;
-  const safeApprovalPageSize = pageSize > 0 ? pageSize : 1;
-  const approvalMetaTotalPages = meta?.totalPages;
-  const approvalResolvedTotalPages = Math.max(
-    1,
-    typeof approvalMetaTotalPages === 'number' &&
-      !Number.isNaN(approvalMetaTotalPages) &&
-      approvalMetaTotalPages >= 1
-      ? approvalMetaTotalPages
-      : Math.ceil((totalItems || 0) / safeApprovalPageSize),
-  );
-  const approvalWrapPaginationManyPages = approvalResolvedTotalPages > 3;
 
   const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {
@@ -552,8 +541,9 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-reject-all-button"
                   data-cy="time-attendance-approval-table-reject-all-button"
                 >
-                  <Spin
-                    spinning={allRejectIsLoading}
+                  <Skeleton
+                    active
+                    loading={allRejectIsLoading}
                     data-cy="time-attendance-approval-table-reject-all-spin"
                   />
                   Reject All
@@ -581,9 +571,10 @@ const ApprovalTable = () => {
                   id="time-attendance-approval-table-approve-all-button"
                   data-cy="time-attendance-approval-table-approve-all-button"
                 >
-                  <Spin
+                  <Skeleton
+                    active
                     data-cy="time-attendance-approval-table-approve-all-spin"
-                    spinning={allApproveIsLoading}
+                    loading={allApproveIsLoading}
                   />
                   Approve All
                 </Button>
@@ -628,12 +619,10 @@ const ApprovalTable = () => {
         className="mx-3"
         data-cy="time-attendance-approval-table-pagination-wrapper"
       >
-        <MyTimesheetAttendancePagination
+        <CustomPagination
           current={userCurrentPage}
           total={totalItems}
-          totalPages={meta?.totalPages}
           pageSize={pageSize}
-          wrapLayout={approvalWrapPaginationManyPages}
           onChange={onPageChange}
           onShowSizeChange={(newPageSize) => {
             setPageSize(newPageSize);

@@ -46,7 +46,7 @@ const DetailPageTabs: React.FC = () => {
           ),
           children: (
             <div
-              className="mx-3"
+              className="mx-0"
               data-cy="dynamic-recognition-tab-all-children"
             >
               {isPayrollView ? (
@@ -165,7 +165,7 @@ const DetailPageTabs: React.FC = () => {
     <div
       id="detail-page-tabs-container"
       data-cy="detail-page-tabs-container"
-      className="m-1"
+      className="mx-0 mt-1"
     >
       <div
         id="detail-page-tabs-payroll-view-wrapper"
@@ -190,7 +190,7 @@ const DetailPageTabs: React.FC = () => {
             items={items}
             tabBarExtraContent={OperationsSlot}
             onChange={handleTabChange}
-            className="mx-3 mt-5"
+            className="mx-0 mt-5"
           />
           {/* )} */}
         </>

@@ -254,7 +254,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
 
   return (
     <div
-      className="px-2 sm:px-3 h-auto min-h-screen"
+      className="h-auto min-h-screen"
       id="employee-detail-page"
       data-cy="employee-detail-page"
     >

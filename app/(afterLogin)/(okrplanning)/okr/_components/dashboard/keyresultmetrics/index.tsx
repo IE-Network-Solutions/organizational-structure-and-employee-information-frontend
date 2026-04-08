@@ -1,10 +1,14 @@
-import { Dropdown, Menu, Progress, Select, Tooltip } from 'antd';
-import { FC, useState } from 'react';
+import { Dropdown, Menu, Progress, Select } from 'antd';
+import { FC } from 'react';
+import { useQueryClient } from 'react-query';
 import { MdKey } from 'react-icons/md';
 import EditKeyResult from '../editKeyResult';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import {
+  useOKRStore,
+  useKeyResultMetricsStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { IoIosMore } from 'react-icons/io';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {
   useUpdateObjectiveNestedDelete,
   useUpdateKeyResult,
@@ -12,9 +16,11 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
-import { DownOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { DownOutlined, DeleteOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { Tooltip } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
 import RecentModesTimelineModal from '../../recentModesTimelineModal';
-import { useQueryClient } from 'react-query';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -35,11 +41,25 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   objectiveUserId,
   isInActiveSession = true,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [openTimelineModal, setOpenTimelineModal] = useState(false);
+  const {
+    editModalKeyResultId,
+    deleteModalKeyResultId,
+    openEditModal,
+    closeEditModal,
+    openDeleteModal,
+    closeDeleteModal,
+    openTimelineModal,
+    setOpenTimelineModal,
+  } = useKeyResultMetricsStore();
+
   const queryClient = useQueryClient();
-  const { mutate: updateAndDelete } = useUpdateObjectiveNestedDelete();
+
+  const { mutate: updateAndDelete, isLoading: isDeletingKeyResult } =
+    useUpdateObjectiveNestedDelete();
+
+  const isEditModalOpen = editModalKeyResultId === String(keyResult?.id ?? '');
+  const isDeleteModalOpen =
+    deleteModalKeyResultId === String(keyResult?.id ?? '');
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
   const isBasicOkr = useIsBasicOkr();
@@ -53,38 +73,42 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   const canEditDelete =
     (myOkr || objectiveUserId === userId) && isInActiveSession;
   const showDeleteModal = () => {
-    setOpenDeleteModal(true);
+    openDeleteModal(String(keyResult?.id ?? ''));
     setKeyResultValue(keyResult);
     setKeyResultId(keyResult?.id);
     setObjectiveId(keyResult?.objectiveId);
   };
 
   const onCloseDeleteModal = () => {
-    setOpenDeleteModal(false);
+    closeDeleteModal();
     setKeyResultValue([]);
   };
 
   const showDrawer = () => {
-    setOpen(true);
+    openEditModal(String(keyResult?.id ?? ''));
     setKeyResultValue(keyResult);
   };
 
   const onClose = () => {
-    setOpen(false);
+    closeEditModal();
   };
 
   // Only show edit/delete menu if user can edit/delete this key result
   const menu = canEditDelete ? (
     <Menu
+      className="okr-actions-menu"
       items={[
         {
           key: '1',
-          label: 'Edit',
+          icon: <EditOutlinedIcon className="text-gray-700" />,
+          label: 'Edit Key Result',
           onClick: showDrawer,
         },
         {
           key: '2',
-          label: 'Delete',
+          icon: <DeleteOutlined className="text-red-500" />,
+          label: 'Delete Key Result',
+          danger: true,
           onClick: showDeleteModal,
         },
       ]}
@@ -198,12 +222,24 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               overlay={menu}
               trigger={['click']}
               placement="bottomRight"
+              overlayClassName="okr-actions-dropdown"
             >
-              <IoIosMore
-                id={`key-result-menu-button-${keyResult?.id}`}
-                data-cy={`okr-key-result-menu-button-${keyResult?.id}`}
-                className="text-gray-500 text-lg cursor-pointer ml-auto"
-              />
+              <span
+                className="ml-auto inline-flex h-6 max-h-6 items-center leading-none"
+                data-cy="okr-key-result-actions-dropdown-trigger-${keyResult?.id}"
+              >
+                <button
+                  type="button"
+                  id={`key-result-menu-button-${keyResult?.id}`}
+                  data-cy={`okr-key-result-menu-button-${keyResult?.id}`}
+                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
+                >
+                  <MoreHorizIcon
+                    sx={{ width: 14, height: 14, color: '#374151' }}
+                    data-cy={`okr-key-result-menu-icon-${keyResult?.id}`}
+                  />
+                </button>
+              </span>
             </Dropdown>
           )}
       </div>
@@ -392,8 +428,8 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             value={getKeyResultStatus().value}
             onChange={handleStatusChange}
             disabled={!canEditDelete || keyResult?.isClosed}
-            suffixIcon={<DownOutlined className="text-gray-400" />}
-            className={`min-w-[120px] ${
+            suffixIcon={<DownOutlined className="text-[#374151] text-[14px]" />}
+            className={`min-w-[120px] [&_.ant-select-suffix]:text-[14px] ${
               getKeyResultStatus().color === 'yellow'
                 ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300'
                 : getKeyResultStatus().color === 'red'
@@ -429,7 +465,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
 
       <EditKeyResult
         data-cy={`okr-key-result-metrics-edit-key-result-${keyResult?.id}`}
-        open={open}
+        open={isEditModalOpen}
         onClose={onClose}
         keyResult={keyResultValue}
       />
@@ -443,9 +479,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
         }}
       />
       <DeleteModal
-        open={openDeleteModal}
+        open={isDeleteModalOpen}
         onConfirm={() => handleKeyResultDelete(keyResultValue.id)}
         onCancel={onCloseDeleteModal}
+        loading={isDeletingKeyResult}
         data-cy={`okr-key-result-delete-modal-${keyResult?.id}`}
       />
     </div>

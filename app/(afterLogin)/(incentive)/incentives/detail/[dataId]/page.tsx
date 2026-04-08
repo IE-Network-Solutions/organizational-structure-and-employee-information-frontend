@@ -25,7 +25,7 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
     <div
       id="incentive-detail-page-container"
       data-cy="incentive-detail-page-container"
-      className="my-[72px] mx-4 sm:mx-10"
+      className="mt-4 mb-8 mx-0"
     >
       <div
         id="incentive-detail-page-back-button"

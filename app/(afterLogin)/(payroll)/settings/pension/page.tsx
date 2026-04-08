@@ -1,5 +1,5 @@
 'use client';
-import { Button, Card, Input, Spin, Tooltip } from 'antd';
+import { Button, Card, Input, Skeleton, Tooltip } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import React, { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { useUpdatePensionRule } from '@/store/server/features/payroll/payroll/mu
 import { FaPlus } from 'react-icons/fa';
 import Drawer from './_components/drawer';
 import useDrawerStore from '@/store/uistate/features/payroll/settings/pensionRules/pensionRulesStore';
+import EmptyState from '@/components/empty';
 
 // type PensionRule = {
 //   id: string;
@@ -100,6 +101,52 @@ const pensionCardBodyEditStyle: React.CSSProperties = {
   overflow: 'auto',
 };
 
+const PENSION_SKELETON_COUNT = 4;
+
+function PensionCardSkeleton({ index }: { index: number }) {
+  return (
+    <Card
+      className="relative"
+      style={pensionCardShellStyle}
+      bodyStyle={pensionCardBodyStyle}
+      data-cy={`payroll-pension-card-skeleton-${index}`}
+    >
+      <div
+        className="flex shrink-0 items-start justify-between"
+        style={{ gap: 8 }}
+        data-cy={`payroll-pension-card-skeleton-header-${index}`}
+      >
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 200, height: 24 }}
+        />
+        <Skeleton.Button
+          active
+          size="small"
+          style={{ width: 24, height: 24 }}
+        />
+      </div>
+      <div
+        className="flex min-h-0 shrink flex-wrap items-center"
+        style={{ gap: 6 }}
+        data-cy={`payroll-pension-card-skeleton-body-${index}`}
+      >
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 220, height: 22 }}
+        />
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 220, height: 22 }}
+        />
+      </div>
+    </Card>
+  );
+}
+
 const Pension = () => {
   const { data: pensionRule, isLoading } = useGetAllPensionRule();
   const { mutate: pensionRuleUpdate, isLoading: updatePensionRule } =
@@ -175,289 +222,301 @@ const Pension = () => {
             </Button>
           </div>
         )}
-        <Spin data-cy="payroll-pension-list-spinner" spinning={isLoading}>
+        <div
+          id="payroll-pension-list-view-container"
+          data-cy="payroll-pension-list-view-container"
+        >
           <div
-            id="payroll-pension-list-view-container"
-            data-cy="payroll-pension-list-view-container"
+            id="payroll-pension-list-inner-view-container"
+            data-cy="payroll-pension-list-inner-view-container"
+            className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2"
           >
-            <div
-              id="payroll-pension-list-inner-view-container"
-              data-cy="payroll-pension-list-inner-view-container"
-              className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2"
-            >
-              {(pensionRule ?? []).map((rule: any, idx: number) => {
-                const record = {
-                  ...rule,
-                  key: rule?.key ?? rule?.id ?? String(idx),
-                };
-                const editable = isEditing(record);
-                return (
-                  <Card
-                    key={record.id ?? record.key}
-                    id={`payroll-pension-card-${record.id ?? record.key}`}
-                    data-cy={`payroll-pension-card-${record.id ?? record.key}`}
-                    className="relative"
-                    style={pensionCardShellStyle}
-                    bodyStyle={
-                      editable ? pensionCardBodyEditStyle : pensionCardBodyStyle
-                    }
-                  >
-                    <div
-                      id={`payroll-pension-card-header-${record.id ?? record.key}`}
-                      data-cy={`payroll-pension-card-header-${record.id ?? record.key}`}
-                      className={
+            {isLoading ? (
+              Array.from({ length: PENSION_SKELETON_COUNT }, (unused, i) => (
+                <PensionCardSkeleton key={`pension-card-sk-${i}`} index={i} />
+              ))
+            ) : (
+              <>
+                {(pensionRule ?? []).map((rule: any, idx: number) => {
+                  const record = {
+                    ...rule,
+                    key: rule?.key ?? rule?.id ?? String(idx),
+                  };
+                  const editable = isEditing(record);
+                  return (
+                    <Card
+                      key={record.id ?? record.key}
+                      id={`payroll-pension-card-${record.id ?? record.key}`}
+                      data-cy={`payroll-pension-card-${record.id ?? record.key}`}
+                      className="relative"
+                      style={pensionCardShellStyle}
+                      bodyStyle={
                         editable
-                          ? 'flex w-full items-start justify-between'
-                          : 'flex shrink-0 items-start justify-between'
+                          ? pensionCardBodyEditStyle
+                          : pensionCardBodyStyle
                       }
-                      style={editable ? { gap: 16 } : { gap: 8 }}
                     >
-                      {editable ? (
-                        <div
-                          className="flex w-full items-start justify-between gap-4"
-                          data-cy={`payroll-pension-card-header-edit-container-${record.id ?? record.key}`}
-                        >
+                      <div
+                        id={`payroll-pension-card-header-${record.id ?? record.key}`}
+                        data-cy={`payroll-pension-card-header-${record.id ?? record.key}`}
+                        className={
+                          editable
+                            ? 'flex w-full items-start justify-between'
+                            : 'flex shrink-0 items-start justify-between'
+                        }
+                        style={editable ? { gap: 16 } : { gap: 8 }}
+                      >
+                        {editable ? (
                           <div
-                            className="min-w-0 flex-1 pr-20"
-                            data-cy={`payroll-pension-name-input-container-${record.id}`}
+                            className="flex w-full items-start justify-between gap-4"
+                            data-cy={`payroll-pension-card-header-edit-container-${record.id ?? record.key}`}
                           >
-                            <label
-                              id={`payroll-pension-name-label-${record.id}`}
-                              data-cy={`payroll-pension-name-label-${record.id}`}
-                              className="mb-1 block text-xs font-medium text-gray-500"
-                            >
-                              Name
-                              <span
-                                className="ml-0.5 text-red-500"
-                                data-cy={`payroll-pension-name-label-asterisk-${record.id}`}
-                              >
-                                *
-                              </span>
-                            </label>
-                            <Input
-                              id={`payroll-pension-name-input-${record.id}`}
-                              data-cy={`payroll-pension-name-input-${record.id}`}
-                              value={editedData.name}
-                              onChange={(e) =>
-                                handleInputChange('name', e.target.value)
-                              }
-                              className="h-10 w-full"
-                            />
-
                             <div
-                              id={`payroll-pension-edit-fields-${record.id ?? record.key}`}
-                              data-cy={`payroll-pension-edit-fields-${record.id ?? record.key}`}
-                              className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"
+                              className="min-w-0 flex-1 pr-20"
+                              data-cy={`payroll-pension-name-input-container-${record.id}`}
                             >
-                              <div
-                                id={`payroll-pension-employer-input-container-${record.id ?? record.key}`}
-                                data-cy={`payroll-pension-employer-input-container-${record.id ?? record.key}`}
-                                className="min-w-0"
+                              <label
+                                id={`payroll-pension-name-label-${record.id}`}
+                                data-cy={`payroll-pension-name-label-${record.id}`}
+                                className="mb-1 block text-xs font-medium text-gray-500"
                               >
-                                <label
-                                  id={`payroll-pension-employer-label-${record.id ?? record.key}`}
-                                  data-cy={`payroll-pension-employer-label-${record.id ?? record.key}`}
-                                  className="mb-1 block text-xs font-medium text-gray-500"
+                                Name
+                                <span
+                                  className="ml-0.5 text-red-500"
+                                  data-cy={`payroll-pension-name-label-asterisk-${record.id}`}
                                 >
-                                  Employer Contribution
-                                  <span
-                                    className="ml-0.5 text-red-500"
-                                    data-cy={`payroll-pension-employer-label-asterisk-${record.id ?? record.key}`}
-                                  >
-                                    *
-                                  </span>
-                                </label>
-                                <Input
-                                  id={`payroll-pension-employer-input-${record.id ?? record.key}`}
-                                  data-cy={`payroll-pension-employer-input-${record.id ?? record.key}`}
-                                  type="number"
-                                  max={100}
-                                  min={0}
-                                  value={editedData.employer}
-                                  onChange={(e) =>
-                                    handleInputChange(
-                                      'employer',
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="h-10 w-full"
-                                />
-                              </div>
+                                  *
+                                </span>
+                              </label>
+                              <Input
+                                id={`payroll-pension-name-input-${record.id}`}
+                                data-cy={`payroll-pension-name-input-${record.id}`}
+                                value={editedData.name}
+                                onChange={(e) =>
+                                  handleInputChange('name', e.target.value)
+                                }
+                                className="h-10 w-full"
+                              />
 
                               <div
-                                id={`payroll-pension-employee-input-container-${record.id ?? record.key}`}
-                                data-cy={`payroll-pension-employee-input-container-${record.id ?? record.key}`}
-                                className="min-w-0"
+                                id={`payroll-pension-edit-fields-${record.id ?? record.key}`}
+                                data-cy={`payroll-pension-edit-fields-${record.id ?? record.key}`}
+                                className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2"
                               >
-                                <label
-                                  id={`payroll-pension-employee-label-${record.id ?? record.key}`}
-                                  data-cy={`payroll-pension-employee-label-${record.id ?? record.key}`}
-                                  className="mb-1 block text-xs font-medium text-gray-500"
+                                <div
+                                  id={`payroll-pension-employer-input-container-${record.id ?? record.key}`}
+                                  data-cy={`payroll-pension-employer-input-container-${record.id ?? record.key}`}
+                                  className="min-w-0"
                                 >
-                                  Employee Contribution
-                                  <span
-                                    className="ml-0.5 text-red-500"
-                                    data-cy={`payroll-pension-employee-label-asterisk-${record.id ?? record.key}`}
+                                  <label
+                                    id={`payroll-pension-employer-label-${record.id ?? record.key}`}
+                                    data-cy={`payroll-pension-employer-label-${record.id ?? record.key}`}
+                                    className="mb-1 block text-xs font-medium text-gray-500"
                                   >
-                                    *
-                                  </span>
-                                </label>
-                                <Input
-                                  id={`payroll-pension-employee-input-${record.id ?? record.key}`}
-                                  data-cy={`payroll-pension-employee-input-${record.id ?? record.key}`}
-                                  type="number"
-                                  max={100}
-                                  min={0}
-                                  value={editedData.employee}
-                                  onChange={(e) =>
-                                    handleInputChange(
-                                      'employee',
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="h-10 w-full"
-                                />
+                                    Employer Contribution
+                                    <span
+                                      className="ml-0.5 text-red-500"
+                                      data-cy={`payroll-pension-employer-label-asterisk-${record.id ?? record.key}`}
+                                    >
+                                      *
+                                    </span>
+                                  </label>
+                                  <Input
+                                    id={`payroll-pension-employer-input-${record.id ?? record.key}`}
+                                    data-cy={`payroll-pension-employer-input-${record.id ?? record.key}`}
+                                    type="number"
+                                    max={100}
+                                    min={0}
+                                    value={editedData.employer}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        'employer',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="h-10 w-full"
+                                  />
+                                </div>
+
+                                <div
+                                  id={`payroll-pension-employee-input-container-${record.id ?? record.key}`}
+                                  data-cy={`payroll-pension-employee-input-container-${record.id ?? record.key}`}
+                                  className="min-w-0"
+                                >
+                                  <label
+                                    id={`payroll-pension-employee-label-${record.id ?? record.key}`}
+                                    data-cy={`payroll-pension-employee-label-${record.id ?? record.key}`}
+                                    className="mb-1 block text-xs font-medium text-gray-500"
+                                  >
+                                    Employee Contribution
+                                    <span
+                                      className="ml-0.5 text-red-500"
+                                      data-cy={`payroll-pension-employee-label-asterisk-${record.id ?? record.key}`}
+                                    >
+                                      *
+                                    </span>
+                                  </label>
+                                  <Input
+                                    id={`payroll-pension-employee-input-${record.id ?? record.key}`}
+                                    data-cy={`payroll-pension-employee-input-${record.id ?? record.key}`}
+                                    type="number"
+                                    max={100}
+                                    min={0}
+                                    value={editedData.employee}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        'employee',
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="h-10 w-full"
+                                  />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                          <div
-                            className="absolute right-3 top-3 flex gap-2"
-                            data-cy={`payroll-pension-card-header-action-container-${record.id ?? record.key}`}
-                          >
-                            <Button
-                              id={`payroll-pension-cancel-edit-click-button-${record.id}`}
-                              data-cy={`payroll-pension-cancel-edit-click-button-${record.id}`}
-                              type="default"
-                              danger
-                              className="flex !h-7 !w-7 items-center justify-center !p-0 rounded-md border border-red-200 hover:border-red-400 hover:bg-red-50"
-                              onClick={handleCancelEdit}
-                              icon={
-                                <CloseOutlined
-                                  data-cy={`payroll-pension-cancel-edit-click-button-icon-${record.id}`}
-                                />
-                              }
-                            />
-                            <Button
-                              id={`payroll-pension-save-click-button-${record.id}`}
-                              data-cy={`payroll-pension-save-click-button-${record.id}`}
-                              type="primary"
-                              className="flex !h-7 !w-7 items-center justify-center !p-0 rounded-md"
-                              loading={updatePensionRule}
-                              onClick={() => handleSave()}
-                              icon={
-                                <CheckOutlined
-                                  data-cy={`payroll-pension-save-click-button-icon-${record.id}`}
-                                />
-                              }
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <h3
-                            id={`payroll-pension-card-title-${record.id ?? record.key}`}
-                            data-cy={`payroll-pension-card-title-${record.id ?? record.key}`}
-                            className="m-0 min-w-0 flex-1 truncate text-base font-normal leading-tight"
-                            style={{ color: '#000000' }}
-                          >
-                            {record.name}
-                          </h3>
-                          <Tooltip
-                            title="Edit"
-                            id={`payroll-pension-card-edit-tooltip-${record.id}`}
-                            data-cy={`payroll-pension-card-edit-tooltip-${record.id}`}
-                          >
-                            <span
-                              className="inline-flex shrink-0"
-                              data-cy={`payroll-pension-card-edit-button-span-${record.id}`}
+                            <div
+                              className="absolute right-3 top-3 flex gap-2"
+                              data-cy={`payroll-pension-card-header-action-container-${record.id ?? record.key}`}
                             >
-                              <button
-                                id={`payroll-pension-edit-click-button-${record.id}`}
-                                data-cy={`payroll-pension-edit-click-button-${record.id}`}
-                                type="button"
-                                style={editButtonStyle}
-                                aria-label="Edit Rule"
-                                onClick={() => handleEdit(record)}
+                              <Button
+                                id={`payroll-pension-cancel-edit-click-button-${record.id}`}
+                                data-cy={`payroll-pension-cancel-edit-click-button-${record.id}`}
+                                type="default"
+                                danger
+                                className="flex !h-7 !w-7 items-center justify-center !p-0 rounded-md border border-red-200 hover:border-red-400 hover:bg-red-50"
+                                onClick={handleCancelEdit}
+                                icon={
+                                  <CloseOutlined
+                                    data-cy={`payroll-pension-cancel-edit-click-button-icon-${record.id}`}
+                                  />
+                                }
+                              />
+                              <Button
+                                id={`payroll-pension-save-click-button-${record.id}`}
+                                data-cy={`payroll-pension-save-click-button-${record.id}`}
+                                type="primary"
+                                className="flex !h-7 !w-7 items-center justify-center !p-0 rounded-md"
+                                loading={updatePensionRule}
+                                onClick={() => handleSave()}
+                                icon={
+                                  <CheckOutlined
+                                    data-cy={`payroll-pension-save-click-button-icon-${record.id}`}
+                                  />
+                                }
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <h3
+                              id={`payroll-pension-card-title-${record.id ?? record.key}`}
+                              data-cy={`payroll-pension-card-title-${record.id ?? record.key}`}
+                              className="m-0 min-w-0 flex-1 truncate text-base font-normal leading-tight"
+                              style={{ color: '#000000' }}
+                            >
+                              {record.name}
+                            </h3>
+                            <Tooltip
+                              title="Edit"
+                              id={`payroll-pension-card-edit-tooltip-${record.id}`}
+                              data-cy={`payroll-pension-card-edit-tooltip-${record.id}`}
+                            >
+                              <span
+                                className="inline-flex shrink-0"
+                                data-cy={`payroll-pension-card-edit-button-span-${record.id}`}
                               >
-                                <EditOutlinedIcon
-                                  style={{ fontSize: 14, color: '#595959' }}
-                                  data-cy={`payroll-pension-edit-click-button-icon-${record.id}`}
-                                />
-                              </button>
-                            </span>
-                          </Tooltip>
-                        </>
-                      )}
-                    </div>
+                                <button
+                                  id={`payroll-pension-edit-click-button-${record.id}`}
+                                  data-cy={`payroll-pension-edit-click-button-${record.id}`}
+                                  type="button"
+                                  style={editButtonStyle}
+                                  aria-label="Edit Rule"
+                                  onClick={() => handleEdit(record)}
+                                >
+                                  <EditOutlinedIcon
+                                    style={{ fontSize: 14, color: '#595959' }}
+                                    data-cy={`payroll-pension-edit-click-button-icon-${record.id}`}
+                                  />
+                                </button>
+                              </span>
+                            </Tooltip>
+                          </>
+                        )}
+                      </div>
 
-                    <div
-                      id={`payroll-pension-card-badges-${record.id ?? record.key}`}
-                      data-cy={`payroll-pension-card-badges-${record.id ?? record.key}`}
-                      className="flex min-h-0 shrink flex-wrap items-center"
-                      style={{ gap: 6 }}
-                    >
-                      {editable ? null : (
-                        <>
-                          <span
-                            id={`payroll-pension-employer-badge-${record.id ?? record.key}`}
-                            data-cy={`payroll-pension-employer-badge-${record.id ?? record.key}`}
-                            style={pillStyle}
-                          >
+                      <div
+                        id={`payroll-pension-card-badges-${record.id ?? record.key}`}
+                        data-cy={`payroll-pension-card-badges-${record.id ?? record.key}`}
+                        className="flex min-h-0 shrink flex-wrap items-center"
+                        style={{ gap: 6 }}
+                      >
+                        {editable ? null : (
+                          <>
                             <span
-                              id={`payroll-pension-employer-label-${record.id ?? record.key}`}
-                              data-cy={`payroll-pension-employer-label-${record.id ?? record.key}`}
-                              className="mr-1"
+                              id={`payroll-pension-employer-badge-${record.id ?? record.key}`}
+                              data-cy={`payroll-pension-employer-badge-${record.id ?? record.key}`}
+                              style={pillStyle}
                             >
-                              Employer Contribution :
+                              <span
+                                id={`payroll-pension-employer-label-${record.id ?? record.key}`}
+                                data-cy={`payroll-pension-employer-label-${record.id ?? record.key}`}
+                                className="mr-1"
+                              >
+                                Employer Contribution :
+                              </span>
+                              <span
+                                id={`payroll-pension-employer-value-${record.id ?? record.key}`}
+                                data-cy={`payroll-pension-employer-value-${record.id ?? record.key}`}
+                                className="font-medium"
+                              >
+                                {record.employer}%
+                              </span>
                             </span>
-                            <span
-                              id={`payroll-pension-employer-value-${record.id ?? record.key}`}
-                              data-cy={`payroll-pension-employer-value-${record.id ?? record.key}`}
-                              className="font-medium"
-                            >
-                              {record.employer}%
-                            </span>
-                          </span>
 
-                          <span
-                            id={`payroll-pension-employee-badge-${record.id ?? record.key}`}
-                            data-cy={`payroll-pension-employee-badge-${record.id ?? record.key}`}
-                            style={pillStyle}
-                          >
                             <span
-                              id={`payroll-pension-employee-label-${record.id ?? record.key}`}
-                              data-cy={`payroll-pension-employee-label-${record.id ?? record.key}`}
-                              className="mr-1"
+                              id={`payroll-pension-employee-badge-${record.id ?? record.key}`}
+                              data-cy={`payroll-pension-employee-badge-${record.id ?? record.key}`}
+                              style={pillStyle}
                             >
-                              Employee Contribution :
+                              <span
+                                id={`payroll-pension-employee-label-${record.id ?? record.key}`}
+                                data-cy={`payroll-pension-employee-label-${record.id ?? record.key}`}
+                                className="mr-1"
+                              >
+                                Employee Contribution :
+                              </span>
+                              <span
+                                id={`payroll-pension-employee-value-${record.id ?? record.key}`}
+                                data-cy={`payroll-pension-employee-value-${record.id ?? record.key}`}
+                                className="font-medium"
+                              >
+                                {record.employee}%
+                              </span>
                             </span>
-                            <span
-                              id={`payroll-pension-employee-value-${record.id ?? record.key}`}
-                              data-cy={`payroll-pension-employee-value-${record.id ?? record.key}`}
-                              className="font-medium"
-                            >
-                              {record.employee}%
-                            </span>
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </Card>
-                );
-              })}
+                          </>
+                        )}
+                      </div>
+                    </Card>
+                  );
+                })}
 
-              {!isLoading && (pensionRule ?? []).length === 0 && (
-                <div
-                  id="payroll-pension-empty-state"
-                  data-cy="payroll-pension-empty-state"
-                  className="py-10 text-center text-gray-500"
-                >
-                  No pension rules found.
-                </div>
-              )}
-            </div>
+                {(pensionRule ?? []).length === 0 && (
+                  <div
+                    id="payroll-pension-empty-state"
+                    data-cy="payroll-pension-empty-state"
+                    className="col-span-full"
+                  >
+                    <EmptyState
+                      minimal
+                      description="No data found"
+                      data-cy="payroll-pension-empty-state-inner"
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </Spin>
+        </div>
         <Drawer />
       </div>
     </BlockWrapper>

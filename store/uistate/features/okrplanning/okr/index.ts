@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { KeyResult, Objective, OKRState } from './interface';
 import { devtools } from 'zustand/middleware';
 
+export { useEditKeyResultStore } from './editKeyResultStore';
+export { useKeyResultMetricsStore } from './keyResultMetricsStore';
+export { useObjectiveBasicStore } from './objectiveBasicStore';
+export { useSearchFilterStore } from './searchFilterStore';
+export { useAchieveOrNotStore } from './achieveOrNotStore';
+export { useMilestoneFormStore } from './milestoneFormStore';
+export { useKeyResultFormStore } from './keyResultFormStore';
 export const useOKRStore = create<OKRState>()(
   devtools((set) => ({
     isVP: true,
@@ -111,7 +118,8 @@ export const useOKRStore = create<OKRState>()(
           // Always use the AI suggestion title as the KR title
           title: suggestion?.title || '',
           weight: suggestion?.weight || 0,
-          deadline: null,
+          // Preserve deadline when KR is created from inline/basic form or suggestions.
+          deadline: suggestion?.deadline ?? suggestion?.dead_line ?? null,
           // For Numeric/Percentage, prefer backend-provided snake_case values exactly
           initialValue:
             keyType === 'Numeric' || keyType === 'Percentage'
@@ -178,6 +186,16 @@ export const useOKRStore = create<OKRState>()(
           ...state.objective,
           keyResults: state.objective.keyResults.map((item: any, i: number) =>
             i === index ? { ...item, [field]: value } : item,
+          ),
+        },
+      })),
+    // Update multiple fields of a key result in one shot (avoids deadline/fields being lost when batching)
+    updateKeyResultFields: (index: number, fields: Partial<KeyResult>) =>
+      set((state) => ({
+        objective: {
+          ...state.objective,
+          keyResults: state.objective.keyResults.map((item: any, i: number) =>
+            i === index ? { ...item, ...fields } : item,
           ),
         },
       })),
@@ -405,6 +423,18 @@ export const useOKRStore = create<OKRState>()(
       set((state) => ({
         searchObjParams: { ...state.searchObjParams, [key]: value },
       })),
+    employeeSearchObjParams: {
+      userId: '',
+      metricTypeId: '',
+      departmentId: '',
+    },
+    setEmployeeSearchObjParams: (key, value) =>
+      set((state) => ({
+        employeeSearchObjParams: {
+          ...state.employeeSearchObjParams,
+          [key]: value,
+        },
+      })),
     pageSize: 5,
     setPageSize: (pageSize: number) => set({ pageSize }),
     currentPage: 1,
@@ -426,12 +456,21 @@ export const useOKRStore = create<OKRState>()(
       set({ employeeCurrentPage }),
     okrTab: 1,
     setOkrTab: (okrTab: number | string) => set({ okrTab }),
+    okrStatusPillId: null,
+    setOkrStatusPillId: (okrStatusPillId: string | null) =>
+      set({ okrStatusPillId }),
     alignment: false,
     setAlignment: (alignment: boolean) => set({ alignment }),
     fiscalYearId: '',
     setFiscalYearId: (fiscalYearId: string) => set({ fiscalYearId }),
     sessionIds: [],
     setSessionIds: (sessionIds: string[]) => set({ sessionIds }),
+    employeeFiscalYearId: '',
+    setEmployeeFiscalYearId: (employeeFiscalYearId: string) =>
+      set({ employeeFiscalYearId }),
+    employeeSessionIds: [],
+    setEmployeeSessionIds: (employeeSessionIds: string[]) =>
+      set({ employeeSessionIds }),
     deletedKeyResultIds: [],
     setDeletedKeyResultIds: (ids: string[]) =>
       set({ deletedKeyResultIds: ids }),

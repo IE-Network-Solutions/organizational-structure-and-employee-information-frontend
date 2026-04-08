@@ -1,7 +1,7 @@
 'use client';
 
 import { Bar } from 'react-chartjs-2';
-import { Card, Spin } from 'antd';
+import { Card, Skeleton } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -74,7 +74,7 @@ export default function HireToApplicantChart() {
           data-cy="talent-acquisition-hire-applicant-chart-div-loading"
           className="flex justify-center items-center "
         >
-          <Spin size="large" />
+          <Skeleton active />
         </div>
       ) : (
         <div

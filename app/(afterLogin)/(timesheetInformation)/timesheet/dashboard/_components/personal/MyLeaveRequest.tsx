@@ -1,6 +1,6 @@
 import { useGetUserLeaveRequests } from '@/store/server/features/timesheet/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Button, Card, Spin, Tag } from 'antd';
+import { Button, Card, Skeleton, Tag } from 'antd';
 import React from 'react';
 import dayjs from 'dayjs';
 import LeaveRequestSidebar from '../../../my-timesheet/_components/leaveRequestSidebar';
@@ -79,7 +79,10 @@ const MyLeaveRequest: React.FC = () => {
             id="time-attendance-personal-leave-request-loading-state"
             data-cy="time-attendance-personal-leave-request-loading-state"
           >
-            <Spin data-cy="time-attendance-personal-leave-request-loading-spin" />
+            <Skeleton
+              active
+              data-cy="time-attendance-personal-leave-request-loading-spin"
+            />
           </div>
         )}
         {leaveRequests?.myLeaveRequests?.length === 0 && (

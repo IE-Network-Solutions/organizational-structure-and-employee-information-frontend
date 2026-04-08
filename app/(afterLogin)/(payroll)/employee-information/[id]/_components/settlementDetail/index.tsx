@@ -1,13 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Tag, Card, Empty } from 'antd';
+import { Tag, Card } from 'antd';
 import { useGetSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 import { useParams } from 'next/navigation';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
 import BenefitTracking from '@/app/(afterLogin)/(compensation)/benefit/[id]/_components/benefitTracker';
 import { LoadingOutlined } from '@ant-design/icons';
+import EmptyState from '@/components/empty';
 
 const SettlementDetail = () => {
   const params = useParams();
@@ -67,9 +68,10 @@ const SettlementDetail = () => {
           id="payroll-settlement-empty-view-container"
           data-cy="payroll-settlement-empty-view-container"
         >
-          <Empty
-            data-cy="payroll-settlement-empty-view-component"
+          <EmptyState
+            compact
             description="No data available"
+            data-cy="payroll-settlement-empty-view-component"
           />
         </div>
       );

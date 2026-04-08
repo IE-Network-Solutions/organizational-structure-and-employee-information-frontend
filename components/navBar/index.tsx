@@ -15,7 +15,6 @@ import {
   MdWidgets,
   MdAdminPanelSettings,
   MdSettings,
-  MdSpeed,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -40,6 +39,14 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
     ) {
       return true;
     }
+  }
+
+  // Time & Attendance → Settings: one nav item should stay active for all settings sub-routes
+  if (routePattern === '/timesheet/settings/closed-date') {
+    return (
+      pathname === '/timesheet/settings' ||
+      pathname.startsWith('/timesheet/settings/')
+    );
   }
 
   // Match [id] to UUIDs (or any non-slash segment)
@@ -492,27 +499,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'RECRUITMENT',
         children: [
           {
-            title: (
-              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
-            ),
-            key: '/recruitment/dashboard',
-            className: 'font-bold',
-            permissions: ['view_recruitment_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
             key: '/recruitment/jobs',
             className: 'font-bold',
             permissions: ['manage_recruitment_jobs'],
-          },
-          {
-            title: (
-              <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
-            ),
-            key: '/recruitment/ai-job-matching',
-            className: 'font-bold',
-            permissions: ['manage_recruitment_jobs'],
-            disabled: hasEndedFiscalYear,
           },
           {
             title: <span data-cy="nav-tree-candidates">Candidates</span>,
@@ -530,27 +520,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
           {
             title: (
-              <span
-                data-cy="nav-tree-recruitment-settings"
-                className="font-bold"
-              >
-                Settings
-              </span>
+              <span data-cy="nav-tree-recruitment-settings">Settings</span>
             ),
             key: '/recruitment/settings',
             className: 'font-bold',
             permissions: ['manage_recruitment_settings'],
           },
         ],
-      },
-      {
-        icon: <MdSpeed style={{ fontSize: 20 }} />,
-        title: 'Dashboard',
-        key: '/performance-menu',
-        className: 'font-bold',
-        permissions: ['view_okr'],
-        disabled: hasEndedFiscalYear,
-        moduleCode: 'OKR',
       },
       {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
@@ -561,12 +537,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: hasEndedFiscalYear,
         moduleCode: 'OKR',
         children: [
-          {
-            title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
-            key: '/okr/dashboard',
-            className: 'font-bold',
-            permissions: ['view_okr_dashboard'],
-          },
           {
             title: <span data-cy="nav-tree-okr">OKR</span>,
             key: '/okr',
@@ -708,14 +678,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'TIMESHEET',
         children: [
           {
-            title: (
-              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
-            ),
-            key: '/timesheet/dashboard',
-            className: 'font-bold',
-            permissions: ['view_timesheet_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
             key: '/timesheet/my-timesheet',
             className: 'font-bold',
@@ -774,14 +736,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_deduction'],
           },
-          {
-            title: (
-              <span data-cy="nav-tree-compensation-settings">Settings</span>
-            ),
-            key: '/compensationSetting',
-            className: 'font-bold',
-            permissions: ['manage_compensation_settings'],
-          },
+          // {
+          //   title: (
+          //     <span data-cy="nav-tree-compensation-settings">Settings</span>
+          //   ),
+          //   key: '/compensationSetting',
+          //   className: 'font-bold',
+          //   permissions: ['manage_compensation_settings'],
+          // },
         ],
       },
       {
@@ -805,12 +767,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_variable_pay'],
           },
-          {
-            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
-            key: '/incentives/settings',
-            className: 'font-bold',
-            permissions: ['manage_incentive_settings'],
-          },
+          // {
+          //   title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+          //   key: '/incentives/settings',
+          //   className: 'font-bold',
+          //   permissions: ['manage_incentive_settings'],
+          // },
         ],
       },
       {
@@ -1421,7 +1383,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // Render the component with the layout and navigation on the left
 
   return (
-    <Layout style={{ background: '#fff' }}>
+    <Layout
+      style={{
+        background: '#fff',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+      }}
+    >
       <Sider
         theme="light"
         width={280}
@@ -1706,6 +1675,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           marginLeft: 0,
           transition: 'margin-left 0.3s ease',
           background: '#ffffff',
+          flex: 1,
+          minWidth: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <Header
@@ -1766,7 +1740,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </button>
         )}
         <Content
-          className="overflow-y-hidden min-h-screen"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
@@ -1779,22 +1753,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           {isMounted && isCheckingPermissions ? (
             <div
               data-cy="nav-content-loading"
-              className="flex justify-center items-center h-screen"
+              className="flex min-h-0 flex-1 items-center justify-center"
             >
               <Skeleton active />
             </div>
           ) : (
             <div
               data-cy="nav-content-inner"
-              className="overflow-auto scrollbar-hide"
+              className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
                 width: '100%',
                 maxWidth: '100%',
-                paddingRight: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 8 : 24,
+                paddingInline: isMobile ? 8 : 24,
                 background: '#ffffff',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
               }}
             >
               {children}

@@ -326,7 +326,9 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-  /* Safari and Chrome */
+  width: 0;
+  height: 0;
+  /* Safari and Chrome — zero size avoids layout gutter */
 }
 
 /* Ensure Ant Design Sider children allow for flex scrolling */
@@ -1341,8 +1343,13 @@ h6 {
     height: 100%;
   }
 
+  /*
+   * Use 100% not 100vw: 100vw includes the scrollbar width on many browsers,
+   * which causes horizontal overflow and makes main content look off-center.
+   */
   body {
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
     height: 100vh;
     margin: 0;
     padding: 0;
@@ -1791,6 +1798,171 @@ h6 {
     min-height: unset !important;
     min-width: unset !important;
   }
+}
+
+/* Custom OKR Tooltip Styles */
+.okr-tooltip-custom .ant-tooltip-inner {
+  background-color: white !important;
+  color: #1f2937 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 12px 16px !important;
+  max-width: 280px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.okr-tooltip-custom .ant-tooltip-arrow::before {
+  background-color: white !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Desktop OKR objective modal alignment: keep title/body/footer on same vertical line */
+.okr-objective-modal .ant-modal-header,
+.okr-objective-modal .ant-modal-body,
+.okr-objective-modal .ant-modal-footer {
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+.okr-objective-modal .ant-modal-footer {
+  border-top: none !important;
+  box-shadow: none !important;
+}
+
+/* Keep global Ant notifications above high-z-index OKR modals */
+.ant-notification {
+  z-index: 13001 !important;
+}
+
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft {
+  z-index: 13001 !important;
+}
+
+/* Mobile bottom-sheet modal style for OKR Create Objective – opens from bottom, full width, rounded top */
+@media (max-width: 768px) {
+  /* Align wrap so the modal sits at the bottom instead of centered */
+  .okr-mobile-bottom-sheet {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    pointer-events: auto;
+  }
+
+  /* Remove Ant Design horizontal padding on .ant-modal-content (paddingContentHorizontalLG) so it
+     does not stack with the 24px on header/body/footer — single 24px gutter to the fields. */
+  .okr-mobile-bottom-sheet .ant-modal-content {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .okr-mobile-bottom-sheet .ant-modal-header,
+  .okr-mobile-bottom-sheet .ant-modal-body,
+  .okr-mobile-bottom-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Mobile filter modal – bottom sheet, rounded top, full width (My/Team/Company/All Employees OKR).
+     Use as Modal wrapClassName so the overlay is flex and the modal sits at the bottom. */
+  .okr-mobile-filter-sheet {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal {
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-bottom: 0 !important;
+    top: auto !important;
+    bottom: 0 !important;
+    pointer-events: auto;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal-content {
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .okr-mobile-filter-sheet .ant-modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Match theme paddingLG (24px) with OKR objective bottom sheets */
+  .okr-mobile-filter-sheet .ant-modal-header,
+  .okr-mobile-filter-sheet .ant-modal-body,
+  .okr-mobile-filter-sheet .ant-modal-footer {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+
+  /* Ensure hidden modal wrap and mask do not block clicks (fix for stuck UI on mobile) */
+  .okr-mobile-filter-sheet.ant-modal-wrap-hidden,
+  .okr-mobile-filter-sheet.ant-modal-wrap-hidden .ant-modal-mask {
+    pointer-events: none !important;
+  }
+}
+
+/* OKR three-dot dropdown: white card, rounded corners, shadow (Edit OKR / Delete OKR design) */
+.okr-actions-dropdown .ant-dropdown-menu {
+  background: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  padding: 4px 0 !important;
+  min-width: 160px !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item {
+  padding: 10px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger {
+  color: #ef4444 !important;
+}
+.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 /*
@@ -2307,6 +2479,29 @@ h6 {
 
 .payroll-table .ant-table-tbody > tr:hover > td {
   background-color: #f0f4f8 !important;
+}
+
+/* Wide tables: empty row is one colspan cell as wide as all columns. Centering
+   in that cell puts content in the horizontal middle of the full table width
+   (often off-screen). This host + sticky strip uses the scrollport width so
+   "No data" stays centered in what the user actually sees. */
+.payroll-table-scroll-host {
+  container-type: inline-size;
+  container-name: payroll-table-scroll;
+}
+
+.payroll-table-empty-viewport-center {
+  position: sticky;
+  left: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(100cqw, 100%);
+}
+
+.payroll-table .ant-table-tbody > tr.ant-table-placeholder > td.ant-table-cell {
+  vertical-align: middle;
 }
 
 .payroll-zebra-row > td {

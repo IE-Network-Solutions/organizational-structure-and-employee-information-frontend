@@ -18,6 +18,7 @@ import { useApprovalFilter } from '@/store/server/features/approver/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomPagination from '@/components/customPagination';
+import EmptyState from '@/components/empty';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -509,9 +510,13 @@ const ApprovalTable = () => {
             <div
               id="settings-payroll-approvals-empty-state"
               data-cy="settings-payroll-approvals-empty-state"
-              className="col-span-full py-10 text-center text-sm font-normal text-[#595959]"
+              className="col-span-full"
             >
-              No approval workflows found.
+              <EmptyState
+                minimal
+                description="No data found"
+                data-cy="settings-payroll-approvals-empty-state-inner"
+              />
             </div>
           )}
         </div>
