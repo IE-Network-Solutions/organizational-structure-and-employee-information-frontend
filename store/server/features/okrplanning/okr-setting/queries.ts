@@ -24,9 +24,9 @@ const checkOkrSettingExists = async (): Promise<OkrSettingCheckResponse> => {
   } catch (error: any) {
     // If endpoint doesn't exist or returns error, assume setting doesn't exist
     // This allows the modal to show even if backend is not ready
-    if (error?.response?.status === 404 || error?.code === 'ERR_NETWORK') {
-      return { exists: false };
-    }
+    // if (error?.response?.status === 404 || error?.code === 'ERR_NETWORK') {
+    //   return { exists: false };
+    // }
     throw error;
   }
 };
