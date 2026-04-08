@@ -191,7 +191,12 @@ export default function PerformanceDashboardPage() {
               sessionId={sessionId}
               monthOptions={monthOptions}
             />
-            <RecentHrActions auditLogs={auditLogsData} isLoading={isLoadingAuditLogs} auditLogModules={modules} height="444px" />
+            <RecentHrActions
+              auditLogs={auditLogsData}
+              isLoading={isLoadingAuditLogs}
+              auditLogModules={modules}
+              height="444px"
+            />
           </div>
         </div>
       </div>

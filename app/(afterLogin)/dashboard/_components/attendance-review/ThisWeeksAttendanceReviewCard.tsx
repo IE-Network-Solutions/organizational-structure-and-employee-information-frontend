@@ -157,7 +157,7 @@ export default function ThisWeeksAttendanceReviewCard() {
 
       const today = dayjs().startOf('day');
       const daysInRange = rangeEnd.diff(rangeStart, 'day') + 1;
-      const workWeekDays = Array.from({ length: daysInRange }, (_, i) =>
+      const workWeekDays = Array.from({ length: daysInRange }, (item, i) =>
         rangeStart.add(i, 'day').startOf('day'),
       );
 
@@ -232,7 +232,9 @@ export default function ThisWeeksAttendanceReviewCard() {
         });
       }
 
-      rowList.sort((a, b) => dayjs(b.dateValue).valueOf() - dayjs(a.dateValue).valueOf());
+      rowList.sort(
+        (a, b) => dayjs(b.dateValue).valueOf() - dayjs(a.dateValue).valueOf(),
+      );
 
       const totalHoursDisplay =
         totalMs > 0 ? `${(totalMs / (60 * 60 * 1000)).toFixed(1)}h` : '0h';
@@ -334,7 +336,10 @@ export default function ThisWeeksAttendanceReviewCard() {
 
       {/* Rows */}
       <Spin spinning={isFetching} size="small">
-        <div className="mt-2 h-[270px] overflow-y-auto scrollbar-none" data-cy="this-weeks-attendance-review-rows">
+        <div
+          className="mt-2 h-[270px] overflow-y-auto scrollbar-none"
+          data-cy="this-weeks-attendance-review-rows"
+        >
           {rows.map((row, idx) => {
             const barWidth = progressPercent(row.status, row.workMs);
             const dotClass =
@@ -367,7 +372,10 @@ export default function ThisWeeksAttendanceReviewCard() {
                       >
                         {row.day}
                       </div>
-                      <div className="text-gray-400 text-[11px]">
+                      <div
+                        className="text-gray-400 text-[11px]"
+                        data-cy={`this-weeks-attendance-review-row-${idx}-date`}
+                      >
                         {dayjs(row.dateValue).format('DD MMM')}
                       </div>
                     </div>

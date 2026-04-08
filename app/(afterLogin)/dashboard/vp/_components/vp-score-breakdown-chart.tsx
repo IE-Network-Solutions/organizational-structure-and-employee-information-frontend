@@ -21,7 +21,14 @@ import {
 } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 const barBackgroundPlugin: Plugin<'bar'> = {
   id: 'barBackgroundPlugin',
@@ -33,7 +40,8 @@ const barBackgroundPlugin: Plugin<'bar'> = {
     const maxFromOptions = (
       chart.options.scales?.y as { max?: number } | undefined
     )?.max;
-    const maxValue = typeof maxFromOptions === 'number' ? maxFromOptions : yScale.max;
+    const maxValue =
+      typeof maxFromOptions === 'number' ? maxFromOptions : yScale.max;
     const topPixel = yScale.getPixelForValue(maxValue);
 
     const targetIndexes = chart.data.datasets
@@ -78,7 +86,9 @@ const VPScoreBreakdownChart = () => {
     if (!lineGraphByMonth) return [];
 
     const mapped = lineGraphByMonth.map((item: any) => {
-      const matchedMonth = monthData?.items?.find((m: any) => m.id === item.monthId);
+      const matchedMonth = monthData?.items?.find(
+        (m: any) => m.id === item.monthId,
+      );
       return {
         ...item,
         monthName: matchedMonth?.startDate
@@ -88,7 +98,8 @@ const VPScoreBreakdownChart = () => {
     });
 
     return mapped.sort(
-      (a: any, b: any) => dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf(),
+      (a: any, b: any) =>
+        dayjs(a.createdAt).valueOf() - dayjs(b.createdAt).valueOf(),
     );
   }, [lineGraphByMonth, monthData]);
 
@@ -209,13 +220,25 @@ const VPScoreBreakdownChart = () => {
   );
 
   return (
-    <div className="rounded-lg border border-[#e6e6e6] bg-white p-4 h-full min-h-[409px]">
-      <h3 className="text-base font-bold text-[#2b2b2b] mb-4">VP Score Breakdown</h3>
-      <div className="h-[360px]">
+    <div
+      className="rounded-lg border border-[#e6e6e6] bg-white p-4 h-full min-h-[409px]"
+      data-cy="vp-score-breakdown-card"
+    >
+      <h3
+        className="text-base font-bold text-[#2b2b2b] mb-4"
+        data-cy="vp-score-breakdown-title"
+      >
+        VP Score Breakdown
+      </h3>
+      <div className="h-[360px]" data-cy="vp-score-breakdown-chart-wrap">
         {isLoading ? (
           <Skeleton active paragraph={{ rows: 8 }} />
         ) : (
-          <Bar data={chartData} options={options} plugins={[barBackgroundPlugin]} />
+          <Bar
+            data={chartData}
+            options={options}
+            plugins={[barBackgroundPlugin]}
+          />
         )}
       </div>
     </div>

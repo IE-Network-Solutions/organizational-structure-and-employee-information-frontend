@@ -1561,14 +1561,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         className="mb-2 mt-4 first:mt-2"
                       >
                         <Link
-                          href={group.linkKey || `/${group.label.toLowerCase()}`}
+                          href={
+                            group.linkKey || `/${group.label.toLowerCase()}`
+                          }
                           data-cy="nav-sider-group-label-wrap"
                           className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
                             collapsed ? 'text-center truncate' : ''
                           }`}
                           style={{ fontSize: fontSizeSM }}
                         >
-                          {group.label} 
+                          {group.label}
                         </Link>
                       </div>
 

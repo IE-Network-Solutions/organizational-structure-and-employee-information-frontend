@@ -306,7 +306,6 @@ export default function RecentHrActions({
         ) : actionItems.length === 0 ? (
           <div data-cy="recent-hr-actions-empty-state">
             <EmptyState
-              
               description="No recent actions found"
               data-cy="recent-hr-actions-empty-state-inner"
             />

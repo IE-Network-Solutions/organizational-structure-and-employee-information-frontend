@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo  } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Breadcrumb, Select } from 'antd';
 import dayjs from 'dayjs';
@@ -30,7 +30,7 @@ const DashboardPayroll = () => {
   const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
   const setPayPeriodId = useDashboardPayrollStore((s) => s.setPayPeriodId);
   const modules = ['PayrollAuditLog'];
- 
+
   const { data: auditLogs, isLoading: isLoadingAuditLogs } =
     useGetAggregateAuditPostLogs(
       {
@@ -170,7 +170,11 @@ const DashboardPayroll = () => {
                 className="w-full min-w-0"
                 data-cy="dashboard-payroll-action-cards-inner"
               >
-                <RecentHrActions auditLogs={auditLogsData} isLoading={isLoadingAuditLogs} auditLogModules={modules} />
+                <RecentHrActions
+                  auditLogs={auditLogsData}
+                  isLoading={isLoadingAuditLogs}
+                  auditLogModules={modules}
+                />
               </div>
             </div>
           </div>
