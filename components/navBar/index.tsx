@@ -31,7 +31,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-
+import { auth } from '@/utils/firebaseConfig';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
 import { useCreateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
@@ -975,6 +975,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      if (auth.currentUser) {
+        await auth.signOut();
+      }
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
