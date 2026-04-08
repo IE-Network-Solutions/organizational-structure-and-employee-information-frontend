@@ -1,0 +1,25 @@
+/* Mobile Input.Search: match Ant Design Input paddingInline (paddingSM − lineWidth) via Tailwind theme */
+.mobileSearch {
+  @apply max-w-full w-[267px];
+}
+
+.mobileSearch :global(.ant-input-wrapper.ant-input-group) {
+  @apply flex w-full items-stretch gap-2.5;
+}
+
+.mobileSearch :global(.ant-input-affix-wrapper) {
+  @apply h-8 min-h-8 min-w-0 flex-1 rounded-md;
+}
+
+.mobileSearch :global(.ant-input-group-addon) {
+  @apply border-0 bg-transparent p-0;
+}
+
+.mobileSearch :global(.ant-input-search-button) {
+  @apply m-0 flex h-8 min-h-8 w-8 items-center justify-center rounded-md p-0;
+}
+
+.mobileSearch :global(.ant-input) {
+  @apply h-full;
+  padding-inline: calc(theme('spacing.3') - 1px);
+}

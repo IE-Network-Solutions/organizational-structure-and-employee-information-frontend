@@ -17,7 +17,9 @@ const getTargetAssignment = async () => {
   });
 };
 export const useGetTargetAssignment = () =>
-  useQuery('targetAssignment', getTargetAssignment);
+  useQuery('targetAssignment', getTargetAssignment, {
+    keepPreviousData: true,
+  });
 
 const getActiveSession = async () => {
   const token = await getCurrentToken();

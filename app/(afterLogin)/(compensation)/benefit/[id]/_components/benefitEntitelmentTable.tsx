@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Popover, Spin, Table, Dropdown, Skeleton } from 'antd';
+import { Popover, Dropdown, Skeleton, Table } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -20,6 +20,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const dotsButtonStyle: React.CSSProperties = {
   height: 24,
@@ -524,17 +525,22 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
     <div
       id="compensation-benefit-entitlement-table-container"
       data-cy="compensation-benefit-entitlement-table-container"
+      aria-busy={isLoading}
     >
-      <Spin
-        data-cy="compensation-benefit-entitlement-table-loading"
-        spinning={isLoading}
-      >
-        <>
-          <div
-            className="overflow-hidden [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-title]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-footer]:!rounded-none [&_.ant-table-footer]:!rounded-es-none [&_.ant-table-footer]:!rounded-ee-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-ss-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-se-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-es-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-ee-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
-            id="compensation-benefit-entitlement-table-scroll"
-            data-cy="compensation-benefit-entitlement-table-scroll"
-          >
+      <>
+        <div
+          className="overflow-hidden [&_.ant-table-wrapper]:!rounded-none [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-container]:!rounded-none [&_.ant-table-container]:!rounded-ss-none [&_.ant-table-container]:!rounded-se-none [&_.ant-table-container]:!rounded-es-none [&_.ant-table-container]:!rounded-ee-none [&_.ant-table-title]:!rounded-none [&_.ant-table-header]:!rounded-none [&_.ant-table-footer]:!rounded-none [&_.ant-table-footer]:!rounded-es-none [&_.ant-table-footer]:!rounded-ee-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:first-child]:!rounded-ss-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-none [&_.ant-table-thead>tr:first-child>th:last-child]:!rounded-se-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:first-child]:!rounded-es-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-none [&_.ant-table-tbody>tr:last-child>td:last-child]:!rounded-ee-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
+          id="compensation-benefit-entitlement-table-scroll"
+          data-cy="compensation-benefit-entitlement-table-scroll"
+        >
+          {isLoading ? (
+            <div
+              data-cy="compensation-benefit-entitlement-table-loading"
+              aria-busy="true"
+            >
+              <TableSkeleton columns={compact ? columnsCompact : columns} />
+            </div>
+          ) : (
             <Table
               data-cy="compensation-benefit-entitlement-table"
               className={`benefit-entitlement-table !shadow-none ${compact ? '' : 'mt-6'} ${
@@ -557,51 +563,51 @@ const BenefitEntitlementTable: React.FC<BenefitPropTypes> = ({
                 compact && (isMobile || isTablet) ? { x: 620 } : undefined
               }
             />
-          </div>
-          {isMobile || isTablet ? (
-            <div
-              className="mt-3 px-0"
-              id="compensation-benefit-entitlement-mobile-pagination"
-              data-cy="compensation-benefit-entitlement-mobile-pagination"
-            >
-              <CustomMobilePagination
-                data-cy="compensation-benefit-entitlement-mobile-pagination"
-                totalResults={filteredDataSource.length}
-                pageSize={pageSize}
-                currentPage={currentPage}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-              />
-            </div>
-          ) : (
-            <div
-              id="compensation-benefit-entitlement-pagination"
-              data-cy="compensation-benefit-entitlement-pagination"
-            >
-              <CustomPagination
-                data-cy="compensation-benefit-entitlement-pagination"
-                current={currentPage}
-                total={filteredDataSource.length}
-                pageSize={pageSize}
-                onChange={(page, size) => {
-                  setCurrentPage(page);
-                  setPageSize(size);
-                }}
-                onShowSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
           )}
-        </>
-      </Spin>
+        </div>
+        {isMobile || isTablet ? (
+          <div
+            className="mt-3 px-0"
+            id="compensation-benefit-entitlement-mobile-pagination"
+            data-cy="compensation-benefit-entitlement-mobile-pagination"
+          >
+            <CustomMobilePagination
+              data-cy="compensation-benefit-entitlement-mobile-pagination"
+              totalResults={filteredDataSource.length}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+            />
+          </div>
+        ) : (
+          <div
+            id="compensation-benefit-entitlement-pagination"
+            data-cy="compensation-benefit-entitlement-pagination"
+          >
+            <CustomPagination
+              data-cy="compensation-benefit-entitlement-pagination"
+              current={currentPage}
+              total={filteredDataSource.length}
+              pageSize={pageSize}
+              onChange={(page, size) => {
+                setCurrentPage(page);
+                setPageSize(size);
+              }}
+              onShowSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        )}
+      </>
       {!deductionDetailLayout && (
         <BenefitTracking data-cy="compensation-benefit-tracking" />
       )}

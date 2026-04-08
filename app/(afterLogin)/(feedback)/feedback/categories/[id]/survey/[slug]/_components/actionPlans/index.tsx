@@ -14,13 +14,13 @@ import {
   Button,
   Col,
   DatePicker,
+  Dropdown,
   Form,
   Input,
   Modal,
   Popover,
   Row,
   Select,
-  Skeleton,
   Table,
   Tooltip,
 } from 'antd';
@@ -28,11 +28,16 @@ import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
 import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
-import { IoCheckmarkSharp } from 'react-icons/io5';
-import { MdOutlineFilterAlt, MdOutlineModeEditOutline } from 'react-icons/md';
-import { RiDeleteBin5Line } from 'react-icons/ri';
+import {
+  MdDeleteOutline,
+  MdMoreHoriz,
+  MdOutlineFilterAlt,
+  MdOutlineModeEditOutline,
+} from 'react-icons/md';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -224,38 +229,6 @@ function deadlineStatusText(item: any): React.ReactNode {
     );
   }
   return <span className="text-xs font-medium text-blue-600">Upcoming</span>;
-}
-
-function ActionPlansTableSkeleton() {
-  return (
-    <div
-      className="w-full min-w-0 overflow-hidden bg-white"
-      data-cy="action-plans-table-skeleton"
-    >
-      <div className="border-b border-gray-200 bg-[#F5F5F5] px-3 py-3">
-        <Skeleton.Input
-          active
-          size="small"
-          style={{ width: 220, minWidth: 220 }}
-          className="!min-h-[14px] !leading-none"
-        />
-      </div>
-      {Array.from({ length: 3 }).map((_, row) => (
-        <div
-          key={row}
-          className={`border-b border-gray-100 px-3 py-4 ${
-            row % 2 === 1 ? 'bg-gray-50/80' : 'bg-white'
-          }`}
-        >
-          <Skeleton
-            active
-            title={false}
-            paragraph={{ rows: 2, width: ['68%', '42%'] }}
-          />
-        </div>
-      ))}
-    </div>
-  );
 }
 
 function ActionPlans({ id }: Params) {
@@ -644,7 +617,7 @@ function ActionPlans({ id }: Params) {
 
   const columns: ColumnsType<any> = [
     {
-      title: 'Issue',
+      title: 'Issues',
       key: 'issue',
       align: 'left',
       width: 300,
@@ -813,66 +786,104 @@ function ActionPlans({ id }: Params) {
       key: 'rowActions',
       align: 'left',
       width: 96,
-      render: (_: unknown, item: any) => (
-        <div className="flex items-center justify-start gap-0.5">
-          {item?.status !== 'solved' &&
-            responsibleIds(item).includes(String(currentUserId)) && (
-              <>
-                <Tooltip title="Resolve">
-                  <Button
-                    type="text"
-                    size="small"
-                    className="text-emerald-600"
-                    loading={actionPlanResolvingLoading}
-                    icon={<IoCheckmarkSharp className="text-lg" />}
-                    onClick={() => handleResolveHandler(item?.id)}
-                    data-cy={`action-plan-row-${item.id}-resolve`}
-                  />
-                </Tooltip>
-              </>
-            )}
+      render: (_: unknown, item: any) =>
+        (() => {
+          const planId = item?.id;
+          const canResolve =
+            item?.status !== 'solved' &&
+            responsibleIds(item).includes(String(currentUserId));
 
-          {surveyCreatorId(item) &&
-          currentUserId &&
-          String(surveyCreatorId(item)) === String(currentUserId) ? (
-            <>
-              <Tooltip title="Edit">
-                <Button
-                  type="text"
-                  size="small"
-                  className="text-gray-600"
-                  icon={<MdOutlineModeEditOutline className="text-lg" />}
-                  onClick={() => handleEditActionPlan(item?.id)}
-                  data-cy={`action-plan-row-${item.id}-edit`}
-                />
-              </Tooltip>
-              <Tooltip title="Delete">
-                <Button
-                  type="text"
-                  size="small"
-                  danger
-                  loading={actionPlanDeletingLoading}
-                  icon={<RiDeleteBin5Line className="text-lg" />}
-                  onClick={() => setSelectedActionPlan(item?.id)}
-                  data-cy={`action-plan-row-${item.id}-delete`}
-                />
-              </Tooltip>
-            </>
-          ) : null}
-        </div>
-      ),
+          const canEdit =
+            surveyCreatorId(item) &&
+            currentUserId &&
+            String(surveyCreatorId(item)) === String(currentUserId);
+
+          const canDelete = canEdit;
+
+          const menuItems = [
+            ...(canResolve
+              ? [
+                  {
+                    key: 'resolve',
+                    label: (
+                      <span
+                        onClick={() => handleResolveHandler(planId)}
+                        data-cy={`action-plan-row-${planId}-menu-resolve`}
+                        className="inline-flex items-center gap-3 text-[16px] font-normal text-[#262626]"
+                      >
+                        <IoCheckmarkCircleOutline className="text-[16px] leading-none text-[#262626]" />
+                        Resolve Action Plan
+                      </span>
+                    ),
+                  },
+                ]
+              : []),
+            ...(canEdit
+              ? [
+                  {
+                    key: 'edit',
+                    label: (
+                      <span
+                        onClick={() => handleEditActionPlan(planId)}
+                        data-cy={`action-plan-row-${planId}-menu-edit`}
+                        className="inline-flex items-center gap-3 text-[16px] font-normal text-[#262626]"
+                      >
+                        <MdOutlineModeEditOutline className="text-[16px] leading-none text-[#262626]" />
+                        Edit Action Plan
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <span
+                        onClick={() => setSelectedActionPlan(planId)}
+                        data-cy={`action-plan-row-${planId}-menu-delete`}
+                        className="inline-flex items-center gap-3 text-[16px] font-normal text-[#ff4d4f]"
+                      >
+                        <MdDeleteOutline className="text-[16px] leading-none text-[#ff4d4f]" />
+                        Delete Action Plan
+                      </span>
+                    ),
+                  },
+                ]
+              : []),
+            ...(canDelete ? [] : []),
+          ];
+
+          if (menuItems.length === 0) return null;
+
+          return (
+            <Dropdown
+              menu={{ items: menuItems as any }}
+              trigger={['click']}
+              placement="bottomRight"
+              overlayClassName="action-plan-row-actions-menu"
+              data-cy={`action-plan-row-${planId}-menu`}
+            >
+              <button
+                type="button"
+                className="relative z-[2] flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-[#374151] transition-colors hover:border-slate-300 hover:bg-slate-50 pointer-events-auto"
+                data-cy={`action-plan-row-${planId}-menu-trigger`}
+                aria-label="More options"
+              >
+                <MdMoreHoriz className="text-[24px] leading-none" />
+              </button>
+            </Dropdown>
+          );
+        })(),
     },
   ];
 
   return (
     <div
       data-cy="action-plans-container"
-      className="flex h-full min-h-0 w-full min-w-0 flex-col"
+      className="flex h-full min-h-0 w-full min-w-0 flex-col pb-3 pt-0 lg:pb-0"
     >
-      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
-        <div className="flex w-full min-w-0 shrink-0 flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:p-4">
+      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-sm lg:shadow-none">
+        <div className="flex w-full min-w-0 shrink-0 flex-row items-stretch justify-between gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4">
           <div
-            className="flex h-10 w-[300px] max-w-full shrink-0 items-stretch overflow-hidden rounded-md border border-gray-200 bg-white transition-colors focus-within:border-[#1e40af]/40"
+            className="flex h-10 min-w-0 max-w-[min(100%,calc(17rem+30px))] flex-1 items-stretch overflow-hidden rounded-md border border-[#E5E7EB] bg-white transition-colors focus-within:border-[#1e40af]/40 md:max-w-none"
             data-cy="action-plans-search-employee"
           >
             <Input
@@ -887,13 +898,13 @@ function ActionPlans({ id }: Params) {
               }}
             />
             <div
-              className="flex w-10 shrink-0 items-center justify-center border-l border-gray-200 bg-white"
+              className="flex w-10 shrink-0 items-center justify-center border-l border-[#E5E7EB] bg-white"
               aria-hidden
             >
               <SearchOutlined className="text-base text-gray-800" />
             </div>
           </div>
-          <div className="flex shrink-0 items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center">
             <Popover
               content={filterPopoverContent}
               trigger="click"
@@ -905,17 +916,22 @@ function ActionPlans({ id }: Params) {
               overlayInnerStyle={{ padding: 0 }}
             >
               <Button
+                type="default"
                 size="large"
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white text-[14px] leading-none text-slate-800 shadow-sm hover:border-gray-300 hover:bg-gray-50 [&_.ant-btn-icon]:leading-none"
+                aria-label="Filter"
+                title="Filter"
+                className="inline-flex !h-10 !min-h-10 !min-w-10 !w-10 !items-center !justify-center !gap-0 !rounded-lg !border !border-[#E5E7EB] !bg-white !px-0 !py-0 text-slate-800 shadow-sm hover:!border-gray-300 hover:!bg-gray-50 lg:!min-w-[auto] lg:!w-auto lg:!gap-2 lg:!px-4 [&_.ant-btn-icon]:!m-0"
                 icon={
                   <MdOutlineFilterAlt
-                    className="h-4 w-4 shrink-0 text-slate-600"
+                    className="h-[18px] w-[18px] shrink-0 text-slate-600"
                     aria-hidden
                   />
                 }
                 data-cy="action-plans-filter"
               >
-                Filter
+                <span className="hidden pl-0 text-[14px] font-normal leading-none lg:inline">
+                  Filter
+                </span>
               </Button>
             </Popover>
           </div>
@@ -924,8 +940,11 @@ function ActionPlans({ id }: Params) {
         <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-0">
           <div className="min-h-0 w-full min-w-0 flex-1 overflow-auto scrollbar-hide">
             {showTableSkeleton ? (
-              <div className="w-full min-w-0">
-                <ActionPlansTableSkeleton />
+              <div
+                className="w-full min-w-0"
+                data-cy="action-plans-table-skeleton"
+              >
+                <TableSkeleton columns={columns} />
               </div>
             ) : (
               <Table
@@ -934,12 +953,13 @@ function ActionPlans({ id }: Params) {
                 rowKey="id"
                 pagination={false}
                 scroll={{ x: 'max-content' }}
+                size={isMobile ? 'small' : 'middle'}
                 dataSource={paginatedRows}
                 columns={columns}
                 rowClassName={(_, index) =>
-                  index % 2 === 1 ? 'bg-gray-50/80' : 'bg-white'
+                  index % 2 === 1 ? 'bg-[#FAFAFA]' : 'bg-white'
                 }
-                className="survey-action-plans-table w-full min-w-0 [&_.ant-table-wrapper]:w-full [&_.ant-table-wrapper]:!rounded-t-none [&_.ant-table]:w-full [&_.ant-table]:!rounded-t-none [&_.ant-table-container]:!rounded-t-none [&_.ant-table-content]:!rounded-t-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead>tr>th]:!bg-[#F5F5F5] [&_.ant-table-thead>tr>th]:!text-left [&_.ant-table-thead>tr>th]:!font-bold [&_.ant-table-thead>tr>th]:!text-gray-900 [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th]:border-r [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th:last-child]:!border-r-0 [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-sm [&_.ant-table-tbody>tr>td]:align-top [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td]:border-r [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td:last-child]:!border-r-0 [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-4"
+                className="survey-action-plans-table w-full min-w-0 [&_.ant-table-wrapper]:w-full [&_.ant-table-wrapper]:!rounded-t-none [&_.ant-table]:w-full [&_.ant-table]:!rounded-t-none [&_.ant-table-container]:!rounded-t-none [&_.ant-table-content]:!rounded-t-none [&_.ant-table-thead>tr>th:first-child]:!rounded-tl-none [&_.ant-table-thead>tr>th:last-child]:!rounded-tr-none [&_.ant-table-thead>tr>th]:!bg-[#F5F5F5] [&_.ant-table-thead>tr>th]:!text-left [&_.ant-table-thead>tr>th]:!font-bold [&_.ant-table-thead>tr>th]:!text-gray-900 [&_.ant-table-thead>tr>th]:border-b [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th]:border-r [&_.ant-table-thead>tr>th]:border-gray-200 [&_.ant-table-thead>tr>th:last-child]:!border-r-0 [&_.ant-table-thead>tr>th]:px-2 [&_.ant-table-thead>tr>th]:py-2.5 [&_.ant-table-thead>tr>th]:text-xs lg:[&_.ant-table-thead>tr>th]:px-3 lg:[&_.ant-table-thead>tr>th]:py-3 lg:[&_.ant-table-thead>tr>th]:text-sm [&_.ant-table-tbody>tr>td]:align-top [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td]:border-r [&_.ant-table-tbody>tr>td]:border-gray-100 [&_.ant-table-tbody>tr>td:last-child]:!border-r-0 [&_.ant-table-tbody>tr>td]:px-2 [&_.ant-table-tbody>tr>td]:py-3 lg:[&_.ant-table-tbody>tr>td]:px-3 lg:[&_.ant-table-tbody>tr>td]:py-4"
                 style={{ width: '100%' }}
               />
             )}
@@ -993,6 +1013,25 @@ function ActionPlans({ id }: Params) {
         loading={actionPlanDeletingLoading}
       />
       <style jsx global>{`
+        /* Action plan row dropdown: match the "triple-dot" menu UI. */
+        .action-plan-row-actions-menu.ant-dropdown
+          .ant-dropdown-menu
+          .ant-dropdown-menu-item {
+          padding: 10px 16px !important;
+          font-size: 16px !important;
+          line-height: 22px !important;
+          min-height: 0 !important;
+        }
+
+        .action-plan-row-actions-menu.ant-dropdown .ant-dropdown-menu {
+          border-radius: 12px !important;
+        }
+
+        .action-plan-row-actions-menu.ant-dropdown
+          .ant-dropdown-menu-item:hover {
+          background: #f5f5f5 !important;
+        }
+
         .responsible-hidden-users-scroll {
           -ms-overflow-style: none;
           scrollbar-width: none;

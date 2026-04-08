@@ -236,6 +236,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
         </div>
       )}
       <CustomDrawerLayout
+        rootClassName="cfr-feedback-settings-drawer"
         open={editableData !== null}
         onClose={() => setEditableData(null)}
         modalHeader={modalHeader}

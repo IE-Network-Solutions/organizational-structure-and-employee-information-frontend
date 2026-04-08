@@ -1,11 +1,16 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Col, Form, Input, InputNumber, Row, Select, Spin } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Select,
+  Spin,
+} from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useGetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
@@ -56,32 +61,6 @@ const CreateRuleSidebar = () => {
     }
   }, [isSuccess]);
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base px-10',
-      size: 'large',
-      loading: isFetching || isLoading,
-      onClick: () => onClose(),
-      id: 'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
-      'data-cy':
-        'time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button',
-    },
-    {
-      label: 'Create',
-      key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base px-10',
-      size: 'large',
-      type: 'primary',
-      loading: isFetching || isLoading,
-      onClick: () => form.submit(),
-      id: 'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
-      'data-cy':
-        'time-attendance-settings-attendance-rules-create-rule-sidebar-create-button',
-    },
-  ];
-
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
 
@@ -104,35 +83,49 @@ const CreateRuleSidebar = () => {
 
   return (
     isShow && (
-      <CustomDrawerLayout
+      <Modal
         open={isShow}
-        onClose={() => onClose()}
-        modalHeader={
+        onCancel={() => onClose()}
+        title={
           <div
-            className="px-2"
+            className="text-lg font-semibold text-[#4d4d4d]"
             id="time-attendance-settings-attendance-rules-create-rule-sidebar-header-container"
             data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-header-container"
           >
-            <CustomDrawerHeader data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-header">
-              Create Rule
-            </CustomDrawerHeader>
+            {attendanceRuleId ? 'Edit Rule' : 'Create Rule'}
           </div>
         }
         footer={
           <div
-            className="p-4"
+            className="flex justify-end gap-2"
             id="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
             data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
           >
-            <CustomDrawerFooterButton
-              className=""
-              buttons={footerModalItems}
-              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-button"
-            />
+            <Button
+              type="default"
+              onClick={() => onClose()}
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button"
+              className="border border-[#D9D9D9] text-base font-normal text-gray-900"
+              disabled={isFetching || isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              loading={isFetching || isLoading}
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-submit-button"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-create-button"
+            >
+              {attendanceRuleId ? 'Save' : 'Create'}
+            </Button>
           </div>
         }
-        width="40%"
         data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar"
+        zIndex={10002}
+        centered
+        width={720}
       >
         <Spin
           spinning={isFetching || isLoading}
@@ -158,7 +151,14 @@ const CreateRuleSidebar = () => {
                 span={12}
               >
                 <Form.Item
-                  label="Rule Name"
+                  label={
+                    <span
+                      className="text-sm font-normal text-gray-900 pr-1"
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-rule-name-label"
+                    >
+                      Rule Name
+                    </span>
+                  }
                   id="createRuleNameFieldId"
                   data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-field-id"
                   rules={[{ required: true, message: 'Required' }]}
@@ -176,7 +176,14 @@ const CreateRuleSidebar = () => {
                 span={12}
               >
                 <Form.Item
-                  label="Type"
+                  label={
+                    <span
+                      className="text-sm font-normal text-gray-900 pr-1"
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-label"
+                    >
+                      Type
+                    </span>
+                  }
                   id="createRuleTypeFieldId"
                   data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-field-id"
                   rules={[{ required: true, message: 'Required' }]}
@@ -206,7 +213,14 @@ const CreateRuleSidebar = () => {
                 span={24}
               >
                 <Form.Item
-                  label="Days Set"
+                  label={
+                    <span
+                      className="text-sm font-normal text-gray-900 pr-1"
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-label"
+                    >
+                      Days Set
+                    </span>
+                  }
                   id="createRuleDaysSetFieldId"
                   data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-field-id"
                   rules={[{ required: true, message: 'Required' }]}
@@ -226,7 +240,14 @@ const CreateRuleSidebar = () => {
                 data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-column"
               >
                 <Form.Item
-                  label="Description"
+                  label={
+                    <span
+                      className="text-sm font-normal text-gray-900 pr-1"
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-label"
+                    >
+                      Description
+                    </span>
+                  }
                   id="createRuleDescriptionFieldId"
                   data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-field-id"
                   rules={[{ required: true, message: 'Required' }]}
@@ -243,7 +264,7 @@ const CreateRuleSidebar = () => {
             </Row>
           </Form>
         </Spin>
-      </CustomDrawerLayout>
+      </Modal>
     )
   );
 };

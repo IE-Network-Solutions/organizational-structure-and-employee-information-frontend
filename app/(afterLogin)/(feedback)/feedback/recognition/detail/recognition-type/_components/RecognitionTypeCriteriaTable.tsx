@@ -1,5 +1,6 @@
 'use client';
 
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Table, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import React from 'react';
@@ -67,11 +68,13 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
 
 type Props = {
   dataSource: CriteriaTableRecord[];
+  loading?: boolean;
   'data-cy'?: string;
 };
 
 export default function RecognitionTypeCriteriaTable({
   dataSource,
+  loading = false,
   'data-cy': dataCy,
 }: Props) {
   return (
@@ -82,17 +85,23 @@ export default function RecognitionTypeCriteriaTable({
       }
     >
       <div className="rounded-[8px] border p-3 bg-white" data-cy={dataCy}>
-        <Table<CriteriaTableRecord>
-          rowKey={(r, index) =>
-            String(r.id ?? r.criteria?.criteriaName ?? `criteria-row-${index}`)
-          }
-          size="small"
-          columns={columns}
-          dataSource={dataSource}
-          pagination={false}
-          className="bg-transparent [&_.ant-table]:bg-transparent"
-          scroll={{ x: 720 }}
-        />
+        {loading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table<CriteriaTableRecord>
+            rowKey={(r, index) =>
+              String(
+                r.id ?? r.criteria?.criteriaName ?? `criteria-row-${index}`,
+              )
+            }
+            size="small"
+            columns={columns}
+            dataSource={dataSource}
+            pagination={false}
+            className="bg-transparent [&_.ant-table]:bg-transparent"
+            scroll={{ x: 720 }}
+          />
+        )}
       </div>
     </div>
   );

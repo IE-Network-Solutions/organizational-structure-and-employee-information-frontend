@@ -7,6 +7,7 @@ import { AppreciationLog } from '@/store/uistate/features/okrplanning/monitoring
 import { AppreciationType } from '@/store/uistate/features/okrplanning/monitoring-evaluation/appreciation-type/interface';
 import { ReprimandLog } from '@/store/uistate/features/okrplanning/monitoring-evaluation/reprimand-log/interface';
 import AccessGuard from '@/utils/permissionGuard';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Permissions } from '@/types/commons/permissionEnum';
 
 // Define props interface for EmployeeTable
@@ -168,13 +169,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 
   return (
     <>
-      <Table
-        dataSource={data}
-        columns={columns}
-        pagination={{ pageSize: 5 }}
-        scroll={{ x: 600 }} // Enables horizontal scrolling if content overflows
-        loading={loading} // Display loading state if needed
-      />
+      {loading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          dataSource={data}
+          columns={columns}
+          pagination={{ pageSize: 5 }}
+          scroll={{ x: 600 }} // Enables horizontal scrolling if content overflows
+        />
+      )}
     </>
   );
 };

@@ -28,6 +28,7 @@ import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesh
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const TnaApprovalTable = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -469,20 +470,23 @@ const TnaApprovalTable = () => {
               </Popconfirm>
             </div>
           </div>
-          <Table
-            columns={columns}
-            loading={currentApproverIsFetching}
-            dataSource={allFilterData}
-            pagination={{
-              total: currentApproverData?.meta?.totalItems,
-              current: userCurrentPage,
-              pageSize: pageSize,
-              onChange: onPageChange,
-            }}
-            scroll={{ x: 'min-content' }}
-            id="tnaReviewApprovalTableId"
-            data-cy="tna-review-approval-table"
-          />
+          {currentApproverIsFetching ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={allFilterData}
+              pagination={{
+                total: currentApproverData?.meta?.totalItems,
+                current: userCurrentPage,
+                pageSize: pageSize,
+                onChange: onPageChange,
+              }}
+              scroll={{ x: 'min-content' }}
+              id="tnaReviewApprovalTableId"
+              data-cy="tna-review-approval-table"
+            />
+          )}
           {isMobile || isTablet ? (
             <CustomMobilePagination
               totalResults={currentApproverData?.meta?.totalItems || 0}

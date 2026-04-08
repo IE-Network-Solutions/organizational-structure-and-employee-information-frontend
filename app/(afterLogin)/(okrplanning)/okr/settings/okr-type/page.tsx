@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Radio } from 'antd';
+import { Radio, Skeleton } from 'antd';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import {
   useUpdateOkrSetting,
@@ -15,7 +15,7 @@ import NotReportedEmployeesList from './_components/NotReportedEmployeesList';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
 const OkrTypePage = () => {
-  const { okrMode, refetch } = useOkrSetting();
+  const { okrMode, refetch, isInitialLoading } = useOkrSetting();
   const { refetch: refetchSetting } = useGetOkrSetting();
   const { isLoading: isUpdating } = useUpdateOkrSetting();
   const { mutate: switchOkrMode, isLoading: isSwitching } = useSwitchOkrMode();
@@ -126,7 +126,7 @@ const OkrTypePage = () => {
 
       {/* Description */}
       <p
-        className="text-[14px] text-[rgba(0,0,0,0.7)] text-center mb-10 max-w-2xl mx-auto"
+        className="text-[14px] text-[#595959] text-center mb-10 max-w-2xl mx-auto"
         data-cy="okr-type-description"
         id="okr-type-description"
       >
@@ -135,93 +135,110 @@ const OkrTypePage = () => {
         screen
       </p>
 
-      {/* Radio Button Cards */}
+      {/* Radio Button Cards — skeleton replaces card footprint only while mode is loading */}
       <div
-        className="flex flex-col lg:flex-row items-center justify-center gap-6 mb-2 px-4"
+        className="mb-12 flex flex-col items-center justify-center gap-6 px-4 lg:flex-row"
         data-cy="okr-type-cards-container"
         id="okr-type-cards-container"
       >
-        {/* Advanced OKR Card */}
-        <div
-          onClick={() =>
-            !(isUpdating || isSwitching) && handleRadioChange('Advanced')
-          }
-          className={`relative cursor-pointer border rounded-[8px] py-3 px-4 flex flex-col gap-2 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
-            isAdvancedActive
-              ? 'border-[#1E40AF] bg-white'
-              : 'border-[#D9D9D9] bg-white'
-          } ${isUpdating || isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
-          data-cy="okr-type-advanced-card"
-          id="okr-type-advanced-card"
-        >
-          <div
-            className="flex items-center gap-4 mb-4"
-            data-cy="okr-type-advanced-card-header"
-          >
-            <Radio
-              checked={isAdvancedActive}
-              disabled={isUpdating}
-              onChange={() => !isUpdating && handleRadioChange('Advanced')}
-              className="custom-brand-radio"
-              data-cy="okr-type-advanced-radio"
+        {isInitialLoading ? (
+          <>
+            <Skeleton.Button
+              active
+              className="!h-[200px] !w-full !max-w-[420px] !min-w-0 !rounded-[8px] lg:!w-[420px]"
+              data-cy="okr-type-advanced-card-skeleton"
             />
-            <h3
-              className="text-[18px] font-bold text-[#262626] m-0"
-              data-cy="okr-type-advanced-card-title"
+            <Skeleton.Button
+              active
+              className="!h-[200px] !w-full !max-w-[420px] !min-w-0 !rounded-[8px] lg:!w-[420px]"
+              data-cy="okr-type-basic-card-skeleton"
+            />
+          </>
+        ) : (
+          <>
+            {/* Advanced OKR Card */}
+            <div
+              onClick={() =>
+                !(isUpdating || isSwitching) && handleRadioChange('Advanced')
+              }
+              className={`relative w-full max-w-[420px] cursor-pointer rounded-[8px] border-2 p-8 transition-all duration-300 lg:w-[420px] ${
+                isAdvancedActive
+                  ? 'border-[#2b54ad] bg-white shadow-md'
+                  : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
+              } ${isUpdating || isSwitching ? 'cursor-not-allowed opacity-50' : ''}`}
+              data-cy="okr-type-advanced-card"
+              id="okr-type-advanced-card"
             >
-              Advanced OKR
-            </h3>
-          </div>
-          <p
-            className="text-[14px] text-[rgba(0,0,0,0.45)] leading-relaxed m-0"
-            data-cy="okr-type-advanced-card-description"
-          >
-            Advanced OKR allows employees to define Objectives and Key Results
-            for goal tracking. Daily and weekly plans are not linked to OKRs.
-            OKR progress has no impact on variable pay.
-          </p>
-        </div>
+              <div
+                className="mb-4 flex items-center gap-4"
+                data-cy="okr-type-advanced-card-header"
+              >
+                <Radio
+                  checked={isAdvancedActive}
+                  disabled={isUpdating}
+                  onChange={() => !isUpdating && handleRadioChange('Advanced')}
+                  className="custom-brand-radio"
+                  data-cy="okr-type-advanced-radio"
+                />
+                <h3
+                  className="m-0 text-[18px] font-bold text-[#262626]"
+                  data-cy="okr-type-advanced-card-title"
+                >
+                  Advanced OKR
+                </h3>
+              </div>
+              <p
+                className="m-0 text-[14px] leading-relaxed text-[#595959]"
+                data-cy="okr-type-advanced-card-description"
+              >
+                Advanced OKR allows employees to define Objectives and Key
+                Results for goal tracking. Daily and weekly plans are not linked
+                to OKRs. OKR progress has no impact on variable pay.
+              </p>
+            </div>
 
-        {/* Basic OKR Card */}
-        <div
-          onClick={() =>
-            !(isUpdating || isSwitching) && handleRadioChange('Basic')
-          }
-          className={`relative cursor-pointer border rounded-[8px] py-3 px-4 flex flex-col gap-2 w-full max-w-[420px] lg:w-[420px] transition-all duration-300 ${
-            isBasicActive
-              ? 'border-[#1E40AF] bg-white'
-              : 'border-[#D9D9D9] bg-white'
-          } ${isUpdating || isSwitching ? 'opacity-50 cursor-not-allowed' : ''}`}
-          data-cy="okr-type-basic-card"
-          id="okr-type-basic-card"
-        >
-          <div
-            className="flex items-center gap-4 mb-4"
-            data-cy="okr-type-basic-card-header"
-          >
-            <Radio
-              checked={isBasicActive}
-              disabled={isUpdating}
-              onChange={() => !isUpdating && handleRadioChange('Basic')}
-              className="custom-brand-radio"
-              data-cy="okr-type-basic-radio"
-            />
-            <h3
-              className="text-[18px] font-bold text-[#262626] m-0"
-              data-cy="okr-type-basic-card-title"
+            {/* Basic OKR Card */}
+            <div
+              onClick={() =>
+                !(isUpdating || isSwitching) && handleRadioChange('Basic')
+              }
+              className={`relative w-full max-w-[420px] cursor-pointer rounded-[8px] border-2 p-8 transition-all duration-300 lg:w-[420px] ${
+                isBasicActive
+                  ? 'border-[#2b54ad] bg-white shadow-md'
+                  : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
+              } ${isUpdating || isSwitching ? 'cursor-not-allowed opacity-50' : ''}`}
+              data-cy="okr-type-basic-card"
+              id="okr-type-basic-card"
             >
-              Basic
-            </h3>
-          </div>
-          <p
-            className="text-[14px] text-[rgba(0,0,0,0.45)] leading-relaxed m-0"
-            data-cy="okr-type-basic-card-description"
-          >
-            Basic OKR allows employees to define Objectives and Key Results for
-            goal tracking. Daily and weekly plans are not linked to OKRs. OKR
-            progress has no impact on variable pay.
-          </p>
-        </div>
+              <div
+                className="mb-4 flex items-center gap-4"
+                data-cy="okr-type-basic-card-header"
+              >
+                <Radio
+                  checked={isBasicActive}
+                  disabled={isUpdating}
+                  onChange={() => !isUpdating && handleRadioChange('Basic')}
+                  className="custom-brand-radio"
+                  data-cy="okr-type-basic-radio"
+                />
+                <h3
+                  className="m-0 text-[18px] font-bold text-[#262626]"
+                  data-cy="okr-type-basic-card-title"
+                >
+                  Basic
+                </h3>
+              </div>
+              <p
+                className="m-0 text-[14px] leading-relaxed text-[#595959]"
+                data-cy="okr-type-basic-card-description"
+              >
+                Basic OKR allows employees to define Objectives and Key Results
+                for goal tracking. Daily and weekly plans are not linked to
+                OKRs. OKR progress has no impact on variable pay.
+              </p>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Bottom Note */}

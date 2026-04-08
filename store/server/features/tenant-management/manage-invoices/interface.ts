@@ -1,11 +1,6 @@
 import {
   CreateAdvanceInvoiceRequest,
   PayInvoiceRequest,
-  CancelInvoiceRequest,
 } from '@/types/tenant-management';
 
-export type {
-  CreateAdvanceInvoiceRequest,
-  PayInvoiceRequest,
-  CancelInvoiceRequest,
-};
+export type { CreateAdvanceInvoiceRequest, PayInvoiceRequest };

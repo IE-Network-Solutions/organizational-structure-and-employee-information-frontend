@@ -3,18 +3,21 @@ import CustomDrawerFooterButton, {
 } from '@/components/common/customDrawer/customDrawerFooterButton';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
-import { Flex, Form, Input, Spin, Select } from 'antd';
+import { Flex, Form, Spin, Select } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import React, { useEffect } from 'react';
 import RemoveFormFieldButton from '@/components/common/formButtons/removeFormFieldButton';
-import AddFormFieldsButton from '@/components/common/formButtons/addFormFieldsButton';
 import { CourseLesson } from '@/types/tna/course';
 import { useGetCourseLessons } from '@/store/server/features/tna/lesson/queries';
 import ActionButtons from '@/components/common/actionButton/actionButtons';
 import CourseLessonMaterial from '@/app/(afterLogin)/(tna)/tna/management/[id]/_components/lessonMaterial';
 import { useDeleteCourseLessonMaterial } from '@/store/server/features/tna/lessonMaterial/mutation';
 import { useSetCourseLesson } from '@/store/server/features/tna/lesson/mutation';
+import {
+  LessonDescriptionFormItem,
+  LessonTitleFormItem,
+} from '../lessonTitleDescriptionFields';
 
 const CourseAddLessonSidebar = () => {
   const {
@@ -126,7 +129,7 @@ const CourseAddLessonSidebar = () => {
       onClick: () => onClose(),
     },
     {
-      label: lesson ? 'Edit' : 'Create',
+      label: 'Save',
       key: 'create',
       className: 'h-10',
       type: 'primary',
@@ -168,7 +171,8 @@ const CourseAddLessonSidebar = () => {
   };
 
   return (
-    isShow && (
+    isShow &&
+    lesson && (
       <CustomDrawerLayout
         open={isShow}
         onClose={() => onClose()}
@@ -178,7 +182,7 @@ const CourseAddLessonSidebar = () => {
             className="flex justify-start text-xl font-extrabold px-3"
             data-cy="tna-add-lesson-header"
           >
-            {lesson ? 'Edit' : 'Add'} Lesson
+            Edit lesson
           </CustomDrawerHeader>
         }
         footer={
@@ -202,7 +206,7 @@ const CourseAddLessonSidebar = () => {
           data-cy="tna-add-lesson-form"
         >
           <Form.List name="lessons" data-cy="tna-add-lesson-list">
-            {(fields, { add, remove }) => (
+            {(fields, { remove }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
                   <React.Fragment
@@ -215,21 +219,19 @@ const CourseAddLessonSidebar = () => {
                       id={`tnaAddLessonTitleFlex${key}Id`}
                       data-cy={`tna-add-lesson-title-flex-${key}`}
                     >
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'title']}
-                        label="Enter the Lesson title"
-                        rules={[{ required: true, message: 'Required' }]}
-                        className="form-item flex-1 px-3"
-                        id={`tnaAddLessonTitleItem${key}Id`}
-                        data-cy={`tna-add-lesson-title-item-${key}`}
+                      <div
+                        className="min-w-0 flex-1"
+                        data-cy={`tna-add-lesson-title-field-wrap-${key}`}
                       >
-                        <Input
-                          id="tnaLessonTitleFieldId"
-                          data-cy="tna-lesson-title-field"
-                          className="control h-10"
+                        <LessonTitleFormItem
+                          formListRest={restField}
+                          name={[name, 'title']}
+                          className="form-item px-3"
+                          itemDataCy={`tna-add-lesson-title-item-${key}`}
+                          inputDataCy="tna-lesson-title-field"
+                          inputId="tnaLessonTitleFieldId"
                         />
-                      </Form.Item>
+                      </div>
                       {fields.length > 1 ? (
                         <RemoveFormFieldButton
                           onClick={() => {
@@ -266,23 +268,14 @@ const CourseAddLessonSidebar = () => {
                       />
                     </Form.Item>
 
-                    <Form.Item
-                      {...restField}
+                    <LessonDescriptionFormItem
+                      formListRest={restField}
                       name={[name, 'description']}
-                      label="Description"
-                      rules={[{ required: true, message: 'Required' }]}
                       className="form-item px-3"
-                      id={`tnaAddLessonDescriptionItem${key}Id`}
-                      data-cy={`tna-add-lesson-description-item-${key}`}
-                    >
-                      <Input.TextArea
-                        id="tnaDescriptionFieldId"
-                        data-cy="tna-description-field"
-                        className="control-tarea h-24"
-                        rows={6}
-                        placeholder="Enter the Description"
-                      />
-                    </Form.Item>
+                      itemDataCy={`tna-add-lesson-description-item-${key}`}
+                      inputDataCy="tna-description-field"
+                      inputId="tnaDescriptionFieldId"
+                    />
                     {/* {!lesson && (
                       <Form.Item>
                         <div className="my-4 border-t border-gray-200"></div>
@@ -290,21 +283,6 @@ const CourseAddLessonSidebar = () => {
                     )} */}
                   </React.Fragment>
                 ))}
-
-                {!lesson && (
-                  <Form.Item
-                    id="tnaAddLessonAddButtonItemId"
-                    data-cy="tna-add-lesson-add-button-item"
-                  >
-                    <AddFormFieldsButton
-                      label="Add Lesson"
-                      onClick={() => {
-                        add();
-                      }}
-                      data-cy="tna-add-lesson-add-button"
-                    />
-                  </Form.Item>
-                )}
               </>
             )}
           </Form.List>

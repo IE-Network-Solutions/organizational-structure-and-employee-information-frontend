@@ -13,9 +13,8 @@ import {
   MdAccountBalanceWallet,
   MdCardGiftcard,
   MdWidgets,
-  MdHowToReg,
   MdAdminPanelSettings,
-  MdSpeed,
+  MdSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -40,6 +39,14 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
     ) {
       return true;
     }
+  }
+
+  // Time & Attendance → Settings: one nav item should stay active for all settings sub-routes
+  if (routePattern === '/timesheet/settings/closed-date') {
+    return (
+      pathname === '/timesheet/settings' ||
+      pathname.startsWith('/timesheet/settings/')
+    );
   }
 
   // Match [id] to UUIDs (or any non-slash segment)
@@ -87,7 +94,7 @@ interface CustomMenuItem {
 }
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
-import { Module } from '@/types/tenant-management';
+import { Module, Subscription } from '@/types/tenant-management';
 import { AiOutlineRight } from 'react-icons/ai';
 
 interface MyComponentProps {
@@ -110,6 +117,9 @@ const NavMenuItem: React.FC<{
   setExpandedKeys: React.Dispatch<
     React.SetStateAction<(string | number | bigint)[]>
   >;
+  navigationDisabled?: boolean;
+  /** Mobile: close off-canvas sidebar after navigating to a route */
+  onNavigate?: () => void;
 }> = ({
   item,
   collapsed,
@@ -122,9 +132,12 @@ const NavMenuItem: React.FC<{
   triggerRouteLoaderStart,
   expandedKeys,
   setExpandedKeys,
+  navigationDisabled,
+  onNavigate,
 }) => {
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
+  const isItemDisabled = Boolean(item.disabled) || Boolean(navigationDisabled);
 
   const bestMatchingChildKey = React.useMemo(() => {
     if (!hasChildren) return undefined;
@@ -143,6 +156,7 @@ const NavMenuItem: React.FC<{
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
   const handleToggle = () => {
+    if (isItemDisabled) return;
     if (hasChildren) {
       setExpandedKeys((prev) =>
         prev.includes(item.key)
@@ -156,6 +170,7 @@ const NavMenuItem: React.FC<{
         router.push(path);
         setSelectedKeys([path]);
       }
+      onNavigate?.();
     }
   };
 
@@ -165,10 +180,11 @@ const NavMenuItem: React.FC<{
         data-cy="nav-menu-item"
         onClick={handleToggle}
         className={`
-          group flex items-center gap-3 py-2 cursor-pointer transition-all duration-200 rounded-[6px]
+          group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px]
           ${
             isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
           }
+          ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
           ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
         style={isActive ? { color: colorPrimary } : undefined}
@@ -208,20 +224,23 @@ const NavMenuItem: React.FC<{
                 key={child.key}
                 data-cy="nav-menu-item-child"
                 onClick={() => {
+                  if (isItemDisabled) return;
                   const path = String(child.key);
                   if (pathname !== path) {
                     triggerRouteLoaderStart();
                     router.push(path);
                     setSelectedKeys([path]);
                   }
+                  onNavigate?.();
                 }}
                 className={`
-                  py-2 cursor-pointer rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
+                  py-2 rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
                   ${
                     isChildSelected
                       ? 'font-normal'
                       : 'text-black font-medium hover:bg-[#E6F4FF]'
                   }
+                  ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
                 `}
                 style={{
                   fontSize,
@@ -480,27 +499,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'RECRUITMENT',
         children: [
           {
-            title: (
-              <span data-cy="nav-tree-recruitment-dashboard">Dashboard</span>
-            ),
-            key: '/recruitment/dashboard',
-            className: 'font-bold',
-            permissions: ['view_recruitment_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-recruitment-jobs">Jobs</span>,
             key: '/recruitment/jobs',
             className: 'font-bold',
             permissions: ['manage_recruitment_jobs'],
-          },
-          {
-            title: (
-              <span data-cy="nav-tree-ai-job-matching">AI Job Matching</span>
-            ),
-            key: '/recruitment/ai-job-matching',
-            className: 'font-bold',
-            permissions: ['manage_recruitment_jobs'],
-            disabled: hasEndedFiscalYear,
           },
           {
             title: <span data-cy="nav-tree-candidates">Candidates</span>,
@@ -532,15 +534,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
-        icon: <MdSpeed style={{ fontSize: 20 }} />,
-        title: 'Dashboard',
-        key: '/performance-menu',
-        className: 'font-bold',
-        permissions: ['view_okr'],
-        disabled: hasEndedFiscalYear,
-        moduleCode: 'OKR',
-      },
-      {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
         title: 'OKR',
         key: '/okr-menu',
@@ -550,12 +543,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'OKR',
         children: [
           {
-            title: <span data-cy="nav-tree-okr-dashboard">Dashboard</span>,
-            key: '/okr/dashboard',
-            className: 'font-bold',
-            permissions: ['view_okr_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-okr">OKR</span>,
             key: '/okr',
             className: 'font-bold',
@@ -563,9 +550,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
           {
             title: (
-              <span data-cy="nav-tree-planning-reporting">
-                Planning and Reporting
-              </span>
+              <span data-cy="nav-tree-planning-reporting">Plan & Report</span>
             ),
             key: '/planning-and-reporting',
             className: 'font-bold',
@@ -698,14 +683,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         moduleCode: 'TIMESHEET',
         children: [
           {
-            title: (
-              <span data-cy="nav-tree-timesheet-dashboard">Dashboard</span>
-            ),
-            key: '/timesheet/dashboard',
-            className: 'font-bold',
-            permissions: ['view_timesheet_dashboard'],
-          },
-          {
             title: <span data-cy="nav-tree-my-timesheet">My Timesheet</span>,
             key: '/timesheet/my-timesheet',
             className: 'font-bold',
@@ -764,14 +741,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_deduction'],
           },
-          {
-            title: (
-              <span data-cy="nav-tree-compensation-settings">Settings</span>
-            ),
-            key: '/compensationSetting',
-            className: 'font-bold',
-            permissions: ['manage_compensation_settings'],
-          },
+          // {
+          //   title: (
+          //     <span data-cy="nav-tree-compensation-settings">Settings</span>
+          //   ),
+          //   key: '/compensationSetting',
+          //   className: 'font-bold',
+          //   permissions: ['manage_compensation_settings'],
+          // },
         ],
       },
       {
@@ -795,12 +772,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_variable_pay'],
           },
-          {
-            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
-            key: '/incentives/settings',
-            className: 'font-bold',
-            permissions: ['manage_incentive_settings'],
-          },
+          // {
+          //   title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+          //   key: '/incentives/settings',
+          //   className: 'font-bold',
+          //   permissions: ['manage_incentive_settings'],
+          // },
         ],
       },
       {
@@ -945,7 +922,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const { data: subscriptionsData, isLoading: subscriptionsLoading } =
     useGetSubscriptions({
       filter: {
-        isActive: true,
         ...(tenantId ? { tenantId: [tenantId] } : {}),
       },
     });
@@ -962,6 +938,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     subscriptionsLoading ||
     !departments ||
     !employeeData;
+
+  const subscriptionExpired = React.useMemo(() => {
+    const items = subscriptionsData?.items as Subscription[] | undefined;
+    if (!Array.isArray(items) || items.length === 0) return false;
+    const sorted = [...items].sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime(),
+    );
+    const latest = sorted[0];
+    if (!latest) return false;
+    if (latest.isActive) return false;
+    const endAtMs = latest.endAt ? new Date(latest.endAt).getTime() : NaN;
+    return Number.isFinite(endAtMs) && endAtMs < Date.now();
+  }, [subscriptionsData]);
 
   useEffect(() => {
     if (isLoadingData) return;
@@ -1092,12 +1083,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, []);
 
   const toggleCollapsed = () => {
+    // On mobile the sidebar behaves like an off-canvas drawer.
+    // We never want the "mini collapsed" (80px) variant there.
+    if (isMobile) {
+      setMobileCollapsed((v) => !v);
+      setCollapsed(false);
+      return;
+    }
     setCollapsed(!collapsed);
   };
 
   const toggleMobileCollapsed = () => {
     setMobileCollapsed(!mobileCollapsed);
   };
+
+  useEffect(() => {
+    // Ensure we never show the mini-collapsed sidebar on mobile.
+    if (isMobile && collapsed) {
+      setCollapsed(false);
+    }
+  }, [collapsed, isMobile]);
 
   const handleLogout = async () => {
     try {
@@ -1210,11 +1215,26 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     const activeSubscriptionFromTenant =
       subscriptionData?.items?.find((subscription) => subscription?.isActive) ||
       subscriptionData?.item;
-    const activeSubscriptionFromList = subscriptionsData?.items?.find(
+
+    const subscriptionsList = (subscriptionsData?.items ??
+      []) as Subscription[];
+    const activeSubscriptionFromList = subscriptionsList.find(
       (subscription) => subscription?.isActive,
     );
+    const latestSubscriptionFromList = subscriptionsList.length
+      ? [...subscriptionsList].sort(
+          (a, b) =>
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime(),
+        )[0]
+      : undefined;
+
+    // For sidebar visibility we fall back to the latest subscription even if inactive,
+    // so module gating still reflects the tenant's most recent plan instead of showing an empty nav.
     const activeSubscription =
-      activeSubscriptionFromTenant || activeSubscriptionFromList;
+      activeSubscriptionFromTenant ||
+      activeSubscriptionFromList ||
+      latestSubscriptionFromList;
     const subscriptionPlanModules = activeSubscription?.plan?.modules || [];
     const subscribedModuleIds = new Set(
       subscriptionPlanModules
@@ -1368,7 +1388,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // Render the component with the layout and navigation on the left
 
   return (
-    <Layout style={{ background: '#fff' }}>
+    <Layout
+      style={{
+        background: '#fff',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+      }}
+    >
       <Sider
         theme="light"
         width={280}
@@ -1380,18 +1407,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 100,
+          // On mobile, the drawer overlays the whole viewport above header.
+          zIndex: isMobile ? 300 : 100,
           backgroundColor: '#F5fbff',
           transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
         trigger={null}
         collapsible
-        collapsed={collapsed}
+        collapsed={isMobile ? false : collapsed}
         breakpoint="md"
         onBreakpoint={(broken) => {
           setIsMobile(broken);
           if (broken) {
+            setCollapsed(false);
             setMobileCollapsed(true);
           }
         }}
@@ -1415,7 +1444,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   className="w-full flex justify-center"
                 >
                   <Image
-                    src="/image/selamnew-workspace-logo.svg"
+                    src="/image/selamnew-workspace-logo-collapsed.svg"
                     alt="SelamNew Workspace Logo"
                     width={32}
                     height={32}
@@ -1434,18 +1463,21 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           </div>
 
-          <button
-            data-cy="nav-sider-toggle"
-            onClick={toggleCollapsed}
-            className="absolute -right-3 top-[37px] -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-full text-white shadow-md transition-all hover:opacity-90"
-            style={{ zIndex: 101, backgroundColor: colorPrimary }}
-          >
-            {collapsed ? (
-              <AiOutlineRight size={12} />
-            ) : (
-              <AiOutlineRight size={12} className="rotate-180" />
-            )}
-          </button>
+          {!isMobile && (
+            <button
+              type="button"
+              data-cy="nav-sider-toggle"
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              onClick={toggleCollapsed}
+              className="absolute -right-3 top-[37px] z-[101] flex h-6 w-6 min-h-6 min-w-6 shrink-0 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A] hover:opacity-100"
+            >
+              {collapsed ? (
+                <AiOutlineRight size={12} />
+              ) : (
+                <AiOutlineRight size={12} className="rotate-180" />
+              )}
+            </button>
+          )}
 
           <div
             data-cy="nav-sider-menu-scroll"
@@ -1473,7 +1505,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       >
                         <div
                           data-cy="nav-sider-group-label-skeleton"
-                          className="w-full font-light text-[#64748B] tracking-wide"
+                          className={`w-full font-light text-[#64748B] tracking-wide ${
+                            collapsed ? 'text-center truncate' : ''
+                          }`}
                           style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
@@ -1521,7 +1555,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                         <div
                           data-cy="nav-sider-group-label-wrap"
                           className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
-                            collapsed ? 'hidden' : ''
+                            collapsed ? 'text-center truncate' : ''
                           }`}
                           style={{ fontSize: fontSizeSM }}
                         >
@@ -1549,6 +1583,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             triggerRouteLoaderStart={triggerRouteLoaderStart}
                             expandedKeys={expandedKeys}
                             setExpandedKeys={setExpandedKeys}
+                            navigationDisabled={
+                              subscriptionExpired &&
+                              !String(item.key).startsWith('/admin')
+                            }
+                            onNavigate={
+                              isMobile
+                                ? () => setMobileCollapsed(true)
+                                : undefined
+                            }
                           />
                         ))}
                       </div>
@@ -1559,29 +1602,77 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           </div>
 
-          <div
-            data-cy="nav-sider-admin-wrap"
-            className="w-full flex justify-center py-3 mt-4 bg-[#F5fbff]"
-          >
-            <Button
-              data-cy="nav-sider-admin-btn"
-              type="primary"
-              size="large"
-              icon={<MdHowToReg size={22} />}
-              className={`
-                flex items-center justify-center border-none shadow-lg transition-all duration-300 font-normal hover:opacity-90
-                ${
-                  collapsed
-                    ? 'w-[52px] h-[52px] rounded-[10px]'
-                    : 'w-[249px] h-[40px] rounded-[10px] text-[14px] gap-[10px] px-[10px]'
-                }
-              `}
-              style={{ backgroundColor: colorPrimary }}
-              onClick={() => router.push('/admin/dashboard')}
+          {AccessGuard.checkAccess({
+            permissions: ['view_admin_configuration'],
+          }) && (
+            <div
+              data-cy="nav-sider-admin-wrap"
+              className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
+                collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+              }`}
             >
-              {!collapsed && 'Admin Console'}
-            </Button>
-          </div>
+              <div
+                data-cy="nav-sider-admin-inner"
+                className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
+              >
+                <Button
+                  data-cy="nav-sider-admin-btn"
+                  type="text"
+                  block={!collapsed}
+                  icon={
+                    <span
+                      data-cy="nav-sider-admin-icon-wrap"
+                      className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
+                        pathname.startsWith('/admin') ? '' : 'text-black'
+                      }`}
+                      style={
+                        pathname.startsWith('/admin')
+                          ? { color: colorPrimary }
+                          : undefined
+                      }
+                    >
+                      <MdSettings size={21} />
+                    </span>
+                  }
+                  className={`
+                  !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
+                  ${
+                    pathname.startsWith('/admin')
+                      ? '!font-bold'
+                      : '!font-medium !text-black hover:!bg-[#E6F4FF]'
+                  }
+                  ${
+                    collapsed
+                      ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
+                      : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
+                  }
+                `}
+                  style={
+                    pathname.startsWith('/admin')
+                      ? { color: colorPrimary }
+                      : undefined
+                  }
+                  onClick={() => {
+                    triggerRouteLoaderStart();
+                    router.push('/admin/dashboard');
+                    if (isMobile) {
+                      setMobileCollapsed(true);
+                    }
+                  }}
+                >
+                  {!collapsed && (
+                    <span
+                      data-cy="nav-sider-admin-label"
+                      className="flex-1 text-left transition-colors"
+                      style={{ fontSize }}
+                    >
+                      Admin Console
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </Sider>
       <Layout
@@ -1589,6 +1680,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           marginLeft: 0,
           transition: 'margin-left 0.3s ease',
           background: '#ffffff',
+          flex: 1,
+          minWidth: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <Header
@@ -1605,47 +1701,55 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 : 'calc(100% - 280px)',
             zIndex: 40,
             top: 0,
-            left: isMobile && mobileCollapsed ? 0 : collapsed ? 80 : 280,
+            left: isMobile ? 0 : collapsed ? 80 : 280,
             transition: 'left 0.3s ease, width 0.3s ease',
             height: '74px',
             borderBottom: '1px solid #F1F5F9',
             boxShadow: 'none',
           }}
         >
-          {isMobile && (
+          {isMobile && mobileCollapsed && (
             <div
               data-cy="nav-header-mobile-toggle-wrap"
-              className="p-[10px] flex justify-center items-center"
+              className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
             >
               <Button
                 data-cy="nav-header-mobile-toggle"
-                className="w-full h-full"
+                type="text"
+                aria-label="Open menu"
+                className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
                 onClick={toggleMobileCollapsed}
-                icon={
-                  !mobileCollapsed ? (
-                    <IoCloseOutline
-                      size={24}
-                      className="text-gray-500 border-none"
-                    />
-                  ) : (
-                    <MenuOutlined
-                      size={24}
-                      className="text-gray-500 border-none"
-                    />
-                  )
-                }
+                icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
               />
             </div>
           )}
 
           <NavBar handleLogout={handleLogout} />
         </Header>
+
+        {/* Mobile drawer close button: on the right edge of the drawer, aligned with header */}
+        {isMobile && !mobileCollapsed && (
+          <button
+            type="button"
+            data-cy="nav-mobile-drawer-close"
+            onClick={toggleMobileCollapsed}
+            className="fixed z-[320] flex h-8 w-8 min-h-8 min-w-8 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A]"
+            style={{
+              top: 30,
+              // Position the close button outside the right edge of the 280px drawer.
+              left: 302,
+            }}
+            aria-label="Close menu"
+          >
+            <IoCloseOutline size={20} />
+          </button>
+        )}
         <Content
-          className="overflow-y-hidden min-h-screen"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
-            paddingRight: isMobile ? 0 : 24,
+            paddingRight: 0,
             paddingTop: '74px',
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
@@ -1654,20 +1758,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           {isMounted && isCheckingPermissions ? (
             <div
               data-cy="nav-content-loading"
-              className="flex justify-center items-center h-screen"
+              className="flex min-h-0 flex-1 items-center justify-center"
             >
               <Skeleton active />
             </div>
           ) : (
             <div
               data-cy="nav-content-inner"
-              className="overflow-auto scrollbar-hide"
+              className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
               style={{
                 borderRadius: borderRadiusLG,
                 marginTop: 0,
-                paddingRight: isMobile ? 8 : 24,
-                paddingLeft: isMobile ? 8 : 24,
+                width: '100%',
+                maxWidth: '100%',
+                paddingInline: isMobile ? 8 : 24,
                 background: '#ffffff',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
               }}
             >
               {children}

@@ -38,6 +38,7 @@ const fetchAllFeedbackTypes = async () => {
 
   return result;
 };
+
 export const useFetchFeedbackTypeById = (id: string) => {
   return useQuery(
     ['feedbackType', id], // Include `id` in the query key for caching
@@ -54,4 +55,41 @@ export const useFetchAllFeedbackTypes = (
   return useQuery(['feedbackTypes', pageSize, current], () =>
     fetchAllFeedbackTypes(),
   );
+};
+export const useFetchAllFeedbackTypesByVariant = (
+  page: number,
+  limit: number,
+  variant: string,
+  search?: string,
+) => {
+  return useQuery(
+    ['feedbackTypesByVariant', page, limit, variant, search],
+    () => fetchAllFeedbackTypesByVariant(variant, search ?? '', page, limit),
+    { keepPreviousData: true },
+  );
+};
+const fetchAllFeedbackTypesByVariant = async (
+  variant: string,
+  search: string,
+  page: number,
+  limit: number,
+) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  const result = await crudRequest({
+    url: `${ORG_DEV_URL}/feedback/filter`,
+    method: 'GET',
+    headers,
+    params: {
+      variant,
+      search,
+      page,
+      limit,
+    },
+  });
+  return result;
 };

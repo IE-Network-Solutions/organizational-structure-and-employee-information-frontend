@@ -17,6 +17,7 @@ import { PlanningPeriod } from '@/store/uistate/features/okrplanning/okrSetting/
 import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 import { useQueryClient } from 'react-query';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const CheckInRulePage: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -275,19 +276,22 @@ const CheckInRulePage: React.FC = () => {
         id="okr-checkin-rule-table-wrapper-display-div"
         data-cy="okr-checkin-rule-table-wrapper-display-div"
       >
-        <Table
-          dataSource={rules}
-          columns={columns}
-          loading={isLoading}
-          pagination={false}
-          scroll={{ x: 1200 }}
-          locale={{
-            emptyText: undefined, // Use default "No data found" message
-          }}
-          className="min-w-full"
-          id="okr-checkin-rule-table-display-table"
-          data-cy="okr-checkin-rule-table-display-table"
-        />
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            dataSource={rules}
+            columns={columns}
+            pagination={false}
+            scroll={{ x: 1200 }}
+            locale={{
+              emptyText: undefined, // Use default "No data found" message
+            }}
+            className="min-w-full"
+            id="okr-checkin-rule-table-display-table"
+            data-cy="okr-checkin-rule-table-display-table"
+          />
+        )}
       </div>
 
       <CheckInRuleDrawer

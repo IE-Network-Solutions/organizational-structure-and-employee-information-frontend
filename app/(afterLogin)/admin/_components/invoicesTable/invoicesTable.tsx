@@ -1,6 +1,14 @@
 'use client';
 
-import { Table, Input, Select, DatePicker, notification } from 'antd';
+import {
+  Input,
+  Select,
+  DatePicker,
+  notification,
+  Tag,
+  Popconfirm,
+  Table,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   Invoice,
@@ -10,11 +18,21 @@ import {
   Subscription,
 } from '@/types/tenant-management';
 import { useState, useEffect } from 'react';
-import { RightOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  LoadingOutlined,
+} from '@ant-design/icons';
+import { MdOutlineFileDownload } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useGetInvoiceDetail } from '@/store/server/features/tenant-management/invoices/queries';
+import { useDeleteManageInvoice } from '@/store/server/features/tenant-management/manage-invoices/mutation';
+import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 dayjs.extend(isBetween);
 
@@ -27,6 +45,15 @@ interface InvoicesTableProps {
   plans: Plan[];
   currencies: Currency[];
   subscriptions?: Subscription[];
+  totalItems?: number;
+  totalPages?: number;
+  currentPage?: number;
+  pageSize?: number;
+  onPageChange?: (page: number, size: number) => void;
+  /** When provided, row click opens this callback (e.g. open modal) instead of navigating to invoice page */
+  onInvoiceClick?: (invoiceId: string) => void;
+  /** Hide search and filters (e.g. for dashboard "Recent Billing History") */
+  hideFilters?: boolean;
 }
 
 const InvoicesTable = ({
@@ -34,6 +61,13 @@ const InvoicesTable = ({
   loading = false,
   currencies,
   subscriptions = [],
+  totalItems,
+  totalPages,
+  currentPage: controlledCurrentPage,
+  pageSize: controlledPageSize,
+  onPageChange,
+  onInvoiceClick,
+  hideFilters = false,
 }: InvoicesTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -51,7 +85,21 @@ const InvoicesTable = ({
   const [downloadingInvoiceId, setDownloadingInvoiceId] = useState<
     string | null
   >(null);
+  const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(
+    null,
+  );
+  const [openDeleteConfirmInvoiceId, setOpenDeleteConfirmInvoiceId] = useState<
+    string | null
+  >(null);
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
+  const deleteInvoiceMutation = useDeleteManageInvoice();
+  const effectiveCurrentPage = controlledCurrentPage ?? currentPage;
+  const effectivePageSize = controlledPageSize ?? pageSize;
+  const isControlledPagination =
+    typeof controlledCurrentPage === 'number' &&
+    typeof controlledPageSize === 'number' &&
+    typeof onPageChange === 'function';
 
   const { data: invoiceDetail } = useGetInvoiceDetail(
     selectedInvoiceId || '',
@@ -82,12 +130,20 @@ const InvoicesTable = ({
   }, [invoiceDetail, selectedInvoiceId, data]);
 
   const handlePageChange = (page: number, size: number) => {
+    if (isControlledPagination) {
+      onPageChange?.(page, size);
+      return;
+    }
     setCurrentPage(page);
     setPageSize(size);
   };
 
   const handleRowClick = (id: string) => {
-    router.push(`/admin/invoice/${id}`);
+    if (onInvoiceClick) {
+      onInvoiceClick(id);
+    } else {
+      router.push(`/admin/invoice/${id}`);
+    }
   };
 
   const getPlanName = (subscriptionId: string) => {
@@ -156,11 +212,25 @@ const InvoicesTable = ({
     setDownloadingInvoiceId(invoiceId);
   };
 
+  const deleteInvoiceById = async (invoiceId: string) => {
+    try {
+      setDeletingInvoiceId(invoiceId);
+      await deleteInvoiceMutation.mutateAsync(invoiceId);
+    } catch (error) {
+      notification.error({
+        message: 'Delete Failed',
+        description:
+          error instanceof Error ? error.message : 'Failed to delete invoice.',
+      });
+    } finally {
+      setDeletingInvoiceId(null);
+    }
+  };
+
   const columns: ColumnsType<Invoice> = [
     {
       title: 'Invoice ID',
       dataIndex: 'invoiceNumber',
-      sorter: (a, b) => a.invoiceNumber - b.invoiceNumber,
       render: (invoiceNumber: string) => (
         <span
           id={`invoice-number-${invoiceNumber}`}
@@ -169,34 +239,21 @@ const InvoicesTable = ({
           #{invoiceNumber}
         </span>
       ),
-      defaultSortOrder: 'descend',
     },
     {
       title: 'Issue Date',
       dataIndex: 'invoiceAt',
-      sorter: (a, b) =>
-        new Date(a.invoiceAt).getTime() - new Date(b.invoiceAt).getTime(),
       render: (date: string) => dayjs(date).format('MMMM D, YYYY'),
     },
     {
       title: 'Plan',
       dataIndex: 'subscriptionId',
-      sorter: (a, b) => {
-        const planNameA = getPlanName(a.subscriptionId);
-        const planNameB = getPlanName(b.subscriptionId);
-        return planNameA.localeCompare(planNameB);
-      },
       render: (subscriptionId: string) => (
         <div
           id={`invoice-plan-${subscriptionId}`}
           data-cy={`invoice-plan-${subscriptionId}`}
-          className="flex items-center gap-2 border border-gray-300 rounded-lg px-2 w-fit whitespace-nowrap"
+          className="flex items-center gap-2 rounded-[4px] border border-gray-300 bg-[rgba(0,0,0,0.02)] px-2 w-fit whitespace-nowrap"
         >
-          <span
-            id={`invoice-plan-indicator-${subscriptionId}`}
-            data-cy={`invoice-plan-indicator-${subscriptionId}`}
-            className="w-2 h-2 min-w-2 min-h-2 rounded-full bg-primary"
-          />
           <span
             id={`invoice-plan-name-${subscriptionId}`}
             data-cy={`invoice-plan-name-${subscriptionId}`}
@@ -209,7 +266,6 @@ const InvoicesTable = ({
     {
       title: 'Amount',
       dataIndex: 'totalAmount',
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
       render: (total: number, record: Invoice) => (
         <span
           id={`invoice-amount-${record.id}`}
@@ -223,7 +279,6 @@ const InvoicesTable = ({
     {
       title: 'Currency',
       dataIndex: 'currencyId',
-      sorter: (a, b) => a.currencyId.localeCompare(b.currencyId),
       render: (currencyId: string) => {
         const currency = currencies?.find((c) => c.id === currencyId);
         return (
@@ -237,47 +292,36 @@ const InvoicesTable = ({
       },
     },
     {
-      title: 'Payment Date',
-      dataIndex: 'paymentAt',
-      sorter: (a, b) =>
-        new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
-      render: (date: string) =>
-        date ? dayjs(date).format('MMMM D, YYYY') : '-',
-    },
-    {
       title: 'Status',
       dataIndex: 'status',
-      sorter: (a, b) => a.status.localeCompare(b.status),
       render: (status: InvoiceStatus) => {
-        let className = '';
-
-        switch (status) {
-          case InvoiceStatus.PENDING:
-            className = 'text-orange bg-orange/10';
-            break;
-          case InvoiceStatus.PAID:
-            className = 'text-green-600 bg-green-100';
-            break;
-          case InvoiceStatus.OVERDUE:
-            className = 'text-red-600 bg-red-100';
-            break;
-          case InvoiceStatus.CANCELLED:
-            className = 'text-gray-400 bg-gray-200';
-            break;
-          default:
-            className = 'text-orange-600 bg-orange-100';
-        }
+        const normalized = String(status).toLowerCase();
+        const tagColor =
+          normalized === InvoiceStatus.PAID
+            ? 'success'
+            : normalized === InvoiceStatus.OVERDUE
+              ? 'error'
+              : normalized === InvoiceStatus.CANCELLED
+                ? 'default'
+                : 'warning';
 
         return (
-          <span
+          <Tag
             id={`invoice-status-${status}`}
             data-cy={`invoice-status-${status}`}
-            className={`rounded-lg px-2 py-2 text-sm font-medium ${className}`}
+            className="rounded-md px-2 py-1 text-sm font-medium m-0"
+            color={tagColor}
           >
-            {status}
-          </span>
+            {String(status)}
+          </Tag>
         );
       },
+    },
+    {
+      title: 'Payment Date',
+      dataIndex: 'paymentAt',
+      render: (date: string) =>
+        date ? dayjs(date).format('MMMM D, YYYY') : '-',
     },
     {
       title: '',
@@ -286,6 +330,9 @@ const InvoicesTable = ({
       render: (...args: [string, Invoice]) => {
         const record = args[1];
         const isDownloadingThis = downloadingInvoiceId === record.id;
+        const isDeletingThis = deletingInvoiceId === record.id;
+        const isPendingInvoice =
+          String(record.status).toLowerCase() === 'pending';
 
         return (
           <div
@@ -294,134 +341,265 @@ const InvoicesTable = ({
             className="flex items-center gap-4"
           >
             <button
+              type="button"
               id={`invoice-download-${record.id}`}
               data-cy={`invoice-download-${record.id}`}
               onClick={(e) => handlePdfDownload(e, record.id)}
-              className="hover:opacity-75 transition-opacity"
+              className="inline-flex items-center justify-center p-0 m-0 bg-transparent border-0 cursor-pointer hover:opacity-75 transition-opacity leading-none"
               disabled={isDownloadingThis}
             >
               {isDownloadingThis ? (
                 <LoadingOutlined
                   id={`invoice-download-indicator-${record.id}`}
                   data-cy={`invoice-download-indicator-${record.id}`}
-                  className="w-5 h-5 text-primary"
+                  className="!flex !items-center !justify-center w-5 h-5 min-w-5 min-h-5 shrink-0 text-base text-primary"
                   spin
                 />
               ) : (
-                <img
-                  src="/icons/file-download.svg"
-                  alt="Download PDF"
+                <MdOutlineFileDownload
                   id={`invoice-download-icon-${record.id}`}
                   data-cy={`invoice-download-icon-${record.id}`}
-                  className="w-5 h-5 min-w-5 min-h-5"
+                  className="w-5 h-5 min-w-5 min-h-5 text-primary shrink-0"
                 />
               )}
             </button>
-            <button
-              id={`invoice-view-${record.id}`}
-              data-cy={`invoice-view-${record.id}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRowClick(record.id);
-              }}
-              className="text-gray-500 hover:text-primary transition-colors hover:translate-x-1 transition-transform duration-300"
-            >
-              <RightOutlined
-                id={`invoice-view-icon-${record.id}`}
-                data-cy={`invoice-view-icon-${record.id}`}
-              />
-            </button>
+
+            {isPendingInvoice && (
+              <Popconfirm
+                icon={<></>}
+                open={openDeleteConfirmInvoiceId === record.id}
+                onOpenChange={(visible) =>
+                  setOpenDeleteConfirmInvoiceId(visible ? record.id : null)
+                }
+                onCancel={(e) => {
+                  e?.stopPropagation();
+                  setOpenDeleteConfirmInvoiceId(null);
+                }}
+                title={
+                  <div
+                    className="flex items-center justify-between mb-3 mx-4"
+                    data-cy={`invoice-delete-popconfirm-title-${record.id}`}
+                  >
+                    <p
+                      className="text-lg font-bold text-gray-700 m-0"
+                      data-cy={`invoice-delete-popconfirm-title-text-${record.id}`}
+                    >
+                      Delete Invoice
+                    </p>
+                    <CloseOutlined
+                      className="text-gray-400 m-0 cursor-pointer hover:text-gray-600"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setOpenDeleteConfirmInvoiceId(null);
+                      }}
+                    />
+                  </div>
+                }
+                description={
+                  <p
+                    className="text-sm text-gray-500 m-0 my-1 mb-4 mx-4"
+                    data-cy={`invoice-delete-popconfirm-description-${record.id}`}
+                  >
+                    Are you sure you want to delete invoice #
+                    {record.invoiceNumber}?
+                  </p>
+                }
+                onConfirm={(e) => {
+                  e?.stopPropagation();
+                  setOpenDeleteConfirmInvoiceId(null);
+                  void deleteInvoiceById(record.id);
+                }}
+                okText="Delete"
+                okButtonProps={{
+                  danger: true,
+                  className: 'font-normal p-2 mr-4 mb-2 rounded-md',
+                  'data-cy': `invoice-delete-popconfirm-ok-${record.id}`,
+                }}
+                cancelButtonProps={{
+                  'data-cy': `invoice-delete-popconfirm-dismiss-${record.id}`,
+                  className:
+                    'font-normal m-0 p-2 mb-2 rounded-md border-gray-300',
+                }}
+                cancelText={
+                  <div
+                    className="font-normal m-0 border-gray-400"
+                    data-cy={`invoice-delete-popconfirm-dismiss-text-${record.id}`}
+                  >
+                    Cancel
+                  </div>
+                }
+                disabled={isDeletingThis}
+                data-cy={`invoice-delete-popconfirm-${record.id}`}
+                className="inline-flex items-center justify-center leading-none"
+              >
+                <button
+                  type="button"
+                  id={`invoice-delete-${record.id}`}
+                  data-cy={`invoice-delete-${record.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpenDeleteConfirmInvoiceId(record.id);
+                  }}
+                  className="inline-flex items-center justify-center p-0 m-0 bg-transparent border-0 cursor-pointer hover:opacity-75 transition-opacity leading-none"
+                  disabled={isDeletingThis}
+                  title="Delete invoice"
+                >
+                  {isDeletingThis ? (
+                    <LoadingOutlined
+                      id={`invoice-delete-indicator-${record.id}`}
+                      data-cy={`invoice-delete-indicator-${record.id}`}
+                      className="!flex !items-center !justify-center w-5 h-5 min-w-5 min-h-5 shrink-0 text-base text-[#FF4D4F]"
+                      spin
+                    />
+                  ) : (
+                    <DeleteOutlined
+                      id={`invoice-delete-icon-${record.id}`}
+                      data-cy={`invoice-delete-icon-${record.id}`}
+                      className="!flex !items-center !justify-center w-5 h-5 min-w-5 min-h-5 shrink-0 text-base text-[#FF4D4F] leading-none"
+                    />
+                  )}
+                </button>
+              </Popconfirm>
+            )}
           </div>
         );
       },
     },
   ];
 
+  const paginatedData = isControlledPagination
+    ? filteredData
+    : filteredData.slice(
+        (effectiveCurrentPage - 1) * effectivePageSize,
+        effectiveCurrentPage * effectivePageSize,
+      );
+  const controlledTotal =
+    totalItems ??
+    (typeof totalPages === 'number' && totalPages > 0
+      ? totalPages * effectivePageSize
+      : undefined);
+  const paginationTotal = isControlledPagination
+    ? (controlledTotal ?? filteredData.length)
+    : filteredData.length;
+
   return (
     <div id="invoices-table-container" data-cy="invoices-table-container">
+      {!hideFilters && (
+        <div
+          id="invoices-table-filters"
+          data-cy="invoices-table-filters"
+          className="flex flex-col md:flex-row gap-4 mb-6"
+        >
+          <Search
+            id="invoices-table-search"
+            data-cy="invoices-table-search"
+            placeholder="Search by Invoice ID"
+            allowClear
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-full md:w-1/3"
+          />
+
+          <Select
+            id="invoices-table-status-filter"
+            data-cy="invoices-table-status-filter"
+            placeholder="Filter by Status"
+            allowClear
+            options={statusOptions}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            className="w-full md:w-1/4"
+          />
+
+          <RangePicker
+            id="invoices-table-payment-date-range"
+            data-cy="invoices-table-payment-date-range"
+            placeholder={['Start Payment Date', 'End Payment Date']}
+            value={paymentDateRange}
+            onChange={(dates) =>
+              setPaymentDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+            }
+            className="w-full md:w-1/4"
+          />
+
+          <RangePicker
+            id="invoices-table-issue-date-range"
+            data-cy="invoices-table-issue-date-range"
+            placeholder={['Start Issue Date', 'End Issue Date']}
+            value={voiceDateRange}
+            onChange={(dates) =>
+              setVoiceDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
+            }
+            className="w-full md:w-1/4"
+          />
+        </div>
+      )}
+
       <div
-        id="invoices-table-filters"
-        data-cy="invoices-table-filters"
-        className="flex flex-col md:flex-row gap-4 mb-6"
+        id="invoices-table-scroll-boundary"
+        data-cy="invoices-table-scroll-boundary"
+        className={
+          isMobile || isTablet ? 'w-full min-w-0 max-w-full' : undefined
+        }
       >
-        <Search
-          id="invoices-table-search"
-          data-cy="invoices-table-search"
-          placeholder="Search by Invoice ID"
-          allowClear
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-full md:w-1/3"
-        />
-
-        <Select
-          id="invoices-table-status-filter"
-          data-cy="invoices-table-status-filter"
-          placeholder="Filter by Status"
-          allowClear
-          options={statusOptions}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          className="w-full md:w-1/4"
-        />
-
-        <RangePicker
-          id="invoices-table-payment-date-range"
-          data-cy="invoices-table-payment-date-range"
-          placeholder={['Start Payment Date', 'End Payment Date']}
-          value={paymentDateRange}
-          onChange={(dates) =>
-            setPaymentDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-          }
-          className="w-full md:w-1/4"
-        />
-
-        <RangePicker
-          id="invoices-table-issue-date-range"
-          data-cy="invoices-table-issue-date-range"
-          placeholder={['Start Issue Date', 'End Issue Date']}
-          value={voiceDateRange}
-          onChange={(dates) =>
-            setVoiceDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])
-          }
-          className="w-full md:w-1/4"
-        />
+        {loading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            id="invoices-table"
+            data-cy="invoices-table"
+            className={[
+              '[&_.ant-table-tbody_.ant-table-cell]:!text-[#000000]/[0.7]',
+              isMobile || isTablet
+                ? [
+                    '[&_.ant-table-thead_.ant-table-cell]:!whitespace-nowrap',
+                    '[&_.ant-table-tbody_.ant-table-cell]:!whitespace-nowrap',
+                    '[&_.ant-table-wrapper]:!w-full [&_.ant-table-wrapper]:!max-w-full',
+                    '[&_.ant-table]:!w-full [&_.ant-table]:!min-w-0 [&_.ant-table]:!max-w-full',
+                    '[&_.ant-table-container]:!w-full [&_.ant-table-container]:!max-w-full',
+                    '[&_.ant-table-content]:!w-full [&_.ant-table-content]:!max-w-full',
+                  ].join(' ')
+                : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            columns={columns}
+            dataSource={paginatedData}
+            rowKey="id"
+            scroll={{ x: 'max-content' }}
+            onRow={(record) => ({
+              onClick: () => handleRowClick(record.id),
+            })}
+            rowClassName={(record, index) =>
+              `${record.id ? 'cursor-pointer' : 'cursor-pointer'} ${index % 2 === 1 ? '!bg-[#FAFAFA]' : '!bg-white'}`
+            }
+            pagination={false}
+          />
+        )}
       </div>
-
-      <Table
-        id="invoices-table"
-        data-cy="invoices-table"
-        columns={columns}
-        dataSource={filteredData}
-        rowKey="id"
-        scroll={{ x: true }}
-        loading={loading}
-        onRow={(record) => ({
-          onClick: () => handleRowClick(record.id),
-        })}
-        pagination={{
-          total: filteredData.length,
-          current: currentPage,
-          pageSize: pageSize,
-          showSizeChanger: true,
-          showQuickJumper: false,
-          className: 'px-4 py-3 invoice-table',
-          showTotal: (total, range) =>
-            `Showing ${range[0]} to ${range[1]} of ${total} entries`,
-          position: ['bottomLeft', 'bottomRight'],
-          style: {
-            margin: 0,
-            padding: '16px 0',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            width: '100%',
-          },
-          onChange: handlePageChange,
-          onShowSizeChange: handlePageChange,
-          pageSizeOptions: ['5', '10', '20', '50'],
-        }}
-      />
+      {paginationTotal > 0 && (
+        <>
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={paginationTotal}
+              pageSize={effectivePageSize}
+              currentPage={effectiveCurrentPage}
+              onChange={handlePageChange}
+              onShowSizeChange={(page, size) => handlePageChange(page, size)}
+            />
+          ) : (
+            <CustomPagination
+              current={effectiveCurrentPage}
+              total={paginationTotal}
+              pageSize={effectivePageSize}
+              onChange={handlePageChange}
+              onShowSizeChange={(size) => handlePageChange(1, size)}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };

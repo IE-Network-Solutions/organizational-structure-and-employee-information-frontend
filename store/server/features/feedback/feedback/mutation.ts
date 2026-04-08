@@ -94,6 +94,7 @@ export const useCreateFeedback = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('feedback');
       queryClient.invalidateQueries('feedbackTypes');
+      queryClient.invalidateQueries('feedbackTypesByVariant');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -114,7 +115,7 @@ export const useUpdateFeedback = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('feedback');
       queryClient.invalidateQueries('feedbackTypes');
-
+      queryClient.invalidateQueries('feedbackTypesByVariant');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -135,7 +136,7 @@ export const useDeleteFeedback = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('feedback');
       queryClient.invalidateQueries('feedbackTypes');
-
+      queryClient.invalidateQueries('feedbackTypesByVariant');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

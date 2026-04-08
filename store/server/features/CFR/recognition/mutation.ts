@@ -147,6 +147,8 @@ export const useUpdateRecognitionWithCriteria = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
       queryClient.invalidateQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypes');
 
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -160,6 +162,8 @@ export const useUpdateRecognitionType = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
       queryClient.invalidateQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypes');
 
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
@@ -173,6 +177,8 @@ export const useDeleteRecognitionType = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
       queryClient.invalidateQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -185,6 +191,8 @@ export const useAddRecognitionType = () => {
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
       queryClient.invalidateQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

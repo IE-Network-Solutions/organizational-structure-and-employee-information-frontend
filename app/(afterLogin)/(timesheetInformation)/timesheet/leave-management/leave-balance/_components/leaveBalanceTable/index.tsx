@@ -5,6 +5,7 @@ import { UserOutlined } from '@ant-design/icons';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 type NewUserData = {
   key: number;
@@ -153,21 +154,24 @@ const LeaveBalanceTable: React.FC = () => {
         id="time-attendance-leave-balance-table-scroll-wrapper"
         data-cy="time-attendance-leave-balance-table-scroll-wrapper"
       >
-        <Table
-          className="mt-2"
-          id="time-attendance-leave-balance-table"
-          data-cy="time-attendance-leave-balance-table"
-          columns={columns}
-          dataSource={dataSource}
-          loading={leaveBalanceIsLoading}
-          locale={{
-            emptyText: selectedUserId ? undefined : (
-              <h3 data-cy="leave-balance-components-leavebalancetable-index-tsx-index-h3-164">
-                Please Select User
-              </h3>
-            ),
-          }}
-        />
+        {leaveBalanceIsLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            className="mt-2"
+            id="time-attendance-leave-balance-table"
+            data-cy="time-attendance-leave-balance-table"
+            columns={columns}
+            dataSource={dataSource}
+            locale={{
+              emptyText: selectedUserId ? undefined : (
+                <h3 data-cy="leave-balance-components-leavebalancetable-index-tsx-index-h3-164">
+                  Please Select User
+                </h3>
+              ),
+            }}
+          />
+        )}
       </div>
     </>
   );

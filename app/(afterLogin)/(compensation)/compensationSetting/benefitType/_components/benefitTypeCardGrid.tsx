@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, Dropdown, Popover, Spin } from 'antd';
+import { Card, Dropdown, Popover } from 'antd';
 import type { MenuProps } from 'antd';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -15,6 +15,9 @@ import {
 } from '@/store/server/features/compensation/settings/mutations';
 import { useCompensationSettingStore } from '@/store/uistate/features/compensation/settings';
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons';
+import { PayPeriodCardSkeleton } from '@/components/common/PayPeriodCardSkeleton';
+
+const BENEFIT_TYPE_SKELETON_COUNT = 6;
 
 const pillStyle: React.CSSProperties = {
   display: 'inline-flex',
@@ -116,16 +119,30 @@ const BenefitTypeCardGrid = () => {
       id="compensation-settings-benefit-type-card-grid-container"
       data-cy="compensation-settings-benefit-type-card-grid-container"
     >
-      <Spin
-        spinning={isLoading}
-        data-testid="benefit-type-card-grid-loading"
-        data-cy="compensation-settings-benefit-type-card-grid-loading"
+      <div
+        className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        data-cy="compensation-settings-benefit-type-card-grid"
       >
-        <div
-          className="mt-0 grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          data-cy="compensation-settings-benefit-type-card-grid"
-        >
-          {tableData.map((record: any) => {
+        {isLoading ? (
+          <div
+            className="contents"
+            data-testid="benefit-type-card-grid-loading"
+            data-cy="compensation-settings-benefit-type-card-grid-loading"
+            aria-busy="true"
+          >
+            {Array.from(
+              { length: BENEFIT_TYPE_SKELETON_COUNT },
+              (element: unknown, skeletonIndex: number) => (
+                <PayPeriodCardSkeleton
+                  key={`compensation-settings-benefit-type-card-sk-${skeletonIndex}`}
+                  index={skeletonIndex}
+                  dataCyPrefix="compensation-settings-benefit-type-card-skeleton"
+                />
+              ),
+            )}
+          </div>
+        ) : (
+          tableData.map((record: any) => {
             const menuItems: MenuProps['items'] = [
               {
                 key: 'edit',
@@ -353,11 +370,11 @@ const BenefitTypeCardGrid = () => {
                 </div>
               </Card>
             );
-          })}
-        </div>
+          })
+        )}
+      </div>
 
-        {/* Delete confirmation now renders as an anchored Popover on the kebab button */}
-      </Spin>
+      {/* Delete confirmation now renders as an anchored Popover on the kebab button */}
     </div>
   );
 };

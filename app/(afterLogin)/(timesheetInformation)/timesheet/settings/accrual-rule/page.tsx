@@ -44,7 +44,7 @@ const Page = () => {
           {tableData().map((item) => (
             <Card
               key={item.key}
-              className="rounded-lg border border-gray-200 !shadow-none"
+              className="rounded-xl border border-gray-200 !shadow-none"
               bodyStyle={{ padding: 12 }}
               id={`time-attendance-settings-accrual-rule-card-${item.key}`}
               data-cy={`time-attendance-settings-accrual-rule-card-${item.key}`}
