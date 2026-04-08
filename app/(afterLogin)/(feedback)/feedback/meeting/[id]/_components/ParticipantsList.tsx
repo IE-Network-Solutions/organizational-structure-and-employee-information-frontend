@@ -6,6 +6,7 @@ import {
   Button,
   Tooltip,
   Spin,
+  Skeleton,
   Form,
   Checkbox,
   Input,
@@ -850,10 +851,13 @@ export default function ParticipantsList({
           </div>
           {loading || getAttendeesLoading ? (
             <div
-              className="flex justify-center py-2"
+              className="flex min-h-[28px] w-full items-center gap-2 py-1"
               data-cy="feedback-meeting-participants-panel-loading"
             >
-              <Spin />
+              <Skeleton.Avatar active size={28} />
+              <Skeleton.Avatar active size={28} />
+              <Skeleton.Avatar active size={28} />
+              <Skeleton.Input active size="small" style={{ width: 56, height: 14 }} />
             </div>
           ) : (
             <div
@@ -990,11 +994,16 @@ export default function ParticipantsList({
 
       {loading || getAttendeesLoading ? (
         <div
-          className="flex justify-center"
+          className="flex w-full flex-col gap-3 py-2"
           data-cy="feedback-meeting-components-participantslist-div-loading"
           id="feedback-meeting-components-participantslist-div-loading"
         >
-          <Spin data-cy="feedback-meeting-components-participantslist-spin-loading" />
+          <Skeleton
+            active
+            title={false}
+            paragraph={{ rows: 4 }}
+            data-cy="feedback-meeting-components-participantslist-skeleton-loading"
+          />
         </div>
       ) : (
         attendeeItems.map((p: any, i: number) =>

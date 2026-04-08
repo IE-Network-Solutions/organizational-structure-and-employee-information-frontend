@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Card, Spin } from 'antd';
+import { Card } from 'antd';
+import MeetingPanelBlockSkeleton from '../../_component/meetingPanelBlockSkeleton';
 
 type MeetingObjectivesProps = {
   objective?: string | null;
@@ -28,15 +29,7 @@ export default function MeetingObjectives({
     let panelBody: ReactNode;
     if (loading) {
       panelBody = (
-        <div
-          className="flex min-h-0 flex-1 items-center justify-center"
-          data-cy="feedback-meeting-objectives-panel-loading"
-        >
-          <Spin
-            size="small"
-            data-cy="feedback-meeting-components-meetingobjectives-spin"
-          />
-        </div>
+        <MeetingPanelBlockSkeleton data-cy="feedback-meeting-objectives-panel-loading" />
       );
     } else if (!hasContent) {
       panelBody = (

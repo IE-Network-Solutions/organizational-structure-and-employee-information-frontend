@@ -1,6 +1,7 @@
 // components/MeetingDetail/MeetingAgenda.tsx
 import type { ReactNode } from 'react';
-import { Button, Popconfirm, Spin } from 'antd';
+import { Button, Popconfirm, Skeleton } from 'antd';
+import MeetingPanelBlockSkeleton from '../../_component/meetingPanelBlockSkeleton';
 import { FaPlus } from 'react-icons/fa';
 import { CloseOutlined } from '@ant-design/icons';
 import { MdOutlineEdit } from 'react-icons/md';
@@ -120,11 +121,16 @@ export default function MeetingAgenda({
 
   const listSection = isLoading ? (
     <div
-      className="flex justify-center"
+      className="w-full px-1 py-2"
       data-cy="feedback-meeting-components-meetingagenda-div-loading"
       id="feedback-meeting-components-meetingagenda-div-loading"
     >
-      <Spin data-cy="feedback-meeting-components-meetingagenda-spin" />
+      <Skeleton
+        active
+        title={false}
+        paragraph={{ rows: 3 }}
+        data-cy="feedback-meeting-components-meetingagenda-skeleton"
+      />
     </div>
   ) : (
     <div
@@ -166,15 +172,7 @@ export default function MeetingAgenda({
     let panelBody: ReactNode;
     if (isLoading) {
       panelBody = (
-        <div
-          className="flex min-h-0 flex-1 items-center justify-center"
-          data-cy="feedback-meeting-agenda-panel-loading"
-        >
-          <Spin
-            size="small"
-            data-cy="feedback-meeting-components-meetingagenda-spin"
-          />
-        </div>
+        <MeetingPanelBlockSkeleton data-cy="feedback-meeting-agenda-panel-loading" />
       );
     } else if (!hasAgendaItems) {
       panelBody = (

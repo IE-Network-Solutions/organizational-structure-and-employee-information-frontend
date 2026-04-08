@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from 'antd';
+import { Card, Skeleton } from 'antd';
 import Link from 'next/link';
 import { MdOutlineEdit, MdOutlineFileDownload } from 'react-icons/md';
 import { usePDF } from '@react-pdf/renderer';
@@ -50,58 +50,79 @@ export default function MeetingPanelHeader({
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      loading={loading}
+      loading={false}
       className="!my-0 border-none shadow-none"
       data-cy="feedback-meeting-panel-header-card"
     >
-      <div
-        className="flex flex-row items-start justify-between gap-3"
-        data-cy="feedback-meeting-panel-header-row"
-      >
+      {loading ? (
         <div
-          className="min-w-0 flex-1"
-          data-cy="feedback-meeting-panel-header-title-col"
+          className="flex flex-row items-start justify-between gap-3"
+          data-cy="feedback-meeting-panel-header-skeleton"
         >
-          <Link
-            href="/feedback/meeting"
-            className="inline-block min-w-0 hover:opacity-80"
-            data-cy="feedback-meeting-panel-header-link-back"
+          <Skeleton
+            active
+            title={{ style: { marginTop: 0, height: 28, width: 280 } }}
+            paragraph={false}
+            className="min-w-0 flex-1"
+          />
+          <div
+            className="flex shrink-0 items-center gap-2"
+            data-cy="feedback-meeting-panel-header-skeleton-actions"
           >
-            <span
-              className="break-words text-[20px] font-bold leading-snug text-black/70"
-              data-cy="feedback-meeting-panel-header-title"
-            >
-              {meetingTitle || '\u00a0'}
-            </span>
-          </Link>
+            <Skeleton.Button active size="default" shape="square" />
+            <Skeleton.Button active size="default" shape="square" />
+          </div>
         </div>
+      ) : (
         <div
-          className="flex items-center gap-2 shrink-0"
-          data-cy="feedback-meeting-panel-header-actions"
+          className="flex flex-row items-start justify-between gap-3"
+          data-cy="feedback-meeting-panel-header-row"
         >
-          {canEdit && onEditDetails ? (
+          <div
+            className="min-w-0 flex-1"
+            data-cy="feedback-meeting-panel-header-title-col"
+          >
+            <Link
+              href="/feedback/meeting"
+              className="inline-block min-w-0 hover:opacity-80"
+              data-cy="feedback-meeting-panel-header-link-back"
+            >
+              <span
+                className="break-words text-[20px] font-bold leading-snug text-black/70"
+                data-cy="feedback-meeting-panel-header-title"
+              >
+                {meetingTitle || '\u00a0'}
+              </span>
+            </Link>
+          </div>
+          <div
+            className="flex items-center gap-2 shrink-0"
+            data-cy="feedback-meeting-panel-header-actions"
+          >
+            {canEdit && onEditDetails ? (
+              <button
+                type="button"
+                onClick={onEditDetails}
+                className="box-border flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white p-0 text-[#2D3748] outline-none transition-colors hover:border-[#BFBFBF] hover:bg-[#FAFAFA] focus-visible:ring-2 focus-visible:ring-[#1677FF]/25"
+                data-cy="feedback-meeting-panel-header-button-edit"
+                aria-label="Edit meeting details"
+              >
+                <MdOutlineEdit className="text-[14px]" aria-hidden />
+              </button>
+            ) : null}
             <button
               type="button"
-              onClick={onEditDetails}
-              className="box-border flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white p-0 text-[#2D3748] outline-none transition-colors hover:border-[#BFBFBF] hover:bg-[#FAFAFA] focus-visible:ring-2 focus-visible:ring-[#1677FF]/25"
-              data-cy="feedback-meeting-panel-header-button-edit"
-              aria-label="Edit meeting details"
+              onClick={handleDownload}
+              disabled={instance.loading || !meetingData}
+              className="box-border flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white p-0 text-[#2D3748] outline-none transition-colors hover:border-[#BFBFBF] hover:bg-[#FAFAFA] focus-visible:ring-2 focus-visible:ring-[#1677FF]/25 disabled:cursor-not-allowed disabled:opacity-50"
+              data-cy="feedback-meeting-panel-header-button-mom"
+              aria-label="Download meeting minutes"
             >
-              <MdOutlineEdit className="text-[14px]" aria-hidden />
+              <MdOutlineFileDownload className="text-[14px]" aria-hidden />
             </button>
-          ) : null}
-          <button
-            type="button"
-            onClick={handleDownload}
-            disabled={instance.loading || !meetingData}
-            className="box-border flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white p-0 text-[#2D3748] outline-none transition-colors hover:border-[#BFBFBF] hover:bg-[#FAFAFA] focus-visible:ring-2 focus-visible:ring-[#1677FF]/25 disabled:cursor-not-allowed disabled:opacity-50"
-            data-cy="feedback-meeting-panel-header-button-mom"
-            aria-label="Download meeting minutes"
-          >
-            <MdOutlineFileDownload className="text-[14px]" aria-hidden />
-          </button>
+          </div>
         </div>
-      </div>
+      )}
     </Card>
   );
 }

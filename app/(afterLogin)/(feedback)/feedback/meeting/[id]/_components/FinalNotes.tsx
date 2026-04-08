@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Button, Card, Form, Input, Spin } from 'antd';
+import { Button, Card, Form, Input } from 'antd';
+import MeetingPanelBlockSkeleton from '../../_component/meetingPanelBlockSkeleton';
 import { useUpdateMeeting } from '@/store/server/features/CFR/meeting/mutations';
 
 interface FinalNotesProps {
@@ -117,15 +118,7 @@ export default function FinalNotes({
     let panelBody: ReactNode;
     if (loading) {
       panelBody = (
-        <div
-          className="flex min-h-0 flex-1 items-center justify-center"
-          data-cy="feedback-meeting-finalnotes-panel-loading"
-        >
-          <Spin
-            size="small"
-            data-cy="feedback-meeting-components-finalnotes-spin"
-          />
-        </div>
+        <MeetingPanelBlockSkeleton data-cy="feedback-meeting-finalnotes-panel-loading" />
       );
     } else if (editing) {
       panelBody = editFormBlock;

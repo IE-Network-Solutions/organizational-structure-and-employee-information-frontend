@@ -152,9 +152,9 @@ const TabLandingLayout: React.FC<TabLandingLayoutProps> = ({
         <div
           data-cy="organizational-structure-and-employee-information-frontend-components-tablanding-index-tsx-index-div-120"
           className={classNames(
-            'w-full h-auto border-t border-gray-100 pt-6',
-            // Match Nav inner horizontal inset (8 / 24) so body aligns with rest of the app
-            flushHorizontal && 'px-2 md:px-6',
+            'w-full h-auto border-t border-gray-100',
+            // Flush body: no extra inset so split layout (e.g. Meetings) uses full width; header row keeps px-2/md:px-6 above.
+            flushHorizontal ? 'pt-0 px-0' : 'pt-6',
           )}
         >
           {children}

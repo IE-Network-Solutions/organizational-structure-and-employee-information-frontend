@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Button, Card, Spin } from 'antd';
+import { Button, Card } from 'antd';
+import MeetingPanelBlockSkeleton from '../../_component/meetingPanelBlockSkeleton';
 import ActionPlanCard from './ActionPlanCard';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import AddActionPlanModal from './AddActionPlan';
@@ -46,15 +47,7 @@ export default function ActionPlan({
     let panelBody: ReactNode;
     if (showLoading) {
       panelBody = (
-        <div
-          className="flex min-h-0 flex-1 items-center justify-center"
-          data-cy="feedback-meeting-actionplan-panel-loading"
-        >
-          <Spin
-            size="small"
-            data-cy="feedback-meeting-components-actionplan-spin"
-          />
-        </div>
+        <MeetingPanelBlockSkeleton data-cy="feedback-meeting-actionplan-panel-loading" />
       );
     } else if (!hasItems) {
       panelBody = (

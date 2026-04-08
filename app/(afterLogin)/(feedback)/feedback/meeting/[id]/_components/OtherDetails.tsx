@@ -1,5 +1,5 @@
 import { EnvironmentOutlined, UserOutlined } from '@ant-design/icons';
-import { Card, TimePicker, Input, Button, Form, Avatar } from 'antd';
+import { Card, TimePicker, Input, Button, Form, Avatar, Skeleton } from 'antd';
 import dayjs from 'dayjs';
 import { GoClock } from 'react-icons/go';
 import { IoIosLink } from 'react-icons/io';
@@ -170,21 +170,57 @@ export default function OtherDetails({
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      loading={loading}
+      loading={false}
       className={`border-none shadow-none ${variant === 'panelSummary' ? '!p-0' : 'p-4 space-y-3'}`}
       data-cy="feedback-meeting-components-otherdetails-card"
       id="feedback-meeting-components-otherdetails-card"
     >
-      {variant === 'default' ? (
-        <h2
-          className="text-lg font-bold"
-          data-cy="feedback-meeting-components-otherdetails-heading"
-          id="feedback-meeting-components-otherdetails-heading"
-        >
-          Other Details
-        </h2>
-      ) : null}
-      <Form
+      {loading ? (
+        variant === 'panelSummary' ? (
+          <div
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+            data-cy="feedback-meeting-otherdetails-panel-loading-skeleton"
+          >
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton
+                key={i}
+                active
+                paragraph={{ rows: 2 }}
+                title={false}
+                className="rounded-lg"
+              />
+            ))}
+          </div>
+        ) : (
+          <>
+            <h2
+              className="text-lg font-bold"
+              data-cy="feedback-meeting-components-otherdetails-heading"
+              id="feedback-meeting-components-otherdetails-heading"
+            >
+              Other Details
+            </h2>
+            <Skeleton
+              active
+              title={false}
+              paragraph={{ rows: 8 }}
+              className="mt-2"
+              data-cy="feedback-meeting-otherdetails-default-loading-skeleton"
+            />
+          </>
+        )
+      ) : (
+        <>
+          {variant === 'default' ? (
+            <h2
+              className="text-lg font-bold"
+              data-cy="feedback-meeting-components-otherdetails-heading"
+              id="feedback-meeting-components-otherdetails-heading"
+            >
+              Other Details
+            </h2>
+          ) : null}
+          <Form
         form={form}
         layout="vertical"
         className="meeting-form-field-spacing"
@@ -541,6 +577,8 @@ export default function OtherDetails({
           </div>
         )}
       </Form>
+        </>
+      )}
     </Card>
   );
 }
