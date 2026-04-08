@@ -6,6 +6,7 @@ import EmployeeSearch from './_components/userSearch';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { SearchOutlined } from '@ant-design/icons';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 import {
   Button,
@@ -13,8 +14,6 @@ import {
   Input,
   Tag,
   Tooltip,
-  Breadcrumb,
-  Divider,
   Typography,
   Dropdown,
 } from 'antd';
@@ -184,181 +183,159 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div id="manage-employees-page" data-cy="manage-employees-page">
-      <style data-cy="manage-employees-page-styles">{`
-     .full-bleed-header-divider {
-          width: calc(100% + 48px) !important;
-          margin-left: -24px !important;
-          margin-right: -24px !important;
-          min-width: calc(100% + 48px) !important;
-        }
-        @media (max-width: 768px) {
-          .full-bleed-header-divider {
-            width: calc(100% + 48px) !important;
-            margin-left: -24px !important;
-            margin-right: -24px !important;
-          }
-        }
-      `}</style>
       <div
         className="flex flex-wrap justify-between items-center pt-4"
         id="manage-employees-header"
         data-cy="manage-employees-header"
       >
-        <div data-cy="manage-employees-header-title">
-          <Typography.Title className="text-xl font-bold text-black">
-            Employee Management
-          </Typography.Title>
-          <Breadcrumb
-            items={[
-              {
-                title: (
-                  <span
-                    className="text-xs sm:text-sm"
-                    data-cy="manage-employees-breadcrumb-employee"
-                  >
-                    Employee
-                  </span>
-                ),
-              },
-              {
-                title: (
-                  <span
-                    className="text-xs sm:text-sm text-[#4d4d4d]"
-                    data-cy="manage-employees-breadcrumb-employee-management"
-                  >
-                    Employee Management
-                  </span>
-                ),
-              },
-            ]}
-          />
-        </div>
-
-        <div
-          className="flex flex-wrap justify-start items-center my-2 gap-3"
-          id="manage-employees-actions"
-          data-cy="manage-employees-actions"
-        >
-          <AccessGuard
-            permissions={[Permissions.DownloadEmployeeDocument]}
-            id="manage-employees-download-guard"
-            data-cy="manage-employees-download-guard"
-          >
-            <Popover
-              placement="bottom"
-              trigger="click"
-              id="manage-employees-download-popover"
-              data-cy="manage-employees-download-popover"
-              content={
-                <div
-                  className="flex flex-col items-center gap-4 min-w-[220px] p-2"
-                  id="manage-employees-download-content"
-                  data-cy="manage-employees-download-content"
-                >
-                  <div
-                    className="font-medium text-gray-700 mb-1"
-                    id="manage-employees-download-title"
-                    data-cy="manage-employees-download-title"
-                  >
-                    What file you want to export?
-                  </div>
-                  <div
-                    className="flex gap-2 w-full"
-                    id="manage-employees-download-buttons"
-                    data-cy="manage-employees-download-buttons"
-                  >
-                    <Button
-                      type="primary"
-                      className="flex-1 !border-[#7C3AED] !text-white"
-                      icon={<CiBookmark size={18} />}
-                      onClick={() => {
-                        handleDownloadUserData('excel');
-                      }}
-                      id="manage-employees-download-excel-btn"
-                      data-cy="manage-employees-download-excel-btn"
-                    >
-                      Excel
-                    </Button>
-                    <Button
-                      type="primary"
-                      className="flex-1 !border-[#7C3AED] !text-white"
-                      icon={<TbLayoutList size={18} />}
-                      onClick={() => {
-                        handleDownloadUserData('pdf');
-                      }}
-                      id="manage-employees-download-pdf-btn"
-                      data-cy="manage-employees-download-pdf-btn"
-                    >
-                      PDF
-                    </Button>
-                  </div>
-                </div>
-              }
-            >
-              <Button
-                type="default"
-                id="downloadUserButton"
-                data-cy="manage-employees-download-trigger-btn"
-                className="h-10 w-10 sm:w-auto border border-[#D9D9D9]"
-                icon={<SaveAltIcon fontSize="small" />}
+        <CustomBreadcrumb
+          title={
+            <Typography.Title className="text-xl font-bold text-black !mb-0">
+              Employee Management
+            </Typography.Title>
+          }
+          subtitle={
+            <>
+              <span
+                className="text-xs sm:text-sm"
+                data-cy="manage-employees-breadcrumb-employee"
               >
-                <span
-                  className="hidden sm:inline text-[#4d4d4d] text-base font-normal"
-                  id="manage-employees-download-btn-text"
-                  data-cy="manage-employees-download-btn-text"
-                >
-                  Export
-                </span>
-              </Button>
-            </Popover>
-          </AccessGuard>
-          <AccessGuard
-            permissions={[Permissions.RegisterNewEmployee]}
-            id="manage-employees-create-guard"
-            data-cy="manage-employees-create-guard"
-          >
-            <Tooltip
-              title={
-                isAvailableSlots
-                  ? null
-                  : 'User limit reached. Purchase additional slots or contact support.'
-              }
-              id="manage-employees-create-tooltip"
-              data-cy="manage-employees-create-tooltip"
-            >
-              <Button
-                type="primary"
-                size="large"
-                id="createUserButton"
-                data-cy="manage-employees-create-btn"
-                className="h-10 w-10 sm:w-auto"
-                icon={
-                  <PersonAddOutlinedIcon
-                    id="manage-employees-create-icon"
-                    data-cy="manage-employees-create-icon"
-                  />
-                }
-                onClick={showDrawer}
-                loading={isLoading || subscriptionLoading}
-                disabled={!isAvailableSlots}
+                Employee
+              </span>
+              <span data-cy="manage-employees-breadcrumb-separator"> / </span>
+              <span
+                className="text-xs sm:text-sm text-[#4d4d4d]"
+                data-cy="manage-employees-breadcrumb-employee-management"
               >
-                <span
-                  className="hidden sm:inline font-normal"
-                  id="manage-employees-create-btn-text"
-                  data-cy="manage-employees-create-btn-text"
+                Employee Management
+              </span>
+            </>
+          }
+          titleExtra={
+            <div
+              className="flex flex-wrap justify-start items-center my-2 gap-3"
+              id="manage-employees-actions"
+              data-cy="manage-employees-actions"
+            >
+              <AccessGuard
+                permissions={[Permissions.DownloadEmployeeDocument]}
+                id="manage-employees-download-guard"
+                data-cy="manage-employees-download-guard"
+              >
+                <Popover
+                  placement="bottom"
+                  trigger="click"
+                  id="manage-employees-download-popover"
+                  data-cy="manage-employees-download-popover"
+                  content={
+                    <div
+                      className="flex flex-col items-center gap-4 min-w-[220px] p-2"
+                      id="manage-employees-download-content"
+                      data-cy="manage-employees-download-content"
+                    >
+                      <div
+                        className="font-medium text-gray-700 mb-1"
+                        id="manage-employees-download-title"
+                        data-cy="manage-employees-download-title"
+                      >
+                        What file you want to export?
+                      </div>
+                      <div
+                        className="flex gap-2 w-full"
+                        id="manage-employees-download-buttons"
+                        data-cy="manage-employees-download-buttons"
+                      >
+                        <Button
+                          type="primary"
+                          className="flex-1 !border-[#7C3AED] !text-white"
+                          icon={<CiBookmark size={18} />}
+                          onClick={() => {
+                            handleDownloadUserData('excel');
+                          }}
+                          id="manage-employees-download-excel-btn"
+                          data-cy="manage-employees-download-excel-btn"
+                        >
+                          Excel
+                        </Button>
+                        <Button
+                          type="primary"
+                          className="flex-1 !border-[#7C3AED] !text-white"
+                          icon={<TbLayoutList size={18} />}
+                          onClick={() => {
+                            handleDownloadUserData('pdf');
+                          }}
+                          id="manage-employees-download-pdf-btn"
+                          data-cy="manage-employees-download-pdf-btn"
+                        >
+                          PDF
+                        </Button>
+                      </div>
+                    </div>
+                  }
                 >
-                  Add Employee
-                </span>
-              </Button>
-            </Tooltip>
-          </AccessGuard>
-          <AddEmployeeModal onClose={onClose} />
-        </div>
+                  <Button
+                    type="default"
+                    id="downloadUserButton"
+                    data-cy="manage-employees-download-trigger-btn"
+                    className="h-10 w-10 sm:w-auto border border-[#D9D9D9]"
+                    icon={<SaveAltIcon fontSize="small" />}
+                  >
+                    <span
+                      className="hidden sm:inline text-[#4d4d4d] text-base font-normal"
+                      id="manage-employees-download-btn-text"
+                      data-cy="manage-employees-download-btn-text"
+                    >
+                      Export
+                    </span>
+                  </Button>
+                </Popover>
+              </AccessGuard>
+              <AccessGuard
+                permissions={[Permissions.RegisterNewEmployee]}
+                id="manage-employees-create-guard"
+                data-cy="manage-employees-create-guard"
+              >
+                <Tooltip
+                  title={
+                    isAvailableSlots
+                      ? null
+                      : 'User limit reached. Purchase additional slots or contact support.'
+                  }
+                  id="manage-employees-create-tooltip"
+                  data-cy="manage-employees-create-tooltip"
+                >
+                  <Button
+                    type="primary"
+                    size="large"
+                    id="createUserButton"
+                    data-cy="manage-employees-create-btn"
+                    className="h-10 w-10 sm:w-auto"
+                    icon={
+                      <PersonAddOutlinedIcon
+                        id="manage-employees-create-icon"
+                        data-cy="manage-employees-create-icon"
+                      />
+                    }
+                    onClick={showDrawer}
+                    loading={isLoading || subscriptionLoading}
+                    disabled={!isAvailableSlots}
+                  >
+                    <span
+                      className="hidden sm:inline font-normal"
+                      id="manage-employees-create-btn-text"
+                      data-cy="manage-employees-create-btn-text"
+                    >
+                      Add Employee
+                    </span>
+                  </Button>
+                </Tooltip>
+              </AccessGuard>
+              <AddEmployeeModal onClose={onClose} />
+            </div>
+          }
+          data-cy="manage-employees-breadcrumb"
+        />
       </div>
-      <Divider
-        className="full-bleed-header-divider"
-        style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
-      />
       <div className="mb-6 " data-cy="manage-employees-stats-section">
         <div
           className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-4"
@@ -369,7 +346,14 @@ const ManageEmployees: React.FC<any> = () => {
             data-cy="stats-total-employees-wrapper"
           >
             <StatsCard
-              icon={<GroupsIcon />}
+              icon={
+                <span
+                  className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center"
+                  data-cy="stats-total-employees-icon-wrap"
+                >
+                  <GroupsIcon className="text-orangebg" fontSize="small" />
+                </span>
+              }
               title="Total Employees"
               value={EmployeeStatus?.totalEmployees?.value || 0}
               change={EmployeeStatus?.totalEmployees?.changeSinceLastMonth || 0}
@@ -382,7 +366,14 @@ const ManageEmployees: React.FC<any> = () => {
             data-cy="stats-new-hires-wrapper"
           >
             <StatsCard
-              icon={<GroupAddIcon />}
+              icon={
+                <span
+                  className="w-8 h-8 rounded-sm bg-[#F6FFED] flex items-center justify-center"
+                  data-cy="stats-new-hires-icon-wrap"
+                >
+                  <GroupAddIcon className="text-greenbg" fontSize="small" />
+                </span>
+              }
               title="New Hires This Month"
               value={EmployeeStatus?.newHires?.value || 0}
               change={EmployeeStatus?.newHires?.changeSinceLastMonth || 0}
@@ -395,7 +386,14 @@ const ManageEmployees: React.FC<any> = () => {
             data-cy="stats-active-departments-wrapper"
           >
             <StatsCard
-              icon={<BusinessIcon />}
+              icon={
+                <span
+                  className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center"
+                  data-cy="stats-active-departments-icon-wrap"
+                >
+                  <BusinessIcon className="text-blue" fontSize="small" />
+                </span>
+              }
               title="Active Departments"
               value={EmployeeStatus?.activeDepartments?.value || 0}
               change={
@@ -410,7 +408,14 @@ const ManageEmployees: React.FC<any> = () => {
             data-cy="stats-active-accounts-wrapper"
           >
             <StatsCard
-              icon={<HowToRegIcon />}
+              icon={
+                <span
+                  className="w-8 h-8 rounded-sm bg-[#F6FFED] flex items-center justify-center"
+                  data-cy="stats-active-accounts-icon-wrap"
+                >
+                  <HowToRegIcon className="text-greenbg" fontSize="small" />
+                </span>
+              }
               title="Active Accounts"
               value={100}
               change={3}

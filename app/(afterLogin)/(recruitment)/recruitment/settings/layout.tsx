@@ -92,7 +92,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         </div>
 
         <div
-          className="mb-4 min-h-0 px-3 sm:px-8"
+          className="mb-4 min-h-0"
           id="talent-acquisition-settings-tabs"
           data-cy="talent-acquisition-settings-tabs"
         >
@@ -108,7 +108,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
                 className="flex gap-0 border-b-0 w-max min-h-full"
                 data-cy="talent-acquisition-settings-tabs-inner"
               >
-                {TABS.map((tab) => {
+                {TABS.map((tab, index) => {
                   const active = isTabActive(tab.path);
                   return (
                     <button
@@ -116,7 +116,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
                       type="button"
                       onClick={() => router.push(tab.path)}
                       data-cy={`talent-acquisition-settings-tab-${tab.key}`}
-                      className={`px-4 py-3 text-base border-b-2 -mb-px flex-shrink-0 whitespace-nowrap transition-colors ${
+                      className={`${index === 0 ? 'pl-0 pr-4' : 'px-4'} py-3 text-base border-b-2 -mb-px flex-shrink-0 whitespace-nowrap transition-colors ${
                         active
                           ? 'font-bold text-[#1E40AF] border-[#1E40AF]'
                           : 'font-normal text-black/70 border-transparent hover:text-black/80'
@@ -164,7 +164,7 @@ const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {
         <div
           id="talent-acquisition-settings-layout-content-wrapper"
           data-cy="talent-acquisition-settings-layout-content-wrapper"
-          className="flex-1 px-3"
+          className="flex-1"
         >
           <BlockWrapper
             padding="0px"

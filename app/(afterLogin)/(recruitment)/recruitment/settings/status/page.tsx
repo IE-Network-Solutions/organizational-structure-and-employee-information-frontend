@@ -495,7 +495,7 @@ const Status: React.FC = () => {
   if (fetchLoading) {
     return (
       <div
-        className="py-3 sm:p-5 rounded-2xl bg-white h-full"
+        className="py-3 sm:py-5 rounded-2xl bg-white h-full"
         data-cy="talent-acquisition-status-page-container"
       >
         <SkeletonLoading
@@ -510,7 +510,7 @@ const Status: React.FC = () => {
 
   return (
     <div
-      className="py-3 sm:p-5 rounded-2xl bg-white h-full"
+      className="py-3 sm:py-5 rounded-2xl bg-white h-full"
       data-cy="talent-acquisition-status-page-container"
     >
       <div
