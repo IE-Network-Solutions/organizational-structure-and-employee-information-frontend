@@ -453,7 +453,6 @@ const ApprovalTable = () => {
       ? approvalMetaTotalPages
       : Math.ceil((totalItems || 0) / safeApprovalPageSize),
   );
-  const approvalWrapPaginationManyPages = approvalResolvedTotalPages > 3;
 
   const onAllApproveRequest = () => {
     const body: AllLeaveRequestApproveData = {
