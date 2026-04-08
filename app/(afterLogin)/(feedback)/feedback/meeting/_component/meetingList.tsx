@@ -1,7 +1,7 @@
 'use client'; // if using Next.js 13+ App Router
 // components/MeetingList.tsx
 import React, { useEffect } from 'react';
-import { Avatar, Tooltip, Spin, Timeline, Tag, ConfigProvider } from 'antd';
+import { Avatar, Tooltip, Timeline, Tag, ConfigProvider } from 'antd';
 import { UserOutlined, LoadingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useGetMeetings } from '@/store/server/features/CFR/meeting/queries';
@@ -23,6 +23,10 @@ const meetingTimelineTheme = {
     },
   },
 };
+
+const timelineLoadingRows = Array.from({ length: 4 }, (unusedValue, rowIndex) => rowIndex);
+
+const getMeetingTimelineDate = (meeting: any) => meeting?.startAt ?? meeting?.createdAt;
 
 interface MeetingListProps {
   selectedMeetingId?: string;
@@ -105,8 +109,20 @@ const MeetingList = ({
     );
   };
 
+  const sortedMeetings = [...(meetings?.items ?? [])].sort((a: any, b: any) => {
+    const now = dayjs();
+    const aDate = dayjs(getMeetingTimelineDate(a));
+    const bDate = dayjs(getMeetingTimelineDate(b));
+    const aIsUpcoming = aDate.isAfter(now) || aDate.isSame(now);
+    const bIsUpcoming = bDate.isAfter(now) || bDate.isSame(now);
+
+    // Upcoming first (nearest first), then past (most recent first)
+    if (aIsUpcoming !== bIsUpcoming) return aIsUpcoming ? -1 : 1;
+    return aIsUpcoming ? aDate.valueOf() - bDate.valueOf() : bDate.valueOf() - aDate.valueOf();
+  });
+
   const timelineItems =
-    meetings?.items?.map((meeting: any) => ({
+    sortedMeetings.map((meeting: any) => ({
       style: { height: '76px', paddingBottom: 0 },
       dot: (
         <div
@@ -117,7 +133,7 @@ const MeetingList = ({
             className="min-w-0 flex-1 whitespace-nowrap text-left text-[14px] font-medium leading-none text-black/70 tabular-nums"
             data-cy="feedback-meeting-meetinglist-timeline-date"
           >
-            {dayjs(meeting.createdAt).format('YYYY-M-D')}
+            {dayjs(getMeetingTimelineDate(meeting)).format('YYYY-M-D')}
           </div>
           <div
             className="size-[10px] shrink-0 rounded-full border-[2px] border-[#1E40AF] bg-white"
@@ -131,7 +147,7 @@ const MeetingList = ({
           passHref
           key={meeting.id}
           scroll={false}
-          className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 transition-all ${
+          className={`box-border block min-w-0 max-w-full hover:no-underline group w-full rounded-xl border border-solid px-4 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.08)] transition-all ${
             selectedMeetingId === meeting.id
               ? 'border-[#1E40AF] bg-transparent'
               : 'border-[#D9D9D9] hover:border-[#1E40AF] hover:bg-[#F2F7FF]'
@@ -206,12 +222,12 @@ const MeetingList = ({
               className="!m-0 !inline-flex !h-[22px] !min-h-[22px] !w-[60px] !min-w-[60px] shrink-0 !items-center !justify-center !whitespace-nowrap !border !border-solid !border-[#D9D9D9] !bg-[rgba(0,0,0,0.02)] !px-1 !py-0 !text-[12px] !font-normal !leading-none !text-black/70"
               data-cy="feedback-meeting-component-meetinglist-time-tag"
             >
-              {dayjs(meeting.createdAt).format('h:mmA')}
+              {dayjs(getMeetingTimelineDate(meeting)).format('h:mmA')}
             </Tag>
           </div>
         </Link>
       ),
-    })) ?? [];
+    }));
 
   const timelineClassName = `${styles.meetingTimeline} custom-meeting-timeline ${hideFilters ? 'mt-0' : 'mt-2'}`;
 
@@ -235,14 +251,25 @@ const MeetingList = ({
       >
         {meetingLoading ? (
           <div
-            className="flex min-h-[200px] flex-1 items-center justify-center xl:min-h-0"
+            className="flex min-h-[200px] flex-1 flex-col gap-2 xl:min-h-0"
             data-cy="feedback-meeting-meetinglist-loading-wrap"
           >
-            <Spin
-              spinning={true}
-              tip="Loading..."
-              data-cy="feedback-meeting-component-meetinglist-spin"
-            />
+            {timelineLoadingRows.map((loadingRow, index) => (
+              <div
+                key={`meeting-loading-row-${loadingRow}`}
+                className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.08)]"
+                data-cy={`feedback-meeting-meetinglist-loading-row-${index}`}
+              >
+                <div
+                  className="h-3 w-1/3 rounded bg-black/10"
+                  data-cy={`feedback-meeting-meetinglist-loading-row-title-${index}`}
+                />
+                <div
+                  className="h-[22px] w-[60px] rounded border border-solid border-[#D9D9D9] bg-[rgba(0,0,0,0.02)]"
+                  data-cy={`feedback-meeting-meetinglist-loading-row-time-${index}`}
+                />
+              </div>
+            ))}
           </div>
         ) : meetings?.items?.length ? (
           <div
@@ -275,42 +302,58 @@ const MeetingList = ({
   }
 
   return (
-    <Spin
-      spinning={meetingLoading}
-      tip="Loading..."
-      data-cy="feedback-meeting-component-meetinglist-spin"
+    <div
+      className=" space-y-6 "
+      data-cy={dataCy ?? 'feedback-meeting-component-meetinglist-div'}
+      id="feedback-meeting-component-meetinglist-div"
     >
-      <div
-        className=" space-y-6 "
-        data-cy={dataCy ?? 'feedback-meeting-component-meetinglist-div'}
-        id="feedback-meeting-component-meetinglist-div"
-      >
-        {!hideFilters && <MeetingListFilters />}
+      {!hideFilters && <MeetingListFilters />}
 
-        {meetings?.items?.length !== 0 ? (
-          <div
-            className={`${hideFilters ? 'mt-[15px]' : 'mt-6'} max-h-[min(720px,75vh)] min-h-0 min-w-0 overflow-y-auto overflow-x-hidden scrollbar-none`}
-            data-cy="feedback-meeting-meetinglist-timeline-outer"
-          >
-            {timelineNode}
-          </div>
-        ) : (
-          <div
-            className="flex h-64 items-center justify-center"
-            data-cy="feedback-meeting-component-meetinglist-div-no-meetings"
-            id="feedback-meeting-component-meetinglist-div-no-meetings"
-          >
-            <p
-              className="text-xl font-bold text-gray-500"
-              data-cy="feedback-meeting-component-meetinglist-p-no-meetings"
-              id="feedback-meeting-component-meetinglist-p-no-meetings"
+      {meetingLoading ? (
+        <div
+          className="flex min-h-[200px] flex-col gap-2"
+          data-cy="feedback-meeting-meetinglist-loading-wrap"
+        >
+            {timelineLoadingRows.map((loadingRowDefault, index) => (
+            <div
+              key={`meeting-loading-row-default-${loadingRowDefault}`}
+              className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.08)]"
+              data-cy={`feedback-meeting-meetinglist-loading-row-default-${index}`}
             >
-              You Have No Meetings
-            </p>
-          </div>
-        )}
-      </div>
-    </Spin>
+              <div
+                className="h-3 w-1/3 rounded bg-black/10"
+                data-cy={`feedback-meeting-meetinglist-loading-row-default-title-${index}`}
+              />
+              <div
+                className="h-[22px] w-[60px] rounded border border-solid border-[#D9D9D9] bg-[rgba(0,0,0,0.02)]"
+                data-cy={`feedback-meeting-meetinglist-loading-row-default-time-${index}`}
+              />
+            </div>
+          ))}
+        </div>
+      ) : meetings?.items?.length !== 0 ? (
+        <div
+          className={`${hideFilters ? 'mt-[15px]' : 'mt-6'} max-h-[min(720px,75vh)] min-h-0 min-w-0 overflow-y-auto overflow-x-hidden scrollbar-none`}
+          data-cy="feedback-meeting-meetinglist-timeline-outer"
+        >
+          {timelineNode}
+        </div>
+      ) : (
+        <div
+          className="flex h-64 items-center justify-center"
+          data-cy="feedback-meeting-component-meetinglist-div-no-meetings"
+          id="feedback-meeting-component-meetinglist-div-no-meetings"
+        >
+          <p
+            className="text-xl font-bold text-gray-500"
+            data-cy="feedback-meeting-component-meetinglist-p-no-meetings"
+            id="feedback-meeting-component-meetinglist-p-no-meetings"
+          >
+            You Have No Meetings
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 

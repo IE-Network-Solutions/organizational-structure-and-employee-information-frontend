@@ -29,6 +29,7 @@ import { meetingFormRequiredMark } from '../../_component/meetingFormRequiredMar
 import './meetingAttendeesViewAllAnchoredModal.css';
 
 const ATTENDEES_VIEW_ALL_MODAL_WIDTH = 425;
+const ATTENDEES_VIEW_ALL_MODAL_ESTIMATED_HEIGHT = 280;
 
 function getAttendanceStatusPillClassName(status: string) {
   const s = (status ?? '').toLowerCase();
@@ -142,12 +143,21 @@ export default function ParticipantsList({
   const measureViewAllAnchor = () => {
     const gap = 8;
     const w = ATTENDEES_VIEW_ALL_MODAL_WIDTH;
+    const h = ATTENDEES_VIEW_ALL_MODAL_ESTIMATED_HEIGHT;
     const el = viewAllButtonRef.current;
     if (el) {
       const r = el.getBoundingClientRect();
       let left = r.right - w;
       left = Math.min(Math.max(gap, left), window.innerWidth - w - gap);
-      const top = r.bottom + gap;
+      const spaceBelow = window.innerHeight - r.bottom - gap;
+      const spaceAbove = r.top - gap;
+      let top = r.bottom + gap;
+
+      // Prefer the side with more available space so the popup is less likely to clip.
+      if (spaceAbove > spaceBelow) {
+        top = r.top - h - gap;
+      }
+      top = Math.min(Math.max(gap, top), window.innerHeight - h - gap);
       return { top, left };
     }
     return { top: gap, left: gap };
@@ -963,7 +973,7 @@ export default function ParticipantsList({
           data-cy="feedback-meeting-participants-view-all-modal"
         >
           <div
-            className="max-h-[65vh] overflow-y-auto scrollbar-none"
+            className="max-h-[43vh] overflow-y-auto scrollbar-none"
             data-cy="feedback-meeting-participants-view-all-modal-body"
           >
             <div

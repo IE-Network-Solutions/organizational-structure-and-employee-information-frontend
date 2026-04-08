@@ -357,7 +357,6 @@ export default function AddNewMeetingForm({
       id="addMeetingFormFooter"
     >
       <Button
-        loading={meetingLoading}
         className={footerSecondaryBtnClass}
         onClick={step === 1 ? handleClose : onBack}
         data-cy="add-meeting-form-cancel-button"
