@@ -50,13 +50,31 @@ export const OkrPageLoadingSkeleton: React.FC<OkrPageLoadingSkeletonProps> = ({
 
         {/* Header actions (Download + Create Objective) */}
         <div className="flex items-center gap-4" data-cy="okr-page-skel-actions">
-          <div className="hidden sm:flex items-center gap-4">
-            <ShimmerLine className="h-[40px] w-[164px] rounded-lg" />
-            <ShimmerLine className="h-[40px] w-[164px] rounded-lg" />
+          <div
+            className="hidden sm:flex items-center gap-4"
+            data-cy="okr-page-skel-actions-desktop"
+          >
+            <ShimmerLine
+              className="h-[40px] w-[164px] rounded-lg"
+              data-cy="okr-page-skel-action-download-desktop"
+            />
+            <ShimmerLine
+              className="h-[40px] w-[164px] rounded-lg"
+              data-cy="okr-page-skel-action-create-desktop"
+            />
           </div>
-          <div className="flex sm:hidden items-center gap-3">
-            <ShimmerLine className="h-8 w-8 rounded-lg" />
-            <ShimmerLine className="h-8 w-8 rounded-lg" />
+          <div
+            className="flex sm:hidden items-center gap-3"
+            data-cy="okr-page-skel-actions-mobile"
+          >
+            <ShimmerLine
+              className="h-8 w-8 rounded-lg"
+              data-cy="okr-page-skel-action-download-mobile"
+            />
+            <ShimmerLine
+              className="h-8 w-8 rounded-lg"
+              data-cy="okr-page-skel-action-create-mobile"
+            />
           </div>
         </div>
       </div>
@@ -66,19 +84,37 @@ export const OkrPageLoadingSkeleton: React.FC<OkrPageLoadingSkeletonProps> = ({
 
       {/* Tabs bar skeleton */}
       <div className="mt-6" data-cy="okr-page-skel-tabs">
-        <div className="flex items-center gap-6">
-          <ShimmerLine className="h-6 w-20" />
-          <ShimmerLine className="h-6 w-24" />
-          <ShimmerLine className="h-6 w-28" />
-          <ShimmerLine className="h-6 w-36" />
-          <div className="ml-auto hidden md:flex items-center gap-2">
-            <ShimmerLine className="h-7 w-16 rounded-lg" />
-            <ShimmerLine className="h-7 w-16 rounded-lg" />
-            <ShimmerLine className="h-7 w-16 rounded-lg" />
-            <ShimmerLine className="h-10 w-24 rounded-lg" />
+        <div className="flex items-center gap-6" data-cy="okr-page-skel-tabs-row">
+          <ShimmerLine className="h-6 w-20" data-cy="okr-page-skel-tab-1" />
+          <ShimmerLine className="h-6 w-24" data-cy="okr-page-skel-tab-2" />
+          <ShimmerLine className="h-6 w-28" data-cy="okr-page-skel-tab-3" />
+          <ShimmerLine className="h-6 w-36" data-cy="okr-page-skel-tab-4" />
+          <div
+            className="ml-auto hidden md:flex items-center gap-2"
+            data-cy="okr-page-skel-tabs-extra-desktop"
+          >
+            <ShimmerLine
+              className="h-7 w-16 rounded-lg"
+              data-cy="okr-page-skel-status-pill-1"
+            />
+            <ShimmerLine
+              className="h-7 w-16 rounded-lg"
+              data-cy="okr-page-skel-status-pill-2"
+            />
+            <ShimmerLine
+              className="h-7 w-16 rounded-lg"
+              data-cy="okr-page-skel-status-pill-3"
+            />
+            <ShimmerLine
+              className="h-10 w-24 rounded-lg"
+              data-cy="okr-page-skel-filter-desktop"
+            />
           </div>
-          <div className="ml-auto flex md:hidden">
-            <ShimmerLine className="h-10 w-10 rounded-lg" />
+          <div className="ml-auto flex md:hidden" data-cy="okr-page-skel-tabs-extra-mobile">
+            <ShimmerLine
+              className="h-10 w-10 rounded-lg"
+              data-cy="okr-page-skel-filter-mobile"
+            />
           </div>
         </div>
       </div>
