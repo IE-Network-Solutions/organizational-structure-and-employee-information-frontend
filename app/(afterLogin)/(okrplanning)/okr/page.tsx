@@ -14,7 +14,8 @@ import { useDownloadEmployeeOkrScore } from '@/store/server/features/okrplanning
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import OkrModeSelectionModal from './_components/okrModeSelectionModal';
-import { Button, Divider, Spin } from 'antd';
+import OkrPageLoadingSkeleton from '@/components/okr/okrPageLoadingSkeleton';
+import { Button, Divider } from 'antd';
 import { toKeyResultDeadlineFilter } from './_constants/okrStatusPills';
 
 const OKR: React.FC<any> = () => {
@@ -111,14 +112,7 @@ const OKR: React.FC<any> = () => {
   }
   // Show loading state while checking OKR setting
   if (isOkrLoading) {
-    return (
-      <div
-        className="flex items-center justify-center min-h-screen"
-        data-cy="okr-page-loading"
-      >
-        <Spin size="large" />
-      </div>
-    );
+    return <OkrPageLoadingSkeleton />;
   }
 
   // Show modal if setting doesn't exist

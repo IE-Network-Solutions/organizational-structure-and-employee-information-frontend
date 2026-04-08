@@ -194,8 +194,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                               className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
                               data-cy={`okr-objective-progress-badge-${objective?.id}`}
                             >
-                              {Number(objective?.objectiveProgress)?.toLocaleString()}%
-                              Objective Progress
+                              {Number(
+                                objective?.objectiveProgress,
+                              )?.toLocaleString()}
+                              % Objective Progress
                             </span>
                           </div>
                           <div
@@ -206,7 +208,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                               className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
                               data-cy={`okr-objective-card-kr-count-badge-${objective?.id}`}
                             >
-                              {completedKeyResults} - {totalKeyResults} Key Results Done
+                              {completedKeyResults} - {totalKeyResults} Key
+                              Results Done
                             </span>
                             <span
                               className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
@@ -248,7 +251,11 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                                   data-cy={`okr-objective-menu-button-${objective?.id}`}
                                 >
                                   <MoreHorizIcon
-                                    sx={{ width: 14, height: 14, color: '#374151' }}
+                                    sx={{
+                                      width: 14,
+                                      height: 14,
+                                      color: '#374151',
+                                    }}
                                     data-cy={`okr-objective-menu-icon-mobile-${objective?.id}`}
                                   />
                                 </button>
@@ -339,7 +346,11 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                                 data-cy={`okr-objective-menu-button-desktop-${objective?.id}`}
                               >
                                 <MoreHorizIcon
-                                  sx={{ width: 14, height: 14, color: '#374151' }}
+                                  sx={{
+                                    width: 14,
+                                    height: 14,
+                                    color: '#374151',
+                                  }}
                                   data-cy={`okr-objective-menu-icon-desktop-${objective?.id}`}
                                 />
                               </button>

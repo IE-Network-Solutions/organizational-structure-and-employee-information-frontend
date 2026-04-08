@@ -140,7 +140,9 @@ export function KeyResultRemoveButton({
     >
       <CloseOutlined
         className={
-          variant === 'danger' ? 'text-xs text-red-500' : 'text-xs text-[#374151]'
+          variant === 'danger'
+            ? 'text-xs text-red-500'
+            : 'text-xs text-[#374151]'
         }
       />
     </button>

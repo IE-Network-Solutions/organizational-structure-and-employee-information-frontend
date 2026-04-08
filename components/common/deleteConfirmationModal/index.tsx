@@ -5,7 +5,6 @@ import React from 'react';
 import { Modal, Button } from 'antd';
 import Image from 'next/image';
 
-
 interface TriggerRect {
   top: number;
   left: number;
@@ -31,7 +30,6 @@ interface DeleteModalProps {
   cancelText?: React.ReactNode;
   loading?: boolean;
   id?: string;
-  title?: string;
   'data-cy'?: string;
   /** Modal title (e.g. "Delete Status"). When set, modal shows title and no image. */
   title?: string;
@@ -57,7 +55,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   id,
   title = 'Delete',
   'data-cy': dataCy,
-  title,
   hideImage = false,
   danger = false,
   modalClassName,
@@ -114,20 +111,15 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   return (
     <Modal
       open={open}
-<<<<<<< HEAD
-      width={420}
-=======
-      title={title}
       width={hideImage ? 440 : 500}
->>>>>>> ca4b121255b010d9c0d838d0489a89a6059960ec
       onCancel={onCancel}
       afterClose={onAfterClose}
       footer={deleteModalFooter}
       closable
       centered={!isPositioned}
-<<<<<<< HEAD
       {...(isPositioned && { transitionName: '', maskTransitionName: '' })}
-      {...(modalStyle !== undefined && { style: modalStyle })}
+      style={modalStyle}
+      rootClassName={modalClassName}
       title={
         <span
           className="text-base font-semibold text-gray-900"
@@ -136,10 +128,6 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           {title}
         </span>
       }
-=======
-      style={modalStyle}
-      rootClassName={modalClassName}
->>>>>>> ca4b121255b010d9c0d838d0489a89a6059960ec
       modalRender={(modal) => (
         <div id={id} data-cy={dataCy}>
           {modal}
@@ -171,15 +159,9 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           data-cy="components-common-deleteconfirmationmodal-index-tsx-index-div-81"
           className="mt-4 text-center"
         >
-<<<<<<< HEAD
           {messageContent}
-        </p>
-      </div>
-=======
-          {customMessage ?? 'Are you sure you want to delete this item?'}
         </div>
       )}
->>>>>>> ca4b121255b010d9c0d838d0489a89a6059960ec
     </Modal>
   );
 };

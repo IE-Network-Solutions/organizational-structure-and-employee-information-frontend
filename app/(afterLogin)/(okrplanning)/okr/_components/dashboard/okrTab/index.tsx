@@ -15,6 +15,7 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
+import ObjectiveCardSkeleton from '@/components/okr/objectiveCardSkeleton';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import EmployeeOKRTable from '../EmployeeOkr';
@@ -213,14 +214,14 @@ export default function OkrTab({
       label: 'My OKR',
       children: (
         <div id="my-okr-tab-content" data-cy="okr-my-okr-tab-content">
-          {isUserLoading && (
-            <Spin
-              data-cy="okr-my-okr-loading-spin"
-              size="large"
-              style={{ color: 'white' }}
-              className="text-white text-center flex w-full justify-center"
+          {isUserLoading ? (
+            <ObjectiveCardSkeleton
+              data-cy="okr-my-okr-loading-skeleton"
+              count={Math.min(Number(pageSize || 3), 6)}
+              showAssignee={false}
+              expanded={true}
             />
-          )}
+          ) : null}
           {userObjectives?.items?.length !== 0 && (
             <div
               id="my-okr-objectives-list"
@@ -293,14 +294,14 @@ export default function OkrTab({
             label: 'Team OKR',
             children: (
               <div id="team-okr-tab-content" data-cy="okr-team-okr-tab-content">
-                {isTeamLoading && (
-                  <Spin
-                    data-cy="okr-team-okr-loading-spin"
-                    size="large"
-                    style={{ color: 'white' }}
-                    className="text-white text-center flex w-full justify-center"
+                {isTeamLoading ? (
+                  <ObjectiveCardSkeleton
+                    data-cy="okr-team-okr-loading-skeleton"
+                    count={Math.min(Number(teamPageSize || 3), 6)}
+                    showAssignee={true}
+                    expanded={true}
                   />
-                )}
+                ) : null}
                 {teamObjective?.items?.length !== 0 && (
                   <div
                     id="team-okr-objectives-list"
@@ -377,14 +378,14 @@ export default function OkrTab({
                 id="company-okr-tab-content"
                 data-cy="okr-company-okr-tab-content"
               >
-                {isCompanyLoading && (
-                  <Spin
-                    data-cy="okr-company-okr-loading-spin"
-                    size="large"
-                    style={{ color: 'white' }}
-                    className="text-white text-center flex w-full justify-center"
+                {isCompanyLoading ? (
+                  <ObjectiveCardSkeleton
+                    data-cy="okr-company-okr-loading-skeleton"
+                    count={Math.min(Number(companyPageSize || 3), 6)}
+                    showAssignee={true}
+                    expanded={true}
                   />
-                )}
+                ) : null}
                 {companyObjective?.items?.length !== 0 && (
                   <div
                     id="company-okr-objectives-list"
@@ -554,7 +555,7 @@ export default function OkrTab({
   ]
     .filter(Boolean)
     .join(' ');
-  //eslint-disable-next-line 
+  //eslint-disable-next-line
   const compactRenderTabBar: RenderTabBar = (tabBarProps, DefaultTabBar) => {
     const TabNavList = DefaultTabBar;
     return (

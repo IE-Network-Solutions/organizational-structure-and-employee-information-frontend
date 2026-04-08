@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useCallback,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useCallback, useState } from 'react';
 import { Table, Button, Popover, Modal, Select } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
@@ -832,22 +827,28 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           data-cy="employee-okr-table-wrapper"
         >
           <div className="mt-2" data-cy="employee-okr-table-wrapper-inner">
-            <Table
-              className="w-full [&_.ant-table]:!border-[#D9D9D9] [&_.ant-table-thead_.ant-table-cell]:!border-[#D9D9D9] [&_.ant-table-tbody_.ant-table-cell]:!border-[#D9D9D9]"
-              id="okr-employee-okr-table"
-              data-cy="okr-employee-okr-table"
-              columns={columns}
-              dataSource={dataSource}
-              pagination={false}
-              loading={isLoading}
-              scroll={{ x: 1000 }}
-              rowKey="id"
-              rowHoverable={false}
-              // eslint-disable-next-line
-              rowClassName={(_record, index) =>
-                index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-              }
-            />
+            {isLoading ? (
+              <div data-cy="okr-employee-okr-table-skeleton">
+                <TableSkeleton columns={columns} />
+              </div>
+            ) : (
+              <Table
+                className="w-full [&_.ant-table]:!border-[#D9D9D9] [&_.ant-table-thead_.ant-table-cell]:!border-[#D9D9D9] [&_.ant-table-tbody_.ant-table-cell]:!border-[#D9D9D9]"
+                id="okr-employee-okr-table"
+                data-cy="okr-employee-okr-table"
+                columns={columns}
+                dataSource={dataSource}
+                pagination={false}
+                loading={false}
+                scroll={{ x: 1000 }}
+                rowKey="id"
+                rowHoverable={false}
+                // eslint-disable-next-line
+                rowClassName={(_record, index) =>
+                  index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+                }
+              />
+            )}
           </div>
         </div>
 

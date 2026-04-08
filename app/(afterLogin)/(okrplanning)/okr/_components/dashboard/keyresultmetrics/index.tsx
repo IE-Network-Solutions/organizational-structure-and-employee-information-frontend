@@ -224,7 +224,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
               placement="bottomRight"
               overlayClassName="okr-actions-dropdown"
             >
-              <span className="ml-auto inline-flex h-6 max-h-6 items-center leading-none" data-cy="okr-key-result-actions-dropdown-trigger-${keyResult?.id}">
+              <span
+                className="ml-auto inline-flex h-6 max-h-6 items-center leading-none"
+                data-cy="okr-key-result-actions-dropdown-trigger-${keyResult?.id}"
+              >
                 <button
                   type="button"
                   id={`key-result-menu-button-${keyResult?.id}`}
@@ -425,9 +428,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
             value={getKeyResultStatus().value}
             onChange={handleStatusChange}
             disabled={!canEditDelete || keyResult?.isClosed}
-            suffixIcon={
-              <DownOutlined className="text-[#374151] text-[14px]" />
-            }
+            suffixIcon={<DownOutlined className="text-[#374151] text-[14px]" />}
             className={`min-w-[120px] [&_.ant-select-suffix]:text-[14px] ${
               getKeyResultStatus().color === 'yellow'
                 ? '[&_.ant-select-selector]:!bg-yellow-100 [&_.ant-select-selector]:!text-yellow-800 [&_.ant-select-selector]:!border-yellow-300'
