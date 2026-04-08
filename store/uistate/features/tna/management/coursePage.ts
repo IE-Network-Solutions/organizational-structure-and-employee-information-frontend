@@ -3,6 +3,8 @@ import { Course, CourseLesson, CourseLessonMaterial } from '@/types/tna/course';
 import { UploadFile } from 'antd';
 
 type TnaManagementCoursePageState = {
+  /** Mobile: lesson material page sidebar shown in a modal */
+  isLessonPageSidebarOpen: boolean;
   isShowAddLesson: boolean;
   course: Course | null;
   refetchCourse: any;
@@ -15,6 +17,7 @@ type TnaManagementCoursePageState = {
 };
 
 type TnaManagementCoursePageAction = {
+  setLessonPageSidebarOpen: (open: boolean) => void;
   setIsShowAddLesson: (isShowAddLesson: boolean) => void;
   setCourse: (course: Course | null) => void;
   setRefetchCourse: (refetch: any) => void;
@@ -39,6 +42,11 @@ type TnaManagementCoursePageAction = {
 const tnaManagementCoursePageSlice: StateCreator<
   TnaManagementCoursePageState & TnaManagementCoursePageAction
 > = (set) => ({
+  isLessonPageSidebarOpen: false,
+  setLessonPageSidebarOpen: (open: boolean) => {
+    set({ isLessonPageSidebarOpen: open });
+  },
+
   isShowAddLesson: false,
   setIsShowAddLesson: (isShowAddLesson: boolean) => {
     set({ isShowAddLesson });

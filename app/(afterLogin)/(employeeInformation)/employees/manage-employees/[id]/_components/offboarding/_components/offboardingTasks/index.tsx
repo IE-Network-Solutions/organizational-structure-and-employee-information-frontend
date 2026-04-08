@@ -35,8 +35,8 @@ import {
   useFetchOffBoardingTasksTemplate,
   useFetchUserTerminationByUserId,
 } from '@/store/server/features/employees/offboarding/queries';
-import { MdDelete } from 'react-icons/md';
-import { MdEdit } from 'react-icons/md';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   OffBoardingTasksUpdateStatus,
@@ -46,6 +46,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import EmptyState from '@/components/empty';
 
 const TEMPLATE_DROPPABLE_ID = 'template-tasks';
 const EMPLOYEE_DROPPABLE_ID = 'employee-tasks';
@@ -90,7 +91,7 @@ function TemplateTaskDraggable({
       {...listeners}
       {...attributes}
       className={`bg-white rounded-lg border border-gray-200 p-3 mb-2 shadow-sm ${
-        isDragging ? 'opacity-90 shadow-md z-10' : ''
+        isDragging ? 'opacity-90 shadow-md relative z-[100]' : ''
       }`}
       id={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
       data-cy={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
@@ -250,8 +251,12 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   if (error)
     return <div data-cy="offboarding-tasks-error">Error loading tasks</div>;
 
-  const resignationSubmittedDate =
-    employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
+  // const resignationSubmittedDate =
+  //   employeeData?.employeeJobInformation[0]?.resignationSubmittedDate;
+
+  const resignationDate = employeeData.employeeJobInformation.find(
+    (job: any) => job.isPositionActive === true,
+  )?.resignationSubmittedDate;
 
   // Check if all tasks are completed
   const allTasksCompleted =
@@ -276,7 +281,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           {/* Left panel: Core Offboarding Tasks */}
           <Card
             title="Core Offboarding Tasks"
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 relative z-10 overflow-visible [&_.ant-card-body]:overflow-visible"
             id="core-offboarding-tasks-card"
             data-cy="core-offboarding-tasks-card"
           >
@@ -313,7 +318,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           {/* Right panel: Off-boarding Tasks */}
           <Card
             title="Off-boarding Tasks"
-            className="flex-1 min-w-0"
+            className="flex-1 min-w-0 relative z-0"
             id="offboarding-tasks-card"
             data-cy="offboarding-tasks-card"
             extra={
@@ -331,7 +336,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                     type="primary"
                     icon={<PlusOutlined />}
                     onClick={handleAddTaskClick}
-                    disabled={resignationSubmittedDate === null}
+                    disabled={resignationDate === null}
                     id="offboarding-add-task-btn"
                     data-cy="offboarding-add-task-btn"
                   >
@@ -433,7 +438,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   return (
                     <EmployeeTaskDraggable key={task.id} task={task}>
                       <div
-                        className="flex items-center flex-wrap gap-2"
+                        className="flex flex-wrap gap-2"
                         id={`offboarding-task-info-${taskSlug}`}
                         data-cy={`offboarding-task-info-${taskSlug}`}
                       >
@@ -446,76 +451,93 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                           id={`offboarding-task-checkbox-${taskSlug}`}
                           data-cy={`offboarding-task-checkbox-${taskSlug}`}
                         />
-                        <span
-                          className={
-                            task?.isCompleted
-                              ? 'line-through text-gray-500'
-                              : 'text-gray-800'
-                          }
-                          id={`offboarding-task-title-${taskSlug}`}
-                          data-cy={`offboarding-task-title-${taskSlug}`}
+                        <div
+                          data-cy="offboarding-task-info-title-wrapper"
+                          className="flex flex-col gap-2"
                         >
-                          {task.title}
-                        </span>
-                        {task.approver && (
                           <span
-                            className="flex items-center gap-2 text-sm text-gray-500"
-                            data-cy={`offboarding-task-approver-${taskSlug}`}
+                            className={` text-sm font-normal ${
+                              task?.isCompleted
+                                ? 'line-through text-gray-500'
+                                : 'text-black'
+                            }`}
+                            id={`offboarding-task-title-${taskSlug}`}
+                            data-cy={`offboarding-task-title-${taskSlug}`}
                           >
-                            <Avatar
-                              size="small"
-                              icon={<UserOutlined />}
-                              className="flex-shrink-0"
-                            />
-                            {task.approver.firstName || task.approver.lastName
-                              ? `${task.approver.firstName || ''} ${task.approver.middleName || ''} ${task.approver.lastName || ''}`.trim()
-                              : 'Approver Person'}
+                            {task.title}
                           </span>
-                        )}
-                        {task.isCompleted &&
-                          task.approverId &&
-                          task.completedDate && (
+                          {task.approver && (
                             <span
-                              className="ml-2 text-sm text-gray-500"
-                              id={`offboarding-task-completed-${taskSlug}`}
-                              data-cy={`offboarding-task-completed-${taskSlug}`}
+                              className="flex items-center gap-2 text-sm text-gray-500"
+                              data-cy={`offboarding-task-approver-${taskSlug}`}
                             >
-                              Completed by {task.approverId} on{' '}
-                              {task.completedDate}
+                              <Avatar
+                                size="small"
+                                icon={<UserOutlined />}
+                                className="flex-shrink-0 "
+                              />
+                              <span
+                                data-cy="offboarding-task-approver-name-wrapper"
+                                className="text-xs font-normal text-[#949494]"
+                              >
+                                {task.approver.firstName ||
+                                task.approver.lastName
+                                  ? `${task.approver.firstName || ''} ${task.approver.middleName || ''} ${task.approver.lastName || ''}`.trim()
+                                  : 'Approver Person'}
+                              </span>
                             </span>
                           )}
-                        {!task.isCompleted && task.completedDate && (
-                          <span
-                            className="ml-2 text-sm text-gray-500"
-                            id={`offboarding-task-due-${taskSlug}`}
-                            data-cy={`offboarding-task-due-${taskSlug}`}
-                          >
-                            Due: {task.completedDate}
-                          </span>
-                        )}
+                          {task.isCompleted &&
+                            task.approverId &&
+                            task.completedDate && (
+                              <span
+                                className="ml-2 text-sm text-gray-500"
+                                id={`offboarding-task-completed-${taskSlug}`}
+                                data-cy={`offboarding-task-completed-${taskSlug}`}
+                              >
+                                Completed by {task.approverId} on{' '}
+                                {task.completedDate}
+                              </span>
+                            )}
+                          {!task.isCompleted && task.completedDate && (
+                            <span
+                              className="ml-2 text-sm text-gray-500"
+                              id={`offboarding-task-due-${taskSlug}`}
+                              data-cy={`offboarding-task-due-${taskSlug}`}
+                            >
+                              Due: {task.completedDate}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div
                         id={`offboarding-task-actions-${taskSlug}`}
                         data-cy={`offboarding-task-actions-${taskSlug}`}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2"
                       >
                         <Button
+                          type="default"
                           size="small"
-                          icon={<MdEdit />}
                           id={`offboarding-task-edit-btn-${taskSlug}`}
                           data-cy={`offboarding-task-edit-btn-${taskSlug}`}
-                        />
+                          className="border border-[#D9D9D9] !h-8 !w-8 rounded-lg"
+                        >
+                          <EditOutlinedIcon className="text-base" />
+                        </Button>
+
                         <Button
+                          type="default"
                           onClick={() => {
                             setIsDeleteModalVisible(true);
                             setTaskToDelete(task);
                           }}
-                          danger
                           size="small"
-                          icon={<MdDelete />}
                           id={`offboarding-task-delete-btn-${taskSlug}`}
                           data-cy={`offboarding-task-delete-btn-${taskSlug}`}
-                        />
+                          className="border border-[#ff8384] !h-8 !w-8 text-[#ff8384] rounded-lg"
+                        >
+                          <DeleteOutlineOutlinedIcon className="text-base" />
+                        </Button>
                       </div>
                     </EmployeeTaskDraggable>
                   );
@@ -526,7 +548,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   id="offboarding-tasks-empty-wrapper"
                   data-cy="offboarding-tasks-empty-wrapper"
                 >
-                  No offboarding tasks
+                  <EmptyState />
                 </div>
               )}
             </DroppableArea>

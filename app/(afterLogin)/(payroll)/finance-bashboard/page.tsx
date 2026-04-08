@@ -30,6 +30,7 @@ const DashboardPayroll = () => {
   const payPeriodId = useDashboardPayrollStore((s) => s.payPeriodId);
   const setPayPeriodId = useDashboardPayrollStore((s) => s.setPayPeriodId);
   const modules = ['PayrollAuditLog'];
+
   const { data: auditLogs, isLoading: isLoadingAuditLogs } =
     useGetAggregateAuditPostLogs(
       {
@@ -44,7 +45,6 @@ const DashboardPayroll = () => {
   const auditLogsData = useMemo(() => {
     return auditLogs?.items ?? [];
   }, [auditLogs]);
-
   useEffect(() => {
     if (
       Array.isArray(payPeriodData) &&

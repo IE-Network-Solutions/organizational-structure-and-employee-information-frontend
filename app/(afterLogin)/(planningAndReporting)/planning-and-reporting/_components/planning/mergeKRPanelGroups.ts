@@ -1,0 +1,160 @@
+import type { PlanOwner, PlanSummary } from '../types';
+
+/** Matches AggregatedKR in PlanningPanelView (structural merge). */
+export interface KRPanelAggregatedKR {
+  id: string;
+  title: string;
+  progress: number;
+  taskCount: number;
+  metricType: string;
+  targetValue: string | number;
+  currentValue: string | number;
+  isDeleted: boolean;
+}
+
+export interface KRPanelOwnerGroup {
+  ownerKey: string;
+  owner: PlanOwner;
+  krs: KRPanelAggregatedKR[];
+  avgProgress: number;
+}
+
+export function normalizeUserKeyResultItems(data: unknown): any[] {
+  if (data == null) return [];
+  if (Array.isArray(data)) return data;
+  if (
+    typeof data === 'object' &&
+    Array.isArray((data as { items?: unknown }).items)
+  ) {
+    return (data as { items: any[] }).items;
+  }
+  return [];
+}
+
+function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
+  return {
+    id: String(kr.id),
+    title: (kr.title || kr.name || 'Untitled KR').trim() || 'Untitled KR',
+    progress: Math.min(100, Math.max(0, Number(kr.progress ?? 0))),
+    taskCount: 0,
+    metricType: kr.metricType?.name ?? 'N/A',
+    targetValue: kr.targetValue ?? 0,
+    currentValue: kr.currentValue ?? 0,
+    isDeleted: kr.deletedAt != null,
+  };
+}
+
+function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {
+  if (krs.length === 0) return 0;
+  return Math.round(krs.reduce((s, k) => s + k.progress, 0) / krs.length);
+}
+
+function isGroupForCurrentUser(
+  group: KRPanelOwnerGroup,
+  plans: PlanSummary[],
+  transformedData: any[] | undefined,
+  userId: string,
+): boolean {
+  if (!transformedData?.length || !plans.length) return false;
+  return transformedData.some((d: any) => {
+    if (d.userId !== userId) return false;
+    const p = plans.find((pl) => pl.id === d.id);
+    if (!p) return false;
+    const key = p.owner?.name || p.id;
+    return key === group.ownerKey;
+  });
+}
+
+/**
+ * Appends KRs from GET …/key-results/user/:id that are not already present
+ * in plan-backed groups (deduped by KR id). Plan-backed rows win on conflict.
+ */
+export function mergeUserKeyResultsIntoOwnerGroups(
+  groups: KRPanelOwnerGroup[],
+  userKeyResultItems: any[],
+  plans: PlanSummary[],
+  transformedData: any[] | undefined,
+  userId: string,
+): KRPanelOwnerGroup[] {
+  const merged: KRPanelOwnerGroup[] = groups.map((g) => ({
+    ...g,
+    krs: [...g.krs],
+  }));
+
+  const seen = new Set<string>();
+  for (const g of merged) {
+    for (const kr of g.krs) {
+      seen.add(String(kr.id));
+    }
+  }
+
+  const orphans: KRPanelAggregatedKR[] = [];
+  for (const raw of userKeyResultItems) {
+    if (!raw || raw.deletedAt != null) continue;
+    const id = String(raw.id);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    orphans.push(apiKRToAggregated(raw));
+  }
+
+  if (orphans.length === 0) {
+    return merged;
+  }
+
+  const targetIdx = merged.findIndex((g) =>
+    isGroupForCurrentUser(g, plans, transformedData, userId),
+  );
+
+  if (targetIdx >= 0) {
+    const g = merged[targetIdx]!;
+    const nextKrs = [...g.krs, ...orphans];
+    merged[targetIdx] = {
+      ...g,
+      krs: nextKrs,
+      avgProgress: recalcAvgProgress(nextKrs),
+    };
+    return merged;
+  }
+
+  merged.unshift({
+    ownerKey: `__user_key_results_${userId}`,
+    owner: {
+      name: 'Your key results',
+      role: '',
+      avatarInitials: 'KR',
+      avatar: undefined,
+    },
+    krs: orphans,
+    avgProgress: recalcAvgProgress(orphans),
+  });
+
+  return merged;
+}
+
+export type ParentPlanContext = {
+  planId: string;
+  /** e.g. "Your weekly plan" — parent period name lowercased after "Your ". */
+  title: string;
+};
+
+/** Active unreported parent plan for the current cadence (from planning-period hierarchy). */
+export function getActiveUnreportedParentPlanContext(
+  hierarchy: unknown,
+): ParentPlanContext | null {
+  const h = hierarchy as {
+    parentPlan?: {
+      name?: string;
+      plans?: Array<{ id?: string; isReported?: boolean }>;
+    };
+  } | null;
+  if (!h?.parentPlan) return null;
+  const plan = h.parentPlan.plans?.find((p) => p.isReported === false);
+  if (!plan?.id) return null;
+  const periodName = (h.parentPlan.name || 'Parent').trim() || 'Parent';
+  const base = periodName.replace(/\s+plan\s*$/i, '').trim() || 'Parent';
+  const title = `Your ${base.toLowerCase()} plan`;
+  return {
+    planId: String(plan.id),
+    title,
+  };
+}

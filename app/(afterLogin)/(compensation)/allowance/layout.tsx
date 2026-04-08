@@ -355,7 +355,7 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
             <BlockWrapper
               data-cy="compensation-allowance-layout-block-wrapper-content"
               withBackground={false}
-              className="h-max w-full min-w-0 overflow-x-auto bg-white pr-0 sm:pr-2"
+              className="h-max w-full min-w-0 overflow-x-auto bg-white"
             >
               {children}
             </BlockWrapper>

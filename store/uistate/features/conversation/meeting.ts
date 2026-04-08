@@ -88,6 +88,9 @@ interface MeetingStore {
   setComments: (value: string) => void;
   commentUpdate: string | null;
   setCommentUpdate: (value: string) => void;
+
+  meetingTypeOpenDropdownId: string | null;
+  setMeetingTypeOpenDropdownId: (value: string | null) => void;
 }
 
 export const useMeetingStore = create<MeetingStore>((set) => ({
@@ -167,4 +170,8 @@ export const useMeetingStore = create<MeetingStore>((set) => ({
   setComments: (value) => set({ comments: value }),
   commentUpdate: null,
   setCommentUpdate: (value) => set({ commentUpdate: value }),
+
+  meetingTypeOpenDropdownId: null,
+  setMeetingTypeOpenDropdownId: (meetingTypeOpenDropdownId) =>
+    set({ meetingTypeOpenDropdownId }),
 }));

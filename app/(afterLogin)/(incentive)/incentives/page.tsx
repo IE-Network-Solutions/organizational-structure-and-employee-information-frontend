@@ -1,13 +1,25 @@
 'use client';
-import { useParentRecognition } from '@/store/server/features/incentive/other/queries';
-import { Button, Card, Divider, Empty, Input, Skeleton, Tag } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useAllChildrenRecognition,
+  useParentRecognition,
+} from '@/store/server/features/incentive/other/queries';
+import {
+  Button,
+  Card,
+  Divider,
+  Dropdown,
+  Empty,
+  Input,
+  Skeleton,
+  Tag,
+} from 'antd';
+import type { MenuProps } from 'antd';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import DynamicIncentive from './compensation/dynamicRecoginition';
 import ExportModal from './compensation/all/export';
 import ConfirmModal from '@/components/common/confirmModal';
 import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 import SendIcon from '@mui/icons-material/Send';
 import { SearchOutlined, LeftOutlined } from '@ant-design/icons';
@@ -19,6 +31,23 @@ import { useAllIncentiveCards } from '@/store/server/features/incentive/all/quer
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import { useGetAllIncentiveData } from '@/store/server/features/incentive/other/queries';
 import { useGetRecognitionTypeDashboardStats } from '@/store/server/features/CFR/recognition/queries';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
+import GenerateModal from './payroll-detail/generateModal';
+function normalizeRecognitionList(raw: unknown): any[] {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj.items)) return obj.items as any[];
+  if (Array.isArray(obj.data)) return obj.data as any[];
+  return [];
+}
+
+function parentIdOfChild(child: any): string | undefined {
+  const pid =
+    child?.parentTypeId ?? child?.parentId ?? child?.parentRecognitionTypeId;
+  return pid != null && pid !== '' ? String(pid) : undefined;
+}
 
 const Page = () => {
   const {
@@ -35,8 +64,8 @@ const Page = () => {
     pageSize,
     currentPage,
   } = useIncentiveStore();
-  const { mutate: exportIncentiveData, isLoading: exportIncentiveLoading } =
-    useExportIncentiveData();
+
+  const { mutate: exportIncentiveData } = useExportIncentiveData();
 
   const { searchParams } = useIncentiveStore();
   const handleExport = (values: any, generateAll: boolean) => {
@@ -51,6 +80,22 @@ const Page = () => {
   };
   const { data: parentRecognition, isLoading: parentResponseLoading } =
     useParentRecognition();
+  const { data: allChildrenRaw } = useAllChildrenRecognition();
+
+  const allChildTypes = useMemo(
+    () => normalizeRecognitionList(allChildrenRaw),
+    [allChildrenRaw],
+  );
+
+  const childTypeCountByParentId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const child of allChildTypes) {
+      const pid = parentIdOfChild(child);
+      if (!pid) continue;
+      map.set(pid, (map.get(pid) ?? 0) + 1);
+    }
+    return map;
+  }, [allChildTypes]);
   const { data: recognitionTypeDashboardStats } =
     useGetRecognitionTypeDashboardStats();
 
@@ -66,7 +111,6 @@ const Page = () => {
   const { mutate: sendIncentiveToPayroll, isLoading } =
     useSendIncentiveToPayroll();
 
-  const { isMobile, isTablet } = useIsMobile();
   const { data: allIncentiveCards } = useAllIncentiveCards();
   const [searchCategory, setSearchCategory] = useState('');
   const [categoryPage, setCategoryPage] = useState(1);
@@ -84,6 +128,9 @@ const Page = () => {
 
   const handleSendToPayrollClick = () => {
     setConfirmationModal(true);
+  };
+  const handleGenerateIncentiveClick = () => {
+    setShowGenerateModal(true);
   };
   const handleYesSendToPayroll = () => {
     setConfirmationModal(false);
@@ -103,15 +150,52 @@ const Page = () => {
     setSelectedRowKeys([]);
   }, [activeKey, setSelectedRowKeys]);
 
-  const handleCardSelect = (key: string) => {
-    setCategoryPage(1);
-    setActiveKey(key);
+  const handleCardSelect = useCallback(
+    (key: string) => {
+      setCategoryPage(1);
+      setActiveKey(key);
 
-    const foundRecognition = (parentRecognition || []).find(
-      (rec: any) => rec?.id === key,
+      const foundRecognition = (parentRecognition || []).find(
+        (rec: any) => rec?.id === key,
+      );
+      if (!foundRecognition) {
+        setSelectedRecognition(null);
+        return;
+      }
+      const children = allChildTypes.filter(
+        (c: any) => parentIdOfChild(c) === key,
+      );
+      setSelectedRecognition({
+        ...foundRecognition,
+        children:
+          children.length > 0
+            ? children
+            : Array.isArray(foundRecognition.children)
+              ? foundRecognition.children
+              : [],
+      });
+    },
+    [
+      allChildTypes,
+      parentRecognition,
+      setActiveKey,
+      setCategoryPage,
+      setSelectedRecognition,
+    ],
+  );
+
+  useEffect(() => {
+    const id = selectedRecognition?.id;
+    if (!id) return;
+    const children = allChildTypes.filter(
+      (c: any) => parentIdOfChild(c) === id,
     );
-    setSelectedRecognition(foundRecognition || null);
-  };
+    if (children.length === 0) return;
+    const prev = useIncentiveStore.getState().selectedRecognition;
+    if (!prev || prev.id !== id) return;
+    if ((prev.children?.length ?? 0) === children.length) return;
+    setSelectedRecognition({ ...prev, children });
+  }, [allChildTypes, selectedRecognition?.id, setSelectedRecognition]);
 
   const handleBackToCards = () => {
     setActiveKey('1');
@@ -168,53 +252,59 @@ const Page = () => {
     };
   }, [allIncentiveCards, parentRecognition]);
 
-  const operationSlot = (
-    <div
-      id="incentives-page-operations-slot-card-detail"
-      data-cy="incentives-page-operations-slot-card-detail"
-      className="flex items-center justify-center gap-3"
-    >
-      <Button
-        type="primary"
-        data-cy="incentives-page-send-to-payroll-button-other"
-        icon={
-          <SendIcon
-            className="pt-1"
-            id="incentives-page-send-to-payroll-icon-other"
-            data-cy="incentives-page-send-to-payroll-icon-other"
-          />
-        }
-        onClick={() => handleSendToPayrollClick()}
-        className="h-10 w-10 sm:w-full font-normal text-base"
-      >
-        {!isMobile && 'Send to Payroll'}
-      </Button>
-      <Button
-        type="default"
-        data-cy="incentives-page-export-button-other"
-        icon={
-          <SaveAltIcon
-            id="incentives-page-export-icon-other"
-            data-cy="incentives-page-export-icon-other"
-          />
-        }
-        onClick={() => handleExport(searchParams, false)}
-        className="h-10 w-10 sm:w-full border border-[#D9D9D9] font-normal text-base"
-        loading={exportIncentiveLoading}
-        disabled={exportIncentiveLoading}
-      >
-        {!(isMobile || isTablet) && (
+  const dropdownMenuItems: MenuProps['items'] = [
+    {
+      key: 'send',
+      label: (
+        <div
+          data-cy="incentives-page-send-to-payroll-button"
+          className="flex items-center gap-2"
+        >
+          <SendIcon className="text-[#2E3137] text-base" />
           <span
-            id="incentives-page-export-text-other"
-            data-cy="incentives-page-export-text-other"
-            className="hidden sm:inline"
+            data-cy="incentives-page-send-to-payroll-button-text"
+            className="text-base font-normal text-black opacity-70"
+          >
+            Send to Payroll
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: 'export',
+      label: (
+        <div
+          data-cy="incentives-page-export-button"
+          className="flex items-center gap-3 py-1"
+        >
+          <SaveAltIcon className="text-[#2E3137] text-base" />
+          <span
+            data-cy="incentives-page-export-button-text"
+            className="text-base font-normal text-black opacity-70"
           >
             Export
           </span>
-        )}
-      </Button>
-    </div>
-  );
+        </div>
+      ),
+    },
+    {
+      key: 'generate',
+      label: (
+        <div
+          data-cy="incentives-page-generate-incentive-button"
+          className="flex items-center gap-3 py-1"
+        >
+          <PublishedWithChangesIcon className="text-[#2E3137] text-base" />
+          <span
+            data-cy="incentives-page-generate-incentive-button-text"
+            className="text-base font-normal text-black opacity-70"
+          >
+            Generate Incentive
+          </span>
+        </div>
+      ),
+    },
+  ];
 
   useEffect(() => {
     if (categoryPage > totalCategoryPages && totalCategoryPages > 0) {
@@ -296,7 +386,9 @@ const Page = () => {
               className="inline-flex rounded-[4px] border border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-xs leading-none font-normal text-[#1677FF]"
               data-cy={`incentive-card-types-pill-${item?.id}`}
             >
-              {(item?.children?.length ?? 0) + ' Types'}
+              {(childTypeCountByParentId.get(item?.id) ??
+                item?.children?.length ??
+                0) + ' Types'}
             </Tag>
           </div>
         </div>
@@ -321,6 +413,21 @@ const Page = () => {
             margin-right: -24px !important;
           }
           }
+        }
+        .incentives-actions-dropdown .ant-dropdown-menu {
+          min-width: 300px;
+          border-radius: 6px;
+          background: #ffffff;
+          box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+          padding: 10px;
+        }
+        .incentives-actions-dropdown .ant-dropdown-menu-item {
+          padding: 8px 10px;
+          border-radius: 6px;
+          margin: 2px 0;
+        }
+        .incentives-actions-dropdown .ant-dropdown-menu-item:hover {
+          background: #ffffff;
         }
       `}</style>
       {!selectedRecognition ? (
@@ -405,7 +512,7 @@ const Page = () => {
         </>
       ) : (
         <div
-          className="mx-3 mt-4"
+          className="mx-0 mt-4"
           data-cy="incentives-page-selected-recognition-view"
         >
           <div
@@ -440,7 +547,34 @@ const Page = () => {
               </div>
             </div>
             <div data-cy="incentives-page-selected-recognition-view-container-content-operations">
-              {operationSlot}
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                overlayClassName="incentives-actions-dropdown"
+                menu={{
+                  items: dropdownMenuItems,
+                  onClick: ({ key }) => {
+                    if (key === 'send') {
+                      handleSendToPayrollClick();
+                      return;
+                    }
+                    if (key === 'export') {
+                      handleExport(searchParams, false);
+                      return;
+                    }
+                    if (key === 'generate') {
+                      handleGenerateIncentiveClick();
+                    }
+                  },
+                }}
+              >
+                <Button
+                  type="default"
+                  className="border border-[#D9D9D9] h-8 w-8"
+                >
+                  <MoreHorizIcon />
+                </Button>
+              </Dropdown>
             </div>
           </div>
 
@@ -463,6 +597,7 @@ const Page = () => {
         loading={isLoading}
         description={'Are You sure you want to send to payroll ?'}
       />
+      <GenerateModal />
     </div>
   );
 };

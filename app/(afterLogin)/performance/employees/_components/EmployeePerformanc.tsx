@@ -7,6 +7,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetSessionById } from '@/store/server/features/payroll/payroll/queries';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import OkrSearch from '@/app/(afterLogin)/(okrplanning)/okr/_components/dashboard/searchfilter';
@@ -226,6 +227,7 @@ export default function EmployeePerformanceTable() {
     searchObjParams,
     employeePageSize,
     employeeCurrentPage,
+    undefined,
     { enabled: !USE_MOCK_EMPLOYEE_PERFORMANCE_DATA },
   );
 
@@ -475,20 +477,25 @@ export default function EmployeePerformanceTable() {
         >
           <OkrSearch allEmployeeLayout filterInPopover />
         </div>
-        <Table
-          id="okr-employee-okr-table"
-          data-cy="okr-employee-okr-table"
-          // className="performance-employee-table [&_.ant-table-thead>tr>th]:!bg-gray-100 [&_.ant-table-thead>tr>th]:!text-gray-700 [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-cell]:py-3"
-          columns={columns}
-          dataSource={dataSource}
-          pagination={false}
-          loading={tableLoading}
-          scroll={{ y: 400 }}
-          rowKey="id"
-          rowClassName={(rowRecord, index) =>
-            index !== undefined && index % 2 === 1 ? 'bg-[#F9FAFB]' : 'bg-white'
-          }
-        />
+        {tableLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            id="okr-employee-okr-table"
+            data-cy="okr-employee-okr-table"
+            // className="performance-employee-table [&_.ant-table-thead>tr>th]:!bg-gray-100 [&_.ant-table-thead>tr>th]:!text-gray-700 [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-cell]:py-3"
+            columns={columns}
+            dataSource={dataSource}
+            pagination={false}
+            scroll={{ y: 400 }}
+            rowKey="id"
+            rowClassName={(rowRecord, index) =>
+              index !== undefined && index % 2 === 1
+                ? 'bg-[#F9FAFB]'
+                : 'bg-white'
+            }
+          />
+        )}
       </div>
 
       <div

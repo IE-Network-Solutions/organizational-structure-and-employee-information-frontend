@@ -10,6 +10,7 @@ import { useSettingStore } from '@/store/uistate/features/employees/settings/rol
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import EmptyState from '@/components/empty';
 
 const RoleComponent: React.FC = () => {
   const { isMobile, isTablet } = useIsMobile();
@@ -101,7 +102,7 @@ const RoleComponent: React.FC = () => {
         data-cy="settings-role-loading"
       >
         {rolePermissionsData?.items?.length === 0 && roleLoading && (
-          <Skeleton />
+          <Skeleton active data-cy="settings-role-spinner" />
         )}
       </div>
       {rolePermissionsData && filteredItems.length > 0 ? (
@@ -154,7 +155,7 @@ const RoleComponent: React.FC = () => {
           id="settings-role-empty"
           data-cy="settings-role-empty-wrapper"
         >
-          <Skeleton />
+          <EmptyState />
         </div>
       )}
     </Card>

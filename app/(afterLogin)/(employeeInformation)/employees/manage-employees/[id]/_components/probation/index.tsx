@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Spin } from 'antd';
+import { Button, Skeleton } from 'antd';
 import ProbationTargetAccordion from './_components/probationTargetAccordion';
 import { useFetchProbationTargetsByUserId } from '@/store/server/features/probation-target/queries';
 import { useCreateProbationTarget } from '@/store/server/features/probation-target/mutation';
@@ -142,10 +142,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
         id={`probation-loading-state-${pageSlug}`}
         data-cy="probation-loading-state"
       >
-        <Spin
-          tip="Loading probation targets..."
-          data-cy="probation-loading-spinner"
-        />
+        <Skeleton active data-cy="probation-loading-spinner" />
       </div>
     );
   }

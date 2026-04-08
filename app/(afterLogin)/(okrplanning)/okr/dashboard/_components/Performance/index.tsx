@@ -4,7 +4,7 @@ import { Select, Spin, DatePicker, Button, Pagination } from 'antd';
 import type React from 'react';
 import { useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import Avatar from '@/public/gender_neutral_avatar.jpg';
+import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKRDashboardStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/dashboard';
 import { CalendarOutlined, DownOutlined } from '@ant-design/icons';
@@ -613,7 +613,7 @@ const Performance: React.FC = () => {
                       data-cy={`okr-performance-admin-employee-avatar-wrapper-${employee.id}`}
                     >
                       <Image
-                        src={employee.profileImage || Avatar}
+                        src={employee.profileImage || GENDER_NEUTRAL_AVATAR_URL}
                         alt="Employee profile"
                         layout="fill"
                         className="object-cover"
@@ -880,7 +880,7 @@ const Performance: React.FC = () => {
               onClick={() => setActiveTab('admin')}
               className={
                 activeTab === 'admin'
-                  ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
+                  ? 'px-6 h-8 bg-white text-black text-xs rounded-lg shadow-md'
                   : 'px-3 h-full bg-transparent text-black text-xs'
               }
               id="okr-performance-admin-tab-button"
@@ -893,7 +893,7 @@ const Performance: React.FC = () => {
             onClick={() => setActiveTab('personal')}
             className={
               activeTab === 'personal'
-                ? 'px-6 h-8 bg-white text-black text-xs rounded-md shadow-md'
+                ? 'px-6 h-8 bg-white text-black text-xs rounded-lg shadow-md'
                 : 'px-3 h-full bg-transparent text-black text-xs'
             }
             id="okr-performance-personal-tab-button"

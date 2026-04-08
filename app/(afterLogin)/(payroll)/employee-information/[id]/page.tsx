@@ -12,7 +12,6 @@ import {
   Skeleton,
   Space,
   Progress,
-  Pagination,
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -41,9 +40,10 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import { UploadFile } from 'antd/lib';
 import { RcFile } from 'antd/es/upload';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { EmptyImage } from '@/components/emptyIndicator';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import CustomPagination from '@/components/customPagination';
+import EmptyState from '@/components/empty';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -147,7 +147,10 @@ const EmployeeProfile = () => {
   );
   const { data: payrollHistory } = useGetPayrollHistory(empId);
   const [historyCurrentPage, setHistoryCurrentPage] = useState(1);
-  const historyPageSize = 3;
+  const [historyPageSize, setHistoryPageSize] = useState(3);
+  const [settlementPaymentsPage, setSettlementPaymentsPage] = useState(1);
+  const [settlementPaymentsPageSize, setSettlementPaymentsPageSize] =
+    useState(5);
 
   const {
     activeMergedPayroll,
@@ -278,9 +281,11 @@ const EmployeeProfile = () => {
       return <Skeleton active data-cy="payroll-info-loading-skeleton" />;
     if (!activeMergedPayroll)
       return (
-        <Text type="secondary" data-cy="payroll-info-empty">
-          No payroll data available for this period.
-        </Text>
+        <EmptyState
+          compact
+          description="No payroll data available for this period."
+          data-cy="payroll-info-empty"
+        />
       );
 
     const breakdown = activeMergedPayroll?.breakdown;
@@ -491,15 +496,11 @@ const EmployeeProfile = () => {
   const renderHistory = () => {
     if (!payPeriodData || !payrollHistory || payrollHistory.length === 0) {
       return (
-        <div
-          style={{ textAlign: 'center', padding: '40px' }}
-          data-cy="payroll-history-empty-wrapper"
-        >
-          <EmptyImage data-cy="payroll-history-empty" />
-          <Text type="secondary" data-cy="payroll-history-empty-text">
-            No payroll history found.
-          </Text>
-        </div>
+        <EmptyState
+          compact
+          description="No payroll history found."
+          data-cy="payroll-history-empty"
+        />
       );
     }
 
@@ -715,37 +716,17 @@ const EmployeeProfile = () => {
           style={{ marginTop: '32px' }}
           data-cy="payroll-history-pagination-wrapper"
         >
-          <style data-cy="payroll-history-pagination-styles">{`
-            .custom-pagination {
-              display: flex !important;
-              width: 100% !important;
-              justify-content: flex-start !important;
-              align-items: center !important;
-            }
-            .custom-pagination .ant-pagination-options {
-              margin-left: auto !important;
-              display: flex;
-              align-items: center;
-            }
-            .custom-pagination .ant-pagination-options-quick-jumper {
-              color: #8c8c8c;
-              font-size: 13px;
-            }
-            .custom-pagination .ant-pagination-options-quick-jumper input {
-              border-radius: 4px;
-            }
-          `}</style>
-          <Pagination
-            className="custom-pagination"
+          <CustomPagination
             current={historyCurrentPage}
             total={payrollHistory.length}
             pageSize={historyPageSize}
-            onChange={(page) => setHistoryCurrentPage(page)}
-            showSizeChanger={false}
-            showQuickJumper
-            itemRender={(page, type, originalElement) => {
-              if (type === 'jump-prev' || type === 'jump-next') return '...';
-              return originalElement;
+            onChange={(page, size) => {
+              setHistoryCurrentPage(page);
+              setHistoryPageSize(size);
+            }}
+            onShowSizeChange={(size) => {
+              setHistoryPageSize(size);
+              setHistoryCurrentPage(1);
             }}
             data-cy="payroll-history-pagination"
           />
@@ -788,6 +769,10 @@ const EmployeeProfile = () => {
     return group?.[0]?.compensationItemEntitlementId || group?.[0]?.id;
   }, [groupedSettlements, selectedCompensationId]);
 
+  useEffect(() => {
+    setSettlementPaymentsPage(1);
+  }, [selectedCompensationId, currentEntitlementId]);
+
   const { data: entitlementDetail, isLoading: isDetailLoading } =
     useEmployeeSettlementTracking(currentEntitlementId || '', empId);
 
@@ -797,12 +782,11 @@ const EmployeeProfile = () => {
 
     if (!settlementTrackingData || settlementTrackingData.length === 0) {
       return (
-        <div
-          style={{ textAlign: 'center', padding: '40px' }}
+        <EmptyState
+          compact
+          description="No settlement tracking data available."
           data-cy="payroll-settlement-empty"
-        >
-          <Text type="secondary">No settlement tracking data available.</Text>
-        </div>
+        />
       );
     }
 
@@ -823,6 +807,10 @@ const EmployeeProfile = () => {
 
     const payments = settlementTracking.filter(
       (item: any) => item.isPaid === true,
+    );
+    const paginatedPayments = payments.slice(
+      (settlementPaymentsPage - 1) * settlementPaymentsPageSize,
+      settlementPaymentsPage * settlementPaymentsPageSize,
     );
 
     return (
@@ -1093,12 +1081,22 @@ const EmployeeProfile = () => {
                     data-cy="payroll-settlement-payments-list"
                   >
                     {payments.length > 0 ? (
-                      payments.map((payment: any, idx: number) => (
+                      paginatedPayments.map((payment: any, idx: number) => (
                         <div
-                          key={idx}
+                          key={
+                            payment?.id ??
+                            `${settlementPaymentsPage}-${idx}-${payment?.createdAt ?? ''}`
+                          }
                           style={{
                             padding: '16px 8px',
-                            backgroundColor: idx % 2 === 1 ? '#fafafa' : '#fff',
+                            backgroundColor:
+                              ((settlementPaymentsPage - 1) *
+                                settlementPaymentsPageSize +
+                                idx) %
+                                2 ===
+                              1
+                                ? '#fafafa'
+                                : '#fff',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
@@ -1178,17 +1176,32 @@ const EmployeeProfile = () => {
                         </div>
                       ))
                     ) : (
-                      <div
-                        style={{ textAlign: 'center', padding: '20px' }}
-                        data-cy="payroll-settlement-payments-empty"
-                      >
-                        <Text type="secondary" style={{ fontSize: '12px' }}>
-                          No payment history recorded.
-                        </Text>
+                      <div data-cy="payroll-settlement-payments-empty-wrap">
+                        <EmptyState
+                          minimal
+                          description="No payment history recorded."
+                          data-cy="payroll-settlement-payments-empty"
+                        />
                       </div>
                     )}
                   </div>
                 </div>
+                {payments.length > 0 ? (
+                  <CustomPagination
+                    current={settlementPaymentsPage}
+                    total={payments.length}
+                    pageSize={settlementPaymentsPageSize}
+                    onChange={(page, size) => {
+                      setSettlementPaymentsPage(page);
+                      setSettlementPaymentsPageSize(size);
+                    }}
+                    onShowSizeChange={(size) => {
+                      setSettlementPaymentsPageSize(size);
+                      setSettlementPaymentsPage(1);
+                    }}
+                    data-cy="payroll-settlement-payments-pagination"
+                  />
+                ) : null}
               </>
             )}
           </div>

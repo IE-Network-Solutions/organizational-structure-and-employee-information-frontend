@@ -33,6 +33,7 @@ import { useGetTnaByUser } from '@/store/server/features/tna/review/queries';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const TnaReviewPage = () => {
   const EmpRender = ({ userId }: any) => {
@@ -321,20 +322,23 @@ const TnaReviewPage = () => {
             )}
           </Space>
         </PageHeader>
-        <Table
-          className="mt-6"
-          columns={tableColumns}
-          dataSource={tableData}
-          loading={isLoading || isLoadingDelete}
-          id="tnaMyTrainingTableId"
-          data-cy="tna-my-training-table"
-          onChange={(sorter: any) => {
-            setOrderDirection(sorter['order']);
-            setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
-          }}
-          scroll={{ x: 'min-content' }}
-          pagination={false}
-        />
+        {isLoading || isLoadingDelete ? (
+          <TableSkeleton columns={tableColumns} />
+        ) : (
+          <Table
+            className="mt-6"
+            columns={tableColumns}
+            dataSource={tableData}
+            id="tnaMyTrainingTableId"
+            data-cy="tna-my-training-table"
+            onChange={(sorter: any) => {
+              setOrderDirection(sorter['order']);
+              setOrderBy(sorter['order'] ? sorter['columnKey'] : undefined);
+            }}
+            scroll={{ x: 'min-content' }}
+            pagination={false}
+          />
+        )}
         {isMobile || isTablet ? (
           <CustomMobilePagination
             totalResults={data?.meta?.totalItems || 0}

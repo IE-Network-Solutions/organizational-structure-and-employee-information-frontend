@@ -34,7 +34,7 @@ import StatsCard from './_components/statsCard';
 import GroupsIcon from '@mui/icons-material/Groups';
 import BusinessIcon from '@mui/icons-material/Business';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -184,8 +184,23 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div id="manage-employees-page" data-cy="manage-employees-page">
+      <style data-cy="manage-employees-page-styles">{`
+     .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
+      `}</style>
       <div
-        className="flex flex-wrap justify-between items-center px-3 pt-4"
+        className="flex flex-wrap justify-between items-center pt-4"
         id="manage-employees-header"
         data-cy="manage-employees-header"
       >
@@ -340,50 +355,73 @@ const ManageEmployees: React.FC<any> = () => {
           <AddEmployeeModal onClose={onClose} />
         </div>
       </div>
-      <Divider size="large" />
-      <div className="mb-6 px-3" data-cy="manage-employees-stats-section">
+      <Divider
+        className="full-bleed-header-divider"
+        style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+      />
+      <div className="mb-6 " data-cy="manage-employees-stats-section">
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-4"
           data-cy="manage-employees-stats-grid"
         >
-          <StatsCard
-            icon={<GroupsIcon />}
-            title="Total Employees"
-            value={EmployeeStatus?.totalEmployees?.value || 0}
-            change={EmployeeStatus?.totalEmployees?.changeSinceLastMonth || 0}
-            id="stats-total-employees"
-            data-cy="stats-total-employees"
-          />
-          <StatsCard
-            icon={<GroupAddIcon />}
-            title="New Hires This Month"
-            value={EmployeeStatus?.newHires?.value || 0}
-            change={EmployeeStatus?.newHires?.changeSinceLastMonth || 0}
-            id="stats-new-hires"
-            data-cy="stats-new-hires"
-          />
-          <StatsCard
-            icon={<BusinessIcon />}
-            title="Active Departments"
-            value={EmployeeStatus?.activeDepartments?.value || 0}
-            change={
-              EmployeeStatus?.activeDepartments?.changeSinceLastMonth || 0
-            }
-            id="stats-active-departments"
-            data-cy="stats-active-departments"
-          />
-          <StatsCard
-            icon={<AirplanemodeActiveIcon />}
-            title="Active Accounts"
-            value={100}
-            change={3}
-            id="stats-active-accounts"
-            data-cy="stats-active-accounts"
-          />
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-total-employees-wrapper"
+          >
+            <StatsCard
+              icon={<GroupsIcon />}
+              title="Total Employees"
+              value={EmployeeStatus?.totalEmployees?.value || 0}
+              change={EmployeeStatus?.totalEmployees?.changeSinceLastMonth || 0}
+              id="stats-total-employees"
+              data-cy="stats-total-employees"
+            />
+          </div>
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-new-hires-wrapper"
+          >
+            <StatsCard
+              icon={<GroupAddIcon />}
+              title="New Hires This Month"
+              value={EmployeeStatus?.newHires?.value || 0}
+              change={EmployeeStatus?.newHires?.changeSinceLastMonth || 0}
+              id="stats-new-hires"
+              data-cy="stats-new-hires"
+            />
+          </div>
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-active-departments-wrapper"
+          >
+            <StatsCard
+              icon={<BusinessIcon />}
+              title="Active Departments"
+              value={EmployeeStatus?.activeDepartments?.value || 0}
+              change={
+                EmployeeStatus?.activeDepartments?.changeSinceLastMonth || 0
+              }
+              id="stats-active-departments"
+              data-cy="stats-active-departments"
+            />
+          </div>
+          <div
+            className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+            data-cy="stats-active-accounts-wrapper"
+          >
+            <StatsCard
+              icon={<HowToRegIcon />}
+              title="Active Accounts"
+              value={100}
+              change={3}
+              id="stats-active-accounts"
+              data-cy="stats-active-accounts"
+            />
+          </div>
         </div>
       </div>
       <div
-        className="border border-gray-200 rounded-lg mx-3"
+        className="border border-[#D9D9D9] rounded-lg "
         data-cy="manage-employees-table-section"
       >
         <div

@@ -1,4 +1,4 @@
-import { Card, Skeleton, Spin } from 'antd';
+import { Card, Skeleton } from 'antd';
 import React, { useState } from 'react';
 import GroupPermissionCard from './groupPermissionCard';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
@@ -6,6 +6,7 @@ import { useGetPermissionGroups } from '@/store/server/features/employees/settin
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import EmptyState from '@/components/empty';
 
 const GroupPermissionComponent = () => {
   const { isMobile, isTablet } = useIsMobile();
@@ -42,7 +43,7 @@ const GroupPermissionComponent = () => {
         data-cy="settings-role-permission-group-loading"
       >
         {groupPermissionData?.items?.length === 0 && groupPermissionLoading && (
-          <Spin size="large" data-cy="settings-role-permission-group-spinner" />
+          <Skeleton active data-cy="settings-role-permission-group-spinner" />
         )}
       </div>
       {groupPermissionData && groupPermissionData.items?.length > 0 ? (
@@ -100,7 +101,7 @@ const GroupPermissionComponent = () => {
           id="settings-role-permission-group-empty-wrapper"
           data-cy="settings-role-permission-group-empty-wrapper"
         >
-          <Skeleton />
+          <EmptyState />
         </div>
       )}
     </Card>

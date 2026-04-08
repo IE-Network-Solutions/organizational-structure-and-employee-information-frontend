@@ -37,8 +37,14 @@ const fetchIncentiveUserDetails = async (userId: string) => {
 };
 
 export const useFetchIncentiveUserDetails = (userId: string) => {
-  return useQuery<any>(['IncentiveUserDetails', userId], () =>
-    fetchIncentiveUserDetails(userId),
+  const id = (userId || '').trim();
+  return useQuery<any>(
+    ['IncentiveUserDetails', id],
+    () => fetchIncentiveUserDetails(id),
+    {
+      // Avoid GET .../incentives/ (empty id) when modal is closed or id not yet set.
+      enabled: id.length > 0,
+    },
   );
 };
 export const useExcelHeaders = (recognitionsTypeId: string) => {

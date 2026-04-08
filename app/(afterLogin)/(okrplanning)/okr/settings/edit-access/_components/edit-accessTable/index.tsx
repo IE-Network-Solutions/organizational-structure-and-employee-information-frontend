@@ -1,6 +1,7 @@
 'use client';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
@@ -176,15 +177,18 @@ const EditAccessTable: React.FC = () => {
       id="okr-edit-access-table-container"
       data-cy="okr-edit-access-table-container"
     >
-      <Table
-        className="w-full cursor-pointer"
-        columns={columns}
-        dataSource={paginatedData}
-        pagination={false}
-        loading={responseLoading}
-        id="okr-edit-access-table"
-        data-cy="okr-edit-access-table"
-      />
+      {responseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          className="w-full cursor-pointer"
+          columns={columns}
+          dataSource={paginatedData}
+          pagination={false}
+          id="okr-edit-access-table"
+          data-cy="okr-edit-access-table"
+        />
+      )}
       {isMobile || isTablet ? (
         <CustomMobilePagination
           totalResults={allUser?.meta?.totalItems}

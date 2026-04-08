@@ -22,6 +22,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
 import { useTalentRoasterStore } from '@/store/uistate/features/recruitment/talent-resource/talent-roaster';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
@@ -447,6 +448,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         ),
       };
     }) || [];
+
   const rowSelection: TableRowSelection<TableDataItem> = {
     selectedRowKeys: selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
@@ -764,36 +766,39 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
         style={{ overflow: 'hidden' }}
         className="w-full overflow-x-auto scrollbar-none"
       >
-        <Table
-          data-cy="talent-acquisition-talent-roaster-table"
-          className="w-full"
-          columns={columns}
-          dataSource={data}
-          loading={isLoading}
-          pagination={false}
-          rowSelection={rowSelection}
-          onRow={(record) => ({
-            onClick: (event) => {
-              // Only navigate if the click is not on a checkbox, button, link, or dropdown
-              const target = event.target as HTMLElement;
-              const isInteractiveElement = target.closest(
-                'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
-              );
-
-              if (!isInteractiveElement) {
-                router.push(
-                  `/recruitment/talent-resource/talent-roaster/${record?.id}`,
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            data-cy="talent-acquisition-talent-roaster-table"
+            className="w-full"
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            rowSelection={rowSelection}
+            onRow={(record) => ({
+              onClick: (event) => {
+                // Only navigate if the click is not on a checkbox, button, link, or dropdown
+                const target = event.target as HTMLElement;
+                const isInteractiveElement = target.closest(
+                  'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
                 );
-              }
-            },
-          })}
-          rowHoverable={false}
-          rowClassName={(record, index) => {
-            const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
-            const selected = selectedRowKeys.includes(record.id);
-            return selected ? `${base} [&>td]:!bg-white` : base;
-          }}
-        />
+
+                if (!isInteractiveElement) {
+                  router.push(
+                    `/recruitment/talent-resource/talent-roaster/${record?.id}`,
+                  );
+                }
+              },
+            })}
+            rowHoverable={false}
+            rowClassName={(record, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              const selected = selectedRowKeys.includes(record.id);
+              return selected ? `${base} [&>td]:!bg-white` : base;
+            }}
+          />
+        )}
       </div>
       {isMobile || isTablet ? (
         <div

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Card, DatePicker, Select, Avatar, Spin, Modal } from 'antd';
+import { Avatar, Card, DatePicker, Modal, Select, Skeleton } from 'antd';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -282,8 +282,9 @@ const LeaveRequest = () => {
   );
 
   return (
-    <Spin
-      spinning={loading}
+    <Skeleton
+      loading={loading}
+      active
       data-cy="time-attendance-leave-request-loading-spin"
     >
       <Card
@@ -610,7 +611,7 @@ const LeaveRequest = () => {
           <MobileFilterContent />
         </Modal>
       </Card>
-    </Spin>
+    </Skeleton>
   );
 };
 

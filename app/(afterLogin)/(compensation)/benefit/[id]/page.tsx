@@ -53,7 +53,7 @@ const BenefitEntitlementPage = () => {
 
   return (
     <div
-      className="px-3 pb-2 pt-4 sm:pt-5"
+      className="px-0 pb-2 pt-4 sm:pt-5"
       id="compensation-benefit-single-wrapper"
       data-cy="compensation-benefit-single-wrapper"
     >

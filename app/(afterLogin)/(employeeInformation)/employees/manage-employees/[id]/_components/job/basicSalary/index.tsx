@@ -1,7 +1,7 @@
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import { useGetPositionsById } from '@/store/server/features/employees/positions/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { Button, Card, Space, Spin, Table, Tooltip } from 'antd';
+import { Button, Card, Skeleton, Space, Table, Tooltip } from 'antd';
 import React, { useRef } from 'react';
 import { HiPlus } from 'react-icons/hi';
 import BasicSalaryModal from './_components/basicSalaryModal';
@@ -9,6 +9,7 @@ import { MdEdit } from 'react-icons/md';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AllowanceTypeSideBar from '@/app/(afterLogin)/(compensation)/compensationSetting/allowanceType/_components/allowanceTypeSidebar';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface Ids {
   id: string;
@@ -24,7 +25,7 @@ export const BasicSalaryDetails = ({
   if (isLoading)
     return (
       <>
-        <Spin />
+        <Skeleton active />
       </>
     );
 
@@ -144,15 +145,18 @@ const BasicSalary: React.FC<Ids> = ({ id }) => {
         id="job-basic-salary-card"
         data-cy="job-basic-salary-card"
       >
-        <Table
-          dataSource={basicSalary?.slice()?.reverse()}
-          columns={columns}
-          className="w-full overflow-auto"
-          pagination={{ hideOnSinglePage: true }}
-          loading={isLoading}
-          id="job-basic-salary-table"
-          data-cy="job-basic-salary-table"
-        />
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            dataSource={basicSalary?.slice()?.reverse()}
+            columns={columns}
+            className="w-full overflow-auto"
+            pagination={{ hideOnSinglePage: true }}
+            id="job-basic-salary-table"
+            data-cy="job-basic-salary-table"
+          />
+        )}
       </Card>
       <BasicSalaryModal
         visible={isBasicSalaryModalVisible}

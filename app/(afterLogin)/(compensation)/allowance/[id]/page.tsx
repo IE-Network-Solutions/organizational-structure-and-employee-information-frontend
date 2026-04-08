@@ -34,7 +34,7 @@ const SingleAllowancePage = () => {
 
   return (
     <div
-      className="px-3 pb-2 pt-4 sm:pt-5"
+      className="px-0 pb-2 pt-4 sm:pt-5"
       id="compensation-allowance-single-wrapper"
       data-cy="compensation-allowance-single-wrapper"
     >

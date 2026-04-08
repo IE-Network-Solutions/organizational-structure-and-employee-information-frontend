@@ -7,15 +7,13 @@ import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetUnreadCount } from '@/store/server/features/notification/queries';
 import { usePWA } from '@/hooks/usePWA';
-import { DownloadOutlined } from '@ant-design/icons';
-import { FiSearch, FiBell } from 'react-icons/fi';
+import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
+import { FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
-import DefaultAvatar from '@/public/gender_neutral_avatar.jpg';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
   handleLogout: () => void;
-  /** When true, search and profile are omitted (e.g. payroll dashboard uses page-level Nav). */
 }
 
 const NavBar = ({ handleLogout }: NavBarProps) => {
@@ -82,44 +80,13 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
     },
   ];
 
+  const hasProfileImage = Boolean(employeeData?.profileImage);
+
   return (
     <div
       data-cy="top-nav-bar"
-      className="flex justify-between items-center bg-white w-full h-full px-6"
+      className="flex justify-end items-center bg-white w-full h-full px-6"
     >
-      {/* Left side: Search Bar */}
-      <div
-        data-cy="top-nav-search-wrap"
-        className="flex-1 max-w-[420px] flex items-center pr-4"
-      >
-        <div data-cy="top-nav-search-inner" className="relative w-full group">
-          <div
-            data-cy="top-nav-search-icon-wrap"
-            className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
-          >
-            <FiSearch className="h-4.5 w-4.5 text-gray-400 group-focus-within:text-[#3636F0] transition-colors" />
-          </div>
-          <input
-            data-cy="top-nav-search-input"
-            type="text"
-            className="block w-full h-[44px] pl-11 pr-12 bg-[#F9FBFF] border border-gray-200 rounded-xl text-[14.5px] placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#3636F0]/20 focus:border-[#3636F0] transition-all"
-            placeholder="Search"
-          />
-          <div
-            data-cy="top-nav-search-shortcut-wrap"
-            className="absolute inset-y-0 right-3 flex items-center pointer-events-none"
-          >
-            <div
-              data-cy="top-nav-search-shortcut"
-              className="flex items-center justify-center w-6 h-6 border border-gray-200 rounded-md text-[11px] font-bold text-gray-400 bg-white"
-            >
-              S
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right side: Actions & User Profile */}
       <div data-cy="top-nav-actions" className="flex items-center gap-5">
         {/* PWA Install Button */}
         {isInstallable && !isInstalled && !isStandalone && (
@@ -175,11 +142,8 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
           >
             <Avatar
               size={36}
-              src={
-                employeeData?.profileImage ||
-                (DefaultAvatar as any).src ||
-                (DefaultAvatar as unknown as string)
-              }
+              src={hasProfileImage ? employeeData?.profileImage : undefined}
+              icon={!hasProfileImage ? <UserOutlined /> : undefined}
               className="border-2 border-white shadow-sm transition-transform group-hover:scale-105"
             />
             <div

@@ -5,6 +5,7 @@ import { Inbox } from 'lucide-react';
 import dayjs from 'dayjs';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EmptyState from '@/components/empty';
 
 const { Dragger } = Upload;
 
@@ -213,7 +214,7 @@ const DocumentUploadForm = () => {
               data-cy="document-upload-form-no-documents-uploaded"
               className="text-gray-400 text-sm italic text-center py-4"
             >
-              No documents uploaded yet.
+              <EmptyState />
             </div>
           )}
         </div>

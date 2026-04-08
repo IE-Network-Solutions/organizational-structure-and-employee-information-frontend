@@ -1,21 +1,26 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
+import { FC, ReactNode, useEffect, useMemo } from 'react';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
-import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
-import { Breadcrumb, Spin } from 'antd';
-import PageHeader from '@/components/common/pageHeader/pageHeader';
+import { Breadcrumb, Button, Spin } from 'antd';
+import { MdAdd, MdMenu, MdOutlineArrowBackIos } from 'react-icons/md';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface TnaManagementLayoutProps {
   children: ReactNode;
 }
 
+const MOBILE_PAGE_HEADER_MAX_LEN = 22;
+
 const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
-  const [breadcrumbItems, setBreadcrumbItems] = useState<
-    BreadcrumbProps['items']
-  >([]);
+  const { isMobile } = useIsMobile();
   const { id, lessonId, materialId } = useParams();
+  const router = useRouter();
+  const routeCourseId = Array.isArray(id) ? id[0] : id;
+
   const {
     course,
     setCourse,
@@ -23,7 +28,18 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
     setLessonMaterial,
     lessonMaterial,
     setLesson,
+    setIsShowAddLesson,
+    isShowAddLesson,
+    isLessonPageSidebarOpen,
+    setLessonPageSidebarOpen,
   } = useTnaManagementCoursePageStore();
+
+  const isCourseCurriculumPage = !lessonId;
+
+  const openAddLesson = () => {
+    setLesson(null);
+    setIsShowAddLesson(true);
+  };
   const {
     data: courseData,
     isLoading,
@@ -33,44 +49,30 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    if (course) {
-      const bItems: BreadcrumbProps['items'] = [
-        {
-          title: 'Training & Learning',
-          href: '/tna/management',
-        },
-      ];
-
-      if (lessonId) {
-        const lesson = course.courseLessons.find((l) => l.id === lessonId);
-        if (lesson) {
-          bItems.push({
-            title: course.title,
-            href: `/tna/management/${course.id}`,
-          });
-          setLesson(lesson);
-          if (materialId) {
-            const material = lesson.courseLessonMaterials.find(
-              (m) => m.id === materialId,
-            );
-            if (material) {
-              bItems.push({
-                title: lesson.title,
-              });
-
-              setLessonMaterial(material);
-            }
-          }
+    if (!course) {
+      return;
+    }
+    if (lessonId) {
+      const matchedLesson = course.courseLessons.find((l) => l.id === lessonId);
+      if (matchedLesson) {
+        setLesson(matchedLesson);
+        if (materialId) {
+          const material = matchedLesson.courseLessonMaterials.find(
+            (m) => m.id === materialId,
+          );
+          setLessonMaterial(material ?? null);
+        } else {
+          setLessonMaterial(null);
         }
       } else {
-        bItems.push({
-          title: course.title,
-        });
+        setLesson(null);
+        setLessonMaterial(null);
       }
-
-      setBreadcrumbItems(bItems);
+    } else {
+      setLesson(null);
+      setLessonMaterial(null);
     }
-  }, [id, lessonId, materialId, course]);
+  }, [id, lessonId, materialId, course, setLesson, setLessonMaterial]);
 
   useEffect(() => {
     if (courseData?.items?.length) {
@@ -79,9 +81,89 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
       setRefetchCourse(refetch);
     }
   }, [courseData]);
+
+  const pageHeaderTitle = lessonMaterial
+    ? lessonMaterial.title
+    : (course?.title ?? 'Training & Learning');
+  const isPageHeaderTruncated =
+    isMobile && pageHeaderTitle.length > MOBILE_PAGE_HEADER_MAX_LEN;
+  const pageHeaderDisplay = isPageHeaderTruncated
+    ? `${pageHeaderTitle.slice(0, MOBILE_PAGE_HEADER_MAX_LEN)}...`
+    : pageHeaderTitle;
+
+  const breadcrumbItems = useMemo((): BreadcrumbProps['items'] => {
+    const learningGrowth = {
+      title: (
+        <Link
+          href="/tna/management"
+          className="text-sm text-black/45 hover:text-black/70"
+          data-cy="tna-management-layout-breadcrumb-learning-growth"
+        >
+          Learning and Growth
+        </Link>
+      ),
+    };
+
+    const onMaterialPage = Boolean(
+      routeCourseId && lessonId && materialId && lessonMaterial && course,
+    );
+
+    if (onMaterialPage && course && lessonMaterial) {
+      return [
+        learningGrowth,
+        {
+          title: (
+            <Link
+              href="/tna/management"
+              className="text-sm text-black/45 hover:text-black/70"
+              data-cy="tna-management-layout-breadcrumb-learning-management"
+            >
+              Learning Management
+            </Link>
+          ),
+        },
+        {
+          title: (
+            <Link
+              href={`/tna/management/${routeCourseId}`}
+              className="text-sm text-black/45 hover:text-black/70"
+              data-cy="tna-management-layout-breadcrumb-course"
+            >
+              {course.title}
+            </Link>
+          ),
+        },
+        {
+          title: (
+            <span
+              className="text-sm text-black/70"
+              data-cy="tna-management-layout-breadcrumb-material"
+            >
+              {lessonMaterial.title}
+            </span>
+          ),
+        },
+      ];
+    }
+
+    return [
+      learningGrowth,
+      {
+        title: (
+          <span
+            className="text-sm text-black/70"
+            data-cy="tna-management-layout-breadcrumb-learning-management"
+          >
+            Learning Management
+          </span>
+        ),
+      },
+    ];
+  }, [routeCourseId, lessonId, materialId, lessonMaterial, course]);
+
   return (
     <div
-      className="page-wrap bg-[#f5f5f5] pt-4"
+      className="page-wrap  pt-4"
       id="tnaManagementLayoutId"
       data-cy="tna-management-layout"
     >
@@ -95,17 +177,67 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
         </div>
       ) : course ? (
         <>
-          <Breadcrumb
-            items={breadcrumbItems}
-            className="mb-2"
-            data-cy="tna-management-layout-breadcrumb"
-          />
-          <PageHeader
-            title={
-              lessonMaterial ? lessonMaterial.title : 'Training & Learning'
-            }
-            data-cy="tna-management-layout-page-header"
-          />
+          <div
+            className="flex items-center gap-4 border-b border-gray-200 pb-4"
+            data-cy="tna-management-layout-header"
+          >
+            <Button
+              icon={<MdOutlineArrowBackIos />}
+              onClick={() => router.push(`/tna/management/${id}`)}
+              data-cy="tna-management-layout-back"
+            />
+            <div
+              className="min-w-0 flex-1"
+              data-cy="tna-management-layout-header-content"
+            >
+              <div
+                className="font-bold text-2xl text-gray-900"
+                data-cy="tna-management-layout-page-header"
+                title={isPageHeaderTruncated ? pageHeaderTitle : undefined}
+              >
+                {pageHeaderDisplay}
+              </div>
+              <div
+                className={
+                  isMobile
+                    ? 'max-w-full overflow-x-auto overflow-y-hidden scrollbar-none'
+                    : ''
+                }
+                data-cy="tna-management-layout-breadcrumb-wrap"
+              >
+                <Breadcrumb
+                  items={breadcrumbItems}
+                  className={
+                    isMobile
+                      ? 'mb-2 [&_ol]:!flex-nowrap [&_li]:shrink-0'
+                      : 'mb-2'
+                  }
+                  data-cy="tna-management-layout-breadcrumb"
+                />
+              </div>
+            </div>
+            {isCourseCurriculumPage ? (
+              <Button
+                type="primary"
+                icon={<MdAdd className="text-lg" aria-hidden />}
+                className="shrink-0 !border-[#1a3a8a] !bg-[#1a3a8a] !font-normal !text-white hover:!border-[#152f73] hover:!bg-[#152f73] focus-visible:!border-[#152f73] disabled:!cursor-not-allowed disabled:!border-[#1a3a8a] disabled:!bg-[#1a3a8a] disabled:!text-white disabled:!opacity-70 disabled:hover:!border-[#1a3a8a] disabled:hover:!bg-[#1a3a8a] disabled:hover:!text-white"
+                disabled={isShowAddLesson}
+                onClick={openAddLesson}
+                data-cy="tna-management-layout-add-lesson"
+              >
+                New Lesson
+              </Button>
+            ) : null}
+            {isMobile && lessonId && materialId ? (
+              <Button
+                icon={<MdMenu />}
+                onClick={() =>
+                  setLessonPageSidebarOpen(!isLessonPageSidebarOpen)
+                }
+                data-cy="tna-management-layout-sidebar-menu"
+              />
+            ) : null}
+          </div>
 
           {children}
         </>

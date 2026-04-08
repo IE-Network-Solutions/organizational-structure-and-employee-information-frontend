@@ -1,9 +1,14 @@
 import React from 'react';
-import { Modal, Form } from 'antd';
-import KeyResultView from '../../keyresultView';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
-import CustomButton from '@/components/common/buttons/customButton';
+import { Modal, Form, Tooltip, Button } from 'antd';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import KeyResultForm from '../../keyresultForm';
+import { KeyResultSelectedBadge } from '../../keyresultForm/_ui';
+import {
+  useOKRStore,
+  useEditKeyResultStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -20,18 +25,82 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const [form] = Form.useForm();
   const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
-  const { keyResultValue, objectiveValue } = useOKRStore();
+  const { keyResultValue, handleSingleKeyResultChange } = useOKRStore();
+  const { isEditing, setIsEditing, resetEditKeyResult } =
+    useEditKeyResultStore();
+
+  const hasValidKeyResult = (value: any) =>
+    value && typeof value === 'object' && !Array.isArray(value);
+
+  const sourceKeyResult = hasValidKeyResult(keyResultValue)
+    ? keyResultValue
+    : props?.keyResult;
+
+  const getDeadlineFromKr = (kr: any) =>
+    kr?.deadline ??
+    kr?.dead_line ??
+    kr?.deadLine ??
+    kr?.dueDate ??
+    kr?.due_date ??
+    null;
+
+  const krId = sourceKeyResult?.id ? String(sourceKeyResult.id) : '';
+  const { data: fetchedKeyResult } = useGetKeyResultForEdit(
+    krId,
+    !!props.open && !!krId,
+  );
+
+  const baseResolved =
+    props.open && fetchedKeyResult && Object.keys(fetchedKeyResult).length > 0
+      ? { ...fetchedKeyResult, ...sourceKeyResult }
+      : sourceKeyResult;
+
+  const resolvedDeadline =
+    getDeadlineFromKr(sourceKeyResult) ?? getDeadlineFromKr(fetchedKeyResult);
+  const resolvedKeyResult =
+    resolvedDeadline != null && resolvedDeadline !== ''
+      ? { ...baseResolved, deadline: resolvedDeadline }
+      : baseResolved;
+
+  const normalizedKeyItem = (() => {
+    const kr = resolvedKeyResult;
+    if (!kr) return kr;
+    const deadline = getDeadlineFromKr(kr);
+    return {
+      ...kr,
+      key_type: kr?.key_type || kr?.metricType?.name || '',
+      deadline: deadline ?? null,
+      weight:
+        kr?.weight != null && kr?.weight !== ''
+          ? Number(kr.weight)
+          : kr?.weight,
+    };
+  })();
 
   const handleModalClose = () => {
+    resetEditKeyResult();
     form.resetFields(); // Reset all form fields
     props.onClose(); // Close the modal
+  };
+
+  const kr = normalizedKeyItem;
+  const getMetricLabel = (keyResult: any) => {
+    const name = keyResult?.metricType?.name || keyResult?.key_type || '';
+    if (name === 'Achieve') return 'Achieve or not';
+    if (name === 'Achieved') return 'Achieve or not';
+    return name || 'Key Result';
+  };
+  const isNumericType = (keyResult: any) => {
+    const n = keyResult?.metricType?.name || keyResult?.key_type || '';
+    return n === 'Numeric' || n === 'Currency' || n === 'Percentage';
   };
 
   const onSubmit = () => {
     form
       .validateFields()
       .then(() => {
-        const keyResult = keyResultValue;
+        const keyResult = normalizedKeyItem;
+        if (!keyResult) return;
 
         const keyType = keyResult?.metricType?.name || keyResult?.key_type;
         if (keyType === 'Milestone') {
@@ -85,7 +154,10 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         }
 
         // If all checks pass, proceed with the objective creation
-        updateKeyResult(keyResultValue, {
+        const toSubmit = hasValidKeyResult(keyResultValue)
+          ? { ...normalizedKeyItem, ...keyResultValue }
+          : normalizedKeyItem;
+        updateKeyResult(toSubmit, {
           onSuccess: () => {
             handleModalClose();
           },
@@ -100,7 +172,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     <div
       id="edit-key-result-modal-header"
       data-cy="okr-edit-key-result-modal-header"
-      className="flex justify-center text-2xl font-extrabold text-gray-800 p-4"
+      className="text-lg font-semibold text-gray-900"
     >
       Edit Key Result
     </div>
@@ -110,25 +182,26 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     <div
       id="edit-key-result-modal-footer"
       data-cy="okr-edit-key-result-modal-footer"
-      className="w-full flex justify-center items-center pt-2 bottom-8 space-x-5"
+      className="w-full flex justify-end items-center pt-2 gap-3"
     >
-      <CustomButton
+      <Button
         id="edit-key-result-cancel-button"
         data-cy="okr-edit-key-result-cancel-button"
-        type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        style={{ marginRight: 8, height: '40px' }}
-      />
-      <CustomButton
+        className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+      >
+        Cancel
+      </Button>
+      <Button
         id="edit-key-result-save-button"
         data-cy="okr-edit-key-result-save-button"
-        title={'Save'}
         type="primary"
         onClick={onSubmit}
         loading={isLoading}
-        style={{ height: '40px' }}
-      />
+        className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+      >
+        Save
+      </Button>
     </div>
   );
 
@@ -139,13 +212,22 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
       onCancel={handleModalClose}
       footer={footer}
       title={modalHeader}
-      centered
-      width={isMobile ? '100vw' : 1200}
-      bodyStyle={{ padding: isMobile ? 12 : 32 }}
-      style={{ top: isMobile ? 0 : 32, padding: 0, maxHeight: '95vh' }}
+      centered={!isMobile}
+      width={isMobile ? '100%' : 1200}
+      zIndex={12000}
+      wrapClassName={
+        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
+      }
+      bodyStyle={{
+        padding: isMobile ? '24px 24px' : 24,
+        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
+        overflowY: isMobile ? 'auto' : undefined,
+      }}
+      styles={{ content: { borderRadius: 8 } }}
+      style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
       maskClosable={false}
-      destroyOnHidden
-      closable={false}
+      destroyOnClose
+      closable
     >
       <Form
         id="edit-key-result-form"
@@ -154,6 +236,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         layout="vertical"
         className="w-full"
       >
+        {/* Section header – same style as create / edit objective modals */}
         <div
           id="edit-key-result-section-header"
           data-cy="okr-edit-key-result-section-header"
@@ -162,25 +245,119 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           <h2
             id="edit-key-result-section-title"
             data-cy="okr-edit-key-result-section-title"
-            className="text-xl font-semibold text-gray-800 mb-4"
+            className="text-base font-bold text-gray-900"
           >
-            Key Result
+            Set your Key Result
           </h2>
+          <p
+            id="edit-key-result-section-subtitle"
+            data-cy="okr-edit-key-result-section-subtitle"
+            className="text-sm text-gray-500 mt-1"
+          >
+            Please update your key result below.
+          </p>
+          <div
+            className="border-b border-gray-200 mt-4"
+            data-cy="okr-edit-key-result-section-divider"
+          />
         </div>
 
         <div
           id="edit-key-result-view-container"
           data-cy="okr-edit-key-result-view-container"
+          className="overflow-y-auto"
+          style={{ maxHeight: 'calc(80vh - 220px)' }}
         >
-          <KeyResultView
-            data-cy="okr-edit-key-result-view"
-            key={`${props?.keyResult?.metricTypeId || 'default'}-${props?.keyResult?.id || 'new'}`}
-            keyValue={props?.keyResult}
-            objective={objectiveValue}
-            index={0}
-            isEdit={true}
-            form={form}
-          />
+          {!isEditing && kr ? (
+            <div
+              id="edit-key-result-kr-card"
+              data-cy="okr-edit-key-result-kr-card"
+              className="mb-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4"
+            >
+              <KeyResultSelectedBadge
+                label={getMetricLabel(kr)}
+                data-cy="okr-edit-key-result-kr-card-badge"
+              />
+              <div
+                className="flex flex-wrap gap-2 mb-2"
+                data-cy="okr-edit-key-result-kr-card-meta"
+              >
+                <span
+                  className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                  data-cy="okr-edit-key-result-kr-card-weight"
+                >
+                  Weight {kr?.weight ?? 0}%
+                </span>
+                {isNumericType(kr) && (
+                  <>
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                      data-cy="okr-edit-key-result-kr-card-initial"
+                    >
+                      Initial Value : {kr?.initialValue ?? 0}
+                    </span>
+                    <span
+                      className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                      data-cy="okr-edit-key-result-kr-card-target"
+                    >
+                      Target Value : {kr?.targetValue ?? 0}
+                    </span>
+                  </>
+                )}
+              </div>
+              <div
+                className="flex items-start justify-between gap-3"
+                data-cy="okr-edit-key-result-kr-card-content"
+              >
+                <p
+                  className="text-base font-bold text-gray-900 leading-snug break-words flex-1 min-w-0"
+                  data-cy="okr-edit-key-result-kr-card-title"
+                >
+                  {kr?.title?.trim() ? (
+                    kr.title
+                  ) : (
+                    <span
+                      className="text-gray-400 italic font-normal"
+                      data-cy="okr-edit-key-result-kr-card-untitled"
+                    >
+                      Untitled key result
+                    </span>
+                  )}
+                </p>
+                <Tooltip title="Edit">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
+                    aria-label="Edit key result"
+                    data-cy="okr-edit-key-result-kr-card-edit"
+                  >
+                    <EditOutlinedIcon className="text-sm" />
+                  </button>
+                </Tooltip>
+              </div>
+            </div>
+          ) : (
+            <>
+              {normalizedKeyItem && (
+                <KeyResultForm
+                  data-cy="okr-edit-key-result-form-inline"
+                  keyItem={normalizedKeyItem}
+                  index={0}
+                  // eslint-disable-next-line
+                  updateKeyResult={(_index, field, value) =>
+                    handleSingleKeyResultChange(value, field as string)
+                  }
+                  removeKeyResult={() => {}}
+                  addKeyResultValue={() => {}}
+                  embedInOkrSheet={isMobile}
+                  disableWeightEdit={true}
+                  onSaveSuccess={() => setIsEditing(false)}
+                  hideRemoveButton={true}
+                />
+              )}
+            </>
+          )}
         </div>
 
         {/* Total Key Results Weight */}

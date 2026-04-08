@@ -85,20 +85,13 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
   }
   return (
     <Modal
-      title={
-        <div
-          data-cy="recognition-type-modal-title"
-          className="text-base font-bold text-black/70"
-        >
-          Recognize Employee
-        </div>
-      }
+      title="Recognition Type"
       open={visible}
       footer={null}
       centered={false}
       className="!w-[1145px] !max-w-[calc(100vw-2rem)]"
       classNames={{
-        body: `${visibleEmployee ? 'max-h-[670px] overflow-y-auto scrollbar-none' : 'min-h-[200px]'}`,
+        body: `${visibleEmployee ? 'max-h-[670px] overflow-y-auto scrollbar-none' : 'h-[400px]'}`,
       }}
       onCancel={handleCancel}
       data-cy="recognition-type-modal"

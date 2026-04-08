@@ -1,6 +1,6 @@
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
 import CustomDrawerLayout from '@/components/common/customDrawer';
-import { Col, Divider, Row, Spin } from 'antd';
+import { Col, Divider, Row, Skeleton } from 'antd';
 import { classNames } from '@/utils/classNames';
 import { TbFileDownload } from 'react-icons/tb';
 import React, { useMemo } from 'react';
@@ -160,11 +160,15 @@ const LeaveRequestManagementSidebar = () => {
             id="time-attendance-leave-management-sidebar-loading"
             data-cy="time-attendance-leave-management-sidebar-loading"
           >
-            <Spin data-cy="time-attendance-leave-management-sidebar-loading-spin" />
+            <Skeleton
+              active
+              data-cy="time-attendance-leave-management-sidebar-loading-spin"
+            />
           </div>
         ) : (
-          <Spin
-            spinning={isLoading}
+          <Skeleton
+            loading={isLoading}
+            active
             data-cy="time-attendance-leave-management-sidebar-spin"
           >
             <div
@@ -410,7 +414,7 @@ const LeaveRequestManagementSidebar = () => {
                 </div>
               </div>
             </div>
-          </Spin>
+          </Skeleton>
         )}
       </CustomDrawerLayout>
     )

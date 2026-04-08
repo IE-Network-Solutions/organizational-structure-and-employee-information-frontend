@@ -27,6 +27,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { Button } from 'antd';
 import DuplicateDeductionModal from '@/components/common/duplicateDeductionModal';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 dayjs.extend(isBetween);
 
@@ -552,15 +553,19 @@ const BenefitEntitlementSideBar = ({
                   id="compensation-benefit-sidebar-payments-table-wrapper"
                   data-cy="compensation-benefit-sidebar-payments-table-wrapper"
                 >
-                  <Table
-                    data-cy="compensation-benefit-sidebar-payments-table"
-                    columns={columns}
-                    dataSource={data}
-                    bordered={false}
-                    className="mb-0"
-                    showHeader={false}
-                    pagination={false}
-                  />
+                  {entitlementsLoading ? (
+                    <TableSkeleton columns={columns} />
+                  ) : (
+                    <Table
+                      data-cy="compensation-benefit-sidebar-payments-table"
+                      columns={columns}
+                      dataSource={data}
+                      bordered={false}
+                      className="mb-0"
+                      showHeader={false}
+                      pagination={false}
+                    />
+                  )}
                 </div>
               )}
 

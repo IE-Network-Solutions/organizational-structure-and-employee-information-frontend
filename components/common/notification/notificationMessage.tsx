@@ -24,6 +24,7 @@ const NotificationMessage = {
       description,
       className: 'notification',
       style: {
+        zIndex: 13001,
         backgroundColor: '#fff1f0',
         border: '1px solid #ffa39e',
         margin: 0,
@@ -38,6 +39,7 @@ const NotificationMessage = {
       description,
       className: 'notification',
       style: {
+        zIndex: 13001,
         backgroundColor: '#fffbe6',
         border: '1px solid #ffe58f',
         margin: 0,
@@ -52,6 +54,7 @@ const NotificationMessage = {
       description,
       className: 'notification',
       style: {
+        zIndex: 13001,
         backgroundColor: '#F6FFED',
         border: '1px solid #B7EB8F',
         margin: 0,

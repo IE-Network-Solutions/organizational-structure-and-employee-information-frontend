@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Steps } from 'antd';
+import { Skeleton, Steps } from 'antd';
 import Link from 'next/link';
 import { AuditLog } from '@/types/tenant-management';
+import EmptyState from '@/components/empty';
 import {
   MdAlbum,
   MdAccountBalance,
@@ -243,7 +244,7 @@ export default function RecentHrActions({
 
         <Link
           href={`/audit-log?modules=${encodeURIComponent(auditLogModules?.join(',') ?? '')}`}
-          className="text-sm font-normal text-primary "
+          className="text-sm font-medium text-blue hover:underline whitespace-nowrap"
           id="recent-hr-actions-view-all"
           data-cy="recent-hr-actions-view-all"
           aria-label="View all recent HR actions"
@@ -267,24 +268,33 @@ export default function RecentHrActions({
                     className="flex items-start gap-3"
                     data-cy={`recent-hr-actions-skeleton-row-${index}`}
                   >
-                    <div
-                      className="w-7 h-7 rounded-full bg-gray-200 animate-pulse flex-shrink-0"
+                    <Skeleton.Avatar
+                      active
+                      shape="circle"
+                      size={28}
+                      className="flex-shrink-0"
                       data-cy={`recent-hr-actions-skeleton-icon-${index}`}
                     />
                     <div
                       className="flex-1 min-w-0 space-y-2 pt-1"
                       data-cy={`recent-hr-actions-skeleton-content-${index}`}
                     >
-                      <div
-                        className="h-4 w-32 bg-gray-200 rounded animate-pulse"
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        style={{ width: 128 }}
                         data-cy={`recent-hr-actions-skeleton-title-${index}`}
                       />
-                      <div
-                        className="h-3 w-11/12 bg-gray-200 rounded animate-pulse"
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        style={{ width: '90%' }}
                         data-cy={`recent-hr-actions-skeleton-desc-${index}`}
                       />
-                      <div
-                        className="h-3 w-24 bg-gray-200 rounded animate-pulse"
+                      <Skeleton.Input
+                        active
+                        size="small"
+                        style={{ width: 96 }}
                         data-cy={`recent-hr-actions-skeleton-time-${index}`}
                       />
                     </div>
@@ -292,6 +302,13 @@ export default function RecentHrActions({
                 );
               },
             )}
+          </div>
+        ) : actionItems.length === 0 ? (
+          <div data-cy="recent-hr-actions-empty-state">
+            <EmptyState
+              description="No recent actions found"
+              data-cy="recent-hr-actions-empty-state-inner"
+            />
           </div>
         ) : (
           <Steps

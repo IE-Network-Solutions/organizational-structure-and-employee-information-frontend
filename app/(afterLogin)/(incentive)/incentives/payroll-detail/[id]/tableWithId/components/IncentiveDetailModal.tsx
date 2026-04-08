@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Avatar, Spin, Tag } from 'antd';
+import { Modal, Avatar, Tag, Skeleton } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { useFetchIncentiveUserDetails } from '@/store/server/features/incentive/all/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -9,6 +9,121 @@ interface IncentiveDetailModalProps {
   open: boolean;
   onCancel: () => void;
   detailId: string | null;
+}
+
+function IncentiveDetailModalSkeleton() {
+  return (
+    <div
+      data-cy="incentive-detail-modal-skeleton"
+      className="flex w-full flex-col gap-4"
+      aria-busy="true"
+    >
+      <div
+        data-cy="incentive-detail-modal-skeleton-top-box"
+        className="mb-4 rounded-lg border border-[#E5E7EB] bg-white p-4 sm:p-5"
+      >
+        <div
+          data-cy="incentive-detail-modal-skeleton-top-header"
+          className="flex items-center gap-3 pb-4"
+        >
+          <Skeleton.Avatar active size={46} shape="circle" />
+          <div
+            data-cy="incentive-detail-modal-skeleton-top-name-block"
+            className="flex min-w-0 flex-1 flex-col gap-2"
+          >
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 200, height: 22 }}
+            />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 160, height: 16 }}
+            />
+          </div>
+        </div>
+        <div
+          data-cy="incentive-detail-modal-skeleton-top-meta-grid"
+          className="grid grid-cols-1 gap-5 px-3 pt-4 sm:grid-cols-3"
+        >
+          {[0, 1, 2].map((metaIndex) => (
+            <div
+              key={metaIndex}
+              data-cy={`incentive-detail-modal-skeleton-meta-${metaIndex}`}
+              className="flex min-w-0 flex-col gap-2"
+            >
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 100, height: 14 }}
+              />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 140, height: 18 }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div
+        data-cy="incentive-detail-modal-skeleton-middle-box"
+        className="mt-1 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+      >
+        <Skeleton.Input active size="small" style={{ width: 72, height: 16 }} />
+        <div
+          data-cy="incentive-detail-modal-skeleton-formula-pills"
+          className="flex flex-wrap items-center justify-center gap-3 rounded-lg border border-[#F0F0F0] p-3"
+        >
+          <Skeleton.Button active style={{ width: 88, height: 36 }} />
+          <span
+            data-cy="incentive-detail-modal-skeleton-formula-sep-0"
+            className="text-sm font-bold text-transparent"
+            aria-hidden
+          >
+            *
+          </span>
+          <Skeleton.Button active style={{ width: 96, height: 36 }} />
+        </div>
+      </div>
+
+      <div
+        data-cy="incentive-detail-modal-skeleton-bottom-box"
+        className="mt-1 flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+      >
+        <Skeleton.Input
+          active
+          size="small"
+          style={{ width: 110, height: 16 }}
+        />
+        <div
+          data-cy="incentive-detail-modal-skeleton-criteria-row"
+          className="flex flex-wrap items-center gap-x-12 gap-y-6"
+        >
+          {[0, 1, 2, 3].map((criterionIndex) => (
+            <div
+              key={criterionIndex}
+              data-cy={`incentive-detail-modal-skeleton-criterion-${criterionIndex}`}
+              className="flex flex-col gap-2"
+            >
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 90, height: 14 }}
+              />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 48, height: 18 }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
@@ -45,20 +160,20 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
     return (
       <div
         data-cy="incentive-detail-modal-formula-expression-container"
-        className="flex flex-wrap items-center justify-center bg-[#FAFAFA] p-3 rounded-lg border border-[#F0F0F0] gap-3"
+        className="flex flex-wrap items-center justify-center gap-3 rounded-lg border border-[#F0F0F0] p-3"
       >
         {parts.map((p: string, i: number) => (
           <React.Fragment key={i}>
             <div
               data-cy="incentive-detail-modal-formula-expression-part"
-              className="border border-[#D9D9D9] bg-white rounded-[4px] px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm whitespace-nowrap"
+              className="whitespace-nowrap rounded-[4px] border border-[#D9D9D9] bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm"
             >
               {p}
             </div>
             {i !== parts.length - 1 && (
               <span
                 data-cy="incentive-detail-modal-formula-expression-part-separator"
-                className="text-gray-400 font-bold"
+                className="font-bold text-gray-400"
               >
                 *
               </span>
@@ -69,12 +184,14 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
     );
   };
 
+  const isLoading = userDetailLoading || employeeDataLoading;
+
   return (
     <Modal
       title={
         <div
           data-cy="incentive-detail-modal-title"
-          className="text-gray-800 font-bold text-lg"
+          className="px-4 text-base font-bold text-black opacity-70"
         >
           Incentive Detail
         </div>
@@ -86,45 +203,48 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
       centered
       className="p-0"
       destroyOnClose
+      bodyStyle={{
+        padding: '0px',
+      }}
     >
       <div
         data-cy="incentive-detail-modal-content"
-        className="flex justify-center p-2 sm:p-8"
+        className="flex justify-center p-2 sm:p-4"
       >
-        {userDetailLoading || employeeDataLoading ? (
-          <Spin size="large" />
+        {isLoading ? (
+          <IncentiveDetailModalSkeleton />
         ) : (
           <div
             data-cy="incentive-detail-modal-content-container"
-            className="flex flex-col gap-4 w-full"
+            className="flex w-full flex-col gap-4"
           >
             {/* Top Box: User Info & Core Data */}
             <div
               data-cy="incentive-detail-modal-content-container-top-box"
-              className="border border-gray-200 rounded-lg p-2 sm:p-6 bg-white flex flex-wrap lg:flex-nowrap items-start justify-between gap-6 shadow-sm"
+              className="mb-4 rounded-lg border border-[#E5E7EB] bg-white p-4 sm:p-5"
             >
               <div
                 data-cy="incentive-detail-modal-content-container-top-box-content"
-                className="flex items-center gap-4 flex-1"
+                className="flex items-center gap-3 pb-4"
               >
                 <Avatar
-                  size={56}
+                  size={46}
                   src={userInfo?.profileImage || undefined}
                   icon={!userInfo?.profileImage ? <UserOutlined /> : undefined}
                 />
                 <div
                   data-cy="incentive-detail-modal-content-container-top-box-content-name"
-                  className="flex flex-col"
+                  className="flex min-w-0 flex-col"
                 >
-                  <span
+                  <h5
                     data-cy="incentive-detail-modal-content-container-top-box-content-name-text"
-                    className="text-gray-800 font-medium text-base"
+                    className="m-0 text-[18px] font-medium leading-6 text-black/75"
                   >
                     {`${userInfo?.firstName || 'N/A'} ${userInfo?.middleName || ''}`.trim()}
-                  </span>
+                  </h5>
                   <span
                     data-cy="incentive-detail-modal-content-container-top-box-content-name-job"
-                    className="text-gray-400 text-sm"
+                    className="mt-0.5 text-sm font-normal text-black/30"
                   >
                     {userInfo?.employeeJobInformation?.length
                       ? userInfo?.employeeJobInformation
@@ -137,21 +257,21 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
 
               <div
                 data-cy="incentive-detail-modal-content-container-top-box-content-recognition"
-                className="flex flex-1 gap-8 items-center pl-8 pr-4"
+                className="grid grid-cols-1 gap-5 px-3 pt-4 sm:grid-cols-3"
               >
                 <div
                   data-cy="incentive-detail-modal-content-container-top-box-content-recognition-for"
-                  className="flex flex-col gap-1"
+                  className="flex min-w-0 flex-col gap-1"
                 >
                   <span
                     data-cy="incentive-detail-modal-content-container-top-box-content-recognition-for-label"
-                    className="text-gray-400 text-sm font-medium"
+                    className="text-sm font-normal text-black opacity-70"
                   >
                     Recognized For
                   </span>
                   <span
                     data-cy="incentive-detail-modal-content-container-top-box-content-recognition-for-value"
-                    className="text-gray-800 font-medium"
+                    className="text-sm font-bold text-black opacity-70"
                   >
                     {userDetail?.recognitionTypeName || 'N/A'}
                   </span>
@@ -162,13 +282,13 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
                 >
                   <span
                     data-cy="incentive-detail-modal-content-container-top-box-content-issued-date-label"
-                    className="text-gray-400 text-sm font-medium"
+                    className="text-sm font-normal text-black opacity-70"
                   >
                     Issued Date
                   </span>
                   <span
                     data-cy="incentive-detail-modal-content-container-top-box-content-issued-date-value"
-                    className="text-gray-800 font-medium"
+                    className="text-sm font-bold text-black opacity-70"
                   >
                     {userDetail?.createdAt
                       ? dayjs(userDetail.createdAt).format('DD MMMM, YYYY')
@@ -181,17 +301,17 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
                 >
                   <span
                     data-cy="incentive-detail-modal-content-container-top-box-content-status-label"
-                    className="text-gray-400 text-sm font-medium"
+                    className="text-sm font-normal text-black opacity-70"
                   >
                     Status
                   </span>
                   <div data-cy="incentive-detail-modal-content-container-top-box-content-status-value">
                     {userDetail?.Status === false ? (
-                      <Tag className="rounded text-[#EF4444] bg-[#FEF2F2] border border-[#FECACA] px-2 m-0 py-0.5">
+                      <Tag className="m-0 inline-flex items-center rounded-[4px] border border-[#FECACA] bg-[#FEF2F2] px-2 py-0.5 text-xs font-normal leading-4 text-[#EF4444]">
                         Unpaid
                       </Tag>
                     ) : (
-                      <Tag className="rounded text-[#16A34A] bg-[#ECFDF3] border border-[#B8E6CB] px-2 m-0 py-0.5">
+                      <Tag className="m-0 inline-flex items-center rounded-[4px] border border-[#B8E6CB] bg-[#ECFDF3] px-2 py-0.5 text-xs font-normal leading-4 text-[#16A34A]">
                         Paid
                       </Tag>
                     )}
@@ -203,11 +323,11 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
             {/* Middle Box: Formula */}
             <div
               data-cy="incentive-detail-modal-content-container-middle-box"
-              className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm flex flex-col gap-3 mt-1"
+              className="mt-1 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
             >
               <span
                 data-cy="incentive-detail-modal-content-container-middle-box-formula-label"
-                className="text-gray-800 font-semibold"
+                className="text-sm font-normal text-black"
               >
                 Formula
               </span>
@@ -217,11 +337,11 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
             {/* Bottom Box: Criteria Values */}
             <div
               data-cy="incentive-detail-modal-content-container-bottom-box"
-              className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm flex flex-col gap-4 mt-1"
+              className="mt-1 flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
             >
               <span
                 data-cy="incentive-detail-modal-content-container-bottom-box-criteria-values-label"
-                className="text-gray-800 font-semibold mb-2"
+                className="mb-2 text-sm font-normal text-black"
               >
                 Criteria Values
               </span>
@@ -237,13 +357,13 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
                   >
                     <span
                       data-cy="incentive-detail-modal-content-container-bottom-box-criteria-values-item-criterion-key"
-                      className="text-gray-500 text-sm font-medium"
+                      className="text-sm font-normal text-black opacity-70"
                     >
                       {item?.criterionKey}
                     </span>
                     <span
                       data-cy="incentive-detail-modal-content-container-bottom-box-criteria-values-item-score"
-                      className="text-gray-800 font-bold"
+                      className="text-sm font-bold text-black opacity-70"
                     >
                       {item?.score ?? 'N/A'}
                     </span>
@@ -255,15 +375,15 @@ const IncentiveDetailModal: React.FC<IncentiveDetailModalProps> = ({
                 >
                   <span
                     data-cy="incentive-detail-modal-content-container-bottom-box-criteria-values-item-bonus-label"
-                    className="text-gray-500 text-sm font-medium"
+                    className="text-sm font-normal text-black opacity-70"
                   >
                     Bonus
                   </span>
                   <span
                     data-cy="incentive-detail-modal-content-container-bottom-box-criteria-values-item-bonus-value"
-                    className="text-gray-800 font-bold"
+                    className="text-sm font-bold text-black opacity-70"
                   >
-                    {userDetail?.Bonus ?? 'N/A'}
+                    {Number(userDetail?.Bonus).toLocaleString() ?? 'N/A'}
                   </span>
                 </div>
               </div>

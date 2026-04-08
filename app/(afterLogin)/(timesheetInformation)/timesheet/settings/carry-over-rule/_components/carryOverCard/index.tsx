@@ -1,4 +1,4 @@
-import { Spin } from 'antd';
+import { Skeleton } from 'antd';
 import ActionButton from '@/components/common/actionButton';
 import { CarryOverRule } from '@/types/timesheet/settings';
 import { FC } from 'react';
@@ -23,8 +23,9 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
   };
 
   return (
-    <Spin
-      spinning={isLoading || isDeleteLoading}
+    <Skeleton
+      loading={isLoading || isDeleteLoading}
+      active
       data-cy={`time-attendance-settings-carry-over-rule-card-${item.id}-spin`}
     >
       <div
@@ -120,7 +121,7 @@ const CarryOverCard: FC<CarryOverCardProps> = ({ item }) => {
           </div>
         </div>
       </div>
-    </Spin>
+    </Skeleton>
   );
 };
 

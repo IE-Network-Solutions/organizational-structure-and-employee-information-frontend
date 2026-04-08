@@ -1,15 +1,15 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Table, Select, Tag, Avatar, Popover, Button, DatePicker } from 'antd';
+import { Select, Tag, Avatar, Popover, Button, DatePicker, Table } from 'antd';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
+import { useGetAggregateAuditLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
 import { AuditLog } from '@/types/tenant-management';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -19,6 +19,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import dayjs, { Dayjs } from 'dayjs';
 import { UserOutlined } from '@ant-design/icons';
 import { MdOutlineFilterAlt } from 'react-icons/md';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 const { Option } = Select;
 
@@ -33,25 +34,16 @@ const AUDIT_LOG_MODULES = [
   { label: 'Time and attendance', value: 'TimesheetAuditLog' },
 ];
 
-const ALL_AUDIT_LOG_MODULE_VALUES = AUDIT_LOG_MODULES.map((m) => m.value);
-
-const VALID_MODULE_VALUE_SET = new Set(ALL_AUDIT_LOG_MODULE_VALUES);
-
 const AuditLogPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const modulesQueryRaw = searchParams.get('modules');
-  const modulesFromUrl =
-    modulesQueryRaw != null && modulesQueryRaw.trim() !== ''
-      ? modulesQueryRaw
-      : null;
-  const moduleFromUrl = searchParams.get('module');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
     undefined,
   );
-  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedModule, setSelectedModule] = useState<string | undefined>(
+    undefined,
+  );
   const [selectedAction, setSelectedAction] = useState<string | undefined>(
     undefined,
   );
@@ -62,33 +54,9 @@ const AuditLogPage = () => {
   const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
 
-  useEffect(() => {
-    if (modulesFromUrl) {
-      const parsed = modulesFromUrl
-        .split(',')
-        .map((s) => s.trim())
-        .filter((v) => VALID_MODULE_VALUE_SET.has(v));
-      setSelectedModules(parsed);
-      setCurrentPage(1);
-      return;
-    }
-    if (moduleFromUrl && VALID_MODULE_VALUE_SET.has(moduleFromUrl)) {
-      setSelectedModules([moduleFromUrl]);
-      setCurrentPage(1);
-      return;
-    }
-    if (!modulesFromUrl && moduleFromUrl === null) {
-      setSelectedModules([]);
-    }
-  }, [modulesFromUrl, moduleFromUrl]);
-
   const queryParams = useMemo(() => {
-    const modulesForRequest =
-      selectedModules.length > 0
-        ? selectedModules
-        : ALL_AUDIT_LOG_MODULE_VALUES;
     const params = {
-      modules: modulesForRequest,
+      module: selectedModule ?? 'all',
       page: currentPage,
       limit: pageSize,
       orderBy: 'performedAt',
@@ -103,14 +71,15 @@ const AuditLogPage = () => {
     currentPage,
     pageSize,
     selectedAction,
-    selectedModules,
+    selectedModule,
     selectedUserId,
     orderDirection,
     dateFrom,
     dateTo,
   ]);
+
   // Fetch audit logs from API
-  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditPostLogs(
+  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditLogs(
     queryParams,
     true,
   );
@@ -203,7 +172,9 @@ const AuditLogPage = () => {
       key: 'module',
       render: (unusedValue: any, record: any) => {
         // If a specific module is selected, show that module's display name
-        const displayName = getModuleDisplayName(record?.module);
+        const displayName = selectedModule
+          ? getModuleDisplayName(selectedModule)
+          : getModuleDisplayName(record?.module);
 
         return (
           <span
@@ -317,7 +288,7 @@ const AuditLogPage = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [
-    selectedModules,
+    selectedModule,
     selectedAction,
     selectedUserId,
     orderDirection,
@@ -447,15 +418,14 @@ const AuditLogPage = () => {
           </div>
           <Select
             placeholder="Time and attendance"
-            value={selectedModules}
+            value={selectedModule}
             onChange={(value) => {
-              setSelectedModules(Array.isArray(value) ? value : []);
+              setSelectedModule(value || undefined);
               setCurrentPage(1);
             }}
-            className={`w-full  ${selectedModules.length > 0 ? 'min-h-10' : 'h-10'}`}
+            className="w-full h-10"
             data-cy="audit-log-module-select-popover"
             id="audit-log-module-select-popover"
-            mode="multiple"
           >
             {AUDIT_LOG_MODULES.map((module) => (
               <Option
@@ -480,7 +450,7 @@ const AuditLogPage = () => {
           onClick={() => {
             setDateFrom(null);
             setDateTo(null);
-            setSelectedModules([]);
+            setSelectedModule(undefined);
             setSelectedAction(undefined);
             setCurrentPage(1);
           }}
@@ -640,35 +610,38 @@ const AuditLogPage = () => {
           data-cy="audit-log-table-container"
           id="audit-log-table-container"
         >
-          <Table
-            columns={columns}
-            dataSource={filteredAuditLogsData}
-            loading={isLoading}
-            pagination={false}
-            rowKey="id"
-            rowClassName={(unusedRecord, index) =>
-              index % 2 === 1 ? 'bg-gray-50' : ''
-            }
-            scroll={{ x: true }}
-            data-cy="audit-log-table"
-            id="audit-log-table"
-            className="cursor-pointer"
-            onRow={(record) => ({
-              onClick: () => {
-                // Store the record data in sessionStorage for the detail page to use
-                sessionStorage.setItem(
-                  `audit-log-${record.id}`,
-                  JSON.stringify(record),
-                );
-                router.push(`/audit-log/${record.id}`);
-              },
-              'data-cy': `audit-log-table-row-${record.id}`,
-              id: `audit-log-table-row-${record.id}`,
-            })}
-            locale={{
-              emptyText: 'No data available',
-            }}
-          />
+          {isLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={filteredAuditLogsData}
+              pagination={false}
+              rowKey="id"
+              rowClassName={(unusedRecord, index) =>
+                index % 2 === 1 ? 'bg-gray-50' : ''
+              }
+              scroll={{ x: true }}
+              data-cy="audit-log-table"
+              id="audit-log-table"
+              className="cursor-pointer"
+              onRow={(record) => ({
+                onClick: () => {
+                  // Store the record data in sessionStorage for the detail page to use
+                  sessionStorage.setItem(
+                    `audit-log-${record.id}`,
+                    JSON.stringify(record),
+                  );
+                  router.push(`/audit-log/${record.id}`);
+                },
+                'data-cy': `audit-log-table-row-${record.id}`,
+                id: `audit-log-table-row-${record.id}`,
+              })}
+              locale={{
+                emptyText: 'No data available',
+              }}
+            />
+          )}
           <div
             className="px-3 md:px-3"
             data-cy="audit-log-pagination-container"

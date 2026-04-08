@@ -295,7 +295,7 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           <BlockWrapper
             data-cy="compensation-benefit-layout-block-wrapper-content"
             withBackground={false}
-            className="w-full h-max overflow-x-auto bg-white pr-0 sm:pr-2"
+            className="h-max w-full overflow-x-auto bg-white"
           >
             {children}
           </BlockWrapper>

@@ -22,6 +22,7 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
   const { data: dynamicRecognitionData } = useGetIncentiveDataByRecognitionId(
     parentRecognitionId,
     searchParams?.employee_name || '',
+    searchParams?.byType || '',
     searchParams?.byYear || ' ',
     searchParams?.bySession,
     searchParams?.byMonth || '',

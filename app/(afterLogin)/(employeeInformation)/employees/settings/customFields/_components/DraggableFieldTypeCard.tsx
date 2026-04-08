@@ -3,19 +3,18 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { ReactNode } from 'react';
 
 export type FieldTypeValue =
   | 'input'
-  | 'textArea'
-  | 'checkbox'
-  | 'radio'
-  | 'dropdown';
+  | 'datePicker'
+  | 'select'
+  | 'toggle'
+  | 'checkbox';
 
 interface DraggableFieldTypeCardProps {
   id: string;
-  label: ReactNode;
-  description: ReactNode;
+  label: string;
+  description: string;
   fieldType: FieldTypeValue;
 }
 
@@ -42,7 +41,7 @@ const DraggableFieldTypeCard: React.FC<DraggableFieldTypeCardProps> = ({
       style={style}
       {...attributes}
       {...listeners}
-      className="p-3 rounded-lg border-[1px] border-[#D9D9D9] cursor-grab active:cursor-grabbing shadow-sm z-50"
+      className="p-3 rounded-lg border border-gray-200 bg-white cursor-grab active:cursor-grabbing hover:border-blue-300 hover:bg-gray-50 transition-colors"
       id={`settings-draggable-field-type-${id}`}
       data-cy={`settings-draggable-field-type-${id}`}
     >

@@ -2,7 +2,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import React, { useEffect, useRef } from 'react';
-import { Button, Dropdown } from 'antd';
+import { Button, Dropdown, Skeleton } from 'antd';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import type { MenuProps } from 'antd';
 import { useGetPositions } from '@/store/server/features/employees/positions/queries';
@@ -10,7 +10,6 @@ import { usePositionState } from '@/store/uistate/features/employees/positions';
 import { useDeletePosition } from '@/store/server/features/employees/positions/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -39,7 +38,7 @@ const PositionCards: React.FC = () => {
     setFormValues,
     setOpenPositionDrawer,
   } = usePositionState();
-  const { data: positions } = useGetPositions(
+  const { data: positions, isLoading } = useGetPositions(
     currentPage,
     pageSize,
     searchTerm,
@@ -81,7 +80,32 @@ const PositionCards: React.FC = () => {
 
   return (
     <>
-      {positions?.items && positions?.items?.length > 0 ? (
+      {isLoading ? (
+        <div
+          id="settings-position-cards-skeleton"
+          data-cy="settings-position-cards-skeleton"
+        >
+          {Array.from({ length: 5 }).map((notUsed, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between gap-2 my-2 mx-1 border-gray-100 border rounded-md px-2 py-2"
+              id={`settings-position-card-skeleton-${index}`}
+              data-cy={`settings-position-card-skeleton-${index}`}
+            >
+              <Skeleton.Input
+                active
+                className="!w-48 !min-w-0"
+                data-cy={`settings-position-card-skeleton-name-${index}`}
+              />
+              <Skeleton.Button
+                active
+                size="small"
+                data-cy={`settings-position-card-skeleton-menu-${index}`}
+              />
+            </div>
+          ))}
+        </div>
+      ) : positions?.items && positions?.items?.length > 0 ? (
         positions?.items.map((position: any, index: number) => {
           const positionSlug = toSlug(position?.id ?? position?.name ?? index);
           const menuItems: MenuProps['items'] = [
@@ -101,7 +125,7 @@ const PositionCards: React.FC = () => {
                   >
                     <EditOutlinedIcon className="text-gray-600" />
                     <span data-cy="settings-position-edit-menu-item-text">
-                      Edit Employee Position
+                      Edit
                     </span>
                   </div>
                 </AccessGuard>
@@ -123,7 +147,7 @@ const PositionCards: React.FC = () => {
                   >
                     <DeleteOutlineOutlinedIcon />
                     <span data-cy="settings-position-delete-menu-item-text">
-                      Delete Employee Position
+                      Delete
                     </span>
                   </div>
                 </AccessGuard>
@@ -133,12 +157,12 @@ const PositionCards: React.FC = () => {
           return (
             <div
               key={index}
-              className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+              className="flex items-center justify-between gap-2 my-2 mx-1 border-gray-100 border rounded-md px-2 py-2"
               id={`settings-position-card-${positionSlug}`}
               data-cy={`settings-position-card-${positionSlug}`}
             >
               <div
-                className="text-medium font-medium"
+                className="text-sm font-medium leading-tight"
                 id={`settings-position-card-name-${positionSlug}`}
                 data-cy={`settings-position-card-name-${positionSlug}`}
               >
@@ -155,13 +179,12 @@ const PositionCards: React.FC = () => {
                   placement="bottomRight"
                 >
                   <Button
-                    type="default"
-                    className="w-8 h-8 border border-[#D9D9D9]"
+                    type="text"
+                    icon={<MoreHorizIcon fontSize="small" />}
+                    className="w-7 h-7 !p-0 leading-none flex items-center justify-center border border-[#D9D9D9] rounded-md [&_.ant-btn-icon]:m-0 [&_.ant-btn-icon]:leading-none"
                     id={`settings-position-menu-btn-${positionSlug}`}
                     data-cy={`settings-position-menu-btn-${positionSlug}`}
-                  >
-                    <MoreHorizIcon />
-                  </Button>
+                  />
                 </Dropdown>
               </div>
             </div>
@@ -188,16 +211,17 @@ const PositionCards: React.FC = () => {
           pageSize={pageSize}
           onChange={onPageChange}
           onShowSizeChange={onPageChange}
+          showGoTo={false}
           data-cy="settings-position-custom-mobile-pagination"
         />
       ) : (
-        <CustomPagination
-          current={currentPage}
-          total={positions?.meta?.totalItems ?? 0}
+        <CustomMobilePagination
+          totalResults={positions?.meta?.totalItems ?? 0}
           pageSize={pageSize}
           onChange={onPageChange}
-          onShowSizeChange={(pageSize) => setPageSize(pageSize)}
-          data-cy="settings-position-custom-pagination"
+          onShowSizeChange={onPageChange}
+          showGoTo={false}
+          data-cy="settings-position-custom-mobile-pagination"
         />
       )}
     </>

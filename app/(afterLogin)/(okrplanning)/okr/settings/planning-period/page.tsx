@@ -257,6 +257,7 @@ const PlanningPeriod = () => {
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         confirmLoading={editPlannningPeriod}
+        styles={{ content: { borderRadius: 8 } }}
         data-cy="okr-planning-period-edit-modal-display-modal"
       >
         <Form

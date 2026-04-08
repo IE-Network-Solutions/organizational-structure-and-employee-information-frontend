@@ -23,6 +23,7 @@ import { TableRowSelection } from 'antd/es/table/interface';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useRouter } from 'next/navigation';
@@ -68,7 +69,7 @@ const AllCandidateTable: React.FC = () => {
         </span>
       ),
       dataIndex: 'candidateName',
-      key: 'fullName',
+      key: 'candidateName',
       render: (text: string) => (
         <div
           className="text-sm text-gray-700"
@@ -468,12 +469,8 @@ const AllCandidateTable: React.FC = () => {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
-      setSelectedCandidate(
-        (selectedRows as CandidateData[])?.map((candidate) => ({
-          ...candidate,
-          fullName: candidate.candidateName,
-        })) ?? [],
-      );
+      // Use selectedRows directly to avoid filtering the full list on every click.
+      setSelectedCandidate((selectedRows as CandidateData[]) ?? []);
     },
   };
 
@@ -491,56 +488,55 @@ const AllCandidateTable: React.FC = () => {
         id="talent-acquisition-candidate-table-scroll-wrapper"
         data-cy="talent-acquisition-candidate-table-scroll-wrapper"
       >
-        <Table
-          id="talent-acquisition-candidate-table-table"
-          data-cy="talent-acquisition-candidate-table-table"
-          className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-thead_.ant-table-cell]:px-4 [&_.ant-table-thead_.ant-table-cell]:text-[14px] [&_.ant-table-tbody_.ant-table-cell]:px-4 [&_.ant-table-tbody_.ant-table-row]:cursor-pointer [&_.ant-table-row.ant-table-row-selected>td]:!bg-white [&_.ant-table-row.ant-table-row-selected:hover>td]:!bg-white [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd)>td]:bg-[#FAFAFA] [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!bg-white"
-          rowClassName={() => 'h-[60px]'}
-          columns={columns}
-          dataSource={data}
-          loading={isResponseLoading}
-          pagination={false}
-          scroll={{ x: 'max-content' }}
-          rowSelection={rowSelection}
-          onRow={(record) => ({
-            onClick: (e) => {
-              const target = e.target as HTMLElement;
-              if (
-                record?.id &&
-                !target.closest('.ant-checkbox') &&
-                !target.closest('.ant-checkbox-wrapper') &&
-                !target.closest('button') &&
-                !target.closest('.ant-dropdown')
-              ) {
-                router.push(`/recruitment/candidate/${record.id}`);
-              }
-            },
-          })}
-        />
-      </div>
-      <div
-        data-cy="talent-acquisition-candidate-table-pagination-container"
-        className="px-4"
-      >
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            data-cy="talent-acquisition-candidate-table-pagination-mobile"
-            totalResults={candidateList?.meta?.totalItems ?? 1}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
-          />
+        {isResponseLoading ? (
+          <TableSkeleton columns={columns} />
         ) : (
-          <CustomPagination
-            data-cy="talent-acquisition-candidate-table-pagination-desktop"
-            current={currentPage}
-            total={candidateList?.meta?.totalItems ?? 1}
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={onSizeChange}
+          <Table
+            id="talent-acquisition-candidate-table-table"
+            data-cy="talent-acquisition-candidate-table-table"
+            className="w-full [&_.ant-table-thead_.ant-table-cell]:font-semibold [&_.ant-table-thead_.ant-table-cell]:px-4 [&_.ant-table-thead_.ant-table-cell]:text-[14px] [&_.ant-table-tbody_.ant-table-cell]:px-4 [&_.ant-table-tbody_.ant-table-row]:cursor-pointer [&_.ant-table-row.ant-table-row-selected>td]:!bg-white [&_.ant-table-row.ant-table-row-selected:hover>td]:!bg-white [&_.ant-table-tbody>tr.ant-table-row:nth-child(odd)>td]:bg-[#FAFAFA] [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox:hover_.ant-checkbox-inner]:!border-gray-300 [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox:hover_.ant-checkbox-inner]:!shadow-none [&_.ant-checkbox-wrapper:hover_.ant-checkbox-inner]:!bg-white"
+            rowClassName={() => 'h-[60px]'}
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            scroll={{ x: 'max-content' }}
+            rowSelection={rowSelection}
+            onRow={(record) => ({
+              onClick: (e) => {
+                const target = e.target as HTMLElement;
+                if (
+                  record?.id &&
+                  !target.closest('.ant-checkbox') &&
+                  !target.closest('.ant-checkbox-wrapper') &&
+                  !target.closest('button') &&
+                  !target.closest('.ant-dropdown')
+                ) {
+                  router.push(`/recruitment/candidate/${record.id}`);
+                }
+              },
+            })}
           />
         )}
       </div>
+
+      {isMobile || isTablet ? (
+        <CustomMobilePagination
+          data-cy="talent-acquisition-candidate-table-pagination-mobile"
+          totalResults={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onPageChange}
+        />
+      ) : (
+        <CustomPagination
+          data-cy="talent-acquisition-candidate-table-pagination-desktop"
+          current={currentPage}
+          total={candidateList?.meta?.totalItems ?? 1}
+          pageSize={pageSize}
+          onChange={onPageChange}
+          onShowSizeChange={onSizeChange}
+        />
+      )}
       <DeleteCandidate data-cy="talent-acquisition-candidate-table-delete-candidate" />
       <EditCandidate data-cy="talent-acquisition-candidate-table-edit-candidate" />
       <MoveToTalentPool data-cy="talent-acquisition-candidate-table-move-to-talent-pool" />

@@ -7,7 +7,7 @@ const CustomLabel = (
   <div data-cy="custom-label">
     {label}
     {required && (
-      <span className="text-error" data-cy="custom-label-required">
+      <span className="ml-1 text-error" data-cy="custom-label-required">
         *
       </span>
     )}

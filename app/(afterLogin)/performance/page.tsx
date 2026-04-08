@@ -15,16 +15,21 @@ import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-man
 export default function PerformanceDashboardPage() {
   const { data: activeFiscalYears } = useGetActiveFiscalYears();
   const modules = ['OKRAuditLog', 'CFRAuditLog', 'TNAAuditLog'];
-  const {
-    data: aggregateAuditLogsResponse,
-    isLoading: isRecentActionsLoading,
-  } = useGetAggregateAuditPostLogs({
-    modules: modules,
-    page: 1,
-    limit: 5,
-    orderBy: 'performedAt',
-    orderDirection: 'DESC',
-  });
+
+  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
+    useGetAggregateAuditPostLogs(
+      {
+        modules: modules,
+        page: 1,
+        limit: 5,
+        orderBy: 'performedAt',
+        orderDirection: 'DESC',
+      },
+      true,
+    );
+  const auditLogsData = useMemo(() => {
+    return auditLogs?.items ?? [];
+  }, [auditLogs]);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null,
   );
@@ -187,8 +192,8 @@ export default function PerformanceDashboardPage() {
               monthOptions={monthOptions}
             />
             <RecentHrActions
-              auditLogs={aggregateAuditLogsResponse?.items ?? []}
-              isLoading={isRecentActionsLoading}
+              auditLogs={auditLogsData}
+              isLoading={isLoadingAuditLogs}
               auditLogModules={modules}
               height="444px"
             />

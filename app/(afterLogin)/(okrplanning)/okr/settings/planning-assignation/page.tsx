@@ -1,16 +1,10 @@
 'use client';
-import {
-  Input,
-  Popconfirm,
-  Avatar,
-  Dropdown,
-  MenuProps,
-  Spin,
-  Tag,
-} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Tag } from 'antd';
+import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
+import PlanningAssignationPageSkeleton from './_components/planningAssignationPageSkeleton';
+import EmptyState from '@/components/empty';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
 import {
@@ -20,7 +14,7 @@ import {
 import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
-import { MdOutlineEdit, MdDeleteOutline } from 'react-icons/md';
+import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import { useDeletePlanningUser } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import AccessGuard from '@/utils/permissionGuard';
@@ -70,7 +64,7 @@ const PlanAssignment: React.FC = () => {
       const planningPeriod = allPlanningPeriods?.items?.find(
         (period: any) => period.id === planningPeriodId,
       );
-      return planningPeriod?.intervalType || 'Daily';
+      return planningPeriod?.intervalType || 'daily';
     };
   }, [allPlanningPeriods]);
 
@@ -128,10 +122,8 @@ const PlanAssignment: React.FC = () => {
           ...item,
           employeeName: getEmployeeData(item?.userId),
           planningPeriodType:
-            planningPeriodType.toLowerCase() === 'day'
-              ? 'Daily'
-              : planningPeriodType.charAt(0).toUpperCase() +
-                planningPeriodType.slice(1),
+            planningPeriodType.charAt(0).toUpperCase() +
+            planningPeriodType.slice(1),
           updatedAt: item?.lastUpdated,
         };
       });
@@ -139,9 +131,26 @@ const PlanAssignment: React.FC = () => {
     userToPlanning,
     employeeData,
     searchTerm,
+    allPlanningPeriods,
     getEmployeeData,
     getPlanningPeriodType,
   ]);
+
+  const rawApiCount = userToPlanning.length;
+  const hasSearch = searchTerm.trim().length > 0;
+  const isSearchFilteredEmpty =
+    filteredData.length === 0 && hasSearch && rawApiCount > 0;
+  const isInactiveFilteredEmpty =
+    filteredData.length === 0 && !hasSearch && rawApiCount > 0;
+
+  const canAssignPlanningPeriod = AccessGuard.checkAccess({
+    permissions: [Permissions.AssignPlanningPeriod],
+  });
+
+  const openCreateAssignee = () => {
+    setSelectedPlanningUser(null);
+    setOpen(true);
+  };
 
   const onPageChange = (page: number, pageSize?: number) => {
     setPage(page);
@@ -162,12 +171,12 @@ const PlanAssignment: React.FC = () => {
             data-cy={`okr-planning-assignation-card-edit-access-guard-${item?.userId}`}
           >
             <div
-              className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0"
+              className="flex items-center gap-3 py-1"
               onClick={() => handleEdit(item)}
               id={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
               data-cy={`okr-planning-assignation-card-edit-menu-item-${item?.userId}`}
             >
-              <MdOutlineEdit className="text-[#595959] text-xl" />
+              <MdModeEditOutline className="text-[#595959] text-xl" />
               <span
                 className="text-[15px] text-[#262626]"
                 data-cy={`okr-planning-assignation-card-edit-text-${item?.userId}`}
@@ -197,11 +206,11 @@ const PlanAssignment: React.FC = () => {
               data-cy={`okr-planning-assignation-card-delete-popconfirm-${item?.userId}`}
             >
               <div
-                className="okr-settings-menu-item flex items-center gap-[8px] h-[32px] w-[145px] rounded-[4px] px-0 py-0 text-red-600"
+                className="flex items-center gap-3 py-1 text-red-600"
                 id={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
                 data-cy={`okr-planning-assignation-card-delete-menu-item-${item?.userId}`}
               >
-                <MdDeleteOutline className="text-xl" />
+                <MdDeleteForever className="text-xl" />
                 <span
                   className="text-[15px]"
                   data-cy={`okr-planning-assignation-card-delete-text-${item?.userId}`}
@@ -237,7 +246,7 @@ const PlanAssignment: React.FC = () => {
             addonAfter={<SearchOutlined className="text-[#8c8c8c]" />}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md h-8 custom-search-input"
+            className="w-full max-w-md h-11 custom-search-input"
             id="okr-planning-assignation-search-input"
             data-cy="okr-planning-assignation-search-input"
           />
@@ -249,15 +258,43 @@ const PlanAssignment: React.FC = () => {
           data-cy="okr-planning-assignation-cards-scroll-container"
         >
           {allUserPlanningPeriodGroupedByUserLoading ? (
+            <PlanningAssignationPageSkeleton />
+          ) : filteredData.length === 0 ? (
             <div
-              className="flex justify-center items-center py-20"
-              data-cy="okr-planning-assignation-loading"
+              className="flex min-h-[240px] items-center justify-center py-12"
+              data-cy="okr-planning-assignation-empty"
+              id="okrPlanningAssignationEmptyId"
             >
-              <Spin size="large" />
+              <EmptyState
+                title={
+                  isSearchFilteredEmpty
+                    ? 'No employees match your search'
+                    : isInactiveFilteredEmpty
+                      ? 'No active assignations to display'
+                      : 'No planning assignations yet'
+                }
+                description={
+                  isSearchFilteredEmpty
+                    ? 'Try a different name or clear the search.'
+                    : isInactiveFilteredEmpty
+                      ? 'Assigned employees may be inactive or removed. Assign planning periods to active employees.'
+                      : 'Assign employees to a planning period to get started.'
+                }
+                actionText={
+                  canAssignPlanningPeriod && !isSearchFilteredEmpty
+                    ? 'Add assignee'
+                    : undefined
+                }
+                onAction={
+                  canAssignPlanningPeriod && !isSearchFilteredEmpty
+                    ? openCreateAssignee
+                    : undefined
+                }
+              />
             </div>
           ) : (
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
               id="okr-planning-assignation-cards-grid"
               data-cy="okr-planning-assignation-cards-grid"
             >
@@ -271,7 +308,7 @@ const PlanAssignment: React.FC = () => {
                 return (
                   <div
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[8px] py-2 px-4 min-h-[80px] hover:shadow-sm transition-shadow relative"
+                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
@@ -287,13 +324,13 @@ const PlanAssignment: React.FC = () => {
                       >
                         {item?.profileImage ? (
                           <Avatar
-                            size={24}
+                            size={40}
                             src={item?.profileImage}
                             data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
                           />
                         ) : (
                           <Avatar
-                            size={24}
+                            size={40}
                             className="bg-[#f0f0f0] text-[#8c8c8c]"
                             data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
                           >
@@ -309,7 +346,7 @@ const PlanAssignment: React.FC = () => {
                       >
                         {/* Tag */}
                         <div
-                          className="mb-0"
+                          className="mb-2"
                           data-cy={`okr-planning-assignation-card-tag-wrapper-${item.userId}`}
                         >
                           <Tag
@@ -323,7 +360,7 @@ const PlanAssignment: React.FC = () => {
 
                         {/* Name */}
                         <p
-                          className="text-[14px] font-semibold text-[rgba(0,0,0,0.7)] mb-0.5 truncate"
+                          className="text-[15px] font-semibold text-[#262626] mb-0.5 truncate"
                           id={`okr-planning-assignation-card-name-${item.userId}`}
                           data-cy={`okr-planning-assignation-card-name-${item.userId}`}
                         >
@@ -351,44 +388,16 @@ const PlanAssignment: React.FC = () => {
                           menu={{ items: getMenuItems(item) }}
                           trigger={['click']}
                           placement="bottomRight"
-                          overlayClassName="okr-settings-menu-dropdown"
+                          overlayClassName="custom-menu-dropdown"
                           data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
                         >
                           <button
-                            className="w-6 h-6 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#374151] transition-colors"
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
-                            <svg
-                              width="14"
-                              height="4"
-                              viewBox="0 0 14 4"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              data-cy={`okr-planning-assignation-card-menu-svg-${item.userId}`}
-                            >
-                              <circle
-                                cx="2.5"
-                                cy="2"
-                                r="1.5"
-                                fill="currentColor"
-                                data-cy={`okr-planning-assignation-card-menu-circle-1-${item.userId}`}
-                              />
-                              <circle
-                                cx="7"
-                                cy="2"
-                                r="1.5"
-                                fill="currentColor"
-                                data-cy={`okr-planning-assignation-card-menu-circle-2-${item.userId}`}
-                              />
-                              <circle
-                                cx="11.5"
-                                cy="2"
-                                r="1.5"
-                                fill="currentColor"
-                                data-cy={`okr-planning-assignation-card-menu-circle-3-${item.userId}`}
-                              />
-                            </svg>
+                            <EllipsisOutlined className="text-lg" />
                           </button>
                         </Dropdown>
                       </div>
@@ -401,38 +410,42 @@ const PlanAssignment: React.FC = () => {
         </div>
 
         {/* Pagination Container inside main box */}
-        {!allUserPlanningPeriodGroupedByUserLoading && (
-          <div
-            className="custom-pagination-container"
-            data-cy="okr-planning-assignation-pagination-container"
-          >
-            {isMobile || isTablet ? (
-              <CustomMobilePagination
-                totalResults={
-                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-                }
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageChange}
-                data-cy="okr-planning-assignation-mobile-pagination"
-              />
-            ) : (
-              <CustomPagination
-                current={page}
-                total={
-                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-                }
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={(pageSize) => {
-                  setPageSize(pageSize);
-                  setPage(1);
-                }}
-                data-cy="okr-planning-assignation-pagination"
-              />
-            )}
-          </div>
-        )}
+        {!allUserPlanningPeriodGroupedByUserLoading &&
+          (allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0) >
+            0 && (
+            <div
+              className="custom-pagination-container"
+              data-cy="okr-planning-assignation-pagination-container"
+            >
+              {isMobile || isTablet ? (
+                <CustomMobilePagination
+                  totalResults={
+                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
+                    0
+                  }
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
+                  data-cy="okr-planning-assignation-mobile-pagination"
+                />
+              ) : (
+                <CustomPagination
+                  current={page}
+                  total={
+                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
+                    0
+                  }
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={(pageSize) => {
+                    setPageSize(pageSize);
+                    setPage(1);
+                  }}
+                  data-cy="okr-planning-assignation-pagination"
+                />
+              )}
+            </div>
+          )}
       </div>
 
       <PlanningAssignationModal
@@ -449,7 +462,7 @@ const PlanAssignment: React.FC = () => {
       <style jsx global data-cy="okr-planning-assignation-styles">{`
         /* Search Input Styling */
         .custom-search-input.ant-input-group-wrapper {
-          height: 32px !important;
+          height: 44px !important;
         }
         .custom-search-input.ant-input-group-wrapper .ant-input-wrapper {
           display: flex !important;
@@ -458,12 +471,12 @@ const PlanAssignment: React.FC = () => {
           border-radius: 8px !important;
           overflow: hidden !important;
           background-color: white !important;
-          height: 32px !important;
+          height: 44px !important;
         }
         .custom-search-input.ant-input-group-wrapper .ant-input {
           border: none !important;
           box-shadow: none !important;
-          height: 32px !important;
+          height: 44px !important;
           padding-left: 12px !important;
           font-size: 14px !important;
           color: #262626 !important;
@@ -479,7 +492,7 @@ const PlanAssignment: React.FC = () => {
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          height: 32px !important;
+          height: 44px !important;
         }
         .custom-search-input.ant-input-group-wrapper
           .ant-input-group-addon

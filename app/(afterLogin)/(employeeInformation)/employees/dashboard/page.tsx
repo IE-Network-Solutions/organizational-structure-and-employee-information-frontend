@@ -27,7 +27,7 @@ export default function EmployeeDashboardPage() {
       {
         modules: modules,
         page: 1,
-        limit: 5,
+        limit: 6,
         orderBy: 'performedAt',
         orderDirection: 'DESC',
       },
@@ -94,39 +94,39 @@ export default function EmployeeDashboardPage() {
             data-cy="employee-dashboard-grid"
           >
             <div
-              className="col-span-12 md:mt-6 mt-2"
+              className="col-span-12 md:mt-4 mt-2"
               data-cy="employee-dashboard-todays-attendance-section"
             >
               <EmployeeTodaysAttendanceCard />
             </div>
 
             <div
-              className="md:mt-2 mt-2 md:col-span-3 col-span-12"
+              className="md:mt-4 mt-2 md:col-span-4 col-span-12"
               data-cy="employee-dashboard-hiring-funnel-section"
             >
               <EmployeeHiringFunnelCard />
             </div>
             <div
-              className="md:mt-2 mt-2 md:col-span-9 col-span-12"
+              className="md:mt-4 mt-2 md:col-span-8 col-span-12"
               data-cy="employee-dashboard-hire-vs-resignation-section"
             >
               <HireVsResignationTrendChart />
             </div>
             <div
-              className="md:mt-2 mt-2 md:col-span-8 col-span-12"
+              className="md:mt-4 mt-2 md:col-span-8 col-span-12"
               data-cy="employee-dashboard-leave-section"
             >
               <EmployeeLeave />
             </div>
             <div
-              className="md:mt-2 mt-2 md:col-span-4 col-span-12"
+              className="md:mt-4 mt-2 md:col-span-4 col-span-12"
               data-cy="employee-dashboard-recent-hr-actions-section"
             >
               <RecentHrActions
+                height="490px"
                 auditLogs={auditLogsData}
                 isLoading={isLoadingAuditLogs}
                 auditLogModules={modules}
-                height="490px"
               />
             </div>
           </div>

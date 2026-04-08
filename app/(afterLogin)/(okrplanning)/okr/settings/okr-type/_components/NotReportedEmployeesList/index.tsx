@@ -8,6 +8,7 @@ import { useGetAllAssignedUserGroupedByUser } from '@/store/server/features/empl
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface NotReportedEmployeesListProps {
   userIds: string[];
@@ -161,16 +162,19 @@ const NotReportedEmployeesList: React.FC<NotReportedEmployeesListProps> = ({
           className="overflow-x-auto"
           data-cy="not-reported-employees-list-table-wrapper"
         >
-          <Table
-            columns={columns}
-            dataSource={paginatedData}
-            pagination={false}
-            loading={employeeLoading || planningLoading}
-            className="custom-report-table"
-            rowClassName={(record, index) =>
-              index % 2 === 1 ? 'bg-[#fafafa]' : ''
-            }
-          />
+          {employeeLoading || planningLoading ? (
+            <TableSkeleton columns={columns} />
+          ) : (
+            <Table
+              columns={columns}
+              dataSource={paginatedData}
+              pagination={false}
+              className="custom-report-table"
+              rowClassName={(record, index) =>
+                index % 2 === 1 ? 'bg-[#fafafa]' : ''
+              }
+            />
+          )}
         </div>
 
         <div
