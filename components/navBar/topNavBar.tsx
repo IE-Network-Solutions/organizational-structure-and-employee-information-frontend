@@ -7,10 +7,9 @@ import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetUnreadCount } from '@/store/server/features/notification/queries';
 import { usePWA } from '@/hooks/usePWA';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
@@ -81,6 +80,8 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
     },
   ];
 
+  const hasProfileImage = Boolean(employeeData?.profileImage);
+
   return (
     <div
       data-cy="top-nav-bar"
@@ -141,7 +142,8 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
           >
             <Avatar
               size={36}
-              src={employeeData?.profileImage || GENDER_NEUTRAL_AVATAR_URL}
+              src={hasProfileImage ? employeeData?.profileImage : undefined}
+              icon={!hasProfileImage ? <UserOutlined /> : undefined}
               className="border-2 border-white shadow-sm transition-transform group-hover:scale-105"
             />
             <div

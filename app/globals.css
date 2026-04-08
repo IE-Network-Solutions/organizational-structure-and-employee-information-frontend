@@ -350,6 +350,33 @@ body {
   font-family: 'Calibre', sans-serif;
 }
 
+:root {
+  --app-scrollbar-thumb: #d1d5db; /* light gray */
+  --app-scrollbar-track: transparent;
+}
+
+/* Global scrollbar styling */
+* {
+  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track); /* Firefox */
+  scrollbar-width: thin; /* Firefox (closest to 1px) */
+}
+
+/* Chromium/WebKit */
+::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+::-webkit-scrollbar-track {
+  background: var(--app-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--app-scrollbar-thumb);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #cbd5e1;
+}
+
 h1 {
   font-size: 48px !important;
   font-weight: bold !important;
@@ -860,10 +887,11 @@ h6 {
     -webkit-user-select: none;
   }
 
-  /* Hide scrollbars in standalone mode for better app-like experience */
+  /* Keep global scrollbar styling in standalone mode */
   ::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+    width: 1px;
+    height: 1px;
+    background: var(--app-scrollbar-track);
   }
 
   /* Hide install buttons when in standalone mode */
