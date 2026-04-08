@@ -71,7 +71,7 @@ const MyLeaveRequestDashboard: React.FC = () => {
       data-cy="dashboard-my-leave-request-card"
     >
       <div
-        className="flex flex-col gap-2 max-h-56 overflow-y-auto scrollbar-none"
+        className="flex flex-col gap-2  overflow-y-auto scrollbar-none"
         data-cy="dashboard-my-leave-request-list"
       >
         {isLoading ? (
