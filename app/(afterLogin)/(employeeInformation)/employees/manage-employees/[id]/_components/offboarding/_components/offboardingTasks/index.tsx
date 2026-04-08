@@ -512,7 +512,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                       <div
                         id={`offboarding-task-actions-${taskSlug}`}
                         data-cy={`offboarding-task-actions-${taskSlug}`}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-2"
                       >
                         <Button
                           type="default"
@@ -521,7 +521,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                           data-cy={`offboarding-task-edit-btn-${taskSlug}`}
                           className="border border-[#D9D9D9] !h-8 !w-8 rounded-lg"
                         >
-                          <EditOutlinedIcon className="text-sm" />
+                          <EditOutlinedIcon className="text-base" />
                         </Button>
 
                         <Button
@@ -535,7 +535,7 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                           data-cy={`offboarding-task-delete-btn-${taskSlug}`}
                           className="border border-[#ff8384] !h-8 !w-8 text-[#ff8384] rounded-lg"
                         >
-                          <DeleteOutlineOutlinedIcon className="text-sm" />
+                          <DeleteOutlineOutlinedIcon className="text-base" />
                         </Button>
                       </div>
                     </EmployeeTaskDraggable>
