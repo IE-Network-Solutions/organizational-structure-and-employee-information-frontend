@@ -1,8 +1,10 @@
 'use client';
 
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import EmptyState from '@/components/empty';
+import DefineOkrRulePageSkeleton from './_components/defineOkrRulePageSkeleton';
 import { OkrRule } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule/interface';
-import { Spin, Dropdown, MenuProps } from 'antd';
+import { Dropdown, MenuProps } from 'antd';
 import React from 'react';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
@@ -53,7 +55,18 @@ const DefineOkrRule = () => {
     });
   }
 
-  const { data: OkrRules, isLoading } = useGetOkrRule();
+  const { data: okrRulesData, isLoading: isOkrRulesLoading } = useGetOkrRule();
+
+  const listItems = okrRulesData?.items ?? [];
+
+  const canCreateOkrRule = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateOkrRule],
+  });
+
+  const openCreateOkrRule = () => {
+    setOkrRule(null);
+    setOpen(true);
+  };
 
   const getMenuItems = (item: any): MenuProps['items'] => {
     return [
@@ -123,33 +136,40 @@ const DefineOkrRule = () => {
         id="okr-define-okr-rule-main-container"
         data-cy="okr-define-okr-rule-main-container"
       >
-        {isLoading ? (
+        {isOkrRulesLoading ? (
+          <DefineOkrRulePageSkeleton />
+        ) : listItems.length === 0 ? (
           <div
-            className="flex justify-center items-center py-20"
-            data-cy="okr-define-okr-rule-loading"
+            className="flex min-h-[280px] items-center justify-center py-8"
+            data-cy="okr-define-okr-rule-empty"
+            id="okrDefineOkrRuleEmptyId"
           >
-            <Spin size="large" />
+            <EmptyState
+              title="No OKR rules yet"
+              description="Add a rule to set self and team contribution percentages (must total 100%)."
+              actionText={canCreateOkrRule ? 'Add rule' : undefined}
+              onAction={canCreateOkrRule ? openCreateOkrRule : undefined}
+            />
           </div>
         ) : (
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
             id="okr-define-okr-rule-grid"
             data-cy="okr-define-okr-rule-grid"
           >
-            {OkrRules?.items?.map((item: any) => (
+            {listItems.map((item: any) => (
               <div
                 key={item.id}
-                className="bg-white border border-[#d9d9d9] rounded-[12px] p-5 hover:shadow-sm transition-shadow relative"
+                className="relative rounded-[12px] border border-[#d9d9d9] bg-white p-5 transition-shadow hover:shadow-sm"
                 id={`okr-rule-card-${item.id}`}
                 data-cy={`okr-rule-card-${item.id}`}
               >
-                {/* Top Row: Title and Menu */}
                 <div
-                  className="flex justify-between items-start mb-6"
+                  className="mb-6 flex items-start justify-between"
                   data-cy={`okr-rule-card-header-${item.id}`}
                 >
                   <p
-                    className="text-[15px] font-semibold text-[#262626] flex-1 mr-2 leading-tight"
+                    className="mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
                     id={`okr-rule-card-title-${item.id}`}
                     data-cy={`okr-rule-card-title-${item.id}`}
                   >
@@ -165,7 +185,8 @@ const DefineOkrRule = () => {
                       placement="bottomRight"
                     >
                       <button
-                        className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                        type="button"
+                        className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-rule-card-menu-button-${item.id}`}
                       >
@@ -175,20 +196,19 @@ const DefineOkrRule = () => {
                   </div>
                 </div>
 
-                {/* Bottom Row: Contribution Boxes */}
                 <div
                   className="flex items-center gap-3"
                   data-cy={`okr-rule-card-footer-${item.id}`}
                 >
                   <div
-                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                    className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
                     id={`okr-rule-card-self-${item.id}`}
                     data-cy={`okr-rule-card-self-${item.id}`}
                   >
                     Self Contribution: {item.myOkrPercentage || 0}
                   </div>
                   <div
-                    className="px-3 py-1.5 text-[12px] text-[#595959] border border-[#d9d9d9] rounded-[6px] bg-[#fafafa]"
+                    className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
                     id={`okr-rule-card-team-${item.id}`}
                     data-cy={`okr-rule-card-team-${item.id}`}
                   >

@@ -8,6 +8,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import PerspectivesDetail from './_components/perspectivesDetail';
 import FeedbackTypeDetail from './_components/feedbackTypeDetail';
 import CreateFeedback from './_components/createFeedback';
+import DefineFeedbackSkeleton from './_components/defineFeedbackSkeleton';
 
 const Page = () => {
   const { isMobile } = useIsMobile();
@@ -20,21 +21,31 @@ const Page = () => {
     pageSize,
     setVariantType,
   } = ConversationStore();
-  const { data: perspectiveData } = useGetAllPerspectives();
-  const { data: getAppreciationFeedbackTypesByVariant } =
-    useFetchAllFeedbackTypesByVariant(
-      page,
-      pageSize,
-      'appreciation',
-      searchAppreciationQuery,
-    );
-  const { data: getReprimandFeedbackTypesByVariant } =
-    useFetchAllFeedbackTypesByVariant(
-      page,
-      pageSize,
-      'reprimand',
-      searchReprimandQuery,
-    );
+  const { data: perspectiveData, isLoading: isPerspectiveLoading } =
+    useGetAllPerspectives();
+  const {
+    data: getAppreciationFeedbackTypesByVariant,
+    isLoading: isAppreciationTypesLoading,
+  } = useFetchAllFeedbackTypesByVariant(
+    page,
+    pageSize,
+    'appreciation',
+    searchAppreciationQuery,
+  );
+  const {
+    data: getReprimandFeedbackTypesByVariant,
+    isLoading: isReprimandTypesLoading,
+  } = useFetchAllFeedbackTypesByVariant(
+    page,
+    pageSize,
+    'reprimand',
+    searchReprimandQuery,
+  );
+
+  const isDefineFeedbackPageLoading =
+    isPerspectiveLoading ||
+    isAppreciationTypesLoading ||
+    isReprimandTypesLoading;
 
   const onChange = (key: string) => {
     setSettingActiveTab(key);
@@ -364,30 +375,34 @@ const Page = () => {
       data-cy="settings-define-feedback-page"
       id="settingsDefineFeedbackPage"
     >
-      <Tabs
-        activeKey={settingActiveTab}
-        onChange={onChange}
-        type="card"
-        items={items}
-        tabPosition={isMobile ? 'top' : 'left'}
-        className={[
-          '[&_.ant-tabs-tab]:border-none [&_.ant-tabs-tab]:bg-transparent [&_.ant-tabs-tab]:shadow-none [&_.ant-tabs-tab-active]:bg-transparent',
-          '[&_.ant-tabs-nav]:rounded-lg [&_.ant-tabs-nav]:border [&_.ant-tabs-nav]:border-[#D9D9D9] [&_.ant-tabs-nav]:p-4',
-          '[&_.ant-tabs-content-holder]:!ml-0 [&_.ant-tabs-content-holder]:!border-l-0',
-          '[&_.ant-tabs]:gap-4',
-          '[&_.ant-tabs-left_.ant-tabs-tabpane]:!pl-4',
-          isMobile
-            ? [
-                '[&_.ant-tabs-nav]:mb-3',
-                '[&_.ant-tabs-nav-list]:w-full [&_.ant-tabs-nav-list]:gap-2',
-                '[&_.ant-tabs-tab]:!m-0 [&_.ant-tabs-tab]:min-w-0 [&_.ant-tabs-tab]:flex-1 [&_.ant-tabs-tab]:rounded-lg [&_.ant-tabs-tab]:p-0',
-                '[&_.ant-tabs-tab-btn]:!px-1 [&_.ant-tabs-tab-btn]:!py-0 [&_.ant-tabs-tab-btn]:w-full',
-                '[&_.ant-tabs-ink-bar]:hidden',
-                '[&_.ant-tabs-content-holder]:border-0 [&_.ant-tabs-content-holder]:pt-0',
-              ].join(' ')
-            : '',
-        ].join(' ')}
-      />
+      {isDefineFeedbackPageLoading ? (
+        <DefineFeedbackSkeleton />
+      ) : (
+        <Tabs
+          activeKey={settingActiveTab}
+          onChange={onChange}
+          type="card"
+          items={items}
+          tabPosition={isMobile ? 'top' : 'left'}
+          className={[
+            '[&_.ant-tabs-tab]:border-none [&_.ant-tabs-tab]:bg-transparent [&_.ant-tabs-tab]:shadow-none [&_.ant-tabs-tab-active]:bg-transparent',
+            '[&_.ant-tabs-nav]:rounded-lg [&_.ant-tabs-nav]:border [&_.ant-tabs-nav]:border-[#D9D9D9] [&_.ant-tabs-nav]:p-4',
+            '[&_.ant-tabs-content-holder]:!ml-0 [&_.ant-tabs-content-holder]:!border-l-0',
+            '[&_.ant-tabs]:gap-4',
+            '[&_.ant-tabs-left_.ant-tabs-tabpane]:!pl-4',
+            isMobile
+              ? [
+                  '[&_.ant-tabs-nav]:mb-3',
+                  '[&_.ant-tabs-nav-list]:w-full [&_.ant-tabs-nav-list]:gap-2',
+                  '[&_.ant-tabs-tab]:!m-0 [&_.ant-tabs-tab]:min-w-0 [&_.ant-tabs-tab]:flex-1 [&_.ant-tabs-tab]:rounded-lg [&_.ant-tabs-tab]:p-0',
+                  '[&_.ant-tabs-tab-btn]:!px-1 [&_.ant-tabs-tab-btn]:!py-0 [&_.ant-tabs-tab-btn]:w-full',
+                  '[&_.ant-tabs-ink-bar]:hidden',
+                  '[&_.ant-tabs-content-holder]:border-0 [&_.ant-tabs-content-holder]:pt-0',
+                ].join(' ')
+              : '',
+          ].join(' ')}
+        />
+      )}
       <CreateFeedback />
     </div>
   );

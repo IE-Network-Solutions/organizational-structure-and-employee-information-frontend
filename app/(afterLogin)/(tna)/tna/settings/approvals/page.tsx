@@ -64,7 +64,11 @@ const Workflow = () => {
       >
         <ApprovalFilter data-cy="tna-approvals-filter" />
       </div>
-      <div id="tnaApprovalsPageTableId" data-cy="tna-approvals-page-table">
+      <div
+        id="tnaApprovalsPageTableId"
+        data-cy="tna-approvals-page-table"
+        className="min-h-[200px]"
+      >
         <ApprovalListTable data-cy="tna-approvals-table" />
       </div>
     </div>

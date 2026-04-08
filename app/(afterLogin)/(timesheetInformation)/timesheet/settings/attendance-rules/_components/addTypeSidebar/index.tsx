@@ -1,13 +1,8 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Form, Input, Radio, Skeleton, Space } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Button, Form, Input, Modal, Radio, Space, Spin } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import React, { useEffect, useState } from 'react';
 import CustomRadio from '@/components/form/customRadio';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useSetAttendanceNotificationType } from '@/store/server/features/timesheet/attendanceNotificationType/mutation';
 import { AttendanceTypeUnit } from '@/types/timesheet/attendance';
 import { useGetAttendanceNotificationType } from '@/store/server/features/timesheet/attendanceNotificationType/queries';
@@ -57,32 +52,6 @@ const AddTypesSidebar = () => {
       onClose();
     }
   }, [isSuccess]);
-
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      loading: isLoading,
-      onClick: () => onClose(),
-      id: 'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
-      'data-cy':
-        'time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button',
-    },
-    {
-      label: attendanceTypeId ? 'Edit' : 'Add',
-      key: 'add',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      type: 'primary',
-      loading: isLoading,
-      onClick: () => form.submit(),
-      id: 'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
-      'data-cy':
-        'time-attendance-settings-attendance-rules-add-type-sidebar-submit-button',
-    },
-  ];
 
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px]  w-full';
@@ -135,34 +104,49 @@ const AddTypesSidebar = () => {
 
   return (
     isShow && (
-      <CustomDrawerLayout
+      <Modal
         open={isShow}
-        onClose={() => onClose()}
-        modalHeader={
+        onCancel={() => onClose()}
+        title={
           <div
-            className="px-2"
+            className="text-lg font-semibold text-[#4d4d4d]"
             id="time-attendance-settings-attendance-rules-add-type-sidebar-header-container"
             data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-header-container"
           >
-            <CustomDrawerHeader data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-header">
-              {attendanceTypeId ? 'Edit' : 'Add'} Type
-            </CustomDrawerHeader>
+            {attendanceTypeId ? 'Edit Type' : 'Add Type'}
           </div>
         }
         footer={
           <div
-            className="p-4"
+            className="flex justify-end gap-2"
             id="time-attendance-settings-attendance-rules-add-type-sidebar-footer-container"
             data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-footer-container"
           >
-            <CustomDrawerFooterButton
-              buttons={footerModalItems}
-              data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-footer-button"
-            />
+            <Button
+              type="default"
+              onClick={() => onClose()}
+              id="time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button"
+              data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button"
+              className="border border-[#D9D9D9] text-base font-normal text-gray-900"
+              disabled={isFetching || isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => form.submit()}
+              loading={isLoading}
+              id="time-attendance-settings-attendance-rules-add-type-sidebar-submit-button"
+              data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-submit-button"
+            >
+              {attendanceTypeId ? 'Save' : 'Add'}
+            </Button>
           </div>
         }
-        width="400px"
         data-cy="time-attendance-settings-attendance-rules-add-type-sidebar"
+        zIndex={10002}
+        centered
+        width={480}
       >
         <Skeleton
           loading={isFetching || isLoading}
@@ -190,7 +174,14 @@ const AddTypesSidebar = () => {
               <Form.Item
                 id="createAddTypeNameFieldId"
                 data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-title-field-id"
-                label="Type Name"
+                label={
+                  <span
+                    className="text-sm font-normal text-gray-900 pr-1"
+                    data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-title-label"
+                  >
+                    Type Name
+                  </span>
+                }
                 rules={[{ required: true, message: 'Required' }]}
                 name="title"
               >
@@ -201,7 +192,14 @@ const AddTypesSidebar = () => {
                 />
               </Form.Item>
               <Form.Item
-                label="Unit"
+                label={
+                  <span
+                    className="text-sm font-normal text-gray-900 pr-1"
+                    data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-unit-label"
+                  >
+                    Unit
+                  </span>
+                }
                 id="createAddTypeUnitFieldId"
                 data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-unit-field-id"
                 rules={[{ required: true, message: 'Required' }]}
@@ -233,8 +231,8 @@ const AddTypesSidebar = () => {
               </Form.Item>
             </Space.Compact>
           </Form>
-        </Skeleton>
-      </CustomDrawerLayout>
+        </Spin>
+      </Modal>
     )
   );
 };

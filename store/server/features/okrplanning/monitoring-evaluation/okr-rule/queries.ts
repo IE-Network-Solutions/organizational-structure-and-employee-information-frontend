@@ -69,4 +69,6 @@ const getOkrRule = async () => {
  */
 
 export const useGetOkrRule = () =>
-  useQuery<ResponseData>('okrRule', getOkrRule);
+  useQuery<ResponseData>('okrRule', getOkrRule, {
+    keepPreviousData: true,
+  });

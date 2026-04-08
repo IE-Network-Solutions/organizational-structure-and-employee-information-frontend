@@ -1,42 +1,60 @@
 import React, { useEffect } from 'react';
-import { Empty, Spin } from 'antd';
+import { Card, Empty, Skeleton } from 'antd';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
-import {
-  useGetDepartmentChild,
-  useGetWeeklyPriorities,
-} from '@/store/server/features/okrplanning/weeklyPriority/queries';
 import TaskCard from '../taskCard/index';
 import CustomPagination from '@/components/customPagination';
+import { useWeeklyPriorityList } from './useWeeklyPriorityList';
+
+const SKELETON_CARD_COUNT = 3;
+
+function WeeklyPriorityListSkeleton() {
+  return (
+    <div data-cy="weekly-priority-list-skeleton">
+      {Array.from({ length: SKELETON_CARD_COUNT }).map((unusedValue, i) => (
+        <Card
+          key={i}
+          className="mb-5 border border-[#e5e7eb] rounded-[12px] overflow-hidden"
+          styles={{ body: { padding: 0 } }}
+          style={{ boxShadow: 'none' }}
+          data-cy={`weekly-priority-list-skeleton-card-${i}`}
+        >
+          <div
+            className="px-4 md:px-6 py-4 md:py-5 bg-[#f9fafb] border-b border-gray-100"
+            data-cy={`weekly-priority-list-skeleton-card-header-${i}`}
+          >
+            <Skeleton
+              active
+              title={{ width: '55%' }}
+              paragraph={{ rows: 1, width: ['38%'] }}
+            />
+          </div>
+          <div
+            className="px-4 md:px-6 py-4 md:py-5 space-y-3"
+            data-cy={`weekly-priority-list-skeleton-card-body-${i}`}
+          >
+            <Skeleton active paragraph={{ rows: 2, width: ['100%', '85%'] }} />
+          </div>
+        </Card>
+      ))}
+      <div
+        className="flex justify-end pt-1"
+        data-cy="weekly-priority-list-skeleton-pagination-row"
+      >
+        <Skeleton.Button
+          active
+          className="!h-8 !w-[280px] max-w-full rounded-[6px]"
+          data-cy="weekly-priority-list-skeleton-pagination"
+        />
+      </div>
+    </div>
+  );
+}
 
 const Department: React.FC = () => {
-  const {
-    data,
-    setData,
-    departmentId,
-    weekIds,
-    activeTab,
-    pageSize,
-    currentPage,
-    setCurrentPage,
-    setPageSize,
-  } = useWeeklyPriorityStore();
-  const { data: departmentChild } = useGetDepartmentChild(departmentId || '');
-  const departmentIds = Array.isArray(departmentChild)
-    ? departmentChild.map((item) => item.id)
-    : [];
-  const departIds =
-    !departmentIds?.length || activeTab === 2
-      ? departmentId
-        ? [departmentId]
-        : []
-      : departmentIds;
+  const { data, setData, activeTab, pageSize, setCurrentPage, setPageSize } =
+    useWeeklyPriorityStore();
   const { data: weeklyPriority, isLoading: weeklyLoading } =
-    useGetWeeklyPriorities(
-      departIds || [],
-      weekIds || [],
-      pageSize,
-      currentPage,
-    );
+    useWeeklyPriorityList();
 
   useEffect(() => {
     setData(weeklyPriority?.items || []);
@@ -53,12 +71,7 @@ const Department: React.FC = () => {
 
       <>
         {weeklyLoading ? (
-          <div
-            data-cy="weekly-priority-components-department-team-department-tsx-department-div-116"
-            className="flex justify-center items-center h-96"
-          >
-            <Spin size="large" tip="Loading..." />
-          </div>
+          <WeeklyPriorityListSkeleton />
         ) : data?.length ? (
           <>
             <TaskCard />

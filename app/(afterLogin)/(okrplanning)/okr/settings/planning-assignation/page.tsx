@@ -1,16 +1,10 @@
 'use client';
-import {
-  Input,
-  Popconfirm,
-  Avatar,
-  Dropdown,
-  MenuProps,
-  Spin,
-  Tag,
-} from 'antd';
+import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Tag } from 'antd';
 import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
+import PlanningAssignationPageSkeleton from './_components/planningAssignationPageSkeleton';
+import EmptyState from '@/components/empty';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
 import {
@@ -142,6 +136,22 @@ const PlanAssignment: React.FC = () => {
     getPlanningPeriodType,
   ]);
 
+  const rawApiCount = userToPlanning.length;
+  const hasSearch = searchTerm.trim().length > 0;
+  const isSearchFilteredEmpty =
+    filteredData.length === 0 && hasSearch && rawApiCount > 0;
+  const isInactiveFilteredEmpty =
+    filteredData.length === 0 && !hasSearch && rawApiCount > 0;
+
+  const canAssignPlanningPeriod = AccessGuard.checkAccess({
+    permissions: [Permissions.AssignPlanningPeriod],
+  });
+
+  const openCreateAssignee = () => {
+    setSelectedPlanningUser(null);
+    setOpen(true);
+  };
+
   const onPageChange = (page: number, pageSize?: number) => {
     setPage(page);
     if (pageSize) {
@@ -248,15 +258,43 @@ const PlanAssignment: React.FC = () => {
           data-cy="okr-planning-assignation-cards-scroll-container"
         >
           {allUserPlanningPeriodGroupedByUserLoading ? (
+            <PlanningAssignationPageSkeleton />
+          ) : filteredData.length === 0 ? (
             <div
-              className="flex justify-center items-center py-20"
-              data-cy="okr-planning-assignation-loading"
+              className="flex min-h-[240px] items-center justify-center py-12"
+              data-cy="okr-planning-assignation-empty"
+              id="okrPlanningAssignationEmptyId"
             >
-              <Spin size="large" />
+              <EmptyState
+                title={
+                  isSearchFilteredEmpty
+                    ? 'No employees match your search'
+                    : isInactiveFilteredEmpty
+                      ? 'No active assignations to display'
+                      : 'No planning assignations yet'
+                }
+                description={
+                  isSearchFilteredEmpty
+                    ? 'Try a different name or clear the search.'
+                    : isInactiveFilteredEmpty
+                      ? 'Assigned employees may be inactive or removed. Assign planning periods to active employees.'
+                      : 'Assign employees to a planning period to get started.'
+                }
+                actionText={
+                  canAssignPlanningPeriod && !isSearchFilteredEmpty
+                    ? 'Add assignee'
+                    : undefined
+                }
+                onAction={
+                  canAssignPlanningPeriod && !isSearchFilteredEmpty
+                    ? openCreateAssignee
+                    : undefined
+                }
+              />
             </div>
           ) : (
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
               id="okr-planning-assignation-cards-grid"
               data-cy="okr-planning-assignation-cards-grid"
             >
@@ -354,7 +392,8 @@ const PlanAssignment: React.FC = () => {
                           data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
                         >
                           <button
-                            className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] rounded-[6px] text-[#8c8c8c] hover:text-[#262626] hover:border-[#2b54ad] transition-colors"
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
@@ -371,38 +410,42 @@ const PlanAssignment: React.FC = () => {
         </div>
 
         {/* Pagination Container inside main box */}
-        {!allUserPlanningPeriodGroupedByUserLoading && (
-          <div
-            className="custom-pagination-container"
-            data-cy="okr-planning-assignation-pagination-container"
-          >
-            {isMobile || isTablet ? (
-              <CustomMobilePagination
-                totalResults={
-                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-                }
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageChange}
-                data-cy="okr-planning-assignation-mobile-pagination"
-              />
-            ) : (
-              <CustomPagination
-                current={page}
-                total={
-                  allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0
-                }
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={(pageSize) => {
-                  setPageSize(pageSize);
-                  setPage(1);
-                }}
-                data-cy="okr-planning-assignation-pagination"
-              />
-            )}
-          </div>
-        )}
+        {!allUserPlanningPeriodGroupedByUserLoading &&
+          (allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0) >
+            0 && (
+            <div
+              className="custom-pagination-container"
+              data-cy="okr-planning-assignation-pagination-container"
+            >
+              {isMobile || isTablet ? (
+                <CustomMobilePagination
+                  totalResults={
+                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
+                    0
+                  }
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
+                  data-cy="okr-planning-assignation-mobile-pagination"
+                />
+              ) : (
+                <CustomPagination
+                  current={page}
+                  total={
+                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
+                    0
+                  }
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={(pageSize) => {
+                    setPageSize(pageSize);
+                    setPage(1);
+                  }}
+                  data-cy="okr-planning-assignation-pagination"
+                />
+              )}
+            </div>
+          )}
       </div>
 
       <PlanningAssignationModal

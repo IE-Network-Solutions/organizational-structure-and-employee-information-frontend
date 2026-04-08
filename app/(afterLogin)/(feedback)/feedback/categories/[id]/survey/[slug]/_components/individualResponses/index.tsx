@@ -16,6 +16,7 @@ import {
 } from '../surveyFieldUi';
 import { SurveyChoiceBarRow } from '../surveyChoiceBarRow';
 import { FieldType } from '@/types/enumTypes';
+import EmptyState from '@/components/empty';
 
 interface Params {
   id: string;
@@ -643,9 +644,9 @@ const IndividualResponses = ({ id }: Params) => {
         <div
           id="individual-responses-empty"
           data-cy="individual-responses-empty"
-          className={`${listPanelClass} flex justify-start`}
+          className={`${listPanelClass} flex justify-center items-center`}
         >
-          <EmptyImage />
+          <EmptyState />
         </div>
       )}
     </div>

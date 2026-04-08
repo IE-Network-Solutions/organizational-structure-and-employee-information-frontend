@@ -6,7 +6,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Button, Form, Input, Modal, Pagination, Spin } from 'antd';
+import { Button, Form, Input, Modal, Pagination } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
 import { useSetCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
@@ -15,6 +15,8 @@ import { CourseCategory } from '@/types/tna/course';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
+import EmptyState from '@/components/empty';
+import CourseCategoryPageSkeleton from './_components/courseCategoryPageSkeleton';
 
 const PAGE_SIZE = 10;
 
@@ -38,7 +40,7 @@ function useLgUp() {
 
 const TnaCourseCategoryPage = () => {
   const isLgUp = useLgUp();
-  const { data, isFetching } = useGetCourseCategory({});
+  const { data, isLoading: isCourseCategoryLoading } = useGetCourseCategory({});
   const { mutate: setCourseCategory, isLoading: isSaving } =
     useSetCourseCategory();
 
@@ -159,6 +161,17 @@ const TnaCourseCategoryPage = () => {
 
   const isEditing = !!selectedCategoryId;
 
+  const hasCategoryRows = (data?.items?.length ?? 0) > 0;
+  const isSearchFilteredEmpty = hasCategoryRows && filteredItems.length === 0;
+
+  const openCreateCategory = () => {
+    setSelectedCategoryId(null);
+    form.resetFields();
+    if (!isLgUp) {
+      setMobileModalOpen(true);
+    }
+  };
+
   const formFields = (
     <>
       <Form.Item
@@ -263,83 +276,103 @@ const TnaCourseCategoryPage = () => {
 
   return (
     <div id="tnaCourseCategoryPageId" data-cy="tna-course-category-page">
-      <div
-        className="flex flex-col lg:flex-row gap-4 lg:gap-5"
-        data-cy="tna-course-category-two-column"
-      >
+      {isCourseCategoryLoading ? (
+        <CourseCategoryPageSkeleton />
+      ) : (
         <div
-          className="w-full lg:w-[60%] border border-[#D9D9D9] rounded-lg bg-white p-3 lg:p-4"
-          data-cy="tna-course-category-list-container"
+          className="flex flex-col lg:flex-row gap-4 lg:gap-5"
+          data-cy="tna-course-category-two-column"
         >
-          <Input
-            allowClear
-            placeholder="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            suffix={<SearchOutlined className="text-[rgba(0,0,0,0.45)]" />}
-            className="mb-3 rounded-md text-[13px] lg:hidden"
-            data-cy="tna-course-category-search-input"
-            id="tnaCourseCategorySearchInputId"
-          />
-          {isFetching ? (
-            <div
-              className="flex items-center justify-center min-h-[300px]"
-              data-cy="tna-course-category-page-spinner"
-            >
-              <Spin spinning />
-            </div>
-          ) : (
-            <>
+          <div
+            className="w-full lg:w-[60%] border border-[#D9D9D9] rounded-lg bg-white p-3 lg:p-4"
+            data-cy="tna-course-category-list-container"
+          >
+            <Input
+              allowClear
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              suffix={<SearchOutlined className="text-[rgba(0,0,0,0.45)]" />}
+              className="mb-3 rounded-md text-[13px] lg:hidden"
+              data-cy="tna-course-category-search-input"
+              id="tnaCourseCategorySearchInputId"
+            />
+            {filteredItems.length === 0 ? (
               <div
-                className="flex flex-col gap-3"
-                data-cy="tna-course-category-list"
+                className="w-full min-h-[200px] flex items-center justify-center"
+                data-cy="tna-course-category-list-empty"
+                id="tnaCourseCategoryListEmptyId"
               >
-                {paginatedItems.map((item) => (
-                  <CourseCategoryCard
-                    key={item.id}
-                    item={item}
-                    isActive={selectedCategoryId === item.id}
-                    onEdit={(category: CourseCategory) => {
-                      setSelectedCategoryId(category.id);
-                      if (!isLgUp) {
-                        setMobileModalOpen(true);
-                      }
-                    }}
-                    onDeleted={(deletedId: string) => {
-                      if (deletedId === selectedCategoryId) {
-                        if (!isLgUp) {
-                          closeMobileComposer();
-                        } else {
-                          handleCancel();
-                        }
-                      }
-                    }}
-                    data-cy={`tna-course-category-card-${item.id}`}
-                  />
-                ))}
+                <EmptyState
+                  title={
+                    isSearchFilteredEmpty
+                      ? 'No categories match your search'
+                      : 'No course categories yet'
+                  }
+                  description={
+                    isSearchFilteredEmpty
+                      ? 'Try a different search term.'
+                      : isLgUp
+                        ? 'Use the form on the right to create your first category.'
+                        : 'Create a category to organize your courses.'
+                  }
+                  actionText={!isLgUp ? 'Create category' : undefined}
+                  onAction={!isLgUp ? openCreateCategory : undefined}
+                />
               </div>
-              {filteredItems.length > PAGE_SIZE && (
+            ) : (
+              <>
                 <div
-                  className="flex justify-center mt-4 pt-2 border-t border-[#F0F0F0]"
-                  data-cy="tna-course-category-pagination-wrap"
+                  className="flex flex-col gap-3"
+                  data-cy="tna-course-category-list"
                 >
-                  <Pagination
-                    size="small"
-                    current={page}
-                    pageSize={PAGE_SIZE}
-                    total={filteredItems.length}
-                    onChange={(p) => setPage(p)}
-                    showSizeChanger={false}
-                    data-cy="tna-course-category-pagination"
-                  />
+                  {paginatedItems.map((item) => (
+                    <CourseCategoryCard
+                      key={item.id}
+                      item={item}
+                      isActive={selectedCategoryId === item.id}
+                      onEdit={(category: CourseCategory) => {
+                        setSelectedCategoryId(category.id);
+                        if (!isLgUp) {
+                          setMobileModalOpen(true);
+                        }
+                      }}
+                      onDeleted={(deletedId: string) => {
+                        if (deletedId === selectedCategoryId) {
+                          if (!isLgUp) {
+                            closeMobileComposer();
+                          } else {
+                            handleCancel();
+                          }
+                        }
+                      }}
+                      data-cy={`tna-course-category-card-${item.id}`}
+                    />
+                  ))}
                 </div>
-              )}
-            </>
-          )}
-        </div>
+                {filteredItems.length > PAGE_SIZE && (
+                  <div
+                    className="flex justify-center mt-4 pt-2 border-t border-[#F0F0F0]"
+                    data-cy="tna-course-category-pagination-wrap"
+                  >
+                    <Pagination
+                      size="small"
+                      current={page}
+                      pageSize={PAGE_SIZE}
+                      total={filteredItems.length}
+                      onChange={(p) => setPage(p)}
+                      showSizeChanger={false}
+                      data-cy="tna-course-category-pagination"
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
 
-        {desktopForm}
-      </div>
+          {desktopForm}
+        </div>
+      )}
 
       {!isLgUp && (
         <Modal

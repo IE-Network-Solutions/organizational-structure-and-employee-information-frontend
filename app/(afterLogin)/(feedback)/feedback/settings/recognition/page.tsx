@@ -1,11 +1,15 @@
 'use client';
-import { Card, Dropdown, Popconfirm, Skeleton } from 'antd';
+import { Card, Dropdown, Popconfirm } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useGetAllRecognitionWithRelations } from '@/store/server/features/CFR/recognitionCriteria/queries';
 import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 import { BsThreeDots } from 'react-icons/bs';
+import EmptyState from '@/components/empty';
+import RecognitionSkeleton from './_components/recognitionSkeleton';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const Page = () => {
   const {
@@ -20,6 +24,17 @@ const Page = () => {
 
   const { data: recognitionType, isLoading } =
     useGetAllRecognitionWithRelations();
+
+  const listItems = recognitionType?.items ?? [];
+  const canCreateRecognition = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateRecognition],
+  });
+
+  const openCreateCategory = () => {
+    setRecognitionCategoryEditId('');
+    setOpenRecognitionCategoryModal(true);
+  };
+
   return (
     <div
       className="rounded-2xl bg-white h-full"
@@ -27,7 +42,22 @@ const Page = () => {
       id="settingsRecognitionPage"
     >
       <div data-cy="settings-recognition-spin">
-        <Skeleton active loading={isLoading} paragraph={{ rows: 6 }}>
+        {isLoading ? (
+          <RecognitionSkeleton />
+        ) : listItems.length === 0 ? (
+          <div
+            className="flex min-h-[280px] items-center justify-center border border-[#D9D9D9] rounded-lg p-6"
+            data-cy="settings-recognition-empty"
+            id="settingsRecognitionEmptyId"
+          >
+            <EmptyState
+              title="No recognition categories yet"
+              description="Create a category to organize recognition types."
+              actionText={canCreateRecognition ? 'Add category' : undefined}
+              onAction={canCreateRecognition ? openCreateCategory : undefined}
+            />
+          </div>
+        ) : (
           <div
             className="grid grid-cols-12 flex-col-reverse justify-between border-[1px] border-[#D9D9D9] rounded-lg p-4"
             data-cy="settings-recognition-content"
@@ -42,7 +72,7 @@ const Page = () => {
                 className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
                 data-cy="settings-recognition-grid"
               >
-                {recognitionType?.items?.map((item: any) => (
+                {listItems.map((item: any) => (
                   <Card
                     key={item?.id}
                     className="rounded-xl border border-[#D9D9D9] shadow-none cursor-pointer hover:border-[#D9D9D9] transition-colors"
@@ -179,7 +209,7 @@ const Page = () => {
               </div>
             </div>
           </div>
-        </Skeleton>
+        )}
       </div>
     </div>
   );
