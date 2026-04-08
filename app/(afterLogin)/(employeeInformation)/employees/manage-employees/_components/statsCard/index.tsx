@@ -43,15 +43,15 @@ const StatsCard: React.FC<StatsCardProps> = ({
       <Card
         className={cardClassName}
         bodyStyle={{
-          paddingTop: '13px',
-          paddingBottom: '18px',
-          paddingLeft: '12px',
-          paddingRight: '12px',
+          paddingTop: '10px',
+          paddingBottom: '10px',
+          paddingLeft: '10px',
+          paddingRight: '10px',
         }}
         id={id}
         data-cy={dataCy}
       >
-        <div data-cy="stats-card-body" className="flex flex-col gap-4">
+        <div data-cy="stats-card-body" className="flex flex-col gap-2.5">
           {/* Header with icon and title */}
           <div
             data-cy="stats-card-header"
@@ -62,7 +62,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
             </span>
             <span
               data-cy="stats-card-title"
-              className="text-sm font-normal text-gray-600/65"
+              className="text-xs font-normal text-gray-600/65"
             >
               {title}
             </span>
@@ -72,19 +72,19 @@ const StatsCard: React.FC<StatsCardProps> = ({
             className={
               showHoverButton
                 ? 'flex flex-col gap-2 transition-opacity duration-200 group-hover:opacity-0'
-                : 'flex flex-col gap-2'
+                : 'flex flex-col gap-1.5'
             }
           >
             <div
               data-cy="stats-card-value"
-              className="text-3xl font-bold text-gray-900"
+              className="text-2xl font-bold leading-none text-gray-900"
             >
               {value}
             </div>
             {change !== undefined && (
               <div
                 data-cy="stats-card-change-div"
-                className={`text-sm font-medium ${changeColor} flex items-center gap-1`}
+                className={`text-xs font-medium ${changeColor} flex items-center gap-1`}
               >
                 <span data-cy="stats-card-change-symbol">
                   {changeSymbol}

@@ -40,7 +40,7 @@ export const usePositionState = create<PositionState>((set) => ({
   openPositionDrawer: false,
   setOpenPositionDrawer: (value) => set({ openPositionDrawer: value }),
 
-  pageSize: 5,
+  pageSize: 10,
   setPageSize: (value) => set({ pageSize: value }),
 
   currentPage: 1,

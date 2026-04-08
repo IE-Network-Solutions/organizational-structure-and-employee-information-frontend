@@ -29,29 +29,29 @@ const iconMap: Record<string, React.ReactNode> = {
   location: (
     <Button
       type="default"
-      className="border border-[#71abfd]"
-      icon={<LocationOnIcon className="text-lg text-[#71abfd]" />}
+      className="!h-8 !w-8 !min-w-0 !p-0 border border-[#BFDBFE] bg-[#F5F9FF]"
+      icon={<LocationOnIcon className="text-base text-[#2563EB]" />}
     />
   ),
   contact: (
     <Button
       type="default"
-      className="border border-[#71abfd]"
-      icon={<ContactsIcon className="text-lg text-[#71abfd]" />}
+      className="!h-8 !w-8 !min-w-0 !p-0 border border-[#BFDBFE] bg-[#F5F9FF]"
+      icon={<ContactsIcon className="text-base text-[#2563EB]" />}
     />
   ),
   bank: (
     <Button
       type="default"
-      className="border border-[#71abfd]"
-      icon={<AccountBalanceIcon className="text-lg text-[#71abfd]" />}
+      className="!h-8 !w-8 !min-w-0 !p-0 border border-[#BFDBFE] bg-[#F5F9FF]"
+      icon={<AccountBalanceIcon className="text-base text-[#2563EB]" />}
     />
   ),
   document: (
     <Button
       type="default"
-      className="border border-[#71abfd]"
-      icon={<AttachFileIcon className="text-lg text-[#71abfd]" />}
+      className="!h-8 !w-8 !min-w-0 !p-0 border border-[#BFDBFE] bg-[#F5F9FF]"
+      icon={<AttachFileIcon className="text-base text-[#2563EB]" />}
     />
   ),
 };
@@ -112,7 +112,7 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
         >
           <Tag
             data-cy="settings-category-fields-count"
-            className="border border-[#91caff] text-xs font-normal bg-[#e6f4ff] text-[#1677ff] h-8 py-2 px-2 rounded-md"
+            className="m-0 border border-[#BFDBFE] bg-[#F5F9FF] text-[#2563EB] text-xs font-medium h-8 py-1.5 px-2 rounded-md"
           >
             {fieldCount} Fields Added
           </Tag>
@@ -134,45 +134,45 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
       {expanded && displayFields.length > 0 && (
         <div
           data-cy="settings-category-fields-container"
-          className=" pb-4 pt-0"
+          className="pb-2 pt-2 pl-2"
         >
           <ul
             data-cy="settings-category-fields-list"
-            className="mt-3 space-y-3"
+            className="mt-2 space-y-2.5"
           >
             {displayFields.map((f, i) => (
               <li key={i} data-cy={`settings-category-field-${formTitle}-${i}`}>
                 <Card
                   bordered
-                  className="rounded-lg border-[1px] border-[#d9d9d9]"
-                  bodyStyle={{ padding: '12px 16px' }}
+                  className="rounded-lg border border-[#E5E7EB] bg-white"
+                  bodyStyle={{ padding: '8px 10px' }}
                 >
                   <div
                     data-cy="settings-category-field-name-container"
-                    className="flex items-center justify-between"
+                    className="flex items-center gap-2"
                   >
                     <span
                       data-cy="settings-category-field-name"
-                      className="font-medium text-gray-800"
+                      className="min-w-0 flex-1 font-medium text-sm text-[#111827] truncate"
                     >
                       {f.name}
                     </span>
+                    <div
+                      data-cy="settings-category-field-validation-container"
+                      className="hidden sm:flex items-center gap-1.5"
+                    >
+                      <Tag className="m-0 bg-[#F9FAFB] border border-[#E5E7EB] text-[11px] leading-4 font-normal text-[#6B7280] px-2 py-0.5 rounded-md">
+                        Textfield
+                      </Tag>
+                      <Tag className="m-0 bg-[#F9FAFB] border border-[#E5E7EB] text-[11px] leading-4 font-normal text-[#6B7280] px-2 py-0.5 rounded-md">
+                        {f.validation} Validation
+                      </Tag>
+                    </div>
                     <Button
                       type="default"
-                      className="border border-[#d9d9d9] !h-8"
-                      icon={<MoreHorizIcon />}
+                      className="border border-[#E5E7EB] bg-white !h-7 !w-7 !min-w-0 !p-0 rounded-md shrink-0"
+                      icon={<MoreHorizIcon fontSize="small" />}
                     />
-                  </div>
-                  <div
-                    data-cy="settings-category-field-validation-container"
-                    className="mt-3 flex items-center justify-between"
-                  >
-                    <Tag className="bg-white border border-[#9ca3af] text-xs font-normal text-[#9ca3af] px-3 rounded-[3px]">
-                      Textfield
-                    </Tag>
-                    <Tag className="bg-white border border-[#9ca3af] text-xs font-normal text-[#9ca3af] px-3 rounded-[3px]">
-                      {f.validation} Validation
-                    </Tag>
                   </div>
                 </Card>
               </li>

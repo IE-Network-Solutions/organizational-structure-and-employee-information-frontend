@@ -18,11 +18,11 @@ interface OnChange {
 
 const NAV_ITEMS = [
   {
-    key: '1',
-    tabName: 'Permission',
-    label: 'Permissions',
-    subtext: 'Individual System Permissions',
-    Icon: LockIcon,
+    key: '4',
+    tabName: 'Role',
+    label: 'Roles',
+    subtext: 'User Roles Configuration',
+    Icon: GroupOutlinedIcon,
   },
   {
     key: '2',
@@ -32,11 +32,11 @@ const NAV_ITEMS = [
     Icon: GridViewIcon,
   },
   {
-    key: '4',
-    tabName: 'Role',
-    label: 'Roles',
-    subtext: 'User Roles Configuration',
-    Icon: GroupOutlinedIcon,
+    key: '1',
+    tabName: 'Permission',
+    label: 'Permissions',
+    subtext: 'Individual System Permissions',
+    Icon: LockIcon,
   },
 ];
 

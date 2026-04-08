@@ -214,6 +214,13 @@ const CustomFieldsPage: React.FC = () => {
               data-cy="settings-custom-fields-form-categories-card"
             >
               <div
+                data-cy="settings-custom-fields-drag-drop-info"
+                className="mb-4 rounded-lg border border-[#D6E4FF] bg-[#F5F9FF] px-3 py-2 text-sm text-black"
+              >
+                Drag a field type from the left panel and drop it into a section
+                below to create a new custom field.
+              </div>
+              <div
                 data-cy="settings-custom-fields-form-categories-list"
                 className="flex flex-col gap-4"
               >

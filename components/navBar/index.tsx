@@ -159,11 +159,7 @@ const NavMenuItem: React.FC<{
   const handleToggle = () => {
     if (isItemDisabled) return;
     if (hasChildren) {
-      setExpandedKeys((prev) =>
-        prev.includes(item.key)
-          ? prev.filter((k) => k !== item.key)
-          : [...prev, item.key],
-      );
+      setExpandedKeys((prev) => (prev.includes(item.key) ? [] : [item.key]));
     } else {
       const path = String(item.key);
       if (pathname !== path) {
