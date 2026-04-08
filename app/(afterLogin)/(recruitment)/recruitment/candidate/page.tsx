@@ -417,7 +417,10 @@ const AllCandidates: React.FC = () => {
           id="talent-acquisition-candidate-page-header"
           data-cy="talent-acquisition-candidate-page-header"
         >
-          <div data-cy="talent-acquisition-candidate-breadcrumb-container">
+          <div
+            className="w-full"
+            data-cy="talent-acquisition-candidate-breadcrumb-container"
+          >
             <CustomBreadcrumb
               title={
                 <span
