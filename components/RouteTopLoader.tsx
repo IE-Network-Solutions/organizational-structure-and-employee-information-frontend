@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { GlobalStateStore } from '@/store/uistate/features/global';
 
 // A minimal, Basecamp-like top loader that appears when navigation takes a moment.
 // Delays showing to avoid flicker on fast transitions, and ensures a smooth hide.
 export default function RouteTopLoader() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [visible, setVisible] = useState(false);
+  const { isRouteLoading, setisRouteLoading } = GlobalStateStore();
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<number | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -27,7 +28,7 @@ export default function RouteTopLoader() {
 
       // Delay before showing to avoid flash on instant transitions
       timerRef.current = window.setTimeout(() => {
-        setVisible(true);
+        setisRouteLoading(true);
         setProgress(0);
 
         const start = performance.now();
@@ -118,7 +119,7 @@ export default function RouteTopLoader() {
     if (timerRef.current) window.clearTimeout(timerRef.current);
     setProgress(1);
     const done = window.setTimeout(() => {
-      setVisible(false);
+      setisRouteLoading(false);
       setProgress(0);
     }, 250);
     return () => window.clearTimeout(done);
@@ -133,7 +134,7 @@ export default function RouteTopLoader() {
         top: 0,
         left: 0,
         right: 0,
-        height: visible ? 2 : 0,
+        height: isRouteLoading ? 2 : 0,
         background: 'transparent',
         zIndex: 99998,
         pointerEvents: 'none',
