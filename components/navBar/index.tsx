@@ -1402,6 +1402,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'row',
+        transition: 'opacity 0.3s ease',
       }}
     >
       <Sider
