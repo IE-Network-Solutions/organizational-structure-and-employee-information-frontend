@@ -510,7 +510,9 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           min-height: 32px !important;
         }
         .cfr-feedback-settings-drawer .ant-drawer-footer .ant-btn,
-        .cfr-feedback-settings-drawer .feedback-settings-modal-actions .ant-btn {
+        .cfr-feedback-settings-drawer
+          .feedback-settings-modal-actions
+          .ant-btn {
           height: 32px !important;
           min-height: 32px !important;
         }

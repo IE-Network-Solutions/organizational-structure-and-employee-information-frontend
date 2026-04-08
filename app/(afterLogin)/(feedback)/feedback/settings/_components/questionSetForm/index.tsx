@@ -605,7 +605,11 @@ const QuestionSetForm = () => {
             </div>
           ))}
 
-          <div className="feedback-settings-modal-actions w-full">
+          <div
+            className="feedback-settings-modal-actions w-full"
+            data-cy="question-set-form-add-question-button-container"
+            id="questionSetFormAddQuestionButtonContainer"
+          >
             <Button
               type="dashed"
               onClick={handleAddQuestion}
