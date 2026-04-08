@@ -1,21 +1,24 @@
 'use client';
+
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
-import { Form, Steps } from 'antd';
+import { Form, Modal } from 'antd';
 import React from 'react';
-import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useDebounce } from '@/utils/useDebounce';
 import { v4 as uuidv4 } from 'uuid';
 import { useCreateJobs } from '@/store/server/features/recruitment/job/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import dayjs from 'dayjs';
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CreateNewJob from './createNewJob';
+import JobDetailsStep from './jobDetailsStep';
+import HiringOfferStep from './hiringOfferStep';
 import CreateApplicationForm from './createApplicationForm';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { IoClose } from 'react-icons/io5';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const { Step } = Steps;
+const STEP_LABELS = ['Job Details', 'Hiring and offer', 'Application Form'];
 
 const CreateJobs: React.FC = () => {
+  const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
   const createdBy = useAuthenticationStore.getState().userId;
   const {
@@ -26,143 +29,146 @@ const CreateJobs: React.FC = () => {
     setCurrentStep,
     setAddJobModalResult,
     setSelectedJobId,
-    filteredQuestions,
     setSelectedQuestions,
   } = useJobState();
   const { mutate: createJob, isLoading: isCreatingJob } = useCreateJobs();
 
-  const customDot = (step: number) =>
-    (
-      <div
-        className={`border-2 rounded-full h-8 w-8 flex items-center justify-center ${currentStep >= step ? 'bg-indigo-700 text-white' : 'bg-white border-gray-300 text-gray-500'}`}
-        data-cy={`talent-acquisition-create-jobs-step-dot-${step}`}
-      >
-        <div
-          style={{ fontSize: '24px', lineHeight: '24px' }}
-          data-cy={`talent-acquisition-create-jobs-step-dot-content-${step}`}
-        >
-          {currentStep >= step ? (
-            <IoCheckmarkSharp
-              className="text-xs font-bold"
-              data-cy={`talent-acquisition-create-jobs-step-dot-checkmark-${step}`}
-            />
-          ) : (
-            <span
-              data-cy={`talent-acquisition-create-jobs-step-dot-bullet-${step}`}
-            >
-              •
-            </span>
-          )}
-        </div>
-      </div>
-    ) as React.ReactNode;
   const handleStepChange = (value: number) => {
     setCurrentStep(value);
   };
 
   const addNewDrawerHeader = (
     <div
-      className="flex flex-col items-center"
+      className="relative w-full"
       data-cy="talent-acquisition-create-jobs-drawer-header-container"
     >
-      {currentStep === 0 ? (
-        <div
-          className="flex justify-center text-xl font-extrabold text-gray-800 p-2"
-          data-cy="talent-acquisition-create-jobs-drawer-header-step-0"
-        >
-          <span data-cy="talent-acquisition-create-jobs-drawer-header-step-0-text">
-            Create New Job
-          </span>
-        </div>
-      ) : null}
-      {currentStep !== 0 ? (
-        <div
-          className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-          data-cy="talent-acquisition-create-jobs-drawer-header-step-1"
-        >
-          <span data-cy="talent-acquisition-create-jobs-drawer-header-step-1-text">
-            Create Application Forms
-          </span>
-        </div>
-      ) : null}
-      <div
-        className="flex items-center justify-between"
-        data-cy="talent-acquisition-create-jobs-steps-container"
+      <button
+        type="button"
+        onClick={() => {
+          setAddNewDrawer(false);
+          form.resetFields();
+          setCurrentStep(0);
+        }}
+        className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+        aria-label="Close"
+        data-cy="talent-acquisition-create-jobs-drawer-close"
       >
-        <Steps
-          data-cy="talent-acquisition-create-jobs-steps"
-          current={currentStep}
-          onChange={handleStepChange}
-          size="default"
-          responsive={false}
-          className="w-full"
+        <IoClose className="h-5 w-5" />
+      </button>
+      <div
+        className="pr-10"
+        data-cy="talent-acquisition-create-jobs-drawer-title-wrap"
+      >
+        <h2
+          className="text-[20px] font-bold leading-tight text-black"
+          data-cy="talent-acquisition-create-jobs-drawer-title"
         >
-          <Step
-            icon={customDot(0)}
-            data-cy="talent-acquisition-create-jobs-step-0"
+          Create New Job
+        </h2>
+        <p
+          className="mt-1 text-sm font-normal text-black"
+          data-cy="talent-acquisition-create-jobs-drawer-subtitle"
+        >
+          Please Fill in all the information correctly
+        </p>
+      </div>
+      <div
+        className="mx-auto mt-5 w-full max-w-[560px]"
+        data-cy="talent-acquisition-create-jobs-step-indicators"
+      >
+        <div
+          className="relative grid grid-cols-3 items-start"
+          data-cy="talent-acquisition-create-jobs-step-progress-wrapper"
+        >
+          <div
+            className="pointer-events-none absolute left-[16.67%] right-[16.67%] top-[5px] h-[2px] bg-[#D9D9D9]"
+            data-cy="talent-acquisition-create-jobs-step-progress-track"
           />
-          <Step
-            icon={customDot(1)}
-            data-cy="talent-acquisition-create-jobs-step-1"
+          <div
+            className={`pointer-events-none absolute left-[16.67%] top-[5px] h-[2px] ${
+              currentStep === 0
+                ? 'w-[16.67%]'
+                : currentStep === 1
+                  ? 'w-1/2'
+                  : 'w-2/3'
+            } bg-[#1E40AF] transition-all`}
+            data-cy="talent-acquisition-create-jobs-step-progress-fill"
           />
-        </Steps>
+          {STEP_LABELS.map((label, index) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => {
+                if (index <= currentStep) {
+                  setCurrentStep(index);
+                }
+              }}
+              disabled={index > currentStep}
+              className="z-[1] flex min-w-0 flex-1 flex-col items-center gap-2 bg-transparent p-0 disabled:cursor-default"
+              data-cy={`talent-acquisition-create-jobs-step-${index}`}
+            >
+              <div
+                className={`h-[10px] w-[10px] shrink-0 rounded-full border-2 ${
+                  currentStep >= index
+                    ? 'border-[#1E40AF] bg-[#1E40AF]'
+                    : 'border-[#D9D9D9] bg-white'
+                }`}
+                data-cy={`talent-acquisition-create-jobs-step-dot-${index}`}
+              />
+              <span
+                className={`whitespace-nowrap text-[12px] font-normal leading-none sm:text-[14px] ${
+                  currentStep >= index ? 'text-[#1E40AF]' : 'text-[#8C8C8C]'
+                }`}
+                data-cy={`talent-acquisition-create-jobs-step-label-${index}`}
+              >
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
+
   const handleCloseDrawer = () => {
     setAddNewDrawer(false);
     form.resetFields();
+    setCurrentStep(0);
+    setSelectedQuestions([]);
   };
 
   const handleAddJobStateUpdate = useDebounce(setFormValues, 1500);
 
   const handlePublish = async () => {
     try {
-      // Validate all form fields before proceeding
       await form.validateFields();
-
       const formValues = form.getFieldsValue();
-
       const formattedValue = {
         ...formValues,
         createdBy,
         jobDeadline: dayjs(formValues?.jobDeadline).format('YYYY-MM-DD'),
-        yearOfExperience: Number(formValues?.yearOfExperience),
+        yearOfExperience: Number(formValues?.yearOfExperience ?? 0),
         departmentId: formValues?.department,
-        questions: [
-          ...(formValues?.questions?.map((e: any) => {
-            return {
-              ...e,
-              required: e?.required || false,
-              id: uuidv4(),
-              field: e.field.map((field: any) => {
-                return {
-                  id: uuidv4(),
-                  value: field,
-                };
-              }),
-            };
-          }) || []),
-          ...(filteredQuestions?.flatMap((template: any) =>
-            template.form?.map((formItem: any) => ({
-              id: uuidv4(),
-              fieldType: formItem.fieldType,
-              question: formItem.question,
-              required: formItem.required || false,
-              field:
-                formItem.field?.map((field: any) => ({
-                  id: uuidv4(),
-                  value: field.value || field,
-                })) || [],
-            })),
-          ) || []),
-        ],
+        compensation:
+          formValues?.compensation != null
+            ? Number(formValues.compensation)
+            : formValues?.compensation,
+        questions:
+          formValues?.questions?.map((e: any) => ({
+            ...e,
+            required: e?.required || false,
+            id: uuidv4(),
+            field:
+              e.field?.map((field: any) => ({
+                id: uuidv4(),
+                value: field?.value ?? field,
+              })) || [],
+          })) || [],
       };
       createJob(formattedValue, {
         onSuccess: (response) => {
           setAddJobModalResult(true);
-          const newJobId = response?.id;
-          setSelectedJobId(newJobId);
+          setSelectedJobId(response?.id);
           setAddNewDrawer(false);
           form.resetFields();
           setCurrentStep(0);
@@ -170,7 +176,6 @@ const CreateJobs: React.FC = () => {
         },
       });
     } catch (error) {
-      // If validation fails, the error will be caught here and no request will be sent
       NotificationMessage.error({
         message: 'Validation Failed',
         description: 'Please check all required fields before publishing.',
@@ -178,34 +183,60 @@ const CreateJobs: React.FC = () => {
     }
   };
 
-  return addNewDrawer ? (
-    <CustomDrawerLayout
-      data-cy="talent-acquisition-create-jobs-drawer"
+  return (
+    <Modal
       open={addNewDrawer}
-      onClose={handleCloseDrawer}
-      modalHeader={addNewDrawerHeader}
-      width="40%"
+      onCancel={handleCloseDrawer}
       footer={null}
-      customMobileHeight="90vh"
+      width={isMobile ? 'calc(100vw - 16px)' : 809}
+      style={
+        isMobile
+          ? { maxWidth: '100vw', width: '100%', top: 16, margin: 0 }
+          : undefined
+      }
+      centered={!isMobile}
+      closable={false}
+      destroyOnClose
+      className="talent-acquisition-create-job-modal"
+      classNames={{
+        header: '!mb-0 !px-6 !pb-0 !pt-6',
+        body: isMobile
+          ? '!px-6 !pb-6 !pt-4'
+          : currentStep === 2
+            ? '!h-[612px] !overflow-hidden !px-6 !pb-6 !pt-4'
+            : '!h-[560px] !overflow-hidden !px-6 !pb-6 !pt-4',
+      }}
+      styles={{
+        content: isMobile
+          ? { borderRadius: 8, padding: 0 }
+          : {
+              borderRadius: 8,
+              padding: 0,
+              height: currentStep === 2 ? 740 : 688,
+            },
+        body: isMobile ? {} : { overflow: 'hidden' },
+      }}
+      data-cy="talent-acquisition-create-jobs-modal"
+      title={
+        <div data-cy="talent-acquisition-create-jobs-modal-header">
+          {addNewDrawerHeader}
+        </div>
+      }
     >
       <Form
         id="talent-acquisition-create-jobs-form"
-        data-cy="talent-acquisition-create-jobs-form"
         form={form}
         layout="vertical"
-        onValuesChange={() => {
-          handleAddJobStateUpdate(form.getFieldsValue());
-        }}
-        onFinish={() => {
-          handlePublish();
-        }}
+        requiredMark={false}
+        onValuesChange={() => handleAddJobStateUpdate(form.getFieldsValue())}
+        onFinish={handlePublish}
+        className="[&_.ant-form-item-label]:!pb-2"
       >
         <div
-          style={{ height: 'auto' }}
           hidden={currentStep !== 0}
           data-cy="talent-acquisition-create-jobs-form-step-0"
         >
-          <CreateNewJob
+          <JobDetailsStep
             form={form}
             close={handleCloseDrawer}
             stepChange={handleStepChange}
@@ -215,16 +246,24 @@ const CreateJobs: React.FC = () => {
           hidden={currentStep !== 1}
           data-cy="talent-acquisition-create-jobs-form-step-1"
         >
-          <CreateApplicationForm
+          <HiringOfferStep
             form={form}
             stepChange={handleStepChange}
+            close={handleCloseDrawer}
+          />
+        </div>
+        <div
+          hidden={currentStep !== 2}
+          data-cy="talent-acquisition-create-jobs-form-step-2"
+        >
+          <CreateApplicationForm
+            form={form}
             isLoading={isCreatingJob}
+            close={handleCloseDrawer}
           />
         </div>
       </Form>
-    </CustomDrawerLayout>
-  ) : (
-    <div data-cy="talent-acquisition-create-jobs-drawer-empty"></div>
+    </Modal>
   );
 };
 

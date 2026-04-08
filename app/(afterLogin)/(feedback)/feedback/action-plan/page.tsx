@@ -380,7 +380,7 @@ export default function ActionPlansPage() {
   // If user role, automatically filter by their own userId, otherwise use form value
   const empId = isUserRole ? userId : formEmpId;
   const formSourceType = Form.useWatch('sourceType', form) || null;
-  const typeFromUrl = searchParams.get('type')?.trim().toLowerCase();
+  const typeFromUrl = searchParams?.get('type')?.trim().toLowerCase();
   const sourceTypeFromUrl =
     typeFromUrl === 'meeting'
       ? ActionPlanSourceType.MEETING

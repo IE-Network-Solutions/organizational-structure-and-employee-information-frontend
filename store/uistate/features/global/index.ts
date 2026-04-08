@@ -8,7 +8,8 @@ export interface GlobalStateProps {
   collapsed: boolean;
   isMobileCollapsed: boolean;
   isAdminPage: boolean;
-  theme: 'light' | 'dark'; // Restrict theme to specific values
+  theme: 'light' | 'dark';
+  isRouteLoading: boolean; // Restrict theme to specific values
   setIsMobile: (isMobile: boolean) => void;
   setIsTablet: (isTablet: boolean) => void;
   setIsTabletLandscape: (isTabletLandscape: boolean) => void;
@@ -16,6 +17,7 @@ export interface GlobalStateProps {
   setIsMobileCollapsed: (isMobileCollapsed: boolean) => void;
   setIsAdminPage: (isAdminPage: boolean) => void;
   setTheme: (theme: 'light' | 'dark') => void;
+  setisRouteLoading: (isRouteLoading: boolean) => void;
 }
 
 // Create the Zustand store
@@ -41,4 +43,6 @@ export const GlobalStateStore = create<GlobalStateProps>((set) => ({
   setIsMobileCollapsed: (isMobileCollapsed) => set({ isMobileCollapsed }),
   setIsAdminPage: (isAdminPage) => set({ isAdminPage }),
   setTheme: (theme) => set({ theme }),
+  setisRouteLoading: (isRouteLoading) => set({ isRouteLoading }),
+  isRouteLoading: false,
 }));

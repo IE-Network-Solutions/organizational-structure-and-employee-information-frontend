@@ -27,7 +27,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DownloadIcon from '@mui/icons-material/Download';
 import React from 'react';
 import { useState, useMemo } from 'react';
-import { useParams } from 'next/navigation';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -47,8 +46,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 function Job({ id }: { id: string }) {
-  const params = useParams();
-  const userId = params.id as string;
+  const userId = id;
   const { userId: loggedInUserId } = useAuthenticationStore();
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
   const {
@@ -530,7 +528,10 @@ function Job({ id }: { id: string }) {
               </Row>
             )}
           </Card>
-          <WorkScheduleComponent data-cy="job-work-schedule" />
+          <WorkScheduleComponent
+            employeeId={userId}
+            data-cy="job-work-schedule"
+          />
         </Col>
         <Col lg={12} sm={24} xs={24}>
           <Card

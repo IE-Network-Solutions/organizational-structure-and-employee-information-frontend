@@ -28,14 +28,16 @@ const TextEditor: FC<TextEditorProps> = ({
 
   return (
     <div
-      className={classNames('border rounded-2xl border-gray-200', undefined, [
-        className,
-      ])}
+      className={classNames(
+        'rounded-[8px] border border-solid border-[#D9D9D9] bg-white',
+        undefined,
+        [className],
+      )}
       data-cy="text-editor"
     >
       <div
         id="textEditorToolbar"
-        className="flex items-center gap-3 px-2 py-4 border-0 border-b border-gray-200"
+        className="flex items-center gap-3 border-0 border-b border-solid border-[#E5E7EB] px-2 py-3"
         data-cy="text-editor-toolbar"
       >
         <button
@@ -86,7 +88,7 @@ const TextEditor: FC<TextEditorProps> = ({
       </div>
       <div
         data-cy="components-form-texteditor-index-tsx-index-div-73"
-        className="p-3 h-[250px] overflow-y-auto border-0 border-none [&_.ql-container]:border-0 [&_.ql-container]:shadow-none [&_.ql-editor]:border-0"
+        className="p-3 h-[250px] overflow-y-auto border-0 border-none [&_.ql-container]:border-0 [&_.ql-container]:shadow-none [&_.ql-editor]:border-0 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
       >
         {toolbar && (
           <QuillEditor

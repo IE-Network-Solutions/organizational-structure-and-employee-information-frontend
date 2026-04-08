@@ -46,13 +46,10 @@ const columns: TableColumnsType<IncentiveSettingParams> = [
   },
 ];
 
-type Params = {
-  id: string;
-};
-
 const IncentiveSettingsTable: React.FC = () => {
-  const { id } = useParams<Params>();
-  const recognitionId = id;
+  const params = useParams();
+  const idParam = params?.['id'];
+  const recognitionId = Array.isArray(idParam) ? idParam[0] : idParam;
   const router = useRouter();
 
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
@@ -61,9 +58,9 @@ const IncentiveSettingsTable: React.FC = () => {
   const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
 
   const { data: recognitionData, isLoading: responseLoading } =
-    useRecognitionById(recognitionId);
+    useRecognitionById(recognitionId ?? '');
   const { data: formulaById } =
-    useIncentiveFormulaByRecognitionId(recognitionId);
+    useIncentiveFormulaByRecognitionId(recognitionId ?? '');
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
     setOpenIncentiveDrawer(true);

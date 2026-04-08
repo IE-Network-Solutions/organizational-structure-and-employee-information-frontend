@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import ForwardIcon from '@mui/icons-material/Forward';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import CreateCandidate from '../jobs/[id]/_components/createCandidate';
@@ -18,6 +17,8 @@ import { useGetJobs } from '@/store/server/features/recruitment/job/queries';
 import { useGetStages } from '@/store/server/features/recruitment/candidate/queries';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { MdClose } from 'react-icons/md';
+import { FunnelFilterIcon } from '../_components/recruitmentIcons';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -214,7 +215,7 @@ const AllCandidates: React.FC = () => {
           onClick={() => setShowFilters(false)}
           data-cy="talent-acquisition-candidate-page-filter-modal-close"
         >
-          ×
+          <MdClose size={22} />
         </button>
         <h3
           className="text-lg font-semibold text-gray-900 m-0"
@@ -363,15 +364,22 @@ const AllCandidates: React.FC = () => {
       >
         <Button
           onClick={handleResetFilters}
-          className="px-4 transition-colors text-normal font-normal border border-gray-300 text-black/70 shadow-none"
+          className="px-4"
           data-cy="talent-acquisition-candidate-page-filter-modal-reset-button"
+          style={{ borderColor: '#D9D9D9' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = token.colorPrimaryHover;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#D9D9D9';
+          }}
         >
           Reset
         </Button>
         <Button
           type="primary"
           onClick={handleSaveFilters}
-          className="px-4 transition-colors text-normal font-normal text-white shadow-none"
+          className="px-4"
           data-cy="talent-acquisition-candidate-page-filter-modal-save-button"
         >
           Save Filter
@@ -438,7 +446,7 @@ const AllCandidates: React.FC = () => {
                     className="text-xs sm:text-sm text-[#4d4d4d]"
                     data-cy="talent-acquisition-candidate-breadcrumb-current"
                   >
-                    Candidates
+                    Talent Acquisition /{' '}
                   </span>
                 </>
               }
@@ -536,134 +544,121 @@ const AllCandidates: React.FC = () => {
           className="w-full border-none shadow-none [&_.ant-card-body]:border-b-0 [&_.ant-card-body]:px-0 [&_.ant-card-body]:pb-0 [&_.ant-card-body]:pt-0"
         >
           <div
-            id="talent-acquisition-candidate-page-div-table"
-            data-cy="talent-acquisition-candidate-page-div-table"
-            className="mt-0 sm:mt-2 w-full h-auto bg-white rounded-md rounded-b-none border-x border-t border-gray-200 shadow-sm overflow-hidden"
+            className="px-0 sm:px-0 py-4 bg-white"
+            id="talent-acquisition-candidate-page-table-toolbar"
+            data-cy="talent-acquisition-candidate-page-table-toolbar"
+            style={{ borderBottom: 'none' }}
           >
             <div
-              className="px-0 sm:px-0 py-4 bg-white"
-              id="talent-acquisition-candidate-page-table-toolbar"
-              data-cy="talent-acquisition-candidate-page-table-toolbar"
-              style={{ borderBottom: 'none' }}
+              className="flex flex-nowrap items-center justify-between gap-3 sm:gap-4 px-4"
+              data-cy="talent-acquisition-candidate-page-toolbar-inner"
             >
               <div
-                className="flex flex-nowrap items-center justify-between gap-3 sm:gap-4 px-4"
-                data-cy="talent-acquisition-candidate-page-toolbar-inner"
+                className="flex-none w-[199px] sm:flex-1 sm:min-w-0 sm:max-w-sm"
+                id="talent-acquisition-candidate-page-search-wrap"
+                data-cy="talent-acquisition-candidate-page-search-wrap"
               >
-                <div
-                  className="flex-none w-[199px] sm:flex-1 sm:min-w-0 sm:max-w-sm"
-                  id="talent-acquisition-candidate-page-search-wrap"
-                  data-cy="talent-acquisition-candidate-page-search-wrap"
-                >
-                  <WhatYouNeed
-                    placeholder="Search candidate"
-                    pill
-                    className="w-full rounded-md"
-                  />
-                </div>
-                {!(isMobile || isTablet) && activeFilterChips.length > 0 && (
-                  <div
-                    className="flex-1 min-w-0 flex items-center justify-end gap-2 overflow-x-auto scrollbar-none"
-                    data-cy="talent-acquisition-candidate-page-active-filters"
-                  >
-                    {activeFilterChips.map((chip) => (
-                      <span
-                        key={chip.key}
-                        className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-md border border-gray-200 bg-white text-xs text-gray-700 whitespace-nowrap shrink-0"
-                        data-cy={`talent-acquisition-candidate-page-active-filter-${chip.key}`}
-                      >
-                        <span
-                          className="max-w-[180px] truncate"
-                          data-cy={`talent-acquisition-candidate-page-active-filter-label-${chip.key}`}
-                        >
-                          {chip.label}
-                        </span>
-                        <button
-                          type="button"
-                          className="text-gray-500 hover:text-gray-700 leading-none"
-                          onClick={() => handleRemoveFilterChip(chip.key)}
-                          aria-label={`Remove ${chip.key} filter`}
-                          data-cy={`talent-acquisition-candidate-page-remove-filter-${chip.key}`}
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <Popover
-                  content={filterContent}
-                  trigger="click"
-                  open={showFilters}
-                  onOpenChange={setShowFilters}
-                  placement={isMobile ? 'bottom' : 'bottomRight'}
-                  overlayStyle={
-                    isMobile
-                      ? ({
-                          padding: 0,
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                        } as React.CSSProperties)
-                      : { padding: 0 }
-                  }
-                  overlayInnerStyle={{
-                    padding: 0,
-                    borderRadius: 16,
-                    width: isMobile ? 'calc(100vw - 48px)' : 524,
-                    maxWidth: 524,
-                  }}
-                  getPopupContainer={() => document.body}
-                  id="talent-acquisition-candidate-page-filter-popover"
-                  data-cy="talent-acquisition-candidate-page-filter-popover"
-                >
-                  <Button
-                    type="default"
-                    icon={
-                      <FilterAltOutlinedIcon
-                        style={{ fontSize: 14 }}
-                        className="text-gray-600"
-                      />
-                    }
-                    className="h-8 flex items-center gap-2 rounded-lg border text-gray-700 bg-white text-xs sm:text-sm transition-colors shrink-0"
-                    id="talent-acquisition-candidate-page-filter-button"
-                    data-cy="talent-acquisition-candidate-page-filter-button"
-                    style={{
-                      borderColor: token.colorBorder,
-                      boxShadow: 'none',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor =
-                        token.colorPrimaryHover;
-                      e.currentTarget.style.color = token.colorPrimaryHover;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = token.colorBorder;
-                      e.currentTarget.style.color = token.colorText;
-                    }}
-                  >
-                    {!(isMobile || isTablet) && (
-                      <span
-                        className="font-normal"
-                        data-cy="talent-acquisition-candidate-page-filter-button-text"
-                      >
-                        Filter
-                      </span>
-                    )}
-                  </Button>
-                </Popover>
+                <WhatYouNeed
+                  placeholder="Search candidate"
+                  pill
+                  className="w-full rounded-md"
+                />
               </div>
-            </div>
-            <div
-              className="px-0 sm:px-0 pb-4"
-              id="talent-acquisition-candidate-page-table-container"
-              data-cy="talent-acquisition-candidate-page-table-container"
-            >
-              <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
+              {!(isMobile || isTablet) && activeFilterChips.length > 0 && (
+                <div
+                  className="flex-1 min-w-0 flex items-center justify-end gap-2 overflow-x-auto scrollbar-none"
+                  data-cy="talent-acquisition-candidate-page-active-filters"
+                >
+                  {activeFilterChips.map((chip) => (
+                    <span
+                      key={chip.key}
+                      className="inline-flex items-center gap-1.5 px-2.5 h-8 rounded-md border border-gray-200 bg-white text-xs text-gray-700 whitespace-nowrap shrink-0"
+                      data-cy={`talent-acquisition-candidate-page-active-filter-${chip.key}`}
+                    >
+                      <span
+                        className="max-w-[180px] truncate"
+                        data-cy={`talent-acquisition-candidate-page-active-filter-label-${chip.key}`}
+                      >
+                        {chip.label}
+                      </span>
+                      <button
+                        type="button"
+                        className="text-gray-500 hover:text-gray-700 leading-none"
+                        onClick={() => handleRemoveFilterChip(chip.key)}
+                        aria-label={`Remove ${chip.key} filter`}
+                        data-cy={`talent-acquisition-candidate-page-remove-filter-${chip.key}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <Popover
+                content={filterContent}
+                trigger="click"
+                open={showFilters}
+                onOpenChange={setShowFilters}
+                placement={isMobile ? 'bottom' : 'bottomRight'}
+                overlayStyle={
+                  isMobile
+                    ? ({
+                        padding: 0,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                      } as React.CSSProperties)
+                    : { padding: 0 }
+                }
+                overlayInnerStyle={{
+                  padding: 0,
+                  borderRadius: 16,
+                  width: isMobile ? 'calc(100vw - 48px)' : 524,
+                  maxWidth: 524,
+                }}
+                getPopupContainer={() => document.body}
+                id="talent-acquisition-candidate-page-filter-popover"
+                data-cy="talent-acquisition-candidate-page-filter-popover"
+              >
+                <Button
+                  type="default"
+                  icon={<FunnelFilterIcon className="shrink-0" />}
+                  className="h-8 sm:h-11 flex items-center gap-2 rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[14px] font-normal text-[rgba(0,0,0,0.7)] transition-colors shrink-0 !shadow-none"
+                  id="talent-acquisition-candidate-page-filter-button"
+                  data-cy="talent-acquisition-candidate-page-filter-button"
+                  style={{
+                    boxShadow: 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#1E40AF';
+                    e.currentTarget.style.color = '#1E40AF';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#D9D9D9';
+                    e.currentTarget.style.color = '#374151';
+                  }}
+                >
+                  {!(isMobile || isTablet) && (
+                    <span
+                      className="font-normal"
+                      data-cy="talent-acquisition-candidate-page-filter-button-text"
+                    >
+                      Filter
+                    </span>
+                  )}
+                </Button>
+              </Popover>
             </div>
           </div>
-        </Card>
-      </div>
-    </>
+          <div
+            className="px-0 sm:px-0 pb-4"
+            id="talent-acquisition-candidate-page-table-container"
+            data-cy="talent-acquisition-candidate-page-table-container"
+          >
+            <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 };
 

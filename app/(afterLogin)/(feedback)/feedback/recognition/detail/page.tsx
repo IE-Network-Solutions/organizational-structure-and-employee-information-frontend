@@ -135,7 +135,7 @@ function DetailPage() {
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
 
   useEffect(() => {
-    const typeId = searchParams.get('recognitionTypeId') ?? '';
+    const typeId = searchParams?.get('recognitionTypeId') ?? '';
     setSelectedRecognitionType(typeId || '1');
     updateSearchValue('recognitionTypeId', typeId);
     setCurrent(1);

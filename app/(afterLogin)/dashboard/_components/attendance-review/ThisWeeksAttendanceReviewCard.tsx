@@ -129,11 +129,11 @@ export default function ThisWeeksAttendanceReviewCard() {
 
   const isWeekUserFilterReady = Boolean(
     userId &&
-      filter &&
-      filter.userIds?.length === 1 &&
-      filter.userIds[0] === userId &&
-      filter.date?.from === startDate &&
-      filter.date?.to === endDate,
+    filter &&
+    filter.userIds?.length === 1 &&
+    filter.userIds[0] === userId &&
+    filter.date?.from === startDate &&
+    filter.date?.to === endDate,
   );
 
   const { data, isFetching } = useGetAttendances(

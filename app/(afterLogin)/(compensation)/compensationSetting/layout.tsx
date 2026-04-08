@@ -15,17 +15,18 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
   children,
 }) => {
   const pathname = usePathname();
+  const path = pathname ?? '';
   const menuItems = new SidebarMenuItem([
     {
       item: {
         key: 'allowanceType',
         icon: (
           <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/allowanceType') ? 'lg:ml-4' : ''}`}
+            className={`lg:flex items-center gap-2 ${path.includes('/compensationSetting/allowanceType') ? 'lg:ml-4' : ''}`}
             data-cy="compensation-settings-menu-allowance-type"
           >
             <CiCalendarDate
-              className={`hidden lg:inline ${pathname.includes('/compensationSetting/allowanceType') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:inline ${path.includes('/compensationSetting/allowanceType') ? 'text-[#1677FF]' : ''}`}
               data-cy="compensation-settings-menu-allowance-type-icon"
             />
             <p
@@ -44,11 +45,11 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'benefitType',
         icon: (
           <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/benefitType') ? 'lg:ml-4' : ''}`}
+            className={`lg:flex items-center gap-2 ${path.includes('/compensationSetting/benefitType') ? 'lg:ml-4' : ''}`}
             data-cy="compensation-settings-menu-benefit-type"
           >
             <CiCalendarDate
-              className={`hidden lg:inline ${pathname.includes('/compensationSetting/benefitType') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:inline ${path.includes('/compensationSetting/benefitType') ? 'text-[#1677FF]' : ''}`}
               data-cy="compensation-settings-menu-benefit-type-icon"
             />
             <p
@@ -67,11 +68,11 @@ const CompensationSettingLayout: FC<TimesheetSettingsLayoutProps> = ({
         key: 'deductionType',
         icon: (
           <div
-            className={`lg:flex items-center gap-2 ${pathname.includes('/compensationSetting/deductionType') ? 'lg:ml-4' : ''}`}
+            className={`lg:flex items-center gap-2 ${path.includes('/compensationSetting/deductionType') ? 'lg:ml-4' : ''}`}
             data-cy="compensation-settings-menu-deduction-type"
           >
             <CiCalendarDate
-              className={`hidden lg:inline ${pathname.includes('/compensationSetting/deductionType') ? 'text-[#1677FF]' : ''}`}
+              className={`hidden lg:inline ${path.includes('/compensationSetting/deductionType') ? 'text-[#1677FF]' : ''}`}
               data-cy="compensation-settings-menu-deduction-type-icon"
             />
             <p

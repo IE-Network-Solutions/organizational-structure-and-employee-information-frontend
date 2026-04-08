@@ -65,9 +65,11 @@ const DeductionEntitlementTable: React.FC<DeductionEntitlementTableProps> = ({
   const { isMobile, isTablet } = useIsMobile();
   const { mutate: deleteAllowanceEntitlement } =
     useDeleteAllowanceEntitlement();
-  const { id } = useParams();
+  const params = useParams();
+  const idParam = params?.['id'];
+  const id = Array.isArray(idParam) ? idParam[0] : idParam;
   const { data: allowanceEntitlementData, isLoading: entitlementLoading } =
-    useFetchAllowanceEntitlements(id);
+    useFetchAllowanceEntitlements(id ?? '');
   const { data: employeeData, isLoading: employeeLoading } = useGetAllUsers();
 
   const handleDelete = (entitlementId: string) => {
