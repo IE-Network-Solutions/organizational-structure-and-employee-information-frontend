@@ -7,10 +7,9 @@ import { useNotificationStore } from '@/store/uistate/features/notification';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetUnreadCount } from '@/store/server/features/notification/queries';
 import { usePWA } from '@/hooks/usePWA';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
 interface NavBarProps {
