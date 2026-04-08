@@ -8,7 +8,7 @@ import {
   Modal,
   Row,
   Select,
-  Spin,
+  Skeleton,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
@@ -127,8 +127,9 @@ const CreateRuleSidebar = () => {
         centered
         width={720}
       >
-        <Spin
-          spinning={isFetching || isLoading}
+        <Skeleton
+          loading={isFetching || isLoading}
+          active
           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-spin"
         >
           <Form
@@ -263,7 +264,7 @@ const CreateRuleSidebar = () => {
               </Col>
             </Row>
           </Form>
-        </Spin>
+        </Skeleton>
       </Modal>
     )
   );

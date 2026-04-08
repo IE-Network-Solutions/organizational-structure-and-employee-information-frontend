@@ -1,7 +1,7 @@
 import { useGetUserAttendanceHistory } from '@/store/server/features/timesheet/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
-import { Card, DatePicker, Select, Spin, Tag, Modal } from 'antd';
+import { Card, DatePicker, Modal, Select, Skeleton, Tag } from 'antd';
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -175,7 +175,10 @@ const MyAttendanceReport: React.FC = () => {
               id="time-attendance-personal-attendance-report-loading-state"
               data-cy="time-attendance-personal-attendance-report-loading-state"
             >
-              <Spin data-cy="time-attendance-personal-attendance-report-loading-spin" />
+              <Skeleton
+                active
+                data-cy="time-attendance-personal-attendance-report-loading-spin"
+              />
             </div>
           )}
           {attendanceHistory?.myAttendanceHistory?.length === 0 && (

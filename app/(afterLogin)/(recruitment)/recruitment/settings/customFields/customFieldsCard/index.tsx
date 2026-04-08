@@ -3,7 +3,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/mutation';
 import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/settings/queries';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
-import { Dropdown, Spin } from 'antd';
+import { Dropdown, Skeleton } from 'antd';
 import type { MenuProps } from 'antd';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -92,10 +92,7 @@ const CustomFieldsCard: React.FC = () => {
         className="flex justify-center items-center h-64"
         data-cy="talent-acquisition-custom-fields-card-loading"
       >
-        <Spin
-          size="large"
-          data-cy="talent-acquisition-custom-fields-card-spin"
-        />
+        <Skeleton active data-cy="talent-acquisition-custom-fields-card-spin" />
       </div>
     );
 

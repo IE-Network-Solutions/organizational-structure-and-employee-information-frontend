@@ -1,7 +1,7 @@
 import { useGetBasicSalaryById } from '@/store/server/features/employees/employeeManagment/basicSalary/queries';
 import { useGetPositionsById } from '@/store/server/features/employees/positions/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
-import { Button, Card, Space, Spin, Table, Tooltip } from 'antd';
+import { Button, Card, Skeleton, Space, Table, Tooltip } from 'antd';
 import React, { useRef } from 'react';
 import { HiPlus } from 'react-icons/hi';
 import BasicSalaryModal from './_components/basicSalaryModal';
@@ -25,7 +25,7 @@ export const BasicSalaryDetails = ({
   if (isLoading)
     return (
       <>
-        <Spin />
+        <Skeleton active />
       </>
     );
 

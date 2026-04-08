@@ -17,7 +17,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { FaPlus } from 'react-icons/fa';
-import MyTimesheetAttendancePagination from '../attendance/MyTimesheetAttendancePagination';
+import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableSkeleton } from '@/components/tableSkeleton';
@@ -384,16 +384,13 @@ const HistoryTable = () => {
                 />
               </div>
             ) : (
-              <MyTimesheetAttendancePagination
+              <CustomPagination
                 current={page}
                 total={data?.meta?.totalItems ?? 0}
                 totalPages={data?.meta?.totalPages}
                 pageSize={limit}
-                wrapLayout={historyWrapPaginationManyPages}
-                onChange={(newPage, newPageSize) => {
-                  setPage(newPage);
-                  setLimit(newPageSize);
-                }}
+                wrapMainRow={historyWrapPaginationManyPages}
+                onChange={(newPage) => setPage(newPage)}
                 onShowSizeChange={(newPageSize) => {
                   setLimit(newPageSize);
                   setPage(1);

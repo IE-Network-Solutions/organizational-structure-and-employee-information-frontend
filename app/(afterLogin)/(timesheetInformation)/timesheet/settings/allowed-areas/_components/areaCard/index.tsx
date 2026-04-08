@@ -4,7 +4,7 @@ import { AllowedArea } from '@/types/timesheet/settings';
 import { FC } from 'react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import { useDeleteAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
-import { Card, Spin } from 'antd';
+import { Card, Skeleton } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -17,8 +17,9 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
     useTimesheetSettingsStore();
   const { mutate: deleteArea, isLoading } = useDeleteAllowedArea();
   return (
-    <Spin
-      spinning={isLoading}
+    <Skeleton
+      loading={isLoading}
+      active
       data-cy={`time-attendance-settings-allowed-areas-card-${item.id}-spin`}
     >
       <Card
@@ -92,7 +93,7 @@ const AreaCard: FC<AreaCardProps> = ({ item }) => {
           </AccessGuard>
         </div>
       </Card>
-    </Spin>
+    </Skeleton>
   );
 };
 

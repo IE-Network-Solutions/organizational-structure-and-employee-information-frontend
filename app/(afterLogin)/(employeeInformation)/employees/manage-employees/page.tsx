@@ -184,8 +184,23 @@ const ManageEmployees: React.FC<any> = () => {
 
   return (
     <div id="manage-employees-page" data-cy="manage-employees-page">
+      <style data-cy="manage-employees-page-styles">{`
+     .full-bleed-header-divider {
+          width: calc(100% + 48px) !important;
+          margin-left: -24px !important;
+          margin-right: -24px !important;
+          min-width: calc(100% + 48px) !important;
+        }
+        @media (max-width: 768px) {
+          .full-bleed-header-divider {
+            width: calc(100% + 48px) !important;
+            margin-left: -24px !important;
+            margin-right: -24px !important;
+          }
+        }
+      `}</style>
       <div
-        className="flex flex-wrap justify-between items-center px-3 pt-4"
+        className="flex flex-wrap justify-between items-center pt-4"
         id="manage-employees-header"
         data-cy="manage-employees-header"
       >
@@ -340,8 +355,11 @@ const ManageEmployees: React.FC<any> = () => {
           <AddEmployeeModal onClose={onClose} />
         </div>
       </div>
-      <Divider size="large" />
-      <div className="mb-6 px-3" data-cy="manage-employees-stats-section">
+      <Divider
+        className="full-bleed-header-divider"
+        style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+      />
+      <div className="mb-6 " data-cy="manage-employees-stats-section">
         <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           data-cy="manage-employees-stats-grid"
@@ -383,7 +401,7 @@ const ManageEmployees: React.FC<any> = () => {
         </div>
       </div>
       <div
-        className="border border-gray-200 rounded-lg mx-3"
+        className="border border-[#D9D9D9] rounded-lg "
         data-cy="manage-employees-table-section"
       >
         <div

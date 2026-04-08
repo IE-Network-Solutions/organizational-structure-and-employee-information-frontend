@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { Card, DatePicker, Spin } from 'antd';
+import { Card, DatePicker, Skeleton } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import { useGetHireResignationTrendWithTenant } from '@/store/server/features/employees/approval/queries';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
@@ -438,7 +438,7 @@ export default function HireVsResignationTrendChart({
             className="flex h-full items-center justify-center"
             data-cy="hire-vs-resignation-trend-loading"
           >
-            <Spin size="large" />
+            <Skeleton active />
           </div>
         ) : (
           <Bar
