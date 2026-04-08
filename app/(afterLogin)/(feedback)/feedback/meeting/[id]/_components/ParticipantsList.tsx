@@ -183,6 +183,8 @@ export default function ParticipantsList({
     absentismReason,
     lateBy,
     compact = false,
+    avatarOnly = false,
+    popTrigger = 'click',
   }: {
     empId: string;
     isEmp: boolean;
@@ -193,8 +195,11 @@ export default function ParticipantsList({
     lateBy: number;
     /** Fixed-height row (e.g. View All popover): 58px row layout. */
     compact?: boolean;
+    /** Panel strip mode: render avatar only but keep popconfirm actions. */
+    avatarOnly?: boolean;
+    popTrigger?: 'click' | 'hover';
   }) => {
-    const { data: userDetails, isLoading } = useGetEmployee(empId);
+    const { data: userDetails, isLoading } = useGetEmployee(isEmp ? empId : '');
 
     const [form] = Form.useForm();
     const [visible, setVisible] = useState(false);
@@ -416,17 +421,21 @@ export default function ParticipantsList({
           )}
         </Form>
 
-        <Button
-          loading={updateAttendeesLoading}
-          className="mt-2"
-          type="primary"
-          block
-          onClick={handleSubmit}
-          data-cy="feedback-meeting-components-participantslist-button-submit"
-          id="feedback-meeting-components-participantslist-button-submit"
+        <div
+          className="mt-2 flex justify-end"
+          data-cy="feedback-meeting-components-participantslist-submit-wrap"
         >
-          Submit
-        </Button>
+          <Button
+            loading={updateAttendeesLoading}
+            className="!h-8 !min-h-8 !px-[15px] text-[14px] font-normal"
+            type="primary"
+            onClick={handleSubmit}
+            data-cy="feedback-meeting-components-participantslist-button-submit"
+            id="feedback-meeting-components-participantslist-button-submit"
+          >
+            Submit
+          </Button>
+        </div>
       </div>
     );
 
@@ -437,7 +446,27 @@ export default function ParticipantsList({
           ? `Late by ${lateBy} min`
           : email;
 
-    const details = compact ? (
+    const details = avatarOnly ? (
+      <Avatar
+        size={28}
+        src={profileImage}
+        icon={
+          isEmp && !profileImage ? (
+            <UserOutlined
+              data-cy={`feedback-meeting-components-participantslist-icon-${id}`}
+            />
+          ) : undefined
+        }
+        className={`shrink-0 overflow-hidden rounded-[100px] border-[2px] border-solid ${getAttendanceBorderColorClass(
+          attendanceStatus,
+        )} [&_img]:h-full [&_img]:w-full [&_img]:object-cover ${
+          !isEmp ? '!bg-[#E6F4FF] !text-[#1677FF]' : ''
+        }`}
+        data-cy={`feedback-meeting-components-participantslist-avatar-display-${id}`}
+      >
+        {!isEmp ? (userName?.charAt(0) || '?').toUpperCase() : null}
+      </Avatar>
+    ) : compact ? (
       <div
         className="flex min-w-0 flex-1 items-start gap-[8px]"
         data-cy={`feedback-meeting-components-participantslist-details-${id}`}
@@ -556,10 +585,13 @@ export default function ParticipantsList({
         title={content}
         open={visible}
         onOpenChange={setVisible}
+        trigger={popTrigger}
+        getPopupContainer={() => document.body}
+        zIndex={1080}
         icon={null}
         okButtonProps={{ style: { display: 'none' } }}
         cancelButtonProps={{ style: { display: 'none' } }}
-        disabled={canEdit == false}
+        disabled={avatarOnly ? false : canEdit == false}
         data-cy={`feedback-meeting-components-participantslist-popconfirm-employee-${id}`}
       >
         {details}
@@ -569,10 +601,13 @@ export default function ParticipantsList({
         title={content}
         open={visible}
         onOpenChange={setVisible}
+        trigger={popTrigger}
+        getPopupContainer={() => document.body}
+        zIndex={1080}
         icon={null}
         okButtonProps={{ style: { display: 'none' } }}
         cancelButtonProps={{ style: { display: 'none' } }}
-        disabled={canEdit == false}
+        disabled={avatarOnly ? false : canEdit == false}
         data-cy={`feedback-meeting-components-participantslist-popconfirm-guest-${id}`}
       >
         {details}
@@ -894,14 +929,29 @@ export default function ParticipantsList({
               className="flex min-h-[28px] w-full min-w-0 flex-nowrap items-center gap-[9px] overflow-x-auto overflow-y-visible scrollbar-none"
               data-cy="feedback-meeting-participants-panel-avatars-row"
             >
-              {attendeePanelPreviewItems.map((p: any, i: number) => (
-                <ParticipantPreviewAvatar
-                  key={p.id ?? i}
-                  userId={p.userId}
-                  guestUser={p.guestUser}
-                  attendanceStatus={p.attendanceStatus}
-                />
-              ))}
+              {showAttendeesViewAll
+                ? attendeePanelPreviewItems.map((p: any, i: number) => (
+                    <ParticipantPreviewAvatar
+                      key={p.id ?? i}
+                      userId={p.userId}
+                      guestUser={p.guestUser}
+                      attendanceStatus={p.attendanceStatus}
+                    />
+                  ))
+                : attendeePanelPreviewItems.map((p: any, i: number) => (
+                    <EmployeeDetails
+                      key={p.id ?? i}
+                      isEmp={p?.userId != null}
+                      empId={p?.userId ? String(p.userId) : ''}
+                      guest={p.guestUser}
+                      id={p.id}
+                      attendanceStatus={p.attendanceStatus}
+                      absentismReason={p.absentismReason}
+                      lateBy={p.lateBy}
+                      avatarOnly
+                      popTrigger="click"
+                    />
+                  ))}
               {showAttendeesViewAll ? (
                 <button
                   ref={viewAllButtonRef}

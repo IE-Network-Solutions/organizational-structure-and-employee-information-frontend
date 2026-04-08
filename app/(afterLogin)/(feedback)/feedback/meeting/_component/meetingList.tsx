@@ -257,7 +257,7 @@ const MeetingList = ({
             {timelineLoadingRows.map((loadingRow, index) => (
               <div
                 key={`meeting-loading-row-${loadingRow}`}
-                className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.08)]"
+                className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2"
                 data-cy={`feedback-meeting-meetinglist-loading-row-${index}`}
               >
                 <div
@@ -317,7 +317,7 @@ const MeetingList = ({
             {timelineLoadingRows.map((loadingRowDefault, index) => (
             <div
               key={`meeting-loading-row-default-${loadingRowDefault}`}
-              className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2 shadow-[0_4px_8px_rgba(0,0,0,0.08)]"
+              className="box-border flex min-h-[56px] w-full items-center justify-between rounded-xl border border-solid border-[#D9D9D9] bg-white px-4 py-2"
               data-cy={`feedback-meeting-meetinglist-loading-row-default-${index}`}
             >
               <div
