@@ -102,7 +102,7 @@ export default function EmployeeDashboardPage() {
               className="md:mt-6 mt-2 md:col-span-4 col-span-12"
               data-cy="employee-dashboard-recent-hr-actions-section"
             >
-              <RecentHrActions />
+              <RecentHrActions   height="490px" />
             </div>
           </div>
         </div>

@@ -1136,7 +1136,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const groupRouteMap: Record<string, string> = {
     performance: '/performance',
-    finance: '/finance',
+    finance: '/finance-bashboard',
   };
 
   const groupedMenuItems = React.useMemo(() => {
@@ -1286,7 +1286,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           type: 'group',
           key: `group-${groupKey}`,
           label: groupLabelRaw,
-          linkKey: groupRouteMap[groupKey] || `/${groupKey}`,
+          linkKey: groupRouteMap[groupKey] || '',
           children: [],
         });
       }
