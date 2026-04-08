@@ -1,18 +1,26 @@
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useDebounce } from '@/utils/useDebounce';
-import { Input } from 'antd';
 import React from 'react';
+import { AiOutlineSearch } from 'react-icons/ai';
 
 interface WhatYouNeedProps {
   placeholder?: string;
-  className?: string;
+  /** When true, removes right border and right radius for use in a combined search+filter bar */
+  embeddedInBar?: boolean;
+  /** Backward-compatible styling flag used by candidate page */
   pill?: boolean;
+  /** Optional wrapper className used by parent layouts */
+  className?: string;
+  /** Stretch to parent width (e.g. job details toolbar) */
+  fullWidth?: boolean;
 }
 
 const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
   placeholder = 'Search what you need',
-  className = 'w-full',
+  embeddedInBar = false,
   pill = false,
+  className = '',
+  fullWidth = false,
 }) => {
   const { searchParams, setSearchParams } = useCandidateState();
 
@@ -33,24 +41,47 @@ const WhatYouNeed: React.FC<WhatYouNeedProps> = ({
     onSearchChange(trimmedValue, keyValue);
   };
 
+  const containerSizeClass = embeddedInBar
+    ? 'w-full flex-1'
+    : fullWidth
+      ? 'w-full min-w-0 sm:max-w-[299px]'
+      : 'w-full sm:w-[299px]';
+
+  const outerRadius = pill
+    ? 'rounded-md'
+    : embeddedInBar
+      ? 'rounded-l-lg rounded-r-none'
+      : 'rounded-[4px]';
+
+  const outerBorder = embeddedInBar
+    ? 'border-0 shadow-none'
+    : 'border border-solid border-[#D9D9D9]';
+
   return (
     <div
       id="talent-acquisition-what-you-need-div-container"
       data-cy="talent-acquisition-what-you-need-div-container"
-      className={className}
+      className={`${containerSizeClass} ${className}`.trim()}
     >
-      <Input.Search
-        id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
-        data-cy="talent-acquisition-job-candidate-search-input"
-        placeholder={placeholder}
-        onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
-        className={
-          pill
-            ? 'w-full h-8 rounded-md border border-[#D9D9D9] bg-white overflow-hidden [&_.ant-input-affix-wrapper]:!h-full [&_.ant-input-affix-wrapper]:!border-none [&_.ant-input-affix-wrapper]:!shadow-none [&_.ant-input-group-addon]:!h-full [&_.ant-input-group-addon]:!p-0 [&_.ant-input-group-addon]:!border-l [&_.ant-input-group-addon]:!border-l-[#D9D9D9] [&_.ant-input-group-addon]:!border-solid [&_.ant-input-group-addon]:!bg-white [&_.ant-input-search-button]:!h-full [&_.ant-input-search-button]:!border-none [&_.ant-input-search-button]:!rounded-none [&_.ant-input-search-button]:!bg-white'
-            : 'w-full h-14'
-        }
-        allowClear
-      />
+      <div
+        className={`flex h-8 items-stretch overflow-hidden bg-white ${outerRadius} ${outerBorder}`}
+        data-cy="talent-acquisition-what-you-need-input-bar"
+      >
+        <input
+          id={`inputWhatYouNeed${searchParams.whatYouNeed}`}
+          data-cy="talent-acquisition-job-candidate-search-input"
+          type="text"
+          placeholder={placeholder}
+          onChange={(e) => handleSearchInput(e.target.value, 'whatYouNeed')}
+          className="h-full min-w-0 flex-1 border-0 bg-transparent px-3 font-['Calibri'] text-[14px] font-normal leading-none text-black outline-none placeholder:text-[14px] placeholder:leading-none placeholder:text-[rgba(0,0,0,0.25)]"
+        />
+        <span
+          className="flex h-full w-8 shrink-0 items-center justify-center border-l border-solid border-[#D9D9D9] bg-[#FAFAFA]"
+          data-cy="talent-acquisition-job-candidate-search-input-suffix"
+        >
+          <AiOutlineSearch className="h-4 w-4 shrink-0 text-[rgba(0,0,0,0.45)]" />
+        </span>
+      </div>
     </div>
   );
 };

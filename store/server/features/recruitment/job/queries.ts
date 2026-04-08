@@ -8,6 +8,14 @@ const getJobs = async (
   whatYouNeed: string,
   currentPage: number,
   pageSize: number,
+  filters?: {
+    department?: string;
+    employmentType?: string;
+    status?: string;
+    location?: string;
+    createdDate?: string;
+    closedDate?: string;
+  },
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -15,10 +23,23 @@ const getJobs = async (
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
   };
-  const jobTitleQuery = whatYouNeed ? `jobTitle=${whatYouNeed}&` : '';
+  const queryParams = new URLSearchParams();
+
+  if (whatYouNeed) queryParams.append('jobTitle', whatYouNeed);
+  if (filters?.department)
+    queryParams.append('departmentId', filters.department);
+  if (filters?.employmentType)
+    queryParams.append('employmentType', filters.employmentType);
+  if (filters?.status) queryParams.append('jobStatus', filters.status);
+  if (filters?.location) queryParams.append('jobLocation', filters.location);
+  if (filters?.createdDate)
+    queryParams.append('createdDate', filters.createdDate);
+  if (filters?.closedDate) queryParams.append('closedDate', filters.closedDate);
+  queryParams.append('limit', String(pageSize ? pageSize : 4));
+  queryParams.append('page', String(currentPage ? currentPage : 1));
 
   return await crudRequest({
-    url: `${RECRUITMENT_URL}/job-information?${jobTitleQuery}limit=${pageSize ? pageSize : 4}&&page=${currentPage ? currentPage : 1}`,
+    url: `${RECRUITMENT_URL}/job-information?${queryParams.toString()}`,
     method: 'GET',
     headers,
   });
@@ -128,18 +149,32 @@ export const useGetJobs = (
   whatYouNeed: string,
   currentPage: number,
   pageSize: number,
+  filters?: {
+    department?: string;
+    employmentType?: string;
+    status?: string;
+    location?: string;
+    createdDate?: string;
+    closedDate?: string;
+  },
+  options?: any,
 ) => {
-  return useQuery(['jobs', whatYouNeed, currentPage, pageSize], () =>
-    getJobs(whatYouNeed, currentPage, pageSize),
+  return useQuery(
+    ['jobs', whatYouNeed, currentPage, pageSize, filters],
+    () => getJobs(whatYouNeed, currentPage, pageSize, filters),
+    options,
   );
 };
 export const useGetAllJobs = (
   whatYouNeed: string,
   currentPage?: number,
   pageSize?: number,
+  options?: any,
 ) => {
-  return useQuery(['jobs', whatYouNeed, currentPage, pageSize], () =>
-    getAllJobs(whatYouNeed, currentPage, pageSize),
+  return useQuery(
+    ['jobs', whatYouNeed, currentPage, pageSize],
+    () => getAllJobs(whatYouNeed, currentPage, pageSize),
+    options,
   );
 };
 

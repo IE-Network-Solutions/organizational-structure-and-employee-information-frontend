@@ -355,7 +355,12 @@ const CreateNewJob: React.FC<CreateJobsProps> = ({
               },
               {
                 validator({}, value) {
-                  if (!value || value.isAfter(dayjs(), 'day')) {
+                  const today = dayjs();
+                  if (
+                    !value ||
+                    value.isAfter(today, 'day') ||
+                    value.isSame(today, 'day')
+                  ) {
                     return Promise.resolve();
                   }
                   return Promise.reject(
