@@ -21,7 +21,7 @@ const PayrollTableLoadingSkeleton = ({
       data-cy="payroll-table-skeleton"
       rowKey="key"
       columns={columns}
-      dataSource={Array.from({ length: rowCount }).map((_, i) => ({
+      dataSource={Array.from({ length: rowCount }).map((unused, i) => ({
         key: `payroll-sk-${i}`,
       }))}
       pagination={false}
@@ -33,23 +33,26 @@ const PayrollTableLoadingSkeleton = ({
       }}
       components={{
         body: {
-          row: ({ children: _antdCells, ...rowProps }: any) => (
-            <tr {...rowProps} data-cy="payroll-table-skeleton-row">
-              {Array.from({ length: columns.length }).map((_, idx) => (
-                <td key={idx} data-cy={`payroll-table-skeleton-cell-${idx}`}>
-                  <div
-                    className="py-2 px-2"
-                    data-cy={`payroll-table-skeleton-cell-inner-${idx}`}
-                  >
+          row: ({ children, ...rowProps }: any) => {
+            void children;
+            return (
+              <tr {...rowProps} data-cy="payroll-table-skeleton-row">
+                {Array.from({ length: columns.length }).map((unused, idx) => (
+                  <td key={idx} data-cy={`payroll-table-skeleton-cell-${idx}`}>
                     <div
-                      className="animate-pulse h-4 w-5/6 rounded bg-gray-200"
-                      data-cy={`payroll-table-skeleton-shimmer-${idx}`}
-                    />
-                  </div>
-                </td>
-              ))}
-            </tr>
-          ),
+                      className="py-2 px-2"
+                      data-cy={`payroll-table-skeleton-cell-inner-${idx}`}
+                    >
+                      <div
+                        className="animate-pulse h-4 w-5/6 rounded bg-gray-200"
+                        data-cy={`payroll-table-skeleton-shimmer-${idx}`}
+                      />
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            );
+          },
         },
       }}
     />

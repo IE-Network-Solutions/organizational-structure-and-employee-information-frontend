@@ -134,6 +134,12 @@ export default function AddDailyPlanDrawer({
     );
   }, [activeCadence, planningPeriodHierarchy]);
 
+  /** Daily tasks under a weekly parent — backend validates weights; no 100% sum gate in UI */
+  const isChildDailyPlanning =
+    viewMode === 'planning' &&
+    activeCadence === 'daily' &&
+    Boolean(planningPeriodHierarchy?.parentPlan);
+
   // Transform weekly tasks into the format needed for the UI
   const transformedWeeklyTasks = useMemo(() => {
     if (!weeklyPlanTasks || weeklyPlanTasks.length === 0) return [];
@@ -484,7 +490,7 @@ export default function AddDailyPlanDrawer({
                   {/* Show the weekly task info */}
                   <div
                     data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-425"
-                    className="p-3 bg-[#F5F5F7] rounded-lg mb-2"
+                    className="p-3 bg-white rounded-lg mb-2 border border-[#E5E7EB]"
                   >
                     <p
                       data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-p-426"
@@ -698,7 +704,7 @@ export default function AddDailyPlanDrawer({
                             id={`daily-plan-add-task-button-${group.id}`}
                             data-cy={`daily-plan-add-task-button-${group.id}`}
                             type="primary"
-                            className="bg-[#574CFF] hover:bg-[#4F46EF] rounded-lg font-medium px-6"
+                            className="rounded-lg bg-[#1E40AF] px-6 font-medium text-white hover:bg-[#1E3A8A]"
                             onClick={() => {
                               const currentGroupFields = fields.flatMap(
                                 (field) => {
@@ -945,10 +951,14 @@ export default function AddDailyPlanDrawer({
               data-cy={`daily-plan-drawer-${viewMode === 'planning' ? 'plan' : 'report'}-button`}
               type="primary"
               size="large"
-              className="rounded-xl bg-[#574CFF] font-semibold w-32 hover:bg-[#4F46EF] !py-2 sm:!py-6"
+              className="w-32 rounded-xl bg-[#1E40AF] font-semibold text-white hover:bg-[#1E3A8A] !py-2 sm:!py-6"
               onClick={viewMode === 'planning' ? handleSubmit : onClose}
               loading={isCreating}
-              disabled={viewMode === 'planning' && totalWeight !== 100}
+              disabled={
+                viewMode === 'planning' &&
+                !isChildDailyPlanning &&
+                totalWeight !== 100
+              }
             >
               {viewMode === 'planning' ? 'Plan' : 'Report'}
             </Button>
@@ -961,7 +971,7 @@ export default function AddDailyPlanDrawer({
             {viewMode === 'planning' ? (
               <Tooltip
                 title={
-                  totalWeight !== 100
+                  !isChildDailyPlanning && totalWeight !== 100
                     ? "Summation of all task's weights must be equal to 100!"
                     : ''
                 }
@@ -984,7 +994,9 @@ export default function AddDailyPlanDrawer({
                   </span>{' '}
                   <span
                     className={
-                      totalWeight === 100 ? 'text-[#52C41A]' : 'text-[#161A2C]'
+                      !isChildDailyPlanning && totalWeight === 100
+                        ? 'text-[#52C41A]'
+                        : 'text-[#161A2C]'
                     }
                     data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-span-979"
                   >

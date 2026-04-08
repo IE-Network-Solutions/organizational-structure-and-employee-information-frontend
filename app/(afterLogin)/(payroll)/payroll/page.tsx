@@ -1679,10 +1679,7 @@ const Payroll = () => {
             className="payroll-table-scroll-host overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
           >
             {payrollTableLoading ? (
-              <PayrollTableLoadingSkeleton
-                columns={columns}
-                rows={pageSize}
-              />
+              <PayrollTableLoadingSkeleton columns={columns} rows={pageSize} />
             ) : (
               <Table
                 id="payroll-table-view-table"

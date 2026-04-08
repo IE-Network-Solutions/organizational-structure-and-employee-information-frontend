@@ -3,7 +3,6 @@ import {
   Avatar,
   Button,
   DatePicker,
-  Empty,
   Form,
   Popconfirm,
   Popover,
@@ -949,9 +948,6 @@ const Page = () => {
               <Table
                 dataSource={getAllFeedbackRecord?.items}
                 columns={columns}
-                locale={{
-                  emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />,
-                }}
                 rowClassName={(row, index) =>
                   `feedback-table-row ${index % 2 === 1 ? 'feedback-table-row--alt' : 'feedback-table-row--base'}`
                 }

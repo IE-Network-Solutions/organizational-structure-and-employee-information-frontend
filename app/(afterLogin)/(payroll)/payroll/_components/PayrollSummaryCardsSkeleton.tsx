@@ -20,7 +20,10 @@ function PayrollSummaryCardSkeleton({ index }: { index: number }) {
         styles={{ body: { padding: '16px' } }}
         data-cy={`payroll-summary-card-skeleton-card-${index}`}
       >
-        <div className="flex items-center gap-2 mb-2">
+        <div
+          className="flex items-center gap-2 mb-2"
+          data-cy={`payroll-summary-card-skeleton-header-${index}`}
+        >
           <div
             className="h-7 w-7 shrink-0 rounded-sm bg-gray-200 animate-pulse"
             data-cy={`payroll-summary-card-skeleton-icon-${index}`}
@@ -53,7 +56,7 @@ const PayrollSummaryCardsSkeleton = () => (
     data-cy="payroll-summary-cards-skeleton-row"
     className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
   >
-    {Array.from({ length: CARD_COUNT }, (_, i) => (
+    {Array.from({ length: CARD_COUNT }, (unused, i) => (
       <PayrollSummaryCardSkeleton key={`payroll-summary-sk-${i}`} index={i} />
     ))}
   </div>

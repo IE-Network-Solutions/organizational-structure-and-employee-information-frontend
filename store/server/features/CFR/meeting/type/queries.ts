@@ -60,6 +60,7 @@ export const useGetMeetingType = (
   return useQuery<any>(
     ['meeting-types', pageSizeType, currentType], // Unique query key based on params
     () => getMeetingType(pageSizeType, currentType),
+    { keepPreviousData: true },
   );
 };
 export const useGetAllMeetingType = () => {

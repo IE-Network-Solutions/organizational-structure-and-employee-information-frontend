@@ -62,5 +62,6 @@ export const useGetAllRecognitionWithRelations = () => {
   return useQuery<any>(
     'recognitionTypesWithRelations',
     getAllRecognitionWithRelations,
+    { keepPreviousData: true },
   );
 };

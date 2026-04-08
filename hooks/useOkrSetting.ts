@@ -93,10 +93,12 @@ export function useOkrSetting() {
   };
 
   const isLoading = isChecking || isLoadingSetting || isSaving;
+  const isInitialLoading = isChecking || isLoadingSetting;
 
   return {
     okrMode,
     isLoading,
+    isInitialLoading,
     showModal,
     setShowModal,
     saveOkrMode,

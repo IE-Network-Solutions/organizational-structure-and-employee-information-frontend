@@ -7,6 +7,20 @@ import {
   Milestone,
 } from '../types';
 
+/** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
+const planGroupedTaskHasContent = (task: any): boolean =>
+  !!(
+    task?.task ||
+    task?.taskName ||
+    task?.title ||
+    task?.name ||
+    task?.achieveMK
+  );
+
+/** Report grouping row after partial transform (uses title / legacy fields). */
+const reportGroupedTaskHasContent = (t: any): boolean =>
+  !!(t?.title || t?.taskName || t?.task || t?.achieveMK);
+
 /**
  * Normalize priority values to match the expected format
  */
@@ -39,17 +53,40 @@ const getTaskStatus = (
  * Transform a single task to PlanTask format
  */
 const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
+  const achieveMK = !!task.achieveMK;
+  const milestoneId = task.milestone?.id ?? task.milestoneId ?? null;
+  const hasMilestoneOutcome =
+    achieveMK && milestoneId != null && String(milestoneId).length > 0;
+
+  const titleFromFields =
+    task.taskName || task.task || task.title || task.name || '';
+  const title =
+    titleFromFields ||
+    (achieveMK
+      ? hasMilestoneOutcome
+        ? 'Milestone outcome'
+        : 'Key result outcome'
+      : '') ||
+    'Untitled Task';
+
   const baseTask: PlanTask = {
     id: task.id || task.taskId || '',
-    title:
-      task.taskName || task.task || task.title || task.name || 'Untitled Task',
+    title,
     priority: normalizePriority(task.priority),
     weight: task.weight || 0,
     hasAttachment: task.hasAttachment || false,
   };
 
+  if (achieveMK) {
+    baseTask.achieveMK = true;
+    if (hasMilestoneOutcome) {
+      baseTask.outcomeMilestoneId = String(milestoneId);
+    }
+  }
+
   if (viewMode === 'planning') {
     baseTask.target = task.targetValue || task.target || 0;
+    baseTask.status = task.status;
   } else {
     baseTask.achieved =
       task.actualValue || task.achievedValue || task.achieved || 0;
@@ -70,7 +107,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
 
   // Transform tasks - filter out empty tasks
   const transformedTasks = (keyResult.tasks || [])
-    .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+    .filter(planGroupedTaskHasContent)
     .map((task: any) => transformTask(task, viewMode));
 
   // Transform milestones
@@ -80,12 +117,12 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
       name: milestone.name,
       title: milestone.title || milestone.name,
       tasks: (milestone.tasks || [])
-        .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+        .filter(planGroupedTaskHasContent)
         .map((task: any) => transformTask(task, viewMode)),
       parentTask: (milestone.parentTask || []).map((parent: any) => ({
         ...parent,
         tasks: (parent.tasks || [])
-          .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+          .filter(planGroupedTaskHasContent)
           .map((task: any) => transformTask(task, viewMode)),
       })),
     }),
@@ -96,7 +133,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     (parent: any) => ({
       ...parent,
       tasks: (parent.tasks || [])
-        .filter((task: any) => task?.task || task?.title || task?.name) // Exclude empty tasks
+        .filter(planGroupedTaskHasContent)
         .map((task: any) => transformTask(task, viewMode)),
     }),
   );
@@ -225,9 +262,25 @@ export const transformReportToPlanSummary = (
       };
     }
 
-    const taskObj = {
+    const achieveMK = !!task?.planTask?.achieveMK;
+    const milestone = task?.planTask?.milestone;
+    const milestoneId = milestone?.id ?? task?.planTask?.milestoneId ?? null;
+    const hasMilestoneOutcome =
+      achieveMK && milestoneId != null && String(milestoneId).length > 0;
+    const rawTitle =
+      task.planTask?.task || task.taskName || task.planTask?.taskName || '';
+    const title =
+      rawTitle ||
+      (achieveMK
+        ? hasMilestoneOutcome
+          ? 'Milestone outcome'
+          : 'Key result outcome'
+        : '') ||
+      'Untitled Task';
+
+    const taskObj: PlanTask & { parentTask?: any } = {
       id: task.id || task.taskId || '',
-      title: task.planTask?.task || task.taskName || '',
+      title,
       priority: normalizePriority(task.planTask?.priority || task.priority),
       weight: task.weightPlan || task.planTask?.weight || task.weight || 0,
       achieved: task.actualValue || task.achievedValue || 0,
@@ -235,9 +288,16 @@ export const transformReportToPlanSummary = (
       status: getTaskStatus(task, 'reporting'),
       hasAttachment: task.hasAttachment || false,
       parentTask: task?.planTask?.parentTask, // Include parentTask reference for grouping
+      customReason:
+        typeof task.customReason === 'string' ? task.customReason.trim() : '',
     };
+    if (achieveMK) {
+      taskObj.achieveMK = true;
+      if (hasMilestoneOutcome) {
+        taskObj.outcomeMilestoneId = String(milestoneId);
+      }
+    }
 
-    const milestone = task?.planTask?.milestone;
     if (!milestone) {
       // Check if this task has a parentTask - if so, we'll group it later
       if (task?.planTask?.parentTask?.id) {
@@ -301,7 +361,7 @@ export const transformReportToPlanSummary = (
       (t: any) =>
         !parentTaskIds.has(t.id) &&
         !childTaskIds.has(t.id) &&
-        (t.title || t.taskName || t.task), // Exclude empty tasks
+        reportGroupedTaskHasContent(t),
     );
 
     // Group parent tasks within milestones
@@ -344,7 +404,7 @@ export const transformReportToPlanSummary = (
         (t: any) =>
           !milestoneParentTaskIds.has(t.id) &&
           !milestoneChildTaskIds.has(t.id) &&
-          (t.title || t.taskName || t.task), // Exclude empty tasks
+          reportGroupedTaskHasContent(t),
       );
     });
   });
@@ -366,11 +426,8 @@ export const transformReportToPlanSummary = (
 
       // Also promote standalone tasks from milestones to keyResult.tasks
       // These are tasks that don't have a parentTask and aren't parents themselves
-      const milestoneStandaloneTasks = (kr.milestones || []).flatMap(
-        (m: any) =>
-          (m.tasks || []).filter(
-            (t: any) => t?.title || t?.taskName || t?.task,
-          ), // Exclude empty tasks
+      const milestoneStandaloneTasks = (kr.milestones || []).flatMap((m: any) =>
+        (m.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
       );
       finalTasks = [...(kr.tasks || []), ...milestoneStandaloneTasks];
 
@@ -384,19 +441,15 @@ export const transformReportToPlanSummary = (
     // - Tasks in parent tasks within milestones (only for milestone metric type)
     // - Tasks in parent tasks at key result level
     const allTasks = [
-      ...finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
+      ...finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
       ...finalMilestones.flatMap((m: any) => [
-        ...(m.tasks || []).filter(
-          (t: any) => t?.title || t?.taskName || t?.task,
-        ),
+        ...(m.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
         ...(m.parentTask || []).flatMap((p: any) =>
-          (p.tasks || []).filter(
-            (t: any) => t?.title || t?.taskName || t?.task,
-          ),
+          (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
         ),
       ]),
       ...finalParentTasks.flatMap((p: any) =>
-        (p.tasks || []).filter((t: any) => t?.title || t?.taskName || t?.task),
+        (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
       ),
     ];
 
@@ -422,7 +475,7 @@ export const transformReportToPlanSummary = (
       // Ensure title is preserved even if keyResult is deleted
       title: kr.title || kr.name || 'Deleted Key Result',
       name: kr.name || kr.title || 'Deleted Key Result',
-      tasks: finalTasks.filter((t: any) => t?.title || t?.taskName || t?.task), // Exclude empty tasks
+      tasks: finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
       milestones: finalMilestones,
       parentTask: finalParentTasks,
       targetValue: kr.targetValue || 0,
@@ -467,6 +520,7 @@ export const transformReportToPlanSummary = (
 
   return {
     id: dataItem.id || '',
+    ownerUserId: dataItem?.userId ?? dataItem?.createdBy ?? '',
     cadence: cadence,
     owner: {
       name: fullName,
@@ -572,6 +626,7 @@ export const transformToPlanSummary = (
 
   return {
     id: dataItem.id || '',
+    ownerUserId: dataItem?.userId ?? '',
     cadence: cadence,
     owner: {
       name: fullName,
