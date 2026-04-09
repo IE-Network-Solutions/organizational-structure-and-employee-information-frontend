@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Divider } from 'antd';
+import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
 import { useTnaManagementStore } from '@/store/uistate/features/tna/management';
@@ -20,6 +20,7 @@ import { localUserID } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import TnaManagementSkeleton from './_components/tnaManagementSkeleton';
 import EmptyState from '@/components/empty';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 const TnaManagementPage = () => {
   const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
@@ -126,79 +127,79 @@ const TnaManagementPage = () => {
           data-cy="tna-management-page-header-band"
         >
           <div
-            className="flex min-h-[58px] w-full flex-row items-center justify-between gap-4"
+            className="min-h-[58px] w-full"
             data-cy="tna-management-page-header-row"
           >
             <div
-              className="flex min-w-0 flex-col items-start gap-1 md:max-w-none"
+              className="min-w-0 w-full md:max-w-none"
               data-cy="tna-management-page-header-content"
             >
-              <h1
-                className="m-0 text-2xl font-bold leading-8 text-black font-[Calibri,sans-serif]"
-                data-cy="tna-management-page-title"
-              >
-                Learning and Growth
-              </h1>
-              <nav
-                className="flex flex-row flex-wrap items-center text-sm leading-[22px] font-[Calibri,sans-serif]"
-                aria-label="Breadcrumb"
-                data-cy="tna-management-page-breadcrumb"
-              >
-                <span
-                  className="text-black/45"
-                  data-cy="tna-management-page-breadcrumb-segment-first"
-                >
-                  Learning and Growth
-                </span>
-                <span
-                  className="text-black/45 px-2"
-                  data-cy="tna-management-page-breadcrumb-separator"
-                >
-                  /
-                </span>
-                <span
-                  className="text-black/70"
-                  data-cy="tna-management-page-breadcrumb-segment-current"
-                >
-                  Learning Management
-                </span>
-              </nav>
-            </div>
-            <div
-              id="tnaManagementPageHeaderActionsId"
-              className="shrink-0"
-              data-cy="tna-management-page-header-actions"
-            >
-              <AccessGuard
-                permissions={[Permissions.CreateCourse]}
-                data-cy="tna-management-create-course-guard"
-                id="tna-management-create-course-guard"
-              >
-                <Button
-                  id="tnaAddCourseActionButtonId"
-                  data-cy="tna-add-course-action-button"
-                  type="primary"
-                  size="large"
-                  className="!flex !h-10 !w-10 !min-w-10 !items-center !justify-center !rounded-lg !border-none !bg-[#1E40AF] !p-0 !text-white shadow-none md:!h-10 md:!min-w-[135px] md:!w-auto md:!px-[15px] font-[Calibri,sans-serif] [&_.ant-btn-icon]:text-white md:text-base md:font-normal md:leading-6"
-                  icon={<LuPlus size={18} className="text-white" />}
-                  loading={isFetching}
-                  onClick={() => setIsShowCourseSidebar(true)}
-                >
-                  <span
-                    className="hidden md:inline"
-                    data-cy="tna-management-add-course-button-text"
-                  >
-                    New Course
+              <CustomBreadcrumb
+                title={
+                  <span data-cy="tna-management-page-title">
+                    Learning and Growth
                   </span>
-                </Button>
-              </AccessGuard>
+                }
+                subtitle={
+                  <nav
+                    className="flex flex-row flex-wrap items-center text-sm leading-[22px] font-[Calibri,sans-serif]"
+                    aria-label="Breadcrumb"
+                    data-cy="tna-management-page-breadcrumb"
+                  >
+                    <span
+                      className="text-black/45"
+                      data-cy="tna-management-page-breadcrumb-segment-first"
+                    >
+                      Learning and Growth
+                    </span>
+                    <span
+                      className="text-black/45 px-2"
+                      data-cy="tna-management-page-breadcrumb-separator"
+                    >
+                      /
+                    </span>
+                    <span
+                      className="text-black/70"
+                      data-cy="tna-management-page-breadcrumb-segment-current"
+                    >
+                      Learning Management
+                    </span>
+                  </nav>
+                }
+                titleExtra={
+                  <div
+                    id="tnaManagementPageHeaderActionsId"
+                    className="shrink-0"
+                    data-cy="tna-management-page-header-actions"
+                  >
+                    <AccessGuard
+                      permissions={[Permissions.CreateCourse]}
+                      data-cy="tna-management-create-course-guard"
+                      id="tna-management-create-course-guard"
+                    >
+                      <Button
+                        id="tnaAddCourseActionButtonId"
+                        data-cy="tna-add-course-action-button"
+                        type="primary"
+                        size="large"
+                        className="!flex !h-10 !w-10 !min-w-10 !items-center !justify-center !rounded-lg !border-none !bg-[#1E40AF] !p-0 !text-white shadow-none md:!h-10 md:!min-w-[135px] md:!w-auto md:!px-[15px] font-[Calibri,sans-serif] [&_.ant-btn-icon]:text-white md:text-base md:font-normal md:leading-6"
+                        icon={<LuPlus size={18} className="text-white" />}
+                        loading={isFetching}
+                        onClick={() => setIsShowCourseSidebar(true)}
+                      >
+                        <span
+                          className="hidden md:inline"
+                          data-cy="tna-management-add-course-button-text"
+                        >
+                          New Course
+                        </span>
+                      </Button>
+                    </AccessGuard>
+                  </div>
+                }
+              />
             </div>
           </div>
-          <Divider
-            className="!m-0 w-full border-[#EEEEEE]"
-            style={{ margin: 0, borderColor: '#EEEEEE' }}
-            data-cy="tna-management-page-header-divider"
-          />
         </header>
 
         <div

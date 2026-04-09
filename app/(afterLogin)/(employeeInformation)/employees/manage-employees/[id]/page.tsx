@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { Tabs, Button, Modal, Form, Breadcrumb, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
-import { MdKeyboardArrowLeft } from 'react-icons/md';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import BasicInfo from './_components/basicInfo';
 import General from './_components/general';
 import Job from './_components/job';
@@ -259,72 +259,66 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       data-cy="employee-detail-page"
     >
       <div
-        className="flex gap-4 items-center py-4 w-full"
+        className="w-full"
         id="employee-detail-header"
         data-cy="employee-detail-header"
       >
-        <Button
-          value={'back'}
-          name="back"
-          onClick={handleGoBack}
-          className="border border-gray-300 bg-white rounded-lg p-2 h-10 w-10 flex items-center justify-center hover:bg-gray-50"
-          id="employee-detail-back-btn"
-          data-cy="employee-detail-back-btn"
-        >
-          <MdKeyboardArrowLeft className="text-lg sm:text-2xl text-black" />
-        </Button>
-        <div
-          className="flex-1 flex flex-col gap-1"
-          data-cy="employee-detail-header-content"
-        >
-          <h4
-            className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900"
-            id="employee-detail-title"
-            data-cy="employee-detail-title"
-          >
-            Employee Details
-          </h4>
-          <Breadcrumb
-            className="text-xs sm:text-sm"
-            items={[
-              {
-                title: (
-                  <span
-                    className="text-gray-500"
-                    data-cy="employee-detail-breadcrumb-employee"
-                  >
-                    Employee
-                  </span>
-                ),
-              },
-              {
-                title: (
-                  <Link
-                    className="text-gray-600"
-                    href="/employees/manage-employees"
-                  >
-                    Employee Management
-                  </Link>
-                ),
-              },
-            ]}
-            data-cy="manage-employees-breadcrumb"
+        <div data-cy="employee-detail-header-content">
+          <CustomBreadcrumb
+            onBack={handleGoBack}
+            title={
+              <span id="employee-detail-title" data-cy="employee-detail-title">
+                Employee Details
+              </span>
+            }
+            titleClassName="text-lg sm:text-xl md:text-2xl !text-gray-900"
+            rootClassName="w-full !mb-0 !py-4"
+            subtitle={
+              <Breadcrumb
+                className="text-xs sm:text-sm"
+                items={[
+                  {
+                    title: (
+                      <span
+                        className="text-gray-500"
+                        data-cy="employee-detail-breadcrumb-employee"
+                      >
+                        Employee
+                      </span>
+                    ),
+                  },
+                  {
+                    title: (
+                      <Link
+                        className="text-gray-600"
+                        href="/employees/manage-employees"
+                      >
+                        Employee Management
+                      </Link>
+                    ),
+                  },
+                ]}
+                data-cy="manage-employees-breadcrumb"
+              />
+            }
+            titleExtra={
+              <Dropdown
+                menu={{ items: menuItems }}
+                trigger={['click']}
+                placement="bottomRight"
+                disabled={menuItems?.length === 0}
+              >
+                <Button
+                  className="border border-red-500 bg-white rounded-lg p-2 h-10 w-10 flex items-center justify-center hover:bg-red-50"
+                  id="employee-detail-remove-btn"
+                  data-cy="employee-detail-remove-btn"
+                >
+                  <RemoveCircleOutlineIcon className="text-red-500" />
+                </Button>
+              </Dropdown>
+            }
           />
         </div>
-        <Dropdown
-          menu={{ items: menuItems }}
-          trigger={['click']}
-          placement="bottomRight"
-          disabled={menuItems?.length === 0}
-        >
-          <Button
-            className="border border-red-500 bg-white rounded-lg p-2 h-10 w-10 flex items-center justify-center hover:bg-red-50"
-            id="employee-detail-remove-btn"
-            data-cy="employee-detail-remove-btn"
-          >
-            <RemoveCircleOutlineIcon className="text-red-500" />
-          </Button>
-        </Dropdown>
       </div>
 
       <div

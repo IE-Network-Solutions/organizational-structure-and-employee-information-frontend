@@ -11,7 +11,6 @@ import JobsFilterModal from './_components/modals/filter';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import TalentAcquisitionFullBleedHeaderRule from '../_components/TalentAcquisitionFullBleedHeaderRule';
 import { Input } from 'antd';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { useDebounce } from '@/utils/useDebounce';
@@ -130,10 +129,7 @@ const RecruitmentPage: React.FC = () => {
       className="min-h-screen max-w-full bg-white font-['Calibri']"
     >
       <header className="w-full" data-cy="talent-acquisition-jobs-page-header">
-        <div
-          className="px-2 pt-4 sm:px-3 sm:pt-5 md:px-4"
-          data-cy="talent-acquisition-jobs-page-header-inner"
-        >
+        <div data-cy="talent-acquisition-jobs-page-header-inner">
           <div
             id="talent-acquisition-jobs-page-div-header"
             data-cy="talent-acquisition-jobs-page-div-header"
@@ -172,58 +168,48 @@ const RecruitmentPage: React.FC = () => {
                   </span>
                 </>
               }
-              subtitleClassName="!font-normal !text-inherit sm:!leading-snug"
-              compact
-              rootClassName="!py-0 !gap-1 min-w-0 flex-1"
-              titleClassName="!text-2xl !font-bold !leading-tight !text-gray-900"
+              titleExtra={
+                <AccessGuard
+                  data-cy="talent-acquisition-jobs-page-access-guard"
+                  permissions={[Permissions.CreateJobDescription]}
+                >
+                  <div
+                    className="shrink-0"
+                    data-cy="talent-acquisition-jobs-add-job-wrap"
+                  >
+                    <CustomButton
+                      title={
+                        <span
+                          id="talent-acquisition-jobs-add-job-label"
+                          data-cy="talent-acquisition-jobs-add-job-label"
+                          className="hidden sm:inline"
+                        >
+                          Add Job
+                        </span>
+                      }
+                      id="talent-acquisition-jobs-button-add-job"
+                      data-cy="talent-acquisition-jobs-button-add-new"
+                      icon={
+                        <span
+                          className="inline-flex shrink-0 items-center justify-center leading-none"
+                          aria-hidden
+                          data-cy="talent-acquisition-jobs-button-add-icon"
+                        >
+                          <AddJobButtonIcon />
+                        </span>
+                      }
+                      onClick={() => handleAddNewDrawer()}
+                      className="!bg-[#1E40AF] hover:!bg-[#1D4ED8] w-10 sm:w-auto sm:px-5 !h-11 px-5 py-5 rounded-lg border-0 shrink-0 !items-center"
+                      aria-label="Add Job"
+                    />
+                  </div>
+                </AccessGuard>
+              }
             />
-            <AccessGuard
-              data-cy="talent-acquisition-jobs-page-access-guard"
-              permissions={[Permissions.CreateJobDescription]}
-            >
-              <div
-                className="shrink-0"
-                data-cy="talent-acquisition-jobs-add-job-wrap"
-              >
-                <CustomButton
-                  title={
-                    <span
-                      id="talent-acquisition-jobs-add-job-label"
-                      data-cy="talent-acquisition-jobs-add-job-label"
-                      className="hidden sm:inline"
-                    >
-                      Add Job
-                    </span>
-                  }
-                  id="talent-acquisition-jobs-button-add-job"
-                  data-cy="talent-acquisition-jobs-button-add-new"
-                  icon={
-                    <span
-                      className="inline-flex shrink-0 items-center justify-center leading-none"
-                      aria-hidden
-                      data-cy="talent-acquisition-jobs-button-add-icon"
-                    >
-                      <AddJobButtonIcon />
-                    </span>
-                  }
-                  onClick={() => handleAddNewDrawer()}
-                  className="!bg-[#1E40AF] hover:!bg-[#1D4ED8] w-10 sm:w-auto sm:px-5 !h-11 px-5 py-5 rounded-lg border-0 shrink-0 !items-center"
-                  aria-label="Add Job"
-                />
-              </div>
-            </AccessGuard>
           </div>
         </div>
-        <TalentAcquisitionFullBleedHeaderRule
-          className="mt-3 sm:mt-4"
-          borderClassName="border-gray-200"
-          dataCy="talent-acquisition-jobs-page-header-divider"
-        />
       </header>
-      <div
-        className="overflow-x-hidden px-2 pb-4 sm:px-3 sm:pb-5 md:px-4"
-        data-cy="talent-acquisition-jobs-page-main"
-      >
+      <div data-cy="talent-acquisition-jobs-page-main">
         <div
           id="talent-acquisition-jobs-page-div-job-card"
           data-cy="talent-acquisition-jobs-page-div-job-card"

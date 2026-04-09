@@ -36,7 +36,7 @@ function Form({ params: { id } }: CategoryForms) {
     <div
       id="category-form-page-container"
       data-cy="category-form-page-container"
-      className="h-auto w-full p-4 bg-white rounded-md"
+      className="h-auto w-full bg-white rounded-md"
     >
       <div
         id="category-form-page-header"
@@ -49,7 +49,6 @@ function Form({ params: { id } }: CategoryForms) {
         >
           <CustomBreadcrumb
             data-cy="category-form-page-breadcrumb"
-            compact
             title="Survey"
             subtitle={
               <>

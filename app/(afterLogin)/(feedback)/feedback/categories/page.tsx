@@ -8,7 +8,7 @@ import CategoriesCard from './_components/categoriesCard';
 const Categories: React.FC = () => {
   return (
     <div
-      className="h-auto w-full p-4 bg-white rounded-md"
+      className="h-auto w-full  bg-white rounded-md"
       data-cy="feedback-categories-page-div"
       id="feedback-categories-page-div"
     >

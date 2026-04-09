@@ -367,7 +367,7 @@ const TaxRules = () => {
                     ),
                   }}
                   // eslint-disable-next-line
-                rowClassName={(_notUsed, index) =>
+                  rowClassName={(_notUsed, index) =>
                     `h-[60px]${index % 2 === 1 ? ' bg-gray-50' : ''}`
                   }
                 />

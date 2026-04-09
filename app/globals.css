@@ -1765,7 +1765,8 @@ h6 {
 .okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger {
   color: #ef4444 !important;
 }
-.okr-actions-dropdown .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
+.okr-actions-dropdown
+  .ant-dropdown-menu-item.ant-dropdown-menu-item-danger:hover {
   color: rgba(0, 0, 0, 0.88) !important;
 }
 

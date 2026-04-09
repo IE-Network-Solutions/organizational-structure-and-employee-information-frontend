@@ -484,6 +484,7 @@ const AuditLogPage = () => {
         id="audit-log-breadcrumb-container"
       >
         <CustomBreadcrumb
+          onBack={() => router.back()}
           title="Audit log"
           subtitle="Track all the events that have happened in the system"
         />

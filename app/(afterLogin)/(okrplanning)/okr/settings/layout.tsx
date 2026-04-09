@@ -10,6 +10,8 @@ import { usePlanningAssignationStore } from '@/store/uistate/features/okrplannin
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import Link from 'next/link';
 
 interface OkrSettingsLayoutProps {
   children: React.ReactNode;
@@ -104,31 +106,43 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       data-cy="okr-settings-layout-container-display-div"
     >
       <div
-        className="w-full h-auto bg-white p-6"
+        className="w-full h-auto bg-white"
         id="okr-settings-layout-wrapper-display-div"
         data-cy="okr-settings-layout-wrapper-display-div"
       >
         {/* Header Section */}
         {!showNotReportedList && (
           <div className="mb-4" data-cy="okr-settings-header-section">
-            <h1
-              className="text-[26px] font-bold text-[#262626] mb-2"
-              id="okr-settings-header-title"
-              data-cy="okr-settings-header-title"
-            >
-              Setting
-            </h1>
-            <p
-              className="text-[15px] text-[#8c8c8c] mb-4"
-              id="okr-settings-header-breadcrumb"
-              data-cy="okr-settings-header-breadcrumb"
-            >
-              OKR / Settings
-            </p>
-            {/* Divider */}
-            <div
-              className="h-[1px] bg-[#f0f0f0]"
-              data-cy="okr-settings-header-divider"
+            <CustomBreadcrumb
+              title={
+                <span
+                  id="okr-settings-header-title"
+                  data-cy="okr-settings-header-title"
+                >
+                  Setting
+                </span>
+              }
+              subtitle={
+                <div
+                  className="flex items-center gap-2 mt-1"
+                  data-cy="okr-settings-breadcrumb-subtitle-row"
+                >
+                  <Link
+                    className=" !text-gray-400"
+                    data-cy="weekly-priority-breadcrumb-okr"
+                    href="/okr"
+                  >
+                    OKR
+                  </Link>
+                  <span data-cy="weekly-priority-breadcrumb-separator">/</span>
+                  <span
+                    className=" !text-gray-800"
+                    data-cy="weekly-priority-breadcrumb-current"
+                  >
+                    Settings
+                  </span>
+                </div>
+              }
             />
           </div>
         )}

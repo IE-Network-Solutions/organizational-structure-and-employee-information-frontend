@@ -6,16 +6,15 @@ import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recogniti
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import { Breadcrumb, Button, Skeleton } from 'antd';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import React, { Suspense } from 'react';
-import { MdOutlineArrowBackIos, MdOutlineEmojiEvents } from 'react-icons/md';
+import { MdOutlineEmojiEvents } from 'react-icons/md';
 
 function RecognitionDetailLayoutShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const recognitionTypeId = searchParams?.get('recognitionTypeId') ?? '1';
@@ -37,35 +36,41 @@ function RecognitionDetailLayoutShell({
 
   return (
     <div className="" data-cy="recognition-detail-layout">
-      <div
-        className="flex items-center justify-between gap-4 mb-1 py-3"
-        data-cy="recognition-detail-layout-toolbar"
-      >
+      <div className="mb-1 py-3" data-cy="recognition-detail-layout-toolbar">
         <div
-          className="flex items-center gap-3 min-w-0 "
+          className="w-full min-w-0"
           data-cy="recognition-detail-layout-breadcrumb-row"
         >
-          <Button
-            icon={<MdOutlineArrowBackIos />}
-            onClick={() => router.push('/feedback/recognition')}
-            data-cy="recognition-detail-back"
-          />
           <div
-            className="min-w-0"
+            className="min-w-0 w-full"
             data-cy="recognition-detail-layout-title-area"
           >
-            {isRecognitionTypeLoading ? (
-              <Skeleton.Input
-                active
-                size="default"
-                style={{ width: 200, height: 32, borderRadius: 4 }}
-                data-cy="recognition-detail-layout-title-skeleton"
-              />
-            ) : (
-              <div data-cy="recognition-detail-layout-breadcrumb-wrap">
-                <CustomBreadcrumb
-                  title={categoryName}
-                  subtitle={
+            <div
+              className="min-w-0 w-full"
+              data-cy="recognition-detail-layout-breadcrumb-wrap"
+            >
+              <CustomBreadcrumb
+                href="/feedback/recognition"
+                backControlDataCy="recognition-detail-back"
+                titleClassName={
+                  isRecognitionTypeLoading ? '!block !min-h-8' : undefined
+                }
+                title={
+                  isRecognitionTypeLoading ? (
+                    <Skeleton.Input
+                      active
+                      size="default"
+                      style={{ width: 200, height: 32, borderRadius: 4 }}
+                      data-cy="recognition-detail-layout-title-skeleton"
+                    />
+                  ) : (
+                    categoryName
+                  )
+                }
+                subtitle={
+                  isRecognitionTypeLoading ? (
+                    ''
+                  ) : (
                     <Breadcrumb
                       className="mt-1 text-sm"
                       data-cy="recognition-detail-breadcrumb"
@@ -74,7 +79,7 @@ function RecognitionDetailLayoutShell({
                           title: (
                             <Link
                               href="/feedback/conversation"
-                              className="text-gray-500 hover:text-gray-700"
+                              className="text-gray-500"
                               data-cy="recognition-breadcrumb-cfr"
                             >
                               CFR
@@ -94,26 +99,28 @@ function RecognitionDetailLayoutShell({
                         },
                       ]}
                     />
-                  }
-                />
-              </div>
-            )}
+                  )
+                }
+                titleExtra={
+                  <Button
+                    type="primary"
+                    icon={<MdOutlineEmojiEvents className="text-lg" />}
+                    onClick={() => setVisible(true)}
+                    className="shrink-0 h-10"
+                    data-cy="recognition-detail-recognize-employee"
+                  >
+                    <span
+                      data-cy="recognition-detail-recognize-employee-text"
+                      className="hidden md:block"
+                    >
+                      Recognize Employee
+                    </span>
+                  </Button>
+                }
+              />
+            </div>
           </div>
         </div>
-        <Button
-          type="primary"
-          icon={<MdOutlineEmojiEvents className="text-lg" />}
-          onClick={() => setVisible(true)}
-          className="shrink-0 h-10"
-          data-cy="recognition-detail-recognize-employee"
-        >
-          <span
-            data-cy="recognition-detail-recognize-employee-text"
-            className="hidden md:block"
-          >
-            Recognize Employee
-          </span>
-        </Button>
       </div>
 
       <nav

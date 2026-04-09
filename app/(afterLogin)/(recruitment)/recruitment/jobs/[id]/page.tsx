@@ -17,7 +17,6 @@ import {
 import { useUpdateJobs } from '@/store/server/features/recruitment/job/mutation';
 import { useGetCandidates } from '@/store/server/features/recruitment/candidate/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { IoIosArrowBack } from 'react-icons/io';
 import {
   Button,
   Tabs,
@@ -37,7 +36,6 @@ import { EmploymentType, LocationType } from '@/types/enumTypes';
 import TextEditor from '@/components/form/textEditor';
 import { IoHourglassOutline } from 'react-icons/io5';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import TalentAcquisitionFullBleedHeaderRule from '../../_components/TalentAcquisitionFullBleedHeaderRule';
 import JobDetailHeaderCardSkeleton from './_components/jobDetailHeaderCardSkeleton';
 import JobDetailInformationTabSkeleton from './_components/jobDetailInformationTabSkeleton';
 
@@ -425,16 +423,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
         <header className="w-full">
           <div className="px-4 pt-4 sm:px-6 sm:pt-6">
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleBackClick}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
-                data-cy="talent-acquisition-job-detail-button-back"
-                aria-label="Back to jobs"
-              >
-                <IoIosArrowBack className="h-4 w-4" />
-              </button>
               <CustomBreadcrumb
+                onBack={handleBackClick}
                 data-cy="talent-acquisition-job-detail-breadcrumb"
                 title={
                   <span data-cy="talent-acquisition-job-detail-title">
@@ -462,13 +452,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               />
             </div>
           </div>
-          <TalentAcquisitionFullBleedHeaderRule
-            className="mt-3 sm:mt-4"
-            borderClassName="border-[#E5E7EB]"
-            dataCy="talent-acquisition-job-detail-header-divider"
-          />
         </header>
-        <div className="p-4 sm:p-6">
+        <div className="py-4">
           {/* Job information card */}
           <div
             id="talent-acquisition-job-detail-card"

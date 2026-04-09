@@ -2,11 +2,12 @@
 import { FC, ReactNode, useEffect, useMemo } from 'react';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
 import { Breadcrumb, Button, Spin } from 'antd';
-import { MdAdd, MdMenu, MdOutlineArrowBackIos } from 'react-icons/md';
+import { MdAdd, MdMenu } from 'react-icons/md';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface TnaManagementLayoutProps {
@@ -18,7 +19,6 @@ const MOBILE_PAGE_HEADER_MAX_LEN = 22;
 const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   const { isMobile } = useIsMobile();
   const { id, lessonId, materialId } = useParams();
-  const router = useRouter();
   const routeCourseId = Array.isArray(id) ? id[0] : id;
 
   const {
@@ -162,11 +162,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
   }, [routeCourseId, lessonId, materialId, lessonMaterial, course]);
 
   return (
-    <div
-      className="page-wrap  pt-4"
-      id="tnaManagementLayoutId"
-      data-cy="tna-management-layout"
-    >
+    <div id="tnaManagementLayoutId" data-cy="tna-management-layout">
       {isLoading ? (
         <div
           className="flex justify-center p-5"
@@ -177,66 +173,77 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
         </div>
       ) : course ? (
         <>
-          <div
-            className="flex items-center gap-4 border-b border-gray-200 pb-4"
-            data-cy="tna-management-layout-header"
-          >
-            <Button
-              icon={<MdOutlineArrowBackIos />}
-              onClick={() => router.push(`/tna/management/${id}`)}
-              data-cy="tna-management-layout-back"
-            />
-            <div
-              className="min-w-0 flex-1"
-              data-cy="tna-management-layout-header-content"
-            >
-              <div
-                className="font-bold text-2xl text-gray-900"
-                data-cy="tna-management-layout-page-header"
-                title={isPageHeaderTruncated ? pageHeaderTitle : undefined}
-              >
-                {pageHeaderDisplay}
-              </div>
-              <div
-                className={
-                  isMobile
-                    ? 'max-w-full overflow-x-auto overflow-y-hidden scrollbar-none'
-                    : ''
+          <div data-cy="tna-management-layout-header">
+            <div data-cy="tna-management-layout-header-content">
+              <CustomBreadcrumb
+                href={
+                  routeCourseId
+                    ? `/tna/management/${routeCourseId}`
+                    : '/tna/management'
                 }
-                data-cy="tna-management-layout-breadcrumb-wrap"
-              >
-                <Breadcrumb
-                  items={breadcrumbItems}
-                  className={
-                    isMobile
-                      ? 'mb-2 [&_ol]:!flex-nowrap [&_li]:shrink-0'
-                      : 'mb-2'
-                  }
-                  data-cy="tna-management-layout-breadcrumb"
-                />
-              </div>
-            </div>
-            {isCourseCurriculumPage ? (
-              <Button
-                type="primary"
-                icon={<MdAdd className="text-lg" aria-hidden />}
-                className="shrink-0 !border-[#1a3a8a] !bg-[#1a3a8a] !font-normal !text-white hover:!border-[#152f73] hover:!bg-[#152f73] focus-visible:!border-[#152f73] disabled:!cursor-not-allowed disabled:!border-[#1a3a8a] disabled:!bg-[#1a3a8a] disabled:!text-white disabled:!opacity-70 disabled:hover:!border-[#1a3a8a] disabled:hover:!bg-[#1a3a8a] disabled:hover:!text-white"
-                disabled={isShowAddLesson}
-                onClick={openAddLesson}
-                data-cy="tna-management-layout-add-lesson"
-              >
-                New Lesson
-              </Button>
-            ) : null}
-            {isMobile && lessonId && materialId ? (
-              <Button
-                icon={<MdMenu />}
-                onClick={() =>
-                  setLessonPageSidebarOpen(!isLessonPageSidebarOpen)
+                backControlDataCy="tna-management-layout-back"
+                title={
+                  <span
+                    className="block font-bold text-2xl text-gray-900"
+                    data-cy="tna-management-layout-page-header"
+                    title={isPageHeaderTruncated ? pageHeaderTitle : undefined}
+                  >
+                    {pageHeaderDisplay}
+                  </span>
                 }
-                data-cy="tna-management-layout-sidebar-menu"
+                subtitle={
+                  <div
+                    className={
+                      isMobile
+                        ? 'max-w-full overflow-x-auto overflow-y-hidden scrollbar-none'
+                        : ''
+                    }
+                    data-cy="tna-management-layout-breadcrumb-wrap"
+                  >
+                    <Breadcrumb
+                      items={breadcrumbItems}
+                      className={
+                        isMobile
+                          ? 'mb-2 [&_ol]:!flex-nowrap [&_li]:shrink-0'
+                          : 'mb-2'
+                      }
+                      data-cy="tna-management-layout-breadcrumb"
+                    />
+                  </div>
+                }
+                titleExtra={
+                  isCourseCurriculumPage ||
+                  (isMobile && lessonId && materialId) ? (
+                    <div
+                      className="flex shrink-0 flex-row items-center gap-2 md:gap-4"
+                      data-cy="tna-management-layout-title-extra-actions"
+                    >
+                      {isCourseCurriculumPage ? (
+                        <Button
+                          type="primary"
+                          icon={<MdAdd className="text-lg" aria-hidden />}
+                          className="shrink-0 !border-[#1a3a8a] !bg-[#1a3a8a] !font-normal !text-white hover:!border-[#152f73] hover:!bg-[#152f73] focus-visible:!border-[#152f73] disabled:!cursor-not-allowed disabled:!border-[#1a3a8a] disabled:!bg-[#1a3a8a] disabled:!text-white disabled:!opacity-70 disabled:hover:!border-[#1a3a8a] disabled:hover:!bg-[#1a3a8a] disabled:hover:!text-white"
+                          disabled={isShowAddLesson}
+                          onClick={openAddLesson}
+                          data-cy="tna-management-layout-add-lesson"
+                        >
+                          New Lesson
+                        </Button>
+                      ) : null}
+                      {isMobile && lessonId && materialId ? (
+                        <Button
+                          icon={<MdMenu />}
+                          onClick={() =>
+                            setLessonPageSidebarOpen(!isLessonPageSidebarOpen)
+                          }
+                          data-cy="tna-management-layout-sidebar-menu"
+                        />
+                      ) : null}
+                    </div>
+                  ) : undefined
+                }
               />
-            ) : null}
+            </div>
           </div>
 
           {children}

@@ -2,7 +2,9 @@
 
 import { FC, ReactNode, useEffect } from 'react';
 import { Tabs, Breadcrumb, Button } from 'antd';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
@@ -142,44 +144,41 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
         id="time-attendance-my-timesheet-layout-inner"
       >
         <div
-          className="px-4 pt-4 pb-4 border-b border-gray-200"
           data-cy="time-attendance-my-timesheet-header-container"
           id="time-attendance-my-timesheet-header-container"
         >
-          <div
-            className="flex flex-wrap items-start justify-between gap-3"
-            data-cy="time-attendance-my-timesheet-header-actions"
-          >
+          <div data-cy="time-attendance-my-timesheet-header-actions">
             <div data-cy="time-attendance-my-timesheet-header-title-area">
-              <h3
-                className="text-gray-900 text-xl sm:text-2xl font-bold mb-0"
-                data-cy="time-attendance-my-timesheet-page-title"
-                id="time-attendance-my-timesheet-page-title"
-              >
-                My Timesheet
-              </h3>
-              <Breadcrumb
-                className="mt-2 mb-0"
-                items={[
-                  {
-                    title: (
-                      <a
-                        href="/timesheet"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          router.push('/timesheet');
-                        }}
-                        data-cy="time-attendance-my-timesheet-breadcrumb-timesheet-link"
-                      >
-                        Time and Attendance
-                      </a>
-                    ),
-                  },
-                  {
-                    title: 'My Timesheet',
-                  },
-                ]}
-                data-cy="time-attendance-my-timesheet-breadcrumb"
+              <CustomBreadcrumb
+                title={
+                  <span
+                    data-cy="time-attendance-my-timesheet-page-title"
+                    id="time-attendance-my-timesheet-page-title"
+                  >
+                    My Timesheet
+                  </span>
+                }
+                subtitle={
+                  <Breadcrumb
+                    className="mt-2 mb-0"
+                    items={[
+                      {
+                        title: (
+                          <Link
+                            href="/timesheet"
+                            data-cy="time-attendance-my-timesheet-breadcrumb-timesheet-link"
+                          >
+                            Time and Attendance
+                          </Link>
+                        ),
+                      },
+                      {
+                        title: 'My Timesheet',
+                      },
+                    ]}
+                    data-cy="time-attendance-my-timesheet-breadcrumb"
+                  />
+                }
               />
             </div>
             {activeKey === 'leave' && isMobile && (

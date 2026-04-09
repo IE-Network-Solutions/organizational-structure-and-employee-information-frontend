@@ -131,63 +131,61 @@ const DeductionDetailHeader = ({ deductionId }: { deductionId: string }) => {
 };
 
 const AllDeductionPageHeader = () => (
-  <>
+  <div
+    id="compensation-deduction-all-layout-header"
+    data-cy="compensation-deduction-all-layout-header"
+  >
     <div
-      className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
-      id="compensation-deduction-all-layout-header"
-      data-cy="compensation-deduction-all-layout-header"
+      className="min-w-0 flex-1 w-full"
+      data-cy="compensation-deduction-all-layout-header-main"
     >
       <div
-        className="min-w-0 flex-1 flex items-center gap-2 sm:gap-3"
-        data-cy="compensation-deduction-all-layout-header-main"
+        className="min-w-0 w-full"
+        data-cy="compensation-deduction-all-layout-title-wrap"
       >
-        <Link
+        <CustomBreadcrumb
           href="/deduction"
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 shrink-0"
-          data-cy="compensation-deduction-all-layout-back"
-        >
-          <LeftOutlined style={{ fontSize: 14 }} />
-        </Link>
-        <div
-          className="min-w-0 flex-1 flex flex-col gap-1.5"
-          data-cy="compensation-deduction-all-layout-title-wrap"
-        >
-          <span
-            className="text-lg sm:text-2xl font-bold text-gray-900 truncate"
-            data-cy="compensation-deduction-all-layout-title"
-          >
-            All Deduction
-          </span>
-          <Breadcrumb
-            separator="/"
-            className="text-sm"
-            items={[
-              {
-                title: (
-                  <span
-                    className="text-sm font-medium text-slate-500"
-                    data-cy="compensation-deduction-all-crumb-compensation"
-                  >
-                    Compensation and Benefit
-                  </span>
-                ),
-              },
-              {
-                title: (
-                  <span
-                    className="text-sm font-bold text-black/70"
-                    data-cy="compensation-deduction-all-crumb-deduction"
-                  >
-                    Deduction
-                  </span>
-                ),
-              },
-            ]}
-          />
-        </div>
+          backControlDataCy="compensation-deduction-all-layout-back"
+          showBottomSeparator={false}
+          rootClassName="!mb-0 !py-0 w-full [&_[data-cy=breadcrumb-main]]:!gap-1.5 [&_[data-cy=breadcrumb-title-row]]:!py-0"
+          titleClassName="text-lg sm:text-2xl font-bold !text-gray-900 truncate min-w-0"
+          title={
+            <span data-cy="compensation-deduction-all-layout-title">
+              All Deduction
+            </span>
+          }
+          subtitle={
+            <Breadcrumb
+              separator="/"
+              className="text-sm"
+              items={[
+                {
+                  title: (
+                    <span
+                      className="text-sm font-medium text-slate-500"
+                      data-cy="compensation-deduction-all-crumb-compensation"
+                    >
+                      Compensation and Benefit
+                    </span>
+                  ),
+                },
+                {
+                  title: (
+                    <span
+                      className="text-sm font-bold text-black/70"
+                      data-cy="compensation-deduction-all-crumb-deduction"
+                    >
+                      Deduction
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          }
+        />
       </div>
     </div>
-  </>
+  </div>
 );
 
 const DeductionLayout: FC<DeductionLayoutProps> = ({ children }) => {
@@ -290,72 +288,78 @@ const DeductionLayout: FC<DeductionLayoutProps> = ({ children }) => {
 
             <BlockWrapper className="h-auto w-full min-w-0 bg-white hidden sm:block">
               <div
-                className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 pt-5 pb-3 sm:px-4"
+                // className="w-full px-4 pt-5 pb-3 sm:px-4"
                 id="compensation-deduction-layout-page-header-desktop"
                 data-cy="compensation-deduction-layout-page-header-desktop"
               >
                 <div
-                  className="min-w-0 flex-1 flex flex-col gap-1.5"
+                  className="min-w-0 w-full"
                   data-cy="compensation-deduction-layout-desktop-breadcrumb-wrap"
                 >
-                  <div
-                    className="min-w-0 text-2xl font-bold leading-[31.20px] !text-[#000000] truncate"
-                    data-cy="compensation-deduction-layout-desktop-title"
-                  >
-                    Deduction
-                  </div>
-                  <div
-                    className="text-sm font-medium leading-snug"
-                    data-cy="breadcrumb-subtitle"
-                  >
-                    <Breadcrumb
-                      separator="/"
-                      className="text-sm"
-                      items={[
-                        {
-                          title: (
-                            <span
-                              className="text-sm font-medium text-slate-500"
-                              data-cy="compensation-deduction-breadcrumb-parent"
-                            >
-                              Compensation and Benefit
-                            </span>
-                          ),
-                        },
-                        {
-                          title: (
-                            <span
-                              className="text-sm font-bold text-slate-500"
-                              data-cy="compensation-deduction-breadcrumb-deduction"
-                            >
-                              Deduction
-                            </span>
-                          ),
-                        },
-                      ]}
-                    />
-                  </div>
-                </div>
-                <div
-                  className="flex flex-shrink-0 flex-wrap items-center justify-end gap-4 mr-3"
-                  id="compensation-deduction-layout-actions"
-                  data-cy="compensation-deduction-layout-actions"
-                >
-                  <AccessGuard permissions={[Permissions.CreateBenefitType]}>
-                    <Button
-                      type="primary"
-                      icon={<MdOutlinePayments className="text-lg" />}
-                      className="h-10 font-normal"
-                      onClick={handleAddDeductionType}
-                      data-cy="compensation-deduction-add-deduction-type-button-desktop"
-                    >
-                      Add Deduction Type
-                    </Button>
-                  </AccessGuard>
+                  <CustomBreadcrumb
+                    title={
+                      <span data-cy="compensation-deduction-layout-desktop-title">
+                        Deduction
+                      </span>
+                    }
+                    subtitle={
+                      <div
+                        className="text-sm font-medium leading-snug"
+                        data-cy="compensation-deduction-layout-desktop-subtitle"
+                      >
+                        <Breadcrumb
+                          separator="/"
+                          className="text-sm"
+                          items={[
+                            {
+                              title: (
+                                <span
+                                  className="text-sm font-medium text-slate-500"
+                                  data-cy="compensation-deduction-breadcrumb-parent"
+                                >
+                                  Compensation and Benefit
+                                </span>
+                              ),
+                            },
+                            {
+                              title: (
+                                <span
+                                  className="text-sm font-bold text-slate-500"
+                                  data-cy="compensation-deduction-breadcrumb-deduction"
+                                >
+                                  Deduction
+                                </span>
+                              ),
+                            },
+                          ]}
+                        />
+                      </div>
+                    }
+                    titleExtra={
+                      <div
+                        className="flex flex-shrink-0 flex-wrap items-center justify-end gap-4 mr-3"
+                        id="compensation-deduction-layout-actions"
+                        data-cy="compensation-deduction-layout-actions"
+                      >
+                        <AccessGuard
+                          permissions={[Permissions.CreateBenefitType]}
+                        >
+                          <Button
+                            type="primary"
+                            icon={<MdOutlinePayments className="text-lg" />}
+                            className="h-10 font-normal"
+                            onClick={handleAddDeductionType}
+                            data-cy="compensation-deduction-add-deduction-type-button-desktop"
+                          >
+                            Add Deduction Type
+                          </Button>
+                        </AccessGuard>
+                      </div>
+                    }
+                  />
                 </div>
               </div>
             </BlockWrapper>
-            <BreadcrumbRule />
           </>
         )}
         <div

@@ -5,6 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 interface TnaSettingsLayoutProps {
   children: ReactNode;
@@ -35,48 +36,42 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
       data-cy="tna-settings-layout"
     >
       {/* Title + breadcrumb */}
-      <div className="px-3 sm:px-6 pt-5 pb-0" data-cy="tna-settings-header">
-        <h1
-          className="text-[22px] lg:text-[24px] font-bold text-black leading-tight"
-          data-cy="tna-settings-title"
-        >
-          Settings
-        </h1>
-        <div
-          className="flex items-center gap-1 mt-1"
-          data-cy="tna-settings-breadcrumb"
-        >
-          <span
-            data-cy="tna-settings-breadcrumb-root"
-            className="text-[13px] lg:text-[14px] font-normal text-[rgba(0,0,0,0.45)]"
-          >
-            Learning and Growth
-          </span>
-          <span
-            data-cy="tna-settings-breadcrumb-separator"
-            className="text-[13px] lg:text-[14px] font-normal text-[rgba(0,0,0,0.45)] mx-0.5"
-          >
-            /
-          </span>
-          <span
-            data-cy="tna-settings-breadcrumb-current"
-            className="text-[13px] lg:text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
-          >
-            Settings
-          </span>
-        </div>
+      <div className="" data-cy="tna-settings-header">
+        <CustomBreadcrumb
+          title={<span data-cy="tna-settings-title">Settings</span>}
+          subtitle={
+            <div
+              className="flex items-center gap-1 mt-1"
+              data-cy="tna-settings-breadcrumb"
+            >
+              <span
+                data-cy="tna-settings-breadcrumb-root"
+                className="text-[13px] lg:text-[14px] font-normal text-[rgba(0,0,0,0.45)]"
+              >
+                Learning and Growth
+              </span>
+              <span
+                data-cy="tna-settings-breadcrumb-separator"
+                className="text-[13px] lg:text-[14px] font-normal text-[rgba(0,0,0,0.45)] mx-0.5"
+              >
+                /
+              </span>
+              <span
+                data-cy="tna-settings-breadcrumb-current"
+                className="text-[13px] lg:text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+              >
+                Settings
+              </span>
+            </div>
+          }
+        />
       </div>
 
       {/* Full viewport–width rule under breadcrumbs (tab strip bottom rule stays padded below) */}
-      <div
-        className="mt-5 mb-5 relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-b border-[#D9D9D9]"
-        data-cy="tna-settings-breadcrumb-fullbleed-divider"
-        aria-hidden="true"
-      />
 
       {/* Course Category tab (+ mobile add when on this tab) */}
       <div
-        className="px-3 sm:px-6 pt-3 border-b border-[#D9D9D9]"
+        className="pt-3 border-b border-[#D9D9D9]"
         data-cy="tna-settings-tabs"
       >
         <div
@@ -138,7 +133,7 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
       </div>
 
       {/* Tab page content */}
-      <div className="px-3 sm:px-6 pt-5 pb-8" data-cy="tna-settings-content">
+      <div className=" pt-5 pb-8" data-cy="tna-settings-content">
         {children}
       </div>
     </div>

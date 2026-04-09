@@ -1,16 +1,8 @@
 'use client';
 import React, { FC, ReactNode, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Typography,
-  Breadcrumb,
-  Divider,
-  Tabs,
-  Button,
-  Form,
-  Input,
-  Modal,
-} from 'antd';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import { Breadcrumb, Tabs, Button, Form, Input, Modal } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import type { TabsProps } from 'antd';
@@ -27,8 +19,6 @@ import {
 import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recognition/queries';
 import { EmployeeSurveyStore } from '@/store/uistate/features/conversation/survey';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
-
-const { Title } = Typography;
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -174,24 +164,25 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         data-cy={`settings-layout-content-${layoutSlug}`}
       >
         <div
-          className="pb-4 px-4 py-4"
+          // className="pb-4 px-4 py-4"
           data-cy={`settings-page-header-${layoutSlug}`}
         >
-          <Title level={4} className="!mb-1 !font-bold !text-gray-700">
-            Setting
-          </Title>
-          <Breadcrumb
-            className="text-sm text-gray-400"
-            items={[
-              {
-                title: <Link href="/feedback/conversation">CFR</Link>,
-              },
-              {
-                title: 'Settings',
-              },
-            ]}
+          <CustomBreadcrumb
+            title="Setting"
+            subtitle={
+              <Breadcrumb
+                className="text-sm text-gray-400"
+                items={[
+                  {
+                    title: <Link href="/feedback/conversation">CFR</Link>,
+                  },
+                  {
+                    title: 'Settings',
+                  },
+                ]}
+              />
+            }
           />
-          <Divider className="!my-0 !mt-4 !border-[#D9D9D9]" />
         </div>
 
         <div
@@ -199,10 +190,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           data-cy={`settings-layout-body-${layoutSlug}`}
         >
           {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
-          <div
-            data-cy="settings-layout-tabs-container"
-            className={`w-full  md:px-4 mb-4 `}
-          >
+          <div data-cy="settings-layout-tabs-container">
             <Tabs
               activeKey={getActiveKey()}
               onChange={handleTabChange}
@@ -321,7 +309,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
               id="org-settings-tabs"
             />
           </div>
-          <div className="sm:px-5 px-1" data-cy="settings-content-wrapper">
+          <div className="py-4" data-cy="settings-content-wrapper">
             {children}
           </div>
         </div>

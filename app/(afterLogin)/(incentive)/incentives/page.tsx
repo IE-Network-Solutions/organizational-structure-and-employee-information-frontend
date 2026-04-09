@@ -3,16 +3,7 @@ import {
   useAllChildrenRecognition,
   useParentRecognition,
 } from '@/store/server/features/incentive/other/queries';
-import {
-  Button,
-  Card,
-  Divider,
-  Dropdown,
-  Empty,
-  Input,
-  Skeleton,
-  Tag,
-} from 'antd';
+import { Button, Card, Dropdown, Empty, Input, Skeleton, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
@@ -22,7 +13,7 @@ import ConfirmModal from '@/components/common/confirmModal';
 import { useSendIncentiveToPayroll } from '@/store/server/features/incentive/all/mutation';
 import { useExportIncentiveData } from '@/store/server/features/incentive/all/mutation';
 import SendIcon from '@mui/icons-material/Send';
-import { SearchOutlined, LeftOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import { MdOutlineEmojiEvents } from 'react-icons/md';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomPagination from '@/components/customPagination';
@@ -444,7 +435,6 @@ const Page = () => {
             }
             data-cy="incentives-page-breadcrumb"
           />
-          <Divider className="full-bleed-header-divider" />
 
           <IncentiveStatusCards
             recognitionTypeDashboardStats={recognitionStats}
@@ -515,66 +505,71 @@ const Page = () => {
           className="mx-0 mt-4"
           data-cy="incentives-page-selected-recognition-view"
         >
-          <div
-            data-cy="incentives-page-selected-recognition-view-container"
-            className="flex items-start justify-between gap-4 border-b pb-4 mb-4"
-          >
+          <div data-cy="incentives-page-selected-recognition-view-container">
             <div
               data-cy="incentives-page-selected-recognition-view-container-content"
-              className="flex items-start gap-3"
+              className="w-full min-w-0"
             >
-              <button
-                type="button"
-                onClick={handleBackToCards}
-                className="mt-1 h-8 w-8 rounded border border-gray-200 hover:bg-gray-50"
-                data-cy="incentives-page-back-to-cards-button"
-              >
-                <LeftOutlined />
-              </button>
-              <div data-cy="incentives-page-selected-recognition-view-container-content-title">
-                <h2
-                  className="text-2xl font-semibold text-[#111827]"
-                  data-cy="incentives-page-selected-title"
-                >
-                  {selectedRecognition?.name || 'Incentive'}
-                </h2>
-                <p
-                  className="text-sm text-[#6B7280] mt-1"
-                  data-cy="incentives-page-selected-subtitle"
-                >
-                  Incentive
-                </p>
-              </div>
-            </div>
-            <div data-cy="incentives-page-selected-recognition-view-container-content-operations">
-              <Dropdown
-                trigger={['click']}
-                placement="bottomRight"
-                overlayClassName="incentives-actions-dropdown"
-                menu={{
-                  items: dropdownMenuItems,
-                  onClick: ({ key }) => {
-                    if (key === 'send') {
-                      handleSendToPayrollClick();
-                      return;
-                    }
-                    if (key === 'export') {
-                      handleExport(searchParams, false);
-                      return;
-                    }
-                    if (key === 'generate') {
-                      handleGenerateIncentiveClick();
-                    }
-                  },
-                }}
-              >
-                <Button
-                  type="default"
-                  className="border border-[#D9D9D9] h-8 w-8"
-                >
-                  <MoreHorizIcon />
-                </Button>
-              </Dropdown>
+              <CustomBreadcrumb
+                onBack={handleBackToCards}
+                backControlDataCy="incentives-page-back-to-cards-button"
+                title={
+                  <div
+                    data-cy="incentives-page-selected-recognition-view-container-content-title"
+                    className="min-w-0"
+                  >
+                    <span
+                      className="block truncate"
+                      data-cy="incentives-page-selected-title"
+                    >
+                      {selectedRecognition?.name || 'Incentive'}
+                    </span>
+                  </div>
+                }
+                subtitle={
+                  <span
+                    className="mt-1 block text-sm text-[#6B7280]"
+                    data-cy="incentives-page-selected-subtitle"
+                  >
+                    Incentive
+                  </span>
+                }
+                titleExtra={
+                  <div
+                    data-cy="incentives-page-selected-recognition-view-container-content-operations"
+                    className="shrink-0"
+                  >
+                    <Dropdown
+                      trigger={['click']}
+                      placement="bottomRight"
+                      overlayClassName="incentives-actions-dropdown"
+                      menu={{
+                        items: dropdownMenuItems,
+                        onClick: ({ key }) => {
+                          if (key === 'send') {
+                            handleSendToPayrollClick();
+                            return;
+                          }
+                          if (key === 'export') {
+                            handleExport(searchParams, false);
+                            return;
+                          }
+                          if (key === 'generate') {
+                            handleGenerateIncentiveClick();
+                          }
+                        },
+                      }}
+                    >
+                      <Button
+                        type="default"
+                        className="border border-[#D9D9D9] h-8 w-8"
+                      >
+                        <MoreHorizIcon />
+                      </Button>
+                    </Dropdown>
+                  </div>
+                }
+              />
             </div>
           </div>
 
