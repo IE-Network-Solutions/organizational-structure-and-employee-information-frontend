@@ -214,8 +214,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
   const [editForm] = Form.useForm();
   const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null);
 
-  const { mutate: updateOffboardingItem, isLoading: isUpdatingOffboardingItem } =
-    useUpdateOffboardingItem();
+  const {
+    mutate: updateOffboardingItem,
+    isLoading: isUpdatingOffboardingItem,
+  } = useUpdateOffboardingItem();
   const { mutate: createTaskList } = useAddTerminationTasks();
   const { userId } = useAuthenticationStore();
 
@@ -661,7 +663,10 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 id="offboarding-edit-task-form"
                 data-cy="offboarding-edit-task-form"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div
+                  data-cy="offboarding-edit-task-form-items"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
                   <Form.Item
                     label="Task Name"
                     name="title"
@@ -680,7 +685,9 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                   <Form.Item
                     label="Approver"
                     name="approverId"
-                    rules={[{ required: true, message: 'Please select approver' }]}
+                    rules={[
+                      { required: true, message: 'Please select approver' },
+                    ]}
                     data-cy="offboarding-edit-task-approver-item"
                   >
                     <Select
@@ -720,9 +727,14 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 </div>
                 <Form.Item
                   label={
-                    <span>
+                    <span data-cy="offboarding-edit-task-description-label">
                       Description{' '}
-                      <span className="text-gray-400 font-normal">(optional)</span>
+                      <span
+                        data-cy="offboarding-edit-task-description-label-optional"
+                        className="text-gray-400 font-normal"
+                      >
+                        (optional)
+                      </span>
                     </span>
                   }
                   name="description"
