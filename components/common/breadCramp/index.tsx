@@ -15,6 +15,8 @@ interface CustomBreadcrumbProps extends BreadcrumbProps {
   compact?: boolean;
   /** Merged onto the title row (e.g. text-[#000000]) */
   titleClassName?: string;
+  /** Merged onto the subtitle row */
+  subtitleClassName?: string;
   /** Merged onto the outer wrapper (spacing overrides) */
   rootClassName?: string;
   /** Controls visibility of bottom separator line */
@@ -28,6 +30,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   isRecognition = false,
   compact = false,
   titleClassName,
+  subtitleClassName,
   rootClassName,
   showBottomSeparator = true,
   // className,
@@ -68,7 +71,10 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
           </div>
           {showSubtitle ? (
             <div
-              className="w-full text-slate-500 text-sm font-medium leading-snug"
+              className={classNames(
+                'w-full text-slate-500 text-sm font-medium leading-snug',
+                subtitleClassName,
+              )}
               data-cy="breadcrumb-subtitle"
             >
               {subtitle}
