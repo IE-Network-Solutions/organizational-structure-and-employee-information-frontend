@@ -9,8 +9,6 @@ import EmployeeTodaysAttendanceCard from './_components/employee-todays-attendan
 import EmployeeHiringFunnelCard from './_components/employee-hiring-funnel-card';
 import HireVsResignationTrendChart from './_components/HireVsResignationTrendChart';
 import EmployeeLeave from './_components/employee-leave';
-import { Breadcrumb } from 'antd';
-import Link from 'next/link';
 import RecentHrActions from './_components/recent-hr-actions';
 import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 
@@ -44,38 +42,13 @@ export default function EmployeeDashboardPage() {
     >
       <BlockWrapper className="h-auto w-full bg-white">
         <div
-          className="flex flex-wrap justify-between items-center px-3 sm:px-3"
+          className="flex flex-wrap justify-between items-center"
           id="employee-dashboard-header"
           data-cy="employee-dashboard-header"
         >
           <CustomBreadcrumb
-            title="Dashboard"
-            subtitle={
-              <Breadcrumb
-                items={[
-                  {
-                    title: (
-                      <Link
-                        className="text-xs sm:text-sm"
-                        href="/employees/manage-employees"
-                      >
-                        Employees
-                      </Link>
-                    ),
-                  },
-                  {
-                    title: (
-                      <span
-                        className="text-xs sm:text-sm"
-                        data-cy="employee-dashboard-breadcrumb-employee"
-                      >
-                        Dashboard
-                      </span>
-                    ),
-                  },
-                ]}
-              />
-            }
+            title="Employee Dashboard"
+            showBottomSeparator={false}
             data-cy="employee-dashboard-breadcrumb"
           />
         </div>

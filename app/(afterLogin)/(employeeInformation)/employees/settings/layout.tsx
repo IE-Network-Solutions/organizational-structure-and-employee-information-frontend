@@ -2,7 +2,7 @@
 
 import React, { FC, ReactNode } from 'react';
 import Link from 'next/link';
-import { Typography, Breadcrumb, Divider, Tabs, Button } from 'antd';
+import { Tabs, Button } from 'antd';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -11,8 +11,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-
-const { Title } = Typography;
+import CustomBreadcrumb from '@/components/common/breadCramp';
 
 const RolePermissionNewButton: FC = () => {
   const { tabButton, setCurrentModal, currentModal } = useSettingStore();
@@ -164,25 +163,23 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         id={`settings-layout-content-${layoutSlug}`}
         data-cy={`settings-layout-content-${layoutSlug}`}
       >
-        <div
-          className="pb-4 py-4"
-          data-cy={`settings-page-header-${layoutSlug}`}
-        >
-          <Title level={4} className="!mb-1 !font-bold !text-gray-700">
-            Employee Settings
-          </Title>
-          <Breadcrumb
-            className="text-sm text-gray-400"
-            items={[
-              {
-                title: <Link href="/employees/manage-employees">Employee</Link>,
-              },
-              {
-                title: 'Employee Settings',
-              },
-            ]}
+        <div className="py-2" data-cy={`settings-page-header-${layoutSlug}`}>
+          <CustomBreadcrumb
+            title="Employee Settings"
+            subtitle={
+              <>
+                <Link href="/employees/manage-employees">Employee</Link>
+                <span data-cy="employee-settings-breadcrumb-separator">
+                  {' '}
+                  /{' '}
+                </span>
+                <span data-cy="employee-settings-breadcrumb-current">
+                  Employee Settings
+                </span>
+              </>
+            }
+            data-cy="employee-settings-breadcrumb"
           />
-          <Divider className="!my-0 !mt-4 !border-gray-200" />
         </div>
 
         <div

@@ -200,7 +200,7 @@ const CustomPagination: React.FC<CustomPaginationProps> = ({
     <div
       id={id}
       data-cy={dataCy}
-      className={`flex justify-between items-center pt-4 pb-2 ${
+      className={`flex justify-between items-center px-2 pt-4 pb-2 ${
         wrapMainRow ? 'flex-wrap gap-x-4 gap-y-4' : ''
       } ${grayBackground ? 'bg-gray-100' : 'bg-white'} ${className ?? ''}`}
     >

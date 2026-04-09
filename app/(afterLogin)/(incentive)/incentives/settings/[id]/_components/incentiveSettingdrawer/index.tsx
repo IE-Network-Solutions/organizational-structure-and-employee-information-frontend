@@ -29,7 +29,6 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   const idParam = params?.['id'];
   const recognitionId = Array.isArray(idParam) ? idParam[0] : idParam;
 
-
   //   ===========> UI States <============
 
   const {

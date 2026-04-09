@@ -59,8 +59,9 @@ const IncentiveSettingsTable: React.FC = () => {
 
   const { data: recognitionData, isLoading: responseLoading } =
     useRecognitionById(recognitionId ?? '');
-  const { data: formulaById } =
-    useIncentiveFormulaByRecognitionId(recognitionId ?? '');
+  const { data: formulaById } = useIncentiveFormulaByRecognitionId(
+    recognitionId ?? '',
+  );
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
     setOpenIncentiveDrawer(true);

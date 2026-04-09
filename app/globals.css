@@ -353,6 +353,8 @@ body {
 :root {
   --app-scrollbar-thumb: #d1d5db; /* light gray */
   --app-scrollbar-track: transparent;
+  /* Main nav sidebar: light wash aligned with AntD colorPrimary (#1E40AF) */
+  --nav-sider-background: #eff6ff;
 }
 
 /* Global scrollbar styling */

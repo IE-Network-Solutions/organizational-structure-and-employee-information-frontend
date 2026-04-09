@@ -18,7 +18,10 @@ const JobDetailHeaderCardSkeleton: React.FC = () => {
         className="absolute top-5 right-5 flex items-center gap-2"
         data-cy="talent-acquisition-job-detail-card-skeleton-actions"
       >
-        {pulseBar('h-7 w-[72px]', 'talent-acquisition-job-detail-card-skeleton-status')}
+        {pulseBar(
+          'h-7 w-[72px]',
+          'talent-acquisition-job-detail-card-skeleton-status',
+        )}
       </div>
       <div
         className="mb-4 pr-24"
