@@ -179,11 +179,11 @@ const JobCard: React.FC = () => {
 
   const isAnyFilterSet = Boolean(
     filters.department ||
-      filters.employmentType ||
-      filters.status ||
-      filters.location ||
-      filters.createdDate ||
-      filters.closedDate,
+    filters.employmentType ||
+    filters.status ||
+    filters.location ||
+    filters.createdDate ||
+    filters.closedDate,
   );
 
   const { data: jobList, isLoading: isJobListLoading } = useGetJobs(

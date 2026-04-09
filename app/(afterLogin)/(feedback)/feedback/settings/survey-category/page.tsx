@@ -34,8 +34,8 @@ const Page = () => {
   const listItems = categories?.items ?? [];
   const hasActiveFilters = Boolean(
     searchParams?.category_name?.trim() ||
-      searchParams?.category_description?.trim() ||
-      searchParams?.createdBy,
+    searchParams?.category_description?.trim() ||
+    searchParams?.createdBy,
   );
 
   const openCreateSurveyCategory = () => {

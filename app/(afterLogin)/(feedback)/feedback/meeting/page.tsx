@@ -77,7 +77,6 @@ function MeetingMeetingsPageInner() {
   return (
     <TabLandingLayout
       buttonDisabled={false}
-      flushHorizontal
       id="meetingLayoutId"
       data-cy="feedback-meeting-page-tab-landing-layout"
       primaryActionButtonClassName="!self-center !h-[40px] !min-h-[40px] !inline-flex !items-center !justify-center !px-[15px] rounded-lg border-none bg-blue-600 hover:bg-blue-700 !leading-none [&_.ant-btn-icon]:!m-0 [&_.ant-btn-icon]:!inline-flex [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center"
