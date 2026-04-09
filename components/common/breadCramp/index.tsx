@@ -32,7 +32,6 @@ interface CustomBreadcrumbProps extends Omit<BreadcrumbProps, 'href'> {
   onBack?: () => void;
   /** `data-cy` for the back Link or button (default: timesheet-dashboard-back-link). */
   backControlDataCy?: string;
-
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
