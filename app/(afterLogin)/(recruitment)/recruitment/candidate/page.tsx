@@ -635,9 +635,9 @@ const AllCandidates: React.FC = () => {
           >
             <AllCandidateTable data-cy="talent-acquisition-candidate-page-table" />
           </div>
-        </div>
-      </Card>
-    </div>
+        </Card>
+      </div>
+    </>
   );
 };
 

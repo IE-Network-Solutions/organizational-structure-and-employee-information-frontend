@@ -20,6 +20,8 @@ interface CustomBreadcrumbProps extends Omit<BreadcrumbProps, 'href'> {
   compact?: boolean;
   /** Merged onto the title row (e.g. text-[#000000]) */
   titleClassName?: string;
+  /** Merged onto the subtitle row */
+  subtitleClassName?: string;
   /** Merged onto the outer wrapper (spacing overrides) */
   rootClassName?: string;
   /** Controls visibility of bottom separator line */
@@ -31,7 +33,6 @@ interface CustomBreadcrumbProps extends Omit<BreadcrumbProps, 'href'> {
   /** `data-cy` for the back Link or button (default: timesheet-dashboard-back-link). */
   backControlDataCy?: string;
 
-  subtitleClassName?: string;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
