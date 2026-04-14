@@ -177,7 +177,7 @@ const Header = () => {
                 className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
                 data-cy="okr-card-value"
               >
-                {Number(objectiveDashboard?.userOkr?.toFixed(0) || 0)}%
+                {Number(objectiveDashboard?.userOkr?.toFixed(2) || 0)}%
               </div>
             </div>
             <div
@@ -270,7 +270,7 @@ const Header = () => {
                 className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
                 data-cy="okr-card-value"
               >
-                {Number(objectiveDashboard?.companyOkr?.toFixed(0) || 0)}%
+                {Number(objectiveDashboard?.companyOkr?.toFixed(2) || 0)}%
               </div>
             </div>
             <div
