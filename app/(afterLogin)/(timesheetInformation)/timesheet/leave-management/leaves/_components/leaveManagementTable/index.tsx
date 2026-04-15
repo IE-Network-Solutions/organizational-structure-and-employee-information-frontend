@@ -385,7 +385,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
 
   return (
     <div
-      className="mt-6 bg-white rounded-lg border border-gray-100 overflow-hidden"
+      className=" bg-white rounded-lg border border-gray-100 overflow-hidden"
       id="time-attendance-leave-management-table-wrapper"
       data-cy="time-attendance-leave-management-table-wrapper"
     >

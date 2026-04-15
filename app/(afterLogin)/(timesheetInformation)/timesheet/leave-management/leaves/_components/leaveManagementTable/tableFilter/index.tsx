@@ -376,12 +376,14 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
                 label:
                   `${list?.firstName ?? ''} ${list?.middleName ?? ''} ${list?.lastName ?? ''}`.trim(),
               }))}
-              className="h-10 border-gray-100"
+              className="h-8 border-gray-100 w-[300px]"
               suffixIcon={
-                <SearchOutlined
-                  data-cy="time-attendance-leave-management-search-employee-suffix-icon"
-                  className="text-gray-600"
-                />
+                <div
+                  data-cy="time-attendance-leave-management-search-employee-suffix-icon-div"
+                  className="text-gray-400 border-l p-2"
+                >
+                  <SearchOutlined />
+                </div>
               }
               id="time-attendance-leave-management-search-employee"
               data-cy="time-attendance-leave-management-search-employee"
