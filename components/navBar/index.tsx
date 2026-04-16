@@ -1803,7 +1803,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   id="copilot-workspace-root"
                   data-cy="copilot-workspace-root"
                 >
-                  <CopilotModule onClose={() => setCopilotOpen(false)} />
+                  <CopilotModule />
                 </div>
               ) : (
                 children

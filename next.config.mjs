@@ -53,9 +53,6 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: false,
   sw: 'sw.js',
-  fallbacks: {
-    document: '/offline',
-  },
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
