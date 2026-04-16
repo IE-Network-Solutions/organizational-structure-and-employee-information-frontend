@@ -2,7 +2,6 @@
 
 import React from 'react';
 import CopilotAiEditIcon from './CopilotAiEditIcon';
-import { COPILOT_THEME } from './copilotTheme';
 
 export interface CopilotCircleTriggerProps {
   onClick: () => void;

@@ -302,6 +302,7 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
                     viewBox="0 0 14 14"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
+                    data-cy={ucy('copilot-intent-collapse-chevron-svg')}
                     aria-hidden="true"
                     focusable="false"
                     style={{
@@ -309,15 +310,29 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
                       transition: 'transform 200ms',
                     }}
                   >
-                    <g clipPath="url(#clip0_copilot_intent_chevron)">
+                    <g
+                      clipPath="url(#clip0_copilot_intent_chevron)"
+                      data-cy={ucy('copilot-intent-collapse-chevron-g')}
+                    >
                       <path
                         d="M4.3225 8.989L7 6.31734L9.6775 8.989L10.5 8.1665L7 4.6665L3.5 8.1665L4.3225 8.989Z"
                         fill="#323232"
+                        data-cy={ucy('copilot-intent-collapse-chevron-path')}
                       />
                     </g>
-                    <defs>
-                      <clipPath id="clip0_copilot_intent_chevron">
-                        <rect width="14" height="14" fill="white" />
+                    <defs data-cy={ucy('copilot-intent-collapse-chevron-defs')}>
+                      <clipPath
+                        id="clip0_copilot_intent_chevron"
+                        data-cy={ucy(
+                          'copilot-intent-collapse-chevron-clipPath',
+                        )}
+                      >
+                        <rect
+                          width="14"
+                          height="14"
+                          fill="white"
+                          data-cy={ucy('copilot-intent-collapse-chevron-rect')}
+                        />
                       </clipPath>
                     </defs>
                   </svg>
