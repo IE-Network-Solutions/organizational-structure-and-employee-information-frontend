@@ -733,7 +733,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               data-cy={`copilot-message-${message.id}`}
             >
               <div
-                className="max-w-[min(75%,22rem)] min-w-0 overflow-hidden border"
+                className="max-w-[min(70%,20rem)] min-w-0 overflow-hidden border"
                 style={{
                   borderRadius: COPILOT_THEME.userReportCardRadius,
                   borderColor: COPILOT_THEME.userReportCardBorder,
@@ -933,7 +933,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
       })}
       {isLoading && (
         <div
-          className="flex items-center gap-3 px-1 py-2 sm:px-2"
+          className="flex justify-start items-start gap-4"
           id="copilot-loading"
           data-cy="copilot-loading"
           aria-busy="true"
@@ -959,12 +959,13 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             />
           </span>
           <div
-            className="flex h-[76px] w-[58px] shrink-0 flex-col justify-end rounded-[10px] border border-[#E0E0E0] bg-white px-2 pb-3 pt-2"
+            className="min-w-0 flex-1 max-w-full p-4 sm:p-5 border border-[#E0E0E0] bg-white"
+            style={{ borderRadius: COPILOT_THEME.assistantBubbleRadius }}
             id="copilot-loading-generating-box"
             data-cy="copilot-loading-generating-box"
           >
             <div
-              className="flex w-full justify-center"
+              className="flex items-center gap-2"
               data-cy="copilot-loading-dots-wrap"
             >
               <CopilotTypingDots variant="dark" />

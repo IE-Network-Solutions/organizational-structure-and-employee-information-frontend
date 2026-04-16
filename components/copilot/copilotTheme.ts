@@ -75,7 +75,7 @@ export const COPILOT_THEME = {
   /** Composer (drawer / with chips) */
   composerRadius: 16,
   /** Workspace composer — spans chat column; height per design */
-  composerMaxWidth: 1600,
+  composerMaxWidth: 980,
   composerHeightPx: 56,
   /** Rounded corners per design */
   composerRadiusWorkspace: 8,
