@@ -1,6 +1,15 @@
 import { setCookie } from '@/helpers/storageHelper';
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+
+const noopStorage: Storage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
+  clear: () => undefined,
+  key: () => null,
+  length: 0,
+};
 
 interface StoreState {
   token: string;
@@ -106,7 +115,9 @@ export const useAuthenticationStore = create<StoreState>()(
       }),
       {
         name: 'authentications-storage', // Unique name for the storage
-        getStorage: () => localStorage, // Use localStorage for persistence
+        storage: createJSONStorage(() =>
+          typeof window !== 'undefined' ? localStorage : noopStorage,
+        ),
         partialize: (state) => ({
           token: state.token,
           tenantId: state.tenantId,

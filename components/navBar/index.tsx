@@ -81,6 +81,12 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { useCopilotStore } from '@/store/uistate/features/copilot';
+import CopilotModule from '@/components/copilot/CopilotModule';
+import {
+  COPILOT_SHARE_QUERY,
+  COPILOT_SHARE_REF_QUERY,
+} from '@/utils/copilotShare';
 
 interface CustomMenuItem {
   key: string;
@@ -284,11 +290,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
+    useCopilotStore();
   const pathName = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMounted || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get(COPILOT_SHARE_QUERY) ||
+      params.get(COPILOT_SHARE_REF_QUERY)
+    ) {
+      setCopilotOpen(true);
+      return;
+    }
+    // Sidebar / in-app navigation: hide Copilot full-page workspace so main `children` render.
+    setCopilotOpen(false);
+  }, [isMounted, pathname, setCopilotOpen]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -1776,7 +1798,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 msOverflowStyle: 'none',
               }}
             >
-              {children}
+              {isCopilotOpen ? (
+                <div
+                  id="copilot-workspace-root"
+                  data-cy="copilot-workspace-root"
+                >
+                  <CopilotModule />
+                </div>
+              ) : (
+                children
+              )}
             </div>
           )}
           {/* <CreateEmployeeJobInformation
