@@ -1665,3 +1665,33 @@ h6 {
   background-color: rgba(0, 0, 0, 0.7);
   animation: copilot-typing-bounce-dark 1.2s ease-in-out infinite;
 }
+
+/* Copilot: compact generating dots used inside the 31×32 box */
+.copilot-generating-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  line-height: 0;
+}
+
+.copilot-generating-dots__dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.7);
+  animation: copilot-typing-bounce-dark 1.2s ease-in-out infinite;
+}
+
+.copilot-generating-dots__dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.copilot-generating-dots__dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.copilot-generating-dots__dot:nth-child(3) {
+  animation-delay: 0.4s;
+}

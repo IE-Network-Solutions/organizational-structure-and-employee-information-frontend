@@ -7,7 +7,6 @@ import {
   CloseOutlined,
   EditOutlined,
   DeleteOutlined,
-  CaretDownOutlined,
   EllipsisOutlined,
   RightOutlined,
 } from '@ant-design/icons';
@@ -293,14 +292,35 @@ const CopilotIntentPanel: React.FC<CopilotIntentPanelProps> = ({
               bordered={false}
               expandIcon={({ isActive }) => (
                 <span
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] border border-[#E5E7EB] bg-white text-[#6B7280] shadow-sm"
+                  className="box-border flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] border border-[#D9D9D9] bg-white shadow-[0px_2px_0px_rgba(0,0,0,0.02)]"
                   aria-hidden
                   data-cy={ucy('copilot-intent-collapse-expand-icon')}
                 >
-                  <CaretDownOutlined
-                    className="text-[14px] transition-transform duration-200"
-                    rotate={isActive ? 180 : 0}
-                  />
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    style={{
+                      transform: isActive ? 'rotate(0deg)' : 'rotate(180deg)',
+                      transition: 'transform 200ms',
+                    }}
+                  >
+                    <g clipPath="url(#clip0_copilot_intent_chevron)">
+                      <path
+                        d="M4.3225 8.989L7 6.31734L9.6775 8.989L10.5 8.1665L7 4.6665L3.5 8.1665L4.3225 8.989Z"
+                        fill="#323232"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_copilot_intent_chevron">
+                        <rect width="14" height="14" fill="white" />
+                      </clipPath>
+                    </defs>
+                  </svg>
                 </span>
               )}
               className="copilot-intent-collapse bg-transparent [&_.ant-collapse-item]:border-b [&_.ant-collapse-item]:border-[#F3F4F6] [&_.ant-collapse-item]:last:border-b-0 [&_.ant-collapse-header]:!items-center [&_.ant-collapse-header]:!bg-transparent [&_.ant-collapse-header]:!py-3 [&_.ant-collapse-header]:!px-0 [&_.ant-collapse-header:hover]:!bg-transparent [&_.ant-collapse-content-box]:!pb-2 [&_.ant-collapse-content-box]:!pt-0 [&_.ant-collapse-expand-icon]:!p-0"

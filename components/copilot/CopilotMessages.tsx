@@ -20,7 +20,7 @@ import {
   type CopilotTableData,
 } from '@/utils/copilotApiService';
 import CopilotAiIcon from './CopilotAiIcon';
-import CopilotTypingDots from './CopilotTypingDots';
+import CopilotGeneratingDotsIcon from './CopilotGeneratingDotsIcon';
 import {
   WarningOutlined,
   InfoCircleOutlined,
@@ -968,7 +968,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               className="flex items-center justify-center"
               data-cy="copilot-loading-dots-wrap"
             >
-              <CopilotTypingDots variant="dark" />
+              <CopilotGeneratingDotsIcon />
             </div>
           </div>
         </div>
