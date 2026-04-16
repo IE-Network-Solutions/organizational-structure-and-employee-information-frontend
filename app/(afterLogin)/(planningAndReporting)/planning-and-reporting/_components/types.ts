@@ -10,7 +10,19 @@ export interface PlanTask {
   target?: number;
   achieved?: number;
   hasAttachment?: boolean;
-  status?: 'completed' | 'pending' | 'failed';
+  status?:
+    | 'completed'
+    | 'pending'
+    | 'failed'
+    | 'pre_achieved'
+    | 'pre_pending'
+    | string;
+  /** Failure reason from API when task did not meet target (reporting). */
+  customReason?: string;
+  /** Plan task represents achieving the key result or a milestone as a single outcome. */
+  achieveMK?: boolean;
+  /** When set with achieveMK, outcome is tied to this milestone (vs key-result level). */
+  outcomeMilestoneId?: string | null;
 }
 
 export interface Milestone {
@@ -57,6 +69,10 @@ export interface PlanStatus {
 
 export interface PlanSummary {
   id: string;
+  /** Plan owner user id (for viewer-only affordances). */
+  ownerUserId?: string;
+  /** When true, plan has been reported (read-only / locked for planning edits). */
+  isReported?: boolean;
   cadence: Cadence;
   owner: PlanOwner;
   status: PlanStatus;

@@ -1,10 +1,5 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
-import CustomDrawerFooterButton, {
-  CustomDrawerFooterButtonProps,
-} from '@/components/common/customDrawer/customDrawerFooterButton';
-import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import { DatePicker, Form, Space, Spin, TimePicker } from 'antd';
+import { Button, DatePicker, Form, TimePicker } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
@@ -16,8 +11,8 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
-  const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const itemClass = 'font-normal text-xs';
+  const controlClass = 'mt-2.5 h-[40px]  w-full';
   const {
     isShowEmployeeAttendanceSidebar,
     employeeAttendanceId,
@@ -35,34 +30,14 @@ const EmployeeAttendanceSideBar = () => {
     setEmployeeId('');
   };
 
-  const { data: currentAttendanceData, isLoading: isAttendanceLoading } =
+  const { data: currentAttendanceData } =
     useGetSingleAttendances(employeeAttendanceId);
 
-  const { data: employeeData, isLoading: isUserLoading } =
-    useGetEmployee(employeeId);
+  const { data: employeeData } = useGetEmployee(employeeId);
 
   const { mutate: updateLeaveRequest, isLoading: isLoadingRequest } =
     useSetEditAttendance();
 
-  const footerModalItems: CustomDrawerFooterButtonProps[] = [
-    {
-      label: 'Cancel',
-      key: 'cancel',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      loading: isLoadingRequest,
-      onClick: () => onClose(),
-    },
-    {
-      label: 'Update',
-      key: 'create',
-      className: 'h-[40px] sm:h-[56px] text-base',
-      size: 'large',
-      type: 'primary',
-      loading: isLoadingRequest,
-      onClick: () => form.submit(),
-    },
-  ];
   const onChangeIsAbsent = (isAbsent: any) => {
     setIsAbsent(isAbsent);
     form.setFieldValue('isAbsent', isAbsent);
@@ -169,153 +144,210 @@ const EmployeeAttendanceSideBar = () => {
     }
   }, [currentAttendanceData, form]);
 
+  const employeeFullName = `${employeeData?.firstName || ''} ${
+    employeeData?.middleName || ''
+  } ${employeeData?.lastName || ''}`.trim();
+
+  const editDateLabel = currentAttendanceData?.startAt
+    ? dayjs(currentAttendanceData.startAt, 'YYYY-MM-DD HH:mm').format('MMM D')
+    : '';
+
   return (
     isShowEmployeeAttendanceSidebar && (
       <div
+        className="bg-white border border-[#d4d4d4] p-4 rounded-md w-[320px] sm:w-[400px]"
         id="time-attendance-employee-attendance-sidebar-container"
         data-cy="time-attendance-employee-attendance-sidebar-container"
       >
-        <CustomDrawerLayout
-          data-cy="time-attendance-employee-attendance-sidebar-container"
-          open={isShowEmployeeAttendanceSidebar}
-          onClose={onClose}
-          modalHeader={
-            <CustomDrawerHeader data-cy="time-attendance-employee-attendance-sidebar-modal-header">
-              Update Employee Attendance
-            </CustomDrawerHeader>
-          }
-          footer={
-            <div
-              data-cy="employee-attendance-components-sidebar-index-tsx-index-div-188"
-              className="p-6 sm:p-0"
-            >
-              <div
-                id="time-attendance-employee-attendance-sidebar-footer-buttons"
-                data-cy="time-attendance-employee-attendance-sidebar-footer-buttons"
-              >
-                <CustomDrawerFooterButton
-                  data-cy="time-attendance-employee-attendance-sidebar-footer-buttons"
-                  buttons={footerModalItems}
-                />
-              </div>
-            </div>
-          }
-          width="400px"
+        <div
+          className="mb-4 flex items-start justify-between"
+          data-cy="time-attendance-employee-attendance-sidebar-header"
         >
-          <Spin
-            size="large"
-            spinning={isAttendanceLoading || isUserLoading}
-            data-cy="time-attendance-employee-attendance-sidebar-spin"
-          >
-            <Form
-              layout="vertical"
-              form={form}
-              autoComplete="off"
-              onFinish={onFinish}
-              id="time-attendance-employee-attendance-sidebar-form"
-              data-cy="time-attendance-employee-attendance-sidebar-form"
+          <div data-cy="time-attendance-employee-attendance-sidebar-header-content">
+            <div
+              className="text-base font-semibold text-[#000000B2]"
+              data-cy="time-attendance-sidebar-header-title"
             >
-              <Space.Compact
-                direction="vertical"
-                className="w-full px-3 sm:px-0 "
-                id="time-attendance-employee-attendance-sidebar-fields-stack"
-                data-cy="time-attendance-employee-attendance-sidebar-fields-stack"
-              >
-                <Form.Item name="isAbsent" label="Is Absent">
-                  <div
-                    id="time-attendance-employee-attendance-sidebar-absent-radio"
-                    data-cy="time-attendance-employee-attendance-sidebar-absent-radio"
+              Edit Attendance on {editDateLabel}
+            </div>
+            <div
+              className="mt-1 text-sm text-gray-500"
+              data-cy="time-attendance-sidebar-header-name"
+            >
+              {employeeFullName || '-'}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="text-gray-400 text-3xl leading-none select-none"
+            data-cy="time-attendance-sidebar-close"
+          >
+            ×
+          </button>
+        </div>
+
+        <Form
+          layout="vertical"
+          form={form}
+          autoComplete="off"
+          onFinish={onFinish}
+          id="time-attendance-employee-attendance-sidebar-form"
+          data-cy="time-attendance-employee-attendance-sidebar-form"
+          requiredMark={false}
+        >
+          <Form.Item name="isAbsent" label="Is Absent">
+            <div
+              id="time-attendance-employee-attendance-sidebar-absent-radio"
+              data-cy="time-attendance-employee-attendance-sidebar-absent-radio"
+            >
+              <CustomRadio
+                data-cy="time-attendance-employee-attendance-sidebar-absent-radio-label"
+                label="Is Absent"
+                initialValue={currentAttendanceData?.isAbsent}
+                onChange={onChangeIsAbsent}
+              />
+            </div>
+          </Form.Item>
+          <div
+            id="time-attendance-employee-attendance-sidebar-clock-in-out-div"
+            data-cy="time-attendance-employee-attendance-sidebar-clock-in-out-div"
+            className="grid grid-cols-2 gap-2"
+          >
+            <Form.Item
+              name="startAt"
+              id="time-attendance-employee-attendance-sidebar-clock-in-form-item"
+              data-cy="time-attendance-employee-attendance-sidebar-clock-in-form-item"
+              label={
+                <span
+                  className="text-sm font-normal"
+                  data-cy="time-attendance-employee-attendance-sidebar-check-in-label"
+                >
+                  Check In{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="time-attendance-employee-attendance-sidebar-check-in-required"
                   >
-                    <CustomRadio
-                      data-cy="time-attendance-employee-attendance-sidebar-absent-radio-label"
-                      label="Is Absent"
-                      initialValue={currentAttendanceData?.isAbsent}
-                      onChange={onChangeIsAbsent}
-                    />
-                  </div>
-                </Form.Item>
-                <Form.Item
-                  name="startAt"
-                  id="time-attendance-employee-attendance-sidebar-clock-in-form-item"
-                  data-cy="time-attendance-employee-attendance-sidebar-clock-in-form-item"
-                  label="Clock In"
-                  rules={[{ required: !isAbsent, message: 'Required' }]}
-                  className={itemClass}
+                    *
+                  </span>
+                </span>
+              }
+              rules={[{ required: !isAbsent, message: 'Required' }]}
+              className={itemClass}
+            >
+              {currentAttendanceData?.isAbsent ? (
+                <DatePicker
+                  showTime
+                  disabled={isAbsent}
+                  format="YYYY-MM-DD HH:mm"
+                  className={controlClass}
+                  onChange={(datetime) => {
+                    form.setFieldsValue({ startAt: datetime });
+                  }}
+                  id="time-attendance-employee-attendance-sidebar-clock-in-date"
+                  data-cy="time-attendance-employee-attendance-sidebar-clock-in-date"
+                />
+              ) : (
+                <TimePicker
+                  disabled={isAbsent}
+                  format="HH:mm"
+                  className={controlClass}
+                  onChange={(time) => {
+                    const currentStartAt = form.getFieldValue('startAt');
+                    const updatedStartAt = currentStartAt
+                      ? dayjs(currentStartAt)
+                          .hour(time.hour())
+                          .minute(time.minute())
+                      : dayjs().hour(time.hour()).minute(time.minute());
+                    form.setFieldsValue({ startAt: updatedStartAt });
+                  }}
+                  id="time-attendance-employee-attendance-sidebar-clock-in-time"
+                  data-cy="time-attendance-employee-attendance-sidebar-clock-in-time"
+                />
+              )}
+            </Form.Item>
+            <Form.Item
+              name="endAt"
+              id="time-attendance-employee-attendance-sidebar-clock-out-form-item"
+              data-cy="time-attendance-employee-attendance-sidebar-clock-out-form-item"
+              label={
+                <span
+                  className="text-sm font-normal"
+                  data-cy="time-attendance-employee-attendance-sidebar-check-out-label"
                 >
-                  {currentAttendanceData?.isAbsent ? (
-                    <DatePicker
-                      showTime
-                      disabled={isAbsent}
-                      format="YYYY-MM-DD HH:mm"
-                      className={controlClass}
-                      onChange={(datetime) => {
-                        form.setFieldsValue({ startAt: datetime });
-                      }}
-                      id="time-attendance-employee-attendance-sidebar-clock-in-date"
-                      data-cy="time-attendance-employee-attendance-sidebar-clock-in-date"
-                    />
-                  ) : (
-                    <TimePicker
-                      disabled={isAbsent}
-                      format="HH:mm"
-                      className={controlClass}
-                      onChange={(time) => {
-                        const currentStartAt = form.getFieldValue('startAt');
-                        const updatedStartAt = currentStartAt
-                          ? dayjs(currentStartAt)
-                              .hour(time.hour())
-                              .minute(time.minute())
-                          : dayjs().hour(time.hour()).minute(time.minute());
-                        form.setFieldsValue({ startAt: updatedStartAt });
-                      }}
-                      id="time-attendance-employee-attendance-sidebar-clock-in-time"
-                      data-cy="time-attendance-employee-attendance-sidebar-clock-in-time"
-                    />
-                  )}
-                </Form.Item>
-                <Form.Item
-                  name="endAt"
-                  id="time-attendance-employee-attendance-sidebar-clock-out-form-item"
-                  data-cy="time-attendance-employee-attendance-sidebar-clock-out-form-item"
-                  label="Clock Out"
-                  rules={[{ required: !isAbsent, message: 'Required' }]}
-                  className={itemClass}
-                >
-                  {currentAttendanceData?.isAbsent ? (
-                    <DatePicker
-                      showTime
-                      disabled={isAbsent}
-                      format="YYYY-MM-DD HH:mm"
-                      className={controlClass}
-                      onChange={(datetime) => {
-                        form.setFieldsValue({ endAt: datetime });
-                      }}
-                      id="time-attendance-employee-attendance-sidebar-clock-out-date"
-                      data-cy="time-attendance-employee-attendance-sidebar-clock-out-date"
-                    />
-                  ) : (
-                    <TimePicker
-                      format="HH:mm"
-                      disabled={isAbsent}
-                      className={controlClass}
-                      onChange={(time) => {
-                        const currentEndAt = form.getFieldValue('endAt');
-                        const updatedEndAt = currentEndAt
-                          ? dayjs(currentEndAt)
-                              .hour(time.hour())
-                              .minute(time.minute())
-                          : dayjs().hour(time.hour()).minute(time.minute());
-                        form.setFieldsValue({ endAt: updatedEndAt });
-                      }}
-                      id="time-attendance-employee-attendance-sidebar-clock-out-time"
-                      data-cy="time-attendance-employee-attendance-sidebar-clock-out-time"
-                    />
-                  )}
-                </Form.Item>
-              </Space.Compact>
-            </Form>
-          </Spin>
-        </CustomDrawerLayout>
+                  Check Out{' '}
+                  <span
+                    style={{ color: 'red' }}
+                    data-cy="time-attendance-employee-attendance-sidebar-check-out-required"
+                  >
+                    *
+                  </span>
+                </span>
+              }
+              rules={[{ required: !isAbsent, message: 'Required' }]}
+              className={itemClass}
+            >
+              {currentAttendanceData?.isAbsent ? (
+                <DatePicker
+                  showTime
+                  disabled={isAbsent}
+                  format="YYYY-MM-DD HH:mm"
+                  className={controlClass}
+                  onChange={(datetime) => {
+                    form.setFieldsValue({ endAt: datetime });
+                  }}
+                  id="time-attendance-employee-attendance-sidebar-clock-out-date"
+                  data-cy="time-attendance-employee-attendance-sidebar-clock-out-date"
+                />
+              ) : (
+                <TimePicker
+                  format="HH:mm"
+                  disabled={isAbsent}
+                  className={controlClass}
+                  onChange={(time) => {
+                    const currentEndAt = form.getFieldValue('endAt');
+                    const updatedEndAt = currentEndAt
+                      ? dayjs(currentEndAt)
+                          .hour(time.hour())
+                          .minute(time.minute())
+                      : dayjs().hour(time.hour()).minute(time.minute());
+                    form.setFieldsValue({ endAt: updatedEndAt });
+                  }}
+                  id="time-attendance-employee-attendance-sidebar-clock-out-time"
+                  data-cy="time-attendance-employee-attendance-sidebar-clock-out-time"
+                />
+              )}
+            </Form.Item>
+          </div>
+          <div
+            id="time-attendance-employee-attendance-sidebar-buttons-div"
+            data-cy="time-attendance-employee-attendance-sidebar-buttons-div"
+            className="flex justify-end gap-2"
+          >
+            <Button
+              type="default"
+              loading={isLoadingRequest}
+              onClick={() => onClose()}
+              id="time-attendance-employee-attendance-sidebar-cancel-button"
+              data-cy="time-attendance-employee-attendance-sidebar-cancel-button"
+              className="h-8 border border-[#D9D9D9] text-sm font-normal text-[#4d4d4d]"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              loading={isLoadingRequest}
+              onClick={() => form.submit()}
+              id="time-attendance-employee-attendance-sidebar-update-button"
+              data-cy="time-attendance-employee-attendance-sidebar-update-button"
+              className="h-8 text-sm font-normal"
+            >
+              Update
+            </Button>
+          </div>
+        </Form>
       </div>
     )
   );

@@ -53,3 +53,5 @@ Jenkinsfile
 .qodo
 
 /docs
+
+.agents

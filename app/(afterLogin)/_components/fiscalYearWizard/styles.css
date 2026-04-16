@@ -1,0 +1,37 @@
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+.validation-error-input {
+  border-color: #ff4d4f !important;
+  background-color: #fff1f0 !important;
+  box-shadow: none !important;
+}
+
+.validation-error-input:hover,
+.validation-error-input:focus {
+  border-color: #ff4d4f !important;
+}
+
+.validation-error-picker {
+  border-color: #ff4d4f !important;
+  background-color: #fff1f0 !important;
+}
+
+.validation-error-picker:hover,
+.validation-error-picker:focus {
+  border-color: #ff4d4f !important;
+}

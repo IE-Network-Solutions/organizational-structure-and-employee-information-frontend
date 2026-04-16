@@ -60,6 +60,22 @@ const fetchUsers = async (searchString: string) => {
   });
 };
 
+const fetchUserById = async (userId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/${userId}?deletedAt=null`,
+    method: 'GET',
+    headers,
+  });
+};
+
 /**
  * Fetch a specific category by its ID.
  * @param {string} formCatsId - The ID of the category to fetch.
@@ -156,6 +172,14 @@ export const useFetchCategories = (
  */
 export const useFetchUsers = (searchString: string) => {
   return useQuery<any>(['users', searchString], () => fetchUsers(searchString));
+};
+
+export const useGetUserById = (userId?: string | null) => {
+  const token = useAuthenticationStore.getState().token;
+  return useQuery<any>(['user', userId], () => fetchUserById(String(userId)), {
+    keepPreviousData: true,
+    enabled: Boolean(token && userId),
+  });
 };
 
 /**

@@ -1,7 +1,15 @@
 'use client';
-import { Button, Table, Spin } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  MenuProps,
+  Row,
+  Skeleton,
+  Typography,
+} from 'antd';
 import React from 'react';
-import { FaPlus, FaUser } from 'react-icons/fa';
 import { Pencil, Trash2 } from 'lucide-react';
 import EmployementTypeSideDrawer from './_components/employementTypeSideDrawer';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
@@ -10,10 +18,8 @@ import { useDeleteEmployeeType } from '@/store/server/features/employees/employe
 import { EmploymentTypeInfo } from '@/store/server/features/employees/employeeManagment/employmentType/interface';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomPagination from '@/components/customPagination';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -22,25 +28,23 @@ const toSlug = (value: string | number | null | undefined) =>
     .replace(/(^-|-$)/g, '');
 
 const EmploymentType = () => {
-  const { setOpen, pageSize, setPageSize, setPage, page } =
-    EmployeTypeManagementStore();
+  const {
+    setOpen,
+    pageSize,
+    page,
+    isEditMode,
+    setIsEditMode,
+    editingEmploymentType,
+    setEditingEmploymentType,
+  } = EmployeTypeManagementStore();
   const { data: employeTypeData, isLoading } = useGetEmployementTypes(
     page,
     pageSize,
   );
   const deleteEmployeeType = useDeleteEmployeeType() as any;
-  const { isMobile, isTablet } = useIsMobile();
-  const [editingEmploymentType, setEditingEmploymentType] =
-    React.useState<EmploymentTypeInfo | null>(null);
-  const [isEditMode, setIsEditMode] = React.useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = React.useState(false);
   const [employmentTypeToDelete, setEmploymentTypeToDelete] =
     React.useState<EmploymentTypeInfo | null>(null);
-  const showDrawer = () => {
-    setIsEditMode(false);
-    setEditingEmploymentType(null);
-    setOpen(true);
-  };
 
   const handleEdit = (record: EmploymentTypeInfo) => {
     setEditingEmploymentType(record);
@@ -75,12 +79,6 @@ const EmploymentType = () => {
     setIsEditMode(false);
     setEditingEmploymentType(null);
   };
-  const onPageChange = (page: number, pageSize?: number) => {
-    setPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
 
   const reformattedData = employeTypeData?.items?.map(
     (item: EmploymentTypeInfo) => {
@@ -88,113 +86,18 @@ const EmploymentType = () => {
       return {
         ...item,
         __slug: rowSlug,
-        displayName: (
-          <div
-            className="flex space-x-2 font-semibold"
-            id={`employment-type-row-${rowSlug}`}
-            data-cy={`employment-type-row-${rowSlug}`}
-          >
-            <FaUser
-              className="mt-3 text-gray-500"
-              id={`employment-type-row-icon-${rowSlug}`}
-              data-cy={`employment-type-row-icon-${rowSlug}`}
-            />
-            <p
-              className="flex flex-col"
-              id={`employment-type-row-text-${rowSlug}`}
-              data-cy={`employment-type-row-text-${rowSlug}`}
-            >
-              <span
-                id={`employment-type-row-name-${rowSlug}`}
-                data-cy={`employment-type-row-name-${rowSlug}`}
-              >
-                {item.name}
-              </span>
-              <span
-                className="text-gray-500 text-xs"
-                id={`employment-type-row-description-${rowSlug}`}
-                data-cy={`employment-type-row-description-${rowSlug}`}
-              >
-                {item.description || 'No description provided'}
-              </span>
-            </p>
-          </div>
-        ),
       };
     },
   );
-
-  const columns: any = [
-    {
-      dataIndex: 'displayName',
-      key: 'Name',
-    },
-  ];
 
   const pageSlug = 'employment-type';
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
+      className="bg-white h-full"
       id={`settings-${pageSlug}-container`}
       data-cy={`settings-${pageSlug}-container`}
     >
-      <div
-        className="flex justify-between items-center mb-4"
-        id={`settings-${pageSlug}-header`}
-        data-cy={`settings-${pageSlug}-header`}
-      >
-        <h1
-          className="text-black font-bold text-lg "
-          id={`settings-${pageSlug}-title`}
-          data-cy={`settings-${pageSlug}-title`}
-        >
-          Employment Type
-        </h1>
-
-        <div
-          className="flex items-center space-x-2"
-          id={`settings-${pageSlug}-actions`}
-          data-cy={`settings-${pageSlug}-actions`}
-        >
-          <AccessGuard
-            permissions={[Permissions.CreateEmploymentType]}
-            id="settings-employment-type-add-btn-guard"
-            data-cy="settings-employment-type-add-btn-guard"
-          >
-            {/* Desktop button */}
-            <Button
-              className="hidden sm:flex items-center justify-center space-x-2 px-4 py-2 font-bold bg-[#3636F0] text-white hover:bg-[#2d2dbf] border-none"
-              onClick={showDrawer}
-              id={`settings-${pageSlug}-add-btn-desktop`}
-              data-cy={`settings-${pageSlug}-add-btn-desktop`}
-            >
-              <FaPlus
-                className="text-white"
-                id={`settings-${pageSlug}-add-icon-desktop`}
-                data-cy={`settings-${pageSlug}-add-icon-desktop`}
-              />
-              <span
-                id={`settings-${pageSlug}-add-text-desktop`}
-                data-cy={`settings-${pageSlug}-add-text-desktop`}
-              >
-                Add New Type
-              </span>
-            </Button>
-
-            {/* Mobile button */}
-            <Button
-              className="flex sm:hidden h-10 w-10 sm:w-auto"
-              onClick={showDrawer}
-              type="primary"
-              icon={<FaPlus />}
-              id={`settings-${pageSlug}-add-btn-mobile`}
-              data-cy={`settings-${pageSlug}-add-btn-mobile`}
-            />
-          </AccessGuard>
-        </div>
-      </div>
-
       <EmployementTypeSideDrawer
         onClose={onClose}
         editingEmploymentType={editingEmploymentType}
@@ -211,110 +114,205 @@ const EmploymentType = () => {
       />
 
       <div
-        className="overflow-x-auto w-full scrollbar-none"
-        id={`settings-${pageSlug}-table-wrapper`}
-        data-cy={`settings-${pageSlug}-table-wrapper`}
+        className="w-full"
+        id={`settings-${pageSlug}-cards-wrapper`}
+        data-cy={`settings-${pageSlug}-cards-wrapper`}
       >
-        {isLoading ? (
-          <div
-            className="flex justify-center items-center h-20"
-            id={`settings-${pageSlug}-loader`}
-            data-cy={`settings-${pageSlug}-loader`}
-          >
-            <Spin size="large" data-cy={`settings-${pageSlug}-loader-spin`} />
-          </div>
-        ) : (
-          <div
-            id={`settings-${pageSlug}-table-section`}
-            data-cy={`settings-${pageSlug}-table-section`}
-          >
-            <Table
-              columns={[
-                ...columns,
-                {
-                  key: 'actions',
-                  render: (record: any) => (
-                    <div
-                      className="flex gap-4"
-                      id={`employment-type-row-actions-${record.__slug}`}
-                      data-cy={`employment-type-row-actions-${record.__slug}`}
+        <div
+          id={`settings-${pageSlug}-cards-section`}
+          data-cy={`settings-${pageSlug}-cards-section`}
+        >
+          <Row gutter={[16, 16]}>
+            {isLoading ? (
+              <>
+                {Array.from({ length: 4 }).map((notUsed, index) => (
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={12}
+                    lg={12}
+                    xl={12}
+                    key={index}
+                    id={`employment-type-card-skeleton-col-${index}`}
+                    data-cy={`employment-type-card-skeleton-col-${index}`}
+                  >
+                    <Card
+                      className="border-[1px] border-[#D9D9D9] rounded-lg"
+                      id={`employment-type-card-skeleton-${index}`}
+                      data-cy={`employment-type-card-skeleton-${index}`}
+                      headStyle={{
+                        borderBottom: 'none',
+                        padding: '12px 16px 12px 16px',
+                      }}
+                      bodyStyle={{ padding: '0px 16px 12px 16px' }}
+                      title={
+                        <Skeleton.Input
+                          active
+                          className="!w-48 !min-w-0"
+                          data-cy={`employment-type-card-skeleton-title-${index}`}
+                        />
+                      }
+                      extra={
+                        <Skeleton.Button
+                          active
+                          size="small"
+                          data-cy={`employment-type-card-skeleton-menu-${index}`}
+                        />
+                      }
                     >
+                      <Skeleton
+                        active
+                        paragraph={{ rows: 2 }}
+                        title={false}
+                        data-cy={`employment-type-card-skeleton-body-${index}`}
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </>
+            ) : (
+              reformattedData?.map((record: any) => {
+                const menuItems: MenuProps['items'] = [
+                  {
+                    key: 'edit',
+                    label: (
                       <AccessGuard
                         permissions={[Permissions.UpdateEmploymentType]}
-                        id="settings-employment-type-edit-btn-guard"
-                        data-cy="settings-employment-type-edit-btn-guard"
+                        id={`settings-employment-type-edit-menu-guard-${record.__slug}`}
+                        data-cy={`settings-employment-type-edit-menu-guard-${record.__slug}`}
                       >
-                        <button
-                          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#366CF0]"
+                        <div
+                          className="flex items-center gap-2"
                           onClick={() => handleEdit(record)}
-                          aria-label="Edit"
-                          type="button"
-                          id={`employment-type-edit-btn-${record.__slug}`}
-                          data-cy={`employment-type-edit-btn-${record.__slug}`}
+                          id={`employment-type-edit-menu-item-${record.__slug}`}
+                          data-cy={`employment-type-edit-menu-item-${record.__slug}`}
                         >
-                          <Pencil
-                            size={15}
-                            className="text-white cursor-pointer"
-                            data-cy="settings-employment-type-edit-btn-icon"
-                          />
-                        </button>
+                          <Pencil size={14} className="text-gray-600" />
+                          <span data-cy="settings-employment-type-edit-menu-item-label">
+                            Edit
+                          </span>
+                        </div>
                       </AccessGuard>
+                    ),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
                       <AccessGuard
                         permissions={[Permissions.DeleteEmploymentType]}
-                        id="settings-employment-type-delete-btn-guard"
-                        data-cy="settings-employment-type-delete-btn-guard"
+                        id={`settings-employment-type-delete-menu-guard-${record.__slug}`}
+                        data-cy={`settings-employment-type-delete-menu-guard-${record.__slug}`}
                       >
-                        <button
-                          className="w-10 h-10  flex items-center justify-center rounded-xl bg-[#E03137]"
+                        <div
+                          className="flex items-center gap-2 text-red-600"
                           onClick={() => handleDelete(record)}
-                          aria-label="Delete"
-                          type="button"
-                          id={`employment-type-delete-btn-${record.__slug}`}
-                          data-cy={`employment-type-delete-btn-${record.__slug}`}
+                          id={`employment-type-delete-menu-item-${record.__slug}`}
+                          data-cy={`employment-type-delete-menu-item-${record.__slug}`}
                         >
-                          <Trash2
-                            size={15}
-                            className="text-white cursor-pointer"
-                            data-cy="settings-employment-type-delete-btn-icon"
-                            id="settings-employment-type-delete-btn-icon"
-                          />
-                        </button>
+                          <Trash2 size={14} />
+                          <span data-cy="settings-employment-type-delete-menu-item-label">
+                            Delete
+                          </span>
+                        </div>
                       </AccessGuard>
-                    </div>
-                  ),
-                  width: 120,
-                },
-              ]}
-              showHeader={false}
-              dataSource={reformattedData}
-              bordered={true}
-              className="min-w-[320px]"
-              pagination={false}
-              id={`settings-${pageSlug}-table`}
-              data-cy={`settings-${pageSlug}-table`}
-            />
-            {isMobile || isTablet ? (
-              <CustomMobilePagination
-                totalResults={employeTypeData?.meta?.totalItems ?? 0}
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageChange}
-                data-cy="settings-employment-type-mobile-pagination"
-              />
-            ) : (
-              <CustomPagination
-                current={page}
-                total={employeTypeData?.meta?.totalItems ?? 0}
-                pageSize={pageSize}
-                onChange={onPageChange}
-                onShowSizeChange={(pageSize) => {
-                  setPageSize(pageSize);
-                  setPage(1);
-                }}
-              />
+                    ),
+                    danger: true,
+                  },
+                ];
+
+                return (
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={12}
+                    lg={12}
+                    xl={12}
+                    key={record.id}
+                    id={`employment-type-card-col-${record.__slug}`}
+                    data-cy={`employment-type-card-col-${record.__slug}`}
+                  >
+                    <Card
+                      className="border-[1px] border-[#D9D9D9] rounded-lg"
+                      id={`employment-type-card-${record.__slug}`}
+                      data-cy={`employment-type-card-${record.__slug}`}
+                      title={
+                        <Typography.Title
+                          className="!mb-2 !font-normal !text-gray-900 !text-sm"
+                          id={`employment-type-card-title-${record.__slug}`}
+                          data-cy={`employment-type-card-title-${record.__slug}`}
+                        >
+                          {record.name}
+                        </Typography.Title>
+                      }
+                      extra={
+                        <div
+                          id={`employment-type-dropdown-${record.__slug}`}
+                          data-cy={`employment-type-dropdown-${record.__slug}`}
+                        >
+                          <Dropdown
+                            menu={{ items: menuItems }}
+                            trigger={['click']}
+                            placement="bottomRight"
+                          >
+                            <Button
+                              type="text"
+                              icon={<MoreHorizIcon />}
+                              className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50"
+                              id={`employment-type-menu-btn-${record.__slug}`}
+                              data-cy={`employment-type-menu-btn-${record.__slug}`}
+                            />
+                          </Dropdown>
+                        </div>
+                      }
+                      headStyle={{
+                        borderBottom: 'none',
+                        padding: '12px 16px 12px 16px',
+                      }}
+                      bodyStyle={{ padding: '0px 16px 12px 16px' }}
+                    >
+                      <p
+                        data-cy="settings-employment-type-description"
+                        className="text-sm text-[#8c8c8c] text-wrap font-normal"
+                      >
+                        {record.description || 'No description provided'}
+                      </p>
+                    </Card>
+                  </Col>
+                );
+              })
             )}
-          </div>
-        )}
+          </Row>
+          {/* {isMobile || isTablet ? (
+              <div
+                data-cy="settings-employment-type-mobile-pagination-container"
+                className="mt-4"
+              >
+                <CustomMobilePagination
+                  totalResults={employeTypeData?.meta?.totalItems ?? 0}
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
+                  data-cy="settings-employment-type-mobile-pagination"
+                />
+              </div>
+            ) : (
+              <div
+                data-cy="settings-employment-type-pagination-container"
+                className="mt-4"
+              >
+                <CustomPagination
+                  current={page}
+                  total={employeTypeData?.meta?.totalItems ?? 0}
+                  pageSize={pageSize}
+                  onChange={onPageChange}
+                  onShowSizeChange={(pageSize) => {
+                    setPageSize(pageSize);
+                    setPage(1);
+                  }}
+                />
+              </div>
+            )} */}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, Form, Select } from 'antd';
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { Button, Form, Modal, Select } from 'antd';
 import { useGetCandidates } from '@/store/server/features/recruitment/tallentPool/query';
 import { useCreateTalentPoolCandidate } from '@/store/server/features/recruitment/tallentPool/mutation';
 import { useGetTalentPoolCategory } from '@/store/server/features/recruitment/tallentPoolCategory/query';
@@ -44,153 +43,168 @@ const AddCandidate: React.FC<AddCandidateProps> = ({ open, onClose }) => {
   };
 
   return (
-    <CustomDrawerLayout
-      data-cy="talent-acquisition-talent-pool-drawer-add-candidate"
-      open={open}
-      onClose={onClose}
-      modalHeader={
-        <div
-          id="talent-acquisition-talent-pool-drawer-header"
-          data-cy="talent-acquisition-talent-pool-drawer-header"
-          className="flex justify-start  text-xl font-extrabold text-gray-800"
+    <Modal
+      data-cy="talent-acquisition-talent-pool-drawer"
+      title={
+        <span
+          data-cy="talent-acquisition-talent-pool-drawer-title"
+          className="text-xl font-bold text-black"
         >
-          Add New Candidate
-        </div>
+          Add Candidate
+        </span>
       }
-      width="40%"
+      open={open}
+      onCancel={onClose}
       footer={
         <div
           id="talent-acquisition-talent-pool-drawer-footer"
           data-cy="talent-acquisition-talent-pool-drawer-footer"
-          className="flex justify-center items-center space-x-5 p-2"
+          className="flex justify-end items-center gap-2 pb-6 sm:px-6"
         >
           <Button
+            type="default"
             id="talent-acquisition-talent-pool-button-cancel"
             data-cy="talent-acquisition-talent-pool-button-cancel"
             onClick={() => {
               form.resetFields();
               onClose();
             }}
-            className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300 "
+            className="h-8 border-[1px] border-[#d9d9d9] font-normal"
           >
             Cancel
           </Button>
           <Button
+            type="primary"
             id="talent-acquisition-talent-pool-button-submit"
             data-cy="talent-acquisition-talent-pool-button-submit"
-            className=" p-4 px-10 h-10"
-            type="primary"
+            className="h-8 font-normal"
             onClick={onSubmit}
           >
             Submit
           </Button>
         </div>
       }
+      zIndex={10002}
+      width={620}
     >
-      <Form
-        id="talent-acquisition-talent-pool-form-add-candidate"
-        data-cy="talent-acquisition-talent-pool-form-add-candidate"
-        // className="h-full"
-        form={form}
-        layout="vertical"
-        requiredMark={CustomLabel}
+      <div
+        data-cy="talent-acquisition-talent-pool-drawer-body"
+        className="pt-10 sm:px-6"
       >
-        <Form.Item
-          label={
-            <span
-              id="talent-acquisition-talent-pool-form-label-candidate"
-              data-cy="talent-acquisition-talent-pool-form-label-candidate"
-              className="text-md my-2 font-semibold text-gray-700"
-            >
-              Candidate
-            </span>
-          }
-          name="candidateId"
-          rules={[{ required: true, message: 'Please select a candidate!' }]}
+        <div
+          data-cy="talent-acquisition-talent-pool-drawer-body-form"
+          className="border-[1px] border-[#d9d9d9] rounded-lg py-4 px-4"
         >
-          <Select
-            id="talent-acquisition-talent-pool-select-candidate"
-            data-cy="talent-acquisition-talent-pool-select-candidate"
-            placeholder="Select a candidate"
-            className="h-10"
-            showSearch
-            allowClear
-            filterOption={(input, option) =>
-              String(option?.children ?? '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
+          <Form
+            id="talent-acquisition-talent-pool-form-add-candidate"
+            data-cy="talent-acquisition-talent-pool-form-add-candidate"
+            // className="h-full"
+            form={form}
+            layout="vertical"
+            requiredMark={CustomLabel}
           >
-            {candidates?.items?.map((candidate: any) => (
-              <Select.Option
-                key={candidate.id}
-                value={candidate.id}
-                id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
-                data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
-              >
-                {candidate?.fullName}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label={
-            <span
-              data-cy="talent-acquisition-talent-pool-form-label-category"
-              className="text-md my-2 font-semibold text-gray-700"
+            <Form.Item
+              label={
+                <span
+                  id="talent-acquisition-talent-pool-form-label-candidate"
+                  data-cy="talent-acquisition-talent-pool-form-label-candidate"
+                  className="text-sm my-2 font-normal text-black"
+                >
+                  Candidate
+                </span>
+              }
+              name="candidateId"
+              rules={[
+                { required: true, message: 'Please select a candidate!' },
+              ]}
             >
-              Category
-            </span>
-          }
-          name="category"
-          rules={[{ required: true, message: 'Please select a category!' }]}
-        >
-          <Select
-            id="talent-acquisition-talent-pool-select-category"
-            data-cy="talent-acquisition-talent-pool-select-category"
-            placeholder="Select a talent pool category"
-            className="h-10"
-            showSearch
-            allowClear
-            filterOption={(input, option) =>
-              String(option?.children ?? '')
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          >
-            {talentPoolCategory?.items?.map((item: any) => (
-              <Select.Option
-                key={item.id}
-                value={item?.id}
-                id={`talent-acquisition-talent-pool-option-category-${item.id}`}
-                data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}
+              <Select
+                id="talent-acquisition-talent-pool-select-candidate"
+                data-cy="talent-acquisition-talent-pool-select-candidate"
+                placeholder="Select a candidate"
+                className="h-8"
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  String(option?.children ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
               >
-                {item?.title}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label={
-            <span
-              data-cy="talent-acquisition-talent-pool-form-label-reason"
-              className="text-md my-2 font-semibold text-gray-700"
+                {candidates?.items?.map((candidate: any) => (
+                  <Select.Option
+                    key={candidate.id}
+                    value={candidate.id}
+                    id={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
+                    data-cy={`talent-acquisition-talent-pool-option-candidate-${candidate.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
+                  >
+                    {candidate?.fullName}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span
+                  data-cy="talent-acquisition-talent-pool-form-label-category"
+                  className="text-sm my-2 font-normal text-black"
+                >
+                  Category
+                </span>
+              }
+              name="category"
+              rules={[{ required: true, message: 'Please select a category!' }]}
             >
-              Reason
-            </span>
-          }
-          name="reason"
-          rules={[{ required: true, message: 'Please input the reason!' }]}
-        >
-          <TextArea
-            id="talent-acquisition-talent-pool-textarea-reason"
-            data-cy="talent-acquisition-talent-pool-textarea-reason"
-            rows={6}
-            placeholder="Reason for selecting candidate"
-          />
-        </Form.Item>
-      </Form>
-    </CustomDrawerLayout>
+              <Select
+                id="talent-acquisition-talent-pool-select-category"
+                data-cy="talent-acquisition-talent-pool-select-category"
+                placeholder="Select a talent pool category"
+                className="h-8"
+                showSearch
+                allowClear
+                filterOption={(input, option) =>
+                  String(option?.children ?? '')
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                {talentPoolCategory?.items?.map((item: any) => (
+                  <Select.Option
+                    key={item.id}
+                    value={item?.id}
+                    id={`talent-acquisition-talent-pool-option-category-${item.id}`}
+                    data-cy={`talent-acquisition-talent-pool-option-category-${item.id}`}
+                    className="hover:bg-[#E6F4FF] [&.ant-select-item-option-selected]:!bg-[#E6F4FF]"
+                  >
+                    {item?.title}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Form.Item
+              label={
+                <span
+                  data-cy="talent-acquisition-talent-pool-form-label-reason"
+                  className="text-sm my-2 font-normal text-black"
+                >
+                  Reason
+                </span>
+              }
+              name="reason"
+              rules={[{ required: true, message: 'Please input the reason!' }]}
+            >
+              <TextArea
+                id="talent-acquisition-talent-pool-textarea-reason"
+                data-cy="talent-acquisition-talent-pool-textarea-reason"
+                placeholder="Reason for selecting candidate"
+                className="h-14"
+              />
+            </Form.Item>
+          </Form>
+        </div>
+      </div>
+    </Modal>
   );
 };
 /* eslint-disable @typescript-eslint/naming-convention */

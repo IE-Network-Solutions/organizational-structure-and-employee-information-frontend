@@ -21,6 +21,7 @@ const config: Config = {
       },
       colors: {
         primary: '#3636F0',
+        'okr-primary': '#1E40AF',
         secondary: '#1D9BF0',
         success: '#0BA259',
         ['success-second']: '#55c790',
@@ -32,10 +33,16 @@ const config: Config = {
         blue: '#0062FF',
         purple: '#8C62FF',
         light_purple: '#E7E7FF',
-        lightblue: '#d3e4f0',
+        lightblue: '#E6F4FF',
+        lightorange: '#FFFBE6',
+        orangebg: '#fe964a',
+        greenbg: '#52C41A',
+        greenlight: '#F6FFED',
+        errorbg: '#FF4D4F',
+        errorlight: '#FFE5E5',
       },
       fontFamily: {
-        sans: ['Manrope', 'sans-serif'],
+        sans: ['Calibre', 'sans-serif'],
       },
       height: {
         'half-vw': 'calc(50vw)',

@@ -1,10 +1,11 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button, Col, DatePicker, Form, Input, Row, Spin, Popover } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
+
+const { RangePicker } = DatePicker;
 
 interface SessionDrawerProps {
   form: FormInstance;
@@ -26,7 +27,6 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   isUpdateLoading,
 }) => {
   const { isMobile } = useIsMobile();
-
   // Ref to track last processed fiscal year dates to avoid infinite loops
   const lastProcessedFiscalYearRef = useRef<{
     start: string | null;
@@ -117,7 +117,15 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       ) {
         const newSessionData = generateSessionData();
         setSessionData(newSessionData);
-        form.setFieldsValue({ sessionData: newSessionData });
+        // Set form values including date ranges
+        const formValues = newSessionData.map((session) => ({
+          ...session,
+          sessionDateRange:
+            session.sessionStartDate && session.sessionEndDate
+              ? [session.sessionStartDate, session.sessionEndDate]
+              : null,
+        }));
+        form.setFieldsValue({ sessionData: formValues });
         form.validateFields();
 
         // Update the ref to track the processed dates
@@ -144,6 +152,10 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
         sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
         sessionDescription: session.description || '',
+        sessionDateRange:
+          session.startDate && session.endDate
+            ? [dayjs(session.startDate), dayjs(session.endDate)]
+            : null,
       }));
       setSessionData(updatedSessionData);
       form.setFieldsValue({ sessionData: updatedSessionData });
@@ -359,131 +371,115 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   const renderSessionForm = useCallback(
     (session: SessionData, index: number) => (
       <div
-        className="px-3 sm:px-0"
         key={index}
+        className="mb-4"
         data-cy={`org-settings-fiscal-year-session-${index}`}
         id={`org-settings-fiscal-year-session-${index}`}
       >
-        <Form.Item
-          name={['sessionData', index, 'sessionName']}
-          label={
-            <span
-              className="font-medium"
-              data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-1"
-              id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-1"
-            >
-              Session {index + 1} Name
-            </span>
-          }
-          rules={[
-            { required: true, message: 'Please input the session name!' },
-          ]}
-          data-cy={`org-settings-fiscal-year-session-name-${index}`}
-          id={`org-settings-fiscal-year-session-name-${index}`}
-        >
-          <Input
-            size="large"
-            className="w-full font-normal text-sm"
-            placeholder="Enter session name"
-            data-cy={`org-settings-fiscal-year-session-name-input-${index}`}
-            id={`org-settings-fiscal-year-session-name-input-${index}`}
-          />
-        </Form.Item>
-
-        <Row
-          gutter={[16, 6]}
-          className="mb-4"
-          data-cy={`org-settings-fiscal-year-session-dates-${index}`}
-          id={`org-settings-fiscal-year-session-dates-${index}`}
-        >
+        <Row gutter={8} align="middle">
           <Col
-            xs={24}
-            sm={24}
-            md={12}
-            lg={12}
-            xl={12}
-            data-cy={`org-settings-fiscal-year-session-start-date-col-${index}`}
-            id={`org-settings-fiscal-year-session-start-date-col-${index}`}
+            span={isMobile ? undefined : 12}
+            flex={isMobile ? 'auto' : undefined}
+            style={isMobile ? { minWidth: 0 } : undefined}
           >
             <Form.Item
-              name={['sessionData', index, 'sessionStartDate']}
-              label={`Session ${index + 1} Start Date`}
+              name={['sessionData', index, 'sessionName']}
               rules={[
-                {
-                  required: true,
-                  message: 'Please input the session Start Date!',
-                },
-                { validator: validateSessionStartDate },
+                { required: true, message: 'Please input the session name!' },
               ]}
-              data-cy={`org-settings-fiscal-year-session-start-date-${index}`}
-              id={`org-settings-fiscal-year-session-start-date-${index}`}
+              data-cy={`org-settings-fiscal-year-session-name-${index}`}
+              id={`org-settings-fiscal-year-session-name-${index}`}
+              className="mb-0"
             >
-              <DatePicker
-                format="YYYY-MM-DD"
-                className="w-full"
-                data-cy={`org-settings-fiscal-year-session-start-date-input-${index}`}
-                id={`org-settings-fiscal-year-session-start-date-input-${index}`}
+              <Input
+                size="middle"
+                className="w-full font-normal text-sm h-8"
+                placeholder="Enter session name"
+                data-cy={`org-settings-fiscal-year-session-name-input-${index}`}
+                id={`org-settings-fiscal-year-session-name-input-${index}`}
               />
             </Form.Item>
           </Col>
           <Col
-            xs={24}
-            sm={24}
-            md={12}
-            lg={12}
-            xl={12}
-            data-cy={`org-settings-fiscal-year-session-end-date-col-${index}`}
-            id={`org-settings-fiscal-year-session-end-date-col-${index}`}
+            span={isMobile ? undefined : 12}
+            flex={isMobile ? 'none' : undefined}
           >
             <Form.Item
-              name={['sessionData', index, 'sessionEndDate']}
-              label={`Session ${index + 1} End Date`}
+              name={['sessionData', index, 'sessionDateRange']}
+              getValueFromEvent={(dates) => {
+                if (dates && dates.length === 2) {
+                  handleSessionChange(index, 'sessionStartDate', dates[0]);
+                  handleSessionChange(index, 'sessionEndDate', dates[1]);
+                  return dates;
+                }
+                handleSessionChange(index, 'sessionStartDate', null);
+                handleSessionChange(index, 'sessionEndDate', null);
+                return null;
+              }}
+              normalize={(value) => {
+                // When form values are set programmatically, convert from individual dates to range
+                if (!value && sessionData[index]) {
+                  const session = sessionData[index];
+                  if (session.sessionStartDate && session.sessionEndDate) {
+                    return [session.sessionStartDate, session.sessionEndDate];
+                  }
+                }
+                return value;
+              }}
               rules={[
                 {
                   required: true,
-                  message: 'Please input the session End Date!',
+                  message: 'Please select the session date range!',
                 },
-                { validator: validateSessionEndDate },
+                {
+                  validator: async (unused, value) => {
+                    if (!value || !Array.isArray(value) || value.length !== 2) {
+                      return Promise.reject(
+                        new Error('Please select both start and end dates!'),
+                      );
+                    }
+                    const [startDate, endDate] = value;
+                    // Validate start date
+                    const startDateError = await validateSessionStartDate(
+                      { field: `sessionData.${index}.sessionStartDate` },
+                      startDate,
+                    ).catch((err) => err);
+                    if (startDateError) {
+                      return Promise.reject(startDateError);
+                    }
+                    // Validate end date
+                    const endDateError = await validateSessionEndDate(
+                      { field: `sessionData.${index}.sessionEndDate` },
+                      endDate,
+                    ).catch((err) => err);
+                    if (endDateError) {
+                      return Promise.reject(endDateError);
+                    }
+                    return Promise.resolve();
+                  },
+                },
               ]}
-              data-cy={`org-settings-fiscal-year-session-end-date-${index}`}
-              id={`org-settings-fiscal-year-session-end-date-${index}`}
+              data-cy={`org-settings-fiscal-year-session-date-range-${index}`}
+              id={`org-settings-fiscal-year-session-date-range-${index}`}
+              className="mb-0"
             >
-              <DatePicker
+              <RangePicker
+                size="middle"
                 format="YYYY-MM-DD"
-                className="w-full"
-                data-cy={`org-settings-fiscal-year-session-end-date-input-${index}`}
-                id={`org-settings-fiscal-year-session-end-date-input-${index}`}
+                className={
+                  isMobile
+                    ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
+                    : 'w-full h-8 [&_.ant-picker-input]:h-8'
+                }
+                data-cy={`org-settings-fiscal-year-session-date-range-input-${index}`}
+                id={`org-settings-fiscal-year-session-date-range-input-${index}`}
               />
             </Form.Item>
           </Col>
         </Row>
-
-        <Form.Item
-          name={['sessionData', index, 'sessionDescription']}
-          label={
-            <span
-              className="font-medium"
-              data-cy="org-fiscalyear-customdrawer-steps-sessiondrawer-span-2"
-              id="org-fiscalyear-customdrawer-steps-sessiondrawer-span-2"
-            >
-              Description
-            </span>
-          }
-          data-cy={`org-settings-fiscal-year-session-description-${index}`}
-          id={`org-settings-fiscal-year-session-description-${index}`}
-        >
-          <TextArea
-            placeholder="Enter description"
-            rows={2}
-            className="h-32 font-normal text-sm mt-2"
-            size="large"
-            data-cy={`org-settings-fiscal-year-session-description-input-${index}`}
-            id={`org-settings-fiscal-year-session-description-input-${index}`}
-          />
-        </Form.Item>
       </div>
     ),
-    [handleSessionChange, validateSessionStartDate, validateSessionEndDate],
+    [validateSessionStartDate, validateSessionEndDate],
   );
 
   return (
@@ -493,46 +489,81 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       id="org-settings-fiscal-year-session-drawer-container"
     >
       <div
-        className="flex justify-start items-center gap-2 font-bold text-2xl text-black my-2 px-2"
-        data-cy="org-settings-fiscal-year-session-drawer-title"
-        id="org-settings-fiscal-year-session-drawer-title"
+        className="px-0 -mt-2"
+        data-cy="org-settings-fiscal-year-session-drawer-description-container"
       >
-        Set up Session
+        <p
+          className="text-sm text-[rgba(0,0,0,0.45)] mb-4"
+          data-cy="org-settings-fiscal-year-session-drawer-description"
+        >
+          {calendarType === 'Semester' &&
+            'For Biannually Selections Fiscal Year months must be separated between 6 months for each session. You can change the fiscal year any time you wish with in the system.'}
+          {calendarType === 'Quarter' &&
+            'For Quarterly Selections Fiscal Year months must be separated between 3 months for each session. You can change the fiscal year any time you wish with in the system.'}
+          {calendarType === 'Year' &&
+            'For Yearly Selections Fiscal Year months will be divided throughout 12 months. You can change the fiscal year any time you wish with in the system.'}
+        </p>
       </div>
 
       <Form
         form={form}
         layout="vertical"
+        requiredMark={(label, { required }) => (
+          <>
+            <span data-cy="org-settings-fiscal-year-session-drawer-form-label">
+              {label}
+            </span>
+            {required && (
+              <span
+                className="text-red-500 ml-1"
+                data-cy="org-settings-fiscal-year-session-drawer-form-required-astrix"
+              >
+                *
+              </span>
+            )}
+          </>
+        )}
         onValuesChange={(nonused, allValues) => {
           setSessionData(allValues.sessionData);
         }}
         onFieldsChange={updateErrorState}
         data-cy="org-settings-fiscal-year-session-drawer-form"
         id="org-settings-fiscal-year-session-drawer-form"
-        className="px-4"
+        className="px-0"
       >
-        {sessionData.map((session, index) => renderSessionForm(session, index))}
+        <div
+          className="px-2 py-1 border border-gray-200 rounded-lg"
+          data-cy="org-settings-fiscal-year-session-drawer-sessions-container"
+        >
+          <h3
+            className="font-bold text-base mb-4"
+            data-cy="org-settings-fiscal-year-session-drawer-sessions-title"
+          >
+            Sessions
+          </h3>
+          {sessionData.map((session, index) =>
+            renderSessionForm(session, index),
+          )}
+        </div>
 
         <Form.Item
-          className="mb-0"
+          className="mb-0 mt-4"
           data-cy="org-settings-fiscal-year-session-previous-btn-form-item"
           id="org-settings-fiscal-year-session-previous-btn-form-item"
         >
           <div
-            className={`flex justify-center pt-3 pb-3 sm:p-2 space-x-5 ${
-              isMobile ? 'shadow-[10px_20px_50px_0px_#00000033]' : 'shadow-none'
-            }`}
+            className={`flex justify-end w-full pt-2 pb-0  gap-3 shadow-none`}
             data-cy="org-settings-fiscal-year-session-previous-btn-container"
             id="org-settings-fiscal-year-session-previous-btn-container"
           >
             <Button
               type="default"
               onClick={handlePrevious}
-              className="flex justify-center text-sm font-medium p-4 px-10 h-10"
+              className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-session-previous-btn"
               id="org-settings-fiscal-year-session-previous-btn"
             >
-              Previous
+              Reset
             </Button>
             <Popover
               content={hasErrors && firstErrorMsg ? firstErrorMsg : ''}
@@ -548,7 +579,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
                 <Button
                   type="primary"
                   onClick={handleNext}
-                  className="flex justify-center text-sm font-medium text-white bg-primary p-4 px-10 h-10 border-none"
+                  className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 min-w-[100px]"
                   disabled={hasErrors}
                   data-cy="org-settings-fiscal-year-session-next-btn"
                   id="org-settings-fiscal-year-session-next-btn"

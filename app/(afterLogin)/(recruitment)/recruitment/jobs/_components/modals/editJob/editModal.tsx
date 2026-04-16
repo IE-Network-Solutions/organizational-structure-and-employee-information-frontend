@@ -5,7 +5,7 @@ import {
   Input,
   Select,
   DatePicker,
-  Spin,
+  Skeleton,
   InputNumber,
 } from 'antd';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
@@ -17,6 +17,7 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { TaRequiredMark } from '../../../../_components/taRequiredMark';
 
 const { Option } = Select;
 
@@ -98,21 +99,22 @@ const EditJob: React.FC = () => {
           <Form.Item>
             <div
               data-cy="-components-modals-editjob-editmodal-tsx-editmodal-div-97"
-              className="flex justify-center absolute w-full space-x-5 pb-2 bg-white "
+              className="flex justify-center gap-2 pb-2 pt-1"
             >
               <Button
                 id="talent-acquisition-edit-job-button-cancel"
                 data-cy="talent-acquisition-edit-job-button-cancel"
                 onClick={handleEditModalClose}
-                className="flex justify-center text-sm font-medium text-gray-800 bg-white p-4 px-10 h-10 hover:border-gray-500 border-gray-300"
+                className="!h-9 !min-w-[120px] !border-[#D9D9D9] !bg-white !px-4 !text-[14px] !font-normal !text-[rgba(0,0,0,0.7)] hover:!border-[#1E40AF] hover:!text-[#1E40AF]"
               >
                 Cancel
               </Button>
               <Button
                 id="talent-acquisition-edit-job-button-update"
                 data-cy="talent-acquisition-edit-job-button-update"
+                type="primary"
                 onClick={() => form.submit()}
-                className="flex justify-center border-none text-sm font-medium text-white bg-primary p-4 px-10 h-10"
+                className="!h-9 !min-w-[120px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
               >
                 Update Job
               </Button>
@@ -135,9 +137,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-131"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Job Name
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-job-title" />
               </span>
             }
             rules={[
@@ -161,9 +164,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-154"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Employment Type
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-employment-type" />
               </span>
             }
             rules={[
@@ -197,9 +201,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-187"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Department
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-department" />
               </span>
             }
             rules={[
@@ -220,7 +225,7 @@ const EditJob: React.FC = () => {
                   data-cy="-components-modals-editjob-editmodal-tsx-editmodal-div-205"
                   className="flex items-center justify-center h-30"
                 >
-                  <Spin size="small" />
+                  <Skeleton.Button active size="small" />
                 </div>
               )}
               {departments &&
@@ -241,9 +246,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-225"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Location
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-location" />
               </span>
             }
             rules={[
@@ -276,9 +282,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-257"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Years of Experience
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-years" />
               </span>
             }
             rules={[
@@ -304,9 +311,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-282"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Job Status
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-status" />
               </span>
             }
             rules={[
@@ -343,9 +351,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-318"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Compensation
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-compensation" />
               </span>
             }
             rules={[
@@ -380,9 +389,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-352"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Quantity
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-quantity" />
               </span>
             }
             rules={[
@@ -406,9 +416,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-375"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Expected Closing Date
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-deadline" />
               </span>
             }
             rules={[
@@ -418,7 +429,12 @@ const EditJob: React.FC = () => {
               },
               {
                 validator({}, value) {
-                  if (!value || value.isAfter(dayjs(), 'day')) {
+                  const today = dayjs();
+                  if (
+                    !value ||
+                    value.isAfter(today, 'day') ||
+                    value.isSame(today, 'day')
+                  ) {
                     return Promise.resolve();
                   }
                   return Promise.reject(
@@ -442,9 +458,10 @@ const EditJob: React.FC = () => {
             label={
               <span
                 data-cy="-components-modals-editjob-editmodal-tsx-editmodal-span-408"
-                className="text-md my-2 font-semibold text-gray-700"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
               >
                 Description
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-description" />
               </span>
             }
             rules={[

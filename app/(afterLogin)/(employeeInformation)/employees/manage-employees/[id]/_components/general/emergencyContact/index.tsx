@@ -1,17 +1,19 @@
 import React from 'react';
 import { Card, Col, Input, Form, Row, Button, Select } from 'antd';
-
 import {
   EditState,
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { LuPencil } from 'react-icons/lu';
-import { InfoLine } from '../../common/infoLine';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import { validateField } from '../../../../_components/formValidator';
+import dayjs from 'dayjs';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+
 const { Option } = Select;
 
 function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
@@ -66,28 +68,130 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
     nationality: 'Nationality',
   };
 
+  const getDisplayValue = (key: string, val: unknown): string => {
+    if (key === 'nationality') {
+      return (
+        nationalities?.items?.find((item: any) => item.id === val)?.name || '-'
+      );
+    }
+    if (key === 'gender' && val) {
+      const s = String(val);
+      return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+    if (val === null || val === undefined || val === '') return '-';
+    const str = String(val);
+    if (dayjs(str, ['YYYY-MM-DD', 'DD/MM/YYYY'], true).isValid()) {
+      return dayjs(str).format('DD MMMM, YYYY');
+    }
+    return str;
+  };
+
+  const getLabel = (key: string, customLabel?: string): string => {
+    if (customLabel) return customLabel;
+    return (
+      titleMap[key] ||
+      key
+        .split(/_|(?=[A-Z])/)
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(' ')
+    );
+  };
+
+  const fullName =
+    `${allFields.firstName || ''} ${allFields.middleName || ''} ${allFields.lastName || ''}`.trim() ||
+    '-';
+  const customLabel = (field: any) => field.label || getLabel(field.fieldName);
+  const leftItems: { label: string; value: string }[] = [
+    { label: 'Full Name', value: fullName },
+    { label: 'Gender', value: getDisplayValue('gender', allFields.gender) },
+    ...emergencyContactFields.slice(0, 1).map((field: any) => ({
+      label: customLabel(field),
+      value: getDisplayValue(field.fieldName, allFields[field.fieldName]),
+    })),
+  ];
+  const rightItems: { label: string; value: string }[] = [
+    {
+      label: 'Phone Number',
+      value: getDisplayValue('phoneNumber', allFields.phoneNumber),
+    },
+    {
+      label: 'Nationality',
+      value: getDisplayValue('nationality', allFields.nationality),
+    },
+    ...emergencyContactFields.slice(1).map((field: any) => ({
+      label: customLabel(field),
+      value: getDisplayValue(field.fieldName, allFields[field.fieldName]),
+    })),
+  ];
+
+  const FieldBlock = ({
+    label,
+    value,
+    dataCy,
+  }: {
+    label: string;
+    value: string;
+    dataCy: string;
+  }) => (
+    <div className="mb-5" id={dataCy} data-cy={dataCy}>
+      <p
+        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </p>
+      <p
+        className="text-base font-normal text-[#4d4d4d] m-0"
+        data-cy={`${dataCy}-value`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+
   return (
     <Card
       loading={isLoading}
-      title="Emergency Contact"
-      extra={
-        <AccessGuard
-          permissions={[Permissions.UpdateEmployeeDetails]}
-          selfShouldAccess
-          id={id}
-          data-cy="emergency-contact-edit-guard"
-        >
-          <LuPencil
-            className="cursor-pointer"
-            onClick={() => handleEditChange('emergencyContact')}
-            id="emergency-contact-edit-icon"
-            data-cy="emergency-contact-edit-icon"
-          />
-        </AccessGuard>
+      title={
+        !edit.emergencyContact ? (
+          <span
+            className="text-base font-bold text-[#4d4d4d]"
+            data-cy="emergency-contact-card-title"
+          >
+            Emergency Contact Information
+          </span>
+        ) : null
       }
-      className="my-6"
+      extra={
+        !edit.emergencyContact ? (
+          <AccessGuard
+            permissions={[Permissions.UpdateEmployeeDetails]}
+            selfShouldAccess
+            id={id}
+            data-cy="emergency-contact-edit-guard"
+          >
+            <button
+              onClick={() => handleEditChange('emergencyContact')}
+              className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
+              id="emergency-contact-edit-icon"
+              data-cy="emergency-contact-edit-icon"
+            >
+              <EditOutlinedIcon className="text-sm" />
+            </button>
+          </AccessGuard>
+        ) : null
+      }
+      className="emergency-contact-card rounded-lg border border-gray-200"
       id="emergency-contact-card"
       data-cy="emergency-contact-card"
+      headStyle={{
+        borderBottom: 'none',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+      }}
+      bodyStyle={{ padding: '12px 16px 12px 16px' }}
     >
       {edit.emergencyContact ? (
         <Form
@@ -100,12 +204,59 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           data-cy="emergency-contact-form"
         >
           <Row
+            justify="space-between"
+            align="middle"
+            className="mb-4 w-full"
+            style={{ width: '100%' }}
+            id="personal-data-update-user-info-header-row"
+            data-cy="personal-data-update-user-info-header-row"
+          >
+            <Col>
+              <span
+                data-cy="emergency-contact-form-title"
+                className="text-sm font-normal text-black"
+              >
+                Emergency Contact Information
+              </span>
+            </Col>
+            <Col>
+              <div
+                data-cy="emergency-contact-form-buttons"
+                className="flex items-center gap-2"
+              >
+                <Button
+                  type="default"
+                  size="small"
+                  onClick={() => setEdit('emergencyContact')}
+                  id="emergency-contact-cancel-btn"
+                  data-cy="emergency-contact-cancel-btn"
+                  className="border border-red-500 h-6 w-6"
+                >
+                  <CloseIcon className="text-red-500 text-[10px]" />
+                </Button>
+                <Button
+                  type="primary"
+                  size="small"
+                  htmlType="submit"
+                  id="emergency-contact-submit-btn"
+                  data-cy="emergency-contact-submit-btn"
+                  className="h-6 w-6"
+                >
+                  <CheckIcon className="text-white text-[10px]" />
+                </Button>
+              </div>
+            </Col>
+          </Row>
+          <Row
             gutter={[16, 24]}
             id="emergency-contact-form-row"
             data-cy="emergency-contact-form-row"
           >
             <Col
-              lg={16}
+              className="w-full"
+              lg={24}
+              sm={24}
+              xs={24}
               id="emergency-contact-form-col"
               data-cy="emergency-contact-form-col"
             >
@@ -223,59 +374,44 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
               ))}
             </Col>
           </Row>
-          <Row
-            id="emergency-contact-submit-row"
-            data-cy="emergency-contact-submit-row"
-          >
-            <Col
-              span={24}
-              style={{ textAlign: 'right' }}
-              id="emergency-contact-submit-col"
-              data-cy="emergency-contact-submit-col"
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-                id="emergency-contact-submit-btn"
-                data-cy="emergency-contact-submit-btn"
-              >
-                Save Changes
-              </Button>
-            </Col>
-          </Row>
         </Form>
       ) : (
         <Row
-          gutter={[16, 24]}
+          gutter={[24, 0]}
           id="emergency-contact-display-row"
           data-cy="emergency-contact-display-row"
         >
           <Col
-            lg={16}
-            id="emergency-contact-display-col"
-            data-cy="emergency-contact-display-col"
+            lg={12}
+            sm={24}
+            id="emergency-contact-display-col-left"
+            data-cy="emergency-contact-display-col-left"
+            className="flex flex-col"
           >
-            {Object.entries(allFields).map(([key, val]) => {
-              const displayValue =
-                key === 'nationality'
-                  ? nationalities?.items?.find((item) => item.id === val)
-                      ?.name || '-'
-                  : val?.toString() || '-';
-              const title =
-                titleMap[key] ||
-                key
-                  .split('_')
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ');
-              return (
-                <InfoLine
-                  key={key}
-                  title={title}
-                  value={displayValue}
-                  data-cy={`emergency-contact-display-${key}-info-line`}
-                />
-              );
-            })}
+            {leftItems.map((item, index) => (
+              <FieldBlock
+                key={item.label + index}
+                label={item.label}
+                value={item.value}
+                dataCy={`emergency-contact-display-${item.label.replace(/\s+/g, '-').toLowerCase()}`}
+              />
+            ))}
+          </Col>
+          <Col
+            lg={12}
+            sm={24}
+            id="emergency-contact-display-col-right"
+            data-cy="emergency-contact-display-col-right"
+            className="flex flex-col"
+          >
+            {rightItems.map((item, index) => (
+              <FieldBlock
+                key={item.label + index}
+                label={item.label}
+                value={item.value}
+                dataCy={`emergency-contact-display-${item.label.replace(/\s+/g, '-').toLowerCase()}-right`}
+              />
+            ))}
           </Col>
         </Row>
       )}

@@ -6,69 +6,119 @@ import {
   CandidateData,
   useCandidateState,
 } from '@/store/uistate/features/recruitment/candidate';
-import {
-  Button,
-  Dropdown,
-  Select,
-  Table,
-  TableColumnsType,
-  Popover,
-  DatePicker,
-  Form,
-} from 'antd';
+import { Dropdown, Select, Table, TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
-import React, { useState, useEffect } from 'react';
-import { FaEye } from 'react-icons/fa';
-import CandidateDetail from '../candidateDetail/page';
-import { FaEllipsisVertical } from 'react-icons/fa6';
-import { FileDown } from 'lucide-react';
-import { useChangeCandidateStatus } from '@/store/server/features/recruitment/candidate/mutation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { BsThreeDots } from 'react-icons/bs';
+import { MdOutlineFileDownload } from 'react-icons/md';
+import {
+  useChangeCandidateStatus,
+  useDeleteCandidate,
+} from '@/store/server/features/recruitment/candidate/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import DeleteCandidate from '../../../../_components/modals/deleteCandidate';
 import EditCandidate from '../../../../_components/modals/editCandidate';
 import MoveToTalentPool from '../../../../_components/modals/moveToTalentPool';
 import { TableRowSelection } from 'antd/es/table/interface';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import CustomPagination from '@/components/customPagination';
+import RecruitmentPagination from '../../../../_components';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 interface TableProps {
   jobId: string;
 }
 
+interface TriggerRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+const ViewDetailIcon = () => (
+  <svg
+    data-cy="talent-acquisition-candidate-table-view-icon"
+    width="15"
+    height="10"
+    viewBox="0 0 15 10"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <path
+      data-cy="talent-acquisition-candidate-table-view-icon-path"
+      d="M7.33333 1.33333C9.86 1.33333 12.1133 2.75333 13.2133 5C12.1133 7.24667 9.86667 8.66667 7.33333 8.66667C4.8 8.66667 2.55333 7.24667 1.45333 5C2.55333 2.75333 4.80667 1.33333 7.33333 1.33333ZM7.33333 0C4 0 1.15333 2.07333 0 5C1.15333 7.92667 4 10 7.33333 10C10.6667 10 13.5133 7.92667 14.6667 5C13.5133 2.07333 10.6667 0 7.33333 0ZM7.33333 3.33333C8.25333 3.33333 9 4.08 9 5C9 5.92 8.25333 6.66667 7.33333 6.66667C6.41333 6.66667 5.66667 5.92 5.66667 5C5.66667 4.08 6.41333 3.33333 7.33333 3.33333ZM7.33333 2C5.68 2 4.33333 3.34667 4.33333 5C4.33333 6.65333 5.68 8 7.33333 8C8.98667 8 10.3333 6.65333 10.3333 5C10.3333 3.34667 8.98667 2 7.33333 2Z"
+      fill="#323232"
+    />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg
+    data-cy="talent-acquisition-candidate-table-edit-icon"
+    width="12"
+    height="12"
+    viewBox="0 0 12 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <path
+      data-cy="talent-acquisition-candidate-table-edit-icon-path"
+      d="M11.8067 2.69333C12.0667 2.43333 12.0667 2.01333 11.8067 1.75333L10.2467 0.193333C10.1133 0.06 9.94667 0 9.77333 0C9.6 0 9.43333 0.0666666 9.30667 0.193333L8.08667 1.41333L10.5867 3.91333L11.8067 2.69333V2.69333ZM0 9.5V12H2.5L9.87333 4.62667L7.37333 2.12667L0 9.5ZM1.94667 10.6667H1.33333V10.0533L7.37333 4.01333L7.98667 4.62667L1.94667 10.6667Z"
+      fill="#323232"
+    />
+  </svg>
+);
+
+const DeleteIcon = () => (
+  <svg
+    data-cy="talent-acquisition-candidate-table-delete-icon"
+    width="10"
+    height="12"
+    viewBox="0 0 10 12"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <path
+      data-cy="talent-acquisition-candidate-table-delete-icon-path"
+      d="M0.666667 10.6667C0.666667 11.4 1.26667 12 2 12H7.33333C8.06667 12 8.66667 11.4 8.66667 10.6667V2.66667H0.666667V10.6667ZM2 4H7.33333V10.6667H2V4ZM7 0.666667L6.33333 0H3L2.33333 0.666667H0V2H9.33333V0.666667H7Z"
+      fill="#323232"
+    />
+  </svg>
+);
+
 const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
   const { data: statusStage } = useGetStages();
   const { mutate: updateJobStatus } = useChangeCandidateStatus();
-  const [hirePopoverVisible, setHirePopoverVisible] = useState<{
-    [key: string]: boolean;
-  }>({});
-  const [hiringCandidateId, setHiringCandidateId] = useState<string | null>(
-    null,
-  );
-  const [hireForm] = Form.useForm();
-
+  const router = useRouter();
   const {
     currentPage,
     pageSize,
     searchParams,
     setCurrentPage,
     setPageSize,
-    setCandidateDetailDrawer,
     setSelectedCandidate,
     setSelectedCandidateID,
     setEditCandidateModal,
     setEditCandidate,
     setDeleteCandidateId,
-    setDeleteCandidateModal,
     setMoveToTalentPoolModal,
     selectedRowKeys,
     setSelectedRowKeys,
   } = useCandidateState();
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteCandidateName, setDeleteCandidateName] = useState('');
+  const [deleteTriggerRect, setDeleteTriggerRect] =
+    useState<TriggerRect | null>(null);
+  const { mutate: deleteCandidate } = useDeleteCandidate();
+
   const handleCandidateDetail = (candidate: any) => {
-    setSelectedCandidate(candidate);
-    setSelectedCandidateID(candidate?.id);
-    setCandidateDetailDrawer(true);
+    router.push(`/recruitment/jobs/${jobId}/candidates/${candidate?.id}`);
   };
   const { isMobile, isTablet } = useIsMobile();
 
@@ -104,54 +154,6 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       });
     }
   };
-  const {
-    mutate: hireCandidate,
-    isLoading: isHireLoading,
-    isSuccess: isHireSuccess,
-    isError: isHireError,
-    reset: resetHireMutation,
-  } = useChangeCandidateStatus();
-  // Effect to handle hire success and error
-  useEffect(() => {
-    if (isHireSuccess && hiringCandidateId) {
-      setHirePopoverVisible((prev) => ({
-        ...prev,
-        [hiringCandidateId]: false,
-      }));
-      hireForm.resetFields();
-      setHiringCandidateId(null);
-      resetHireMutation();
-    }
-    if (isHireError && hiringCandidateId) {
-      setHiringCandidateId(null);
-      resetHireMutation();
-    }
-  }, [
-    isHireSuccess,
-    isHireError,
-    hiringCandidateId,
-    hireForm,
-    resetHireMutation,
-  ]);
-
-  const handleHireCandidate = async (candidate: any) => {
-    try {
-      const values = await hireForm.validateFields();
-      setHiringCandidateId(candidate?.id);
-      hireCandidate({
-        data: { hiredDate: values.hireDate, updatedBy: userId },
-        id: candidate?.jobCandidate[0]?.id,
-      });
-    } catch (error) {
-      setHiringCandidateId(null);
-    }
-  };
-
-  const handleCancelHire = (candidateId: string) => {
-    setHirePopoverVisible((prev) => ({ ...prev, [candidateId]: false }));
-    hireForm.resetFields();
-  };
-
   const columns: TableColumnsType<CandidateData> = [
     {
       title: 'Name',
@@ -159,7 +161,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       sorter: (a, b) => a.candidateName.localeCompare(b.candidateName),
     },
     {
-      title: 'Phone Number',
+      title: 'Phone',
       dataIndex: 'phoneNumber',
       ellipsis: true,
     },
@@ -176,37 +178,81 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     {
       title: 'CV',
       dataIndex: 'cv',
+      align: 'center',
     },
     {
-      title: 'Created Date',
+      title: 'Applied/Created Date',
       dataIndex: 'createdAt',
+    },
+    {
+      title: 'Email',
+      dataIndex: 'email',
+      ellipsis: true,
+      render: (val: string) =>
+        val ? (
+          <a
+            href={`mailto:${val}`}
+            className="text-[#1E40AF] hover:underline"
+            data-cy="talent-acquisition-job-candidate-table-email-link"
+          >
+            {val}
+          </a>
+        ) : (
+          '—'
+        ),
     },
     {
       title: 'Stages',
       dataIndex: 'stages',
+      align: 'center',
     },
 
     {
       title: 'Action',
       dataIndex: 'action',
+      align: 'center',
     },
   ];
 
   const handleMenuClick = (key: string, candidate: any) => {
     if (key === 'moveToTalentPool') {
       setMoveToTalentPoolModal(true);
-      setSelectedCandidate([candidate]); // Wrap candidate in an array
+      setSelectedCandidate([candidate]);
     } else if (key === 'edit') {
       setEditCandidate(candidate);
       setSelectedCandidateID(candidate?.id);
       setEditCandidateModal(true);
     } else if (key === 'delete') {
+      const btn = document.querySelector<HTMLElement>(
+        `[data-cy="talent-acquisition-job-candidate-table-action-button-${candidate?.id}"]`,
+      );
+      if (btn) {
+        const r = btn.getBoundingClientRect();
+        setDeleteTriggerRect({
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height,
+        });
+      } else {
+        setDeleteTriggerRect(null);
+      }
+      setSelectedCandidate(candidate);
       setDeleteCandidateId(candidate?.id);
-      setDeleteCandidateModal(true);
+      setDeleteCandidateName(candidate?.fullName ?? 'this candidate');
+      setIsDeleteModalOpen(true);
     }
   };
 
+  const handleConfirmDelete = () => {
+    deleteCandidate(undefined, {
+      onSuccess: () => setIsDeleteModalOpen(false),
+    });
+  };
+
   const data = candidateList?.items?.map((item: any, index: any) => {
+    const selectedStage = item?.jobCandidate?.[0]?.applicantStatusStage;
+
     const handleDownload = () => {
       const link = document.createElement('a');
       link.href = item?.resumeUrl;
@@ -216,72 +262,13 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
       document.body.removeChild(link);
     };
 
-    const hirePopoverContent = (
-      <div
-        id={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
-        data-cy={`talent-acquisition-job-candidate-table-div-hire-popover-${item?.id}`}
-        className="w-64"
-      >
-        <h3
-          className="text-lg font-semibold mb-4 text-center"
-          data-cy="talent-acquisition-job-candidate-table-hire-popover-title"
-        >
-          Date Hired
-        </h3>
-        <Form form={hireForm} layout="vertical">
-          <Form.Item
-            name="hireDate"
-            rules={[
-              {
-                required: true,
-                message: 'Please select a hire date',
-              },
-            ]}
-          >
-            <DatePicker
-              id={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-date-picker-hire-${item?.id}`}
-              className="w-full"
-              placeholder="Select date"
-              format="DD MMM YYYY"
-            />
-          </Form.Item>
-          <div
-            id={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
-            data-cy={`talent-acquisition-job-candidate-table-div-hire-buttons-${item?.id}`}
-            className="flex justify-center gap-2 mt-4"
-          >
-            <Button
-              id={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-button-hire-${item?.id}`}
-              type="primary"
-              size="small"
-              onClick={() => handleHireCandidate(item)}
-              className="bg-blue-600 hover:bg-blue-700 h-8"
-              loading={isHireLoading}
-            >
-              Hire Candidate
-            </Button>
-            <Button
-              id={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-button-cancel-hire-${item?.id}`}
-              size="small"
-              onClick={() => handleCancelHire(item?.id)}
-              className="h-8"
-            >
-              Cancel
-            </Button>
-          </div>
-        </Form>
-      </div>
-    );
-
     return {
       key: index,
       id: item?.id,
       candidateName: item?.fullName ?? '--',
       phoneNumber: item?.phone ?? '--',
       cgpa: item?.CGPA ?? '--',
+      email: item?.email ?? '--',
       // internal_external:
       //   item?.jobCandidate?.isExternalApplicant === false
       //     ? 'External'
@@ -290,140 +277,129 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         <div
           id={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
           data-cy={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
-          className="flex items-center justify-between "
+          className={`flex items-center justify-center ${item?.resumeUrl ? '' : 'opacity-40'}`}
         >
-          <span
-            className="text-xs font-semibold cursor-pointer"
-            title={item?.documentName ?? 'CV.pdf'}
-            data-cy={`talent-acquisition-job-candidate-table-cv-filename-${item?.id}`}
-          >
-            {item?.documentName?.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (item?.documentName ?? 'CV.pdf')}{' '}
-          </span>
-          <div
+          <button
+            type="button"
             id={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
             data-cy={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
-            className="cursor-pointer"
+            className="flex h-9 w-9 items-center justify-center rounded border-0 bg-transparent text-[#1E40AF] hover:bg-[#EFF6FF] disabled:pointer-events-none"
+            disabled={!item?.resumeUrl}
+            aria-label={
+              item?.documentName
+                ? `Download ${item.documentName}`
+                : 'Download CV'
+            }
             onClick={handleDownload}
           >
-            <FileDown size={20} strokeWidth={1.25} />
-          </div>
+            <MdOutlineFileDownload size={22} className="text-[#1E40AF]" />
+          </button>
         </div>
       ),
       createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
-      stages: (
-        <Select
-          id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
-          data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
-          defaultValue={item?.jobCandidate?.map(
-            (e: any) => e?.applicantStatusStage?.title ?? '--',
-          )}
-          style={{ width: 120 }}
-          onChange={(value) =>
-            handleStageChange(
-              value,
-              item?.jobCandidate?.map((e: any) => e?.id),
-            )
-          }
+      stages: selectedStage?.id ? (
+        <div
+          className="flex justify-center"
+          data-cy={`talent-acquisition-job-candidate-table-stage-cell-${item?.id}`}
         >
-          {statusStage?.items?.map((stage: any) => (
-            <Select.Option
-              key={stage.id}
-              value={stage.id}
-              id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
-              data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
-            >
-              {stage.title}
-            </Select.Option>
-          ))}
-        </Select>
+          <Select
+            id={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+            data-cy={`talent-acquisition-job-candidate-table-select-stage-${item?.id}`}
+            defaultValue={selectedStage.id}
+            bordered={false}
+            suffixIcon={null}
+            className="ta-candidate-stage-select min-w-[96px] max-w-[140px] [&_.ant-select-selector]:!h-[24px] [&_.ant-select-selector]:!min-h-[24px] [&_.ant-select-selector]:!rounded-[4px] [&_.ant-select-selector]:!border [&_.ant-select-selector]:!border-solid [&_.ant-select-selector]:!border-[#91CAFF] [&_.ant-select-selector]:!bg-[#E6F4FF] [&_.ant-select-selector]:!px-2 [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!font-normal [&_.ant-select-selection-item]:!leading-[24px] [&_.ant-select-selection-item]:!text-[#1677FF]"
+            popupClassName="ta-candidate-stage-dropdown"
+            onChange={(value) =>
+              handleStageChange(
+                value,
+                item?.jobCandidate?.map((e: any) => e?.id),
+              )
+            }
+          >
+            {statusStage?.items?.map((stage: any) => (
+              <Select.Option
+                key={stage.id}
+                value={stage.id}
+                id={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+                data-cy={`talent-acquisition-job-candidate-table-option-stage-${stage.id}-${item?.id}`}
+              >
+                {stage.title}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+      ) : (
+        '--'
       ),
       action: (
         <div
           id={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
           data-cy={`talent-acquisition-job-candidate-table-div-action-${item?.id}`}
-          className="flex items-center justify-between gap-4 text-white"
+          className="flex items-center justify-center"
         >
-          <Button
-            id={`editUserButton${item?.id}`}
-            data-cy={`talent-acquisition-job-candidate-table-button-view-${item?.id}`}
-            disabled={item?.deletedAt !== null}
-            className="bg-primary px-[10px]  text-white disabled:bg-gray-400 "
-            onClick={() => handleCandidateDetail(item)}
+          <span
+            data-cy={`talent-acquisition-job-candidate-table-dropdown-trigger-${item?.id}`}
           >
-            <FaEye />
-          </Button>
-          <Dropdown
-            data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
-            menu={{
-              items: [
-                {
-                  key: 'hireCandidate',
-                  label: (
-                    <Popover
-                      id={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
-                      data-cy={`talent-acquisition-job-candidate-table-popover-hire-${item?.id}`}
-                      content={hirePopoverContent}
-                      trigger="click"
-                      open={hirePopoverVisible[item?.id]}
-                      onOpenChange={(visible) => {
-                        setHirePopoverVisible((prev) => ({
-                          ...prev,
-                          [item?.id]: visible,
-                        }));
-                        if (visible) {
-                          // Set the form value when popover opens
-                          hireForm?.setFieldsValue({
-                            hireDate: item?.jobCandidate[0]?.hiredDate
-                              ? dayjs(item?.jobCandidate[0]?.hiredDate)
-                              : null,
-                          });
-                        } else {
-                          // Reset form when popover closes
-                          hireForm?.resetFields();
-                        }
-                      }}
-                      placement="rightTop"
-                      overlayClassName="hire-candidate-popover"
-                    >
+            <Dropdown
+              data-cy={`talent-acquisition-job-candidate-table-dropdown-${item?.id}`}
+              menu={{
+                items: [
+                  {
+                    key: 'view',
+                    label: (
                       <span
-                        data-cy={`talent-acquisition-job-candidate-table-popover-hire-text-${item?.id}`}
+                        className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                        data-cy={`talent-acquisition-job-candidate-table-menu-view-${item?.id}`}
                       >
-                        Hire Candidate
+                        View Detail
                       </span>
-                    </Popover>
-                  ),
-                },
-                {
-                  key: 'edit',
-                  label: (
-                    <span
-                      data-cy={`talent-acquisition-job-candidate-table-menu-item-edit-${item?.id}`}
-                    >
-                      Edit
-                    </span>
-                  ),
-                  onClick: () => handleMenuClick('edit', item),
-                },
-                {
-                  key: 'delete',
-                  label: (
-                    <span
-                      data-cy={`talent-acquisition-job-candidate-table-menu-item-delete-${item?.id}`}
-                    >
-                      Delete
-                    </span>
-                  ),
-                  onClick: () => handleMenuClick('delete', item),
-                },
-              ],
-            }}
-            trigger={['click']}
-            placement="bottomRight"
-          >
-            <FaEllipsisVertical className="text-lg text-gray-400 cursor-pointer" />
-          </Dropdown>
+                    ),
+                    icon: <ViewDetailIcon />,
+                    onClick: () => handleCandidateDetail(item),
+                  },
+                  {
+                    key: 'edit',
+                    label: (
+                      <span
+                        className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                        data-cy={`talent-acquisition-job-candidate-table-menu-edit-${item?.id}`}
+                      >
+                        Edit
+                      </span>
+                    ),
+                    icon: <EditIcon />,
+                    onClick: () => handleMenuClick('edit', item),
+                  },
+                  {
+                    key: 'delete',
+                    label: (
+                      <span
+                        className="text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
+                        data-cy={`talent-acquisition-job-candidate-table-menu-delete-${item?.id}`}
+                      >
+                        Delete
+                      </span>
+                    ),
+                    icon: <DeleteIcon />,
+                    onClick: () => handleMenuClick('delete', item),
+                  },
+                ],
+              }}
+              trigger={['click']}
+              placement="bottomRight"
+              overlayClassName="talent-acquisition-candidate-action-dropdown rounded-lg shadow-lg border border-gray-200"
+            >
+              <button
+                type="button"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:border-[#1E40AF] hover:text-[#1E40AF]"
+                aria-label="Actions"
+                data-cy={`talent-acquisition-job-candidate-table-action-button-${item?.id}`}
+              >
+                <BsThreeDots className="text-base" />
+              </button>
+            </Dropdown>
+          </span>
         </div>
       ),
     };
@@ -448,16 +424,40 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
     <div
       id="talent-acquisition-job-candidate-table-div-container"
       data-cy="talent-acquisition-job-candidate-table-div-container"
+      className="min-w-0 overflow-x-auto"
     >
-      <Table
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isResponseLoading}
-        scroll={{ x: 1000 }}
-        rowSelection={rowSelection}
-        pagination={false}
-      />
+      <style data-cy="talent-acquisition-job-candidate-action-dropdown-styles">{`
+        .talent-acquisition-candidate-action-dropdown .ant-dropdown-menu-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .talent-acquisition-candidate-action-dropdown .ant-dropdown-menu-title-content {
+          margin-inline-start: 0 !important;
+        }
+      `}</style>
+      {isResponseLoading ? (
+        <div
+          className="ta-job-detail-candidate-table-skeleton w-full min-w-[960px]"
+          data-cy="talent-acquisition-job-candidate-table-skeleton"
+        >
+          <TableSkeleton columns={columns} />
+        </div>
+      ) : (
+        <Table
+          className="ta-job-detail-candidate-table w-full min-w-[960px] [&_.ant-table]:rounded-none [&_.ant-table-container]:!border-0 [&_.ant-table-cell]:!px-3 [&_.ant-table-cell]:!py-[11px] [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#F0F0F0] [&_.ant-table-thead>tr>th]:!bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:!py-[10px] [&_.ant-table-thead>tr>th]:!text-[14px] [&_.ant-table-thead>tr>th]:!font-semibold [&_.ant-table-thead>tr>th]:!text-[rgba(0,0,0,0.65)] [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#F5F5F5] [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left]:!bg-inherit [&_.ant-table-tbody>tr>td.ant-table-cell-fix-left-last]:!bg-inherit [&_.ant-table-tbody>tr.ant-table-row-selected>td]:!bg-inherit [&_.ant-table-tbody>tr.ant-table-row-selected:hover>td]:!bg-inherit"
+          columns={columns}
+          dataSource={data}
+          scroll={{ x: 'max-content' }}
+          rowSelection={rowSelection}
+          pagination={false}
+          rowClassName={(record, index) => {
+            void record;
+            return index % 2 === 1 ? '!bg-[#F9FAFB]' : '!bg-white';
+          }}
+          data-cy="talent-acquisition-job-candidate-table"
+        />
+      )}
 
       {isMobile || isTablet ? (
         <CustomMobilePagination
@@ -467,18 +467,32 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
           onShowSizeChange={onPageChange}
         />
       ) : (
-        <CustomPagination
+        <RecruitmentPagination
           current={currentPage}
           total={candidateList?.meta?.totalItems ?? 1}
           pageSize={pageSize}
-          onChange={onPageChange}
+          onChange={(page, size) => {
+            setCurrentPage(page);
+            setPageSize(size);
+          }}
           onShowSizeChange={onSizeChange}
+          data-cy="talent-acquisition-candidate-table-pagination"
         />
       )}
-      <DeleteCandidate />
-      <EditCandidate />
+      <EditCandidate jobId={jobId} />
       <MoveToTalentPool />
-      <CandidateDetail />
+      <DeleteModal
+        open={isDeleteModalOpen}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        onAfterClose={() => setDeleteTriggerRect(null)}
+        title="Delete Candidate"
+        deleteMessage={`Are you sure you want to delete ${deleteCandidateName} from candidates?`}
+        hideImage
+        danger
+        triggerRect={deleteTriggerRect ?? undefined}
+        data-cy="talent-acquisition-candidate-delete-modal"
+      />
     </div>
   );
 };

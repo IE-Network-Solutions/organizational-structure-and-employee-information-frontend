@@ -32,7 +32,9 @@ const fetchVpScoring = async () => {
   });
 };
 export const useFetchVpScoring = () =>
-  useQuery('VpScoringInformation', fetchVpScoring);
+  useQuery('VpScoringInformation', fetchVpScoring, {
+    keepPreviousData: true,
+  });
 
 const fetchVpScoringById = async (id: string) => {
   const token = await getCurrentToken();

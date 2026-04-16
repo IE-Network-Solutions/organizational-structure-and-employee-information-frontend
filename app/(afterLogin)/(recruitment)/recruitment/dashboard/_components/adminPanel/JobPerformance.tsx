@@ -5,6 +5,7 @@ import CustomPagination from '@/components/customPagination';
 import { useRecruitmentDashboardStore } from '@/store/uistate/features/recruitment/dashboard';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { LoadingOutlined } from '@ant-design/icons';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
 export default function JobPerformance({
   data,
@@ -69,16 +70,19 @@ export default function JobPerformance({
       id="talent-acquisition-dashboard-job-performance-div-container"
       data-cy="talent-acquisition-dashboard-job-performance-div-container"
     >
-      <Table
-        id="talent-acquisition-dashboard-job-performance-table"
-        data-cy="talent-acquisition-dashboard-job-performance-table"
-        columns={columns}
-        dataSource={data?.results}
-        loading={isLoading}
-        pagination={false}
-        bordered={false}
-        className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0 md:w-full w-full overflow-x-auto scrollbar-hide"
-      />
+      {isLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          id="talent-acquisition-dashboard-job-performance-table"
+          data-cy="talent-acquisition-dashboard-job-performance-table"
+          columns={columns}
+          dataSource={data?.results}
+          pagination={false}
+          bordered={false}
+          className="rounded-none [&_.ant-table-thead_.ant-table-cell]:rounded-none [&_.ant-table-thead_.ant-table-cell]:border-r-0 [&_.ant-table-thead_.ant-table-cell]:border-l-0 md:w-full w-full overflow-x-auto scrollbar-hide"
+        />
+      )}
 
       <CustomPagination
         data-cy="talent-acquisition-dashboard-job-performance-pagination"

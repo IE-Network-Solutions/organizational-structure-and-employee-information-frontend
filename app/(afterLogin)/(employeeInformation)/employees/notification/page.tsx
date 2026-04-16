@@ -1,9 +1,9 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
-import { Avatar, Divider, List, Skeleton, Spin, Tooltip } from 'antd';
+import { Avatar, Divider, List, Skeleton, Tooltip } from 'antd';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
-import { EmptyImage } from '@/components/emptyIndicator';
+import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { NotificationType } from '@/store/server/features/notification/interface';
 import { AiFillNotification } from 'react-icons/ai';
 import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
@@ -17,6 +17,7 @@ function getNotificationRoute(n: NotificationType): string | null {
   const r = n?.route?.trim();
   return r || null;
 }
+import EmptyState from '@/components/empty';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -108,11 +109,7 @@ const Notifications = () => {
       </Divider>
       </div>
       {isLoading ? (
-        <Spin
-          tip="Loading"
-          size="large"
-          data-cy={`notification-latest-spinner-${pageSlug}`}
-        />
+        <Skeleton active data-cy={`notification-latest-spinner-${pageSlug}`} />
       ) : unReadNotification?.length > 0 ? (
         <div
           className="w-full h-auto"
@@ -211,7 +208,7 @@ const Notifications = () => {
           />
         </div>
       ) : (
-        <EmptyImage data-cy={`notification-unread-empty-${pageSlug}`} />
+        <EmptyState data-cy={`notification-unread-empty-${pageSlug}`} />
       )}
       <div id={`notification-previous-divider-${pageSlug}`} data-cy={`notification-previous-divider-${pageSlug}`}>
       <Divider orientation="left" orientationMargin="20">
@@ -223,9 +220,8 @@ const Notifications = () => {
       </Divider>
       </div>
       {isLoading ? (
-        <Spin
-          tip="Loading"
-          size="large"
+        <Skeleton
+          active
           data-cy={`notification-previous-spinner-${pageSlug}`}
         />
       ) : readNotification?.length > 0 ? (
@@ -308,7 +304,7 @@ const Notifications = () => {
           />
         </div>
       ) : (
-        <EmptyImage data-cy={`notification-read-empty-${pageSlug}`} />
+        <EmptyState data-cy={`notification-read-empty-${pageSlug}`} />
       )}
     </div>
   );

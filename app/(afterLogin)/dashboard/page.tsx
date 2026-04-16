@@ -6,11 +6,35 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useFiscalYearRedirect } from '@/hooks/useFiscalYearRedirect';
 import LeftBar from './_components/leftBar';
 import RightBar from './_components/rightBar';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useDashboardStore } from '@/store/uistate/features/dashboard';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import AccessGuard from '@/utils/permissionGuard';
-import CustomDashboardModal from './_components/customDashbordModal';
+
+import DashboardSubscriptionSkeleton from './_components/DashboardSubscriptionSkeleton';
+import Calender from './_components/action-plan/calender';
+import AttendanceSummaryCards from './_components/attendance-stats';
+import ThisWeeksAttendanceReviewCard from './_components/attendance-review';
+import RecentFeedbacks from './_components/recent-feedbacks';
+import EventsCard from './_components/events';
+import EventEssentials from './_components/event-essentials';
+import { useEffect, useState } from 'react';
+import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import type { ApiResponse } from '@/types/commons/responseTypes';
+import type { Subscription } from '@/types/tenant-management';
+
+type DashboardPlanView =
+  | 'Performance Plan'
+  | 'Essential Plan '
+  | 'Enterprise Plan';
+
+function dashboardPlanFromSubscription(
+  data: ApiResponse<Subscription> | undefined,
+): DashboardPlanView | undefined {
+  const name = data?.plan?.name;
+  if (name === 'Performance Plan') return 'Performance Plan';
+  if (name === 'Essential Plan ') return 'Essential Plan ';
+  if (name === 'Enterprise Plan') return 'Enterprise Plan';
+  return undefined;
+}
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
@@ -19,114 +43,88 @@ export default function Home() {
     useGetActiveFiscalYears({
       refetchInterval: 30000, // Keep polling for banner display
     });
-
-  const userData = useAuthenticationStore.getState().userData;
-
-  const { isOpen, setIsOpen } = useDashboardStore();
-  const { isMobile, isTablet } = useIsMobile();
-
+  const { tenantId } = useAuthenticationStore();
+  const { data: subscriptionData, isLoading: isSubscriptionLoading } =
+    useGetSubscriptionByTenant(tenantId, !!tenantId);
   const hasEndedFiscalYear =
     activeCalender?.isActive &&
     activeCalender?.endDate &&
     new Date(activeCalender?.endDate) < new Date();
-  const showAnnouncements = () => {
-    setIsOpen(!isOpen);
-  };
+  const [selectedTenatType, setSelectedTenatType] = useState<DashboardPlanView>(
+    dashboardPlanFromSubscription(subscriptionData) ?? 'Performance Plan',
+  );
+
+  useEffect(() => {
+    const plan = dashboardPlanFromSubscription(subscriptionData);
+    if (plan) setSelectedTenatType(plan);
+  }, [subscriptionData]);
 
   const mainLayout = (
-    <div
-      className="min-h-screen bg-gray-100  pl-2 pr-3"
-      data-cy="dashboard-main-layout"
-    >
-      {isMobile || isTablet ? (
-        <div
-          className=" flex justify-between items-center mb-4"
-          data-cy="dashboard-mobile-header"
+    <div className="min-h-screen" data-cy="dashboard-main-layout">
+      <div
+        className="my-5 flex justify-between items-center "
+        data-cy="dashboard-header"
+      >
+        <h1
+          className="text-2xl font-bold text-gray-900"
+          data-cy="dashboard-header-title"
         >
-          {userData?.firstName ? (
-            <h1
-              className="text-2xl font-bold text-gray-800"
-              data-cy="dashboard-mobile-greeting"
-            >
-              Hi, {userData?.firstName}
-            </h1>
-          ) : (
-            <span data-cy="dashboard-mobile-greeting-empty"></span>
-          )}
-          <div
-            className=" text-primary text-base font-bold"
-            onClick={() => showAnnouncements()}
-            data-cy="dashboard-mobile-announcements-button"
-          >
-            <span data-cy="dashboard-mobile-announcements-text">
-              Announcements
-            </span>
-          </div>
-        </div>
+          Dashboard
+        </h1>
+        {/* TenatType Options Display */}
+        <div
+          className="flex gap-2 items-center"
+          data-cy="dashboard-tenant-type-control"
+        ></div>
+      </div>
+
+      {selectedTenatType !== 'Essential Plan ' ? (
+        <Header />
       ) : (
-        <div className=" flex justify-start" data-cy="dashboard-desktop-header">
-          {userData?.firstName ? (
-            <div
-              className="mb-4"
-              data-cy="dashboard-desktop-greeting-container"
-            >
-              <h1
-                className="text-2xl font-bold text-gray-800"
-                data-cy="dashboard-desktop-greeting"
-              >
-                Hi, {userData?.firstName}
-              </h1>
-            </div>
-          ) : (
-            <span data-cy="dashboard-desktop-greeting-empty"></span>
-          )}
-        </div>
+        <AttendanceSummaryCards />
       )}
-      <Header />
-      {isMobile || isTablet ? (
-        <div className="grid grid-cols-1 pb-3" data-cy="dashboard-mobile-grid">
-          {isOpen ? (
-            <CustomDashboardModal
-              open={isOpen}
-              onClose={showAnnouncements}
-              width="400px"
-            >
-              <div
-                className="col-span-12 "
-                data-cy="dashboard-mobile-rightbar-container"
-              >
-                <RightBar />
-              </div>
-            </CustomDashboardModal>
-          ) : (
-            ''
-          )}
-          <div
-            className="col-span-12  "
-            data-cy="dashboard-mobile-leftbar-container"
-          >
-            <LeftBar />
-          </div>
-        </div>
-      ) : (
+      <div data-cy="dashboard-content">
         <div
           className="grid grid-cols-12 gap-4 pb-5"
           data-cy="dashboard-desktop-grid"
         >
           <div
-            className="col-span-8"
+            className="md:col-span-4 col-span-12"
             data-cy="dashboard-desktop-leftbar-container"
           >
-            <LeftBar />
+            {selectedTenatType !== 'Essential Plan ' ? (
+              <LeftBar />
+            ) : (
+              <ThisWeeksAttendanceReviewCard />
+            )}
           </div>
           <div
-            className="col-span-4 "
+            className="md:col-span-4 col-span-12"
+            data-cy="dashboard-desktop-leftbar-container"
+          >
+            {selectedTenatType !== 'Essential Plan ' && (
+              <ThisWeeksAttendanceReviewCard />
+            )}
+          </div>
+          <div
+            className="md:col-span-4 col-span-12"
             data-cy="dashboard-desktop-rightbar-container"
           >
-            <RightBar />
+            {selectedTenatType !== 'Essential Plan ' &&
+            selectedTenatType !== 'Enterprise Plan' ? (
+              <RecentFeedbacks />
+            ) : (
+              <RightBar type={selectedTenatType} />
+            )}
           </div>
         </div>
-      )}
+        {selectedTenatType !== 'Essential Plan ' ? (
+          <EventsCard />
+        ) : (
+          <EventEssentials />
+        )}
+      </div>
+      {selectedTenatType !== 'Essential Plan ' && <Calender />}
     </div>
   );
 
@@ -181,7 +179,7 @@ export default function Home() {
           </div>
         </AccessGuard>
       )}
-      {mainLayout}
+      {isSubscriptionLoading ? <DashboardSubscriptionSkeleton /> : mainLayout}
     </div>
   );
 }

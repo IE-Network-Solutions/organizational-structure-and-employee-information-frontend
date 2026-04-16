@@ -2,7 +2,11 @@ import React from 'react';
 
 const SidebarSkeleton: React.FC = () => {
   return (
-    <div className="w-64 h-full bg-white  p-4" data-cy="sidebar-skeleton">
+    <div
+      className="w-64 h-full p-4"
+      style={{ backgroundColor: 'var(--nav-sider-background, #eff6ff)' }}
+      data-cy="sidebar-skeleton"
+    >
       {/* Menu items skeleton */}
       <div className="space-y-2" data-cy="sidebar-skeleton-menu">
         {/* Organization */}

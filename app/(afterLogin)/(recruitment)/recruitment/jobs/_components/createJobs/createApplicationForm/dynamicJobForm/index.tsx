@@ -12,6 +12,7 @@ import {
 } from 'antd';
 import { FieldType } from '@/types/enumTypes';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { TaRequiredMark } from '../../../../../_components/taRequiredMark';
 
 const { Option } = Select;
 interface DynamicJobFormProps {
@@ -49,16 +50,11 @@ const DynamicJobForm: React.FC<DynamicJobFormProps> = ({ form }) => {
               <>
                 <div
                   key={index}
-                  className="text-md font-semibold text-gray-800 mb-2 block"
+                  className="mb-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-800"
                   data-cy="recruitment-recruitment-jobs-components-createjobs-createapplicationform-dynamicjobform-index-tsx-div-50"
                 >
                   Question {index + 1}
-                  <span
-                    data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-span-55"
-                    className="text-red-500"
-                  >
-                    *
-                  </span>
+                  <TaRequiredMark data-cy="createjobs-createapplicationform-dynamicjobform-index-tsx-index-span-55" />
                 </div>
 
                 <Row gutter={12} key={key}>

@@ -7,7 +7,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import FeedbackPagination from '../../../../_components/feedbackPagination';
 import EditQuestionTemplate from './questionTemplateEdit';
-import { Spin } from 'antd';
+import { Skeleton } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 
@@ -51,11 +51,8 @@ const QuestionTemplateCard: React.FC<any> = () => {
 
   if (isTemplateLoading)
     return (
-      <div
-        className="flex justify-center items-center h-64"
-        data-cy="question-template-card-loading"
-      >
-        <Spin size="large" />
+      <div className="h-64" data-cy="question-template-card-loading">
+        <Skeleton active paragraph={{ rows: 6 }} className="px-2 py-4" />
       </div>
     );
 
@@ -65,7 +62,7 @@ const QuestionTemplateCard: React.FC<any> = () => {
         questionTemplate?.items?.map((questions: any, index: number) => (
           <div
             key={index}
-            className="flex items-center justify-between gap-3 my-5 mx-2 border-gray-100 border-[1px] rounded-md px-2 py-4"
+            className="flex items-center justify-between gap-3 my-5 mx-2 border-[#D9D9D9] border-[1px] rounded-md px-2 py-4"
             data-cy={`question-template-card-${questions?.id}`}
             id={`questionTemplateCard${questions?.id}`}
           >

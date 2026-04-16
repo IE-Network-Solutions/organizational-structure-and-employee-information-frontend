@@ -1,14 +1,13 @@
 import React, { FC } from 'react';
-import { Col, DatePicker, Form, Row, Select, Dropdown, Menu } from 'antd';
+import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
-import { MdKeyboardArrowDown } from 'react-icons/md';
-import { useMediaQuery } from 'react-responsive';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
-import { LuSettings2 } from 'react-icons/lu';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -16,7 +15,6 @@ interface TableFilterProps {
 
 const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
-  const isSmallScreen = useMediaQuery({ maxWidth: 768 });
   const { data: employeeData } = useGetAllUsers();
   const { data: breakTypeData } = useGetBreakTypes();
   const { isShowMobileFilters, setIsShowMobileFilters } =
@@ -34,278 +32,346 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       label: breakType.title,
     })) || [];
 
+  const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
+  const selectClassName = 'w-full h-10 rounded-md border-gray-300';
+
+  const getFilterValues = (): CommonObject => {
+    const values = { ...form.getFieldsValue() };
+    if (values.startDate && values.endDate) {
+      values.date = [values.startDate, values.endDate];
+    }
+    return values;
+  };
+
   const MobileFilters = () => (
-    <Menu
-      className="p-4 w-[280px]"
+    <div
+      className="bg-white rounded-lg border border-gray-200 min-w-[320px] sm:max-w-[420px] overflow-hidden"
       id="time-attendance-employee-attendance-mobile-filter-menu"
       data-cy="time-attendance-employee-attendance-mobile-filter-menu"
     >
+      {/* Header */}
       <div
-        id="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-        data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-        className="mb-4"
+        className="px-6 pt-5 pb-1 relative"
+        id="time-attendance-employee-attendance-mobile-filter-header"
+        data-cy="time-attendance-employee-attendance-mobile-filter-header"
       >
-        <p
-          id="time-attendance-employee-attendance-mobile-filter-employee-select-label"
-          data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-label"
-          className="text-sm text-gray-600 mb-2"
+        <button
+          id="time-attendance-employee-attendance-mobile-filter-close-button"
+          data-cy="time-attendance-employee-attendance-mobile-filter-close-button"
+          type="button"
+          onClick={() => setIsShowMobileFilters(false)}
+          className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
+          aria-label="Close filter"
         >
-          Employee
-        </p>
-        <Form.Item
-          data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
-          name="employeeId"
-          className="mb-0"
-        >
-          <Select
-            id="time-attendance-employee-attendance-mobile-filter-employee-select"
-            data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
-            placeholder="Select Employee"
-            allowClear
-            className="w-full"
-            options={employeeOptions}
-            showSearch
-            optionFilterProp="label"
-            onChange={(value) => {
-              form.setFieldsValue({ employeeId: value });
-              onChange(form.getFieldsValue());
-            }}
-            filterOption={(input, option) =>
-              (typeof option?.label === 'string'
-                ? option.label.toLowerCase()
-                : ''
-              ).includes(input.toLowerCase())
-            }
-            value={form.getFieldValue('employeeId')}
+          <CloseOutlined
+            className="text-base"
+            data-cy="time-attendance-employee-attendance-mobile-filter-close-button-icon"
           />
-        </Form.Item>
+        </button>
+        <h3
+          id="time-attendance-employee-attendance-mobile-filter-title"
+          data-cy="time-attendance-employee-attendance-mobile-filter-title"
+          className="text-xl font-semibold text-gray-900 pr-8"
+        >
+          Filter
+        </h3>
+        <p
+          id="time-attendance-employee-attendance-mobile-filter-description"
+          data-cy="time-attendance-employee-attendance-mobile-filter-description"
+          className="text-sm text-gray-500 mt-1"
+        >
+          Select all filters that apply
+        </p>
       </div>
+
+      {/* Filter fields */}
       <div
-        id="time-attendance-employee-attendance-mobile-filter-status-select-div"
-        data-cy="time-attendance-employee-attendance-mobile-filter-status-select-div"
-        className="mb-4"
+        id="time-attendance-employee-attendance-mobile-filter-fields"
+        data-cy="time-attendance-employee-attendance-mobile-filter-fields"
+        className="px-6 py-4"
       >
-        <p
-          id="time-attendance-employee-attendance-mobile-filter-status-select-label"
-          data-cy="time-attendance-employee-attendance-mobile-filter-status-select-label"
-          className="text-sm text-gray-600 mb-2"
+        <Row
+          gutter={16}
+          id="time-attendance-employee-attendance-mobile-filter-fields-row"
+          data-cy="time-attendance-employee-attendance-mobile-filter-fields-row"
         >
-          Attendance Status
-        </p>
-        <Form.Item
-          data-cy="time-attendance-employee-attendance-mobile-filter-status-select-form-item"
-          name="type"
-          className="mb-0"
+          <Col
+            lg={24}
+            md={24}
+            sm={24}
+            xs={24}
+            id="time-attendance-employee-attendance-mobile-filter-fields-col"
+            data-cy="time-attendance-employee-attendance-mobile-filter-fields-col"
+          >
+            <div
+              id="time-attendance-employee-attendance-mobile-filter-status-select-div"
+              className="mb-4"
+              data-cy="time-attendance-employee-attendance-mobile-filter-status-select-div"
+            >
+              <label
+                id="time-attendance-employee-attendance-mobile-filter-status-select-label"
+                data-cy="time-attendance-employee-attendance-mobile-filter-status-select-label"
+                className={labelClassName}
+              >
+                Attendance Status
+              </label>
+              <Form.Item
+                data-cy="time-attendance-employee-attendance-mobile-filter-status-select-form-item"
+                name="type"
+                className="mb-0"
+              >
+                <Select
+                  placeholder="Select Attendance Status"
+                  allowClear
+                  className={selectClassName}
+                  options={attendanceRecordTypeOption}
+                  size="large"
+                  onChange={(value) => {
+                    form.setFieldsValue({ type: value });
+                    onChange(getFilterValues());
+                  }}
+                  value={form.getFieldValue('type')}
+                  id="time-attendance-employee-attendance-mobile-filter-status-select"
+                  data-cy="time-attendance-employee-attendance-mobile-filter-status-select"
+                />
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
+        <Row gutter={16}>
+          <Col lg={12} md={12} sm={24} xs={24}>
+            <div
+              id="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+              data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+              className="mb-4"
+            >
+              <label
+                id="time-attendance-employee-attendance-mobile-filter-employee-select-label"
+                data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-label"
+                className={labelClassName}
+              >
+                Start Date
+              </label>
+              <Form.Item
+                name="startDate"
+                id="time-attendance-history-table-filter-mobile-start-date"
+                data-cy="time-attendance-history-table-filter-mobile-start-date"
+                rules={[
+                  ({ getFieldValue }) => ({
+                    /* eslint-disable @typescript-eslint/naming-convention */
+                    validator(_, value) {
+                      /* eslint-enable @typescript-eslint/naming-convention */
+                      if (
+                        !value ||
+                        !getFieldValue('endDate') ||
+                        value.isBefore(getFieldValue('endDate'))
+                      ) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        'Start date must be before end date',
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker
+                  className="w-full h-[40px]"
+                  placeholder="Start Date"
+                  format={DATE_FORMAT}
+                  id="time-attendance-history-table-filter-mobile-start-date-picker"
+                  data-cy="time-attendance-history-table-filter-mobile-start-date-picker"
+                />
+              </Form.Item>
+            </div>
+          </Col>
+          <Col lg={12} md={12} sm={24} xs={24}>
+            <div
+              id="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+              data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+              className="mb-4"
+            >
+              <label
+                id="time-attendance-employee-attendance-mobile-filter-end-date-label"
+                data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-label"
+                className={labelClassName}
+              >
+                End Date
+              </label>
+              <Form.Item
+                name="endDate"
+                id="time-attendance-history-table-filter-mobile-end-date"
+                data-cy="time-attendance-history-table-filter-mobile-end-date"
+                rules={[
+                  ({ getFieldValue }) => ({
+                    /* eslint-disable @typescript-eslint/naming-convention */
+                    validator(_, value) {
+                      /* eslint-enable @typescript-eslint/naming-convention */
+
+                      if (
+                        !value ||
+                        !getFieldValue('startDate') ||
+                        value.isAfter(getFieldValue('startDate'))
+                      ) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        'End date must be after start date',
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker
+                  className="w-full h-[40px]"
+                  placeholder="End Date"
+                  format={DATE_FORMAT}
+                  id="time-attendance-history-table-filter-mobile-end-date-picker"
+                  data-cy="time-attendance-history-table-filter-mobile-end-date-picker"
+                />
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
+        <div
+          data-cy="-components-employeeattendancetable-tablefilter-index-tsx-index-div-115"
+          className="mt-1"
         >
-          <Select
-            placeholder="Select Attendance Status"
-            allowClear
-            className="w-full"
-            options={attendanceRecordTypeOption}
-            onChange={(value) => {
-              form.setFieldsValue({ type: value });
-              onChange(form.getFieldsValue());
-            }}
-            value={form.getFieldValue('type')}
-            id="time-attendance-employee-attendance-mobile-filter-status-select"
-            data-cy="time-attendance-employee-attendance-mobile-filter-status-select"
-          />
-        </Form.Item>
+          <label
+            data-cy="-components-employeeattendancetable-tablefilter-index-tsx-index-p-116"
+            className={labelClassName}
+          >
+            Break Type
+          </label>
+          <Form.Item
+            data-cy="time-attendance-employee-attendance-mobile-filter-break-type-select-form-item"
+            name="breakTypeId"
+            className="mb-0"
+          >
+            <Select
+              placeholder="Select Break Type"
+              allowClear
+              className={selectClassName}
+              options={breakTypeOptions}
+              size="large"
+              onChange={(value) => {
+                form.setFieldsValue({ breakTypeId: value });
+                onChange(getFilterValues());
+              }}
+              value={form.getFieldValue('breakTypeId')}
+              id="time-attendance-employee-attendance-mobile-filter-break-type-select"
+              data-cy="time-attendance-employee-attendance-mobile-filter-break-type-select"
+            />
+          </Form.Item>
+        </div>
       </div>
-      <div data-cy="-components-employeeattendancetable-tablefilter-index-tsx-index-div-115">
-        <p
-          data-cy="-components-employeeattendancetable-tablefilter-index-tsx-index-p-116"
-          className="text-sm text-gray-600 mb-2"
+
+      {/* Footer */}
+      <div
+        data-cy="time-attendance-employee-attendance-mobile-filter-footer"
+        className="px-6 py-4 flex justify-end gap-2"
+      >
+        <Button
+          onClick={() => {
+            form.resetFields();
+            onChange({});
+          }}
+          className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
+          data-cy="time-attendance-employee-attendance-mobile-filter-reset"
         >
-          Break Type
-        </p>
-        <Form.Item
-          data-cy="time-attendance-employee-attendance-mobile-filter-break-type-select-form-item"
-          name="breakTypeId"
-          className="mb-0"
+          Reset
+        </Button>
+        <Button
+          type="primary"
+          className="h-8 font-normal text-sm text-white"
+          onClick={() => {
+            setIsShowMobileFilters(false);
+          }}
+          data-cy="time-attendance-employee-attendance-mobile-filter-save"
         >
-          <Select
-            placeholder="Select Break Type"
-            allowClear
-            className="w-full"
-            options={breakTypeOptions}
-            onChange={(value) => {
-              form.setFieldsValue({ breakTypeId: value });
-              onChange(form.getFieldsValue());
-            }}
-            value={form.getFieldValue('breakTypeId')}
-            id="time-attendance-employee-attendance-mobile-filter-break-type-select"
-            data-cy="time-attendance-employee-attendance-mobile-filter-break-type-select"
-          />
-        </Form.Item>
+          Save Filter
+        </Button>
       </div>
-    </Menu>
+    </div>
   );
 
   return (
     <Form
       form={form}
-      onFieldsChange={() => onChange(form.getFieldsValue())}
+      onFieldsChange={() => onChange(getFilterValues())}
       id="time-attendance-employee-attendance-filter-form"
       data-cy="time-attendance-employee-attendance-filter-form"
     >
-      {isSmallScreen ? (
+      <div
+        id="time-attendance-employee-attendance-mobile-filter-div"
+        data-cy="time-attendance-employee-attendance-mobile-filter-div"
+      >
         <div
-          id="time-attendance-employee-attendance-mobile-filter-div"
-          data-cy="time-attendance-employee-attendance-mobile-filter-div"
-          className="space-y-4"
+          id="time-attendance-employee-attendance-mobile-filter-date-range-div"
+          data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
+          className="flex justify-between"
         >
           <div
-            id="time-attendance-employee-attendance-mobile-filter-date-range-div"
-            data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
-            className="flex items-center gap-2"
+            data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+            className="w-1/2 sm:w-1/3 "
           >
             <Form.Item
-              data-cy="time-attendance-employee-attendance-mobile-filter-date-range-form-item"
-              name="date"
-              className="flex-1 mb-0"
-            >
-              <DatePicker.RangePicker
-                className="w-full h-[42px]"
-                separator="-"
-                format={DATE_FORMAT}
-                id="time-attendance-employee-attendance-mobile-filter-date-range"
-                data-cy="time-attendance-employee-attendance-mobile-filter-date-range"
-              />
-            </Form.Item>
-            <Dropdown
-              overlay={<MobileFilters />}
-              trigger={['click']}
-              onOpenChange={setIsShowMobileFilters}
-              data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
-            >
-              <button
-                className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
-                  isShowMobileFilters
-                    ? 'bg-blue-50 border-blue-500'
-                    : 'border-gray-300'
-                }`}
-                id="time-attendance-employee-attendance-mobile-filter-toggle-button"
-                data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              >
-                <LuSettings2 data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button-icon" />
-              </button>
-            </Dropdown>
-          </div>
-        </div>
-      ) : (
-        <Row
-          id="time-attendance-employee-attendance-desktop-filter-row"
-          data-cy="time-attendance-employee-attendance-desktop-filter-row"
-          gutter={[16, 16]}
-          className="items-center"
-        >
-          <Col
-            id="time-attendance-employee-attendance-desktop-filter-date-range-col"
-            data-cy="time-attendance-employee-attendance-desktop-filter-date-range-col"
-            flex="360px"
-          >
-            <Form.Item
-              data-cy="time-attendance-employee-attendance-desktop-filter-date-range-form-item"
-              name="date"
-              className="mb-0"
-            >
-              <DatePicker.RangePicker
-                className="w-full h-[42px]"
-                separator="-"
-                format={DATE_FORMAT}
-                id="time-attendance-employee-attendance-filter-date-range"
-                data-cy="time-attendance-employee-attendance-filter-date-range"
-              />
-            </Form.Item>
-          </Col>
-          <Col
-            id="time-attendance-employee-attendance-desktop-filter-employee-select-col"
-            data-cy="time-attendance-employee-attendance-desktop-filter-employee-select-col"
-            flex="1"
-          >
-            <Form.Item
-              data-cy="time-attendance-employee-attendance-desktop-filter-employee-select-form-item"
+              data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
               name="employeeId"
               className="mb-0"
             >
               <Select
-                id="time-attendance-employee-attendance-desktop-filter-employee-select"
-                data-cy="time-attendance-employee-attendance-desktop-filter-employee-select"
-                placeholder="Select Employee"
+                id="time-attendance-employee-attendance-mobile-filter-employee-select"
+                data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
+                placeholder="Search Employee"
                 allowClear
-                className="w-full h-[42px]"
-                suffixIcon={
-                  <MdKeyboardArrowDown
-                    data-cy="time-attendance-employee-attendance-desktop-filter-employee-select-suffix-icon"
-                    size={16}
-                    className="text-gray-900"
-                  />
-                }
+                className="h-8"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
+                onChange={(value) => {
+                  form.setFieldsValue({ employeeId: value });
+                  onChange(getFilterValues());
+                }}
                 filterOption={(input, option) =>
                   (typeof option?.label === 'string'
                     ? option.label.toLowerCase()
                     : ''
                   ).includes(input.toLowerCase())
                 }
+                value={form.getFieldValue('employeeId')}
+                suffixIcon={
+                  <div
+                    data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-suffix-icon-div"
+                    className="text-gray-400 border-l p-2"
+                  >
+                    <SearchOutlined />
+                  </div>
+                }
               />
             </Form.Item>
-          </Col>
-          <Col
-            id="time-attendance-employee-attendance-desktop-filter-status-select-col"
-            data-cy="time-attendance-employee-attendance-desktop-filter-status-select-col"
-            flex="200px"
+          </div>
+
+          <Dropdown
+            overlay={<MobileFilters />}
+            trigger={['click']}
+            open={isShowMobileFilters}
+            onOpenChange={setIsShowMobileFilters}
+            data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
           >
-            <Form.Item
-              data-cy="time-attendance-employee-attendance-desktop-filter-status-select-form-item"
-              name="type"
-              className="mb-0"
+            <Button
+              className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
+              id="time-attendance-employee-attendance-mobile-filter-toggle-button"
+              data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
+              icon={
+                <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+              }
             >
-              <Select
-                id="time-attendance-employee-attendance-desktop-filter-status-select"
-                data-cy="time-attendance-employee-attendance-desktop-filter-status-select"
-                placeholder="Attendance Status"
-                allowClear
-                className="w-full h-[42px]"
-                suffixIcon={
-                  <MdKeyboardArrowDown
-                    data-cy="time-attendance-employee-attendance-desktop-filter-status-select-suffix-icon"
-                    size={16}
-                    className="text-gray-900"
-                  />
-                }
-                options={attendanceRecordTypeOption}
-              />
-            </Form.Item>
-          </Col>
-          <Col
-            id="time-attendance-employee-attendance-desktop-filter-break-type-select-col"
-            data-cy="time-attendance-employee-attendance-desktop-filter-break-type-select-col"
-            flex="200px"
-          >
-            <Form.Item name="breakTypeId" className="mb-0">
-              <Select
-                placeholder="Break Type"
-                allowClear
-                className="w-full h-[42px]"
-                suffixIcon={
-                  <MdKeyboardArrowDown
-                    data-cy="time-attendance-employee-attendance-desktop-filter-break-type-select-suffix-icon"
-                    size={16}
-                    className="text-gray-900"
-                  />
-                }
-                options={breakTypeOptions}
-                id="time-attendance-employee-attendance-filter-break-type-select"
-                data-cy="time-attendance-employee-attendance-filter-break-type-select"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      )}
+              Filter
+            </Button>
+          </Dropdown>
+        </div>
+      </div>
     </Form>
   );
 };

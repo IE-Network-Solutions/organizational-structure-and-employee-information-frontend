@@ -1,11 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, Table } from 'antd';
-import { TbFileDownload } from 'react-icons/tb';
 import { useGetTalentPool } from '@/store/server/features/recruitment/tallentPool/query';
 import dayjs from 'dayjs';
 import { useMoveTalentPoolToCandidates } from '@/store/server/features/recruitment/tallentPool/mutation';
-import SkeletonLoading from '@/components/common/loadings/skeletonLoading';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import TransferTalentPoolToCandidateModal from './transferModal';
 import { useTalentPoolStore } from '@/store/uistate/features/recruitment/talentPool';
 import AccessGuard from '@/utils/permissionGuard';
@@ -13,6 +12,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 
 /* eslint-disable @typescript-eslint/naming-convention */
 const TalentPoolTable: React.FC<any> = () => {
@@ -51,54 +51,93 @@ const TalentPoolTable: React.FC<any> = () => {
   };
   const columns = [
     {
-      title: 'Name',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-name"
+          data-cy="talent-acquisition-talent-pool-table-column-name"
+        >
+          Name
+        </span>
+      ),
       dataIndex: ['jobCandidateInformation', 'fullName'],
       key: 'name',
       render: (_: any, record: any) => (
         <div
           id="talent-acquisition-talent-pool-table-cell-name"
           data-cy={`talent-acquisition-talent-pool-table-cell-name-${record?.jobCandidateInformation?.id || record?.id}`}
+          className="flex flex-col gap-1"
         >
-          <p
-            className="font-bold"
-            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-${record?.jobCandidateInformation?.id || record?.id}`}
+          <span
+            className="text-sm font-normal text-black text-nowrap"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
           >
-            <span
-              data-cy={`talent-acquisition-talent-pool-table-cell-name-full-name-text-${record?.jobCandidateInformation?.id || record?.id}`}
-            >
-              {record?.jobCandidateInformation?.fullName ?? '-'}
-            </span>
-          </p>
-          <p
-            className="text-gray-500 text-sm"
-            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-${record?.jobCandidateInformation?.id || record?.id}`}
+            {record?.jobCandidateInformation?.fullName ?? '-'}
+          </span>
+
+          <span
+            className="text-xs font-normal text-black opacity-45"
+            data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
           >
-            <span
-              data-cy={`talent-acquisition-talent-pool-table-cell-name-email-text-${record?.jobCandidateInformation?.id || record?.id}`}
-            >
-              {record?.jobCandidateInformation?.email ?? '-'}
-            </span>
-          </p>
+            {record?.jobCandidateInformation?.email ?? '-'}
+          </span>
         </div>
       ),
     },
     {
-      title: 'Phone Number',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-phone"
+          data-cy="talent-acquisition-talent-pool-table-column-phone"
+        >
+          Phone Number
+        </span>
+      ),
       dataIndex: ['jobCandidateInformation', 'phone'],
       key: 'phoneNumber',
+      className: 'text-sm text-[#4b4b4b]',
     },
     {
-      title: 'Talent Pool Category',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b] text-nowrap"
+          id="talent-acquisition-talent-pool-table-column-talent-pool-category"
+          data-cy="talent-acquisition-talent-pool-table-column-talent-pool-category"
+        >
+          Talent Pool Category
+        </span>
+      ),
       dataIndex: ['talentPoolCategory', 'title'],
       key: 'title',
+      className: 'text-sm text-[#4b4b4b]',
+      width: 250,
     },
     {
-      title: 'Reason',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-reason"
+          data-cy="talent-acquisition-talent-pool-table-column-reason"
+        >
+          Reason
+        </span>
+      ),
       dataIndex: 'reason',
       key: 'reason',
+      className: 'text-sm text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'CV',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-cv"
+          data-cy="talent-acquisition-talent-pool-table-column-cv"
+        >
+          CV
+        </span>
+      ),
       dataIndex: ['jobCandidateInformation', 'resumeUrl'],
       key: 'cv',
       render: (text: string) => {
@@ -120,41 +159,58 @@ const TalentPoolTable: React.FC<any> = () => {
             rel="noopener noreferrer"
           >
             {/* <div className="text-wrap">{truncatedText}</div> */}
-            <TbFileDownload size={20} />
+            <SaveAltIcon fontSize="small" className="text-[#1e40af]" />
           </a>
         );
       },
     },
     {
-      title: 'Moved in Date',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b] text-nowrap"
+          id="talent-acquisition-talent-pool-table-column-moved-in-date"
+          data-cy="talent-acquisition-talent-pool-table-column-moved-in-date"
+        >
+          Moved in Date
+        </span>
+      ),
       dataIndex: 'createdAt',
       key: 'movedInDate',
       render: (text: string) => (
         <div
           id="talent-acquisition-talent-pool-table-cell-date"
           data-cy={`talent-acquisition-talent-pool-table-cell-date-${text}`}
-          className=""
+          className="text-sm text-[#4b4b4b]"
         >
           {dayjs(text).format('DD/MMM/YYYY')}
         </div>
       ),
+      width: 170,
     },
     {
-      title: 'Action',
+      title: (
+        <span
+          className="font-bold text-sm text-[#4b4b4b]"
+          id="talent-acquisition-talent-pool-table-column-action"
+          data-cy="talent-acquisition-talent-pool-table-column-action"
+        >
+          Action
+        </span>
+      ),
       key: 'actions',
       render: (_: any, record: any) => (
         <AccessGuard permissions={[Permissions.TransferCandidate]}>
           <Button
+            type="text"
             id={`talent-acquisition-talent-pool-table-button-reonboard-${record?.jobCandidateInformation?.id || record?.id}`}
             data-cy={`talent-acquisition-talent-pool-table-button-reonboard-${record?.jobCandidateInformation?.id || record?.id}`}
-            className="bg-[#ADD5F0] border-none"
             onClick={() => showModal(record)}
           >
             <div
               data-cy="talent-resource-talent-pool-components-talentpooltable-tsx-talentpooltable-div-153"
-              className="text-[#1D9BF0]"
+              className="text-[#1e40af] text-xs font-normal"
             >
-              Re-onboard
+              Add to Candidates
             </div>
           </Button>
         </AccessGuard>
@@ -177,30 +233,32 @@ const TalentPoolTable: React.FC<any> = () => {
 
   return (
     <>
-      {responseLoading ? (
-        <div
-          id="talent-acquisition-talent-pool-table-loading"
-          data-cy="talent-acquisition-talent-pool-table-loading"
-        >
-          <SkeletonLoading
-            alignment="vertical"
-            componentType="table"
-            count={1}
-            type="default"
+      <div
+        data-cy="talent-acquisition-talent-pool-table-container"
+        className=" overflow-x-auto scrollbar-none"
+      >
+        {responseLoading ? (
+          <div
+            id="talent-acquisition-talent-pool-table-loading"
+            data-cy="talent-acquisition-talent-pool-table-loading"
+          >
+            <TableSkeleton columns={columns} />
+          </div>
+        ) : (
+          <Table
+            data-cy="talent-acquisition-talent-pool-table"
+            dataSource={filteredItems}
             columns={columns}
+            pagination={false}
+            rowKey="id"
+            rowHoverable={false}
+            rowClassName={(notUsed, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              return base;
+            }}
           />
-        </div>
-      ) : (
-        <Table
-          data-cy="talent-acquisition-talent-pool-table"
-          dataSource={filteredItems}
-          columns={columns}
-          pagination={false}
-          loading={responseLoading}
-          scroll={{ x: 1000 }}
-          rowKey="id"
-        />
-      )}
+        )}
+      </div>
 
       {isMobile || isTablet ? (
         <div

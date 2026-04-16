@@ -9,38 +9,40 @@ import {
   Avatar,
   Tooltip,
   Form,
-  Modal,
   Button,
+  Popover,
 } from 'antd';
-import { LoadingOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LeftOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useGetAllActionPlan } from '@/store/server/features/CFR/meeting/action-plan/queries';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useGetCombinedActionPlan } from '@/store/server/features/CFR/meeting/action-plan/queries';
 import { ActionPlanSourceType } from '@/types/enumTypes';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useState } from 'react';
-import { VscSettings } from 'react-icons/vsc';
+import { useEffect, useState } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import StatusDropdown from '@/components/action-plan/StatusDropdown';
+// import StatusDropdown from '@/components/action-plan/StatusDropdown';
+import { MdOutlineFilterAlt } from 'react-icons/md';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-// Status and Priority color mappings
-const statusColors = {
-  Completed: 'green',
-  Pending: 'gold',
-  Unresolved: 'red',
-  Solved: 'green',
-};
-
 const priorityColors = {
-  High: 'red',
-  Medium: 'orange',
-  Low: 'green',
+  high: 'red',
+  medium: 'orange',
+  low: 'green',
 };
 
 const capitalizeFirstLetter = (value: any) => {
@@ -120,14 +122,24 @@ const EmployeeDetails = ({
     </div>
   );
 };
-// Table Columns
+const issueActionsCellClass =
+  'text-sm font-normal text-black/70 max-w-[220px] sm:max-w-[280px] leading-snug line-clamp-2 break-words';
+
+// Table columns (order matches design: Name → Issues → Type → Deadline → Responsible → Status → Priority → Actions)
 const columns: ColumnsType<any> = [
   {
-    title: 'Name',
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-name"
+      >
+        Name
+      </span>
+    ),
     dataIndex: 'name',
     render: (text, record) => (
       <p
-        className="text-[12px] max-w-xs truncate"
+        className="text-sm font-normal text-black/70 max-w-[160px] truncate"
         data-cy={`feedback-action-plan-table-cell-name-${record.key}`}
         id={`feedback-action-plan-table-cell-name-${record.key}`}
       >
@@ -136,24 +148,38 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: 'Issues',
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-issues"
+      >
+        Issues
+      </span>
+    ),
     dataIndex: 'issue',
     render: (text, record) => (
       <p
-        className="text-[12px] max-w-xs truncate"
+        className={issueActionsCellClass}
         data-cy={`feedback-action-plan-table-cell-issue-${record.key}`}
         id={`feedback-action-plan-table-cell-issue-${record.key}`}
       >
-        {text}
+        {text || '—'}
       </p>
     ),
   },
   {
-    title: 'Type',
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-type"
+      >
+        Type
+      </span>
+    ),
     dataIndex: 'sourceType',
     render: (val, record) => (
       <p
-        className="text-[12px] max-w-xs truncate"
+        className="text-sm font-normal text-black/70 max-w-[120px] truncate"
         data-cy={`feedback-action-plan-table-cell-type-${record.key}`}
         id={`feedback-action-plan-table-cell-type-${record.key}`}
       >
@@ -162,55 +188,137 @@ const columns: ColumnsType<any> = [
     ),
   },
   {
-    title: 'Responsible person',
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-deadline"
+      >
+        Deadline
+      </span>
+    ),
+    dataIndex: 'deadline',
+    render: (val, record) => (
+      <span
+        className="text-sm font-normal text-black/70 whitespace-nowrap"
+        data-cy={`feedback-action-plan-table-cell-deadline-${record.key}`}
+        id={`feedback-action-plan-table-cell-deadline-${record.key}`}
+      >
+        {val ? dayjs(val).format('MMM D YYYY') : '—'}
+      </span>
+    ),
+  },
+  {
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-responsible"
+      >
+        Responsible Person
+      </span>
+    ),
     dataIndex: 'responsible',
-    render: (users: any[], record) => (
+    render: (users: string[] | undefined, record) => (
       <div
-        className="flex gap-1"
+        className="flex min-w-[140px] items-center gap-1"
         data-cy={`feedback-action-plan-table-cell-responsible-${record.key}`}
         id={`feedback-action-plan-table-cell-responsible-${record.key}`}
       >
-        {users && users.length > 1
-          ? users.map((res: any, index: number) => (
-              <Avatar.Group
-                max={{
-                  count: 2,
-                  style: { color: '#f56a00', backgroundColor: '#fde3cf' },
-                }}
-                className="mt-1"
-                key={index}
-                data-cy={`feedback-action-plan-avatar-group-${record.key}-${index}`}
-              >
-                <EmployeeDetails
-                  key={res}
-                  empId={res}
-                  type="avatar"
-                  data-cy={`feedback-action-plan-avatar-group-${record.key}-${index}`}
-                />
-              </Avatar.Group>
-            ))
-          : users.map((res: any) => (
-              <EmployeeDetails
-                key={res}
-                type="all"
-                empId={res}
-                data-cy="feedback-action-plan-avatar-group-employee-full"
-              />
+        {!users?.length ? (
+          <span
+            className="text-xs text-gray-500"
+            data-cy="feedback-action-plan-table-cell-responsible-empty"
+          >
+            —
+          </span>
+        ) : users.length === 1 ? (
+          <EmployeeDetails empId={users[0]} type="all" />
+        ) : (
+          <Avatar.Group
+            max={{
+              count: 2,
+              style: { color: '#f56a00', backgroundColor: '#fde3cf' },
+            }}
+            className="flex items-center"
+            data-cy={`feedback-action-plan-avatar-group-${record.key}`}
+          >
+            {users.map((res) => (
+              <EmployeeDetails key={res} empId={res} type="avatar" />
             ))}
+          </Avatar.Group>
+        )}
       </div>
     ),
   },
   {
-    title: 'Deadline',
-    dataIndex: 'deadline',
-    render: (val) => dayjs(val).format('MMM DD, YYYY'),
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-status"
+      >
+        Status
+      </span>
+    ),
+    dataIndex: 'status',
+    render: (status: string, record) => {
+      const statusLabel = String(status || '')
+        .trim()
+        .toLowerCase();
+      let label = '';
+      let colorClass = '';
+      let borderClass = '';
+      let bgClass = '';
+
+      if (
+        statusLabel === 'solved' ||
+        statusLabel === 'resolved' ||
+        statusLabel === 'completed'
+      ) {
+        label = 'Resolved';
+        colorClass = 'text-greenbg';
+        borderClass = 'border-greenbg';
+        bgClass = 'bg-greenlight';
+      } else if (statusLabel === 'pending') {
+        label = 'Pending';
+        colorClass = 'text-orangebg';
+        borderClass = 'border-orangebg';
+        bgClass = 'bg-lightorange';
+      } else if (statusLabel === 'unresolved') {
+        label = 'Unresolved';
+        colorClass = 'text-error';
+        borderClass = 'border-error';
+        bgClass = 'bg-errorlight';
+      } else {
+        label = status || '-';
+        colorClass = 'text-black/70';
+        borderClass = 'border-gray-200';
+        bgClass = 'bg-white';
+      }
+
+      return (
+        <span
+          className={`min-w-[60px] h-[22px] rounded-md flex items-center justify-center border text-xs font-normal ${colorClass} ${borderClass} ${bgClass}`}
+          data-cy={`feedback-action-plan-table-status-${record.key}`}
+          id={`feedback-action-plan-table-status-${record.key}`}
+        >
+          {label}
+        </span>
+      );
+    },
   },
   {
-    title: 'Priority',
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-priority"
+      >
+        Priority
+      </span>
+    ),
     dataIndex: 'priority',
     render: (priority: keyof typeof priorityColors, record) =>
       !priority ? (
         <span
+          className="text-xs text-gray-500"
           data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
           id={`feedback-action-plan-table-cell-priority-${record.key}`}
         >
@@ -218,8 +326,13 @@ const columns: ColumnsType<any> = [
         </span>
       ) : (
         <Tag
-          className="font-bold border-none min-w-16 text-center capitalize text-[10px]"
-          color={priorityColors[priority]}
+          bordered
+          className="min-w-[60px] h-[22px] rounded-md flex items-center justify-center border text-xs font-normal capitalize"
+          color={
+            priorityColors[
+              priority?.toString()?.toLowerCase() as keyof typeof priorityColors
+            ]
+          }
           data-cy={`feedback-action-plan-table-cell-priority-${record.key}`}
           id={`feedback-action-plan-table-cell-priority-${record.key}`}
         >
@@ -228,27 +341,22 @@ const columns: ColumnsType<any> = [
       ),
   },
   {
-    title: 'Status',
-    dataIndex: 'status',
-    render: (status: keyof typeof statusColors, record) => (
-      <StatusDropdown
-        actionPlanId={record.key}
-        currentStatus={status}
-        responsiblePerson={record.responsible || []}
-        recordKey={record.key}
-      />
+    title: (
+      <span
+        className="text-base font-bold text-black/70 truncate"
+        data-cy="feedback-action-plan-col-title-actions"
+      >
+        Actions to be done
+      </span>
     ),
-  },
-  {
-    title: 'What needs to be done',
     dataIndex: 'description',
     render: (text, record) => (
       <p
-        className="text-[12px] truncate"
+        className={issueActionsCellClass}
         data-cy={`feedback-action-plan-table-cell-description-${record.key}`}
         id={`feedback-action-plan-table-cell-description-${record.key}`}
       >
-        {text}
+        {text || '—'}
       </p>
     ),
   },
@@ -260,9 +368,9 @@ const columns: ColumnsType<any> = [
 
 export default function ActionPlansPage() {
   const [form] = Form.useForm();
+  const searchParams = useSearchParams();
   const { data: allUsers } = useGetAllUsers();
   const { userData, userId } = useAuthenticationStore();
-  const isOwner = userData?.role?.slug === 'owner';
   const isUserRole = userData?.role?.slug?.toLowerCase() === 'user';
   const peopleOptions = allUsers?.items?.map((i: any) => ({
     value: i.id,
@@ -271,7 +379,15 @@ export default function ActionPlansPage() {
   const formEmpId = Form.useWatch('empId', form) || null;
   // If user role, automatically filter by their own userId, otherwise use form value
   const empId = isUserRole ? userId : formEmpId;
-  const sourceType = Form.useWatch('sourceType', form) || null;
+  const formSourceType = Form.useWatch('sourceType', form) || null;
+  const typeFromUrl = searchParams?.get('type')?.trim().toLowerCase();
+  const sourceTypeFromUrl =
+    typeFromUrl === 'meeting'
+      ? ActionPlanSourceType.MEETING
+      : typeFromUrl === 'survey'
+        ? ActionPlanSourceType.SURVEY
+        : null;
+  const sourceType = formSourceType || sourceTypeFromUrl || null;
   const priority = Form.useWatch('priority', form) || null;
   const status = Form.useWatch('status', form) || null;
   const dateRange = Form.useWatch('dateRange', form) || null;
@@ -286,20 +402,20 @@ export default function ActionPlansPage() {
   // }, [search, priority, status, dateRange])
   const { pageSizeAction, currentAction, setCurrentAction, setPagesizeAction } =
     useMeetingStore();
-  const { data: actionPlan, isLoading } = useGetAllActionPlan(
-    pageSizeAction,
-    currentAction,
-    empId,
-    priority,
+  const { data: actionPlan, isLoading } = useGetCombinedActionPlan({
+    page: currentAction,
+    limit: pageSizeAction,
     status,
-    startAt,
-    endAt,
+    userId: empId,
+    completionStartDate: startAt,
+    completionEndDate: endAt,
     sourceType,
-  );
+    priority,
+  });
   const data = actionPlan?.items?.map((item: any) => ({
     key: item.id,
-    name: item?.sourceName ?? '—',
-    sourceType: item?.sourceType ?? null,
+    name: item?.name ?? item?.sourceName ?? '—',
+    sourceType: item?.type ?? item?.sourceType ?? null,
     issue: item?.description ?? item?.issue,
     description: item?.actionToBeTaken ?? item?.description,
     deadline: item.deadline,
@@ -310,61 +426,70 @@ export default function ActionPlansPage() {
       item?.responsibleUsers?.map((ru: any) => ru.responsibleId) ||
       [],
   }));
-
   const { isMobile } = useIsMobile();
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (sourceTypeFromUrl && !form.getFieldValue('sourceType')) {
+      form.setFieldValue('sourceType', sourceTypeFromUrl);
+    }
+  }, [form, sourceTypeFromUrl]);
+
+  const breadcrumbSubtitle = (
+    <span
+      className="text-black/45 text-sm font-medium"
+      data-cy="feedback-action-plan-breadcrumb-subtitle"
+    >
+      <Link
+        href="/feedback/conversation"
+        className="text-slate-500 hover:text-slate-700"
+        data-cy="feedback-action-plan-breadcrumb-dashboard-link"
+      >
+        Conversation
+      </Link>
+      <span data-cy="feedback-action-plan-breadcrumb-separator"> / </span>
+      <span
+        className="text-black/70 font-normal"
+        data-cy="feedback-action-plan-breadcrumb-current"
+      >
+        Action Plan
+      </span>
+    </span>
+  );
 
   return (
     <div
-      className="p-6"
+      className="min-h-full py-4"
       data-cy="feedback-action-plan-page-div"
       id="feedback-action-plan-page-div"
     >
       <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4"
+        className="mb-5 flex items-center gap-3"
         data-cy="feedback-action-plan-page-div-header"
         id="feedback-action-plan-page-div-header"
       >
+        <Button
+          type="default"
+          className="!flex h-9 w-9 shrink-0 items-center justify-center !p-0"
+          icon={<LeftOutlined />}
+          onClick={() => router.back()}
+          aria-label="Go back"
+          data-cy="feedback-action-plan-back-button"
+        />
         <div
+          className="min-w-0 flex-1"
           data-cy="feedback-action-plan-page-div-title-section"
           id="feedback-action-plan-page-div-title-section"
         >
-          <h2
-            className="text-2xl font-semibold"
-            data-cy="feedback-action-plan-page-h2-title"
-            id="feedback-action-plan-page-h2-title"
-          >
-            Action Plans
-          </h2>
-          <p
-            className="text-sm text-gray-500"
-            data-cy="feedback-action-plan-page-p-subtitle"
-            id="feedback-action-plan-page-p-subtitle"
-          >
-            View all action plans
-          </p>
+          <CustomBreadcrumb
+            title="Action Plan"
+            subtitle={breadcrumbSubtitle}
+            compact
+          />
         </div>
-        {isMobile && (
-          <div
-            className="flex justify-end items-center gap-2"
-            data-cy="feedback-action-plan-page-div-mobile-filter"
-            id="feedback-action-plan-page-div-mobile-filter"
-          >
-            <div
-              className="flex items-center justify-center w-10 h-10 text-black border border-gray-300 rounded-lg"
-              data-cy="feedback-action-plan-page-div-filter-icon-container"
-              id="feedback-action-plan-page-div-filter-icon-container"
-            >
-              <VscSettings
-                size={20}
-                onClick={() => setIsFilterModalOpen(true)}
-                data-cy="feedback-action-plan-page-icon-settings"
-                id="feedback-action-plan-page-icon-settings"
-              />
-            </div>
-          </div>
-        )}
       </div>
+
       <Form
         form={form}
         layout="vertical"
@@ -379,382 +504,345 @@ export default function ActionPlansPage() {
         id="feedback-action-plan-page-form"
       >
         <div
-          className={`grid gap-4 items-center ${isMobile ? 'hidden' : 'grid-cols-12'}`}
-          data-cy="feedback-action-plan-page-div-filters"
-          id="feedback-action-plan-page-div-filters"
-        >
-          <Form.Item
-            name="empId"
-            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
-            data-cy="feedback-action-plan-page-form-item-employee"
-            id="feedback-action-plan-page-form-item-employee"
-          >
-            <Select
-              showSearch
-              allowClear
-              maxTagCount={1}
-              placeholder="Select Employee"
-              options={peopleOptions}
-              filterOption={(input: any, option: any) =>
-                (option?.label ?? '')
-                  ?.toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-              className="h-12"
-              data-cy="feedback-action-plan-page-select-employee"
-              id="feedback-action-plan-page-select-employee"
-              disabled={!isOwner || isUserRole}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="sourceType"
-            className={isMobile ? 'col-span-12' : 'col-span-2 m-0'}
-            data-cy="feedback-action-plan-page-form-item-source-type"
-            id="feedback-action-plan-page-form-item-source-type"
-          >
-            <Select
-              allowClear
-              className="h-12"
-              placeholder="Select type"
-              data-cy="feedback-action-plan-page-select-source-type"
-              id="feedback-action-plan-page-select-source-type"
-            >
-              <Option
-                value={ActionPlanSourceType.MEETING}
-                data-cy="feedback-action-plan-page-option-source-meeting"
-                id="feedback-action-plan-page-option-source-meeting"
-              >
-                Meeting
-              </Option>
-              <Option
-                value={ActionPlanSourceType.SURVEY}
-                data-cy="feedback-action-plan-page-option-source-survey"
-                id="feedback-action-plan-page-option-source-survey"
-              >
-                Survey
-              </Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="status"
-            className={isMobile ? 'col-span-12' : 'col-span-2 m-0'}
-            data-cy="feedback-action-plan-page-form-item-status"
-            id="feedback-action-plan-page-form-item-status"
-          >
-            <Select
-              allowClear
-              className="h-12"
-              placeholder="Select status"
-              data-cy="feedback-action-plan-page-select-status"
-              id="feedback-action-plan-page-select-status"
-            >
-              <Option
-                value="Pending"
-                data-cy="feedback-action-plan-page-option-status-pending"
-                id="feedback-action-plan-page-option-status-pending"
-              >
-                Pending
-              </Option>
-              <Option
-                value="In_Progress"
-                data-cy="feedback-action-plan-page-option-status-in-progress"
-                id="feedback-action-plan-page-option-status-in-progress"
-              >
-                In progress{' '}
-              </Option>
-              <Option
-                value="Completed"
-                data-cy="feedback-action-plan-page-option-status-completed"
-                id="feedback-action-plan-page-option-status-completed"
-              >
-                Completed{' '}
-              </Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="priority"
-            className={isMobile ? 'col-span-12' : 'col-span-2 m-0'}
-            data-cy="feedback-action-plan-page-form-item-priority"
-            id="feedback-action-plan-page-form-item-priority"
-          >
-            <Select
-              allowClear
-              className="h-12"
-              placeholder="Select priority"
-              data-cy="feedback-action-plan-page-select-priority"
-              id="feedback-action-plan-page-select-priority"
-            >
-              <Option
-                value="High"
-                data-cy="feedback-action-plan-page-option-priority-high"
-                id="feedback-action-plan-page-option-priority-high"
-              >
-                High
-              </Option>
-              <Option
-                value="Medium"
-                data-cy="feedback-action-plan-page-option-priority-medium"
-                id="feedback-action-plan-page-option-priority-medium"
-              >
-                Medium
-              </Option>
-              <Option
-                value="Low"
-                data-cy="feedback-action-plan-page-option-priority-low"
-                id="feedback-action-plan-page-option-priority-low"
-              >
-                Low
-              </Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="dateRange"
-            className={isMobile ? 'col-span-12' : 'col-span-3 m-0'}
-            data-cy="feedback-action-plan-page-form-item-date-range"
-            id="feedback-action-plan-page-form-item-date-range"
-          >
-            <RangePicker
-              allowClear
-              className="w-full h-12"
-              format="DD MMM YYYY"
-              data-cy="feedback-action-plan-page-range-picker"
-              id="feedback-action-plan-page-range-picker"
-            />
-          </Form.Item>
-        </div>
-      </Form>
-
-      <div
-        className="mt-4 overflow-x-auto scrollbar-none"
-        data-cy="feedback-action-plan-page-div-table-container"
-        id="feedback-action-plan-page-div-table-container"
-      >
-        <Table
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-          loading={isLoading}
-          scroll={{ x: 'max-content' }}
-          data-cy="feedback-action-plan-page-table"
-          id="feedback-action-plan-page-table"
-        />
-      </div>
-
-      <CustomPagination
-        current={actionPlan?.meta?.currentPage || 1}
-        total={actionPlan?.meta?.totalItems || 1}
-        pageSize={pageSizeAction}
-        onChange={(page, pageSize) => {
-          setCurrentAction(page);
-          setPagesizeAction(pageSize);
-        }}
-        onShowSizeChange={(size) => {
-          setPagesizeAction(size);
-          setCurrentAction(1);
-        }}
-        data-cy="feedback-action-plan-page-pagination"
-      />
-
-      <Modal
-        title="Filters"
-        open={isFilterModalOpen}
-        onCancel={() => setIsFilterModalOpen(false)}
-        footer={
-          <div
-            className="flex justify-end items-center gap-2"
-            data-cy="feedback-action-plan-page-modal-footer"
-            id="feedback-action-plan-page-modal-footer"
-          >
-            <Button
-              key="cancel"
-              onClick={() => setIsFilterModalOpen(false)}
-              data-cy="feedback-action-plan-page-modal-button-cancel"
-              id="feedback-action-plan-page-modal-button-cancel"
-            >
-              Cancel
-            </Button>
-            <Button
-              key="apply"
-              type="primary"
-              onClick={() => setIsFilterModalOpen(false)}
-              data-cy="feedback-action-plan-page-modal-button-apply"
-              id="feedback-action-plan-page-modal-button-apply"
-            >
-              Apply Filters
-            </Button>
-          </div>
-        }
-        width={isMobile ? '95%' : '50%'}
-        centered
-        data-cy="feedback-action-plan-page-modal"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={{
-            search: '',
-            meetingType: null,
-            departments: [],
-            dateRange: null,
-            sourceType: null,
-          }}
-          data-cy="feedback-action-plan-page-modal-form"
-          id="feedback-action-plan-page-modal-form"
+          id="feedback-action-plan-page-card-inner"
+          className="rounded-lg border border-gray-200 bg-white shadow-sm"
+          data-cy="feedback-action-plan-page-card"
         >
           <div
-            className="space-y-4"
-            data-cy="feedback-action-plan-page-modal-div-fields"
-            id="feedback-action-plan-page-modal-div-fields"
+            className="flex flex-col gap-3 border-b border-gray-100 p-4 md:flex-row md:items-center md:justify-between"
+            data-cy="feedback-action-plan-page-toolbar"
           >
             <Form.Item
               name="empId"
-              label="Employee"
-              data-cy="feedback-action-plan-page-modal-form-item-employee"
-              id="feedback-action-plan-page-modal-form-item-employee"
+              className="m-0 w-[300px] flex-1 md:max-w-md"
+              data-cy="feedback-action-plan-page-form-item-employee"
+              id="feedback-action-plan-page-form-item-employee"
             >
               <Select
                 showSearch
                 allowClear
                 maxTagCount={1}
-                placeholder="Select Employee"
+                placeholder="Search Employee"
                 options={peopleOptions}
-                filterOption={(input: any, option: any) =>
-                  (option?.label ?? '')
-                    ?.toLowerCase()
+                suffixIcon={
+                  <div
+                    className="border-l border-gray-200 h-8 flex items-center justify-center "
+                    data-cy="feedback-action-plan-select-employee-suffix"
+                  >
+                    <SearchOutlined className="text-gray-400 ml-2" />
+                  </div>
+                }
+                filterOption={(input: string, option) =>
+                  String(option?.label ?? '')
+                    .toLowerCase()
                     .includes(input.toLowerCase())
                 }
-                className="h-12"
-                data-cy="feedback-action-plan-page-modal-select-employee"
-                id="feedback-action-plan-page-modal-select-employee"
-                disabled={!isOwner || isUserRole}
+                className="h-8 "
+                data-cy="feedback-action-plan-page-select-employee"
+                id="feedback-action-plan-page-select-employee"
+                // disabled={!isOwner || isUserRole}
               />
             </Form.Item>
+            <Popover
+              trigger="click"
+              placement={isMobile ? 'bottom' : 'bottomRight'}
+              open={isFilterPopoverOpen}
+              onOpenChange={setIsFilterPopoverOpen}
+              getPopupContainer={(trigger) =>
+                trigger.closest('#feedback-action-plan-page-card-inner') ??
+                document.body
+              }
+              content={
+                <div
+                  className="w-[543px] rounded-xl bg-white px-5 py-2"
+                  data-cy="feedback-action-plan-filter-popover-content"
+                >
+                  <div
+                    className="mb-5 flex items-center justify-between"
+                    data-cy="feedback-action-plan-filter-popover-header"
+                  >
+                    <h3
+                      className="text-base font-bold leading-none text-black/70"
+                      data-cy="feedback-action-plan-filter-popover-title"
+                    >
+                      Filter
+                    </h3>
+                    <Button
+                      type="text"
+                      icon={
+                        <CloseOutlined className="text-base text-black/70" />
+                      }
+                      onClick={() => setIsFilterPopoverOpen(false)}
+                      className="!h-8 !w-8 !p-0"
+                      data-cy="feedback-action-plan-filter-popover-close"
+                    />
+                  </div>
 
-            <Form.Item
-              name="sourceType"
-              label="Type"
-              data-cy="feedback-action-plan-page-modal-form-item-source-type"
-              id="feedback-action-plan-page-modal-form-item-source-type"
+                  <div
+                    className="max-h-[min(70vh,28rem)] space-y-5 overflow-y-auto pr-1"
+                    data-cy="feedback-action-plan-filter-popover-fields"
+                  >
+                    <div
+                      className="grid grid-cols-1 gap-4 md:grid-cols-3"
+                      data-cy="feedback-action-plan-filter-grid"
+                    >
+                      <Form.Item
+                        name="sourceType"
+                        className="mb-0"
+                        label={
+                          <span
+                            className="text-base font-normal text-black/70"
+                            data-cy="feedback-action-plan-filter-label-type"
+                          >
+                            Type{' '}
+                            <span
+                              className="text-red-500"
+                              data-cy="feedback-action-plan-filter-label-type-required"
+                            >
+                              *
+                            </span>
+                          </span>
+                        }
+                        data-cy="feedback-action-plan-filter-form-item-source-type"
+                        id="feedback-action-plan-filter-form-item-source-type"
+                      >
+                        <Select
+                          allowClear
+                          className="h-10 w-full "
+                          placeholder="Select"
+                          data-cy="feedback-action-plan-filter-select-source-type"
+                          id="feedback-action-plan-filter-select-source-type"
+                        >
+                          <Option
+                            value={ActionPlanSourceType.MEETING}
+                            data-cy="feedback-action-plan-filter-option-source-meeting"
+                            id="feedback-action-plan-filter-option-source-meeting"
+                          >
+                            Meeting
+                          </Option>
+                          <Option
+                            value={ActionPlanSourceType.SURVEY}
+                            data-cy="feedback-action-plan-filter-option-source-survey"
+                            id="feedback-action-plan-filter-option-source-survey"
+                          >
+                            Survey
+                          </Option>
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        name="status"
+                        className="mb-0"
+                        label={
+                          <span
+                            className="text-base font-normal text-black/70"
+                            data-cy="feedback-action-plan-filter-label-status"
+                          >
+                            Status{' '}
+                            <span
+                              className="text-red-500"
+                              data-cy="feedback-action-plan-filter-label-status-required"
+                            >
+                              *
+                            </span>
+                          </span>
+                        }
+                        data-cy="feedback-action-plan-filter-form-item-status"
+                        id="feedback-action-plan-filter-form-item-status"
+                      >
+                        <Select
+                          allowClear
+                          className="h-10 w-full "
+                          placeholder="Select"
+                          data-cy="feedback-action-plan-filter-select-status"
+                          id="feedback-action-plan-filter-select-status"
+                        >
+                          <Option
+                            value="Pending"
+                            data-cy="feedback-action-plan-filter-option-status-pending"
+                            id="feedback-action-plan-filter-option-status-pending"
+                          >
+                            Pending
+                          </Option>
+                          <Option
+                            value="In_Progress"
+                            data-cy="feedback-action-plan-filter-option-status-in-progress"
+                            id="feedback-action-plan-filter-option-status-in-progress"
+                          >
+                            In progress
+                          </Option>
+                          <Option
+                            value="Completed"
+                            data-cy="feedback-action-plan-filter-option-status-completed"
+                            id="feedback-action-plan-filter-option-status-completed"
+                          >
+                            Completed
+                          </Option>
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        name="priority"
+                        className="mb-0"
+                        label={
+                          <span
+                            className="text-base font-normal text-black/70"
+                            data-cy="feedback-action-plan-filter-label-priority"
+                          >
+                            Priority{' '}
+                            <span
+                              className="text-red-500"
+                              data-cy="feedback-action-plan-filter-label-priority-required"
+                            >
+                              *
+                            </span>
+                          </span>
+                        }
+                        data-cy="feedback-action-plan-filter-form-item-priority"
+                        id="feedback-action-plan-filter-form-item-priority"
+                      >
+                        <Select
+                          allowClear
+                          className="h-10 w-full "
+                          placeholder="Select"
+                          data-cy="feedback-action-plan-filter-select-priority"
+                          id="feedback-action-plan-filter-select-priority"
+                        >
+                          <Option
+                            value="High"
+                            data-cy="feedback-action-plan-filter-option-priority-high"
+                            id="feedback-action-plan-filter-option-priority-high"
+                          >
+                            High
+                          </Option>
+                          <Option
+                            value="Medium"
+                            data-cy="feedback-action-plan-filter-option-priority-medium"
+                            id="feedback-action-plan-filter-option-priority-medium"
+                          >
+                            Medium
+                          </Option>
+                          <Option
+                            value="Low"
+                            data-cy="feedback-action-plan-filter-option-priority-low"
+                            id="feedback-action-plan-filter-option-priority-low"
+                          >
+                            Low
+                          </Option>
+                        </Select>
+                      </Form.Item>
+                    </div>
+
+                    <Form.Item
+                      name="dateRange"
+                      className="mb-0 !mt-1"
+                      label={
+                        <span
+                          className="text-base font-normal text-black/70"
+                          data-cy="feedback-action-plan-filter-label-date"
+                        >
+                          Date{' '}
+                          <span
+                            className="text-red-500"
+                            data-cy="feedback-action-plan-filter-label-date-required"
+                          >
+                            *
+                          </span>
+                        </span>
+                      }
+                      data-cy="feedback-action-plan-filter-form-item-date-range"
+                      id="feedback-action-plan-filter-form-item-date-range"
+                    >
+                      <RangePicker
+                        allowClear
+                        className="h-10 w-full "
+                        format="DD MMM YYYY"
+                        placeholder={['Start date', 'End date']}
+                        data-cy="feedback-action-plan-filter-range-picker"
+                        id="feedback-action-plan-filter-range-picker"
+                      />
+                    </Form.Item>
+                  </div>
+                  <div
+                    className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3"
+                    data-cy="feedback-action-plan-filter-popover-footer"
+                  >
+                    <Button
+                      onClick={() => setIsFilterPopoverOpen(false)}
+                      className="h-8 min-w-[68px] rounded-md border-[#D9D9D9] border"
+                      data-cy="feedback-action-plan-filter-button-cancel"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={() => setIsFilterPopoverOpen(false)}
+                      className="h-8 min-w-[68px] rounded-md bg-[#1f40be] !border-none"
+                      data-cy="feedback-action-plan-filter-button-apply"
+                    >
+                      Filter
+                    </Button>
+                  </div>
+                </div>
+              }
+              data-cy="feedback-action-plan-filter-popover"
             >
-              <Select
-                allowClear
-                className="h-12"
-                placeholder="Select type"
-                data-cy="feedback-action-plan-page-modal-select-source-type"
-                id="feedback-action-plan-page-modal-select-source-type"
+              <Button
+                type="default"
+                className="flex h-8 items-center justify-center gap-2 border-gray-300 md:w-auto text-black/70 font-normal"
+                icon={<MdOutlineFilterAlt size={16} className="mt-1" />}
+                data-cy="feedback-action-plan-page-button-filter"
               >
-                <Option
-                  value={ActionPlanSourceType.MEETING}
-                  data-cy="feedback-action-plan-page-modal-option-source-meeting"
-                  id="feedback-action-plan-page-modal-option-source-meeting"
-                >
-                  Meeting
-                </Option>
-                <Option
-                  value={ActionPlanSourceType.SURVEY}
-                  data-cy="feedback-action-plan-page-modal-option-source-survey"
-                  id="feedback-action-plan-page-modal-option-source-survey"
-                >
-                  Survey
-                </Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="priority"
-              label="Priority"
-              data-cy="feedback-action-plan-page-modal-form-item-priority"
-              id="feedback-action-plan-page-modal-form-item-priority"
-            >
-              <Select
-                allowClear
-                className="h-12"
-                placeholder="Select priority"
-                data-cy="feedback-action-plan-page-modal-select-priority"
-                id="feedback-action-plan-page-modal-select-priority"
-              >
-                <Option
-                  value="High"
-                  data-cy="feedback-action-plan-page-modal-option-priority-high"
-                  id="feedback-action-plan-page-modal-option-priority-high"
-                >
-                  High
-                </Option>
-                <Option
-                  value="Medium"
-                  data-cy="feedback-action-plan-page-modal-option-priority-medium"
-                  id="feedback-action-plan-page-modal-option-priority-medium"
-                >
-                  Medium
-                </Option>
-                <Option
-                  value="Low"
-                  data-cy="feedback-action-plan-page-modal-option-priority-low"
-                  id="feedback-action-plan-page-modal-option-priority-low"
-                >
-                  Low
-                </Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="status"
-              label="Status"
-              data-cy="feedback-action-plan-page-modal-form-item-status"
-              id="feedback-action-plan-page-modal-form-item-status"
-            >
-              <Select
-                allowClear
-                className="h-12"
-                placeholder="Select status"
-                data-cy="feedback-action-plan-page-modal-select-status"
-                id="feedback-action-plan-page-modal-select-status"
-              >
-                <Option
-                  value="Pending"
-                  data-cy="feedback-action-plan-page-modal-option-status-pending"
-                  id="feedback-action-plan-page-modal-option-status-pending"
-                >
-                  Pending
-                </Option>
-                <Option
-                  value="In_Progress"
-                  data-cy="feedback-action-plan-page-modal-option-status-in-progress"
-                  id="feedback-action-plan-page-modal-option-status-in-progress"
-                >
-                  In progress{' '}
-                </Option>
-                <Option
-                  value="Completed"
-                  data-cy="feedback-action-plan-page-modal-option-status-completed"
-                  id="feedback-action-plan-page-modal-option-status-completed"
-                >
-                  Completed{' '}
-                </Option>
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="dateRange"
-              label="Date Range"
-              data-cy="feedback-action-plan-page-modal-form-item-date-range"
-              id="feedback-action-plan-page-modal-form-item-date-range"
-            >
-              <RangePicker
-                allowClear
-                className="w-full h-12"
-                format="DD MMM YYYY"
-                data-cy="feedback-action-plan-page-modal-range-picker"
-                id="feedback-action-plan-page-modal-range-picker"
-              />
-            </Form.Item>
+                Filter
+              </Button>
+            </Popover>
           </div>
-        </Form>
-      </Modal>
+
+          <div
+            className="overflow-x-auto   scrollbar-none"
+            data-cy="feedback-action-plan-page-div-table-container"
+            id="feedback-action-plan-page-div-table-container"
+          >
+            {isLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={false}
+                scroll={{ x: 'max-content' }}
+                rowKey="key"
+                rowClassName={(rowRecord, index) =>
+                  index % 2 == 0 ? 'bg-white' : 'bg-[#fafafa]'
+                }
+                className="action-plan-table [&_.ant-table]:rounded-none"
+                data-cy="feedback-action-plan-page-table"
+                id="feedback-action-plan-page-table"
+              />
+            )}
+          </div>
+
+          <div
+            className="border-t border-gray-100 px-2 py-3 md:px-4"
+            data-cy="feedback-action-plan-page-pagination-wrap"
+          >
+            <CustomPagination
+              current={actionPlan?.meta?.currentPage || 1}
+              total={actionPlan?.meta?.totalItems || 1}
+              pageSize={pageSizeAction}
+              onChange={(page, pageSize) => {
+                setCurrentAction(page);
+                setPagesizeAction(pageSize);
+              }}
+              onShowSizeChange={(size) => {
+                setPagesizeAction(size);
+                setCurrentAction(1);
+              }}
+              data-cy="feedback-action-plan-page-pagination"
+            />
+          </div>
+        </div>
+      </Form>
     </div>
   );
 }

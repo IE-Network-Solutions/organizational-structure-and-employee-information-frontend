@@ -8,6 +8,7 @@ import {
   LeaveRequestStatus,
   LeaveRequestStatusBadgeTheme,
 } from '@/types/timesheet/settings';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { Avatar, Table, TableColumnsType } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import React from 'react';
@@ -196,21 +197,24 @@ const Request = ({
           {title}
         </div>
       </div>
-      <Table
-        columns={columns}
-        loading={isFetching}
-        dataSource={allFilterData}
-        pagination={{
-          total: allFilterData?.meta?.totalItems,
-          current: allFilterData?.meta?.currentPage,
-          pageSize: pageSize,
-          onChange: onPageChange,
-          showSizeChanger: true,
-          onShowSizeChange: onPageChange,
-        }}
-        id={`department-request-table-${titleSlug}`}
-        data-cy={`department-request-table-${titleSlug}`}
-      />
+      {isFetching ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          columns={columns}
+          dataSource={allFilterData}
+          pagination={{
+            total: allFilterData?.meta?.totalItems,
+            current: allFilterData?.meta?.currentPage,
+            pageSize: pageSize,
+            onChange: onPageChange,
+            showSizeChanger: true,
+            onShowSizeChange: onPageChange,
+          }}
+          id={`department-request-table-${titleSlug}`}
+          data-cy={`department-request-table-${titleSlug}`}
+        />
+      )}
     </>
   );
 };

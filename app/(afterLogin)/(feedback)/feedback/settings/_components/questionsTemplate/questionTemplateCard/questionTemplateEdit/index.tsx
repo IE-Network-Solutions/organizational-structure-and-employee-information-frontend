@@ -5,6 +5,7 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useUpdateQuestionTemplate } from '@/store/server/features/feedback/settings/mutation';
 import { v4 as uuidv4 } from 'uuid';
 import { FieldType } from '@/types/enumTypes';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 
 const { Option } = Select;
 
@@ -53,8 +54,17 @@ const EditQuestionTemplate: React.FC<{
   return (
     questionModal && (
       <Modal
+        rootClassName="cfr-feedback-settings-modal"
         centered
-        title="Edit Question"
+        title={
+          <SettingsModalHeader
+            title="Edit Question"
+            onClose={onClose}
+            data-cy="edit-question-template-modal-header"
+            closeDataCy="edit-question-template-modal-close-button"
+          />
+        }
+        closeIcon={null}
         open={true}
         onCancel={onClose}
         footer={null}
@@ -64,12 +74,23 @@ const EditQuestionTemplate: React.FC<{
           onFinish={handleSubmit}
           form={form}
           layout="vertical"
+          requiredMark={false}
           data-cy="edit-question-template-form"
           id="editQuestionTemplateForm"
         >
           <Form.Item
             name="customFieldName"
-            label="Template Title"
+            label={
+              <span data-cy="edit-question-template-title-label-text">
+                Template Title{' '}
+                <span
+                  style={{ color: 'red' }}
+                  data-cy="edit-question-template-title-required"
+                >
+                  *
+                </span>
+              </span>
+            }
             rules={[{ required: true, message: 'Please input the title!' }]}
             data-cy="edit-question-template-title-field"
             id="editQuestionTemplateTitleField"
@@ -94,7 +115,17 @@ const EditQuestionTemplate: React.FC<{
             >
               <Form.Item
                 name="fieldType"
-                label="Field Type"
+                label={
+                  <span data-cy="edit-question-template-field-type-label-text">
+                    Field Type{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="edit-question-template-field-type-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
                 rules={[
                   { required: true, message: 'Please select a field type!' },
                 ]}
@@ -146,7 +177,17 @@ const EditQuestionTemplate: React.FC<{
             >
               <Form.Item
                 name="question"
-                label="Question"
+                label={
+                  <span data-cy="edit-question-template-question-label-text">
+                    Question{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="edit-question-template-question-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
                 rules={[
                   { required: true, message: 'Please input the question!' },
                 ]}
@@ -275,7 +316,7 @@ const EditQuestionTemplate: React.FC<{
             id="editQuestionTemplateFormActions"
           >
             <div
-              className="flex items-center justify-end gap-3"
+              className="feedback-settings-modal-actions flex items-center justify-end gap-3"
               data-cy="edit-question-template-form-buttons"
               id="editQuestionTemplateFormButtons"
             >

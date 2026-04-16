@@ -1,13 +1,14 @@
-import CustomButton from '@/components/common/buttons/customButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import {
   useCreateMeetingType,
   useUpdateMeetingType,
 } from '@/store/server/features/CFR/meeting/type/mutations';
 
 import { useMeetingStore } from '@/store/uistate/features/conversation/meeting';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-import { Form, Input } from 'antd';
+import { Button, Form, Input, Modal } from 'antd';
+import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
+import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import React, { useEffect } from 'react';
 
 interface MeetingTypeDrawerProps {
@@ -23,6 +24,11 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
 }) => {
   const { setMeetingType } = useMeetingStore();
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
+  // Fallback to viewport width in case global isMobile updates after modal open.
+  const isMobileViewport =
+    isMobile ||
+    (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const { mutate: createMeetingType, isLoading: createLoading } =
     useCreateMeetingType();
   const { mutate: updateMeetingType, isLoading: updateLoading } =
@@ -43,16 +49,6 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
     }
   }, [meetType, form]);
 
-  const modalHeader = (
-    <div
-      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-      data-cy="meeting-type-drawer-header"
-      id="meetingTypeDrawerHeader"
-    >
-      {meetType ? 'Update Meeting Type' : 'Add New Meeting Type'}
-    </div>
-  );
-
   const onFinish = (values: any) => {
     meetType == null
       ? createMeetingType(values, {
@@ -71,40 +67,56 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
   };
   const loading = createLoading || updateLoading;
 
-  const footer = (
-    <div
-      className="w-full flex justify-center items-center gap-4 pt-8"
-      data-cy="meeting-type-drawer-footer"
-      id="meetingTypeDrawerFooter"
-    >
-      <CustomButton
-        type="default"
-        title="Cancel"
-        onClick={handleDrawerClose}
-        style={{ marginRight: 8 }}
-        loading={loading}
-        data-cy="meeting-type-drawer-cancel-button"
-        id="meetingTypeDrawerCancelButton"
-      />
-      <CustomButton
-        htmlType="submit"
-        title={meetType ? 'Update' : 'Submit'}
-        type="primary"
-        onClick={() => form.submit()}
-        loading={loading}
-        data-cy="meeting-type-drawer-submit-button"
-        id="meetingTypeDrawerSubmitButton"
-      />
-    </div>
-  );
-
   return (
-    <CustomDrawerLayout
+    <Modal
+      rootClassName="cfr-feedback-settings-modal"
       open={open}
-      onClose={handleDrawerClose}
-      modalHeader={modalHeader}
-      footer={footer}
-      width="40%"
+      onCancel={handleDrawerClose}
+      closeIcon={null}
+      footer={null}
+      centered={!isMobileViewport}
+      width={isMobileViewport ? '100%' : 780}
+      destroyOnClose
+      style={
+        isMobileViewport
+          ? {
+              position: 'fixed',
+              top: 'auto',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              margin: 0,
+              padding: 0,
+              transform: 'none',
+              width: '100%',
+              maxWidth: '100%',
+            }
+          : undefined
+      }
+      styles={{
+        content: isMobileViewport
+          ? { width: '100%', maxWidth: '100%', margin: 0, borderRadius: 12 }
+          : undefined,
+        body: isMobileViewport
+          ? { maxHeight: 'calc(100vh - 220px)', overflowY: 'auto' }
+          : undefined,
+      }}
+      title={
+        <SettingsModalHeader
+          title={
+            <span
+              className="text-base font-semibold text-gray-700"
+              data-cy="meeting-type-drawer-header"
+              id="meetingTypeDrawerHeader"
+            >
+              Meeting Type
+            </span>
+          }
+          onClose={handleDrawerClose}
+          data-cy="meeting-type-modal-header"
+          closeDataCy="meeting-type-modal-close-button"
+        />
+      }
       data-cy="meeting-type-drawer"
     >
       <Form
@@ -112,11 +124,22 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
         layout="vertical"
         name="itemForm"
         onFinish={onFinish}
+        requiredMark={false}
         data-cy="meeting-type-drawer-form"
         id="meetingTypeDrawerForm"
       >
         <Form.Item
-          label="Name"
+          label={
+            <span data-cy="meeting-type-drawer-name-label">
+              Name{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="meeting-type-drawer-name-required"
+              >
+                *
+              </span>
+            </span>
+          }
           name="name"
           rules={[
             { required: true, message: 'Please enter the item name.' },
@@ -126,14 +149,25 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           id="meetingTypeDrawerNameField"
         >
           <Input
-            placeholder="Enter name"
+            placeholder="Input"
             data-cy="meeting-type-drawer-name-input"
             id="meetingTypeDrawerNameInput"
+            className="h-12"
           />
         </Form.Item>
 
         <Form.Item
-          label="Description"
+          label={
+            <span data-cy="meeting-type-drawer-description-label">
+              Description{' '}
+              <span
+                style={{ color: 'red' }}
+                data-cy="meeting-type-drawer-description-required"
+              >
+                *
+              </span>
+            </span>
+          }
           name="description"
           rules={[
             { required: true, message: 'Please enter the item description.' },
@@ -142,15 +176,40 @@ const MeetingTypeDrawer: React.FC<MeetingTypeDrawerProps> = ({
           data-cy="meeting-type-drawer-description-field"
           id="meetingTypeDrawerDescriptionField"
         >
-          <Input.TextArea
-            rows={4}
-            placeholder="Enter description"
+          <SettingsTextArea
+            placeholder="Textarea"
             data-cy="meeting-type-drawer-description-textarea"
             id="meetingTypeDrawerDescriptionTextarea"
           />
         </Form.Item>
+
+        <div
+          className="feedback-settings-modal-actions w-full flex justify-end items-center gap-3 pt-4"
+          data-cy="meeting-type-drawer-footer"
+          id="meetingTypeDrawerFooter"
+        >
+          <Button
+            onClick={handleDrawerClose}
+            loading={loading}
+            className="px-6"
+            data-cy="meeting-type-drawer-cancel-button"
+            id="meetingTypeDrawerCancelButton"
+          >
+            Cancel
+          </Button>
+          <Button
+            htmlType="submit"
+            type="primary"
+            loading={loading}
+            className="px-6"
+            data-cy="meeting-type-drawer-submit-button"
+            id="meetingTypeDrawerSubmitButton"
+          >
+            {meetType ? 'Update' : 'Create'}
+          </Button>
+        </div>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 

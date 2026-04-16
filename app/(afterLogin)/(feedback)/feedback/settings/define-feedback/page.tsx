@@ -1,460 +1,409 @@
 'use client';
-import { Button, Card, Form, Input, Select, Tabs } from 'antd';
-import { TabsProps } from 'antd'; // Import TabsProps only if you need it.
-import CustomDrawerLayout from '@/components/common/customDrawer';
+import { useMemo } from 'react';
+import { Tabs, Tag } from 'antd';
 import { ConversationStore } from '@/store/uistate/features/conversation';
-import { useEffect, useState } from 'react';
-import { useFetchAllFeedbackTypes } from '@/store/server/features/feedback/feedbackType/queries';
+import { useFetchAllFeedbackTypesByVariant } from '@/store/server/features/feedback/feedbackType/queries';
+import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import PerspectivesDetail from './_components/perspectivesDetail';
 import FeedbackTypeDetail from './_components/feedbackTypeDetail';
 import CreateFeedback from './_components/createFeedback';
-import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
-import { FaPlus } from 'react-icons/fa';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { Department } from '@/types/dashboard/organization';
-import {
-  useCreatePerspective,
-  useDeletePerspective,
-  useUpdatePerspective,
-} from '@/store/server/features/CFR/feedback/mutations';
-import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
-import { Edit2Icon } from 'lucide-react';
-import { MdDeleteOutline } from 'react-icons/md';
-import { Popconfirm } from 'antd';
-import CustomPagination from '@/components/customPagination';
-
-const { TextArea } = Input;
+import DefineFeedbackSkeleton from './_components/defineFeedbackSkeleton';
 
 const Page = () => {
-  const [form] = Form.useForm();
-
+  const { isMobile } = useIsMobile();
   const {
-    setActiveTab,
-    activeTab,
-    editingItem,
-    setEditingItem,
-    pageSize,
-    setPageSize,
+    setSettingActiveTab,
+    settingActiveTab,
     page,
-    setPage,
+    searchAppreciationQuery,
+    searchReprimandQuery,
+    pageSize,
+    setVariantType,
   } = ConversationStore();
-  const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
-  const [addPerspectiveModal, setAddPerspectiveModal] = useState(false);
-  const { data: departments } = useGetDepartments();
-  const { mutate: addPerspective, isLoading: createLoading } =
-    useCreatePerspective();
-  const { mutate: deletePerspective } = useDeletePerspective();
-  const { mutate: updatePerspective, isLoading: updateLoading } =
-    useUpdatePerspective();
-
-  const { data: perspectiveData } = useGetAllPerspectives();
-
-  getAllFeedbackTypes;
-  const onChange = (key: string) => {
-    setActiveTab(key);
-  };
-
-  const perspectiveModalHeader = addPerspectiveModal ? (
-    <div
-      className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4"
-      data-cy="settings-define-feedback-perspective-modal-header"
-    >
-      <p data-cy="settings-define-feedback-perspective-modal-header-title">
-        Add New Perspective
-      </p>
-    </div>
-  ) : null;
-
-  // const onCloseHandler = () => {
-  //   form?.resetFields();
-  //   setOpen(false);
-  //   setSelectedFeedback(null);
-  // };
-  const handleEdit = (item: any) => {
-    setEditingItem(item);
-    form.setFieldsValue({
-      name: item.name,
-      description: item.description,
-      departmentId: item.departmentId,
-    });
-  };
-
-  const handleDelete = (id: string) => {
-    deletePerspective(id);
-  };
-  const getDepartment = (id: string) => {
-    return departments?.find((item: Department) => item.id === id);
-  };
-  useEffect(() => {
-    // Only set activeTab if it's not already set or if the current activeTab is not valid
-    if (getAllFeedbackTypes?.items?.length > 0) {
-      const isValidActiveTab = getAllFeedbackTypes.items.some(
-        (item: FeedbackTypeItems) => item.id === activeTab,
-      );
-      if (!isValidActiveTab) {
-        setActiveTab(getAllFeedbackTypes.items[0].id);
-      }
-    }
-  }, [getAllFeedbackTypes, activeTab]);
-
-  useEffect(() => {
-    if (!editingItem?.id) {
-      form.resetFields();
-    }
-  }, [editingItem]);
-
-  const activeTabName =
-    getAllFeedbackTypes?.items?.find(
-      (item: FeedbackTypeItems) => item.id === activeTab,
-    )?.category || '';
-
-  // const modalHeader = (
-  //   <div className="flex flex-col items-center justify-center text-xl font-extrabold text-gray-800 p-4">
-  //     <p>
-  //       {selectedFeedback === null
-  //         ? `Add New ${activeTabName}`
-  //         : `Edit New ${activeTabName}`}
-  //     </p>
-  //     <p>{variantType} type</p>
-  //   </div>
-  // );
-  const paginatedData = perspectiveData?.slice(
-    (page - 1) * pageSize,
-    page * pageSize,
+  const { data: perspectiveData, isLoading: isPerspectiveLoading } =
+    useGetAllPerspectives();
+  const {
+    data: getAppreciationFeedbackTypesByVariant,
+    isLoading: isAppreciationTypesLoading,
+  } = useFetchAllFeedbackTypesByVariant(
+    page,
+    pageSize,
+    'appreciation',
+    searchAppreciationQuery,
   );
-  const items: TabsProps['items'] = [
-    ...(getAllFeedbackTypes?.items || []).map((item: FeedbackTypeItems) => ({
-      key: item?.id,
-      label: item?.category,
-      children: <FeedbackTypeDetail feedbackTypeDetail={item} />,
-    })),
-    {
-      key: 'perspective-list',
-      label: (
-        <div
-          style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}
-          data-cy="settings-define-feedback-perspective-list-label"
-        >
-          Perspective List
-        </div>
-      ),
-      children: (
-        <div data-cy="settings-define-feedback-perspective-list-children">
+  const {
+    data: getReprimandFeedbackTypesByVariant,
+    isLoading: isReprimandTypesLoading,
+  } = useFetchAllFeedbackTypesByVariant(
+    page,
+    pageSize,
+    'reprimand',
+    searchReprimandQuery,
+  );
+
+  const isDefineFeedbackPageLoading =
+    isPerspectiveLoading ||
+    isAppreciationTypesLoading ||
+    isReprimandTypesLoading;
+
+  const onChange = (key: string) => {
+    setSettingActiveTab(key);
+    if (key === 'appreciation' || key === 'reprimand') {
+      setVariantType(key);
+    }
+  };
+
+  const items = useMemo(
+    () => [
+      {
+        key: 'appreciation',
+        label: isMobile ? (
           <div
-            className="flex justify-end"
-            data-cy="settings-define-feedback-perspective-actions"
-            id="settingsDefineFeedbackPerspectiveActions"
+            className={`flex items-center justify-center gap-2 rounded-lg border px-2 py-2.5 transition-colors ${
+              settingActiveTab === 'appreciation'
+                ? 'border-primary'
+                : 'border-[#D9D9D9]'
+            }`}
+            data-cy="define-feedback-tab-appreciation-mobile"
           >
-            <Button
-              type="primary"
-              onClick={() => setAddPerspectiveModal(true)}
-              className="text-xs"
-              icon={<FaPlus className="text-xs" />}
-              data-cy="settings-define-feedback-add-perspective-button"
-              id="settingsDefineFeedbackAddPerspectiveButton"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="22px"
+              viewBox="0 -960 960 960"
+              width="22px"
+              fill={settingActiveTab === 'appreciation' ? '#1E40AF' : '#6b7280'}
+              data-cy="define-feedback-tab-appreciation-mobile-icon"
             >
-              <span
-                className="hidden md:inline"
-                data-cy="settings-define-feedback-add-perspective-text"
-              >
-                {' '}
-                Add Perspective
-              </span>
-            </Button>
+              <path
+                d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                data-cy="define-feedback-tab-appreciation-mobile-icon-path"
+              />
+            </svg>
+            <span
+              className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700"
+              data-cy="define-feedback-tab-appreciation-mobile-count"
+            >
+              {getAppreciationFeedbackTypesByVariant?.meta?.totalItems ?? 0}
+            </span>
           </div>
-          {paginatedData?.map((item: any) => (
-            <Card
-              className="mx-2 my-2"
-              key={item.id}
-              data-cy={`settings-define-feedback-perspective-card-${item.id}`}
-              id={`settingsDefineFeedbackPerspectiveCard${item.id}`}
+        ) : (
+          <div
+            className={`flex min-w-80 gap-4 rounded-lg border-[1px] p-3 transition-colors justify-between ${
+              settingActiveTab === 'appreciation'
+                ? 'text-primary ring-1 ring-inset ring-primary'
+                : 'text-gray-700 ring-[#D9D9D9]'
+            }`}
+            data-cy="define-feedback-tab-appreciation-desktop"
+          >
+            <div
+              className="flex items-center gap-2"
+              data-cy="define-feedback-tab-appreciation-desktop-main"
             >
               <div
-                className="flex justify-between items-start"
-                data-cy={`settings-define-feedback-perspective-card-content-${item.id}`}
-                id={`settingsDefineFeedbackPerspectiveCardContent${item.id}`}
+                className={`ml-2 flex h-8 w-8 items-center justify-center rounded-lg border-[2px] ${
+                  settingActiveTab === 'appreciation'
+                    ? 'border-primary text-primary'
+                    : 'border-[#D9D9D9] text-gray-700'
+                }`}
+                data-cy="define-feedback-tab-appreciation-desktop-icon-wrap"
               >
-                <div
-                  className="Grid gap-8"
-                  data-cy={`settings-define-feedback-perspective-card-info-${item.id}`}
-                  id={`settingsDefineFeedbackPerspectiveCardInfo${item.id}`}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="18px"
+                  viewBox="0 -960 960 960"
+                  width="18px"
+                  fill={
+                    settingActiveTab === 'appreciation' ? '#1E40AF' : '#6b7280'
+                  }
+                  data-cy="define-feedback-tab-appreciation-desktop-icon"
                 >
-                  <div
-                    data-cy="settings-define-feedback-perspective-name-container"
-                    id="settingsDefineFeedbackPerspectiveNameContainer"
-                  >
-                    <p
-                      className="font-bold"
-                      data-cy={`settings-define-feedback-perspective-name-${item.id}`}
-                      id={`settingsDefineFeedbackPerspectiveName${item.id}`}
-                    >
-                      {item?.name}
-                    </p>
-                  </div>
-                  <div
-                    data-cy="settings-define-feedback-perspective-department-container"
-                    id="settingsDefineFeedbackPerspectiveDepartmentContainer"
-                  >
-                    <p
-                      className="text-gray-600"
-                      data-cy={`settings-define-feedback-perspective-department-${item.id}`}
-                      id={`settingsDefineFeedbackPerspectiveDepartment${item.id}`}
-                    >
-                      {getDepartment(item?.departmentId)?.name}
-                    </p>
-                    <p
-                      className="text-xs text-gray-400"
-                      data-cy={`settings-define-feedback-perspective-date-${item.id}`}
-                      id={`settingsDefineFeedbackPerspectiveDate${item.id}`}
-                    >
-                      {new Date(item?.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  className="flex gap-2"
-                  data-cy={`settings-define-feedback-perspective-card-actions-${item.id}`}
-                  id={`settingsDefineFeedbackPerspectiveCardActions${item.id}`}
-                >
-                  <Button
-                    size="small"
-                    onClick={() => handleEdit(item)}
-                    icon={<Edit2Icon className="w-4 h-4 text-xs" />}
-                    type="primary"
-                    data-cy={`settings-define-feedback-perspective-edit-button-${item.id}`}
-                    id={`settingsDefineFeedbackPerspectiveEditButton${item.id}`}
+                  <path
+                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                    data-cy="define-feedback-tab-appreciation-desktop-icon-path"
                   />
-                  <Popconfirm
-                    title="Are you sure you want to delete?"
-                    onConfirm={() => handleDelete(item?.id)}
-                    okText="Yes"
-                    cancelText="No"
-                    data-cy={`settings-define-feedback-perspective-delete-confirm-${item.id}`}
-                    id={`settingsDefineFeedbackPerspectiveDeleteConfirm${item.id}`}
-                  >
-                    <Button
-                      size="small"
-                      icon={<MdDeleteOutline className="w-4 h-4" />}
-                      danger
-                      type="primary"
-                      data-cy={`settings-define-feedback-perspective-delete-button-${item.id}`}
-                      id={`settingsDefineFeedbackPerspectiveDeleteButton${item.id}`}
-                    />
-                  </Popconfirm>
-                </div>
+                </svg>
               </div>
-            </Card>
-          ))}
-          <CustomPagination
-            current={page}
-            total={perspectiveData?.length || 0}
-            pageSize={pageSize}
-            onChange={(page, size) => {
-              setPage(page);
-              setPageSize(size);
-            }}
-            onShowSizeChange={(size) => {
-              setPageSize(size);
-              setPage(1);
-            }}
-            data-cy="settings-define-feedback-perspective-pagination"
+              <div
+                className="flex flex-col items-start"
+                data-cy="define-feedback-tab-appreciation-desktop-text"
+              >
+                <span
+                  className="text-base"
+                  data-cy="define-feedback-tab-appreciation-desktop-title"
+                >
+                  Appreciation
+                </span>
+                <span
+                  className={`text-xs ${
+                    settingActiveTab === 'appreciation'
+                      ? 'text-primary'
+                      : 'text-gray-300'
+                  }`}
+                  data-cy="define-feedback-tab-appreciation-desktop-subtitle"
+                >
+                  Define and manage Appreciation
+                </span>
+              </div>
+            </div>
+            <Tag className="h-[22px] w-[29px] flex items-center justify-center p-1 ">
+              {getAppreciationFeedbackTypesByVariant?.meta?.totalItems}
+            </Tag>
+          </div>
+        ),
+        children: (
+          <FeedbackTypeDetail
+            feedbackTypeDetail={getAppreciationFeedbackTypesByVariant}
           />
-        </div>
-      ),
-    },
-  ];
+        ),
+      },
+      {
+        key: 'reprimand',
+        label: isMobile ? (
+          <div
+            className={`flex items-center justify-center gap-2 rounded-lg border px-2 py-2.5 transition-colors ${
+              settingActiveTab === 'reprimand'
+                ? 'border-primary'
+                : 'border-[#D9D9D9]'
+            }`}
+            data-cy="define-feedback-tab-reprimand-mobile"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="22px"
+              viewBox="0 -960 960 960"
+              width="22px"
+              fill={settingActiveTab === 'reprimand' ? '#1E40AF' : '#6b7280'}
+              style={{ transform: 'scale(-1, -1)' }}
+              data-cy="define-feedback-tab-reprimand-mobile-icon"
+            >
+              <path
+                d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                data-cy="define-feedback-tab-reprimand-mobile-icon-path"
+              />
+            </svg>
+            <span
+              className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700"
+              data-cy="define-feedback-tab-reprimand-mobile-count"
+            >
+              {getReprimandFeedbackTypesByVariant?.meta?.totalItems ?? 0}
+            </span>
+          </div>
+        ) : (
+          <div
+            className={`flex min-w-80 gap-4 rounded-lg border-[1px] p-3 transition-colors justify-between ${
+              settingActiveTab === 'reprimand'
+                ? 'text-primary ring-1 ring-inset ring-primary'
+                : 'text-gray-700 ring-[#D9D9D9]'
+            }`}
+            data-cy="define-feedback-tab-reprimand-desktop"
+          >
+            <div
+              className="flex items-center gap-2"
+              data-cy="define-feedback-tab-reprimand-desktop-main"
+            >
+              <div
+                className={`h-8 w-8 ml-2 flex items-center justify-center rounded-lg border-[2px]  ${
+                  settingActiveTab === 'reprimand'
+                    ? 'border-primary text-primary'
+                    : 'border-[#D9D9D9] text-gray-700'
+                }`}
+                data-cy="define-feedback-tab-reprimand-desktop-icon-wrap"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="22px"
+                  viewBox="0 -960 960 960"
+                  width="22px"
+                  fill={
+                    settingActiveTab === 'reprimand' ? '#1E40AF' : '#6b7280'
+                  }
+                  style={{ transform: 'scale(-1, -1)' }}
+                  data-cy="define-feedback-tab-reprimand-mobile-icon"
+                >
+                  <path
+                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z"
+                    data-cy="define-feedback-tab-reprimand-mobile-icon-path"
+                  />
+                </svg>
+              </div>
+              <div
+                className="flex flex-col items-start"
+                data-cy="define-feedback-tab-reprimand-desktop-text"
+              >
+                <span
+                  className="text-base"
+                  data-cy="define-feedback-tab-reprimand-desktop-title"
+                >
+                  Reprimand
+                </span>
+                <span
+                  className={`text-xs ${
+                    settingActiveTab === 'reprimand'
+                      ? 'text-primary'
+                      : 'text-gray-300'
+                  }`}
+                  data-cy="define-feedback-tab-reprimand-desktop-subtitle"
+                >
+                  Define and manage Reprimand
+                </span>
+              </div>
+            </div>
+            <Tag className="h-[22px] w-[29px] flex items-center justify-center p-1 ">
+              {getReprimandFeedbackTypesByVariant?.meta?.totalItems}
+            </Tag>
+          </div>
+        ),
+        children: (
+          <FeedbackTypeDetail
+            feedbackTypeDetail={getReprimandFeedbackTypesByVariant}
+          />
+        ),
+      },
+      {
+        key: 'perspective',
+        label: isMobile ? (
+          <div
+            className={`flex items-center justify-center gap-2 rounded-lg border px-2 py-2.5 transition-colors ${
+              settingActiveTab === 'perspective'
+                ? 'border-primary'
+                : 'border-[#D9D9D9]'
+            }`}
+            data-cy="define-feedback-tab-perspective-mobile"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="22px"
+              viewBox="0 -960 960 960"
+              width="22px"
+              fill={settingActiveTab === 'perspective' ? '#1E40AF' : '#6b7280'}
+              style={{ transform: 'scale(-1, -1)' }}
+              data-cy="define-feedback-tab-perspective-mobile-icon"
+            >
+              <path
+                d="m234-480-12-60q-12-5-22.5-10.5T178-564l-58 18-40-68 46-40q-2-13-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T222-820l12-60h80l12 60q12 5 22.5 10.5T370-796l58-18 40 68-46 40q2 13 2 26t-2 26l46 40-40 68-58-18q-11 8-21.5 13.5T326-540l-12 60h-80Zm96.5-143.5Q354-647 354-680t-23.5-56.5Q307-760 274-760t-56.5 23.5Q194-713 194-680t23.5 56.5Q241-600 274-600t56.5-23.5ZM592-40l-18-84q-17-6-31.5-14.5T514-158l-80 26-56-96 64-56q-2-18-2-36t2-36l-64-56 56-96 80 26q14-11 28.5-19.5T574-516l18-84h112l18 84q17 6 31.5 14.5T782-482l80-26 56 96-64 56q2 18 2 36t-2 36l64 56-56 96-80-26q-14 11-28.5 19.5T722-124l-18 84H592Zm56-160q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z"
+                data-cy="define-feedback-tab-perspective-mobile-icon-path"
+              />
+            </svg>
+            <span
+              className="rounded-md border border-[#D9D9D9] bg-gray-50 px-2 py-0.5 text-xs font-medium tabular-nums text-gray-700"
+              data-cy="define-feedback-tab-perspective-mobile-count"
+            >
+              {perspectiveData?.length ?? 0}
+            </span>
+          </div>
+        ) : (
+          <div
+            className={`flex min-w-80 gap-4 rounded-lg border-[1px] p-3 transition-colors justify-between ${
+              settingActiveTab === 'perspective'
+                ? 'text-primary ring-1 ring-inset ring-primary'
+                : 'text-gray-700 ring-[#D9D9D9]'
+            }`}
+            data-cy="define-feedback-tab-perspective-desktop"
+          >
+            <div
+              className="flex items-center gap-2"
+              data-cy="define-feedback-tab-perspective-desktop-main"
+            >
+              <div
+                className={`ml-2 flex h-8 w-8 items-center justify-center rounded-lg border-[2px] ${
+                  settingActiveTab === 'perspective'
+                    ? 'border-primary text-primary'
+                    : 'border-[#D9D9D9] text-gray-700'
+                }`}
+                data-cy="define-feedback-tab-perspective-desktop-icon-wrap"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="18px"
+                  viewBox="0 -960 960 960"
+                  width="18px"
+                  fill={
+                    settingActiveTab === 'perspective' ? '#1E40AF' : '#6b7280'
+                  }
+                  style={{ transform: 'scale(-1, -1)' }}
+                  data-cy="define-feedback-tab-perspective-desktop-icon"
+                >
+                  <path
+                    d="m234-480-12-60q-12-5-22.5-10.5T178-564l-58 18-40-68 46-40q-2-13-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T222-820l12-60h80l12 60q12 5 22.5 10.5T370-796l58-18 40 68-46 40q2 13 2 26t-2 26l46 40-40 68-58-18q-11 8-21.5 13.5T326-540l-12 60h-80Zm96.5-143.5Q354-647 354-680t-23.5-56.5Q307-760 274-760t-56.5 23.5Q194-713 194-680t23.5 56.5Q241-600 274-600t56.5-23.5ZM592-40l-18-84q-17-6-31.5-14.5T514-158l-80 26-56-96 64-56q-2-18-2-36t2-36l-64-56 56-96 80 26q14-11 28.5-19.5T574-516l18-84h112l18 84q17 6 31.5 14.5T782-482l80-26 56 96-64 56q2 18 2 36t-2 36l64 56-56 96-80-26q-14 11-28.5 19.5T722-124l-18 84H592Zm56-160q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z"
+                    data-cy="define-feedback-tab-perspective-desktop-icon-path"
+                  />
+                </svg>
+              </div>
+              <div
+                className="flex flex-col items-start"
+                data-cy="define-feedback-tab-perspective-desktop-text"
+              >
+                <span
+                  className="text-base"
+                  data-cy="define-feedback-tab-perspective-desktop-title"
+                >
+                  Perspective
+                </span>
+                <span
+                  className={`text-xs ${
+                    settingActiveTab === 'perspective'
+                      ? 'text-primary'
+                      : 'text-gray-300'
+                  }`}
+                  data-cy="define-feedback-tab-perspective-desktop-subtitle"
+                >
+                  Define and manage Perspective
+                </span>
+              </div>
+            </div>
 
-  const handleCancel = () => {
-    form.resetFields();
-    setEditingItem(null);
-    setAddPerspectiveModal(false);
-  };
-
-  const handleSubmit = async (values: any) => {
-    try {
-      if (editingItem) {
-        await updatePerspective(
-          {
-            ...values,
-            id: editingItem.id,
-          },
-          {
-            onSuccess: () => {
-              form.resetFields();
-              setEditingItem(null);
-              setAddPerspectiveModal(false);
-            },
-          },
-        );
-      } else {
-        await addPerspective(values, {
-          onSuccess: () => {
-            form.resetFields();
-            setEditingItem(null);
-            setAddPerspectiveModal(false);
-          },
-        });
-      }
-    } catch (error) {
-    } finally {
-    }
-  };
+            <Tag className="h-[22px] w-[29px] flex items-center justify-center p-1 ">
+              {perspectiveData?.length}
+            </Tag>
+          </div>
+        ),
+        children: <PerspectivesDetail perspectivesDetail={perspectiveData} />,
+      },
+    ],
+    [
+      isMobile,
+      settingActiveTab,
+      getAppreciationFeedbackTypesByVariant?.meta?.totalItems,
+      getReprimandFeedbackTypesByVariant?.meta?.totalItems,
+      perspectiveData?.length,
+    ],
+  );
 
   return (
     <div
-      className="p-5 rounded-2xl bg-white h-full"
       data-cy="settings-define-feedback-page"
       id="settingsDefineFeedbackPage"
     >
-      <div
-        className="flex flex-col gap-10 "
-        data-cy="settings-define-feedback-content"
-        id="settingsDefineFeedbackContent"
-      >
-        <span
-          className="font-bold text-lg"
-          data-cy="settings-define-feedback-title"
-          id="settingsDefineFeedbackTitle"
-        >
-          Feedback
-        </span>
-
-        <div
-          className="mt-5"
-          data-cy="settings-define-feedback-tabs-container"
-          id="settingsDefineFeedbackTabsContainer"
-        >
-          <Tabs
-            defaultActiveKey={getAllFeedbackTypes?.items?.[0]?.id}
-            items={items}
-            onChange={onChange}
-            data-cy="settings-define-feedback-tabs"
-            id="settingsDefineFeedbackTabs"
-          />
-        </div>
-      </div>
-
-      {/* <CustomDrawerLayout
-        open={open || selectedFeedback?.id}
-        onClose={onCloseHandler}
-        modalHeader={modalHeader}
-        width="30%"
-      > */}
-      <CreateFeedback form={form} activeTabName={activeTabName} />
-      {/* </CustomDrawerLayout> */}
-      <CustomDrawerLayout
-        open={addPerspectiveModal || editingItem?.id}
-        onClose={() => handleCancel()}
-        modalHeader={editingItem ? 'Edit Perspective' : perspectiveModalHeader}
-        footer={
-          <Form.Item
-            data-cy="settings-define-feedback-perspective-form-footer"
-            id="settingsDefineFeedbackPerspectiveFormFooter"
-          >
-            <div
-              className=" w-full bg-[#fff] absolute flex justify-center space-x-5 mt-5"
-              data-cy="settings-define-feedback-perspective-form-actions"
-              id="settingsDefineFeedbackPerspectiveFormActions"
-            >
-              <Button
-                onClick={() => {
-                  form.resetFields();
-                  handleCancel();
-                }}
-                data-cy="settings-define-feedback-perspective-cancel-button"
-                id="settingsDefineFeedbackPerspectiveCancelButton"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => form.submit()}
-                loading={!editingItem ? createLoading : updateLoading}
-                data-cy="settings-define-feedback-perspective-submit-button"
-                id="settingsDefineFeedbackPerspectiveSubmitButton"
-              >
-                {editingItem ? 'Update' : 'Create'}
-              </Button>
-            </div>
-          </Form.Item>
-        }
-        width="30%"
-        data-cy="settings-define-feedback-perspective-drawer"
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{
-            id: editingItem?.id || undefined,
-            name: editingItem?.name || '',
-            description: editingItem?.description || '',
-            departmentId: editingItem?.departmentId || null,
-          }}
-          data-cy="settings-define-feedback-perspective-form"
-          id="settingsDefineFeedbackPerspectiveForm"
-        >
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ required: true, message: 'Please enter a name!' }]}
-            data-cy="settings-define-feedback-perspective-name-field"
-            id="settingsDefineFeedbackPerspectiveNameField"
-          >
-            <Input
-              placeholder="Enter perspective name"
-              data-cy="settings-define-feedback-perspective-name-input"
-              id="settingsDefineFeedbackPerspectiveNameInput"
-            />
-          </Form.Item>
-
-          <Form.Item
-            label="Description"
-            name="description"
-            rules={[{ required: true, message: 'Please enter a description!' }]}
-            data-cy="settings-define-feedback-perspective-description-field"
-            id="settingsDefineFeedbackPerspectiveDescriptionField"
-          >
-            <TextArea
-              placeholder="Enter perspective description"
-              rows={4}
-              maxLength={500}
-              data-cy="settings-define-feedback-perspective-description-textarea"
-              id="settingsDefineFeedbackPerspectiveDescriptionTextarea"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="departmentId"
-            label="Select Department"
-            rules={[{ required: true, message: 'Please select a department' }]}
-            data-cy="settings-define-feedback-perspective-department-field"
-            id="settingsDefineFeedbackPerspectiveDepartmentField"
-          >
-            <Select
-              placeholder="Select a department"
-              data-cy="settings-define-feedback-perspective-department-select"
-              id="settingsDefineFeedbackPerspectiveDepartmentSelect"
-            >
-              {departments?.map((department: any) => (
-                <Select.Option
-                  key={department.id}
-                  value={department.id}
-                  data-cy={`settings-define-feedback-perspective-department-select-option-${department.id}`}
-                  id={`settingsDefineFeedbackPerspectiveDepartmentSelectOption${department.id}`}
-                >
-                  {department.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Form>
-      </CustomDrawerLayout>
+      {isDefineFeedbackPageLoading ? (
+        <DefineFeedbackSkeleton />
+      ) : (
+        <Tabs
+          activeKey={settingActiveTab}
+          onChange={onChange}
+          type="card"
+          items={items}
+          tabPosition={isMobile ? 'top' : 'left'}
+          className={[
+            '[&_.ant-tabs-tab]:border-none [&_.ant-tabs-tab]:bg-transparent [&_.ant-tabs-tab]:shadow-none [&_.ant-tabs-tab-active]:bg-transparent',
+            '[&_.ant-tabs-nav]:rounded-lg [&_.ant-tabs-nav]:border [&_.ant-tabs-nav]:border-[#D9D9D9] [&_.ant-tabs-nav]:p-4',
+            '[&_.ant-tabs-content-holder]:!ml-0 [&_.ant-tabs-content-holder]:!border-l-0',
+            '[&_.ant-tabs]:gap-4',
+            '[&_.ant-tabs-left_.ant-tabs-tabpane]:!pl-4',
+            isMobile
+              ? [
+                  '[&_.ant-tabs-nav]:mb-3',
+                  '[&_.ant-tabs-nav-list]:w-full [&_.ant-tabs-nav-list]:gap-2',
+                  '[&_.ant-tabs-tab]:!m-0 [&_.ant-tabs-tab]:min-w-0 [&_.ant-tabs-tab]:flex-1 [&_.ant-tabs-tab]:rounded-lg [&_.ant-tabs-tab]:p-0',
+                  '[&_.ant-tabs-tab-btn]:!px-1 [&_.ant-tabs-tab-btn]:!py-0 [&_.ant-tabs-tab-btn]:w-full',
+                  '[&_.ant-tabs-ink-bar]:hidden',
+                  '[&_.ant-tabs-content-holder]:border-0 [&_.ant-tabs-content-holder]:pt-0',
+                ].join(' ')
+              : '',
+          ].join(' ')}
+        />
+      )}
+      <CreateFeedback />
     </div>
   );
 };

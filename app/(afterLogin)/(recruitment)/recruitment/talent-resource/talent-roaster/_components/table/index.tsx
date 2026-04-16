@@ -1,4 +1,5 @@
 'use client';
+import React, { useState, useEffect } from 'react';
 import {
   Col,
   Row,
@@ -7,24 +8,31 @@ import {
   TableColumnsType,
   DatePicker,
   Input,
-  Modal,
   Button,
+  Dropdown,
+  Form,
 } from 'antd';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { Option } from 'antd/es/mentions';
 import { TableRowSelection } from 'antd/es/table/interface';
-import { VscSettings } from 'react-icons/vsc';
 import { useGetTalentRoaster } from '@/store/server/features/recruitment/talent-roaster/query';
 import { useDeleteTalentRoaster } from '@/store/server/features/recruitment/talent-roaster/mutation';
 import dayjs from 'dayjs';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
 import { useTalentRoasterStore } from '@/store/uistate/features/recruitment/talent-resource/talent-roaster';
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { DATE_FORMAT } from '@/utils/constants';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 // Define proper interfaces for talent roaster data
 interface TalentRoasterItem {
@@ -83,14 +91,13 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     setSearchParams,
     currentPage,
     pageSize,
-    showMobileFilter,
-    setShowMobileFilter,
     selectedRowKeys,
     setSelectedRowKeys,
     clearSelectedRowKeys,
     setSelectedTalentRoaster,
   } = useTalentRoasterStore();
   const { RangePicker } = DatePicker;
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
   const router = useRouter();
 
   const { data: talentRoaster, isLoading: isTalentRoasterLoading } =
@@ -111,6 +118,14 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
   const isLoading = isTalentRoasterLoading;
   const { isMobile, isTablet } = useIsMobile();
   const { setCurrentPage, setPageSize } = useTalentRoasterStore();
+  const [mobileStartDate, setMobileStartDate] = useState<dayjs.Dayjs | null>(
+    null,
+  );
+  const [mobileEndDate, setMobileEndDate] = useState<dayjs.Dayjs | null>(null);
+  const [actionOpenId, setActionOpenId] = useState<string | null>(null);
+  const [deleteConfirmOpenId, setDeleteConfirmOpenId] = useState<string | null>(
+    null,
+  );
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -137,66 +152,132 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     });
   };
 
+  const handleConfirmDelete = (item: TalentRoasterItem) => {
+    handleDelete(item);
+    setDeleteConfirmOpenId(null);
+    setActionOpenId(null);
+  };
+
   const columns: TableColumnsType<TableDataItem> = [
     {
-      title: 'Name',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-name"
+          data-cy="talent-acquisition-talent-roaster-table-column-name"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          Name
+        </span>
+      ),
       dataIndex: 'fullName',
-      sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+      className: 'text-sm font-normal text-[#4b4b4b]',
+      width: 200,
     },
 
     {
-      title: 'Phone Number',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-phone"
+          data-cy="talent-acquisition-talent-roaster-table-column-phone"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          Phone Number
+        </span>
+      ),
       dataIndex: 'phone',
       ellipsis: true,
+      className: 'text-sm font-normal text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'CGPA',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-cgpa"
+          data-cy="talent-acquisition-talent-roaster-table-column-cgpa"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          CGPA
+        </span>
+      ),
       dataIndex: 'CGPA',
-      sorter: (a: TableDataItem, b: TableDataItem) => {
-        const aVal =
-          typeof a.CGPA === 'number'
-            ? a.CGPA
-            : parseFloat(a.CGPA as string) || 0;
-        const bVal =
-          typeof b.CGPA === 'number'
-            ? b.CGPA
-            : parseFloat(b.CGPA as string) || 0;
-        return aVal - bVal;
-      },
+      width: 150,
     },
     {
-      title: 'Department',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-department"
+          data-cy="talent-acquisition-talent-roaster-table-column-department"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          Department
+        </span>
+      ),
       dataIndex: 'departmentId',
-      sorter: (a, b) => {
-        const aText = typeof a.departmentId === 'string' ? a.departmentId : '';
-        const bText = typeof b.departmentId === 'string' ? b.departmentId : '';
-        return aText.localeCompare(bText);
-      },
+      width: 200,
+      className: 'text-sm font-normal text-[#4b4b4b]',
     },
 
     {
-      title: 'Application Date',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-application-date"
+          data-cy="talent-acquisition-talent-roaster-table-column-application-date"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          Application Date
+        </span>
+      ),
       dataIndex: 'createdAt',
+      width: 150,
+      className: 'text-sm font-normal text-[#4b4b4b]',
     },
     {
-      title: 'CV',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-cv"
+          data-cy="talent-acquisition-talent-roaster-table-column-cv"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          CV
+        </span>
+      ),
       dataIndex: 'resumeUrl',
+      className: 'text-sm font-normal text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'Year of Graduation',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-year-of-graduation"
+          data-cy="talent-acquisition-talent-roaster-table-column-year-of-graduation"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          Year of Graduation
+        </span>
+      ),
       dataIndex: 'graduateYear',
+      width: 200,
+      className: 'text-sm font-normal text-[#4b4b4b]',
     },
 
     {
-      title: 'Action',
+      title: (
+        <span
+          id="talent-acquisition-talent-roaster-table-column-action"
+          data-cy="talent-acquisition-talent-roaster-table-column-action"
+          className="font-bold text-sm text-[#4b4b4b]"
+        >
+          Action
+        </span>
+      ),
       dataIndex: 'action',
+      className: 'text-sm font-normal text-[#4b4b4b]',
+      width: 150,
     },
   ];
 
   const data: TableDataItem[] =
     talentRoaster?.items?.map((item: TalentRoasterItem) => {
-      const fileName = item?.resumeUrl?.split('/')?.pop();
-
       const DepartmentDetail = ({ id }: { id: string }) => {
         const {
           data: getAllDepartment,
@@ -252,9 +333,7 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
             className="text-xs font-semibold cursor-pointer flex items-center gap-2"
             title={item?.documentName ?? 'CV.pdf'}
           >
-            {item?.documentName && item.documentName.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (fileName ?? 'CV.pdf')}
+            <SaveAltIcon fontSize="small" className="text-[#1e40af]" />
           </a>
         ),
 
@@ -263,11 +342,109 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
           : '--',
 
         action: (
-          <ActionButtons
-            id={item?.id ?? null}
-            onEdit={() => handleEdit(item)}
-            onDelete={() => handleDelete(item)}
-          />
+          <Dropdown
+            trigger={['click']}
+            getPopupContainer={() => document.body}
+            open={actionOpenId === item.id}
+            onOpenChange={(open) => {
+              if (open) {
+                setActionOpenId(item.id);
+              } else if (actionOpenId === item.id) {
+                setActionOpenId(null);
+                setDeleteConfirmOpenId(null);
+              }
+            }}
+            dropdownRender={() => (
+              <div
+                data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-dropdown"
+                className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md"
+              >
+                {deleteConfirmOpenId === item.id ? (
+                  <div
+                    data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-container"
+                    className="p-2"
+                  >
+                    <p
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-title"
+                      className="text-sm font-semibold text-[#1f1f1f] mb-2"
+                    >
+                      Delete Candidate
+                    </p>
+                    <p
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-text"
+                      className="text-xs text-[#4D4D4D] mb-3"
+                    >
+                      Are you Sure you want to delete{' '}
+                      {item?.fullName ?? 'this candidate'} from Talent Roaster ?
+                    </p>
+                    <div
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm"
+                      className="flex justify-end gap-2"
+                    >
+                      <Button
+                        size="small"
+                        className="border border-[#D9D9D9] text-[#4D4D4D]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirmOpenId(null);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="small"
+                        type="primary"
+                        danger
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleConfirmDelete(item);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(item);
+                        setActionOpenId(null);
+                      }}
+                      data-cy="talent-acquisition-talent-roaster-table-button-edit"
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirmOpenId(item.id);
+                      }}
+                      data-cy="talent-acquisition-talent-roaster-table-button-delete"
+                    >
+                      <DeleteOutlineOutlinedIcon fontSize="small" />
+                      Delete
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          >
+            <Button
+              onClick={(e: any) => e.stopPropagation()}
+              type="default"
+              className="border-[1px] border-[#D9D9D9] rounded-md p-1 h-8"
+              data-cy="talent-acquisition-talent-roaster-table-button-action"
+            >
+              <MoreHorizIcon />
+            </Button>
+          </Dropdown>
         ),
       };
     }) || [];
@@ -313,71 +490,122 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
     clearSelectedRowKeys(); // Clear selections when filtering
   };
 
-  return (
+  const handleResetFilters = () => {
+    setSearchParams('dateRange', '');
+    setSearchParams('selectedDepartment', '');
+    setMobileStartDate(null);
+    setMobileEndDate(null);
+    setCurrentPage(1);
+    clearSelectedRowKeys();
+  };
+
+  const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
+  const inputClassName = 'w-full h-10 rounded-md border-gray-300';
+
+  // Keep mobile date pickers in sync with the stored dateRange string
+  useEffect(() => {
+    if (searchParams.dateRange) {
+      const [start, end] = searchParams.dateRange
+        .split(' to ')
+        .map((date: string) => dayjs(date)) as [
+        dayjs.Dayjs | null,
+        dayjs.Dayjs | null,
+      ];
+      setMobileStartDate(start);
+      setMobileEndDate(end);
+    } else {
+      setMobileStartDate(null);
+      setMobileEndDate(null);
+    }
+  }, [searchParams.dateRange]);
+
+  const filterTalentRoasterContent = (
     <div
-      id="talent-acquisition-talent-roaster-table-container"
-      data-cy="talent-acquisition-talent-roaster-table-container"
+      data-cy="talent-acquisition-talent-roaster-table-filter-container"
+      className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[360px] max-w-[420px] overflow-hidden"
     >
+      {/* Header */}
       <div
-        id="talent-acquisition-talent-roaster-table-filters"
-        data-cy="talent-acquisition-talent-roaster-table-filters"
+        data-cy="talent-acquisition-talent-roaster-table-filter-header"
+        className="px-6 pt-5 pb-1 relative"
+      >
+        <button
+          type="button"
+          onClick={() => setFilterDropdownOpen(false)}
+          className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
+          aria-label="Close filter"
+          data-cy="talent-acquisition-talent-roaster-table-button-close-filter"
+        >
+          <CloseOutlined className="text-base" />
+        </button>
+        <h3
+          data-cy="talent-acquisition-talent-roaster-table-filter-title"
+          className="text-xl font-semibold text-gray-900 pr-8"
+        >
+          Filter
+        </h3>
+        <p
+          data-cy="talent-acquisition-talent-roaster-table-filter-description"
+          className="text-sm text-gray-500 mt-1"
+        >
+          Select all filters that apply
+        </p>
+      </div>
+
+      {/* Filter fields */}
+      <div
+        data-cy="talent-acquisition-talent-roaster-table-filter-fields"
+        className="px-6 py-4"
       >
         <Row
           data-cy="talent-acquisition-talent-roaster-table-row-filters"
-          gutter={[16, 24]}
-          justify="space-between"
-          align="middle"
-          className="mb-5"
+          gutter={[16, 16]}
         >
-          <Col xs={24} sm={24} lg={10}>
-            <Row gutter={8} align="middle">
-              <Col xs={20} sm={20} flex="auto">
-                <Input
-                  id={`inputTalentRoasterNames`}
-                  data-cy="talent-acquisition-talent-roaster-table-input-search"
-                  placeholder="Search talent roster"
-                  value={searchParams.fullName}
-                  onChange={(e) =>
-                    handleSearchCandidate(e.target.value, 'fullName')
-                  }
-                  className="w-full h-12 rounded-lg"
-                  allowClear
-                />
-              </Col>
-              <Col xs={4} sm={4} className="block sm:hidden">
-                <div
-                  id="talent-acquisition-talent-roaster-table-div-mobile-filter-button"
-                  data-cy="talent-acquisition-talent-roaster-table-div-mobile-filter-button"
-                  className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg"
-                >
-                  <VscSettings
-                    id="talent-acquisition-talent-roaster-table-button-mobile-filter"
-                    data-cy="talent-acquisition-talent-roaster-table-button-mobile-filter"
-                    size={20}
-                    onClick={() => setShowMobileFilter(true)}
-                  />
-                </div>
-              </Col>
-            </Row>
-          </Col>
-
           <Col
-            data-cy="talent-acquisition-talent-roaster-table-col-desktop-filters"
-            lg={14}
-            className="hidden sm:block "
+            span={24}
+            data-cy="talent-acquisition-talent-roaster-table-col-department"
           >
-            <Row
-              data-cy="talent-acquisition-talent-roaster-table-row-desktop-filters"
-              gutter={[8, 16]}
+            <label
+              data-cy="talent-acquisition-talent-roaster-table-filter-label-department"
+              className={labelClassName}
             >
-              <Col
-                data-cy="talent-acquisition-talent-roaster-table-col-date"
-                lg={14}
-                sm={12}
-                xs={24}
-              >
+              Department
+            </label>
+            <Select
+              id="selectDepartment"
+              data-cy="talent-acquisition-talent-roaster-table-select-department"
+              placeholder="Select Department"
+              onChange={handleDepartmentChange}
+              value={searchParams.selectedDepartment || undefined}
+              allowClear
+              className={inputClassName}
+              size="large"
+            >
+              {EmployeeDepartment?.map((item: DepartmentData) => (
+                <Option
+                  key={item?.id}
+                  value={item?.id}
+                  data-cy={`talent-acquisition-talent-roaster-table-option-department-${item?.id}`}
+                >
+                  {item?.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+          <Col
+            span={24}
+            data-cy="talent-acquisition-talent-roaster-table-col-date"
+          >
+            {!isMobile && (
+              <>
+                <label
+                  data-cy="talent-acquisition-talent-roaster-table-filter-label-date"
+                  className={labelClassName}
+                >
+                  Date
+                </label>
                 <RangePicker
-                  id={`inputDateRange`}
+                  id="inputDateRange"
                   data-cy="talent-acquisition-talent-roaster-table-date-picker"
                   onChange={(dates) => handleSearchByDateRange(dates)}
                   value={
@@ -390,144 +618,188 @@ const TalentRoasterTable = ({ onEdit }: TalentRoasterTableProps) => {
                         ])
                       : null
                   }
-                  className="w-full h-12"
+                  className={inputClassName}
                   allowClear
-                  getPopupContainer={(triggerNode) =>
-                    triggerNode.parentElement || document.body
-                  }
                 />
-              </Col>
-              <Col
-                data-cy="talent-acquisition-talent-roaster-table-col-department"
-                lg={10}
-                sm={12}
-                xs={24}
-              >
-                <Select
-                  id={`selectDepartment`}
-                  data-cy="talent-acquisition-talent-roaster-table-select-department"
-                  placeholder="Select Department"
-                  onChange={handleDepartmentChange}
-                  value={searchParams.selectedDepartment || undefined}
-                  allowClear
-                  className="w-full h-12"
+              </>
+            )}
+
+            {isMobile && (
+              <>
+                <Form.Item
+                  name="startDate"
+                  id="talent-acquisition-talent-roaster-table-filter-mobile-start-date"
+                  data-cy="talent-acquisition-talent-roaster-table-filter-mobile-start-date"
                 >
-                  {EmployeeDepartment?.map((item: DepartmentData) => (
-                    <Option
-                      key={item?.id}
-                      value={item?.id}
-                      data-cy={`talent-acquisition-talent-roaster-table-option-department-${item?.id}`}
-                    >
-                      {item?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-            </Row>
+                  <label
+                    data-cy="talent-acquisition-talent-roaster-table-filter-label-start-date"
+                    className={labelClassName}
+                  >
+                    Start Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="Start Date"
+                    format={DATE_FORMAT}
+                    value={mobileStartDate}
+                    onChange={(date) => {
+                      setMobileStartDate(date);
+                      const start = date;
+                      const end = mobileEndDate;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="talent-acquisition-talent-roaster-table-filter-mobile-start-date-picker"
+                    data-cy="talent-acquisition-talent-roaster-table-filter-mobile-start-date-picker"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="endDate"
+                  id="talent-acquisition-talent-roaster-table-filter-mobile-end-date"
+                  data-cy="talent-acquisition-talent-roaster-table-filter-mobile-end-date"
+                >
+                  <label
+                    data-cy="talent-acquisition-talent-roaster-table-filter-label-end-date"
+                    className={labelClassName}
+                  >
+                    End Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="End Date"
+                    format={DATE_FORMAT}
+                    value={mobileEndDate}
+                    onChange={(date) => {
+                      setMobileEndDate(date);
+                      const start = mobileStartDate;
+                      const end = date;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="talent-acquisition-talent-roaster-table-filter-mobile-end-date-picker"
+                    data-cy="talent-acquisition-talent-roaster-table-filter-mobile-end-date-picker"
+                  />
+                </Form.Item>
+              </>
+            )}
           </Col>
         </Row>
-
-        <Modal
-          data-cy="talent-acquisition-talent-roaster-table-modal-mobile-filter"
-          centered
-          title="Filter Talent Roster"
-          open={showMobileFilter}
-          width="85%"
-          footer={
-            <div
-              id="talent-acquisition-talent-roaster-table-modal-footer"
-              data-cy="talent-acquisition-talent-roaster-table-modal-footer"
-              className="flex justify-center items-center space-x-4"
-            >
-              <Button
-                id="talent-acquisition-talent-roaster-table-button-filter-cancel"
-                data-cy="talent-acquisition-talent-roaster-table-button-filter-cancel"
-                type="default"
-                className="px-3"
-                onClick={() => setShowMobileFilter(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                id="talent-acquisition-talent-roaster-table-button-filter-apply"
-                data-cy="talent-acquisition-talent-roaster-table-button-filter-apply"
-                onClick={() => setShowMobileFilter(false)}
-                type="primary"
-                className="px-3"
-              >
-                Apply Filter
-              </Button>
-            </div>
-          }
-        >
-          <RangePicker
-            id={`inputDateRangeMobile`}
-            data-cy="talent-acquisition-talent-roaster-table-date-picker-mobile"
-            onChange={(dates) => handleSearchByDateRange(dates)}
-            value={
-              searchParams.dateRange
-                ? (searchParams.dateRange
-                    .split(' to ')
-                    .map((date: string) => dayjs(date)) as [
-                    dayjs.Dayjs | null,
-                    dayjs.Dayjs | null,
-                  ])
-                : null
-            }
-            className="w-full mb-4"
-            allowClear
-            getPopupContainer={(triggerNode) =>
-              triggerNode.parentElement || document.body
-            }
-          />
-
-          <Select
-            id={`selectDepartmentMobile`}
-            data-cy="talent-acquisition-talent-roaster-table-select-department-mobile"
-            placeholder="Select Department"
-            onChange={(value: string) => handleDepartmentChange(value)}
-            value={searchParams.selectedDepartment || undefined}
-            allowClear
-            className="w-full mb-4"
-          >
-            {EmployeeDepartment?.map((item: DepartmentData) => (
-              <Option
-                key={item?.id}
-                value={item?.id}
-                data-cy={`talent-acquisition-talent-roaster-table-option-department-mobile-${item?.id}`}
-              >
-                {item?.name}
-              </Option>
-            ))}
-          </Select>
-        </Modal>
       </div>
 
-      <Table
-        data-cy="talent-acquisition-talent-roaster-table"
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
-        scroll={{ x: 1000 }}
-        pagination={false}
-        rowSelection={rowSelection}
-        onRow={(record) => ({
-          onClick: (event) => {
-            // Only navigate if the click is not on a checkbox, button, or link
-            const target = event.target as HTMLElement;
-            const isInteractiveElement = target.closest(
-              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox',
-            );
+      {/* Footer */}
+      <div
+        data-cy="talent-acquisition-talent-roaster-table-filter-footer"
+        className="px-6 py-4 flex justify-end gap-2"
+      >
+        <Button
+          onClick={handleResetFilters}
+          className="h-8 border-[1px] border-[#d9d9d9] font-normal"
+          data-cy="talent-acquisition-talent-roaster-table-filter-reset"
+        >
+          Reset
+        </Button>
+        <Button
+          type="primary"
+          className="h-8 font-normal"
+          onClick={() => setFilterDropdownOpen(false)}
+          data-cy="talent-acquisition-talent-roaster-table-filter-save"
+        >
+          Save Filter
+        </Button>
+      </div>
+    </div>
+  );
 
-            if (!isInteractiveElement) {
-              router.push(
-                `/recruitment/talent-resource/talent-roaster/${record?.id}`,
-              );
+  return (
+    <div
+      id="talent-acquisition-talent-roaster-table-container"
+      data-cy="talent-acquisition-talent-roaster-table-container"
+      className="px-2 sm:px-4"
+    >
+      <div
+        id="talent-acquisition-talent-roaster-table-filters"
+        data-cy="talent-acquisition-talent-roaster-table-filters"
+        className="flex justify-between items-center py-4"
+      >
+        <div data-cy="talent-acquisition-talent-roaster-table-input-search-container">
+          <Input
+            id={`inputTalentRoasterNames`}
+            data-cy="talent-acquisition-talent-roaster-table-input-search"
+            placeholder="Search talent roster"
+            value={searchParams.fullName}
+            onChange={(e) => handleSearchCandidate(e.target.value, 'fullName')}
+            className="w-full h-8 max-w-[300px]"
+            allowClear
+            suffix={
+              <div
+                data-cy="talent-acquisition-talent-roaster-table-input-search-suffix-icon-div"
+                className="text-gray-400 border-l p-2"
+              >
+                <SearchOutlined />
+              </div>
             }
-          },
-        })}
-      />
+          />
+        </div>
+        <Dropdown
+          trigger={['click']}
+          open={filterDropdownOpen}
+          onOpenChange={setFilterDropdownOpen}
+          dropdownRender={() => filterTalentRoasterContent}
+          data-cy="talent-acquisition-talent-roaster-table-button-filter"
+        >
+          <Button
+            data-cy="talent-acquisition-talent-roaster-table-button-filter-button"
+            className="border border-[#d9d9d9] font-normal text-sm text-[#4d4d4d]"
+            icon={
+              <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+            }
+          >
+            {!isMobile && 'Filter'}
+          </Button>
+        </Dropdown>
+      </div>
+      <div
+        data-cy="talent-acquisition-talent-roaster-table-scroll-wrapper"
+        style={{ overflow: 'hidden' }}
+        className="w-full overflow-x-auto scrollbar-none"
+      >
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            data-cy="talent-acquisition-talent-roaster-table"
+            className="w-full"
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            rowSelection={rowSelection}
+            onRow={(record) => ({
+              onClick: (event) => {
+                // Only navigate if the click is not on a checkbox, button, link, or dropdown
+                const target = event.target as HTMLElement;
+                const isInteractiveElement = target.closest(
+                  'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
+                );
+
+                if (!isInteractiveElement) {
+                  router.push(
+                    `/recruitment/talent-resource/talent-roaster/${record?.id}`,
+                  );
+                }
+              },
+            })}
+            rowHoverable={false}
+            rowClassName={(record, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              const selected = selectedRowKeys.includes(record.id);
+              return selected ? `${base} [&>td]:!bg-white` : base;
+            }}
+          />
+        )}
+      </div>
       {isMobile || isTablet ? (
         <div
           id="talent-acquisition-talent-roaster-table-pagination-mobile"

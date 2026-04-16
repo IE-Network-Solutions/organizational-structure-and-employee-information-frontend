@@ -57,7 +57,8 @@ export default function UserSessionRefresher() {
     };
 
     const handleVisibility = () => {
-      if (document.visibilityState === 'visible') fetchCurrentUserAndUpdateStore();
+      if (document.visibilityState === 'visible')
+        fetchCurrentUserAndUpdateStore();
     };
 
     window.addEventListener('focus', handleFocus);

@@ -1,6 +1,10 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import {
+  createUnknownEmployeePlaceholder,
+  isUserNotFoundError,
+} from '@/utils/unknownEmployee';
 
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -54,6 +58,23 @@ const getAllUsersWithOutPagination = async () => {
       tenantId: tenantId,
     },
   });
+};
+
+const getEmployeeStatus = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/dashboard-stats/with-tenant`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetEmployeeStatus = () => {
+  return useQuery<any>('employeeStatus', getEmployeeStatus);
 };
 
 /**
@@ -251,6 +272,9 @@ const getEmployee = async (id: string) => {
     });
     return response;
   } catch (error) {
+    if (isUserNotFoundError(error)) {
+      return createUnknownEmployeePlaceholder(id);
+    }
     throw error;
   }
 };
@@ -271,6 +295,9 @@ export const getUser = async (id: string) => {
     });
     return response;
   } catch (error) {
+    if (isUserNotFoundError(error)) {
+      return createUnknownEmployeePlaceholder(id);
+    }
     throw error;
   }
 };
@@ -341,5 +368,7 @@ export const useGetEmployees = () => {
 export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employee', empId], () => getEmployee(empId), {
     keepPreviousData: true,
-    enabled: !!empId, // Only fetch if empId is provided
+    // Only fetch if we have a real employee id.
+    // Also guard against empId accidentally being the string "undefined".
+    enabled: !!empId && empId !== 'undefined' && empId.length > 0,
   });

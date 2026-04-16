@@ -16,7 +16,7 @@ function getOrdinal(day: number): string {
   }
 }
 
-/** Format for Planning & Reporting: " */
+/** Date label format used on Plan & Report cards. */
 export function formatPlanningReportDate(date: string | Dayjs): string {
   const d = dayjs(date);
   return `${d.format('MMMM')} ${getOrdinal(d.date())} ${d.format('YYYY')}, ${d.format('h:mm:ss A')}`;

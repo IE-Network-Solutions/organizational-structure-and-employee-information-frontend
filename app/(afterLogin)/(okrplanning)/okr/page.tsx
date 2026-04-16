@@ -1,12 +1,10 @@
 'use client';
-import CustomBreadcrumb from '@/components/common/breadCramp';
-import React, { useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import React, { useMemo, useState } from 'react';
+import AddIcon from '@mui/icons-material/Add';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
@@ -16,13 +14,34 @@ import { useDownloadEmployeeOkrScore } from '@/store/server/features/okrplanning
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import OkrModeSelectionModal from './_components/okrModeSelectionModal';
-import { Spin } from 'antd';
+import OkrPageLoadingSkeleton from '@/components/okr/okrPageLoadingSkeleton';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import { Button } from 'antd';
+import Link from 'next/link';
+import { toKeyResultDeadlineFilter } from './_constants/okrStatusPills';
 
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
   const [open, setOpen] = useState(false);
-  const { pageSize, currentPage, searchObjParams, okrTab, sessionIds } =
-    useOKRStore();
+  const {
+    pageSize,
+    currentPage,
+    searchObjParams,
+    employeeSearchObjParams,
+    okrTab,
+    employeeSessionIds,
+    okrStatusPillId,
+    fiscalYearId,
+    sessionIds,
+  } = useOKRStore();
+
+  const keyResultDeadlineFilter = useMemo(
+    () =>
+      String(okrTab) === '1'
+        ? toKeyResultDeadlineFilter(okrStatusPillId)
+        : undefined,
+    [okrStatusPillId, okrTab],
+  );
 
   // OKR Mode Selection Integration
   const {
@@ -52,9 +71,12 @@ const OKR: React.FC<any> = () => {
     pageSize,
     currentPage,
     searchObjParams?.metricTypeId,
+    fiscalYearId,
+    sessionIds,
+    keyResultDeadlineFilter,
   );
 
-  const { isMobile, isTablet } = useIsMobile();
+  const { isMobile } = useIsMobile();
 
   function handleDownload() {
     if (okrTab == 1) {
@@ -75,9 +97,9 @@ const OKR: React.FC<any> = () => {
     } else if (okrTab == 4) {
       downloadEmployeeOkrScore(
         {
-          sessions: sessionIds,
-          userId: searchObjParams?.userId,
-          departmentId: searchObjParams?.departmentId,
+          sessions: employeeSessionIds,
+          userId: employeeSearchObjParams?.userId,
+          departmentId: employeeSearchObjParams?.departmentId,
         },
         {
           onSuccess: () => {
@@ -92,14 +114,7 @@ const OKR: React.FC<any> = () => {
   }
   // Show loading state while checking OKR setting
   if (isOkrLoading) {
-    return (
-      <div
-        className="flex items-center justify-center min-h-screen"
-        data-cy="okr-page-loading"
-      >
-        <Spin size="large" />
-      </div>
-    );
+    return <OkrPageLoadingSkeleton />;
   }
 
   // Show modal if setting doesn't exist
@@ -116,94 +131,122 @@ const OKR: React.FC<any> = () => {
   }
 
   return (
-    <div
-      id="okr-page-div-container"
-      data-cy="okr-page-div-container"
-      className={`h-auto w-full ${isMobile ? 'p-0' : 'p-4'}`}
-    >
-      <div
-        id="okr-page-div-header"
-        data-cy="okr-page-div-header"
-        className={`${isMobile && 'mx-5 mt-6'} flex flex-wrap justify-between items-center`}
-      >
-        <CustomBreadcrumb
-          data-cy="okr-breadcrumb"
-          title="Objective"
-          subtitle="Employee's objective setting up"
-        />
-        <div
-          id="okr-page-div-buttons"
-          data-cy="okr-page-div-buttons"
-          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-        >
-          {userObjectives?.items?.length === 0 ||
-          userObjectives?.items?.some(
-            (item: any) => item?.isClosed == false,
-          ) ? (
-            <div
-              id="okr-page-div-buttons-content"
-              data-cy="okr-page-div-buttons-content"
-              className="py-4 px-2 flex justify-center items-center gap-4"
-            >
-              <AccessGuard
-                data-cy="okr-page-access-guard"
-                permissions={[Permissions.ViewOkrReports]}
+    <div id="okr-page-div-container" data-cy="okr-page-div-container">
+      <div id="okr-page-div-header" data-cy="okr-page-div-header">
+        <div data-cy="okr-page-header-content">
+          <CustomBreadcrumb
+            titleClassName="!text-gray-900"
+            title={
+              <span
+                data-cy="okr-breadcrumb"
+                className="text-2xl font-bold text-gray-900"
               >
-                <CustomButton
-                  id="okr-page-button-download"
-                  data-cy="okr-page-button-download"
-                  size={isMobile ? 'small' : 'middle'}
-                  loading={empOkrScoreLoading}
-                  title={isMobile ? '' : 'Download'}
-                  isTitleHidden={isMobile ? true : false}
-                  icon={
-                    <LiaFileDownloadSolid
-                      id="okr-page-button-download-icon"
-                      data-cy="okr-page-button-download-icon"
-                      size={isMobile ? 14 : 20}
-                      className={`text-black ${isMobile ? 'mr-0' : 'mr-2'}`}
-                    />
-                  }
-                  className={`bg-blue-600 hover:bg-blue-700 ${
-                    isMobile
-                      ? 'py-1 h-8 w-8 flex items-center justify-center'
-                      : isTablet
-                        ? 'h-11 px-4 py-3'
-                        : 'h-14 px-6 py-6'
-                  }`}
-                  type="default"
-                  onClick={handleDownload}
-                />
-              </AccessGuard>
-              <CustomButton
-                size={isMobile ? 'small' : 'middle'}
-                title={isMobile ? '' : 'Set Objective'}
-                isTitleHidden={isMobile ? true : false}
-                id="createUserButton"
-                data-cy="okr-page-button-create-user"
-                icon={
-                  <FaPlus
-                    id="okr-page-button-create-user-icon"
-                    data-cy="okr-page-button-create-user-icon"
-                    size={isMobile ? 14 : 20}
-                    className={isMobile ? 'mr-0' : 'mr-2'}
-                  />
-                }
-                onClick={showDrawer}
-                className={`bg-blue-600 hover:bg-blue-700 ${
-                  isMobile
-                    ? 'py-1 h-8 w-8 flex items-center justify-center'
-                    : isTablet
-                      ? 'h-11 px-4 py-3'
-                      : 'h-14 px-6 py-6'
-                }`}
-              />
-            </div>
-          ) : (
-            ''
-          )}
+                Objectives
+              </span>
+            }
+            subtitle={
+              <nav
+                aria-label="Breadcrumb"
+                className="flex text-sm font-medium text-gray-500 mt-1"
+                data-cy="okr-breadcrumb-nav"
+              >
+                <ol
+                  className="flex items-center space-x-2"
+                  data-cy="okr-breadcrumb-list"
+                >
+                  <li data-cy="okr-breadcrumb-item-okr">
+                    <Link
+                      className=" !text-gray-800"
+                      href="/okr/dashboard"
+                      data-cy="okr-breadcrumb-link"
+                    >
+                      OKR
+                    </Link>
+                  </li>
+                  <li data-cy="okr-breadcrumb-item-separator">
+                    <span
+                      className="text-gray-400"
+                      data-cy="okr-breadcrumb-separator"
+                    >
+                      /
+                    </span>
+                  </li>
+                  <li data-cy="okr-breadcrumb-item-objectives">
+                    <span
+                      className="text-gray-900"
+                      data-cy="okr-breadcrumb-current"
+                    >
+                      Objectives
+                    </span>
+                  </li>
+                </ol>
+              </nav>
+            }
+            titleExtra={
+              userObjectives?.items?.length === 0 ||
+              userObjectives?.items?.some(
+                (item: any) => item?.isClosed == false,
+              ) ? (
+                <div
+                  id="okr-page-div-buttons"
+                  data-cy="okr-page-div-buttons"
+                  className="flex items-center gap-4"
+                >
+                  <AccessGuard
+                    data-cy="okr-page-access-guard"
+                    permissions={[Permissions.ViewOkrReports]}
+                  >
+                    <Button
+                      type="default"
+                      size={isMobile ? 'small' : 'middle'}
+                      loading={empOkrScoreLoading}
+                      id="okr-page-button-download"
+                      data-cy="okr-page-button-download"
+                      icon={
+                        <LiaFileDownloadSolid
+                          id="okr-page-button-download-icon"
+                          data-cy="okr-page-button-download-icon"
+                          size={isMobile ? 14 : 20}
+                        />
+                      }
+                      onClick={handleDownload}
+                      className={
+                        isMobile
+                          ? 'h-8 w-8 min-w-8 p-0 flex items-center justify-center'
+                          : 'w-[164px] min-w-[164px] !h-[40px] flex items-center justify-center'
+                      }
+                    >
+                      {!isMobile && 'Download'}
+                    </Button>
+                  </AccessGuard>
+                  <Button
+                    type="primary"
+                    size={isMobile ? 'small' : 'middle'}
+                    id="createUserButton"
+                    data-cy="okr-page-button-create-user"
+                    icon={
+                      <AddIcon
+                        id="okr-page-button-create-user-icon"
+                        data-cy="okr-page-button-create-user-icon"
+                        sx={{ fontSize: isMobile ? 14 : 20, color: '#1E40AF' }}
+                      />
+                    }
+                    onClick={showDrawer}
+                    className={
+                      isMobile
+                        ? 'bg-okr-primary hover:!bg-blue-700 h-8 w-8 min-w-8 p-0 flex items-center justify-center'
+                        : 'bg-okr-primary hover:!bg-blue-700 inline-flex items-center justify-center rounded-lg shadow-sm !text-[#FFFFFF] hover:!text-[#FFFFFF] w-[164px] min-w-[164px] !h-[40px]'
+                    }
+                  >
+                    {!isMobile && 'Create Objective'}
+                  </Button>
+                </div>
+              ) : undefined
+            }
+          />
         </div>
       </div>
+
       {/* Future: Conditional Rendering Based on OKR Mode
           When implementing conditional rendering:
           - Use okrMode from store to show/hide features

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Progress, Card } from 'antd';
+import { Spin } from 'antd';
 
 interface PercentageProps {
-  percent: number | string; // Allow percent to be a number or a string (for ratios)
-  title: string; // Title for the progress indicator
-  format?: string; // Title for the progress indicator
-  loading: boolean; // Loading state
-  type: 'percent' | 'ratio' | 'daysLeft'; // Define allowed types
+  percent: number | string;
+  title: string;
+  format?: string;
+  loading: boolean;
+  type: 'percent' | 'ratio' | 'daysLeft';
 }
 
 const ProgressPercent: React.FC<PercentageProps> = ({
@@ -17,70 +17,52 @@ const ProgressPercent: React.FC<PercentageProps> = ({
   format,
 }) => {
   const normalizedTitle = title.replace(/\s+/g, '-').toLowerCase();
-  // Format the display text based on the type
+
   const formatText = () => {
     if (type === 'percent') {
-      return `${Number(percent)?.toLocaleString() || 0} %`; // Show percentage without the "%" symbol
-    } else if (type === 'ratio') {
-      return `${format || 0}`; // Display as is, e.g., '5/10'
-    } else if (type === 'daysLeft') {
-      return `${percent || 0}`; // Append "Days Left"
+      return `${Number(percent)?.toLocaleString() || 0}%`;
     }
-    return `${percent || 0}`; // Default fallback
+    if (type === 'ratio') {
+      return format || '0';
+    }
+    if (type === 'daysLeft') {
+      return `${percent || 0}`;
+    }
+    return `${percent || 0}`;
   };
+
+  if (loading) {
+    return (
+      <div
+        id={`okr-progress-percent-wrapper-${normalizedTitle}`}
+        data-cy={`okr-progress-percent-wrapper-${normalizedTitle}`}
+        className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow min-h-[100px] flex items-center justify-center"
+      >
+        <Spin size="small" />
+      </div>
+    );
+  }
 
   return (
     <div
       id={`okr-progress-percent-wrapper-${normalizedTitle}`}
       data-cy={`okr-progress-percent-wrapper-${normalizedTitle}`}
-      className="p-2 flex justify-center"
+      className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
     >
-      {/* Card Wrapper with Background Color */}
-      <Card
-        id={`okr-progress-percent-card-${normalizedTitle}`}
-        data-cy={`okr-progress-percent-card-${normalizedTitle}`}
-        loading={loading}
-        className="bg-gray-100 w-full max-w-md"
+      <h3
+        id={`okr-progress-percent-title-${normalizedTitle}`}
+        data-cy={`okr-progress-percent-title-${normalizedTitle}`}
+        className="text-sm font-medium text-gray-500 mb-2"
       >
-        <div
-          id={`okr-progress-percent-content-${normalizedTitle}`}
-          data-cy={`okr-progress-percent-content-${normalizedTitle}`}
-          className="flex flex-col items-center gap-4"
-        >
-          {/* Progress Bars */}
-          <div
-            id={`okr-progress-percent-graphics-${normalizedTitle}`}
-            data-cy={`okr-progress-percent-graphics-${normalizedTitle}`}
-            className="relative flex flex-col items-center gap-4"
-          >
-            <div
-              id={`okr-progress-percent-title-${normalizedTitle}`}
-              data-cy={`okr-progress-percent-title-${normalizedTitle}`}
-              className="absolute top-24 text-xs  text-[#3636f0]"
-            >
-              {title}
-            </div>
-            <Progress
-              data-cy={`okr-progress-percent-indicator-${normalizedTitle}`}
-              style={{ color: '#3636f0' }}
-              strokeColor="#3636f0"
-              strokeWidth={8}
-              size={150}
-              percent={typeof percent === 'number' ? percent : 0} // Handle numeric percent
-              type="circle"
-              format={() => (
-                <span
-                  id={`okr-progress-percent-format-${normalizedTitle}`}
-                  data-cy={`okr-progress-percent-format-${normalizedTitle}`}
-                  className="text-[#3636F0]"
-                >
-                  {formatText()}
-                </span>
-              )}
-            />
-          </div>
-        </div>
-      </Card>
+        {title}
+      </h3>
+      <div
+        id={`okr-progress-percent-format-${normalizedTitle}`}
+        data-cy={`okr-progress-percent-format-${normalizedTitle}`}
+        className="text-3xl font-bold text-gray-900"
+      >
+        {formatText()}
+      </div>
     </div>
   );
 };

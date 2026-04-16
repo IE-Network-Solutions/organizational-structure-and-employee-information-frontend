@@ -1,8 +1,8 @@
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { Button, Form, Input, Radio, Row, Select, Tooltip } from 'antd';
+import { Button, Form, Input, Modal, Radio, Row, Select, Tooltip } from 'antd';
 import React, { useEffect } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri';
+import CustomLabel from '@/components/form/customLabel/customLabel';
 
 const EditApproverComponent = ({
   editModal,
@@ -22,6 +22,8 @@ const EditApproverComponent = ({
   deletedApprover,
   setDeleteModal,
   setDeletedApprover,
+  hideWorkflowAppliesSection = false,
+  disableNameAndDescription = false,
 }: {
   editModal: any;
   customFieldsDrawerHeader: any;
@@ -31,9 +33,9 @@ const EditApproverComponent = ({
   selectedItem: any;
   department: any;
   users: any;
-  level: any;
+  level?: any;
   workflowApplies: any;
-  initialValues: any;
+  initialValues?: any;
   approverType: any;
   handleDeselect: (value: string, index: number) => void;
   handleUserChange: (value: string, index: number) => void;
@@ -42,6 +44,8 @@ const EditApproverComponent = ({
   deletedApprover: any;
   setDeleteModal: (id: boolean) => void;
   setDeletedApprover: (id: string) => void;
+  hideWorkflowAppliesSection?: boolean;
+  disableNameAndDescription?: boolean;
 }) => {
   useEffect(() => {
     // Prepare approvers data for Form.List
@@ -79,64 +83,109 @@ const EditApproverComponent = ({
   }, [selectedItem, form]);
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={editModal}
-      modalHeader={customFieldsDrawerHeader}
-      onClose={onClose}
-      width="40%"
+      title={customFieldsDrawerHeader}
+      onCancel={onClose}
       footer={null}
+      width={760}
+      centered
     >
-      <div
-        data-cy="components-approval-editapprover-index-tsx-index-div-89"
-        className="pb-[60px]"
-      >
-        <Form form={form} onFinish={handleSubmit} layout="vertical">
+      <div data-cy="components-approval-editapprover-index-tsx-index-div-89">
+        <Form
+          form={form}
+          onFinish={handleSubmit}
+          layout="vertical"
+          requiredMark={CustomLabel}
+        >
           <Form.Item
-            className="text-lg font-bold mt-3 mb-1"
             name="workFlownName"
-            label="WorkFlow Name"
+            label="Workflow Name"
+            className="mt-3 mb-1"
             rules={[
               { required: true, message: 'Please enter a workFlow name!' },
             ]}
           >
-            <Input disabled placeholder="Enter WorkFlow Name" />
-          </Form.Item>
-
-          <Form.Item
-            className="text-lg font-bold mt-3 mb-1"
-            name="description"
-            label="Description"
-            rules={[{ required: true, message: 'Please enter a description!' }]}
-          >
-            <Input.TextArea placeholder="Enter Description" disabled />
-          </Form.Item>
-
-          <Form.Item
-            className="text-lg font-bold mt-3"
-            name="workflowAppliesType"
-            label="Workflow Applies Type"
-            rules={[
-              { required: true, message: 'Please select a workflow option!' },
-            ]}
-          >
-            <Radio.Group disabled>
-              <Radio value="Department">Department</Radio>
-              <Radio value="Hierarchy">Hierarchy</Radio>
-              <Radio value="User">User</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Form.Item className="text-lg font-bold" name="workflowAppliesId">
-            <Select
-              showSearch
-              optionFilterProp="label"
-              className="min-w-52 mb-1"
-              allowClear
-              style={{ width: 120 }}
-              disabled
-              placeholder={`Select ${workflowApplies ? workflowApplies : ''}`}
+            <Input
+              placeholder="Enter Workflow Name"
+              className="h-10 rounded-md"
+              disabled={disableNameAndDescription}
             />
           </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Description"
+            className="mt-3 mb-1"
+            rules={[{ required: true, message: 'Please enter a description!' }]}
+          >
+            <Input.TextArea
+              placeholder="Enter Description"
+              disabled={disableNameAndDescription}
+            />
+          </Form.Item>
+
+          {!hideWorkflowAppliesSection && (
+            <div
+              id="components-approval-editapprover-index-tsx-index-div-100"
+              data-cy="components-approval-editapprover-index-tsx-index-div-100"
+              className="border border-gray-200 rounded-xl p-3 my-3"
+            >
+              <div
+                className="my-1 flex flex-col sm:flex-row gap-4 items-center"
+                data-cy="approval-workflow-applies-section-edit"
+              >
+                <span
+                  id="components-approval-editapprover-index-tsx-index-label-workflow-applies-to"
+                  data-cy="components-approval-editapprover-index-tsx-index-label-workflow-applies-to"
+                  className="text-sm text-[#4d4d4d]"
+                >
+                  Workflow Applies to
+                </span>
+                <Form.Item
+                  name="workflowAppliesType"
+                  className="mb-0 mt-1"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select a workflow option!',
+                    },
+                  ]}
+                >
+                  <Radio.Group>
+                    <Radio value="Department">Department</Radio>
+                    <Radio disabled value="Hierarchy">
+                      Hierarchy
+                    </Radio>
+                    <Radio value="User">User</Radio>
+                  </Radio.Group>
+                </Form.Item>
+              </div>
+
+              <Form.Item name="workflowAppliesId" className="mb-0">
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  className="h-10"
+                  allowClear
+                  placeholder={`Select ${workflowApplies ? workflowApplies : ''}`}
+                />
+              </Form.Item>
+            </div>
+          )}
+
+          <div
+            className="rounded-xl border border-gray-200 p-3 mb-3 flex flex-col gap-2"
+            data-cy="approval-workflow-levels-section-edit"
+          >
+            <span
+              id="components-approval-editapprover-index-tsx-index-label-levels-assignees"
+              data-cy="components-approval-editapprover-index-tsx-index-label-levels-assignees"
+              className="text-sm text-[#4d4d4d]"
+            >
+              Levels & Assignees
+            </span>
+          </div>
 
           <Form.List name="approvers">
             {(fields, {}) => (
@@ -145,20 +194,22 @@ const EditApproverComponent = ({
                   <div
                     data-cy="components-approval-editapprover-index-tsx-index-div-142"
                     key={key}
-                    className="px-10 my-1"
+                    className="my-2 rounded-xl border border-gray-200 p-3"
                   >
-                    <div data-cy="components-approval-editapprover-index-tsx-index-div-143">
-                      Level: {name + 1}
+                    <div
+                      data-cy="components-approval-editapprover-index-tsx-index-div-143"
+                      className="mb-1 text-sm text-[#4d4d4d]"
+                    >
+                      Assign - Level {name + 1}
                     </div>
                     <div
                       data-cy="components-approval-editapprover-index-tsx-index-div-144"
-                      className="flex justify-between items-center"
+                      className="flex justify-between items-center gap-3"
                     >
                       <Form.Item
                         {...restField}
-                        className="font-semibold text-xs"
+                        className="flex-1 mb-0"
                         name={[name, 'assignedUser']}
-                        label={`Assign User for Level ${name + 1}`}
                         rules={[
                           { required: true, message: 'Please select a user!' },
                         ]}
@@ -167,11 +218,10 @@ const EditApproverComponent = ({
                           disabled={!users?.items}
                           showSearch
                           optionFilterProp="label"
-                          className="min-w-52 my-3"
+                          className="w-full h-10"
                           mode={
                             approverType === 'Parallel' ? 'multiple' : undefined
                           }
-                          style={{ width: 120 }}
                           onDeselect={(value) => handleDeselect(value, name)}
                           onChange={(value) =>
                             handleUserChange(value as string, name)
@@ -187,7 +237,7 @@ const EditApproverComponent = ({
                         <Tooltip title={'Delete Employee'}>
                           <Button
                             id={`deleteUserButton${name}`}
-                            className="bg-red-600 px-[8%] text-white disabled:bg-gray-400"
+                            className="bg-red-600 text-white disabled:bg-gray-400 border-none"
                             onClick={() => {
                               const userId = form.getFieldValue([
                                 'approvers',
@@ -210,7 +260,8 @@ const EditApproverComponent = ({
           </Form.List>
 
           <Form.Item>
-            <Row className="flex justify-end gap-3">
+            <Row className="flex justify-end gap-3 mt-4">
+              <Button onClick={onClose}>Cancel</Button>
               <Button type="primary" htmlType="submit">
                 Submit
               </Button>
@@ -223,7 +274,7 @@ const EditApproverComponent = ({
         onConfirm={() => handleDeleteConfirm(deletedApprover, selectedItem?.id)}
         onCancel={() => setDeleteModal(false)}
       />
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
 

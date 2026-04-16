@@ -3,9 +3,8 @@ import {
   DatePicker,
   Form,
   Select,
-  Skeleton,
   Tag,
-  Spin,
+  Skeleton,
   Tooltip,
   Modal,
 } from 'antd';
@@ -520,8 +519,9 @@ const UserLeaveBalance: React.FC = () => {
           id="time-attendance-user-leave-balance-utilization-card"
           data-cy="time-attendance-user-leave-balance-utilization-card"
         >
-          <Spin
-            spinning={userLeaveBalanceLoading}
+          <Skeleton
+            loading={userLeaveBalanceLoading}
+            active
             data-cy="time-attendance-user-leave-balance-utilization-spin"
           >
             <div
@@ -621,7 +621,7 @@ const UserLeaveBalance: React.FC = () => {
                 </div>
               )}
             </div>
-          </Spin>
+          </Skeleton>
         </Card>
       </div>
 

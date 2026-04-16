@@ -56,6 +56,10 @@ interface DynamicFormStore {
   setFilteredQuestions: (value: any[]) => void;
 
   rows: number;
+
+  /** When set before opening the create-question drawer, pre-fills the first row field type. */
+  pendingDrawerFieldType: string | null;
+  setPendingDrawerFieldType: (value: string | null) => void;
 }
 
 export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
@@ -123,4 +127,7 @@ export const useDynamicFormStore = create<DynamicFormStore>((set) => ({
   setFilteredQuestions: (value) => set({ filteredQuestions: value }),
 
   rows: 2,
+
+  pendingDrawerFieldType: null,
+  setPendingDrawerFieldType: (value) => set({ pendingDrawerFieldType: value }),
 }));

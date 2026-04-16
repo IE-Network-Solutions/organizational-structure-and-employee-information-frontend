@@ -1,21 +1,46 @@
 'use client';
-import React, { useEffect, useMemo } from 'react';
-import { Tabs, Segmented } from 'antd';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import classNames from 'classnames';
+import { CloseOutlined } from '@ant-design/icons';
+import { ConfigProvider, Drawer, Segmented } from 'antd';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { useFiscalYearSessionSync } from './_components/filters/useFiscalYearSessionSync';
 import Planning from './_components/planning';
+import PlanningToolbarFilters from './_components/planning/PlanningToolbarFilters';
+import InlinePlanningWorkspace, {
+  type InlinePlanningWorkspaceHandle,
+} from './_components/planning/InlinePlanningWorkspace';
+import { KRLeftPanel } from './_components/planning/PlanningPanelView';
+import type { CommentThreadKind } from './_components/planning/PlanningPanelView';
+import {
+  getActiveUnreportedParentPlanContext,
+  normalizeUserKeyResultItems,
+} from './_components/planning/mergeKRPanelGroups';
+import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { usePlanningData } from './_components/planning/usePlanningData';
+import { usePlanningTargets } from './_components/planning/usePlanningTargets';
+import { useReportingData } from './_components/planning/useReportingData';
+import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
+  useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import CreatePlan from './_components/createPlan';
-import EditPlan from './_components/editPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
-import EditReport from './_components/editReport';
+import { PlanningReportingHeaderActions } from './_components/PlanningReportingHeaderActions';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface PlanningPeriod {
   id: string;
@@ -27,23 +52,34 @@ interface PlanningPeriod {
   };
 }
 
-interface TabItem {
-  label: React.ReactNode;
-  id: string;
-  key: string;
-  children: React.ReactNode;
-}
-
 function Page() {
+  useFiscalYearSessionSync();
   const {
     setActiveTab,
     activeTab,
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    inlinePlanningMode,
+    setInlinePlanningMode,
+    mobilePlanComposerOpen,
+    setMobilePlanComposerOpen,
+    inlineEditPlanId,
+    setInlineEditPlanId,
+    selectedFiscalYearId,
+    selectedSessionIds,
   } = PlanningAndReportingStore();
+
+  /** Fiscal year / session apply to Reports tab and KR fetch when that tab is active; not to active plans list. */
+  const keyResultFiscalYearId =
+    activeTab === 2 ? (selectedFiscalYearId ?? undefined) : undefined;
+  const keyResultSessionId =
+    activeTab === 2 && selectedSessionIds.length > 0
+      ? selectedSessionIds[0]
+      : undefined;
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
+  const { isMobile, isTablet } = useIsMobile();
 
   const { data: planningPeriodForUserId } =
     useGetAssignedPlanningPeriodForUserId();
@@ -103,7 +139,7 @@ function Page() {
     return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
   }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
 
-  const tabItems: TabItem[] = useMemo(() => {
+  const tabItems = useMemo(() => {
     return processedPlanningPeriods.map(
       (item: PlanningPeriod, index: number) => ({
         label: (
@@ -116,10 +152,10 @@ function Page() {
         ),
         id: item.planningPeriod.id,
         key: String(index + 1),
-        children: activeTab === 1 ? <Planning /> : <Reporting />,
+        children: null,
       }),
     );
-  }, [processedPlanningPeriods, activeTab]);
+  }, [processedPlanningPeriods]);
 
   const selectedTab = tabItems.find(
     (item) => item.key === String(activePlanPeriod),
@@ -129,71 +165,485 @@ function Page() {
     setActivePlanPeriodId(selectedTab?.id || '');
   }, [selectedTab?.id, setActivePlanPeriodId]);
 
+  // ── Shared KR panel state (lives at page level, persists across tabs) ──
+  const {
+    planSummaries,
+    transformedData,
+    isLoading: planningLoading,
+    userId,
+  } = usePlanningData();
+
+  const { data: userKeyResultsRaw, isLoading: userKeyResultsLoading } =
+    useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId);
+
+  const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
+    userId,
+    selectedTab?.id ?? '',
+  );
+
+  const userKeyResultItems = useMemo(
+    () => normalizeUserKeyResultItems(userKeyResultsRaw),
+    [userKeyResultsRaw],
+  );
+
+  const parentPlanContext = useMemo(
+    () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
+    [planningPeriodHierarchy],
+  );
+
+  const krPanelBlockingLoading =
+    planningLoading || (userKeyResultsLoading && planSummaries.length === 0);
+
+  const { targets: planningTargets, isLoading: planningTargetsLoading } =
+    usePlanningTargets(userId, selectedTab?.id);
+
+  const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
+    string | null
+  >(null);
+
+  const activePlanningTarget = useMemo(
+    () =>
+      planningTargets.find((t) => t.id === selectedPlanningTargetId) ?? null,
+    [planningTargets, selectedPlanningTargetId],
+  );
+
+  const inlinePlanningPeriodLabel = useMemo(() => {
+    const item = processedPlanningPeriods[activePlanPeriod - 1] as
+      | PlanningPeriod
+      | undefined;
+    return item?.planningPeriod?.name?.trim() || 'Plan';
+  }, [processedPlanningPeriods, activePlanPeriod]);
+
+  useEffect(() => {
+    if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
+  }, [inlinePlanningMode]);
+
+  useEffect(() => {
+    if (inlineEditPlanId) setSelectedPlanningTargetId(null);
+  }, [inlineEditPlanId]);
+
+  useEffect(() => {
+    if (activeTab !== 1) {
+      setInlinePlanningMode(false);
+      setMobilePlanComposerOpen(false);
+    }
+  }, [activeTab, setInlinePlanningMode, setMobilePlanComposerOpen]);
+
+  const { reportSummaries } = useReportingData();
+  const [highlightedKRId, setHighlightedKRId] = useState<string | null>(null);
+  const [activeThread, setActiveThread] = useState<{
+    id: string;
+    kind: CommentThreadKind;
+  } | null>(null);
+
+  const handleOpenThread = useCallback(
+    (entityId: string, kind: CommentThreadKind) => {
+      setActiveThread((prev) =>
+        prev?.id === entityId && prev?.kind === kind
+          ? null
+          : { id: entityId, kind },
+      );
+    },
+    [],
+  );
+
+  const handleCloseThread = useCallback(() => {
+    setActiveThread(null);
+  }, []);
+
+  useEffect(() => {
+    setActiveThread(null);
+  }, [activeTab]);
+
+  const isDesktop = !isMobile && !isTablet;
+
+  useEffect(() => {
+    if (isDesktop) setMobilePlanComposerOpen(false);
+  }, [isDesktop, setMobilePlanComposerOpen]);
+
+  useEffect(() => {
+    if (!isDesktop && !inlinePlanningMode) {
+      setMobilePlanComposerOpen(false);
+    }
+  }, [isDesktop, inlinePlanningMode, setMobilePlanComposerOpen]);
+
+  const closeMobilePlanComposer = useCallback(() => {
+    setMobilePlanComposerOpen(false);
+    setInlinePlanningMode(false);
+    setSelectedPlanningTargetId(null);
+    setInlineEditPlanId(null);
+  }, [setMobilePlanComposerOpen, setInlinePlanningMode, setInlineEditPlanId]);
+
+  const handleMobileInlineExit = useCallback(() => {
+    setSelectedPlanningTargetId(null);
+    setMobilePlanComposerOpen(false);
+    setInlineEditPlanId(null);
+  }, [setMobilePlanComposerOpen, setInlineEditPlanId]);
+
+  const handleInlineWorkspaceExit = useCallback(() => {
+    setSelectedPlanningTargetId(null);
+    setInlineEditPlanId(null);
+  }, [setInlineEditPlanId]);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mobileComposerWorkspaceRef =
+    useRef<InlinePlanningWorkspaceHandle>(null);
+  const [panelHeight, setPanelHeight] = useState<string>('80vh');
+
+  /** Viewport space below the dual-panel row. Do not remeasure on outer scroll — growing height while
+   *  scrolling fights the scroll container and leaves the breadcrumb partially visible. */
+  const measure = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const bottomInset = 8;
+    const heightBoostPx = 16;
+    const available =
+      window.innerHeight - rect.top - bottomInset + heightBoostPx;
+    setPanelHeight(`${Math.max(available, 400)}px`);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    let scrollRaf = 0;
+    const scheduleMeasure = () => {
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        measure();
+      });
+    };
+
+    scheduleMeasure();
+    window.addEventListener('resize', scheduleMeasure);
+
+    const delayed = window.setTimeout(scheduleMeasure, 200);
+
+    return () => {
+      window.removeEventListener('resize', scheduleMeasure);
+      window.clearTimeout(delayed);
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+    };
+  }, [measure, isDesktop, planSummaries.length, activeTab, inlinePlanningMode]);
+
+  const threadEntities = useMemo(() => {
+    return [...planSummaries, ...reportSummaries];
+  }, [planSummaries, reportSummaries]);
+
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
-      className="min-h-screen w-full bg-gray-100 px-4 md:px-6"
+      className="h-auto min-w-0 w-full max-w-full bg-white  rounded-md"
     >
-      <div
-        data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-131"
-        className="h-full w-auto"
-      >
+      <div data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132">
+        <CustomBreadcrumb
+          title="Plan & Report"
+          subtitle="Manage your plans and reports in one place."
+          isRecognition
+          titleExtra={<PlanningReportingHeaderActions />}
+        />
         <div
-          data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132"
-          className="flex flex-col gap-4"
+          data-cy="planning-reporting-main-card"
+          className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:border sm:border-[#F1F2F6] sm:p-4"
         >
           <div
-            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-133"
-            className="flex flex-col md:flex-row items-center justify-between gap-4"
+            data-cy="planning-reporting-toolbar-row"
+            className={classNames(
+              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-nowrap items-center gap-2 bg-white py-2',
+              'sm:gap-3 lg:gap-x-8',
+            )}
           >
             <div
-              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-134"
-              className="w-full md:w-auto flex justify-start"
+              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-359"
+              className="flex shrink-0 items-center sm:min-h-10 sm:justify-center"
             >
-              <CustomBreadcrumb
-                className="text-xs md:text-sm scale-90 md:scale-100 origin-left"
-                title="Planning & Reporting"
-                subtitle="OKR Settings"
-              />
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Segmented: {
+                      trackBg: '#f1f5f9',
+                      itemSelectedBg: '#ffffff',
+                      itemSelectedColor: '#0f172a',
+                    },
+                  },
+                }}
+              >
+                <Segmented
+                  size={isMobile ? 'middle' : 'large'}
+                  value={activeTab}
+                  onChange={(value) => setActiveTab(Number(value))}
+                  options={[
+                    { label: 'Active Plans', value: 1 },
+                    { label: 'Reports', value: 2 },
+                  ]}
+                  className={classNames(
+                    'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 rounded-lg bg-slate-100 !p-1 sm:!p-1.5',
+                    '!h-9 sm:!h-10 sm:!self-center',
+                    '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
+                    '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
+                    '[&_.ant-segmented-item]:!flex [&_.ant-segmented-item]:!flex-none [&_.ant-segmented-item]:!items-center [&_.ant-segmented-item]:!justify-center [&_.ant-segmented-item]:!self-stretch [&_.ant-segmented-item]:!bg-transparent',
+                    '[&_.ant-segmented-item-selected]:!z-[1] [&_.ant-segmented-item-selected]:!rounded-md [&_.ant-segmented-item-selected]:!shadow-sm',
+                    '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!min-h-[28px] [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-3 [&_.ant-segmented-item-label]:!py-0.5 [&_.ant-segmented-item-label]:!text-[13px] sm:[&_.ant-segmented-item-label]:!min-h-0 sm:[&_.ant-segmented-item-label]:!px-4 sm:[&_.ant-segmented-item-label]:!py-1 sm:[&_.ant-segmented-item-label]:!text-sm',
+                    '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
+                  )}
+                />
+              </ConfigProvider>
             </div>
-            <Segmented
-              size="large"
-              value={activeTab}
-              onChange={(value) => setActiveTab(Number(value))}
-              options={[
-                { label: 'Planning', value: 1 },
-                { label: 'Reporting', value: 2 },
-              ]}
-              className="bg-[#F5F5F7] p-1 md:p-1.5 rounded-lg shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)] border border-[#E5E7EB] [&_.ant-segmented-item]:transition-all [&_.ant-segmented-item]:rounded-md [&_.ant-segmented-item]:px-3 md:[&_.ant-segmented-item]:px-4 [&_.ant-segmented-item]:py-0.5 md:[&_.ant-segmented-item]:py-1.5 [&_.ant-segmented-item]:text-xs md:[&_.ant-segmented-item]:text-sm [&_.ant-segmented-item]:font-medium [&_.ant-segmented-item]:h-auto [&_.ant-segmented-item]:leading-normal [&_.ant-segmented-item-selected]:!bg-white [&_.ant-segmented-item-selected]:shadow-sm [&_.ant-segmented-item-selected]:text-[#161A2C] [&_.ant-segmented-item-label]:!text-[#161A2C] [&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-[#161A2C]"
-            />
+            {(processedPlanningPeriods.length > 0 || activeTab === 1) && (
+              <div
+                data-cy="planning-period-pills"
+                className="flex min-w-0 flex-1 items-center justify-end overflow-hidden sm:min-h-10"
+              >
+                <div
+                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-400"
+                  className={classNames(
+                    'flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-webkit-overflow-scrolling:touch] scrollbar-hide',
+                    'sm:gap-3 sm:pb-0',
+                  )}
+                >
+                  <div
+                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
+                    role="tablist"
+                    aria-label="Planning period"
+                    className="flex shrink-0 flex-nowrap items-center gap-2"
+                  >
+                    {processedPlanningPeriods.map(
+                      (item: PlanningPeriod, index: number) => {
+                        const n = index + 1;
+                        const isActive = activePlanPeriod === n;
+                        return (
+                          <button
+                            key={item.planningPeriod.id}
+                            type="button"
+                            role="tab"
+                            aria-selected={isActive}
+                            data-cy={`planning-period-pill-${n}`}
+                            onClick={() => setActivePlanPeriod(n)}
+                            className={classNames(
+                              'shrink-0 rounded-md border-0 font-medium transition-colors',
+                              'text-xs sm:text-sm',
+                              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
+                              isActive
+                                ? 'bg-slate-200 px-2 py-1 text-slate-800 shadow-sm hover:bg-slate-300 sm:px-2.5'
+                                : 'bg-transparent px-1.5 py-1 text-slate-500 hover:text-slate-800 sm:px-1',
+                            )}
+                          >
+                            {item.planningPeriod.name || 'No name available'}
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+                  <div
+                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
+                    className="shrink-0 self-center"
+                  >
+                    <PlanningToolbarFilters />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-        <div
-          data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-153"
-          className="w-full h-auto mt-4"
-        >
-          <Tabs
-            tabBarGutter={50}
-            defaultActiveKey={selectedTab?.id}
-            onChange={(key: any) => setActivePlanPeriod(key)}
-            centered
-            items={tabItems}
-          />
+
+          {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
+          <div
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-450"
+            ref={containerRef}
+            className={classNames(
+              'grid min-h-0 w-full min-w-0 max-w-full grid-cols-1 gap-4',
+              'lg:grid-cols-[clamp(260px,38%,28rem)_minmax(0,1fr)] xl:grid-cols-[clamp(280px,36%,30rem)_minmax(0,1fr)]',
+            )}
+            style={{ height: isDesktop ? panelHeight : undefined }}
+          >
+            <div
+              className="hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:flex lg:h-full"
+              data-cy="planning-kr-panel"
+            >
+              {krPanelBlockingLoading ? (
+                <KRPanelSkeleton />
+              ) : (
+                <KRLeftPanel
+                  plans={planSummaries}
+                  transformedData={transformedData}
+                  userId={userId}
+                  highlightedKRId={highlightedKRId}
+                  activeThread={activeThread}
+                  onCloseThread={handleCloseThread}
+                  threadEntities={threadEntities}
+                  inlinePlanningMode={inlinePlanningMode}
+                  activeTab={activeTab}
+                  planningTargets={planningTargets}
+                  planningTargetsLoading={planningTargetsLoading}
+                  selectedPlanningTargetId={selectedPlanningTargetId}
+                  onPickPlanningTarget={(t) =>
+                    setSelectedPlanningTargetId(t.id)
+                  }
+                  userKeyResultItems={userKeyResultItems}
+                  parentPlanContext={parentPlanContext}
+                />
+              )}
+            </div>
+
+            <div
+              className={classNames(
+                'min-h-0 min-w-0 w-full max-w-full overflow-x-hidden scrollbar-hide',
+                'mx-auto max-w-2xl md:max-w-3xl lg:mx-0 lg:max-w-none',
+                isDesktop ? 'h-full overflow-y-auto' : 'overflow-y-visible',
+              )}
+              data-cy="planning-main-panel"
+            >
+              <div
+                data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-495"
+                className={classNames(
+                  'min-w-0 max-w-full',
+                  activeTab === 1 ? 'flex flex-col' : 'hidden',
+                  isDesktop && activeTab === 1 && 'min-h-full',
+                  inlinePlanningMode ? 'space-y-0' : 'space-y-4',
+                )}
+              >
+                {inlinePlanningMode && isDesktop ? (
+                  <section
+                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-section-504"
+                    className="mb-8 shrink-0 border-b border-[#F1F2F6] pb-8 sm:mb-10 sm:pb-10"
+                    aria-label="New plan draft"
+                  >
+                    <InlinePlanningWorkspace
+                      planningPeriodLabel={inlinePlanningPeriodLabel}
+                      activeTarget={activePlanningTarget}
+                      onClearTarget={() => setSelectedPlanningTargetId(null)}
+                      onExit={handleInlineWorkspaceExit}
+                      editPlanId={inlineEditPlanId}
+                    />
+                  </section>
+                ) : null}
+                <Planning
+                  onHoverKR={setHighlightedKRId}
+                  onOpenThread={handleOpenThread}
+                />
+              </div>
+              <div
+                data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-522"
+                className="min-w-0 max-w-full"
+                style={{ display: activeTab === 2 ? 'block' : 'none' }}
+              >
+                <Reporting
+                  onHoverKR={setHighlightedKRId}
+                  onOpenThread={handleOpenThread}
+                />
+              </div>
+            </div>
+          </div>
+
           <CreatePlan />
-          <EditPlan />
           <CreateReport />
-          <EditReport />
 
           {planningPeriodForUserId?.length === 0 && (
             <div
               data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-167"
-              className="w-full h-auto space-y-4 flex justify-center font-semibold"
+              className="flex w-full justify-center font-semibold"
             >
               There is no Assigned Plan, please assign a Plan for a User first
             </div>
           )}
         </div>
       </div>
+
+      <Drawer
+        data-cy="planning-mobile-composer-drawer"
+        title={
+          <span
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-545"
+            className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base"
+          >
+            New {inlinePlanningPeriodLabel}
+          </span>
+        }
+        extra={
+          <button
+            type="button"
+            onClick={() => mobileComposerWorkspaceRef.current?.requestExit()}
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-white hover:text-[#574CFF] hover:shadow-sm sm:h-10 sm:w-10"
+            aria-label="Exit plan creation"
+            data-cy="planning-mobile-composer-close"
+          >
+            <CloseOutlined className="text-[16px] sm:text-[17px]" />
+          </button>
+        }
+        placement="bottom"
+        height="100%"
+        zIndex={1100}
+        open={mobilePlanComposerOpen && !isDesktop && activeTab === 1}
+        onClose={closeMobilePlanComposer}
+        destroyOnClose
+        closable={false}
+        maskClosable={false}
+        keyboard={false}
+        styles={{
+          header: {
+            paddingTop: 12,
+            paddingBottom: 12,
+            paddingLeft: 16,
+            paddingRight: 16,
+            minHeight: 52,
+            alignItems: 'center',
+          },
+          body: {
+            padding: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            flex: 1,
+            minHeight: 0,
+            overflow: 'hidden',
+          },
+        }}
+        rootClassName="planning-mobile-composer-drawer [&_.ant-drawer-content-wrapper]:!max-h-[100dvh]"
+      >
+        <div
+          data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-589"
+          className="flex h-full min-h-0 flex-col bg-[#FAFBFC]"
+        >
+          <div
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-590"
+            className="min-h-0 max-h-[42vh] shrink-0 overflow-hidden border-b border-[#F1F2F6]"
+          >
+            {krPanelBlockingLoading ? (
+              <KRPanelSkeleton />
+            ) : (
+              <KRLeftPanel
+                plans={planSummaries}
+                transformedData={transformedData}
+                userId={userId}
+                highlightedKRId={highlightedKRId}
+                activeThread={activeThread}
+                onCloseThread={handleCloseThread}
+                threadEntities={threadEntities}
+                inlinePlanningMode
+                activeTab={1}
+                planningTargets={planningTargets}
+                planningTargetsLoading={planningTargetsLoading}
+                selectedPlanningTargetId={selectedPlanningTargetId}
+                onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
+                userKeyResultItems={userKeyResultItems}
+                parentPlanContext={parentPlanContext}
+              />
+            )}
+          </div>
+          <div
+            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-613"
+            className="min-h-0 flex-1 overflow-y-auto bg-white p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3"
+          >
+            <InlinePlanningWorkspace
+              ref={mobileComposerWorkspaceRef}
+              hideHeaderCloseButton
+              planningPeriodLabel={inlinePlanningPeriodLabel}
+              activeTarget={activePlanningTarget}
+              onClearTarget={() => setSelectedPlanningTargetId(null)}
+              onExit={handleMobileInlineExit}
+              editPlanId={inlineEditPlanId}
+            />
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 }

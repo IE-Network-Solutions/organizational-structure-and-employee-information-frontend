@@ -55,7 +55,7 @@ const OkrOptionCard: React.FC<{
     <div
       onClick={() => onSelect(type)}
       className={`
-        relative p-8 rounded-xl cursor-pointer transition-all duration-200 bg-white h-full
+        relative p-8 rounded-lg cursor-pointer transition-all duration-200 bg-white h-full
         border-2 flex flex-col items-center
         ${
           isSelected
@@ -137,13 +137,14 @@ const OkrModeSelectionModal: React.FC<OkrModeSelectionModalProps> = ({
         backdropFilter: 'blur(6px)',
         backgroundColor: 'rgba(0, 0, 0, 0.4)',
       }}
-      // Removing default modal padding for cleaner look
-      bodyStyle={{ padding: 0 }}
-      style={{ borderRadius: '16px', overflow: 'hidden' }}
+      styles={{
+        body: { padding: 0 },
+        content: { borderRadius: 8, overflow: 'hidden' },
+      }}
       data-cy="okr-mode-selection-modal"
     >
       <div
-        className="py-10 px-8 bg-white rounded-2xl"
+        className="py-10 px-8 bg-white rounded-lg"
         data-cy="okr-mode-selection-modal-content"
         id="okr-mode-selection-modal-content"
       >

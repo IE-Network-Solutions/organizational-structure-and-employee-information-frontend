@@ -15,10 +15,54 @@ const createFiscalYear = async (fiscalYear: any) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+
+  // Helper function to convert Dayjs or date objects to ISO string format
+  const formatDate = (date: any): string => {
+    if (!date) return '';
+    // If it's already a string, return it
+    if (typeof date === 'string') return date;
+    // If it's a Dayjs object, format it
+    if (date.format && typeof date.format === 'function') {
+      return date.format('YYYY-MM-DD');
+    }
+    // If it's a Date object, convert it
+    if (date instanceof Date) {
+      return date.toISOString().split('T')[0];
+    }
+    // Fallback: try to convert to string
+    return String(date);
+  };
+
+  // Clean payload: remove any undefined/null values and ensure required fields
+  // Convert all dates to strings (YYYY-MM-DD format) to match Postman format
+  const cleanedPayload = {
+    name: fiscalYear.name,
+    description: fiscalYear.description || `Fiscal year ${fiscalYear.name}`,
+    startDate: formatDate(fiscalYear.startDate),
+    endDate: formatDate(fiscalYear.endDate),
+    isActive: fiscalYear.isActive ?? false,
+    sessions:
+      fiscalYear.sessions?.map((session: any) => ({
+        name: session.name,
+        description: session.description || '',
+        startDate: formatDate(session.startDate),
+        endDate: formatDate(session.endDate),
+        active: session.active ?? false,
+        months:
+          session.months?.map((month: any) => ({
+            name: month.name,
+            description: month.description || '',
+            startDate: formatDate(month.startDate),
+            endDate: formatDate(month.endDate),
+            active: month.active ?? false,
+          })) || [],
+      })) || [],
+  };
+
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
     method: 'POST',
-    data: fiscalYear,
+    data: cleanedPayload,
     headers,
   });
 };
@@ -63,6 +107,16 @@ export const useCreateFiscalYear = () => {
       NotificationMessage.success({
         message: 'Fiscal year created successfully!',
         description: 'Fiscal year has been successfully created',
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        'Failed to create fiscal year';
+      NotificationMessage.error({
+        message: 'Error creating fiscal year',
+        description: errorMessage,
       });
     },
   });

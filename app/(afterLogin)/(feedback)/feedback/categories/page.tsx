@@ -1,28 +1,14 @@
 'use client';
+/* eslint-disable local-rules/data-cy-required, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import CustomButton from '@/components/common/buttons/customButton';
 import React from 'react';
-import { FaPlus } from 'react-icons/fa';
-import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
-import CategorySideDrawer from './_components/categorySideDrawer';
 import CategorySearch from './_components/categorySearch';
 import CategoriesCard from './_components/categoriesCard';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
 
 const Categories: React.FC = () => {
-  const { setOpen } = CategoriesManagementStore();
-
-  const showDrawer = () => {
-    setOpen(true);
-  };
-  const onClose = () => {
-    setOpen(false);
-  };
-
   return (
     <div
-      className="h-auto w-full p-4 bg-white rounded-md"
+      className="h-auto w-full  bg-white rounded-md"
       data-cy="feedback-categories-page-div"
       id="feedback-categories-page-div"
     >
@@ -33,44 +19,25 @@ const Categories: React.FC = () => {
       >
         <CustomBreadcrumb
           title="Form Categories"
-          subtitle="Manage your form categories"
+          subtitle={
+            <>
+              <span className="text-slate-500">CFR / </span>
+              <span className="text-[#000000B2]">Form Categories</span>
+            </>
+          }
           data-cy="feedback-categories-page-breadcrumb"
         />
+      </div>
+
+      <div
+        className="w-full h-auto"
+        data-cy="feedback-categories-page-div-content"
+        id="feedback-categories-page-div-content"
+      >
         <div
-          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-          data-cy="feedback-categories-page-div-actions"
-          id="feedback-categories-page-div-actions"
-        >
-          <AccessGuard
-            permissions={[Permissions.CreateFormCategory]}
-            data-cy="feedback-categories-page-access-guard-create-form-category"
-            id="feedback-categories-page-access-guard-create-form-category"
-          >
-            <CustomButton
-              title="Create Form Category"
-              id="createUserButton"
-              data-cy="feedback-categories-page-button-create"
-              icon={
-                <FaPlus
-                  size={13}
-                  className="mr-2"
-                  data-cy="feedback-categories-page-icon-plus"
-                  id="feedback-categories-page-icon-plus"
-                />
-              }
-              onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
-          </AccessGuard>
-          <CategorySideDrawer
-            onClose={onClose}
-            data-cy="feedback-categories-side-drawer"
-          />
-        </div>
-        <div
-          className="w-full h-auto"
-          data-cy="feedback-categories-page-div-content"
-          id="feedback-categories-page-div-content"
+          className="mt-4 bg-white border border-[#E2E8F0] rounded-lg p-4 w-full flex flex-col gap-4"
+          data-cy="feedback-categories-page-content-container"
+          id="feedback-categories-page-content-container"
         >
           <CategorySearch data-cy="feedback-categories-category-search" />
           <CategoriesCard data-cy="feedback-categories-categories-card" />

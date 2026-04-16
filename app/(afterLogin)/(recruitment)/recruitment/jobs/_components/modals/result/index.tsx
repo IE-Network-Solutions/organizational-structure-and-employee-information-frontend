@@ -1,7 +1,7 @@
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { Button, Modal, Result } from 'antd';
 import React from 'react';
-import SuccessResult from '@/public/image/successResult.png';
+const SuccessResult = '/image/successResult.png';
 import Image from 'next/image';
 
 const AddFormResult: React.FC = () => {

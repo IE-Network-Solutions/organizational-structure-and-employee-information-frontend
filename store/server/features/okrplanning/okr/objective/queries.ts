@@ -25,6 +25,7 @@ const getObjectiveByUser = async (
   metricTypeId: string,
   fiscalYearId?: string,
   sessions?: string[],
+  keyResultDeadlineFilter?: string,
 ) => {
   const token = await getCurrentToken();
   try {
@@ -39,6 +40,8 @@ const getObjectiveByUser = async (
     if (metricTypeId) params.set('metricTypeId', metricTypeId);
     if (fiscalYearId) params.set('fiscalYearId', fiscalYearId);
     if (sessions && sessions.length > 0) params.set('sessionId', sessions[0]);
+    if (keyResultDeadlineFilter)
+      params.set('keyResultDeadlineFilter', keyResultDeadlineFilter);
 
     const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective/${id}?${params.toString()}`,
@@ -59,6 +62,7 @@ const getObjectiveByTeam = async (
   metricTypeId: string,
   fiscalYearId?: string,
   sessions?: string[],
+  keyResultDeadlineFilter?: string,
 ) => {
   const token = await getCurrentToken();
   try {
@@ -77,6 +81,7 @@ const getObjectiveByTeam = async (
         metricTypeId,
         fiscalYearId,
         sessionId: sessions && sessions.length > 0 ? sessions[0] : undefined,
+        ...(keyResultDeadlineFilter && { keyResultDeadlineFilter }),
       },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -99,6 +104,7 @@ const getObjectiveByCompany = async (
   metricTypeId: string,
   fiscalYearId?: string,
   sessions?: string[],
+  keyResultDeadlineFilter?: string,
 ) => {
   const token = await getCurrentToken();
   try {
@@ -111,6 +117,7 @@ const getObjectiveByCompany = async (
         metricTypeId,
         fiscalYearId,
         sessionId: sessions && sessions.length > 0 ? sessions[0] : undefined,
+        ...(keyResultDeadlineFilter && { keyResultDeadlineFilter }),
       },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -132,6 +139,7 @@ const getEmployeeOkr = async (
   },
   page: number,
   currentPage: number,
+  keyResultDeadlineFilter?: string,
 ) => {
   const token = await getCurrentToken();
   try {
@@ -143,6 +151,7 @@ const getEmployeeOkr = async (
         userId: searchObjParams?.userId,
         departmentId: searchObjParams?.departmentId,
         metricTypeId: searchObjParams?.metricTypeId,
+        ...(keyResultDeadlineFilter && { keyResultDeadlineFilter }),
       },
       headers: {
         Authorization: `Bearer ${token}`,
@@ -162,6 +171,7 @@ export const useGetUserObjective = (
   metricTypeId: string,
   fiscalYearId?: string,
   sessions?: string[],
+  keyResultDeadlineFilter?: string,
 ) =>
   useQuery<ResponseData>(
     [
@@ -172,6 +182,7 @@ export const useGetUserObjective = (
       metricTypeId,
       fiscalYearId,
       sessions,
+      keyResultDeadlineFilter,
     ],
     () =>
       getObjectiveByUser(
@@ -181,6 +192,7 @@ export const useGetUserObjective = (
         metricTypeId,
         fiscalYearId,
         sessions,
+        keyResultDeadlineFilter,
       ),
     {
       keepPreviousData: true,
@@ -195,6 +207,7 @@ export const useGetTeamObjective = (
   metricTypeId: string,
   fiscalYearId?: string,
   sessions?: string[],
+  keyResultDeadlineFilter?: string,
 ) =>
   useQuery<ResponseData>(
     [
@@ -206,6 +219,7 @@ export const useGetTeamObjective = (
       metricTypeId,
       fiscalYearId,
       sessions,
+      keyResultDeadlineFilter,
     ],
     () =>
       getObjectiveByTeam(
@@ -216,6 +230,7 @@ export const useGetTeamObjective = (
         metricTypeId,
         fiscalYearId,
         sessions,
+        keyResultDeadlineFilter,
       ),
     {
       keepPreviousData: true,
@@ -232,6 +247,7 @@ export const useGetCompanyObjective = (
   metricTypeId: string,
   fiscalYearId?: string,
   sessions?: string[],
+  keyResultDeadlineFilter?: string,
 ) =>
   useQuery<ResponseData>(
     [
@@ -244,6 +260,7 @@ export const useGetCompanyObjective = (
       metricTypeId,
       fiscalYearId,
       sessions,
+      keyResultDeadlineFilter,
     ],
     () =>
       getObjectiveByCompany(
@@ -255,6 +272,7 @@ export const useGetCompanyObjective = (
         metricTypeId,
         fiscalYearId,
         sessions,
+        keyResultDeadlineFilter,
       ),
     {
       keepPreviousData: true,
@@ -270,8 +288,28 @@ export const useGetEmployeeOkr = (
   },
   page: number,
   currentPage: number,
+  keyResultDeadlineFilter?: string,
+  queryOptions?: { enabled?: boolean },
 ) =>
   useQuery<ResponseData>(
-    ['employeeOkrInformation', sessions, searchObjParams, page, currentPage],
-    () => getEmployeeOkr(sessions, searchObjParams, page, currentPage),
+    [
+      'employeeOkrInformation',
+      sessions,
+      searchObjParams,
+      page,
+      currentPage,
+      keyResultDeadlineFilter,
+    ],
+    () =>
+      getEmployeeOkr(
+        sessions,
+        searchObjParams,
+        page,
+        currentPage,
+        keyResultDeadlineFilter,
+      ),
+    {
+      keepPreviousData: true,
+      enabled: queryOptions?.enabled ?? true,
+    },
   );

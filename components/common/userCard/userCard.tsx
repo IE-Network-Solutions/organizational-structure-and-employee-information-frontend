@@ -1,6 +1,7 @@
 import { FC } from 'react';
 import { Avatar } from 'antd';
 import { classNames } from '@/utils/classNames';
+import { UserOutlined } from '@ant-design/icons';
 
 interface UserCardProps {
   data: any;
@@ -10,6 +11,20 @@ interface UserCardProps {
   description?: string;
   size?: 'small' | 'medium';
   email?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  /** Applied to the name element */
+  nameClassName?: string;
+  nameStyle?: React.CSSProperties;
+  /** Applied to the email element */
+  emailClassName?: string;
+  emailStyle?: React.CSSProperties;
+  /** Applied to the description element */
+  descriptionClassName?: string;
+  descriptionStyle?: React.CSSProperties;
+  /** Applied to the wrapper div containing name, email, description */
+  contentClassName?: string;
+  contentStyle?: React.CSSProperties;
 }
 
 const UserCard: FC<UserCardProps> = ({
@@ -18,38 +33,65 @@ const UserCard: FC<UserCardProps> = ({
   description = '',
   size = 'medium',
   email,
+  className,
+  style,
+  nameClassName,
+  nameStyle,
+  emailClassName,
+  emailStyle,
+  descriptionClassName,
+  descriptionStyle,
+  contentClassName,
+  contentStyle,
 }) => {
-  // const sizeWH = size === 'medium' ? 40 : 24;
+  const hasProfileImage = Boolean(data?.profileImage);
+
   return (
-    <div className="flex items-center gap-3" data-cy="user-card">
-      {data ? (
-        <Avatar size={25} src={data?.profileImage} />
-      ) : (
-        <Avatar
-          size={25}
-          data-cy="components-common-usercard-usercard-tsx-usercard-avatar-35"
-        >
-          {data?.firstName[0]?.toUpperCase()}
-          {data?.middleName[0]?.toUpperCase()}
-          {data?.lastName[0]?.toUpperCase()}
-        </Avatar>
+    <div
+      className={classNames(
+        'flex items-center gap-3',
+        {},
+        className ? [className] : [],
       )}
-      <div data-cy="components-common-usercard-usercard-tsx-usercard-div-34">
+      style={style}
+      data-cy="user-card"
+    >
+      <Avatar
+        size={25}
+        src={hasProfileImage ? data?.profileImage : undefined}
+        icon={!hasProfileImage ? <UserOutlined /> : undefined}
+        data-cy="components-common-usercard-usercard-tsx-usercard-avatar-35"
+      />
+      <div
+        className={contentClassName ?? ''}
+        style={contentStyle}
+        data-cy="components-common-usercard-usercard-tsx-usercard-div-34"
+      >
         <div
-          className={classNames('text-gray-900 font-semibold', {
-            'text-lg': size === 'medium',
-            'text-xs': size === 'small',
-          })}
+          className={
+            nameClassName
+              ? nameClassName
+              : classNames('text-gray-900 font-semibold', {
+                  'text-lg': size === 'medium',
+                  'text-xs': size === 'small',
+                })
+          }
+          style={nameStyle}
           data-cy="components-common-usercard-usercard-tsx-usercard-div-38"
         >
           {name}
         </div>
         {email && (
           <div
-            className={classNames('text-gray-700 mt-1', {
-              'text-lg': size === 'medium',
-              'text-xs': size === 'small',
-            })}
+            className={
+              emailClassName
+                ? emailClassName
+                : classNames('text-gray-700 mt-1', {
+                    'text-lg': size === 'medium',
+                    'text-xs': size === 'small',
+                  })
+            }
+            style={emailStyle}
             data-cy="components-common-usercard-usercard-tsx-usercard-div-47"
           >
             {email}
@@ -58,7 +100,12 @@ const UserCard: FC<UserCardProps> = ({
         {description && (
           <div
             data-cy="components-common-usercard-usercard-tsx-usercard-div-54"
-            className="text-[10px] text-gray-500 mt-0.5"
+            className={
+              descriptionClassName
+                ? descriptionClassName
+                : 'text-[10px] text-gray-500 mt-0.5'
+            }
+            style={descriptionStyle}
           >
             {description}
           </div>

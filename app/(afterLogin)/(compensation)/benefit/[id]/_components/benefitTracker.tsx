@@ -1,21 +1,25 @@
-import { Table, Select, Divider, Form } from 'antd';
-import { Card } from 'antd';
-import React, { useEffect } from 'react';
-import { FiChevronLeft } from 'react-icons/fi';
+import { Modal, Progress, Spin, Table, Tag } from 'antd';
+import React, { useMemo } from 'react';
 import { useBenefitEntitlementStore } from '@/store/uistate/features/compensation/benefit';
-import { EmployeeDetails } from '../../../_components/employeeDetails';
 import dayjs from 'dayjs';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import { useEmployeeSettlementTracking } from '@/store/server/features/payroll/settlementTracking/queries';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import type { ColumnsType } from 'antd/es/table';
+import { TableSkeleton } from '@/components/tableSkeleton';
 
-const { Option } = Select;
+/** Above entitlement/benefit-type sidebars (`zIndex={10002}`) so tracking stays on top. */
+const BENEFIT_TRACKING_MODAL_Z_INDEX = 10200;
+
+const formatMoney = (value: number) =>
+  Number(value || 0).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
 const BenefitTracking = () => {
-  const [form] = Form.useForm();
-  const { data: payPeriodData } = useGetPayPeriod();
   const {
     setEmployeeBenefitData,
     employeeBenefitData,
@@ -25,13 +29,14 @@ const BenefitTracking = () => {
     setDetailPageSize,
   } = useBenefitEntitlementStore();
 
-  const handleBackData = () => {
+  const handleClose = () => {
     setEmployeeBenefitData(null);
+    setDetailCurrentPage(1);
   };
 
   const { isMobile, isTablet } = useIsMobile();
+  const { data: payPeriods } = useGetPayPeriod();
 
-  const { data: payPeriods, isLoading: payLoading } = useGetPayPeriod();
   const compensationItemEntitlementId =
     employeeBenefitData?.id ||
     employeeBenefitData?.[0]?.compensationItemEntitlementId;
@@ -42,410 +47,271 @@ const BenefitTracking = () => {
   const { data: employeeEntitlementData, isLoading } =
     useEmployeeSettlementTracking(compensationItemEntitlementId, userId);
 
-  const settlementTracking = employeeEntitlementData?.settlementTracking || [];
+  const settlementTracking = useMemo(
+    () => employeeEntitlementData?.settlementTracking ?? [],
+    [employeeEntitlementData?.settlementTracking],
+  );
 
-  // Pagination logic
   const startIndex = (detailCurrentPage - 1) * detailPageSize;
   const endIndex = startIndex + detailPageSize;
   const paginatedTracking = settlementTracking.slice(startIndex, endIndex);
 
-  useEffect(() => {
-    const formattedData = paginatedTracking.map((benefit: any) => ({
-      mode: benefit.mode || undefined,
-      userId: benefit.userId,
-      payPeriodId: benefit.payPeriodId || undefined,
-    }));
-    form.setFieldsValue({ benefits: formattedData });
-  }, [paginatedTracking, form]);
+  const { totalAmount, totalPaid, remaining } = useMemo(() => {
+    let paid = 0;
+    let rem = 0;
+    for (const item of settlementTracking) {
+      const amt = Number(item.amount) || 0;
+      if (item.isPaid === true) paid += amt;
+      else rem += amt;
+    }
+    const total = paid + rem;
+    return { totalAmount: total, totalPaid: paid, remaining: rem };
+  }, [settlementTracking]);
 
-  const periods =
-    payPeriodData?.filter((item: any) =>
-      settlementTracking.map((st: any) => st.payPeriodId).includes(item.id),
-    ) ?? [];
+  const repaymentPercent =
+    totalAmount > 0
+      ? Math.min(100, Math.round((totalPaid / totalAmount) * 100))
+      : 0;
 
-  const startDates = periods.map((p: any) => new Date(p.startDate).getTime());
-  const endDates = periods.map((p: any) => new Date(p.endDate).getTime());
+  const periodLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const period of payPeriods ?? []) {
+      const label = `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`;
+      map.set(period.id, label);
+    }
+    return map;
+  }, [payPeriods]);
 
-  const earliestStart = startDates.length
-    ? new Date(Math.min(...startDates)).toLocaleDateString()
-    : '';
-  const latestEnd = endDates.length
-    ? new Date(Math.max(...endDates)).toLocaleDateString()
-    : '';
+  const columns: ColumnsType<any> = [
+    {
+      title: 'Date',
+      key: 'date',
+      width: 120,
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        return record?.createdAt
+          ? dayjs(record.createdAt).format('MMM DD,YYYY')
+          : '—';
+      },
+    },
+    {
+      title: 'Pay Amount',
+      key: 'amount',
+      width: 120,
+      // align: 'right',
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        return formatMoney(Number(record?.amount) || 0);
+      },
+    },
+    {
+      title: 'Pay Period',
+      key: 'payPeriod',
+      width: 280,
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        const id = record?.payPeriodId;
+        const text = id ? periodLabelById.get(id) : undefined;
+        return text ? (
+          <Tag
+            bordered
+            className="m-0 rounded px-2 py-0.5 text-[13px] font-normal text-[#434343] border-[#D9D9D9] bg-[#FAFAFA]"
+            data-cy="compensation-benefit-tracker-pay-period-tag"
+          >
+            {text}
+          </Tag>
+        ) : (
+          '—'
+        );
+      },
+    },
+    {
+      title: 'Reason',
+      key: 'reason',
+      ellipsis: true,
+      render: (cellValue: unknown, record: any) => {
+        void cellValue;
+        return record?.reason?.trim() || '';
+      },
+    },
+  ];
+
+  const benefitTitle =
+    employeeEntitlementData?.compensationItem?.name ?? 'Benefit';
+  const isRepayable =
+    employeeEntitlementData?.compensationItem?.mode === 'DEBIT';
+
+  const trackingOpen = employeeBenefitData != null;
+
   return (
-    <Card
-      bodyStyle={{ padding: 0, margin: 0 }}
-      headStyle={{ padding: 0, margin: 0 }}
+    <Modal
       title={
-        <div
-          className="flex items-center gap-3 cursor-pointer"
-          id="compensation-benefit-tracker-header"
-          data-cy="compensation-benefit-tracker-header"
+        <span
+          className="text-lg font-semibold text-[#262626] pr-6 scrollbar-hide"
+          id="compensation-benefit-tracker-title"
+          data-cy="compensation-benefit-tracker-title"
         >
-          <FiChevronLeft
-            onClick={handleBackData}
-            size={20}
-            data-cy="compensation-benefit-tracker-back-icon"
-          />
-          {employeeEntitlementData?.compensationItem?.name}
-        </div>
+          {benefitTitle}
+        </span>
       }
-      loading={isLoading}
-      className="px-4 max-w-5xl mx-auto bg-white"
+      open={trackingOpen}
+      onCancel={handleClose}
+      footer={null}
+      width={920}
+      centered
+      destroyOnClose
+      maskClosable
+      zIndex={BENEFIT_TRACKING_MODAL_Z_INDEX}
+      rootClassName="compensation-benefit-tracking-modal"
+      classNames={{ body: 'hide-scrollbar' }}
+      data-cy="compensation-benefit-tracking-modal"
+      styles={{
+        body: {
+          maxHeight: 'min(72vh, calc(100vh - 200px))',
+          overflowY: 'auto',
+          paddingTop: 8,
+        },
+      }}
     >
-      <div
-        className="grid gap-4 text-sm my-3"
-        id="compensation-benefit-tracker-summary"
-        data-cy="compensation-benefit-tracker-summary"
-      >
-        {/* Name */}
+      <Spin spinning={isLoading}>
         <div
-          className="grid grid-cols-3 items-center space-x-7"
-          id="compensation-benefit-tracker-name-row"
-          data-cy="compensation-benefit-tracker-name-row"
+          id="compensation-benefit-tracker-card"
+          data-cy="compensation-benefit-tracker-card"
         >
-          <span
-            id="compensation-benefit-tracker-name-label"
-            data-cy="compensation-benefit-tracker-name-label"
-            className="text-gray-500"
-          >
-            Name
-          </span>
           <div
-            className="col-span-2 font-medium flex items-start gap-2"
-            id="compensation-benefit-tracker-name-value"
-            data-cy="compensation-benefit-tracker-name-value"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6"
+            id="compensation-benefit-tracker-summary-cards"
+            data-cy="compensation-benefit-tracker-summary-cards"
           >
-            <EmployeeDetails
-              data-cy="compensation-benefit-tracker-name-employee-details"
-              empId={employeeEntitlementData?.employeeId}
+            {(
+              [
+                { label: 'Total Amount', value: totalAmount },
+                { label: 'Total Paid', value: totalPaid },
+                { label: 'Remaining', value: remaining },
+              ] as const
+            ).map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-lg border-2 border-[#D9D9D9] px-4 py-3 bg-white"
+                data-cy={`compensation-benefit-tracker-stat-${stat.label.replace(/\s+/g, '-').toLowerCase()}`}
+              >
+                <div
+                  className="text-xs text-[#8C8C8C] mb-1"
+                  data-cy={`compensation-benefit-tracker-stat-label-${stat.label.replace(/\s+/g, '-').toLowerCase()}`}
+                >
+                  {stat.label}
+                </div>
+                <div
+                  className="text-xl font-semibold text-[#262626] tabular-nums"
+                  data-cy={`compensation-benefit-tracker-stat-value-${stat.label.replace(/\s+/g, '-').toLowerCase()}`}
+                >
+                  {formatMoney(stat.value)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div
+            className="rounded-lg border border-[#F0F0F0] px-4 py-3 mb-6"
+            id="compensation-benefit-tracker-progress"
+            data-cy="compensation-benefit-tracker-progress"
+          >
+            <div
+              className="flex justify-between items-center mb-2"
+              data-cy="compensation-benefit-tracker-progress-header-row"
+            >
+              <span
+                className="text-sm text-[#262626]"
+                data-cy="compensation-benefit-tracker-progress-label"
+              >
+                {isRepayable ? 'Repayment Progress' : 'Payment Status'}
+              </span>
+              <span
+                className="text-sm font-medium rounded-md text-[#52C41A]"
+                data-cy="compensation-benefit-tracker-progress-percent"
+              >
+                {repaymentPercent}%
+              </span>
+            </div>
+            <Progress
+              percent={repaymentPercent}
+              showInfo={false}
+              strokeColor="#52C41A"
+              trailColor="#F0F0F0"
+              strokeLinecap="round"
+              className="mb-0 [&_.ant-progress-bg]:h-2 [&_.ant-progress-bg]:rounded-full [&_.ant-progress-inner]:rounded-full"
             />
           </div>
-        </div>
 
-        <div
-          className="grid grid-cols-3 items-center space-x-7"
-          id="compensation-benefit-tracker-total-row"
-          data-cy="compensation-benefit-tracker-total-row"
-        >
-          <span
-            id="compensation-benefit-tracker-total-amount-take-label"
-            data-cy="compensation-benefit-tracker-total-amount-take-label"
-            className="text-gray-500"
+          <h3
+            className="text-sm font-medium text-[#262626] mb-3 m-0"
+            id="compensation-benefit-tracker-paid-back-header"
+            data-cy="compensation-benefit-tracker-paid-back-header"
           >
-            Total Amount Take
-          </span>
+            {isRepayable ? 'Repaid Amount' : 'Payment History'}
+          </h3>
+
           <div
-            className="font-medium text-start text-nowrap px-1"
-            id="compensation-benefit-tracker-total-value"
-            data-cy="compensation-benefit-tracker-total-value"
+            className="overflow-hidden [&_.ant-table-wrapper]:!shadow-none [&_.ant-table]:!shadow-none [&_.ant-table-content]:[-ms-overflow-style:none] [&_.ant-table-content]:[scrollbar-width:none] [&_.ant-table-content::-webkit-scrollbar]:hidden"
+            id="compensation-benefit-tracker-table-scroll"
+            data-cy="compensation-benefit-tracker-table-scroll"
           >
-            {Number(
-              settlementTracking.reduce(
-                (acc: any, item: any) => acc + (Number(item.amount) || 0),
-                0,
-              ) || 0,
-            ).toLocaleString()}
+            {isLoading ? (
+              <TableSkeleton columns={columns} />
+            ) : (
+              <Table<any>
+                data-cy="compensation-benefit-tracker-list-table"
+                // className="benefit-tracking-paid-table [&_.ant-table]:text-sm [&_.ant-table]:border [&_.ant-table]:border-[#F0F0F0] [&_.ant-table]:rounded-md [&_.ant-table-cell]:align-middle [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#262626] [&_.ant-table-thead>tr>th]:font-medium [&_.ant-table-thead>tr>th]:px-3 [&_.ant-table-thead>tr>th]:py-3 [&_.ant-table-thead>tr>th]:text-[13px] [&_.ant-table-tbody>tr>td]:px-3 [&_.ant-table-tbody>tr>td]:py-[10px] [&_.ant-table-tbody>tr>td]:text-[#434343] [&_.ant-table-tbody>tr>td]:border-b [&_.ant-table-tbody>tr>td]:border-[#F0F0F0] [&_.ant-table-tbody>tr:last-child>td]:border-b-0 [&_.ant-table-tbody>tr.benefit-row-even>td]:bg-[#FFFFFF] [&_.ant-table-tbody>tr.benefit-row-odd>td]:bg-[#FAFAFA]"
+                columns={columns}
+                dataSource={paginatedTracking}
+                rowKey={(record, index) =>
+                  record?.id ??
+                  `${record?.createdAt ?? ''}-${record?.payPeriodId ?? index}`
+                }
+                rowHoverable={false}
+                rowClassName={(unusedRow, rowIndex) => {
+                  void unusedRow;
+                  return rowIndex % 2 === 0 ? 'bg-[#FFFFFF]' : 'bg-[#FAFAFA]';
+                }}
+                pagination={false}
+                size="small"
+                scroll={{ x: 'max-content' }}
+                id="compensation-benefit-tracker-list-table"
+              />
+            )}
+          </div>
+
+          <div
+            className="mt-6"
+            id="compensation-benefit-tracker-pagination-wrapper"
+            data-cy="compensation-benefit-tracker-pagination-wrapper"
+          >
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                data-cy="compensation-benefit-tracker-mobile-pagination"
+                totalResults={settlementTracking.length}
+                pageSize={detailPageSize}
+                currentPage={detailCurrentPage}
+                onChange={(page) => setDetailCurrentPage(page)}
+                onShowSizeChange={(page) => setDetailCurrentPage(page)}
+              />
+            ) : (
+              <CustomPagination
+                data-cy="compensation-benefit-tracker-pagination"
+                current={detailCurrentPage}
+                total={settlementTracking.length}
+                pageSize={detailPageSize}
+                onChange={(page) => setDetailCurrentPage(page)}
+                onShowSizeChange={(pageSize) => {
+                  setDetailPageSize(pageSize);
+                  setDetailCurrentPage(1);
+                }}
+              />
+            )}
           </div>
         </div>
-
-        {/* Expected pay per period */}
-        <div
-          className="grid grid-cols-3 items-center space-x-7"
-          id="compensation-benefit-tracker-expected-row"
-          data-cy="compensation-benefit-tracker-expected-row"
-        >
-          <span
-            id="compensation-benefit-tracker-expected-label"
-            data-cy="compensation-benefit-tracker-expected-label"
-            className="text-gray-500"
-          >
-            Expected pay per period
-          </span>
-          <div
-            className="font-medium text-start text-nowrap px-1"
-            id="compensation-benefit-tracker-expected-value"
-            data-cy="compensation-benefit-tracker-expected-value"
-          >
-            {Number(
-              settlementTracking.find((item: any) => item.isPaid === false)
-                ?.amount || 0,
-            ).toLocaleString()}
-          </div>
-        </div>
-
-        {/* Period */}
-        <div
-          className="grid grid-cols-3 items-center space-x-7"
-          id="compensation-benefit-tracker-period-row"
-          data-cy="compensation-benefit-tracker-period-row"
-        >
-          <span
-            id="compensation-benefit-tracker-period-label"
-            data-cy="compensation-benefit-tracker-period-label"
-            className="text-gray-500"
-          >
-            Period
-          </span>
-          <div
-            className="font-medium text-start text-nowrap px-1"
-            id="compensation-benefit-tracker-period-value"
-            data-cy="compensation-benefit-tracker-period-value"
-          >
-            {dayjs(earliestStart).format('MMM DD, YYYY')} -{' '}
-            {dayjs(latestEnd).format('MMM DD, YYYY')}
-          </div>
-        </div>
-
-        {/* Total paid amount */}
-        <div
-          className="grid grid-cols-3 items-center space-x-7"
-          id="compensation-benefit-tracker-paid-row"
-          data-cy="compensation-benefit-tracker-paid-row"
-        >
-          <span
-            id="compensation-benefit-tracker-total-paid-label"
-            data-cy="compensation-benefit-tracker-total-paid-label"
-            className="text-gray-500"
-          >
-            Total paid amount
-          </span>
-          <div
-            className="text-green-600 font-medium text-start col-span-1 px-1"
-            id="compensation-benefit-tracker-paid-value"
-            data-cy="compensation-benefit-tracker-paid-value"
-          >
-            {Number(
-              settlementTracking
-                .filter((item: any) => item.isPaid === true)
-                .reduce(
-                  (acc: any, item: any) => acc + (Number(item.amount) || 0),
-                  0,
-                ) || 0,
-            ).toLocaleString()}
-          </div>
-        </div>
-
-        {/* Remaining amount */}
-        <div
-          className="grid grid-cols-3 items-center space-x-7"
-          id="compensation-benefit-tracker-remaining-row"
-          data-cy="compensation-benefit-tracker-remaining-row"
-        >
-          <span
-            id="compensation-benefit-tracker-remaining-label"
-            data-cy="compensation-benefit-tracker-remaining-label"
-            className="text-gray-500"
-          >
-            Remaining amount
-          </span>
-          <div
-            className="text-yellow-500 font-medium text-start col-span-1 px-1"
-            id="compensation-benefit-tracker-remaining-value"
-            data-cy="compensation-benefit-tracker-remaining-value"
-          >
-            {Number(
-              settlementTracking
-                .filter((item: any) => item.isPaid === false)
-                .reduce(
-                  (acc: any, item: any) => acc + (Number(item.amount) || 0),
-                  0,
-                ) || 0,
-            ).toLocaleString()}
-          </div>
-        </div>
-      </div>
-
-      <Divider
-        data-cy="compensation-benefit-tracker-divider"
-        className="my-4"
-      />
-      <h3
-        className="text-sm font-light mb-2"
-        id="compensation-benefit-tracker-paid-back-header"
-        data-cy="compensation-benefit-tracker-paid-back-header"
-      >
-        Paid Back
-      </h3>
-
-      <div
-        className="overflow-x-auto scrollbar-hide"
-        id="compensation-benefit-tracker-table-scroll"
-        data-cy="compensation-benefit-tracker-table-scroll"
-      >
-        <div
-          id="compensation-benefit-tracker-table-wrapper"
-          data-cy="compensation-benefit-tracker-table-wrapper"
-          className="min-w-[600px] sm:min-w-[700px] md:min-w-[800px]"
-        >
-          <Form
-            form={form}
-            layout="vertical"
-            id="compensation-benefit-tracker-form"
-            data-cy="compensation-benefit-tracker-form"
-          >
-            <Form.List
-              data-cy="compensation-benefit-tracker-form-list"
-              name="benefits"
-            >
-              {(fields) => (
-                <Table
-                  dataSource={fields}
-                  data-cy="compensation-benefit-tracker-list-table"
-                  columns={[
-                    {
-                      title: 'Date',
-                      dataIndex: 'date',
-                      key: 'date',
-                      width: 100,
-                      fixed: 'left',
-                      render: (notused, notuseds, index) => (
-                        <Form.Item
-                          name={[index, 'createdAt']}
-                          data-cy={`compensation-benefit-tracker-form-item-date-${index}`}
-                          className="mb-0"
-                        >
-                          <span
-                            id={`compensation-benefit-tracker-form-item-date-value-${index}`}
-                            data-cy={`compensation-benefit-tracker-form-item-date-value-${index}`}
-                            className="text-xs sm:text-sm"
-                          >
-                            {dayjs(
-                              paginatedTracking?.[index]?.createdAt,
-                            ).format('MMM DD, YYYY')}
-                          </span>
-                        </Form.Item>
-                      ),
-                    },
-                    {
-                      title: 'Paid Amount',
-                      dataIndex: 'amount',
-                      key: 'amount',
-                      width: 100,
-                      render: (notused, notuseds, index) => (
-                        <Form.Item
-                          data-cy={`compensation-benefit-tracker-form-item-amount-${index}`}
-                          name={[index, 'amount']}
-                          className="mb-0"
-                        >
-                          <span
-                            id={`compensation-benefit-tracker-form-item-amount-value-${index}`}
-                            data-cy={`compensation-benefit-tracker-form-item-amount-value-${index}`}
-                            className="text-xs sm:text-sm"
-                          >
-                            {Number(
-                              paginatedTracking?.[index]?.amount,
-                            )?.toLocaleString()}
-                          </span>
-                        </Form.Item>
-                      ),
-                    },
-                    {
-                      title: 'Pay Period',
-                      dataIndex: 'payPeriodId',
-                      key: 'payPeriodId',
-                      width: 180,
-                      render: (notused, notuseds, index) => (
-                        <Form.Item
-                          data-cy={`compensation-benefit-tracker-form-item-pay-period-${index}`}
-                          name={[index, 'payPeriodId']}
-                          className="mb-0"
-                        >
-                          <Select
-                            data-cy={`compensation-benefit-tracker-form-item-pay-period-select-${index}`}
-                            placeholder="Select Period"
-                            allowClear
-                            className="w-full"
-                            loading={payLoading}
-                            disabled={paginatedTracking?.[index]?.isPaid}
-                            size="small"
-                          >
-                            {payPeriods?.map((period: any) => (
-                              <Option
-                                data-cy={`compensation-benefit-tracker-form-item-pay-period-option-${index}-${period.id}`}
-                                key={period.id}
-                                value={period.id}
-                              >
-                                <span
-                                  id={`compensation-benefit-tracker-form-item-pay-period-option-value-${index}-${period.id}`}
-                                  data-cy={`compensation-benefit-tracker-form-item-pay-period-option-value-${index}-${period.id}`}
-                                  className="text-xs sm:text-sm"
-                                >
-                                  {dayjs(period.startDate).format(
-                                    'MMM DD, YYYY',
-                                  )}{' '}
-                                  –{' '}
-                                  {dayjs(period.endDate).format('MMM DD, YYYY')}
-                                </span>
-                              </Option>
-                            ))}
-                          </Select>
-                        </Form.Item>
-                      ),
-                    },
-                    {
-                      title: 'Reason',
-                      dataIndex: 'reason',
-                      key: 'reason',
-                      width: 120,
-                      render: (notused, notuseds, index) => (
-                        <Form.Item
-                          data-cy={`compensation-benefit-tracker-form-item-reason-${index}`}
-                          name={[index, 'reason']}
-                          className="mb-0"
-                        >
-                          <span
-                            id={`compensation-benefit-tracker-form-item-reason-value-${index}`}
-                            data-cy={`compensation-benefit-tracker-form-item-reason-value-${index}`}
-                            className="text-xs sm:text-sm"
-                          >
-                            {paginatedTracking?.[index]?.reason || '-'}
-                          </span>
-                        </Form.Item>
-                      ),
-                    },
-                  ]}
-                  pagination={false}
-                  rowKey={(field) => field.key}
-                  scroll={{ x: 'max-content' }}
-                  size="small"
-                  style={{ fontSize: '12px' }}
-                  id="compensation-benefit-tracker-list-table"
-                />
-              )}
-            </Form.List>
-          </Form>
-        </div>
-      </div>
-
-      <div
-        className="items-center my-6"
-        id="compensation-benefit-tracker-pagination-wrapper"
-        data-cy="compensation-benefit-tracker-pagination-wrapper"
-      >
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            data-cy="compensation-benefit-tracker-mobile-pagination"
-            totalResults={settlementTracking.length}
-            pageSize={detailPageSize}
-            onChange={(page) => setDetailCurrentPage(page)}
-            onShowSizeChange={(page) => setDetailCurrentPage(page)}
-          />
-        ) : (
-          <CustomPagination
-            data-cy="compensation-benefit-tracker-pagination"
-            current={detailCurrentPage}
-            total={settlementTracking.length}
-            pageSize={detailPageSize}
-            onChange={(page) => setDetailCurrentPage(page)}
-            onShowSizeChange={(pageSize) => {
-              setDetailPageSize(pageSize);
-              setDetailCurrentPage(1);
-            }}
-          />
-        )}
-      </div>
-    </Card>
+      </Spin>
+    </Modal>
   );
 };
 

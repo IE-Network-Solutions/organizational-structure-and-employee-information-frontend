@@ -31,6 +31,52 @@ const handleTenantIdError = (error: any): boolean => {
   return false;
 };
 
+// Public survey page uses its own friendly auth/forbidden UI.
+const shouldSuppressGlobalErrorToast = (error: any): boolean => {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location?.pathname ?? '';
+  const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname);
+  if (!isPublicSurveyRoute) return false;
+
+  const status = error?.response?.status ?? error?.status;
+  const msg = String(
+    error?.response?.data?.message ??
+      error?.response?.data?.error ??
+      error?.message ??
+      '',
+  ).toLowerCase();
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    msg.includes('forbidden') ||
+    msg.includes('unauthorized') ||
+    msg.includes('login')
+  );
+};
+
+/**
+ * Planning header queries (`find-all-plans`, `parent-hierarchy`) — backend may return 400 while UI still works.
+ * QueryCache passes `query`; merged default `queries.onError` may only receive `error`, so also match URL.
+ */
+const shouldSuppressPlanningHeaderFetchError = (
+  error: any,
+  query?: { queryKey?: unknown },
+) => {
+  const key = query?.queryKey;
+  if (Array.isArray(key)) {
+    const k0 = key[0];
+    if (k0 === 'okrUserPlans' || k0 === 'planningPeriodsHierarchy') {
+      return true;
+    }
+  }
+  const url = String(error?.config?.url ?? error?.response?.config?.url ?? '');
+  return (
+    url.includes('/plan/find-all-plans/') ||
+    url.includes('/planning-periods/parent-hierarchy/')
+  );
+};
+
 const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -38,6 +84,12 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
         onError: async (error: any) => {
           // Check for tenant ID missing error first
           if (handleTenantIdError(error)) {
+            return;
+          }
+          if (shouldSuppressPlanningHeaderFetchError(error)) {
+            return;
+          }
+          if (shouldSuppressGlobalErrorToast(error)) {
             return;
           }
 
@@ -57,6 +109,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
         onError: async (error: any) => {
           // Check for tenant ID missing error first
           if (handleTenantIdError(error)) {
+            return;
+          }
+          if (shouldSuppressGlobalErrorToast(error)) {
             return;
           }
 
@@ -80,9 +135,15 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
       },
     },
     queryCache: new QueryCache({
-      onError: async (error: any) => {
+      onError: async (error: any, query: any) => {
         // Check for tenant ID missing error first
         if (handleTenantIdError(error)) {
+          return;
+        }
+        if (shouldSuppressPlanningHeaderFetchError(error, query)) {
+          return;
+        }
+        if (shouldSuppressGlobalErrorToast(error)) {
           return;
         }
 

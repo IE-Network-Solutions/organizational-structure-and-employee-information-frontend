@@ -6,8 +6,9 @@ import { useGetCustomFieldsTemplate } from '@/store/server/features/recruitment/
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
 import { FieldType } from '@/types/enumTypes';
-import { Checkbox, Collapse, Spin } from 'antd';
+import { Checkbox, Collapse, Skeleton } from 'antd';
 import React, { useEffect } from 'react';
+import { TaRequiredMark } from '../../../../../_components/taRequiredMark';
 
 const CustomFieldsSelector: React.FC = () => {
   const { templateCurrentPage, templatePageSize } =
@@ -43,8 +44,8 @@ const CustomFieldsSelector: React.FC = () => {
         className="flex justify-center items-center h-64"
         data-cy="talent-acquisition-create-application-form-custom-field-loading"
       >
-        <Spin
-          size="large"
+        <Skeleton
+          active
           data-cy="talent-acquisition-create-application-form-custom-field-spin"
         />
       </div>
@@ -55,7 +56,7 @@ const CustomFieldsSelector: React.FC = () => {
     <div data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-div-55">
       <div
         data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-div-56"
-        className="flex items-center justify-start gap-1"
+        className="inline-flex items-center justify-start gap-1.5"
       >
         <span
           className="text-md font-medium"
@@ -63,12 +64,7 @@ const CustomFieldsSelector: React.FC = () => {
         >
           Choose your Custom field
         </span>
-        <span
-          data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-span-63"
-          className="text-red-500"
-        >
-          *
-        </span>
+        <TaRequiredMark data-cy="createjobs-createapplicationform-customfieldselector-index-tsx-index-span-63" />
       </div>
       <Collapse defaultActiveKey={['1']}>
         <Collapse.Panel

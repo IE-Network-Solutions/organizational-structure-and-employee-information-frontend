@@ -22,6 +22,8 @@ interface StoreState {
   permissonGroupCurrentPage: number;
   tabButton: string;
   setTabButton: (tabButton: string) => void;
+  activeKey: string;
+  setActiveKey: (activeKey: string) => void;
   currentModal: ModalType;
   selectedPermissionGroup: GroupPermissionkey | null;
   selectedRole: any;
@@ -75,9 +77,9 @@ interface StoreState {
 
 export const useSettingStore = create<StoreState>()(
   devtools((set) => ({
-    tabButton: 'Permission',
+    tabButton: 'Role',
     deletedId: null,
-    pageSize: 10,
+    pageSize: 40,
     searchTerm: { termKey: null, searchTerm: null },
     setSearchTerm: (newTerm) => set({ searchTerm: newTerm }),
     roleCurrentPage: 1,
@@ -98,6 +100,8 @@ export const useSettingStore = create<StoreState>()(
 
     setSelectedRowKeys: (selectedRowKeys) => set({ selectedRowKeys }),
     setTabButton: (tabButton) => set({ tabButton }),
+    activeKey: '4',
+    setActiveKey: (activeKey) => set({ activeKey }),
     setSelectedRole: (selectedRole) => set({ selectedRole }),
     setDeletedId: (deletedId) => set({ deletedId }),
     setPermissionGroupCurrentPage: (permissonGroupCurrentPage) =>

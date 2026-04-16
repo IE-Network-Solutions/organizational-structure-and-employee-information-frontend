@@ -1,0 +1,72 @@
+/*
+  Dot center X: 90px rail − 10px dot − 8px gap = 72px date column; center = 72 + 8 + 5 = 85px.
+*/
+.meetingTimeline :global(.ant-timeline-left) {
+  padding-inline: 0 !important;
+  margin: 0 !important;
+}
+
+.meetingTimeline :global(.ant-timeline-item-left) {
+  padding-inline-start: 0 !important;
+}
+
+/* Stretch tail to full row; non-last rows extend into margin-bottom gap via bottom:-10px */
+.meetingTimeline :global(.ant-timeline-item-tail) {
+  inset-block-start: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  height: auto !important;
+  inset-inline-start: calc(72px + 8px + 5px) !important;
+  inline-size: 0 !important;
+  transform: translateX(-50%) !important;
+  border-inline-start-width: 2px !important;
+}
+
+.meetingTimeline
+  :global(.ant-timeline-item:not(:last-of-type) > .ant-timeline-item-tail) {
+  bottom: -10px !important;
+}
+
+/*
+  Ant Design hides the tail on the last item by default.
+  Stub starts under the dot; horizontal centering comes from the rule above.
+*/
+.meetingTimeline :global(.ant-timeline-item-last > .ant-timeline-item-tail) {
+  display: block !important;
+  inset-block-start: 10px !important;
+  top: 10px !important;
+  bottom: auto !important;
+  height: 50px !important;
+}
+
+/* Ant Design adds vertical padding to custom dots, which offsets the ring from the connector. */
+.meetingTimeline :global(.ant-timeline-item-head-custom) {
+  padding-block: 0 !important;
+  /* Anchor date + dot rail to the start of the row (no extra leading margin). */
+  inset-inline-start: 0 !important;
+  transform: translateY(-50%) !important;
+  z-index: 1;
+}
+
+/* Reserve space for the 90px date+dot rail + gap before cards. */
+.meetingTimeline :global(.ant-timeline-item-content) {
+  margin-inline-start: 98px !important;
+  /* Let flex parents shrink this column; avoids horizontal overflow that clips the card. */
+  min-width: 0 !important;
+  /*
+    Parent columns use overflow-hidden; a 1px border flush to the right edge is often clipped.
+    Reserve 2px so the card’s right border stays inside the paint box.
+  */
+  padding-inline-end: 2px !important;
+  box-sizing: border-box !important;
+}
+
+/* First row: custom head uses translateY(-50%); pad so date/dot aren’t clipped in scroll parents. */
+.meetingTimeline :global(.ant-timeline-item:first-child) {
+  padding-top: 6px !important;
+}
+
+/* 10px vertical gap between list rows (cards only; left date rail unchanged). */
+.meetingTimeline :global(.ant-timeline-item:not(:last-child)) {
+  margin-bottom: 10px !important;
+}

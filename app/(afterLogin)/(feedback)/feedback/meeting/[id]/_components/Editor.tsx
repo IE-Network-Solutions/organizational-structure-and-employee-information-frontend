@@ -128,13 +128,13 @@ export default function Editor({
     );
   return (
     <div
-      className=" border rounded "
+      className="flex h-full min-h-0 flex-col border rounded"
       data-cy="feedback-meeting-components-editor-container"
       id="feedback-meeting-components-editor-container"
     >
       {canEdit && (
         <div
-          className="px-4 flex gap-6 flex-wrap border-b border-b-gray-300 py-2"
+          className="shrink-0 px-4 flex gap-6 flex-wrap border-b border-b-gray-300 py-2"
           data-cy="feedback-meeting-components-editor-toolbar"
           id="feedback-meeting-components-editor-toolbar"
         >
@@ -246,7 +246,7 @@ export default function Editor({
       )}
 
       <EditorContent
-        className="px-5 py-2"
+        className="flex-1 min-h-0 overflow-y-auto px-5 py-2 [&_.ProseMirror]:min-h-full [&_.ProseMirror]:h-full"
         disabled={canEdit}
         editor={editor}
         data-cy="feedback-meeting-components-editor-content"

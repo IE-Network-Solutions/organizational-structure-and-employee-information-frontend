@@ -1,93 +1,176 @@
 // components/ApprovalStatus.tsx
-import { FC } from 'react';
-import { Card, Select } from 'antd';
+import { useEffect } from 'react';
+import { Button, Card, Skeleton } from 'antd';
+import { Clock3 } from 'lucide-react';
 import ApprovalRequestCard from './approval-status-card';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetApprovalLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/approval';
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
+import MyLeaveRequestDashboard from '../my-leave-request';
 
-const ApprovalStatus: FC = () => {
+const ApprovalStatus = ({ type }: { type: string }) => {
   const { userId } = useAuthenticationStore();
   const { data: LeaveTransferData, isLoading: isLoadingLeaveTransfer } =
     useGetApprovalLeaveRequest(userId, 1, 4);
   const { data: BranchTransferData, isLoading: isLoadingBranchTransfer } =
     useGetBranchTransferApproveById(userId, 4, 1);
   const { approverType, setApproverType } = useDashboardApprovalStore();
-  const requests = [
-    {
-      type: 'Leave',
-      value: 'Leave',
-    },
-    {
-      type: 'BranchTransfer',
-      value: 'Branch',
-    },
-  ];
+
+  useEffect(() => {
+    if (isLoadingLeaveTransfer || approverType !== 'Leave') return;
+    const leaveCount =
+      LeaveTransferData?.meta?.totalItems ??
+      LeaveTransferData?.items?.length ??
+      0;
+    if (leaveCount === 0) {
+      setApproverType('Personal');
+    }
+  }, [
+    isLoadingLeaveTransfer,
+    approverType,
+    LeaveTransferData?.meta?.totalItems,
+    LeaveTransferData?.items?.length,
+    setApproverType,
+  ]);
+
   const handleChange = (value: string) => {
     setApproverType(value);
   };
 
+  const pendingCount =
+    approverType === 'BranchTransfer'
+      ? BranchTransferData?.meta?.totalItems ||
+        BranchTransferData?.items?.length ||
+        0
+      : LeaveTransferData?.meta?.totalItems ||
+        LeaveTransferData?.items?.length ||
+        0;
+
+  const isHeaderActionsLoading =
+    (approverType === 'Leave' && isLoadingLeaveTransfer) ||
+    (approverType === 'BranchTransfer' && isLoadingBranchTransfer);
+
+  const leaveApprovalCount =
+    LeaveTransferData?.meta?.totalItems ??
+    LeaveTransferData?.items?.length ??
+    0;
+  const isLeaveTransferEmpty =
+    !isLoadingLeaveTransfer && leaveApprovalCount === 0;
+  const showHeaderActions =
+    approverType === 'BranchTransfer' || !isLeaveTransferEmpty;
+
   return (
     <div
-      className="bg-white p-3 rounded-lg w-full shadow-lg"
+      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 ${type !== 'Essential Plan ' ? 'h-[343px]' : 'h-[343px]'}`}
       data-cy="dashboard-approval-status-container"
     >
       <div
         className="flex items-center justify-between mb-4"
         data-cy="dashboard-approval-status-header"
       >
-        <div className="" data-cy="dashboard-approval-status-title-section">
-          <div
-            className="text-base lg:text-xl font-bold"
-            data-cy="dashboard-approval-status-title"
+        <div
+          className="flex items-center gap-2"
+          data-cy="dashboard-approval-status-title-section"
+        >
+          <span
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full"
+            data-cy="dashboard-approval-status-icon"
           >
-            <span data-cy="dashboard-approval-status-title-text">
-              Approval Status
-            </span>
-          </div>
-          <div
-            className="text-xs font-normal text-[#687588]"
-            data-cy="dashboard-approval-status-subtitle"
-          >
-            <span data-cy="dashboard-approval-status-subtitle-text">
-              {`${
-                approverType == 'Leave'
-                  ? `${LeaveTransferData?.meta?.totalItems || LeaveTransferData?.items?.length || 0} Leave `
-                  : approverType == 'BranchRequest'
-                    ? `${BranchTransferData?.meta?.totalItems || BranchTransferData?.items?.length || 0} Branch `
-                    : ''
-              }`}
-              Waiting For Your Approval
-            </span>
+            <Clock3 className="w-4 h-4" />
+          </span>
+          <div data-cy="dashboard-approval-status-title-wrapper">
+            <div
+              className="text-base font-bold text-gray-900"
+              data-cy="dashboard-approval-status-title"
+            >
+              <span data-cy="dashboard-approval-status-title-text">
+                Leave Approvals
+              </span>
+            </div>
           </div>
         </div>
 
-        <div
-          className="flex items-center space-x-1 text-sm text-gray-500 cursor-pointer"
-          data-cy="dashboard-approval-status-select-container"
-        >
+        {showHeaderActions && (
+          <div
+            className="flex items-center gap-2 text-xs"
+            data-cy="dashboard-approval-status-header-actions"
+          >
+            {isHeaderActionsLoading ? (
+              <>
+                <Skeleton.Input
+                  active
+                  className="!w-[92px] !min-w-0 !h-6 !rounded-sm"
+                  data-cy="dashboard-approval-status-header-actions-skeleton-pending"
+                />
+                <Skeleton.Button
+                  active
+                  size="small"
+                  className="!w-[88px] !min-w-0 rounded-[4px]"
+                  data-cy="dashboard-approval-status-header-actions-skeleton-toggle"
+                />
+              </>
+            ) : (
+              <>
+                {approverType !== 'Personal' && (
+                  <span
+                    className="px-3 py-0.5 rounded-sm bg-gray-100 border border-gray-500/30 text-gray-700 font-medium"
+                    data-cy="dashboard-approval-status-pending-pill"
+                  >
+                    {pendingCount} Pending
+                  </span>
+                )}
+                {/* 
           <Select
-            placeholder="select"
-            allowClear
-            className="min-w-10   text-sm font-semibold border-none"
+            value={approverType}
+            className="min-w-[90px] text-xs font-medium border-none [&_.ant-select-selector]:rounded-full [&_.ant-select-selector]:border-gray-200"
             options={requests.map((item) => ({
               value: item.type,
               label: item.value,
             }))}
             bordered={false}
-            defaultValue="Leave"
             onChange={handleChange}
             data-cy="dashboard-approval-status-select"
-          />
-        </div>
+          /> */}
+
+                <Button
+                  type="primary"
+                  size="small"
+                  className="inline-flex items-center gap-1 px-3 md:py-2 py-0 rounded-[4px] border-none font-medium shadow-none"
+                  data-cy="dashboard-approval-status-personal-pill"
+                  onClick={() =>
+                    handleChange(
+                      approverType === 'Personal' ? 'Leave' : 'Personal',
+                    )
+                  }
+                >
+                  {approverType !== 'Personal' ? 'My Leave' : 'All Leaves'}
+                </Button>
+              </>
+            )}
+          </div>
+        )}
       </div>
       <div
-        className="max-h-[250px] min-h-[250px] overflow-y-auto scrollbar-none"
+        className={`${type !== 'Essential Plan ' ? 'h-[270px]' : 'h-[270px]'} overflow-y-auto scrollbar-none`}
         data-cy="dashboard-approval-status-content"
       >
-        {approverType === 'BranchTransfer' ? (
-          BranchTransferData?.items?.length ? (
+        {approverType === 'Personal' ? (
+          <MyLeaveRequestDashboard />
+        ) : approverType === 'BranchTransfer' ? (
+          isLoadingBranchTransfer ? (
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingBranchTransfer}
+              data-cy="dashboard-approval-status-branch-transfer-card"
+            >
+              <div
+                style={{ height: 250 }}
+                data-cy="dashboard-approval-status-branch-transfer-loading-placeholder"
+              />
+            </Card>
+          ) : BranchTransferData?.items?.length ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
@@ -96,6 +179,7 @@ const ApprovalStatus: FC = () => {
             >
               {BranchTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
+                  isLoading={isLoadingBranchTransfer}
                   key={index}
                   id={request.id}
                   name={request.name}
@@ -125,7 +209,19 @@ const ApprovalStatus: FC = () => {
             </div>
           )
         ) : approverType === 'Leave' ? (
-          LeaveTransferData?.items?.length ? (
+          isLoadingLeaveTransfer ? (
+            <Card
+              className="border-0"
+              bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
+              loading={isLoadingLeaveTransfer}
+              data-cy="dashboard-approval-status-leave-card"
+            >
+              <div
+                style={{ height: 250 }}
+                data-cy="dashboard-approval-status-leave-loading-placeholder"
+              />
+            </Card>
+          ) : LeaveTransferData?.items?.length ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
@@ -134,6 +230,7 @@ const ApprovalStatus: FC = () => {
             >
               {LeaveTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
+                  isLoading={isLoadingLeaveTransfer}
                   key={index}
                   id={request.id}
                   name={request.name}
@@ -142,7 +239,7 @@ const ApprovalStatus: FC = () => {
                   startAt={request.startAt}
                   endAt={request.endAt}
                   isHalfDay={request.isHalfDay}
-                  leaveType={request.leaveType.title}
+                  leaveType={request?.leaveType?.title || '-'}
                   approvalWorkflowId={request.approvalWorkflowId}
                   nextApprover={request.nextApprover?.[0]?.stepOrder}
                   requestType={approverType}

@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { Button, List } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AppreciationTypeDrawer from './_components/appreciation-type';
 import { useGetAppreciationType } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-type/queries';
 import { useDeleteAppType } from '@/store/server/features/okrplanning/monitoring-evaluation/appreciation-type/mutations';
@@ -110,7 +111,7 @@ const DefineAppreciation = () => {
                 permissions={[Permissions.UpdateAppreciationType]}
               >
                 <Button
-                  icon={<EditOutlined />}
+                  icon={<EditOutlinedIcon />}
                   className="mr-2 bg-blue text-white"
                   shape="circle"
                   onClick={() => handleEditModal(item)}

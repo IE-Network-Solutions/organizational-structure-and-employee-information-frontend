@@ -6,26 +6,30 @@ import {
   Table,
   DatePicker,
   TableColumnsType,
-  Modal,
   Button,
   Input,
+  Dropdown,
+  Form,
 } from 'antd';
 import { Option } from 'antd/es/mentions';
-import { VscSettings } from 'react-icons/vsc';
 import dayjs from 'dayjs';
 import { useGetIntern } from '@/store/server/features/recruitment/intern/query';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
-import { LoadingOutlined } from '@ant-design/icons';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
+import { CloseOutlined, LoadingOutlined } from '@ant-design/icons';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useDeleteIntern } from '@/store/server/features/recruitment/intern/mutation';
-
 import CustomPagination from '@/components/customPagination';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
 import { useRouter } from 'next/navigation';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { useState, useEffect } from 'react';
+import { DATE_FORMAT } from '@/utils/constants';
 
 // Type definitions
 interface Department {
@@ -90,8 +94,6 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     setSearchParams,
     currentPage,
     pageSize,
-    showMobileFilter,
-    setShowMobileFilter,
   } = useInternStore();
   const router = useRouter();
   // Create query parameters from search params
@@ -113,8 +115,13 @@ const InternTable = ({ onEdit }: InternTableProps) => {
   // Check if either query is still loading
   const isLoading = isInternLoading || isDepartmentLoading;
   const { isMobile, isTablet } = useIsMobile();
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
   const { setCurrentPage, setPageSize } = useInternStore();
+  const [mobileStartDate, setMobileStartDate] = useState<dayjs.Dayjs | null>(
+    null,
+  );
+  const [mobileEndDate, setMobileEndDate] = useState<dayjs.Dayjs | null>(null);
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -143,50 +150,128 @@ const InternTable = ({ onEdit }: InternTableProps) => {
 
   const columns: TableColumnsType<InternTableData> = [
     {
-      title: 'Name',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-name"
+          data-cy="talent-acquisition-intern-table-column-name"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          Name
+        </span>
+      ),
       dataIndex: 'fullName',
       sorter: (a, b) => a.fullName.localeCompare(b.fullName),
+      className: 'text-sm text-[#4b4b4b]',
+      width: 200,
     },
 
     {
-      title: 'Phone Number',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-phone-number"
+          data-cy="talent-acquisition-intern-table-column-phone-number"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          Phone Number
+        </span>
+      ),
       dataIndex: 'phone',
       ellipsis: true,
+      className: 'text-sm text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'CGPA',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-cgpa"
+          data-cy="talent-acquisition-intern-table-column-cgpa"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          CGPA
+        </span>
+      ),
       dataIndex: 'CGPA',
       sorter: (a: InternTableData, b: InternTableData) => a.CGPA - b.CGPA,
+      className: 'text-sm text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'Department',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-department"
+          data-cy="talent-acquisition-intern-table-column-department"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          Department
+        </span>
+      ),
       dataIndex: 'departmentId',
       sorter: false,
+      width: 200,
+      className: 'text-sm text-[#4b4b4b]',
     },
 
     {
-      title: 'Application Date',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-application-date"
+          data-cy="talent-acquisition-intern-table-column-application-date"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          Application Date
+        </span>
+      ),
       dataIndex: 'createdAt',
+      width: 150,
+      className: 'text-sm text-[#4b4b4b]',
     },
     {
-      title: 'CV',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-cv"
+          data-cy="talent-acquisition-intern-table-column-cv"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          CV
+        </span>
+      ),
       dataIndex: 'resumeUrl',
+      className: 'text-sm text-[#4b4b4b]',
+      width: 150,
     },
     {
-      title: 'Year of Graduation',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-year-of-graduation"
+          data-cy="talent-acquisition-intern-table-column-year-of-graduation"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          Year of Graduation
+        </span>
+      ),
       dataIndex: 'graduateYear',
+      width: 200,
+      className: 'text-sm text-[#4b4b4b]',
     },
 
     {
-      title: 'Action',
+      title: (
+        <span
+          id="talent-acquisition-intern-table-column-action"
+          data-cy="talent-acquisition-intern-table-column-action"
+          className="font-bold text-base text-[#4b4b4b]"
+        >
+          Action
+        </span>
+      ),
       dataIndex: 'action',
+      className: 'text-sm text-[#4b4b4b]',
+      width: 150,
     },
   ];
 
   const data = intern?.items?.map(
     (item: InternRecord, index: number): InternTableData => {
-      const fileName = item?.resumeUrl?.split('/')?.pop();
-
       const DepartmentDetail = ({ id }: { id: string }) => {
         const {
           data: getAllDepartment,
@@ -239,9 +324,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             className="text-xs font-semibold cursor-pointer flex items-center gap-2"
             title={item?.documentName ?? 'CV.pdf'}
           >
-            {item?.documentName && item.documentName.length > 8
-              ? `${item.documentName.slice(0, 8)}...`
-              : (fileName ?? 'CV.pdf')}
+            <SaveAltIcon fontSize="small" className="text-[#1e40af]" />
           </a>
         ),
 
@@ -250,16 +333,43 @@ const InternTable = ({ onEdit }: InternTableProps) => {
           : '--',
 
         action: (
-          <ActionButtons
-            id={item?.id ?? null}
-            onEdit={() => handleEdit(item)}
-            onDelete={() => handleDelete(item)}
-          />
+          <Dropdown
+            trigger={['click']}
+            getPopupContainer={() => document.body}
+            menu={{
+              items: [
+                {
+                  label: 'Edit',
+                  key: 'edit',
+                  onClick: (e: any) => {
+                    e?.domEvent?.stopPropagation?.();
+                    e?.stopPropagation?.();
+                    handleEdit(item);
+                  },
+                },
+                {
+                  label: 'Delete',
+                  key: 'delete',
+                  onClick: (e: any) => {
+                    e?.domEvent?.stopPropagation?.();
+                    e?.stopPropagation?.();
+                    handleDelete(item);
+                  },
+                },
+              ],
+            }}
+          >
+            <Button
+              onClick={(e: any) => e.stopPropagation()}
+              type="text"
+              icon={<MoreHorizIcon />}
+              className="border-2 border-[#D9D9D9] rounded-md p-1"
+            />
+          </Dropdown>
         ),
       };
     },
   );
-
   const handleSearchCandidate = async (
     value: string | boolean,
     keyValue: keyof typeof searchParams,
@@ -284,70 +394,118 @@ const InternTable = ({ onEdit }: InternTableProps) => {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
-  return (
+  const handleResetFilters = () => {
+    setSearchParams('dateRange', '');
+    setSearchParams('selectedDepartment', '');
+    setMobileStartDate(null);
+    setMobileEndDate(null);
+    setCurrentPage(1);
+  };
+
+  const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
+  const inputClassName = 'w-full h-10 rounded-md border-gray-300';
+
+  // Keep mobile date pickers in sync with the stored dateRange string
+  useEffect(() => {
+    if (searchParams.dateRange) {
+      const [start, end] = searchParams.dateRange
+        .split(' to ')
+        .map((date: string) => dayjs(date)) as [
+        dayjs.Dayjs | null,
+        dayjs.Dayjs | null,
+      ];
+      setMobileStartDate(start);
+      setMobileEndDate(end);
+    } else {
+      setMobileStartDate(null);
+      setMobileEndDate(null);
+    }
+  }, [searchParams.dateRange]);
+
+  const filterInternContent = (
     <div
-      id="talent-acquisition-intern-table-container"
-      data-cy="talent-acquisition-intern-table-container"
+      data-cy="talent-acquisition-intern-table-filter-container"
+      className="bg-white rounded-lg shadow-lg border border-gray-200 min-w-[360px] max-w-[420px] overflow-hidden"
     >
+      {/* Header */}
       <div
-        id="talent-acquisition-intern-table-filters"
-        data-cy="talent-acquisition-intern-table-filters"
+        data-cy="talent-acquisition-intern-table-filter-header"
+        className="px-6 pt-5 pb-1 relative"
+      >
+        <button
+          data-cy="talent-acquisition-intern-table-filter-button-close"
+          type="button"
+          onClick={() => setFilterDropdownOpen(false)}
+          className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
+          aria-label="Close filter"
+        >
+          <CloseOutlined className="text-base" />
+        </button>
+        <h3
+          data-cy="talent-acquisition-intern-table-filter-title"
+          className="text-xl font-semibold text-gray-900 pr-8"
+        >
+          Filter
+        </h3>
+        <p
+          data-cy="talent-acquisition-intern-table-filter-description"
+          className="text-sm text-gray-500 mt-1"
+        >
+          Select all filters that apply
+        </p>
+      </div>
+
+      {/* Filter fields */}
+      <div
+        data-cy="talent-acquisition-intern-table-filter-fields"
+        className="px-6 py-4"
       >
         <Row
-          data-cy="talent-acquisition-intern-table-row-filters"
-          gutter={[16, 24]}
-          justify="space-between"
-          align="middle"
-          className="mb-5"
+          data-cy="talent-acquisition-talent-roaster-table-row-filters"
+          gutter={[16, 16]}
         >
-          <Col xs={24} sm={24} lg={10}>
-            <Row gutter={8} align="middle">
-              <Col xs={20} sm={20} flex="auto">
-                <Input
-                  id={`inputInternNames`}
-                  data-cy="talent-acquisition-intern-table-input-search"
-                  placeholder="Search intern"
-                  value={searchParams.fullName}
-                  onChange={(e) =>
-                    handleSearchCandidate(e.target.value, 'fullName')
-                  }
-                  className="w-full h-12 rounded-lg"
-                  allowClear
-                />
-              </Col>
-              <Col xs={4} sm={4} className="block sm:hidden">
-                <div
-                  id="talent-acquisition-intern-table-div-mobile-filter-button"
-                  data-cy="talent-acquisition-intern-table-div-mobile-filter-button"
-                  className="flex items-center justify-center w-12 h-12 text-black border border-gray-300 rounded-lg"
-                >
-                  <VscSettings
-                    id="talent-acquisition-intern-table-button-mobile-filter"
-                    data-cy="talent-acquisition-intern-table-button-mobile-filter"
-                    size={20}
-                    onClick={() => setShowMobileFilter(true)}
-                  />
-                </div>
-              </Col>
-            </Row>
-          </Col>
-
           <Col
-            data-cy="talent-acquisition-intern-table-col-desktop-filters"
-            lg={14}
-            className="hidden sm:block "
+            span={24}
+            data-cy="talent-acquisition-talent-roaster-table-col-department"
           >
-            <Row
-              data-cy="talent-acquisition-intern-table-row-desktop-filters"
-              gutter={[8, 16]}
-              align="middle"
+            <label
+              data-cy="talent-acquisition-intern-table-filter-label-department"
+              className={labelClassName}
             >
-              <Col
-                data-cy="talent-acquisition-intern-table-col-date"
-                lg={14}
-                sm={12}
-                xs={24}
-              >
+              Department
+            </label>
+            <Select
+              id={`selectDepartment`}
+              data-cy="talent-acquisition-intern-table-select-department"
+              placeholder="Select Department"
+              onChange={(value: string) => handleDepartmentChange(value)}
+              value={searchParams.selectedDepartment || undefined}
+              allowClear
+              className={inputClassName}
+            >
+              {EmployeeDepartment?.map((item: Department) => (
+                <Option
+                  key={item?.id}
+                  value={item?.id}
+                  data-cy={`talent-acquisition-intern-table-option-department-${item?.id}`}
+                >
+                  {item?.name}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+          <Col
+            span={24}
+            data-cy="talent-acquisition-talent-roaster-table-col-date"
+          >
+            {!isMobile && (
+              <>
+                <label
+                  data-cy="talent-acquisition-intern-table-filter-label-date"
+                  className={labelClassName}
+                >
+                  Date
+                </label>
                 <RangePicker
                   id={`inputDateRange`}
                   data-cy="talent-acquisition-intern-table-date-picker"
@@ -359,130 +517,176 @@ const InternTable = ({ onEdit }: InternTableProps) => {
                           .map((date: string) => dayjs(date)) as any)
                       : null
                   }
-                  className="w-full h-12"
+                  className={inputClassName}
                   allowClear
-                  getPopupContainer={(triggerNode) =>
-                    triggerNode.parentElement || document.body
-                  }
                 />
-              </Col>
-              <Col
-                data-cy="talent-acquisition-intern-table-col-department"
-                lg={10}
-                sm={12}
-                xs={24}
-              >
-                <Select
-                  id={`selectDepartment`}
-                  data-cy="talent-acquisition-intern-table-select-department"
-                  placeholder="Select Department"
-                  onChange={(value: string) => handleDepartmentChange(value)}
-                  value={searchParams.selectedDepartment || undefined}
-                  allowClear
-                  className="w-full h-12"
+              </>
+            )}
+
+            {isMobile && (
+              <>
+                <Form.Item
+                  name="startDate"
+                  id="talent-acquisition-intern-table-filter-mobile-start-date"
+                  data-cy="talent-acquisition-intern-table-filter-mobile-start-date"
                 >
-                  {EmployeeDepartment?.map((item: Department) => (
-                    <Option
-                      key={item?.id}
-                      value={item?.id}
-                      data-cy={`talent-acquisition-intern-table-option-department-${item?.id}`}
-                    >
-                      {item?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Col>
-            </Row>
+                  <label
+                    data-cy="talent-acquisition-intern-table-filter-label-start-date"
+                    className={labelClassName}
+                  >
+                    Start Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="Start Date"
+                    format={DATE_FORMAT}
+                    value={mobileStartDate}
+                    onChange={(date) => {
+                      setMobileStartDate(date);
+                      const start = date;
+                      const end = mobileEndDate;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="talent-acquisition-intern-table-filter-mobile-start-date-picker"
+                    data-cy="talent-acquisition-intern-table-filter-mobile-start-date-picker"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="endDate"
+                  id="talent-acquisition-intern-table-filter-mobile-end-date"
+                  data-cy="talent-acquisition-intern-table-filter-mobile-end-date"
+                >
+                  <label
+                    data-cy="talent-acquisition-intern-table-filter-label-end-date"
+                    className={labelClassName}
+                  >
+                    End Date
+                  </label>
+                  <DatePicker
+                    className="w-full h-[40px]"
+                    placeholder="End Date"
+                    format={DATE_FORMAT}
+                    value={mobileEndDate}
+                    onChange={(date) => {
+                      setMobileEndDate(date);
+                      const start = mobileStartDate;
+                      const end = date;
+                      handleSearchByDateRange(
+                        start && end ? [start, end] : null,
+                      );
+                    }}
+                    id="talent-acquisition-intern-table-filter-mobile-end-date-picker"
+                    data-cy="talent-acquisition-intern-table-filter-mobile-end-date-picker"
+                  />
+                </Form.Item>
+              </>
+            )}
           </Col>
         </Row>
-
-        <Modal
-          data-cy="talent-acquisition-intern-table-modal-mobile-filter"
-          centered
-          title="Filter Interns"
-          open={showMobileFilter}
-          width="85%"
-          footer={
-            <div
-              id="talent-acquisition-intern-table-modal-footer"
-              data-cy="talent-acquisition-intern-table-modal-footer"
-              className="flex justify-center items-center space-x-4"
-            >
-              <Button
-                id="talent-acquisition-intern-table-button-filter-cancel"
-                data-cy="talent-acquisition-intern-table-button-filter-cancel"
-                type="default"
-                className="px-3"
-                onClick={() => setShowMobileFilter(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                id="talent-acquisition-intern-table-button-filter-apply"
-                data-cy="talent-acquisition-intern-table-button-filter-apply"
-                onClick={() => setShowMobileFilter(false)}
-                type="primary"
-                className="px-3"
-              >
-                Apply Filter
-              </Button>
-            </div>
-          }
-        >
-          <RangePicker
-            id={`inputDateRangeMobile`}
-            data-cy="talent-acquisition-intern-table-date-picker-mobile"
-            onChange={(dates) => handleSearchByDateRange(dates)}
-            className="w-full mb-4"
-            allowClear
-            getPopupContainer={(triggerNode) =>
-              triggerNode.parentElement || document.body
-            }
-          />
-
-          <Select
-            id={`selectDepartmentMobile`}
-            data-cy="talent-acquisition-intern-table-select-department-mobile"
-            placeholder="Select Department"
-            onChange={(value: string) => handleDepartmentChange(value)}
-            allowClear
-            className="w-full mb-4"
-            value={searchParams.selectedDepartment || undefined}
-          >
-            {EmployeeDepartment?.map((item: Department) => (
-              <Option
-                key={item?.id}
-                value={item?.id}
-                data-cy={`talent-acquisition-intern-table-option-department-mobile-${item?.id}`}
-              >
-                {item?.name}
-              </Option>
-            ))}
-          </Select>
-        </Modal>
       </div>
-      <Table
-        data-cy="talent-acquisition-intern-table"
-        className="w-full"
-        columns={columns}
-        dataSource={data}
-        loading={isLoading}
-        pagination={false}
-        scroll={{ x: 1000 }}
-        onRow={(record) => ({
-          onClick: (event) => {
-            // Only navigate if the click is not on a checkbox, button, or link
-            const target = event.target as HTMLElement;
-            const isInteractiveElement = target.closest(
-              'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox',
-            );
 
-            if (!isInteractiveElement) {
-              router.push(`/recruitment/talent-resource/intern/${record?.id}`);
-            }
-          },
-        })}
-      />
+      {/* Footer */}
+      <div
+        data-cy="talent-acquisition-intern-table-filter-footer"
+        className="px-6 py-4 border-t border-gray-200 flex justify-end gap-2"
+      >
+        <Button
+          onClick={handleResetFilters}
+          className="h-10 px-4 rounded-md border-gray-300 text-gray-700 hover:border-gray-400 hover:text-gray-800"
+          data-cy="talent-acquisition-talent-roaster-table-filter-reset"
+        >
+          Reset
+        </Button>
+        <Button
+          type="primary"
+          className="h-10 px-4 rounded-md"
+          onClick={() => setFilterDropdownOpen(false)}
+          data-cy="talent-acquisition-talent-roaster-table-filter-save"
+        >
+          Save Filter
+        </Button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div
+      id="talent-acquisition-intern-table-container"
+      data-cy="talent-acquisition-intern-table-container"
+      className="px-2 sm:px-4"
+    >
+      <div
+        id="talent-acquisition-intern-table-filters"
+        data-cy="talent-acquisition-intern-table-filters"
+        className="flex justify-between items-center py-4"
+      >
+        <div
+          data-cy="talent-acquisition-intern-table-input-search-container"
+          className="w-1/2"
+        >
+          <Input
+            id={`inputInternNames`}
+            data-cy="talent-acquisition-intern-table-input-search"
+            placeholder="Search intern"
+            value={searchParams.fullName}
+            onChange={(e) => handleSearchCandidate(e.target.value, 'fullName')}
+            className="w-full h-10 rounded-md"
+            allowClear
+          />
+        </div>
+        <Dropdown
+          trigger={['click']}
+          open={filterDropdownOpen}
+          onOpenChange={setFilterDropdownOpen}
+          dropdownRender={() => filterInternContent}
+        >
+          <Button
+            className="border border-[#d9d9d9] text-gray-600 text-sm"
+            icon={<FilterAltIcon fontSize="small" className="text-gray-600" />}
+          >
+            {!isMobile && 'Filter'}
+          </Button>
+        </Dropdown>
+      </div>
+      <div
+        data-cy="talent-acquisition-intern-table-container"
+        className=" overflow-x-auto scrollbar-none"
+      >
+        {isLoading ? (
+          <TableSkeleton columns={columns} />
+        ) : (
+          <Table
+            data-cy="talent-acquisition-intern-table"
+            className="w-full"
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            onRow={(record) => ({
+              onClick: (event) => {
+                // Only navigate if the click is not on a checkbox, button, link, or dropdown
+                const target = event.target as HTMLElement;
+                const isInteractiveElement = target.closest(
+                  'input[type="checkbox"], button, a, .ant-btn, .ant-checkbox, .ant-dropdown, .ant-dropdown-menu',
+                );
+
+                if (!isInteractiveElement) {
+                  router.push(
+                    `/recruitment/talent-resource/intern/${record?.id}`,
+                  );
+                }
+              },
+            })}
+            rowHoverable={false}
+            rowClassName={(notUsed, index) => {
+              const base = index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]';
+              return base;
+            }}
+          />
+        )}
+      </div>
       {isMobile || isTablet ? (
         <div
           id="talent-acquisition-intern-table-pagination-mobile"

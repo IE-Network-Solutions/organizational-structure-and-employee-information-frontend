@@ -12,6 +12,7 @@ import { Skeleton, Table, TableColumnsType } from 'antd';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useDeleteRecognitionType } from '@/store/server/features/CFR/recognition/mutation';
 import DeletePopover from '@/components/common/actionButton/deletePopover';
+import { TableSkeleton } from '@/components/tableSkeleton';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import React from 'react';
@@ -45,13 +46,10 @@ const columns: TableColumnsType<IncentiveSettingParams> = [
   },
 ];
 
-type Params = {
-  id: string;
-};
-
 const IncentiveSettingsTable: React.FC = () => {
-  const { id } = useParams<Params>();
-  const recognitionId = id;
+  const params = useParams();
+  const idParam = params?.['id'];
+  const recognitionId = Array.isArray(idParam) ? idParam[0] : idParam;
   const router = useRouter();
 
   const { setOpenIncentiveDrawer, setIncentiveId, setIncentive } =
@@ -60,9 +58,10 @@ const IncentiveSettingsTable: React.FC = () => {
   const { mutate: deleteRecognitionType } = useDeleteRecognitionType();
 
   const { data: recognitionData, isLoading: responseLoading } =
-    useRecognitionById(recognitionId);
-  const { data: formulaById } =
-    useIncentiveFormulaByRecognitionId(recognitionId);
+    useRecognitionById(recognitionId ?? '');
+  const { data: formulaById } = useIncentiveFormulaByRecognitionId(
+    recognitionId ?? '',
+  );
   const handleProjectIncentiveEdit = (value: IncentiveRecognitionParams) => {
     setIncentive(value);
     setOpenIncentiveDrawer(true);
@@ -160,14 +159,17 @@ const IncentiveSettingsTable: React.FC = () => {
       id="incentive-settings-table-container"
       data-cy="incentive-settings-table-container"
     >
-      <Table
-        id="incentive-settings-table"
-        data-cy="incentive-settings-table"
-        columns={columns}
-        dataSource={[incentiveTableData]}
-        pagination={false}
-        loading={responseLoading}
-      />
+      {responseLoading ? (
+        <TableSkeleton columns={columns} />
+      ) : (
+        <Table
+          id="incentive-settings-table"
+          data-cy="incentive-settings-table"
+          columns={columns}
+          dataSource={[incentiveTableData]}
+          pagination={false}
+        />
+      )}
     </div>
   );
 };

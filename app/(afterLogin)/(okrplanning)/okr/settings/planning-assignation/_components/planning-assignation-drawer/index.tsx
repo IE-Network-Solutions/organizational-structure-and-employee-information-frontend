@@ -1,9 +1,11 @@
 'use client';
-import CustomButton from '@/components/common/buttons/customButton';
-import CustomDrawerLayout from '@/components/common/customDrawer';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
-import { Form, Select, Avatar } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Form, Select, Avatar, Modal, Tooltip, Button } from 'antd';
+import {
+  UserOutlined,
+  QuestionCircleOutlined,
+  CloseOutlined,
+} from '@ant-design/icons';
 import React, { useEffect } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
@@ -12,12 +14,13 @@ import {
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import { PlanningPeriodItem } from '@/store/uistate/features/okrplanning/okrSetting/interface';
-interface RepDrawerProps {
+
+interface PlanningAssignationModalProps {
   open: boolean;
   onClose: () => void;
 }
 
-const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
+const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
   open,
   onClose,
 }) => {
@@ -32,71 +35,18 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
   const { Option } = Select;
   const [form] = Form.useForm();
 
-  const renderEmployeeOption = (option: any) => (
-    <div
-      style={{ display: 'flex', alignItems: 'center', gap: 4 }}
-      id={`okr-planning-assignation-drawer-employee-option-${option.id}`}
-      data-cy={`okr-planning-assignation-drawer-employee-option-${option.id}`}
-    >
-      <Avatar
-        size={20}
-        icon={
-          <UserOutlined
-            data-cy={`okr-planning-assignation-drawer-employee-option-avatar-icon-${option.id}`}
-          />
-        }
-        data-cy={`okr-planning-assignation-drawer-employee-option-avatar-${option.id}`}
-      />
-      <span
-        id={`okr-planning-assignation-drawer-employee-option-name-${option.id}`}
-        data-cy={`okr-planning-assignation-drawer-employee-option-name-${option.id}`}
-      >
-        {option.firstName} {option.middleName} {option.lastName}
-      </span>
-    </div>
-  );
+  const userIds = Form.useWatch('userIds', form);
+  const planningPeriods = Form.useWatch('planningPeriods', form);
 
-  const customTagRender = (props: any) => {
-    const { label, closable, onClose } = props;
-    return (
-      <div
-        className="flex gap-1 items-center bg-gray-100 p-2 rounded-lg mx-1 my-1"
-        id="okr-planning-assignation-drawer-selected-user-tag"
-        data-cy="okr-planning-assignation-drawer-selected-user-tag"
-      >
-        <Avatar
-          size={20}
-          icon={
-            <UserOutlined
-              data-cy={`okr-planning-assignation-drawer-selected-user-tag-avatar-icon`}
-            />
-          }
-          data-cy="okr-planning-assignation-drawer-selected-user-tag-avatar"
-        />
-        <span
-          id="okr-planning-assignation-drawer-selected-user-tag-label"
-          data-cy="okr-planning-assignation-drawer-selected-user-tag-label"
-        >
-          {label}
-        </span>
-        {closable && (
-          <span
-            onClick={onClose}
-            className="text-black text-xs cursor-pointer"
-            id="okr-planning-assignation-drawer-selected-user-tag-close"
-            data-cy="okr-planning-assignation-drawer-selected-user-tag-close"
-          >
-            ✖
-          </span>
-        )}
-      </div>
-    );
+  const handleModalClose = () => {
+    form.resetFields();
+    onClose();
   };
 
   useEffect(() => {
     if (selectedPlanningUser) {
       form.setFieldsValue({
-        userIds: [selectedPlanningUser.userId], // Wrapping userId in an array to match the expected structure
+        userIds: [selectedPlanningUser.userId],
         planningPeriods: selectedPlanningUser.planningPeriod.map(
           (item: PlanningPeriodItem) => item.planningPeriodId,
         ),
@@ -104,156 +54,411 @@ const PlanningAssignationDrawer: React.FC<RepDrawerProps> = ({
     } else {
       form.resetFields();
     }
-  }, [selectedPlanningUser, form]);
+  }, [selectedPlanningUser, form, open]);
 
   const onFinish = (values: any) => {
-    planAssign(values, {
-      onSuccess: () => {
-        handleDrawerClose();
-      },
-    });
-    // const value = { ...values, issuerId: userId };
+    if (selectedPlanningUser) {
+      editAssign(values, {
+        onSuccess: () => {
+          handleModalClose();
+        },
+      });
+    } else {
+      planAssign(values, {
+        onSuccess: () => {
+          handleModalClose();
+        },
+      });
+    }
   };
 
-  const onUpdate = (values: any) => {
-    editAssign(values, {
-      onSuccess: () => {
-        handleDrawerClose();
-      },
-    });
-    // const value = { ...values, issuerId: userId };
-  };
-
-  const handleDrawerClose = () => {
-    form.resetFields(); // Reset all form fields
-    onClose();
-  };
-
-  const modalHeader = (
-    <div
-      className="flex justify-center text-xl font-extrabold text-gray-800 p-4"
-      id="okr-planning-assignation-drawer-header"
-      data-cy="okr-planning-assignation-drawer-header"
-    >
-      <span
-        id="okr-planning-assignation-drawer-header-title"
-        data-cy="okr-planning-assignation-drawer-header-title"
-      >
-        Assign
-      </span>
-    </div>
-  );
   const footer = (
     <div
-      className="w-full flex justify-center items-center gap-4 pt-8"
-      id="okr-planning-assignation-drawer-footer"
-      data-cy="okr-planning-assignation-drawer-footer"
+      className="flex justify-end gap-3"
+      data-cy="okr-planning-assignation-modal-footer"
     >
-      <CustomButton
+      <Button
         type="default"
-        title="Cancel"
-        onClick={handleDrawerClose}
-        style={{ marginRight: 8 }}
-        id="okr-planning-assignation-drawer-cancel-button"
-        data-cy="okr-planning-assignation-drawer-cancel-button"
-      />
-      <CustomButton
-        onClick={() => form.submit()}
-        title={selectedPlanningUser ? 'Edit' : 'Add'}
+        onClick={handleModalClose}
+        className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
+        id="okr-planning-assignation-modal-cancel-button"
+        data-cy="okr-planning-assignation-modal-cancel-button"
+      >
+        Cancel
+      </Button>
+      <Button
         type="primary"
+        onClick={() => form.submit()}
         loading={isLoading || editLoading}
-        id="okr-planning-assignation-drawer-submit-button"
-        data-cy="okr-planning-assignation-drawer-submit-button"
-      />
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
+        id="okr-planning-assignation-modal-submit-button"
+        data-cy="okr-planning-assignation-modal-submit-button"
+      >
+        {selectedPlanningUser ? 'Update' : 'Create'}
+      </Button>
     </div>
   );
 
   return (
-    <CustomDrawerLayout
+    <Modal
       open={open}
-      onClose={handleDrawerClose}
-      modalHeader={modalHeader}
+      onCancel={handleModalClose}
+      title={
+        <span
+          className="text-[20px] font-bold text-[#262626]"
+          data-cy="okr-planning-assignation-modal-title"
+        >
+          {selectedPlanningUser ? 'Edit Assignment' : 'Assign Users'}
+        </span>
+      }
       footer={footer}
-      width="30%"
-      data-cy="okr-planning-assignation-drawer"
+      width={640}
+      centered
+      closeIcon={
+        <CloseOutlined
+          className="text-[#8c8c8c]"
+          data-cy="okr-planning-assignation-modal-close-icon"
+        />
+      }
+      data-cy="okr-planning-assignation-modal"
+      className="okr-settings-modal"
     >
       <Form
         form={form}
-        name="reprimandForm"
         layout="vertical"
-        onFinish={selectedPlanningUser ? onUpdate : onFinish}
-        autoComplete="off"
-        id="okr-planning-assignation-drawer-form"
-        data-cy="okr-planning-assignation-drawer-form"
+        onFinish={onFinish}
+        className=""
+        id="okr-planning-assignation-modal-form"
+        data-cy="okr-planning-assignation-modal-form"
       >
-        {/* Select Employee */}
+        {/* Assignee Selection - Hidden field for real value */}
         <Form.Item
           name="userIds"
-          label="Select Assignee"
-          rules={[{ required: true, message: 'Please select employees' }]}
-          id="okr-planning-assignation-drawer-assignee-field"
-          data-cy="okr-planning-assignation-drawer-assignee-field"
-        >
-          <Select
-            mode="multiple"
-            allowClear
-            placeholder="Select Employees"
-            optionLabelProp="label"
-            tagRender={customTagRender}
-            optionFilterProp="label"
-            id="okr-planning-assignation-drawer-assignee-select"
-            data-cy="okr-planning-assignation-drawer-assignee-select"
-          >
-            {allUsers?.items.map((option: any) => (
-              <Select.Option
-                key={option.id}
-                value={option.id}
-                label={
-                  option.firstName +
-                  ' ' +
-                  option.middleName +
-                  ' ' +
-                  option.lastName
-                }
-                id={`okr-planning-assignation-drawer-assignee-option-${option.id}`}
-                data-cy={`okr-planning-assignation-drawer-assignee-option-${option.id}`}
-              >
-                {renderEmployeeOption(option)}
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
+          noStyle
+          data-cy="okr-planning-assignation-hidden-userids-field"
+        />
 
         <Form.Item
-          name="planningPeriods"
-          label="Assigned Planning periods"
-          rules={[{ required: true, message: 'Please Assigned Plan' }]}
-          id="okr-planning-assignation-drawer-plans-field"
-          data-cy="okr-planning-assignation-drawer-plans-field"
+          label={
+            <div
+              className="flex items-center gap-1"
+              data-cy="okr-planning-assignation-assignee-label"
+            >
+              <span
+                className="text-[14px] font-medium text-[#262626]"
+                data-cy="okr-planning-assignation-assignee-label-text"
+              >
+                Assignee
+              </span>
+              <Tooltip title="Choose the employees you want to assign OKR plans to.">
+                <QuestionCircleOutlined
+                  className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                  data-cy="okr-planning-assignation-assignee-tooltip"
+                />
+              </Tooltip>
+            </div>
+          }
+          required
+          rules={[
+            { required: true, message: 'Please select at least one assignee' },
+          ]}
+          data-cy="okr-planning-assignation-assignee-field"
+          id="okr-planning-assignation-assignee-field"
+          className="mb-2"
         >
-          <Select
-            mode="multiple"
-            placeholder="Select Plans"
-            dropdownClassName="bg-white shadow-lg rounded-md"
-            id="okr-planning-assignation-drawer-plans-select"
-            data-cy="okr-planning-assignation-drawer-plans-select"
+          <div
+            className="custom-centered-select-wrapper relative"
+            data-cy="okr-planning-assignation-assignee-select-wrapper"
           >
-            {allPlanningperiod?.items
-              ?.filter((all) => all.isActive === true)
-              .map((planning, index) => (
+            <Select
+              mode="multiple"
+              placeholder=""
+              className="w-full h-11 custom-modal-select always-show-placeholder"
+              maxTagCount={0}
+              maxTagPlaceholder={() => null}
+              value={userIds} // Correctly pass selected IDs to show selection in dropdown
+              onSelect={(id: string) => {
+                const currentIds = form.getFieldValue('userIds') || [];
+                if (!currentIds.includes(id)) {
+                  form.setFieldsValue({ userIds: [...currentIds, id] });
+                }
+              }}
+              onDeselect={(id: string) => {
+                const currentIds = form.getFieldValue('userIds') || [];
+                form.setFieldsValue({
+                  userIds: currentIds.filter((uid: string) => uid !== id),
+                });
+              }}
+              optionLabelProp="label"
+              id="okr-planning-assignation-assignee-select"
+              data-cy="okr-planning-assignation-assignee-select"
+              dropdownClassName="custom-assignee-dropdown"
+              popupClassName="custom-assignee-dropdown"
+            >
+              {allUsers?.items.map((user: any) => (
                 <Option
-                  key={index}
-                  value={planning?.id}
-                  id={`okr-planning-assignation-drawer-plan-option-${planning?.id}`}
-                  data-cy={`okr-planning-assignation-drawer-plan-option-${planning?.id}`}
+                  key={user.id}
+                  value={user.id}
+                  label={`${user.firstName} ${user.lastName}`}
+                  data-cy={`okr-planning-assignation-assignee-option-${user.id}`}
                 >
-                  {planning.name}
+                  <div
+                    className="flex items-center gap-3 py-1"
+                    data-cy={`okr-planning-assignation-assignee-option-content-${user.id}`}
+                  >
+                    <Avatar
+                      size={28}
+                      src={user.profileImage}
+                      icon={!user.profileImage && <UserOutlined />}
+                      data-cy={`okr-planning-assignation-assignee-option-avatar-${user.id}`}
+                    />
+                    <div
+                      className="flex flex-col"
+                      data-cy={`okr-planning-assignation-assignee-option-info-${user.id}`}
+                      id={`okr-planning-assignation-assignee-option-info-${user.id}`}
+                    >
+                      <span
+                        className="text-[14px] font-medium text-[#262626]"
+                        data-cy={`okr-planning-assignation-assignee-option-name-${user.id}`}
+                      >
+                        {user.firstName} {user.lastName}
+                      </span>
+                      <span
+                        className="text-[12px] text-[#8c8c8c]"
+                        data-cy={`okr-planning-assignation-assignee-option-email-${user.id}`}
+                      >
+                        {user.email}
+                      </span>
+                    </div>
+                  </div>
                 </Option>
               ))}
-          </Select>
+            </Select>
+            {/* Always visible placeholder overlay */}
+            <span
+              className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
+              style={{ lineHeight: '44px' }}
+              data-cy="okr-planning-assignation-assignee-placeholder"
+            >
+              Select Employee
+            </span>
+            <style
+              jsx
+              global
+              data-cy="okr-planning-assignation-drawer-styles"
+            >{`
+              .custom-centered-select-wrapper .ant-select-selector {
+                display: flex !important;
+                align-items: center !important;
+                height: 44px !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                position: relative !important;
+              }
+              .custom-centered-select-wrapper
+                .always-show-placeholder
+                .ant-select-selection-placeholder {
+                display: none !important;
+              }
+              .custom-centered-select-wrapper
+                .always-show-placeholder
+                .ant-select-selection-item {
+                display: none !important;
+              }
+              .custom-centered-select-wrapper
+                .always-show-placeholder
+                .ant-select-selection-search {
+                display: none !important;
+              }
+              .custom-centered-select-wrapper
+                .always-show-placeholder
+                .ant-select-selection-overflow {
+                display: none !important;
+              }
+              .custom-assignee-dropdown .ant-select-item-option-selected {
+                background-color: #e6f7ff !important;
+                font-weight: 500;
+              }
+              .custom-assignee-dropdown
+                .ant-select-item-option-selected
+                .ant-select-item-option-state {
+                color: #1890ff;
+              }
+              .okr-settings-modal .ant-modal-content {
+                padding: 0 !important;
+                border-radius: 8px !important;
+              }
+              .okr-settings-modal .ant-modal-header {
+                padding: 20px 24px 16px 24px !important;
+                border-bottom: none !important;
+              }
+              .okr-settings-modal .ant-modal-body {
+                padding: 0px 24px 24px 24px !important;
+              }
+              .okr-settings-modal .ant-modal-footer {
+                padding: 8px 24px 24px 24px !important;
+                border-top: none !important;
+              }
+              .okr-settings-modal .ant-form-item-label > label {
+                height: auto !important;
+                line-height: 1.5 !important;
+                padding-bottom: 4px !important;
+              }
+            `}</style>
+          </div>
         </Form.Item>
+
+        {/* Manual Tag Display */}
+        <div
+          className="flex flex-wrap gap-2 mb-6"
+          data-cy="okr-planning-assignation-user-tags-container"
+        >
+          {userIds?.map((id: string) => {
+            const user = allUsers?.items?.find((u: any) => u.id === id);
+            if (!user) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                id={`okr-manual-user-tag-${id}`}
+                data-cy={`okr-manual-user-tag-${id}`}
+              >
+                <span
+                  className="text-[14px] text-[#595959]"
+                  data-cy={`okr-manual-user-tag-name-${id}`}
+                >
+                  {user.firstName}
+                </span>
+                <CloseOutlined
+                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                  onClick={() => {
+                    const newIds = userIds.filter((uid: string) => uid !== id);
+                    form.setFieldsValue({ userIds: newIds });
+                  }}
+                  data-cy={`okr-manual-user-tag-close-${id}`}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Plan Selection */}
+        <Form.Item
+          label={
+            <div
+              className="flex items-center gap-1"
+              data-cy="okr-planning-assignation-plan-label"
+            >
+              <span
+                className="text-[14px] font-medium text-[#262626]"
+                data-cy="okr-planning-assignation-plan-label-text"
+              >
+                Plan
+              </span>
+              <Tooltip title="Choose the OKR planning periods for these employees.">
+                <QuestionCircleOutlined
+                  className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                  data-cy="okr-planning-assignation-plan-tooltip"
+                />
+              </Tooltip>
+            </div>
+          }
+          name="planningPeriods"
+          required
+          rules={[
+            { required: true, message: 'Please select at least one plan' },
+          ]}
+          id="okr-planning-assignation-plan-field"
+          data-cy="okr-planning-assignation-plan-field"
+        >
+          <div
+            className="custom-centered-select-wrapper relative"
+            data-cy="okr-planning-assignation-plan-select-wrapper"
+          >
+            <Select
+              mode="multiple"
+              placeholder=""
+              className="w-full h-11 custom-modal-select always-show-placeholder"
+              maxTagCount={0}
+              maxTagPlaceholder={() => null}
+              id="okr-planning-assignation-plan-select"
+              data-cy="okr-planning-assignation-plan-select"
+              dropdownClassName="custom-assignee-dropdown"
+              popupClassName="custom-assignee-dropdown"
+              value={planningPeriods}
+              onSelect={(id: string) => {
+                const current = form.getFieldValue('planningPeriods') || [];
+                if (!current.includes(id)) {
+                  form.setFieldsValue({ planningPeriods: [...current, id] });
+                }
+              }}
+              onDeselect={(id: string) => {
+                const current = form.getFieldValue('planningPeriods') || [];
+                form.setFieldsValue({
+                  planningPeriods: current.filter((pid: string) => pid !== id),
+                });
+              }}
+            >
+              {allPlanningperiod?.items
+                ?.filter((p) => p.isActive)
+                .map((period) => (
+                  <Option
+                    key={period.id}
+                    value={period.id}
+                    data-cy={`okr-planning-assignation-plan-option-${period.id}`}
+                  >
+                    {period.name}
+                  </Option>
+                ))}
+            </Select>
+            <span
+              className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
+              style={{ lineHeight: '44px' }}
+              data-cy="okr-planning-assignation-plan-placeholder"
+            >
+              Select Plan
+            </span>
+          </div>
+        </Form.Item>
+
+        {/* Manual Plan Tag Display */}
+        <div
+          className="flex flex-wrap gap-2 mt-2"
+          data-cy="okr-planning-assignation-plan-tags-container"
+        >
+          {planningPeriods?.map((id: string) => {
+            const period = allPlanningperiod?.items?.find((p) => p.id === id);
+            if (!period) return null;
+            return (
+              <div
+                key={id}
+                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                id={`okr-manual-plan-tag-${id}`}
+                data-cy={`okr-manual-plan-tag-${id}`}
+              >
+                <span
+                  className="text-[14px] text-[#595959]"
+                  data-cy={`okr-manual-plan-tag-name-${id}`}
+                >
+                  {period.name}
+                </span>
+                <CloseOutlined
+                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                  onClick={() => {
+                    const newPeriods = planningPeriods.filter(
+                      (pid: string) => pid !== id,
+                    );
+                    form.setFieldsValue({ planningPeriods: newPeriods });
+                  }}
+                  data-cy={`okr-manual-plan-tag-close-${id}`}
+                />
+              </div>
+            );
+          })}
+        </div>
       </Form>
-    </CustomDrawerLayout>
+    </Modal>
   );
 };
-export default PlanningAssignationDrawer;
+
+export default PlanningAssignationModal;

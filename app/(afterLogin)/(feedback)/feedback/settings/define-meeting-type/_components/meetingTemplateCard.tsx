@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Dropdown, MenuProps, Popconfirm } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { MdOutlineDelete, MdOutlineEdit } from 'react-icons/md';
+import { BsThreeDots } from 'react-icons/bs';
 
 interface MeetingTemplateCardProps {
   title: string;
@@ -19,29 +20,41 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
   onDelete,
   loading = false,
 }) => {
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
   const items: MenuProps['items'] = [
     {
       key: 'edit',
-      label: (
-        <span
-          onClick={() => onClick()}
-          data-cy="meeting-template-card-edit-menu-item"
-          id="meetingTemplateCardEditMenuItem"
-        >
-          Edit
-        </span>
-      ),
+      icon: <MdOutlineEdit className="w-4 h-4 " />,
+      className: 'text-xs text-gray-600',
+      label: 'Edit',
+      onClick: () => {
+        onClick();
+        setMenuOpen(false);
+      },
     },
     {
       key: 'delete',
+      className: 'text-xs text-gray-600',
       label: (
         <span
           data-cy="meeting-template-card-delete-menu-item"
           id="meetingTemplateCardDeleteMenuItem"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setMenuOpen(true);
+          }}
         >
           <Popconfirm
             title="Are you sure you want to delete?"
-            onConfirm={onDelete}
+            onConfirm={() => {
+              onDelete();
+              setMenuOpen(false);
+            }}
+            onCancel={() => {
+              setMenuOpen(false);
+            }}
             okText="Yes"
             icon={null}
             okButtonProps={{ loading }}
@@ -49,7 +62,13 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
             data-cy="meeting-template-card-delete-confirm"
             id="meetingTemplateCardDeleteConfirm"
           >
-            Delete
+            <span
+              className="flex items-center gap-2"
+              data-cy="meeting-template-card-delete-menu-label"
+            >
+              <MdOutlineDelete className="w-4 h-4" />
+              Delete
+            </span>
           </Popconfirm>
         </span>
       ),
@@ -58,7 +77,7 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
 
   return (
     <div
-      className="relative cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md transition w-full"
+      className="relative cursor-pointer p-4 border border-[#D9D9D9] rounded-lg shadow-sm hover:shadow-md transition w-full"
       data-cy="meeting-template-card"
       id="meetingTemplateCard"
     >
@@ -68,23 +87,46 @@ export const MeetingTemplateCard: React.FC<MeetingTemplateCardProps> = ({
         id="meetingTemplateCardHeader"
       >
         <h3
-          className="font-semibold text-lg"
+          className="font-normal text-sm"
           data-cy="meeting-template-card-title"
           id="meetingTemplateCardTitle"
         >
           {title}
         </h3>
-        <Dropdown menu={{ items }} trigger={['click']}>
-          <MoreOutlined
-            className="text-gray-500 hover:text-gray-700 text-lg"
-            onClick={(e) => e.stopPropagation()}
-            data-cy="meeting-template-card-more-icon"
-            id="meetingTemplateCardMoreIcon"
-          />
+        <Dropdown
+          placement="bottomRight"
+          arrow={false}
+          menu={{
+            items,
+            onClick: ({ key, domEvent }) => {
+              if (key === 'delete') {
+                domEvent.preventDefault();
+                domEvent.stopPropagation();
+                setMenuOpen(true);
+                return;
+              }
+              setMenuOpen(false);
+            },
+          }}
+          trigger={['click']}
+          open={menuOpen}
+          onOpenChange={(open) => setMenuOpen(open)}
+        >
+          <button
+            type="button"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
+            data-cy={`meeting-template-card-more-buttom`}
+            id={`meetingTemplateCardMorebutton`}
+          >
+            <BsThreeDots
+              id={`meetingTemplateCardMoreIcon`}
+              data-cy={`meeting-template-card-more-icon`}
+            />
+          </button>
         </Dropdown>
       </div>
       <p
-        className="text-sm text-black"
+        className="text-sm text-gray-500"
         data-cy="meeting-template-card-description"
         id="meetingTemplateCardDescription"
       >

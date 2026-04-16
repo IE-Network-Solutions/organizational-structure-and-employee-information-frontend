@@ -1,0 +1,73 @@
+/* Scoped to filter popover body — rounded controls, filter-modal look */
+.panel :global(.ant-select .ant-select-selector) {
+  border-radius: 8px !important;
+  min-height: 40px !important;
+  align-items: center !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.panel :global(.ant-picker) {
+  width: 100%;
+  border-radius: 8px !important;
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+.panel :global(.ant-picker-input > input) {
+  font-size: 14px !important;
+}
+
+.panel :global(.ant-select-selection-placeholder),
+.panel :global(.ant-picker-input input::placeholder) {
+  color: rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Department multi-select: same pattern as create-meeting (tags below empty trigger). */
+.filterSelectScope
+  :global(.custom-centered-select-wrapper .ant-select-selector) {
+  display: flex !important;
+  align-items: center !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  position: relative !important;
+  border-radius: 8px !important;
+}
+
+.filterSelectScope
+  :global(
+    .custom-centered-select-wrapper.always-show-placeholder-wrap
+      .always-show-placeholder
+      .ant-select-selection-placeholder
+  ) {
+  display: none !important;
+}
+
+.filterSelectScope
+  :global(
+    .custom-centered-select-wrapper.always-show-placeholder-wrap
+      .always-show-placeholder
+      .ant-select-selection-item
+  ) {
+  display: none !important;
+}
+
+.filterSelectScope
+  :global(
+    .custom-centered-select-wrapper.always-show-placeholder-wrap
+      .always-show-placeholder
+      .ant-select-selection-search
+  ) {
+  display: none !important;
+}
+
+.filterSelectScope
+  :global(
+    .custom-centered-select-wrapper.always-show-placeholder-wrap
+      .always-show-placeholder
+      .ant-select-selection-overflow
+  ) {
+  display: none !important;
+}

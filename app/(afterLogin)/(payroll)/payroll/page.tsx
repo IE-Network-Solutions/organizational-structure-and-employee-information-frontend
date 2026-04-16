@@ -1,9 +1,27 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+function mergePayrollFilterState(
+  prev: { [key: string]: string },
+  partial: { [key: string]: string | undefined | null },
+): { [key: string]: string } {
+  const merged = { ...prev };
+  for (const [key, val] of Object.entries(partial)) {
+    if (
+      val === undefined ||
+      val === null ||
+      (typeof val === 'string' && val.trim() === '')
+    ) {
+      delete merged[key];
+    } else {
+      merged[key] = val;
+    }
+  }
+  return merged;
+}
 
 import {
   Table,
-  Row,
   Button,
   notification,
   Popconfirm,
@@ -12,9 +30,17 @@ import {
   Select,
   Tooltip,
   Avatar,
+  Breadcrumb,
+  Dropdown,
+  Typography,
 } from 'antd';
+
+const { Text } = Typography;
+import { SearchOutlined, FileSyncOutlined } from '@ant-design/icons';
+
 import { Workbook } from 'exceljs';
-import Filters from './_components/filters';
+
+import FilterPopover from './_components/filters/FilterPopover';
 import {
   useGetActivePayroll,
   useGetActivePayrollsForExport,
@@ -36,13 +62,15 @@ import { useExportData } from './_components/excel';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { PiExportLight } from 'react-icons/pi';
-import { LuSettings2 } from 'react-icons/lu';
+
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
 import GeneratePayrollModal, { Incentive } from './_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
+import PayrollTableLoadingSkeleton from './_components/PayrollTableLoadingSkeleton';
+import EmptyState from '@/components/empty';
+import PayrollSummaryCardsSkeleton from './_components/PayrollSummaryCardsSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
@@ -56,7 +84,14 @@ import {
   useLastApprovingPayroll,
 } from '@/store/server/features/payroll/payrollApproval/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,8 +117,7 @@ const Payroll = () => {
   const {
     searchQuery,
     setSearchQuery,
-    isFilterModalOpen,
-    setIsFilterModalOpen,
+
     isPayrollModalOpen,
     setIsPayrollModalOpen,
   } = useEmployeeStore();
@@ -93,17 +127,22 @@ const Payroll = () => {
 
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
-  const { data: payroll, refetch } = useGetActivePayroll(
-    searchQuery,
-    pageSize,
-    currentPage,
-  );
-  const { data: payrollForExport, refetch: refetchExportData } =
-    useGetActivePayrollsForExport(searchQuery);
+  const {
+    data: payroll,
+    refetch,
+    isLoading: payrollTableLoading,
+  } = useGetActivePayroll(searchQuery, pageSize, currentPage);
+  const {
+    data: payrollForExport,
+    refetch: refetchExportData,
+    isLoading: payrollForExportLoading,
+  } = useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
   const [searchValue, setSearchValue] = useState<{ [key: string]: string }>({});
+  const searchValueRef = useRef(searchValue);
+  searchValueRef.current = searchValue;
 
   // Get payPeriodId from filters or from payroll data
   const currentPayPeriodId = payPeriodId || payroll?.items?.[0]?.payPeriodId;
@@ -126,8 +165,7 @@ const Payroll = () => {
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
 
-  const { mutate: sendPaySlip, isLoading: sendingPaySlipLoading } =
-    useSendingPayrollPayslip();
+  const { mutate: sendPaySlip } = useSendingPayrollPayslip();
   const { generateBankLetter } = useGenerateBankLetter();
   const { exportToExcel } = useExportData();
 
@@ -151,67 +189,76 @@ const Payroll = () => {
 
     // Handle paginated payroll data for display
     if (payroll?.items) {
-      let mergedData;
+      if (payroll.items.length === 0) {
+        setMergedPayroll([]);
+        setSelectedRowKeys([]);
+      } else {
+        let mergedData;
 
-      if (hasDivisionFilter && payroll?.divisionUsers) {
-        // Use division users from backend when division filter is applied
-        mergedData = payroll?.items.map((pay: any) => {
-          const employee = payroll.divisionUsers.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      } else if (allEmployees?.items) {
-        // Use all employees when no division filter is applied
-        mergedData = payroll?.items.map((pay: any) => {
-          const employee = allEmployees.items.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      }
+        if (hasDivisionFilter && payroll?.divisionUsers) {
+          // Use division users from backend when division filter is applied
+          mergedData = payroll?.items.map((pay: any) => {
+            const employee = payroll.divisionUsers.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        } else if (allEmployees?.items) {
+          // Use all employees when no division filter is applied
+          mergedData = payroll?.items.map((pay: any) => {
+            const employee = allEmployees.items.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        }
 
-      if (mergedData) {
-        setMergedPayroll(mergedData);
+        if (mergedData) {
+          setMergedPayroll(mergedData);
+        }
       }
     }
 
     // Handle non-paginated payroll data for export
     if (payrollForExport?.items) {
-      let mergedExportData;
+      if (payrollForExport.items.length === 0) {
+        setMergedPayrollForExport([]);
+      } else {
+        let mergedExportData;
 
-      if (hasDivisionFilter && payrollForExport?.divisionUsers) {
-        // Use division users from backend when division filter is applied
-        mergedExportData = payrollForExport?.items.map((pay: any) => {
-          const employee = payrollForExport.divisionUsers.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      } else if (allEmployees?.items) {
-        // Use all employees when no division filter is applied
-        mergedExportData = payrollForExport?.items.map((pay: any) => {
-          const employee = allEmployees.items.find(
-            (emp: any) => emp.id === pay.employeeId,
-          );
-          return {
-            ...pay,
-            employeeInfo: employee || null,
-          };
-        });
-      }
+        if (hasDivisionFilter && payrollForExport?.divisionUsers) {
+          // Use division users from backend when division filter is applied
+          mergedExportData = payrollForExport?.items.map((pay: any) => {
+            const employee = payrollForExport.divisionUsers.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        } else if (allEmployees?.items) {
+          // Use all employees when no division filter is applied
+          mergedExportData = payrollForExport?.items.map((pay: any) => {
+            const employee = allEmployees.items.find(
+              (emp: any) => emp.id === pay.employeeId,
+            );
+            return {
+              ...pay,
+              employeeInfo: employee || null,
+            };
+          });
+        }
 
-      if (mergedExportData) {
-        setMergedPayrollForExport(mergedExportData);
+        if (mergedExportData) {
+          setMergedPayrollForExport(mergedExportData);
+        }
       }
     }
   }, [payroll, payrollForExport, allEmployees, searchValue?.divisionId]);
@@ -298,49 +345,51 @@ const Payroll = () => {
       ?.flatMap((item: FiscalYear) => item.sessions || [])
       ?.flatMap((session) => session?.months || []) || [];
 
-  const handleSearch = (searchValues: any) => {
+  const handleSearch = (partial: {
+    [key: string]: string | undefined | null;
+  }) => {
+    const merged = mergePayrollFilterState(searchValueRef.current, partial);
+    searchValueRef.current = merged;
+    setSearchValue(merged);
+
     const queryParams = new URLSearchParams();
 
-    if (searchValues?.employeeId) {
-      queryParams.append('employeeId', searchValues.employeeId);
+    if (merged.employeeId) {
+      queryParams.append('employeeId', merged.employeeId);
     }
-    if (searchValues?.monthId) {
-      queryParams.append('monthId', searchValues.monthId);
+    if (merged.monthId) {
+      queryParams.append('monthId', merged.monthId);
 
-      // Find the month object to get start and end dates
-      const month = fiscalYearMonths.find(
-        (month) => month?.id === searchValues.monthId,
-      );
+      const month = fiscalYearMonths.find((m) => m?.id === merged.monthId);
 
       if (month?.startDate) {
         const startDate = new Date(month.startDate);
-        const formattedStartDate = startDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const formattedStartDate = startDate.toISOString().split('T')[0];
         queryParams.append('startDate', formattedStartDate);
       }
       if (month?.endDate) {
         const endDate = new Date(month.endDate);
-        const formattedEndDate = endDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const formattedEndDate = endDate.toISOString().split('T')[0];
         queryParams.append('endDate', formattedEndDate);
       }
     }
-    if (searchValues?.divisionId) {
-      queryParams.append('divisionId', searchValues.divisionId);
+    if (merged.divisionId) {
+      queryParams.append('divisionId', merged.divisionId);
     }
-    if (searchValues?.payPeriodId) {
-      queryParams.append('payPeriodId', searchValues.payPeriodId);
+    if (merged.payPeriodId) {
+      queryParams.append('payPeriodId', merged.payPeriodId);
       const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
       setPayPeriodQuery(query);
-      setPayPeriodId(searchValues.payPeriodId);
+      setPayPeriodId(merged.payPeriodId);
     }
-    if (searchValues?.departmentId) {
-      queryParams.append('departmentId', searchValues.departmentId);
+    if (merged.departmentId) {
+      queryParams.append('departmentId', merged.departmentId);
     }
 
     const searchParams = queryParams.toString()
       ? `&${queryParams.toString()}`
       : '';
     setSearchQuery(searchParams);
-    // Reset selection when filters change
     setSelectedRowKeys([]);
     refetch();
     refetchExportData();
@@ -1085,12 +1134,8 @@ const Payroll = () => {
   ];
   const { isMobile, isTablet } = useIsMobile();
 
-  const handleEmployeeSelect = (value: string) => {
-    setSearchValue((prev) => {
-      const updatedSearchValue = { ...prev, employeeId: value };
-      handleSearch(updatedSearchValue);
-      return updatedSearchValue;
-    });
+  const handleEmployeeSelect = (value: string | null | undefined) => {
+    handleSearch({ employeeId: value ?? undefined });
   };
   const options = (
     searchValue?.divisionId && payroll?.divisionUsers
@@ -1163,389 +1208,368 @@ const Payroll = () => {
     <div
       id="payroll-dashboard-view-container"
       data-cy="payroll-dashboard-view-container"
-      className={isMobile ? 'pt-[16px] bg-gray-100' : 'pt-[16px] bg-white'}
-      style={{ padding: isMobile ? '3px' : '20px' }}
+      className={
+        isMobile
+          ? 'bg-white overflow-x-hidden pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 w-full'
+          : ''
+      }
     >
       <div
-        id="payroll-dashboard-header-view-container"
-        data-cy="payroll-dashboard-header-view-container"
-        className={`flex justify-between items-center scrollbar-none ${isMobile ? 'bg-gray-100' : 'bg-white'} pt-6 ${isMobile ? '-mx-1' : ''}`}
+        id="payroll-dashboard-inner-wrapper"
+        data-cy="payroll-dashboard-inner-wrapper"
+        className="w-full"
       >
-        <h2
-          id="payroll-dashboard-title-view-text"
-          data-cy="payroll-dashboard-title-view-text"
-          className="text-2xl mb-7"
-        >
-          Payroll
-        </h2>
-        <h2
-          id="payroll-dashboard-query-view-text"
-          data-cy="payroll-dashboard-query-view-text"
-          hidden
-          style={{ marginBottom: '20px' }}
-        >
-          {payPeriodQuery}
-        </h2>
+        {/* Header Section */}
         <div
-          id="payroll-dashboard-actions-view-container"
-          data-cy="payroll-dashboard-actions-view-container"
-          className="flex gap-4  mb-7"
-        >
-          <AccessGuard
-            id="payroll-export-guard-view-component"
-            data-cy="payroll-export-guard-view-component"
-            permissions={[Permissions.PayrollExport]}
-          >
-            <Tooltip
-              id="payroll-export-tooltip-view-component"
-              data-cy="payroll-export-tooltip-view-component"
-              title="Export"
-            >
-              <Button
-                id="payroll-export-open-modal-click-button"
-                data-cy="payroll-export-open-modal-click-button"
-                className={`text-[#3636F0] bg-[#B2B2FF] border-none p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-                onClick={() => setIsModalOpen(true)}
-              >
-                {isMobile ? <PiExportLight size={24} /> : 'Export'}
-              </Button>
-            </Tooltip>
-          </AccessGuard>
-          <Button
-            id="payroll-reconcilation-click-button"
-            data-cy="payroll-reconcilation-click-button"
-            className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
-            onClick={() => routerToReconcilation()}
-          >
-            {isMobile ? <PiExportLight size={24} /> : 'Reconcilation'}
-          </Button>
-
-          {!isMobile && (
-            <AccessGuard
-              id="payroll-payslip-guard-view-component"
-              data-cy="payroll-payslip-guard-view-component"
-              permissions={[Permissions.SendPayslipEmail]}
-            >
-              <Tooltip
-                id="payroll-send-payslip-tooltip-view-component"
-                data-cy="payroll-send-payslip-tooltip-view-component"
-                title={
-                  mergedPayrollForExport?.length === 0
-                    ? 'No employees selected. Please adjust your filters.'
-                    : mergedPayrollForExport?.length <
-                        (searchValue?.divisionId
-                          ? payrollForExport?.divisionUsers?.length
-                          : allEmployees?.items?.length)
-                      ? `Will send to ${mergedPayrollForExport?.length} filtered employee(s)`
-                      : 'Will send to all employees'
-                }
-              >
-                <span
-                  id="payroll-send-payslip-span-view-component"
-                  data-cy="payroll-send-payslip-span-view-component"
-                >
-                  {' '}
-                  <Button
-                    id="payroll-send-payslip-click-button"
-                    data-cy="payroll-send-payslip-click-button"
-                    type="default"
-                    loading={sendingPaySlipLoading}
-                    className="text-white bg-primary border-none p-5 flex items-center justify-center disabled:opacity-50"
-                    disabled={mergedPayrollForExport?.length === 0}
-                    onClick={() => setOpen(true)}
-                  >
-                    <span
-                      id="payroll-send-payslip-span-view-component"
-                      data-cy="payroll-send-payslip-span-view-component"
-                      className="text-base font-semibold"
-                    >
-                      Send Payslip
-                    </span>
-                  </Button>
-                </span>
-              </Tooltip>
-              <Modal
-                data-cy="payroll-send-payslip-modal-view-modal"
-                open={open}
-                onCancel={() => setOpen(false)}
-                footer={null}
-                centered
-                width={600}
-                className="p-6"
-              >
-                <div
-                  id="payroll-send-payslip-modal-content-view-container"
-                  data-cy="payroll-send-payslip-modal-content-view-container"
-                  className="flex flex-col items-center justify-center gap-4"
-                >
-                  <h2
-                    id="payroll-send-payslip-modal-title-view-text"
-                    data-cy="payroll-send-payslip-modal-title-view-text"
-                    className="text-2xl font-bold"
-                  >
-                    Send Payslip
-                  </h2>
-                  <p
-                    id="payroll-send-payslip-modal-description-view-text"
-                    data-cy="payroll-send-payslip-modal-description-view-text"
-                    className="text-lg text-gray-600"
-                  >
-                    Do you wish to send payslip
-                  </p>
-                  <div
-                    id="payroll-send-payslip-description-view-container"
-                    data-cy="payroll-send-payslip-description-view-container"
-                    className="text-center"
-                  >
-                    {mergedPayrollForExport?.length > 0 ? (
-                      mergedPayrollForExport?.length <
-                      (searchValue?.divisionId
-                        ? payrollForExport?.divisionUsers?.length
-                        : allEmployees?.items?.length) ? (
-                        <p
-                          id="payroll-send-payslip-filtered-warning-view-text"
-                          data-cy="payroll-send-payslip-filtered-warning-view-text"
-                        >
-                          This will send payslips to{' '}
-                          {mergedPayrollForExport?.length} selected employees
-                          (filtered from{' '}
-                          {searchValue?.divisionId
-                            ? payrollForExport?.divisionUsers?.length
-                            : allEmployees?.items?.length}{' '}
-                          total).
-                        </p>
-                      ) : (
-                        <p
-                          id="payroll-send-payslip-all-warning-view-text"
-                          data-cy="payroll-send-payslip-all-warning-view-text"
-                        >
-                          This will send payslips to ALL{' '}
-                          {searchValue?.divisionId
-                            ? payrollForExport?.divisionUsers?.length
-                            : allEmployees?.items?.length}{' '}
-                          employees.
-                        </p>
-                      )
-                    ) : (
-                      <p
-                        id="payroll-send-payslip-empty-warning-view-text"
-                        data-cy="payroll-send-payslip-empty-warning-view-text"
-                        style={{ color: 'red', marginTop: '8px' }}
-                      >
-                        No employees selected. Please adjust your filters.
-                      </p>
-                    )}
-                    {mergedPayrollForExport?.length > 0 &&
-                      mergedPayrollForExport?.length <
-                        (searchValue?.divisionId
-                          ? payrollForExport?.divisionUsers?.length
-                          : allEmployees?.items?.length) &&
-                      (searchValue?.divisionId ||
-                        searchValue?.employeeId ||
-                        searchValue?.monthId ||
-                        searchValue?.departmentId) && (
-                        <p
-                          id="payroll-send-payslip-subset-warning-view-text"
-                          data-cy="payroll-send-payslip-subset-warning-view-text"
-                          style={{ color: 'orange', marginTop: '8px' }}
-                        >
-                          Note: You&apos;re sending to a filtered subset. Clear
-                          filters to send to everyone.
-                        </p>
-                      )}
-                  </div>
-                  <div
-                    id="payroll-send-payslip-footer-view-container"
-                    data-cy="payroll-send-payslip-footer-view-container"
-                    className="flex gap-4 w-full justify-center mt-4"
-                  >
-                    <Button
-                      id="payroll-send-payslip-cancel-click-button"
-                      data-cy="payroll-send-payslip-cancel-click-button"
-                      className="w-full h-12 text-lg font-semibold"
-                      onClick={() => setOpen(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      id="payroll-send-payslip-send-click-button"
-                      data-cy="payroll-send-payslip-send-click-button"
-                      type="primary"
-                      className="w-full h-12 text-lg font-semibold bg-primary"
-                      onClick={() => {
-                        if (mergedPayrollForExport?.length > 0) {
-                          sendingPaySlipHandler(mergedPayrollForExport);
-                          setOpen(false);
-                        }
-                      }}
-                      disabled={mergedPayrollForExport?.length === 0}
-                    >
-                      Send Payslip
-                    </Button>
-                  </div>
-                </div>
-              </Modal>
-            </AccessGuard>
-          )}
-          {canGenerateOrRegenerate && (
-            <Popconfirm
-              id="payroll-generate-popconfirm-view-component"
-              data-cy="payroll-generate-popconfirm-view-component"
-              title={
-                payroll?.items?.length
-                  ? 'Are you sure you want to regenerate the payroll ?'
-                  : 'Are you sure you want to generate the payroll ?'
-              }
-              onConfirm={handleDeletePayroll}
-              okText="Yes"
-              cancelText="No"
-              disabled={!(payroll?.items?.length > 0)}
-            >
-              <AccessGuard
-                id="payroll-generate-guard-view-component"
-                data-cy="payroll-generate-guard-view-component"
-                permissions={[
-                  Permissions.GeneratePayroll,
-                  Permissions.DeletePayroll,
-                ]}
-              >
-                <Tooltip
-                  id="payroll-generate-tooltip-view-component"
-                  data-cy="payroll-generate-tooltip-view-component"
-                  title={
-                    payroll?.items?.length > 0
-                      ? 'Regenerate Payroll'
-                      : 'Generate Payroll'
-                  }
-                >
-                  <Button
-                    id="payroll-generate-open-modal-click-button"
-                    data-cy="payroll-generate-open-modal-click-button"
-                    type="primary"
-                    className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-                    onClick={() => setIsPayrollModalOpen(true)}
-                    loading={isCreatingPayroll || loading || deleteLoading}
-                  >
-                    {isMobile ? (
-                      <TbFileExport
-                        data-cy="payroll-generate-open-modal-click-icon"
-                        size={24}
-                      />
-                    ) : payroll?.items?.length > 0 ? (
-                      'Regenerate'
-                    ) : (
-                      'Generate'
-                    )}
-                  </Button>
-
-                  {isPayrollModalOpen && (
-                    <GeneratePayrollModal
-                      data-cy="payroll-generate-modal-view-component"
-                      onGenerate={handleGeneratePayroll}
-                      onClose={() => setIsPayrollModalOpen(false)}
-                    />
-                  )}
-                </Tooltip>
-              </AccessGuard>
-            </Popconfirm>
-          )}
-          {hasPendingApprovals && (
-            <Button
-              id="payroll-approve-button"
-              data-cy="payroll-approve-button"
-              type="primary"
-              className={`p-5 mr-2 ${isMobile ? 'flex items-center justify-center' : ''}`}
-              onClick={() => setIsApproveModalOpen(true)}
-              loading={isApproving || isLastApproving}
-            >
-              {isMobile ? (
-                <TbFileExport data-cy="payroll-approve-icon" size={24} />
-              ) : (
-                'Approve Payroll'
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
-      <Modal
-        data-cy="payroll-approve-modal"
-        open={isApproveModalOpen}
-        onCancel={() => setIsApproveModalOpen(false)}
-        footer={null}
-        centered
-        width={600}
-        className="p-6"
-      >
-        <div
-          id="payroll-approve-modal-content"
-          data-cy="payroll-approve-modal-content"
-          className="flex flex-col items-center justify-center gap-4"
+          id="payroll-dashboard-header-view-container"
+          data-cy="payroll-dashboard-header-view-container"
+          className="mb-6"
         >
           <h2
-            id="payroll-approve-modal-title"
-            data-cy="payroll-approve-modal-title"
-            className="text-2xl font-bold"
+            id="payroll-dashboard-query-view-text"
+            data-cy="payroll-dashboard-query-view-text"
+            hidden
+            style={{ marginBottom: '20px' }}
           >
-            Approve Payroll
+            {payPeriodQuery}
           </h2>
-          <p
-            id="payroll-approve-modal-description"
-            data-cy="payroll-approve-modal-description"
-            className="text-lg text-gray-600"
-          >
-            Do you wish to Approve this payroll
-          </p>
           <div
-            id="payroll-approve-modal-footer"
-            data-cy="payroll-approve-modal-footer"
-            className="flex gap-4 w-full justify-center mt-4"
+            id="payroll-dashboard-title-wrapper"
+            data-cy="payroll-dashboard-title-wrapper"
+            className="w-full"
           >
-            <Button
-              id="payroll-approve-modal-cancel"
-              data-cy="payroll-approve-modal-cancel"
-              className="w-full h-12 text-lg font-semibold"
-              onClick={() => setIsApproveModalOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              id="payroll-approve-modal-approve"
-              data-cy="payroll-approve-modal-approve"
-              type="primary"
-              className="w-full h-12 text-lg font-semibold bg-primary"
-              onClick={handleApprovePayroll}
-              loading={isApproving || isLastApproving}
-            >
-              Approve
-            </Button>
+            <CustomBreadcrumb
+              title={
+                <span
+                  id="payroll-dashboard-title-view-text"
+                  data-cy="payroll-dashboard-title-view-text"
+                >
+                  Payroll
+                </span>
+              }
+              subtitle={
+                <Breadcrumb
+                  data-cy="payroll-dashboard-breadcrumb"
+                  className="mt-2 mb-0 whitespace-nowrap"
+                  style={{ whiteSpace: 'nowrap' }}
+                  items={[
+                    {
+                      title: (
+                        <Link
+                          href="/payroll/payroll"
+                          data-cy="payroll-reconciliation-breadcrumb-payroll-link"
+                          className="text-xs sm:text-sm"
+                        >
+                          Payroll
+                        </Link>
+                      ),
+                    },
+                    {
+                      title: (
+                        <span
+                          data-cy="payroll-breadcrumb-current"
+                          className="text-xs sm:text-sm"
+                        >
+                          Payroll
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
+              }
+              titleExtra={
+                <div
+                  id="payroll-dashboard-actions-view-container"
+                  data-cy="payroll-dashboard-actions-view-container"
+                  className="flex gap-3 items-center"
+                >
+                  {/* More actions dropdown */}
+                  <Dropdown
+                    data-cy="payroll-more-actions-dropdown"
+                    menu={{
+                      items: [
+                        {
+                          key: 'send-payslip',
+                          label: 'Email Payslip',
+                          disabled: mergedPayrollForExport?.length === 0,
+                          onClick: () => setOpen(true),
+                        },
+                        {
+                          key: 'reconciliation',
+                          label: 'Reconciliation',
+                          onClick: () => routerToReconcilation(),
+                        },
+                        ...(hasPendingApprovals
+                          ? [
+                              {
+                                key: 'approve',
+                                label: 'Approve Payroll',
+                                onClick: () => setIsApproveModalOpen(true),
+                              },
+                            ]
+                          : []),
+                        {
+                          key: 'export',
+                          label: 'Export',
+                          onClick: () => setIsModalOpen(true),
+                        },
+                      ],
+                    }}
+                    trigger={['click']}
+                  >
+                    <Button
+                      id="payroll-more-actions-click-button"
+                      data-cy="payroll-more-actions-click-button"
+                      className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
+                      aria-label="More actions"
+                    >
+                      <MoreHorizIcon
+                        className="text-gray-600 text-lg leading-none"
+                        data-cy="payroll-more-actions-dots-view-text"
+                      />
+                    </Button>
+                  </Dropdown>
+
+                  {/* Generate / Regenerate button */}
+                  {canGenerateOrRegenerate && (
+                    <Popconfirm
+                      id="payroll-generate-popconfirm-view-component"
+                      data-cy="payroll-generate-popconfirm-view-component"
+                      title={
+                        payroll?.items?.length
+                          ? 'Are you sure you want to regenerate the payroll ?'
+                          : 'Are you sure you want to generate the payroll ?'
+                      }
+                      onConfirm={handleDeletePayroll}
+                      okText="Yes"
+                      cancelText="No"
+                      disabled={!(payroll?.items?.length > 0)}
+                    >
+                      <AccessGuard
+                        id="payroll-generate-guard-view-component"
+                        data-cy="payroll-generate-guard-view-component"
+                        permissions={[
+                          Permissions.GeneratePayroll,
+                          Permissions.DeletePayroll,
+                        ]}
+                      >
+                        <Button
+                          id="payroll-generate-open-modal-click-button"
+                          data-cy="payroll-generate-open-modal-click-button"
+                          type="primary"
+                          aria-label={
+                            isMobile || isTablet
+                              ? payroll?.items?.length > 0
+                                ? 'Regenerate payroll'
+                                : 'Generate payroll'
+                              : undefined
+                          }
+                          icon={
+                            <span
+                              className="inline-flex items-center justify-center leading-none"
+                              data-cy="payroll-generate-button-icon-wrapper"
+                            >
+                              {payroll?.items?.length > 0 ? (
+                                <FileSyncOutlined
+                                  data-cy="payroll-generate-icon"
+                                  className="text-base leading-none"
+                                />
+                              ) : (
+                                <TbFileExport
+                                  data-cy="payroll-generate-icon"
+                                  size={16}
+                                  className="block leading-none"
+                                />
+                              )}
+                            </span>
+                          }
+                          className={
+                            isMobile || isTablet
+                              ? 'flex !w-10 !min-w-10 items-center justify-center !gap-0 !p-0 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
+                              : 'flex items-center gap-2 px-6 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
+                          }
+                          onClick={() => setIsPayrollModalOpen(true)}
+                          loading={
+                            isCreatingPayroll || loading || deleteLoading
+                          }
+                        >
+                          {!(isMobile || isTablet) &&
+                            (payroll?.items?.length > 0 ? (
+                              <span
+                                className="inline-flex items-center leading-none"
+                                data-cy="payroll-regenerate-button-label"
+                              >
+                                Regenerate
+                              </span>
+                            ) : (
+                              <span
+                                className="inline-flex items-center leading-none"
+                                data-cy="payroll-generate-button-label"
+                              >
+                                Generate
+                              </span>
+                            ))}
+                        </Button>
+
+                        {isPayrollModalOpen && (
+                          <GeneratePayrollModal
+                            data-cy="payroll-generate-modal-view-component"
+                            onGenerate={handleGeneratePayroll}
+                            onClose={() => setIsPayrollModalOpen(false)}
+                            loading={isCreatingPayroll || loading}
+                            isRegenerate={payroll?.items?.length > 0}
+                          />
+                        )}
+                      </AccessGuard>
+                    </Popconfirm>
+                  )}
+                </div>
+              }
+            />
           </div>
         </div>
-      </Modal>
-      <div
-        id="payroll-filters-wrapper-view-container"
-        data-cy="payroll-filters-wrapper-view-container"
-        className={
-          isMobile ? 'pl-2 pr-1 pt-2 bg-white mr-2' : 'pl-2 pr-1 pt-2 bg-white'
-        }
-      >
-        {!isMobile ? (
-          <Filters
-            data-cy="payroll-filters-view-component"
-            onSearch={handleSearch}
-            oneRow={true}
-          />
-        ) : (
+
+        {/* Send Payslip Modal */}
+        <Modal
+          data-cy="payroll-send-payslip-modal-view-modal"
+          title="Email Payslips"
+          open={open}
+          onCancel={() => setOpen(false)}
+          centered
+          width={470}
+          footer={[
+            <Button
+              id="payroll-send-payslip-cancel-click-button"
+              data-cy="payroll-send-payslip-cancel-click-button"
+              key="cancel"
+              type="default"
+              htmlType="button"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>,
+            <Button
+              id="payroll-send-payslip-send-click-button"
+              data-cy="payroll-send-payslip-send-click-button"
+              key="send"
+              type="primary"
+              htmlType="button"
+              onClick={() => {
+                if (mergedPayrollForExport?.length > 0) {
+                  sendingPaySlipHandler(mergedPayrollForExport);
+                  setOpen(false);
+                }
+              }}
+              disabled={mergedPayrollForExport?.length === 0}
+            >
+              Send
+            </Button>,
+          ]}
+        >
           <div
-            id="payroll-mobile-filterbar-view-container"
-            data-cy="payroll-mobile-filterbar-view-container"
-            className="flex justify-between items-center gap-4"
+            id="payroll-send-payslip-modal-content-view-container"
+            data-cy="payroll-send-payslip-modal-content-view-container"
+            className="text-gray-600"
+          >
+            <p
+              id="payroll-send-payslip-modal-description-view-text"
+              data-cy="payroll-send-payslip-modal-description-view-text"
+              className="text-base leading-6 m-0 max-w-[360px]"
+            >
+              You are about to send payslips to{' '}
+              {mergedPayrollForExport?.length ?? 0} selected employees out of{' '}
+              {(searchValue?.divisionId
+                ? payrollForExport?.divisionUsers?.length
+                : allEmployees?.items?.length) ?? 0}{' '}
+              total employees.
+            </p>
+          </div>
+        </Modal>
+
+        {/* Approve Payroll Modal */}
+        <Modal
+          data-cy="payroll-approve-modal"
+          open={isApproveModalOpen}
+          onCancel={() => setIsApproveModalOpen(false)}
+          footer={null}
+          centered
+          width={600}
+          className="p-6"
+        >
+          <div
+            id="payroll-approve-modal-content"
+            data-cy="payroll-approve-modal-content"
+            className="flex flex-col items-center justify-center gap-4"
+          >
+            <h2
+              id="payroll-approve-modal-title"
+              data-cy="payroll-approve-modal-title"
+              className="text-2xl font-bold"
+            >
+              Approve Payroll
+            </h2>
+            <p
+              id="payroll-approve-modal-description"
+              data-cy="payroll-approve-modal-description"
+              className="text-lg text-gray-600"
+            >
+              Do you wish to Approve this payroll
+            </p>
+            <div
+              id="payroll-approve-modal-footer"
+              data-cy="payroll-approve-modal-footer"
+              className="flex gap-4 w-full justify-center mt-4"
+            >
+              <Button
+                id="payroll-approve-modal-cancel"
+                data-cy="payroll-approve-modal-cancel"
+                className="w-full h-12 text-lg font-semibold"
+                onClick={() => setIsApproveModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                id="payroll-approve-modal-approve"
+                data-cy="payroll-approve-modal-approve"
+                type="primary"
+                className="w-full h-12 text-lg font-semibold bg-primary"
+                onClick={handleApprovePayroll}
+                loading={isApproving || isLastApproving}
+              >
+                Approve
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </div>
+
+      <div
+        id="payroll-dashboard-content-wrapper"
+        data-cy="payroll-dashboard-content-wrapper"
+        className="w-full"
+      >
+        {/* Content Card (border starts below header + filters) */}
+        <div
+          id="payroll-content-card-view-container"
+          data-cy="payroll-content-card-view-container"
+          className={
+            isMobile
+              ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
+              : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
+          }
+        >
+          {/* Toolbar Section — Search + Filter */}
+          <div
+            id="payroll-filters-wrapper-view-container"
+            data-cy="payroll-filters-wrapper-view-container"
+            className="flex justify-between items-center gap-2 sm:gap-0 mb-8"
           >
             <Select
-              id="payroll-mobile-search-employee-interact-select"
-              data-cy="payroll-mobile-search-employee-interact-select"
+              id="payroll-search-employee-interact-select"
+              data-cy="payroll-search-employee-interact-select"
               showSearch
               allowClear
-              className="min-h-12 w-full"
+              className="max-w-xs min-h-[40px] min-w-[240px] sm:min-w-[280px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
               placeholder="Search Employee"
               value={searchValue?.employeeId}
               onChange={(value) => handleEmployeeSelect(value)}
@@ -1557,221 +1581,252 @@ const Payroll = () => {
                 );
               }}
               options={options}
-            />
-            <Button
-              id="payroll-mobile-open-filter-modal-click-button"
-              data-cy="payroll-mobile-open-filter-modal-click-button"
-              className="p-6 mr-2"
-              onClick={() => setIsFilterModalOpen(true)}
-              icon={
-                <LuSettings2
-                  id="payroll-mobile-open-filter-modal-click-icon"
-                  data-cy="payroll-mobile-open-filter-modal-click-icon"
-                  size={20}
-                />
+              suffixIcon={
+                <span
+                  className="flex h-full min-h-full items-center self-stretch border-l border-gray-200 pl-3 text-gray-400"
+                  data-cy="payroll-search-employee-suffix"
+                >
+                  <SearchOutlined className="text-base" />
+                </span>
               }
             />
-          </div>
-        )}
-        {isFilterModalOpen && (
-          <Modal
-            title="Filters"
-            data-cy="payroll-filter-modal-view-modal"
-            open={isFilterModalOpen}
-            onCancel={() => setIsFilterModalOpen(false)}
-            footer={
-              <div
-                id="payroll-filter-modal-footer-view-container"
-                data-cy="payroll-filter-modal-footer-view-container"
-                className="flex justify-center gap-4"
-              >
-                <Button
-                  id="payroll-filter-modal-cancel-click-button"
-                  data-cy="payroll-filter-modal-cancel-click-button"
-                  key="cancel"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setIsFilterModalOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  id="payroll-filter-modal-apply-click-button"
-                  data-cy="payroll-filter-modal-apply-click-button"
-                  key="filter"
-                  type="primary"
-                  onClick={() => setIsFilterModalOpen(false)}
-                  className="text-white bg-blue border-none"
-                  loading={loading}
-                >
-                  Filter
-                </Button>
-              </div>
-            }
-            width={isMobile ? '90%' : '50%'}
-          >
-            <Filters
-              data-cy="payroll-filter-modal-form-interact-container"
+            <FilterPopover
               onSearch={handleSearch}
-              oneRow={false}
-              disable={['name']}
+              defaultValues={searchValue as any}
             />
-          </Modal>
-        )}
-        <Row
-          id="payroll-summary-cards-view-row"
-          data-cy="payroll-summary-cards-view-row"
-          gutter={16}
-          style={{
-            marginBottom: '20px',
-            overflowX: isMobile ? 'hidden' : 'auto',
-            whiteSpace: isMobile ? 'normal' : 'nowrap',
-            display: !isMobile ? 'flex' : 'block',
-            flexWrap: 'nowrap',
-            width: isMobile ? '100%' : 'auto',
-          }}
-          className="scrollbar-none"
-        >
-          <PayrollCard
-            title="Total Amount"
-            data-cy="payroll-summary-card-total-amount-view-component"
-            value={payroll?.totalGrossPaymentAmount}
-          />
-          <PayrollCard
-            title="Net Paid Amount"
-            data-cy="payroll-summary-card-net-paid-view-component"
-            value={payroll?.totalNetPayAmount}
-          />
+          </div>
 
-          <PayrollCard
-            title="Total Allowance"
-            data-cy="payroll-summary-card-total-allowance-view-component"
-            value={payroll?.totalAllowanceAmount}
-          />
-
-          <PayrollCard
-            title="Total Benefit"
-            data-cy="payroll-summary-card-total-benefit-view-component"
-            value={payroll?.totalMeritAmount}
-          />
-          <PayrollCard
-            title="Total Deduction"
-            data-cy="payroll-summary-card-total-deduction-view-component"
-            value={payroll?.totalDeductionsAmount}
-          />
-        </Row>
-        <div
-          id="payroll-table-wrapper-view-container"
-          data-cy="payroll-table-wrapper-view-container"
-          className="overflow-x-auto scrollbar-none"
-        >
-          <Table
-            id="payroll-table-view-table"
-            data-cy="payroll-table-view-table"
-            dataSource={mergedPayroll || []}
-            columns={columns}
-            pagination={false}
-            rowSelection={{
-              selectedRowKeys,
-              onChange: (newSelectedRowKeys: React.Key[]) => {
-                setSelectedRowKeys(newSelectedRowKeys);
-              },
-              /* eslint-disable @typescript-eslint/no-unused-vars */
-              onSelectAll: (
-                selected: boolean,
-                selectedRows: any[],
-                changeRows: any[],
-              ) => {
-                if (selected) {
-                  const allKeys = mergedPayroll.map(
-                    (item: any) => item.id || item.employeeId,
-                  );
-                  setSelectedRowKeys(allKeys);
-                } else {
-                  setSelectedRowKeys([]);
-                }
-              },
-              /* eslint-enable @typescript-eslint/no-unused-vars */
-            }}
-            rowKey={(record: any) => record.id || record.employeeId}
-          />
-          {isMobile || isTablet ? (
-            <CustomMobilePagination
-              data-cy="payroll-mobile-pagination-view-component"
-              totalResults={payroll?.meta?.totalItems || 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={onPageChange}
-            />
+          {payrollForExportLoading ? (
+            <PayrollSummaryCardsSkeleton />
           ) : (
-            <CustomPagination
-              data-cy="payroll-desktop-pagination-view-component"
-              current={currentPage}
-              total={payroll?.meta?.totalItems || 0}
-              pageSize={pageSize}
-              onChange={onPageChange}
-              onShowSizeChange={onPageSizeChange}
-            />
+            <div
+              id="payroll-summary-cards-view-row"
+              data-cy="payroll-summary-cards-view-row"
+              className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
+            >
+              <PayrollCard
+                title="Total Amount"
+                data-cy="payroll-summary-card-total-amount-view-component"
+                value={payrollForExport?.totalGrossPaymentAmount}
+                icon={
+                  <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
+                }
+                iconBg="bg-[#E6F4FF]"
+                iconText="text-[#1E40AF]"
+              />
+              <PayrollCard
+                title="Net Paid Amount"
+                data-cy="payroll-summary-card-net-paid-view-component"
+                value={payrollForExport?.totalNetPayAmount}
+                icon={
+                  <LocalAtmIcon
+                    data-cy="payroll-summary-card-net-paid-amount-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#F9F0FF]"
+                iconText="text-[#722ED1]"
+              />
+              <PayrollCard
+                title="Total Allowance"
+                data-cy="payroll-summary-card-total-allowance-view-component"
+                value={payrollForExport?.totalAllowanceAmount}
+                icon={
+                  <PaymentsIcon
+                    data-cy="payroll-summary-card-total-allowance-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#F6FFED]"
+                iconText="text-[#52C41A]"
+              />
+              <PayrollCard
+                title="Total Benefit"
+                data-cy="payroll-summary-card-total-benefit-view-component"
+                value={payrollForExport?.totalMeritAmount}
+                icon={
+                  <MdCardGiftcard
+                    data-cy="payroll-summary-card-total-benefit-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#FFFBE6]"
+                iconText="text-[#FBB221]"
+              />
+              <PayrollCard
+                title="Total Deduction"
+                data-cy="payroll-summary-card-total-deduction-view-component"
+                value={payrollForExport?.totalDeductionsAmount}
+                icon={
+                  <MoneyOffIcon
+                    data-cy="payroll-summary-card-total-deduction-icon"
+                    className="w-5 h-5"
+                  />
+                }
+                iconBg="bg-[#FFF2F0]"
+                iconText="text-[#FF4D4F]"
+              />
+            </div>
           )}
+          <div
+            id="payroll-table-wrapper-view-container"
+            data-cy="payroll-table-wrapper-view-container"
+            className="payroll-table-scroll-host overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
+          >
+            {payrollTableLoading ? (
+              <PayrollTableLoadingSkeleton columns={columns} rows={pageSize} />
+            ) : (
+              <Table
+                id="payroll-table-view-table"
+                data-cy="payroll-table-view-table"
+                className="payroll-table"
+                dataSource={mergedPayroll || []}
+                columns={columns}
+                pagination={false}
+                locale={{
+                  // Same pattern as feedback tables / redesign empty state
+                  emptyText: (
+                    <div
+                      className="payroll-table-empty-viewport-center py-10"
+                      data-cy="payroll-table-empty-wrap"
+                    >
+                      <EmptyState
+                        minimal
+                        description="No data found"
+                        data-cy="payroll-table-empty"
+                        className="!py-2"
+                      />
+                    </div>
+                  ),
+                }}
+                rowClassName={(record: any, index: number) => {
+                  void record;
+                  return index % 2 === 1 ? 'payroll-zebra-row' : '';
+                }}
+                rowSelection={{
+                  selectedRowKeys,
+                  onChange: (newSelectedRowKeys: React.Key[]) => {
+                    setSelectedRowKeys(newSelectedRowKeys);
+                  },
+                  onSelectAll: (isSelected: boolean) => {
+                    if (isSelected) {
+                      const allKeys = mergedPayroll.map(
+                        (item: any) => item.id || item.employeeId,
+                      );
+                      setSelectedRowKeys(allKeys);
+                    } else {
+                      setSelectedRowKeys([]);
+                    }
+                  },
+                }}
+                rowKey={(record: any) => record.id || record.employeeId}
+              />
+            )}
+          </div>
+          {/* Pagination footer — outside scrollable table wrapper */}
+          <div
+            id="payroll-pagination-footer"
+            data-cy="payroll-pagination-footer"
+            className="bg-white px-0"
+          >
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                data-cy="payroll-mobile-pagination-view-component"
+                totalResults={payroll?.meta?.totalItems || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+              />
+            ) : (
+              <CustomPagination
+                data-cy="payroll-desktop-pagination-view-component"
+                current={currentPage}
+                total={payroll?.meta?.totalItems || 0}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageSizeChange}
+              />
+            )}
+          </div>
         </div>
         <Modal
-          title="Export for Bank"
+          title={
+            <h2
+              className="text-[16px] font-normal text-gray-900 m-0 leading-tight"
+              data-cy="payroll-export-modal-title-view-text"
+            >
+              Export for Bank
+            </h2>
+          }
           data-cy="payroll-export-modal-view-modal"
           open={isModalOpen}
-          onCancel={() => {
-            setIsModalOpen(false);
-            // Optionally reset selection when modal closes
-            // setSelectedRowKeys([]);
+          onCancel={() => setIsModalOpen(false)}
+          centered
+          width={450}
+          styles={{
+            body: { padding: '8px 0 16px' },
           }}
-          footer={
-            <div
-              id="payroll-export-modal-footer-view-container"
-              data-cy="payroll-export-modal-footer-view-container"
-              className="flex justify-center gap-4"
+          footer={[
+            <Button
+              id="payroll-export-modal-cancel-click-button"
+              data-cy="payroll-export-modal-cancel-click-button"
+              key="cancel"
+              type="default"
+              htmlType="button"
+              size="large"
+              className="px-6 !font-normal !text-[#4D4D4D] border border-solid !border-[#D9D9D9]"
+              onClick={() => setIsModalOpen(false)}
             >
-              <Button
-                id="payroll-export-modal-cancel-click-button"
-                data-cy="payroll-export-modal-cancel-click-button"
-                key="cancel"
-                onClick={() => setIsModalOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                id="payroll-export-modal-submit-click-button"
-                data-cy="payroll-export-modal-submit-click-button"
-                key="export"
-                type="primary"
-                onClick={handleExportAll}
-                className="text-white bg-blue border-none"
-                disabled={
-                  loading ||
-                  (!bankLetter && !exportPayrollData && !paySlip && !exportBank)
-                }
-                loading={loading}
-              >
-                Export
-              </Button>
-            </div>
-          }
+              Cancel
+            </Button>,
+            <Button
+              id="payroll-export-modal-submit-click-button"
+              data-cy="payroll-export-modal-submit-click-button"
+              key="export"
+              type="primary"
+              size="large"
+              className="px-6 !font-normal shadow-none"
+              onClick={handleExportAll}
+              disabled={
+                loading ||
+                (!bankLetter && !exportPayrollData && !paySlip && !exportBank)
+              }
+              loading={loading}
+            >
+              Export
+            </Button>,
+          ]}
         >
           <div
             id="payroll-export-modal-options-view-container"
             data-cy="payroll-export-modal-options-view-container"
-            className="flex flex-col gap-5 m-6"
+            style={{
+              border: '1px solid #f0f0f0',
+              borderRadius: '8px',
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+              marginTop: '12px',
+            }}
           >
             <div
               id="payroll-export-bank-letter-toggle-view-container"
               data-cy="payroll-export-bank-letter-toggle-view-container"
-              className="flex flex-col justify-between items-start gap-2 "
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                alignItems: 'flex-start',
+              }}
             >
-              <span
+              <Text
                 id="payroll-export-bank-letter-toggle-view-text"
                 data-cy="payroll-export-bank-letter-toggle-view-text"
+                style={{ fontSize: '13px' }}
               >
                 Export Bank Letter
-              </span>
+              </Text>
               <Switch
                 id="payroll-export-bank-letter-toggle-switch"
                 data-cy="payroll-export-bank-letter-toggle-switch"
@@ -1779,17 +1834,24 @@ const Payroll = () => {
                 onChange={() => setBankLetter(!bankLetter)}
               />
             </div>
+
             <div
               id="payroll-export-payroll-toggle-view-container"
               data-cy="payroll-export-payroll-toggle-view-container"
-              className="flex flex-col justify-between items-start gap-2 "
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                alignItems: 'flex-start',
+              }}
             >
-              <span
+              <Text
                 id="payroll-export-payroll-toggle-view-text"
                 data-cy="payroll-export-payroll-toggle-view-text"
+                style={{ fontSize: '13px' }}
               >
                 Export Payroll
-              </span>
+              </Text>
               <Switch
                 id="payroll-export-payroll-toggle-switch"
                 data-cy="payroll-export-payroll-toggle-switch"
@@ -1801,15 +1863,20 @@ const Payroll = () => {
             <div
               id="payroll-export-payslip-toggle-view-container"
               data-cy="payroll-export-payslip-toggle-view-container"
-              className="flex flex-col justify-between items-start gap-2 "
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                alignItems: 'flex-start',
+              }}
             >
-              <span
+              <Text
                 id="payroll-export-payslip-toggle-view-text"
                 data-cy="payroll-export-payslip-toggle-view-text"
+                style={{ fontSize: '13px' }}
               >
-                {' '}
                 Send Email for employees
-              </span>
+              </Text>
               <Switch
                 id="payroll-export-payslip-toggle-switch"
                 data-cy="payroll-export-payslip-toggle-switch"
@@ -1821,14 +1888,20 @@ const Payroll = () => {
             <div
               id="payroll-export-bank-toggle-view-container"
               data-cy="payroll-export-bank-toggle-view-container"
-              className="flex flex-col justify-between items-start gap-2 "
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                alignItems: 'flex-start',
+              }}
             >
-              <span
+              <Text
                 id="payroll-export-bank-toggle-view-text"
                 data-cy="payroll-export-bank-toggle-view-text"
+                style={{ fontSize: '13px' }}
               >
                 Export Bank
-              </span>
+              </Text>
               <Switch
                 id="payroll-export-bank-toggle-switch"
                 data-cy="payroll-export-bank-toggle-switch"

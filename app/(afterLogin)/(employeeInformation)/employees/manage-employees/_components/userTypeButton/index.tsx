@@ -1,35 +1,35 @@
-import { Button } from 'antd';
+import { Button, Tag } from 'antd';
 
 const userTypeButton = (val: string) => {
   if (val === 'On Boarding') {
     return (
-      <Button
+      <Tag
         id="roleTypeOwner"
         data-cy="roleTypeOwner"
-        className="text-sky-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-sky-600 hover:bg-sky-50"
+        className="text-sky-600 text-xs font-normal px-2 bg-white border border-sky-600 hover:bg-sky-50 h-[22px]"
       >
         ON BOARDING
-      </Button>
+      </Tag>
     );
   } else if (val === 'Permanent') {
     return (
-      <Button
+      <Tag
         id="roleTypeAdmin"
         data-cy="roleTypeAdmin"
-        className="text-indigo-700 text-xs font-medium w-[90px] px-[30px] bg-white border border-indigo-700 hover:bg-indigo-50"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
         Permanent
-      </Button>
+      </Tag>
     );
   } else if (val === 'Probation') {
     return (
-      <Button
+      <Tag
         id="roleTypeSuper"
         data-cy="roleTypeProbation"
-        className="text-violet-600 text-xs font-medium w-[90px] px-[30px] bg-white border border-violet-600 hover:bg-violet-50"
+        className="text-[#4d4d4d] text-sm font-normal px-2 bg-white border border-[#d9d9d9] h-[22px]"
       >
-        PROBATION
-      </Button>
+        Probation
+      </Tag>
     );
   } else if (val === 'On Leave') {
     return (
@@ -50,6 +50,26 @@ const userTypeButton = (val: string) => {
       >
         Unknown
       </Button>
+    );
+  } else if (val === 'Active') {
+    return (
+      <Tag
+        id="roleTypeActive"
+        data-cy="roleTypeActive"
+        className="text-[#1677ff] text-sm font-normal px-2 bg-[#e6f4ff] border border-[#91caff] h-[22px]"
+      >
+        Active
+      </Tag>
+    );
+  } else if (val === 'InActive') {
+    return (
+      <Tag
+        id="roleTypeInActive"
+        data-cy="roleTypeInActive"
+        className="text-[#ff4d4f] text-sm font-normal px-2 bg-[#fff1f0] border border-[#ffccc7] h-[22px]"
+      >
+        InActive
+      </Tag>
     );
   } else {
     return (

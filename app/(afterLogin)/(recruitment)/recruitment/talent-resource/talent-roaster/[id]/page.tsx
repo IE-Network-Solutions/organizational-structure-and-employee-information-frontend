@@ -1,5 +1,14 @@
 'use client';
-import { Button, Card, Divider, Row, Col, Typography, Spin, Space } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Row,
+  Skeleton,
+  Space,
+  Typography,
+} from 'antd';
 import { useParams, useRouter } from 'next/navigation';
 import { useGetTalentRoasterById } from '@/store/server/features/recruitment/talent-roaster/query';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
@@ -23,7 +32,7 @@ const TalentRoasterDetails = () => {
     const { data: department, isLoading: isDeptLoading } =
       useGetDepartmentByID(departmentId);
 
-    if (isDeptLoading) return <Spin size="small" />;
+    if (isDeptLoading) return <Skeleton.Button active size="small" />;
     return <Text>{department?.name || 'N/A'}</Text>;
   };
 
@@ -34,9 +43,9 @@ const TalentRoasterDetails = () => {
         data-cy="talent-acquisition-talent-roaster-detail-div-container"
         className="flex justify-center items-center min-h-96"
       >
-        <Spin
+        <Skeleton
+          active
           data-cy="talent-acquisition-talent-roaster-detail-spin"
-          size="large"
         />
       </div>
     );

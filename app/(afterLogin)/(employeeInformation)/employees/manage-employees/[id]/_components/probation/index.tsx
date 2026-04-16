@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { Button, Spin } from 'antd';
+import { Button, Skeleton } from 'antd';
 import ProbationTargetAccordion from './_components/probationTargetAccordion';
 import { useFetchProbationTargetsByUserId } from '@/store/server/features/probation-target/queries';
 import { useCreateProbationTarget } from '@/store/server/features/probation-target/mutation';
@@ -12,6 +12,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import AddIcon from '@mui/icons-material/Add';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface Ids {
   id: string;
@@ -33,6 +35,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
     refetch,
   } = useFetchProbationTargetsByUserId(id);
   const pageSlug = toSlug(id);
+  const { isMobile } = useIsMobile();
 
   // Mutation hooks
   const { mutate: updateTaskMutation } = useUpdateProbationTask();
@@ -139,10 +142,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
         id={`probation-loading-state-${pageSlug}`}
         data-cy="probation-loading-state"
       >
-        <Spin
-          tip="Loading probation targets..."
-          data-cy="probation-loading-spinner"
-        />
+        <Skeleton active data-cy="probation-loading-spinner" />
       </div>
     );
   }
@@ -166,40 +166,74 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
     );
   }
 
+  const totalWeight = (probationTargets || []).reduce(
+    (sum, pt) =>
+      sum +
+      pt.probationTasks.reduce(
+        (tSum, t) =>
+          tSum +
+          (typeof t.weight === 'string'
+            ? parseInt(t.weight, 10) || 0
+            : (t.weight ?? 0)),
+        0,
+      ),
+    0,
+  );
+
   return (
     <div
-      className="space-y-4 sm:space-y-6"
+      className="space-y-2 border border-gray-200 rounded-md"
       id="probation-page-container"
       data-cy="probation-page-container"
     >
-      {/* Create Probation Target Button */}
+      {/* Header: On-boarding Tasks, Total Weight, Add Probation Target */}
       <div
-        className="flex justify-end"
+        className="flex flex-wrap items-center justify-between gap-3 p-4"
         id="probation-create-target-wrapper"
         data-cy="probation-create-target-wrapper"
       >
-        <AccessGuard
-          permissions={[Permissions.CreateProbationTarget]}
-          id="probation-create-target-guard"
-          data-cy="probation-create-target-guard"
+        <h2
+          className="text-lg font-semibold text-gray-900 m-0"
+          data-cy="probation-onboarding-tasks-title"
         >
-          <Button
-            type="primary"
-            onClick={handleCreateProbationTarget}
-            loading={isCreatingTarget}
-            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
-            id="probation-create-target-btn"
-            data-cy="probation-create-target-btn"
+          On-boarding Tasks
+        </h2>
+        <div
+          className="flex items-center gap-3"
+          data-cy="probation-header-actions"
+        >
+          <span
+            className="inline-flex items-center px-1 py-1 rounded border border-[#ffd591] bg-[#fff7e6] text-[#fa8c16] text-xs font-normal"
+            id="probation-total-weight"
+            data-cy="probation-total-weight"
           >
-            Create Probation Target
-          </Button>
-        </AccessGuard>
+            Total Weight {totalWeight}
+          </span>
+          <AccessGuard
+            permissions={[Permissions.CreateProbationTarget]}
+            id="probation-create-target-guard"
+            data-cy="probation-create-target-guard"
+          >
+            <Button
+              type="primary"
+              onClick={handleCreateProbationTarget}
+              loading={isCreatingTarget}
+              className="font-normal text-sm"
+              id="probation-create-target-btn"
+              data-cy="probation-create-target-btn"
+              icon={<AddIcon />}
+            >
+              {!isMobile && 'Add Probation Target'}
+            </Button>
+          </AccessGuard>
+        </div>
       </div>
 
       {/* Probation Target Accordion */}
       <div
         id="probation-accordion-wrapper"
         data-cy="probation-accordion-wrapper"
+        className="px-4 gap-2 pb-4"
       >
         <ProbationTargetAccordion
           probationTargets={probationTargets || []}

@@ -8,7 +8,7 @@ import { MdDownloadForOffline } from 'react-icons/md';
 import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useGetGrossSalaryById } from '@/store/server/features/employees/employeeManagment/grossSalary/queries';
 import dayjs from 'dayjs';
-import { message, Spin } from 'antd';
+import { message, Skeleton } from 'antd';
 
 interface Ids {
   id: string;
@@ -648,12 +648,12 @@ const DownloadJobInformation: React.FC<Ids> = ({ id: id }) => {
         onClick={generatePDF}
         aria-label="Download Work Experience Certificate"
         disabled={isGenerating}
-        className="relative"
+        className="relative hidden"
         id="job-download-btn"
         data-cy="job-download-btn"
       >
         {isGenerating ? (
-          <Spin size="small" data-cy="job-download-spin" />
+          <Skeleton.Button active size="small" data-cy="job-download-spin" />
         ) : (
           <MdDownloadForOffline
             className="text-primary text-2xl"
