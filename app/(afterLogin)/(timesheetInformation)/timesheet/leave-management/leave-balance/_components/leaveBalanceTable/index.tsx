@@ -138,7 +138,10 @@ const LeaveBalanceTable: React.FC = () => {
                 className="py-8 text-center text-gray-500"
                 data-cy="leave-balance-select-user-empty-state"
               >
-                <EmptyState title="Please Select User" description="Please select a user to view leave balance" />
+                <EmptyState
+                  title="Please Select User"
+                  description="Please select a user to view leave balance"
+                />
               </h3>
             ) : dataSource.length === 0 ? (
               <h3

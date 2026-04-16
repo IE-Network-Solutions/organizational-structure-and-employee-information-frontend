@@ -3,11 +3,13 @@ import { Button, message } from 'antd';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
 import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timesheet/leaveBalance/queries';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const DownloadLeaveBalance: React.FC = () => {
   const { selectedUserId, leaveTypeId, isDownloading, setIsDownloading } =
     useLeaveBalanceStore();
-  const buttonClass = 'font-normal h-[40px] w-full rounded-lg';
+  const { isMobile } = useIsMobile();
+  const buttonClass = 'font-normal w-10 sm:w-full h-[40px] rounded-lg';
 
   const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } =
     useGetAllLeaveBalanceWithFilter(selectedUserId, leaveTypeId);
@@ -81,7 +83,7 @@ const DownloadLeaveBalance: React.FC = () => {
       data-cy="time-attendance-leave-balance-download-button"
       icon={<SaveAltIcon fontSize="small" />}
     >
-      {isDownloading ? 'Preparing Download...' : 'Download'}
+      {isMobile ? '' : isDownloading ? 'Preparing Download...' : 'Download'}
     </Button>
   );
 };
