@@ -72,3 +72,27 @@ export const useGetOkrRule = () =>
   useQuery<ResponseData>('okrRule', getOkrRule, {
     keepPreviousData: true,
   });
+
+export const getAverageOkrRuleByUser = async (userId: string) => {
+  if (!userId) {
+    return null;
+  }
+
+  const token = await getCurrentToken();
+  try {
+    const response = await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/average-okr-rule/assign/user/${userId}`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId,
+      },
+    });
+    return response as OkrRule | null;
+  } catch (error: any) {
+    if (error?.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
