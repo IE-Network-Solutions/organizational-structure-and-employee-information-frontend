@@ -125,8 +125,8 @@ const CopilotPanel: React.FC<CopilotPanelProps> = ({
             ...(normalized.messageType && {
               messageType: normalized.messageType,
             }),
-            ...(normalized.backend_errors?.length && {
-              backend_errors: normalized.backend_errors,
+            ...(normalized.backendErrors?.length && {
+              backendErrors: normalized.backendErrors,
             }),
           },
         ]);
