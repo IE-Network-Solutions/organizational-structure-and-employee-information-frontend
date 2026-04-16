@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import CopilotAiEditIcon, { COPILOT_FLOAT_INDIGO } from './CopilotAiEditIcon';
+import CopilotAiEditIcon from './CopilotAiEditIcon';
 import { COPILOT_THEME } from './copilotTheme';
 
 export interface CopilotCircleTriggerProps {
@@ -15,7 +15,7 @@ export interface CopilotCircleTriggerProps {
   className?: string;
 }
 
-/** Matches Copilot float: white, 1px blue border, ~6px radius, blue pencil + sparkle icon. */
+/** Matches Figma control: 40x40 circular button, subtle bottom shadow, dark 18px icon. */
 const CopilotCircleTrigger: React.FC<CopilotCircleTriggerProps> = ({
   onClick,
   isActive = false,
@@ -40,20 +40,18 @@ const CopilotCircleTrigger: React.FC<CopilotCircleTriggerProps> = ({
       aria-expanded={ariaExpanded}
       aria-current={isActive ? 'page' : undefined}
       data-cy={dataCy}
-      className={`box-border inline-flex h-11 w-11 shrink-0 items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/35 focus-visible:ring-offset-2 ${className}`}
+      className={`relative z-20 box-border inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center p-0 pointer-events-auto transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/20 focus-visible:ring-offset-2 ${className}`}
       style={{
-        borderRadius: COPILOT_THEME.floatFabRadius,
-        backgroundColor: COPILOT_THEME.floatFabBg,
-        borderWidth: COPILOT_THEME.floatFabBorderWidth,
+        borderRadius: '9999px',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
         borderStyle: 'solid',
-        borderColor: COPILOT_THEME.floatFabBorder,
-        boxShadow: isActive
-          ? '0 2px 10px rgba(0, 0, 0, 0.1)'
-          : COPILOT_THEME.floatFabShadow,
-        color: COPILOT_FLOAT_INDIGO,
+        borderColor: '#D9D9D9',
+        boxShadow: '0px 2px 0px rgba(0, 0, 0, 0.02)',
+        color: 'rgba(0, 0, 0, 0.7)',
       }}
     >
-      <CopilotAiEditIcon size={22} aria-hidden />
+      <CopilotAiEditIcon size={18} aria-hidden />
     </button>
   );
 };

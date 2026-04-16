@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CopilotAiEditIcon, { COPILOT_FLOAT_INDIGO } from './CopilotAiEditIcon';
 import { COPILOT_THEME } from './copilotTheme';
 
@@ -10,25 +11,38 @@ const FLOAT_BTN = 60;
 const POPOVER_W = 265;
 const POPOVER_H = 46;
 const GAP = 9;
-const HINT_KEY = 'copilot_float_hint_seen';
+const HINT_KEY_PREFIX = 'copilot_float_hint_seen';
 
 /**
  * Pill label + 60×60 tile — ~6px radius, 1px blue border, blue pencil + sparkle icon (20×20 asset).
  */
 const CopilotFloatEntry: React.FC = () => {
   const { isOpen, setIsOpen } = useCopilotStore();
+  const { token, userId } = useAuthenticationStore();
   const inset = COPILOT_THEME.floatInset;
   const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const alreadySeen = window.sessionStorage.getItem(HINT_KEY) === '1';
+    const isLoggedIn = Boolean(token && userId);
+    if (!isLoggedIn) {
+      setShowHint(false);
+      return;
+    }
+
+    const hintKey = `${HINT_KEY_PREFIX}:${userId}`;
+    const alreadySeen = window.sessionStorage.getItem(hintKey) === '1';
     if (alreadySeen) return;
+
     setShowHint(true);
-    window.sessionStorage.setItem(HINT_KEY, '1');
+    window.sessionStorage.setItem(hintKey, '1');
+
     const t = window.setTimeout(() => setShowHint(false), 5000);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [token, userId]);
+
+  const isLoggedIn = Boolean(token && userId);
+  if (!isLoggedIn) return null;
 
   if (isOpen) return null;
 

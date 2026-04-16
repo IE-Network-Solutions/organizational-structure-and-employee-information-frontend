@@ -887,7 +887,7 @@ const CopilotModule: React.FC = () => {
 
         {!isIntentPanelVisible && (
           <div
-            className="hidden shrink-0 flex-col items-center justify-start pt-2 md:flex"
+            className="relative z-20 hidden shrink-0 flex-col items-center justify-start pt-2 md:flex"
             id="copilot-module-reports-toggle-desktop-wrap"
             data-cy="copilot-module-reports-toggle-desktop-wrap"
           >

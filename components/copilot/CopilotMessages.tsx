@@ -706,7 +706,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
   return (
     <div
-      className="scrollbar-hide h-full w-full max-w-none space-y-6 overflow-y-auto px-1 py-2 sm:px-2"
+      className="scrollbar-hide mx-auto h-full w-full max-w-[980px] space-y-6 overflow-y-auto px-1 py-2 sm:px-2"
       id="copilot-messages"
       data-cy="copilot-messages"
     >
@@ -862,7 +862,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               />
             </span>
             <div
-              className={`min-w-0 flex-1 max-w-full p-4 sm:p-5 ${assistantBubbleSurface}`}
+              className={`min-w-0 w-full max-w-[calc(100%-4rem)] px-4 py-3 sm:px-5 sm:py-4 ${assistantBubbleSurface}`}
               style={{
                 borderRadius: COPILOT_THEME.assistantBubbleRadius,
               }}
@@ -870,18 +870,18 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
               data-cy={`copilot-message-bubble-copilot-${mid}`}
             >
               <div
-                className="mb-3 flex items-center gap-2"
+                className="mb-3 flex h-[22px] items-center gap-[10px] p-0"
                 data-cy={`copilot-assistant-message-header-${mid}`}
               >
                 <span
-                  className="text-xs tabular-nums text-[#9CA3AF]"
+                  className="h-[22px] text-xs tabular-nums leading-[22px] text-[#9CA3AF]"
                   id={`copilot-assistant-message-time-${mid}`}
                   data-cy={`copilot-assistant-message-time-${mid}`}
                 >
                   {formatMessageTime(message.timestamp)}
                 </span>
                 <div
-                  className="ml-auto flex items-center"
+                  className="ml-auto flex h-[22px] items-center"
                   data-cy={`copilot-assistant-message-actions-${mid}`}
                 >
                   {showShareOnly ? (
@@ -959,13 +959,13 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             />
           </span>
           <div
-            className="min-w-0 flex-1 max-w-full p-4 sm:p-5 border border-[#E0E0E0] bg-white"
-            style={{ borderRadius: COPILOT_THEME.assistantBubbleRadius }}
+            className="flex h-[32px] w-[31px] shrink-0 items-center justify-center border bg-white"
+            style={{ borderRadius: '5.5px', borderColor: '#D9D9D9' }}
             id="copilot-loading-generating-box"
             data-cy="copilot-loading-generating-box"
           >
             <div
-              className="flex items-center gap-2"
+              className="flex items-center justify-center"
               data-cy="copilot-loading-dots-wrap"
             >
               <CopilotTypingDots variant="dark" />
