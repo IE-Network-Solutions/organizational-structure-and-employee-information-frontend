@@ -1,35 +1,32 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-interface UserState {
-  isNotificationDetailVisible: boolean;
-  setIsNotificationDetailVisible: (
-    isNotificationDetailVisible: boolean,
-  ) => void;
-  selectedNotificationId: string | null;
-  setSelectedNotificationId: (selectedNotificationId: string | null) => void;
-}
-
 interface NotificationState {
   notificationCount: number;
   setNotificationCount: (count: number) => void;
 }
 
-export const useNotificationDetailStore = create<UserState>()(
-  devtools((set) => ({
-    isNotificationDetailVisible: false,
-    setIsNotificationDetailVisible: (isNotificationDetailVisible: boolean) =>
-      set({ isNotificationDetailVisible }),
-
-    selectedNotificationId: null,
-    setSelectedNotificationId: (selectedNotificationId: string | null) =>
-      set({ selectedNotificationId }),
-  })),
-);
+interface NotificationDetailState {
+  isNotificationDetailVisible: boolean;
+  selectedNotificationId: string | null;
+  setIsNotificationDetailVisible: (visible: boolean) => void;
+  setSelectedNotificationId: (id: string | null) => void;
+}
 
 export const useNotificationStore = create<NotificationState>()(
   devtools((set) => ({
     notificationCount: 0,
     setNotificationCount: (count: number) => set({ notificationCount: count }),
+  })),
+);
+
+export const useNotificationDetailStore = create<NotificationDetailState>()(
+  devtools((set) => ({
+    isNotificationDetailVisible: false,
+    selectedNotificationId: null,
+    setIsNotificationDetailVisible: (visible: boolean) =>
+      set({ isNotificationDetailVisible: visible }),
+    setSelectedNotificationId: (id: string | null) =>
+      set({ selectedNotificationId: id }),
   })),
 );
