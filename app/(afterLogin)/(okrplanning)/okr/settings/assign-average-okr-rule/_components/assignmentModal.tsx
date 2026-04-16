@@ -29,6 +29,8 @@ const getUserFullName = (user: any) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+const getFirstName = (name: string) => name.trim().split(' ')[0] || name;
+
 const getSelectLabels = (
   values: string[],
   options: Array<{ value: string; label: string }>,
@@ -237,7 +239,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
         >
           <Button
             type="default"
-            className="!h-10 !rounded-md !border !border-gray-300 !bg-white !px-4 !text-sm !font-normal !text-gray-700 hover:!bg-gray-50"
+            className="!h-8 !w-[68px] !rounded-md !border !border-gray-300 !bg-white !px-0 !text-sm !font-normal !text-gray-700 hover:!bg-gray-50"
             onClick={handleClose}
             disabled={isSubmitting}
             data-cy="average-okr-rule-assignment-modal-cancel-button"
@@ -246,7 +248,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
           </Button>
           <Button
             type="primary"
-            className="!h-10 !rounded-md !bg-[#2b54ad] !px-4 !text-sm !font-normal hover:!bg-[#3d66c2]"
+            className="!h-8 !w-[69px] !rounded-md !bg-[#2b54ad] !px-0 !text-sm !font-normal hover:!bg-[#3d66c2]"
             loading={isSubmitting}
             onClick={() => form.submit()}
             data-cy="average-okr-rule-assignment-modal-submit-button"
@@ -357,7 +359,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
                 className="inline-flex items-center gap-1.5 rounded-[4px] border border-solid border-[#E5E7EB] bg-[#F3F4F6] px-2 py-1 text-[14px] font-normal text-[rgba(0,0,0,0.7)]"
                 data-cy={`average-okr-rule-assignment-modal-users-chip-${item.value}`}
               >
-                {item.label}
+                {getFirstName(item.label)}
                 <button
                   type="button"
                   onClick={() => handleRemoveUserChip(item.value)}

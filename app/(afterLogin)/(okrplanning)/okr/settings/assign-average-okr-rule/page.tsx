@@ -265,7 +265,7 @@ const AssignAverageOkrRulePage = () => {
         data-cy="average-okr-rule-assignment-main-container"
       >
         <div
-          className="mb-5 w-full max-w-md"
+          className="mb-5 w-full max-w-[299px]"
           data-cy="average-okr-rule-assignment-search-wrapper"
         >
           <Input
@@ -273,7 +273,7 @@ const AssignAverageOkrRulePage = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             addonAfter={<SearchOutlined />}
-            className="w-full h-11 average-okr-rule-assignment-search"
+            className="h-8 w-full average-okr-rule-assignment-search"
             data-cy="average-okr-rule-assignment-search-input"
           />
         </div>
@@ -429,7 +429,7 @@ const AssignAverageOkrRulePage = () => {
 
       <style jsx global data-cy="average-okr-rule-assignment-page-styles">{`
         .average-okr-rule-assignment-search.ant-input-group-wrapper {
-          height: 44px !important;
+          height: 32px !important;
         }
         .average-okr-rule-assignment-search.ant-input-group-wrapper
           .ant-input-wrapper {
@@ -439,12 +439,12 @@ const AssignAverageOkrRulePage = () => {
           border-radius: 8px !important;
           overflow: hidden !important;
           background-color: white !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .average-okr-rule-assignment-search.ant-input-group-wrapper .ant-input {
           border: none !important;
           box-shadow: none !important;
-          height: 44px !important;
+          height: 32px !important;
           padding-left: 12px !important;
           font-size: 14px !important;
           color: #262626 !important;
@@ -458,16 +458,16 @@ const AssignAverageOkrRulePage = () => {
           background-color: white !important;
           border: none !important;
           border-left: 1px solid #f0f0f0 !important;
-          padding: 0 24px !important;
+          padding: 0 14px !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          height: 44px !important;
+          height: 32px !important;
         }
         .average-okr-rule-assignment-search.ant-input-group-wrapper
           .ant-input-group-addon
           .anticon {
-          font-size: 18px !important;
+          font-size: 14px !important;
           color: #595959 !important;
         }
         .average-okr-rule-assignment-dropdown .ant-dropdown-menu {
