@@ -160,7 +160,7 @@ const LeaveBalanceTable: React.FC = () => {
                   const progressPercent =
                     item.totalBalance > 0
                       ? Math.min(
-                          (item.totalBalance /
+                          (item.utilizedLeave /
                             (item.totalBalance + item.utilizedLeave)) *
                             100,
                           100,
