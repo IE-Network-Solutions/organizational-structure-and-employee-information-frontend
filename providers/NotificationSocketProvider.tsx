@@ -32,6 +32,9 @@ export function NotificationSocketProvider({
   const userId = useAuthenticationStore((s) => s.userId);
   const tenantId = useAuthenticationStore((s) => s.tenantId);
   const socketRef = useRef<Socket | null>(null);
+  const socketUserIdRef = useRef<string | null>(null);
+  const notificationRef = useRef(notification);
+  notificationRef.current = notification;
   const [pushPromptDismissed, setPushPromptDismissed] = useState(false);
   const [pushPromptLoading, setPushPromptLoading] = useState(false);
 
@@ -90,11 +93,22 @@ export function NotificationSocketProvider({
   useEffect(() => {
     if (!userId || !NOTIFICATION_WS_URL) return;
 
+    if (socketRef.current?.connected && socketUserIdRef.current === userId) {
+      return;
+    }
+
+    if (socketRef.current && socketUserIdRef.current !== userId) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+      socketUserIdRef.current = null;
+    }
+
     let mounted = true;
 
     const connect = async () => {
       const token = await getCurrentToken();
       if (!token || !mounted) return;
+      if (socketRef.current?.connected) return;
 
       const socket = io(NOTIFICATION_WS_URL, {
         path: NOTIFICATION_WS_PATH,
@@ -103,9 +117,12 @@ export function NotificationSocketProvider({
       });
 
       socketRef.current = socket;
+      socketUserIdRef.current = userId;
 
-      socket.on('connect_error', () => {
-        // Connection failed; WS will retry or user can reload
+      socket.on('disconnect', (reason) => {
+        if (reason !== 'io client disconnect' && mounted && userId) {
+          setTimeout(() => connect(), 2000);
+        }
       });
 
       socket.on(
@@ -113,7 +130,7 @@ export function NotificationSocketProvider({
         (payload?: { title?: string; body?: string }) => {
           queryClient.invalidateQueries(['notifications', userId]);
           queryClient.invalidateQueries(['notifications-unread-count', userId]);
-          notification.info({
+          notificationRef.current.info({
             message: payload?.title ?? 'New notification',
             description: payload?.body ?? 'You have a new notification.',
             placement: 'topRight',
@@ -132,10 +149,13 @@ export function NotificationSocketProvider({
 
     return () => {
       mounted = false;
-      socketRef.current?.disconnect();
-      socketRef.current = null;
+      if (socketRef.current && socketUserIdRef.current === userId) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        socketUserIdRef.current = null;
+      }
     };
-  }, [userId, queryClient, notification]);
+  }, [userId, queryClient]);
 
   return (
     <>
