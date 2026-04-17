@@ -661,7 +661,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             title: <span data-cy="nav-tree-payroll">Payroll</span>,
             key: '/payroll',
             className: 'font-bold',
-            permissions: ['view_payroll_overview'],
+            permissions: ['view_payroll_overview_page'],
           },
           {
             title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
