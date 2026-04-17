@@ -309,6 +309,7 @@ const AssignAverageOkrRulePage = () => {
                   ? 'Try a different employee name or clear the search.'
                   : 'Assign an average OKR rule to employees to get started.'
               }
+              className="average-okr-rule-assignment-empty-no-icon"
             />
           </div>
         ) : (
@@ -476,6 +477,12 @@ const AssignAverageOkrRulePage = () => {
         }
         .average-okr-rule-assignment-dropdown .ant-dropdown-menu-item {
           border-radius: 6px !important;
+        }
+        .average-okr-rule-assignment-empty-no-icon .ant-empty-image {
+          display: none !important;
+        }
+        .average-okr-rule-assignment-empty-no-icon .ant-empty-description {
+          margin-top: 0 !important;
         }
         @media (max-width: 640px) {
           .average-okr-rule-assignment-search.ant-input-group-wrapper
