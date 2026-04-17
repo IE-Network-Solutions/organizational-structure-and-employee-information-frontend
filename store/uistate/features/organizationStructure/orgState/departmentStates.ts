@@ -5,6 +5,7 @@ export interface DepartmentToEdit {
   name: string;
   description?: string;
   branchId?: string;
+  departmentColor?: string;
 }
 
 // Visible layout is now recomputed from the backend tree (in the chart component),
