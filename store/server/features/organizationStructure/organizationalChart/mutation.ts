@@ -207,12 +207,18 @@ export const useCreateDepartment = () => {
 export const useUpdateOrgChart = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (data: { id: string; orgChart: OrgChart | any }) =>
+    (data: {
+      id: string;
+      orgChart: OrgChart | any;
+      suppressDefaultSuccessToast?: boolean;
+      method?: string;
+    }) =>
       updateOrgChart(data.id, data.orgChart),
     {
       onSuccess: (_, variables: any) => {
         queryClient.invalidateQueries('orgcharts');
         queryClient.invalidateQueries('orgchartsPeoples');
+        if (variables?.suppressDefaultSuccessToast) return;
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },
