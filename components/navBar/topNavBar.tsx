@@ -107,10 +107,13 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
           open={notificationDropdownOpen}
           onOpenChange={setNotificationDropdownOpen}
           trigger={['click']}
-          placement="bottomRight"
+          placement="bottom"
           dropdownRender={() =>
             mounted ? (
-              <NotificationDropdownPanel open={notificationDropdownOpen} />
+              <NotificationDropdownPanel
+                open={notificationDropdownOpen}
+                onRequestClose={() => setNotificationDropdownOpen(false)}
+              />
             ) : (
               <div data-cy="top-nav-notification-placeholder" />
             )
