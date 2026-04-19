@@ -160,14 +160,14 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
                 {employeeData?.fullName ||
                   (employeeData?.firstName
                     ? `${employeeData.firstName} ${employeeData.lastName}`
-                    : 'Selam Belete')}
+                    : '')}
               </span>
               <span
                 data-cy="top-nav-profile-title"
                 className="text-[10.5px] text-[#64748B] font-semibold uppercase tracking-wide opacity-80"
               >
-                {employeeData?.jobInformation?.jobTitle?.name ||
-                  'Software Developer'}
+                {employeeData?.employeeJobInformation?.[0]?.position?.name ||
+                  ''}
               </span>
             </div>
             <AiOutlineDown
