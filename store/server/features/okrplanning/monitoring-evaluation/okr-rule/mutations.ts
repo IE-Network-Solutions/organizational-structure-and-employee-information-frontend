@@ -99,3 +99,70 @@ export const useUpdateOkrRule = () => {
     },
   });
 };
+
+const assignAverageOkrRuleToUser = async (values: {
+  userIds: string[];
+  averageOkrRuleId: string;
+}) => {
+  const token = await getCurrentToken();
+  try {
+    await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/average-okr-rule/assign/user`,
+      method: 'POST',
+      data: values,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId,
+      },
+    });
+    NotificationMessage.success({
+      message: 'Successfully assigned',
+      description: 'Average OKR rule has been assigned to the user.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const removeAverageOkrRuleFromUser = async (userId: string) => {
+  const token = await getCurrentToken();
+  try {
+    await crudRequest({
+      url: `${OKR_AND_PLANNING_URL}/average-okr-rule/assign/user/${userId}`,
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId,
+      },
+    });
+    NotificationMessage.success({
+      message: 'Successfully removed',
+      description: 'Average OKR rule assignment has been removed.',
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useAssignAverageOkrRuleToUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation(assignAverageOkrRuleToUser, {
+    onSuccess: (data, variables) => {
+      void data;
+      variables.userIds?.forEach((userId) => {
+        queryClient.invalidateQueries(['averageOkrRuleByUser', userId]);
+      });
+      queryClient.invalidateQueries('okrRule');
+    },
+  });
+};
+
+export const useRemoveAverageOkrRuleFromUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation(removeAverageOkrRuleFromUser, {
+    onSuccess: (data, userId) => {
+      void data;
+      queryClient.invalidateQueries(['averageOkrRuleByUser', userId]);
+    },
+  });
+};
