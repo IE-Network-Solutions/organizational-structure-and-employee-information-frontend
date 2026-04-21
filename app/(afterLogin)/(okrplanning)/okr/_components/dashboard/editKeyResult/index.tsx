@@ -17,6 +17,7 @@ interface EditKeyResultProps {
   open: boolean;
   onClose: () => void;
   keyResult: any;
+  inline?: boolean;
 }
 
 // Convert the component to TypeScript
@@ -24,6 +25,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
   const { isMobile } = useIsMobile();
 
   const [form] = Form.useForm();
+  const isInline = Boolean(props.inline);
   const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
   const { keyResultValue, handleSingleKeyResultChange } = useOKRStore();
   const { isEditing, setIsEditing, resetEditKeyResult } =
@@ -205,30 +207,8 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     </div>
   );
 
-  return (
-    <Modal
-      data-cy="okr-edit-key-result-modal"
-      open={props.open}
-      onCancel={handleModalClose}
-      footer={footer}
-      title={modalHeader}
-      centered={!isMobile}
-      width={isMobile ? '100%' : 1200}
-      zIndex={12000}
-      wrapClassName={
-        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
-      }
-      bodyStyle={{
-        padding: isMobile ? '24px 24px' : 24,
-        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
-        overflowY: isMobile ? 'auto' : undefined,
-      }}
-      styles={{ content: { borderRadius: 8 } }}
-      style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
-      maskClosable={false}
-      destroyOnClose
-      closable
-    >
+  const body = (
+    <>
       <Form
         id="edit-key-result-form"
         data-cy="okr-edit-key-result-form"
@@ -268,7 +248,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           className="overflow-y-auto"
           style={{ maxHeight: 'calc(80vh - 220px)' }}
         >
-          {!isEditing && kr ? (
+          {!isEditing && kr && !isInline ? (
             <div
               id="edit-key-result-kr-card"
               data-cy="okr-edit-key-result-kr-card"
@@ -380,6 +360,69 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           </div>
         )}
       </Form>
+    </>
+  );
+
+  if (isInline) {
+    if (!props.open) return null;
+    return (
+      <div
+        className="rounded-lg border border-gray-200 bg-white p-4"
+        data-cy="okr-edit-key-result-inline"
+      >
+        {body}
+        <div
+          className="mt-3 flex justify-end gap-3"
+          data-cy="okr-edit-key-result-inline-actions"
+        >
+          <Button
+            id="edit-key-result-inline-cancel-button"
+            data-cy="okr-edit-key-result-inline-cancel-button"
+            onClick={handleModalClose}
+            className="px-6 h-10 rounded-lg text-sm border-gray-300 text-gray-700"
+          >
+            Cancel
+          </Button>
+          <Button
+            id="edit-key-result-inline-save-button"
+            data-cy="okr-edit-key-result-inline-save-button"
+            type="primary"
+            onClick={onSubmit}
+            loading={isLoading}
+            className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Modal
+      data-cy="okr-edit-key-result-modal"
+      open={props.open}
+      onCancel={handleModalClose}
+      footer={footer}
+      title={modalHeader}
+      centered={!isMobile}
+      width={isMobile ? '100%' : 1200}
+      zIndex={12000}
+      wrapClassName={
+        isMobile ? 'okr-mobile-bottom-sheet' : 'okr-objective-modal'
+      }
+      bodyStyle={{
+        padding: isMobile ? '24px 24px' : 24,
+        maxHeight: isMobile ? 'calc(100vh - 150px)' : undefined,
+        overflowY: isMobile ? 'auto' : undefined,
+      }}
+      styles={{ content: { borderRadius: 8 } }}
+      style={{ padding: 0, maxHeight: isMobile ? '100vh' : '90vh' }}
+      maskClosable={false}
+      destroyOnClose
+      closable
+    >
+      {body}
     </Modal>
   );
 };
