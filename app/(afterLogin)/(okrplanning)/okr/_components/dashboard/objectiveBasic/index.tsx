@@ -385,7 +385,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         </h2>
                         {isInlineEditing ? (
                           <div
-                            className="flex w-full min-w-0 shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end lg:flex-nowrap"
+                            className="flex w-full min-w-0 shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end lg:w-auto lg:shrink lg:flex-nowrap"
                             data-cy={`okr-objective-basic-inline-edit-row-${objective?.id}`}
                           >
                             <div
