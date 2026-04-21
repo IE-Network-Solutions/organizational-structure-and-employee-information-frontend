@@ -135,7 +135,7 @@ const ZKTAddonPage = () => {
   };
 
   const handleDelete = () => {
-    deleteZktConfig(zktConfigData?.id, {
+    deleteZktConfig(undefined, {
       onSuccess: () => {
         resetZktUiState();
       },
