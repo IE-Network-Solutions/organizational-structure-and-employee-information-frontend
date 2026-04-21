@@ -72,12 +72,10 @@ const saveZktConfig = async (
   }
 };
 
-const deleteZktConfig = async (id?: string): Promise<{ success: boolean }> => {
+const deleteZktConfig = async (): Promise<{ success: boolean }> => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: id
-      ? `${TIME_AND_ATTENDANCE_URL}/zktconfiguration/${id}`
-      : `${TIME_AND_ATTENDANCE_URL}/zktconfiguration/tenant`,
+    url: `${TIME_AND_ATTENDANCE_URL}/zktconfiguration`,
     method: 'DELETE',
     headers: requestHeaders,
     skipEncryption: true,
