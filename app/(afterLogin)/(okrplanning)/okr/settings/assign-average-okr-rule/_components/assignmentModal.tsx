@@ -35,14 +35,14 @@ const getSelectLabels = (
   values: string[],
   options: Array<{ value: string; label: string }>,
 ) => {
-  const optionMap = new Map(options.map((option) => [option.value, option.label]));
+  const optionMap = new Map(
+    options.map((option) => [option.value, option.label]),
+  );
 
-  return values
-    .filter(Boolean)
-    .map((value) => ({
-      value,
-      label: optionMap.get(value) || value,
-    }));
+  return values.filter(Boolean).map((value) => ({
+    value,
+    label: optionMap.get(value) || value,
+  }));
 };
 
 const AssignmentModal: React.FC<AssignmentModalProps> = ({
@@ -59,7 +59,9 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
 
   const isEditMode = mode === 'edit';
   const isSubmitting = isAssigning;
-  const selectedUserIds = Form.useWatch('userIds', form) as string[] | undefined;
+  const selectedUserIds = Form.useWatch('userIds', form) as
+    | string[]
+    | undefined;
   const selectedOkrRuleIds = Form.useWatch('averageOkrRuleId', form) as
     | string[]
     | undefined;
@@ -120,11 +122,7 @@ const AssignmentModal: React.FC<AssignmentModalProps> = ({
   );
 
   const selectedRuleChips = useMemo(
-    () =>
-      getSelectLabels(
-        selectedOkrRuleIds || [],
-        okrRuleOptions,
-      ),
+    () => getSelectLabels(selectedOkrRuleIds || [], okrRuleOptions),
     [okrRuleOptions, selectedOkrRuleIds],
   );
 

@@ -25,6 +25,7 @@ export function buildEmployeeOptions(
   department: string | undefined,
   employeeData: ReturnType<typeof useGetAllUsers>['data'],
   departmentData: ReturnType<typeof useGetDepartmentsWithUsers>['data'],
+  allLevelDepartmentUserIds?: string[],
 ): EmployeeItem[] {
   const getUserIdsByDepartmentId = (departmentId: string) => {
     const department = departmentData?.find(
@@ -41,7 +42,10 @@ export function buildEmployeeOptions(
     let employeesToShow = employeeData.items;
 
     if (department && department !== 'all') {
-      const departmentUserIds = getUserIdsByDepartmentId(department);
+      const departmentUserIds =
+        allLevelDepartmentUserIds && allLevelDepartmentUserIds.length > 0
+          ? allLevelDepartmentUserIds
+          : getUserIdsByDepartmentId(department);
       employeesToShow = employeeData.items.filter((emp: any) =>
         departmentUserIds.includes(emp.id),
       );
@@ -77,6 +81,7 @@ export function commitPlanningDraft(
     userId: string;
     employeeData: ReturnType<typeof useGetAllUsers>['data'];
     departmentData: ReturnType<typeof useGetDepartmentsWithUsers>['data'];
+    allLevelDepartmentUserIds?: string[];
   },
 ) {
   const getUserIdsByDepartmentId = (departmentId: string) => {
@@ -107,6 +112,13 @@ export function commitPlanningDraft(
 
   const planType = draft.planType;
   const value = draft.department === 'all' ? 'all' : draft.department;
+  const selectedDepartmentUserIds =
+    value === 'all'
+      ? []
+      : deps.allLevelDepartmentUserIds &&
+          deps.allLevelDepartmentUserIds.length > 0
+        ? deps.allLevelDepartmentUserIds
+        : getUserIdsByDepartmentId(value);
 
   if (value === 'all') {
     if (planType === 'all') {
@@ -129,7 +141,7 @@ export function commitPlanningDraft(
       );
     }
   } else {
-    const departmentUserIds = getUserIdsByDepartmentId(value);
+    const departmentUserIds = selectedDepartmentUserIds;
 
     if (planType === 'all') {
       setSelectedUser(departmentUserIds.length > 0 ? departmentUserIds : []);
@@ -155,11 +167,17 @@ export function commitPlanningDraft(
 
   if (
     draft.planType === 'all' &&
-    draft.department === 'all' &&
     draft.employeeSelect !== 'all' &&
     draft.employeeSelect !== 'subordinate'
   ) {
-    setSelectedUser([draft.employeeSelect]);
+    if (
+      value === 'all' ||
+      selectedDepartmentUserIds.includes(draft.employeeSelect)
+    ) {
+      setSelectedUser([draft.employeeSelect]);
+    } else {
+      setSelectedUser([]);
+    }
   }
 
   if (!draft.fiscalYearId) {

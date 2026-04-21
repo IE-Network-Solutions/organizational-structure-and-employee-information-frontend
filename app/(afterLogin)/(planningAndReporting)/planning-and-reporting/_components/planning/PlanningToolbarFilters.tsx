@@ -10,6 +10,7 @@ import {
   useGetAllFiscalYears,
   useGetFiscalYearById,
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetDepartmentUsersAllLevels } from '@/store/server/features/employees/employeeManagment/department/queries';
 import type { Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
@@ -59,6 +60,30 @@ export default function PlanningToolbarFilters() {
     useGetAllFiscalYears();
   const { data: draftFiscalYearData, isLoading: loadingSessions } =
     useGetFiscalYearById(draft?.fiscalYearId || '');
+  const { data: allLevelDepartmentUsers } = useGetDepartmentUsersAllLevels(
+    draft?.department && draft.department !== 'all' ? draft.department : null,
+  );
+
+  const allLevelDepartmentUserIds = useMemo(() => {
+    const payload = allLevelDepartmentUsers;
+    if (!payload) return [];
+    if (Array.isArray(payload)) {
+      return payload
+        .map((u: any) => String(u?.id ?? u?.userId ?? ''))
+        .filter((id: string) => id);
+    }
+    if (Array.isArray(payload?.users)) {
+      return payload.users
+        .map((u: any) => String(u?.id ?? u?.userId ?? ''))
+        .filter((id: string) => id);
+    }
+    if (Array.isArray(payload?.items)) {
+      return payload.items
+        .map((u: any) => String(u?.id ?? u?.userId ?? ''))
+        .filter((id: string) => id);
+    }
+    return [];
+  }, [allLevelDepartmentUsers]);
 
   const employeeOptions = useMemo(
     () =>
@@ -66,8 +91,14 @@ export default function PlanningToolbarFilters() {
         draft?.department ?? 'all',
         employeeData,
         departmentData,
+        allLevelDepartmentUserIds,
       ),
-    [draft?.department, employeeData, departmentData],
+    [
+      draft?.department,
+      employeeData,
+      departmentData,
+      allLevelDepartmentUserIds,
+    ],
   );
 
   const employeeSelectValue = useMemo(() => {
@@ -126,7 +157,12 @@ export default function PlanningToolbarFilters() {
 
   const handleFilterApply = () => {
     if (draft) {
-      commitPlanningDraft(draft, { userId, employeeData, departmentData });
+      commitPlanningDraft(draft, {
+        userId,
+        employeeData,
+        departmentData,
+        allLevelDepartmentUserIds,
+      });
     }
     applyCloseRef.current = true;
     setFilterOpen(false);
@@ -408,8 +444,8 @@ export default function PlanningToolbarFilters() {
           !showFilterLabel &&
             '[&_.ant-btn-icon]:!m-0 [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!h-full [&_.ant-btn-icon]:!w-full',
           showFilterLabel
-            ? '!h-10 !min-h-10 !min-w-0 !w-auto !gap-2 !px-4 !py-0'
-            : '!h-9 !min-h-9 !min-w-9 !w-9 !gap-0 !px-0 !py-0 sm:!h-10 sm:!min-h-10 sm:!min-w-10 sm:!w-10',
+            ? '!h-9 !min-h-9 !min-w-0 !w-auto !gap-1.5 !px-3 !py-0'
+            : '!h-9 !min-h-9 !min-w-9 !w-9 !gap-0 !px-0 !py-0 sm:!h-9 sm:!min-h-9 sm:!min-w-9 sm:!w-9',
         )}
         icon={
           <MdOutlineFilterAlt
