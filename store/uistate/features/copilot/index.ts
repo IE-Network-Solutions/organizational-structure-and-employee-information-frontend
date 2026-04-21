@@ -10,5 +10,5 @@ export const useCopilotStore = create<CopilotState>()(
   devtools((set) => ({
     isOpen: false,
     setIsOpen: (isOpen: boolean) => set({ isOpen }),
-  }))
+  })),
 );

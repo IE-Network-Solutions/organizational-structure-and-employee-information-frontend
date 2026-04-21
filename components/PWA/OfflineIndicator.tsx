@@ -11,13 +11,14 @@ import { usePWA } from '@/hooks/usePWA';
 
 interface OfflineIndicatorProps {
   showNotifications?: boolean;
-  position?: 'top' | 'bottom';
+  /** `viewport` = fixed full-width overlay (legacy). `content` = in-flow banner for main content only. */
+  variant?: 'viewport' | 'content';
   className?: string;
 }
 
 export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   showNotifications = true,
-  position = 'top',
+  variant = 'content',
   className = '',
 }) => {
   const { isOnline } = usePWA();
@@ -29,7 +30,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       setWasOffline(true);
       setShowOfflineAlert(true);
 
-      if (showNotifications) {
+      if (showNotifications && variant === 'viewport') {
         notification.warning({
           message: 'You are offline',
           description:
@@ -41,7 +42,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     } else if (isOnline && wasOffline) {
       setShowOfflineAlert(false);
 
-      if (showNotifications) {
+      if (showNotifications && variant === 'viewport') {
         notification.success({
           message: 'Back online',
           description: 'All features are now available. Syncing data...',
@@ -50,26 +51,52 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         });
       }
 
-      // Reset the offline state after showing online notification
       setTimeout(() => {
         setWasOffline(false);
       }, 1000);
     }
-  }, [isOnline, wasOffline, showNotifications]);
+  }, [isOnline, wasOffline, showNotifications, variant]);
 
   const handleRetry = () => {
     window.location.reload();
   };
 
-  const positionClass = position === 'top' ? 'top-4' : 'bottom-4';
+  if (!isOnline && showOfflineAlert && variant === 'content') {
+    return (
+      <div
+        data-cy="pwa-offline-indicator-content"
+        className={`sticky top-0 z-[25] mb-3 ${className}`}
+      >
+        <Alert
+          type="warning"
+          showIcon
+          icon={<DisconnectOutlined />}
+          message="You’re offline"
+          description="Some features may be limited until you reconnect."
+          closable
+          onClose={() => setShowOfflineAlert(false)}
+          className="border border-amber-200 bg-amber-50/90 text-sm shadow-sm [&_.ant-alert-message]:font-medium [&_.ant-alert-description]:text-xs [&_.ant-alert-description]:text-gray-600"
+          action={
+            <Button
+              size="small"
+              type="default"
+              icon={<SyncOutlined />}
+              onClick={handleRetry}
+            >
+              Retry
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
-  return (
-    <div
-      data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-div-67"
-      className={`fixed left-4 right-4 z-50 ${positionClass} ${className}`}
-    >
-      {/* Offline Alert */}
-      {!isOnline && showOfflineAlert && (
+  if (!isOnline && showOfflineAlert && variant === 'viewport') {
+    return (
+      <div
+        data-cy="organizational-structure-and-employee-information-frontend-components-pwa-offlineindicator-tsx-offlineindicator-div-67"
+        className={`fixed left-4 right-4 top-4 z-50 ${className}`}
+      >
         <Alert
           message="You are offline"
           description={
@@ -97,12 +124,13 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           onClose={() => setShowOfflineAlert(false)}
           className="mb-2"
         />
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  return null;
 };
 
-// Connection status badge component
 export const ConnectionStatus: React.FC<{ className?: string }> = ({
   className = '',
 }) => {

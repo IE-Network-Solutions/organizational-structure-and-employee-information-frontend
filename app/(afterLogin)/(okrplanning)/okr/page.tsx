@@ -14,7 +14,6 @@ import { useDownloadEmployeeOkrScore } from '@/store/server/features/okrplanning
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import OkrModeSelectionModal from './_components/okrModeSelectionModal';
-import OkrPageLoadingSkeleton from '@/components/okr/okrPageLoadingSkeleton';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Button } from 'antd';
 import Link from 'next/link';
@@ -44,12 +43,7 @@ const OKR: React.FC<any> = () => {
   );
 
   // OKR Mode Selection Integration
-  const {
-    isLoading: isOkrLoading,
-    showModal,
-    saveOkrMode,
-    refetch,
-  } = useOkrSetting();
+  const { showModal, saveOkrMode, refetch } = useOkrSetting();
 
   const handleOkrModeSuccess = async () => {
     // The saveOkrMode function already handles closing the modal and updating state
@@ -112,11 +106,6 @@ const OKR: React.FC<any> = () => {
       );
     }
   }
-  // Show loading state while checking OKR setting
-  if (isOkrLoading) {
-    return <OkrPageLoadingSkeleton />;
-  }
-
   // Show modal if setting doesn't exist
   if (showModal) {
     return (

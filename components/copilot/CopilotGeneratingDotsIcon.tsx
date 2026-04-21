@@ -34,4 +34,3 @@ const CopilotGeneratingDotsIcon: React.FC<CopilotGeneratingDotsIconProps> = ({
 };
 
 export default CopilotGeneratingDotsIcon;
-

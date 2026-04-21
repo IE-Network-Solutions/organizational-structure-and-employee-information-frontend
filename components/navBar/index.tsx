@@ -83,6 +83,7 @@ import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-manag
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
 import CopilotModule from '@/components/copilot/CopilotModule';
+import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
 import {
   COPILOT_SHARE_QUERY,
   COPILOT_SHARE_REF_QUERY,
@@ -1798,6 +1799,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 msOverflowStyle: 'none',
               }}
             >
+              <OfflineIndicator variant="content" showNotifications={false} />
               {isCopilotOpen ? (
                 <div
                   id="copilot-workspace-root"

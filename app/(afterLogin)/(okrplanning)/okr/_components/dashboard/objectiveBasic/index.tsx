@@ -1,5 +1,14 @@
-import React from 'react';
-import { Avatar, Menu, Dropdown } from 'antd';
+import React, { useEffect, useState } from 'react';
+import {
+  Avatar,
+  Button,
+  DatePicker,
+  Dropdown,
+  Input,
+  Menu,
+  Select,
+  message,
+} from 'antd';
 import {
   CheckOutlined,
   CloseOutlined,
@@ -7,7 +16,6 @@ import {
 } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md';
 import { PiCalendarBold } from 'react-icons/pi';
 import {
   useOKRStore,
@@ -21,10 +29,15 @@ import {
 } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import {
+  useUpdateKeyResult,
+  useUpdateObjective,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import EditKeyResult from '../editKeyResult';
-import EditObjective from '../editObjective';
+import dayjs from 'dayjs';
 
 const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
@@ -35,24 +48,23 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     okrTab,
   } = useOKRStore();
   const { userId } = useAuthenticationStore();
+  const { data: userData } = useGetEmployee(userId);
+  const reportsToId = userData?.delegatedTo?.id || userData?.reportingTo?.id;
+  const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
   const {
-    editObjectiveModalObjectiveId,
     deleteModalObjectiveId,
     editKeyResultModalKeyResultId,
-    expandedObjectiveIds,
-    openEditObjective,
-    closeEditObjective,
     openDeleteModal,
     closeDeleteModal,
     openEditKeyResult,
     closeEditKeyResult,
-    toggleExpanded,
   } = useObjectiveBasicStore();
   const { mutate: deleteObjective, isLoading: isDeletingObjective } =
     useDeleteObjective();
+  const { mutate: updateObjective, isLoading: isUpdatingObjective } =
+    useUpdateObjective();
 
   const objectiveIdStr = String(objective?.id ?? '');
-  const open = editObjectiveModalObjectiveId === objectiveIdStr;
   const isDeleteModalOpen = deleteModalObjectiveId === objectiveIdStr;
   const openKeyResultEdit =
     editKeyResultModalKeyResultId !== null &&
@@ -60,14 +72,21 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       (kr: any) => String(kr?.id) === editKeyResultModalKeyResultId,
     ) ??
       false);
-  const expanded = expandedObjectiveIds[objectiveIdStr] ?? true;
 
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
   const { mutate: updateKeyResult } = useUpdateKeyResult();
-  const { isMobile } = useIsMobile();
+  const { isMobile, isTablet } = useIsMobile();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [editableTitle, setEditableTitle] = useState(objective?.title || '');
+  const [editableDeadline, setEditableDeadline] = useState(
+    objective?.deadline || null,
+  );
+  const [editableAlignmentId, setEditableAlignmentId] = useState<string | null>(
+    objective?.allignedKeyResultId || null,
+  );
 
   // Get active session ID
   const activeSessionId = activeFiscalYear?.sessions?.find(
@@ -93,14 +112,64 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   };
 
   const showDrawer = () => {
-    openEditObjective(objectiveIdStr);
-    setObjectiveValue(objective);
+    setEditableTitle(objective?.title || '');
+    setEditableDeadline(objective?.deadline || null);
+    setEditableAlignmentId(objective?.allignedKeyResultId || null);
+    setIsInlineEditing(true);
   };
 
-  const onClose = () => {
-    closeEditObjective();
-    setObjectiveValue(defaultObjective);
+  const onCancelInlineEdit = () => {
+    setEditableTitle(objective?.title || '');
+    setEditableDeadline(objective?.deadline || null);
+    setEditableAlignmentId(objective?.allignedKeyResultId || null);
+    setIsInlineEditing(false);
   };
+
+  const onSaveInlineEdit = () => {
+    const trimmedTitle = editableTitle.trim();
+    if (!trimmedTitle) return;
+    if (!editableAlignmentId) {
+      message.warning('Alignment is required.');
+      return;
+    }
+    if (!editableDeadline) {
+      message.warning('Deadline is required.');
+      return;
+    }
+    const {
+      daysLeft,
+      completedKeyResults,
+      objectiveProgress,
+      ...objectivePayload
+    } = objective as any;
+    void daysLeft;
+    void completedKeyResults;
+    void objectiveProgress;
+    updateObjective(
+      {
+        ...objectivePayload,
+        title: trimmedTitle,
+        deadline: editableDeadline,
+        allignedKeyResultId: editableAlignmentId,
+      },
+      {
+        onSuccess: () => setIsInlineEditing(false),
+      },
+    );
+  };
+
+  useEffect(() => {
+    if (!isInlineEditing) {
+      setEditableTitle(objective?.title || '');
+      setEditableDeadline(objective?.deadline || null);
+      setEditableAlignmentId(objective?.allignedKeyResultId || null);
+    }
+  }, [
+    objective?.title,
+    objective?.deadline,
+    objective?.allignedKeyResultId,
+    isInlineEditing,
+  ]);
 
   // Owner-only menu - only show if objective is in active session
   const menu =
@@ -205,7 +274,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     <div
       id={`objective-basic-card-${objective?.id}`}
       data-cy={`okr-objective-basic-card-${objective?.id}`}
-      className={isMobile ? 'mb-4' : 'mb-6'}
+      className={isMobile || isTablet ? 'mb-4' : 'mb-6'}
     >
       <div
         id={`objective-basic-card-container-${objective?.id}`}
@@ -213,7 +282,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
       >
         <div
-          className={expanded ? 'p-6 pb-2' : 'p-6'}
+          className="p-4 pb-2 sm:p-6"
           data-cy={`okr-objective-basic-card-body-${objective?.id}`}
         >
           <div
@@ -233,21 +302,9 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   data-cy={`okr-objective-basic-title-actions-row-${objective?.id}`}
                 >
                   <div
-                    className="flex min-w-0 flex-1 items-center gap-5"
+                    className="flex min-w-0 flex-1 items-center gap-3 sm:gap-5"
                     data-cy={`okr-objective-basic-title-block-${objective?.id}`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => toggleExpanded(objectiveIdStr)}
-                      className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
-                      data-cy={`okr-objective-basic-expand-${objective?.id}`}
-                    >
-                      {expanded ? (
-                        <MdKeyboardArrowUp size={14} />
-                      ) : (
-                        <MdKeyboardArrowDown size={14} />
-                      )}
-                    </button>
                     <div
                       className="flex min-w-0 flex-1 flex-col gap-y-1"
                       data-cy={`okr-objective-basic-title-wrapper-${objective?.id}`}
@@ -297,17 +354,133 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         </div>
                       </div>
                       <div
-                        className="flex min-h-8 items-center justify-between gap-2"
+                        className={`min-h-8 gap-2 ${
+                          isInlineEditing
+                            ? 'flex w-full flex-col items-stretch gap-3 lg:flex-row lg:items-end lg:gap-3'
+                            : 'flex items-end justify-between'
+                        }`}
                         data-cy={`okr-objective-basic-title-row-${objective?.id}`}
                       >
                         <h2
                           id={`objective-basic-title-${objective?.id}`}
                           data-cy={`okr-objective-basic-title-${objective?.id}`}
-                          className="text-base sm:text-lg font-bold text-gray-900 m-0 min-w-0 leading-7 sm:leading-8"
+                          className={`text-base sm:text-lg font-bold text-gray-900 m-0 min-w-0 leading-7 sm:leading-8 ${
+                            isInlineEditing ? 'w-full min-w-0 lg:flex-1' : ''
+                          }`}
                         >
-                          {objective?.title}
+                          {isInlineEditing ? (
+                            <Input
+                              value={editableTitle}
+                              onChange={(e) => setEditableTitle(e.target.value)}
+                              maxLength={500}
+                              autoFocus
+                              size="middle"
+                              placeholder="Update objective title"
+                              className="h-9 w-full"
+                              data-cy={`okr-objective-basic-title-inline-input-${objective?.id}`}
+                            />
+                          ) : (
+                            objective?.title
+                          )}
                         </h2>
-                        {objective?.isClosed === false &&
+                        {isInlineEditing ? (
+                          <div
+                            className="flex w-full min-w-0 shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end lg:flex-nowrap"
+                            data-cy={`okr-objective-basic-inline-edit-row-${objective?.id}`}
+                          >
+                            <div
+                              className="flex min-w-0 w-full flex-col gap-1 sm:w-[260px] sm:max-w-full"
+                              data-cy={`okr-objective-basic-inline-alignment-wrap-${objective?.id}`}
+                            >
+                              <span
+                                className="text-xs font-medium uppercase tracking-wide text-slate-500"
+                                data-cy={`okr-objective-basic-inline-alignment-label-${objective?.id}`}
+                              >
+                                Alignment
+                              </span>
+                              <Select
+                                allowClear
+                                value={editableAlignmentId ?? undefined}
+                                placeholder="Select alignment"
+                                size="middle"
+                                className="w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!items-center md:[&_.ant-select-selector]:!h-8"
+                                status={!editableAlignmentId ? 'error' : ''}
+                                onChange={(value) =>
+                                  setEditableAlignmentId(value ?? null)
+                                }
+                                options={(keyResultByUser?.items || []).map(
+                                  (keyResult: any) => ({
+                                    value: keyResult.id,
+                                    label: keyResult.title,
+                                  }),
+                                )}
+                                data-cy={`okr-objective-basic-inline-alignment-${objective?.id}`}
+                              />
+                            </div>
+                            <div
+                              className="flex min-w-0 w-full shrink-0 flex-col gap-1 sm:w-[180px]"
+                              data-cy={`okr-objective-basic-inline-deadline-wrap-${objective?.id}`}
+                            >
+                              <span
+                                className="text-xs font-medium uppercase tracking-wide text-slate-500"
+                                data-cy={`okr-objective-basic-inline-deadline-label-${objective?.id}`}
+                              >
+                                Deadline
+                              </span>
+                              <DatePicker
+                                value={
+                                  editableDeadline
+                                    ? dayjs(editableDeadline)
+                                    : null
+                                }
+                                format="YYYY-MM-DD"
+                                size="middle"
+                                className="h-9 w-full sm:h-8 sm:w-[180px]"
+                                status={!editableDeadline ? 'error' : ''}
+                                disabledDate={(current) =>
+                                  current && current < dayjs().startOf('day')
+                                }
+                                onChange={(date) =>
+                                  setEditableDeadline(
+                                    date ? date.format('YYYY-MM-DD') : null,
+                                  )
+                                }
+                                data-cy={`okr-objective-basic-inline-deadline-${objective?.id}`}
+                              />
+                            </div>
+                            <div
+                              className="flex items-center justify-end gap-2 pb-[1px] sm:justify-start"
+                              data-cy={`okr-objective-basic-inline-actions-${objective?.id}`}
+                            >
+                              <Button
+                                size="small"
+                                onClick={onCancelInlineEdit}
+                                disabled={isUpdatingObjective}
+                                icon={<CloseOutlined />}
+                                className="h-9 w-9 p-0 sm:h-8 sm:w-8"
+                                aria-label="Cancel objective edit"
+                                data-cy={`okr-objective-basic-inline-cancel-${objective?.id}`}
+                              />
+                              <Button
+                                type="primary"
+                                size="small"
+                                onClick={onSaveInlineEdit}
+                                loading={isUpdatingObjective}
+                                icon={<CheckOutlined />}
+                                className="h-9 w-9 p-0 sm:h-8 sm:w-8"
+                                aria-label="Save objective edit"
+                                disabled={
+                                  !editableTitle.trim() ||
+                                  !editableAlignmentId ||
+                                  !editableDeadline
+                                }
+                                data-cy={`okr-objective-basic-inline-save-${objective?.id}`}
+                              />
+                            </div>
+                          </div>
+                        ) : null}
+                        {!isInlineEditing &&
+                          objective?.isClosed === false &&
                           Number(objective?.objectiveProgress ?? 0) !== 100 &&
                           menu && (
                             <Dropdown
@@ -407,7 +580,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                         </div>
                       </div>
                     )}
-                    {objective?.isClosed === false &&
+                    {!isInlineEditing &&
+                      objective?.isClosed === false &&
                       Number(objective?.objectiveProgress ?? 0) !== 100 &&
                       menu && (
                         <div
@@ -451,18 +625,18 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           </div>
         </div>
 
-        {expanded && (objective?.keyResults?.length ?? 0) > 0 && (
+        {(objective?.keyResults?.length ?? 0) > 0 && (
           <div
             id={`okr-objective-basic-key-results-${objective?.id}`}
             data-cy={`okr-objective-basic-key-results-${objective?.id}`}
-            className="mt-0 border-t border-gray-200 overflow-x-auto"
+            className="mt-0 border-t border-gray-200 overflow-x-auto [-webkit-overflow-scrolling:touch]"
           >
             <div
-              className="min-w-[600px]"
+              className="min-w-0 sm:min-w-[520px]"
               data-cy={`okr-objective-basic-key-results-table-${objective?.id}`}
             >
               <div
-                className="bg-gray-50 px-6 py-3"
+                className="bg-gray-50 px-4 py-2.5 sm:px-6 sm:py-3"
                 data-cy={`okr-objective-basic-key-results-header-${objective?.id}`}
               >
                 <div
@@ -507,7 +681,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                       key={keyResult.id}
                       id={`key-result-basic-${keyResult.id}`}
                       data-cy={`okr-key-result-basic-${keyResult.id}`}
-                      className={`relative flex items-center gap-4 px-6 py-4 transition-colors group ${
+                      className={`relative flex flex-col gap-3 px-4 py-3 transition-colors group sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4 ${
                         isAchieved
                           ? 'bg-green-50/80 hover:bg-green-100/60'
                           : isFailed
@@ -515,59 +689,64 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             : 'hover:bg-gray-50'
                       }`}
                     >
-                      <button
-                        type="button"
-                        onClick={handleCheckboxClick}
-                        disabled={!canToggle}
-                        data-cy={`okr-key-result-basic-checkbox-${keyResult.id}`}
-                        className={`relative z-10 flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
-                          canToggle ? 'cursor-pointer' : 'cursor-default'
-                        } ${
-                          isAchieved
-                            ? 'border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600'
-                            : isFailed
-                              ? 'border-red-500 bg-red-500 text-white hover:border-red-600 hover:bg-red-600'
-                              : 'border-gray-300 hover:border-blue-600'
-                        }`}
-                        aria-label={
-                          isAchieved
-                            ? 'Mark as pending'
-                            : isFailed
-                              ? 'Mark as pending'
-                              : 'Mark as achieved'
-                        }
-                      >
-                        {isAchieved && <CheckOutlined className="text-xs" />}
-                        {isFailed && <CloseOutlined className="text-xs" />}
-                      </button>
                       <div
-                        className="flex-1 min-w-0 flex items-center gap-0"
-                        data-cy={`okr-key-result-basic-title-wrapper-${keyResult.id}`}
+                        className="flex min-w-0 flex-1 items-start gap-3"
+                        data-cy={`okr-key-result-basic-title-and-checkbox-${keyResult.id}`}
                       >
-                        <span
-                          className={`text-sm font-medium min-w-0 break-words ${
+                        <button
+                          type="button"
+                          onClick={handleCheckboxClick}
+                          disabled={!canToggle}
+                          data-cy={`okr-key-result-basic-checkbox-${keyResult.id}`}
+                          className={`relative z-10 mt-0.5 flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                            canToggle ? 'cursor-pointer' : 'cursor-default'
+                          } ${
                             isAchieved
-                              ? 'line-through text-gray-500 decoration-green-500 decoration-2'
+                              ? 'border-green-500 bg-green-500 text-white hover:border-green-600 hover:bg-green-600'
                               : isFailed
-                                ? 'line-through text-gray-500 decoration-red-500 decoration-2'
-                                : 'text-gray-900'
+                                ? 'border-red-500 bg-red-500 text-white hover:border-red-600 hover:bg-red-600'
+                                : 'border-gray-300 hover:border-blue-600'
                           }`}
-                          data-cy={`okr-key-result-basic-title-${keyResult.id}`}
+                          aria-label={
+                            isAchieved
+                              ? 'Mark as pending'
+                              : isFailed
+                                ? 'Mark as pending'
+                                : 'Mark as achieved'
+                          }
                         >
-                          {keyResult?.title}
-                        </span>
-                        {isResolved && (
-                          <div
-                            className={`h-0.5 min-w-[24px] flex-1 shrink basis-0 ${
-                              isAchieved ? 'bg-green-500' : 'bg-red-500'
+                          {isAchieved && <CheckOutlined className="text-xs" />}
+                          {isFailed && <CloseOutlined className="text-xs" />}
+                        </button>
+                        <div
+                          className="min-w-0 flex-1 flex items-center gap-0"
+                          data-cy={`okr-key-result-basic-title-wrapper-${keyResult.id}`}
+                        >
+                          <span
+                            className={`text-sm font-medium min-w-0 break-words ${
+                              isAchieved
+                                ? 'line-through text-gray-500 decoration-green-500 decoration-2'
+                                : isFailed
+                                  ? 'line-through text-gray-500 decoration-red-500 decoration-2'
+                                  : 'text-gray-900'
                             }`}
-                            aria-hidden
-                            data-cy={`okr-key-result-basic-strikethrough-${keyResult.id}`}
-                          />
-                        )}
+                            data-cy={`okr-key-result-basic-title-${keyResult.id}`}
+                          >
+                            {keyResult?.title}
+                          </span>
+                          {isResolved && (
+                            <div
+                              className={`hidden h-0.5 min-w-[24px] flex-1 shrink basis-0 sm:block ${
+                                isAchieved ? 'bg-green-500' : 'bg-red-500'
+                              }`}
+                              aria-hidden
+                              data-cy={`okr-key-result-basic-strikethrough-${keyResult.id}`}
+                            />
+                          )}
+                        </div>
                       </div>
                       <div
-                        className="flex flex-shrink-0 items-center gap-2"
+                        className="flex w-full flex-shrink-0 flex-wrap items-center justify-between gap-2 pl-8 sm:w-auto sm:justify-end sm:pl-0"
                         data-cy={`okr-key-result-basic-details-${keyResult.id}`}
                       >
                         <span
@@ -623,14 +802,6 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         onConfirm={() => handleDeleteObjective(objectiveValue.id as string)}
         onCancel={onCloseDeleteModal}
         loading={isDeletingObjective}
-      />
-
-      <EditObjective
-        data-cy={`okr-objective-basic-edit-objective-${objective?.id}`}
-        objective={objectiveValue}
-        open={open}
-        onClose={onClose}
-        isClosed={objective?.isClosed}
       />
 
       {openKeyResultEdit && (

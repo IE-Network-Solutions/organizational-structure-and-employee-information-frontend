@@ -212,8 +212,7 @@ export const useUpdateOrgChart = () => {
       orgChart: OrgChart | any;
       suppressDefaultSuccessToast?: boolean;
       method?: string;
-    }) =>
-      updateOrgChart(data.id, data.orgChart),
+    }) => updateOrgChart(data.id, data.orgChart),
     {
       onSuccess: (_, variables: any) => {
         queryClient.invalidateQueries('orgcharts');
