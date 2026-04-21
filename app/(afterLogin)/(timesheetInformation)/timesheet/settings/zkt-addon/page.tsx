@@ -1,27 +1,26 @@
 'use client';
 import React from 'react';
-import { Form, Input, Button, Avatar, message, Row, Col } from 'antd';
+import { Form, Input, Button, message, Row, Col } from 'antd';
 import { GlobalOutlined } from '@ant-design/icons';
 import Logo from '@/components/common/logo';
-import DeletePopover from '@/components/common/actionButton/deletePopover';
-import { IoIosLink } from 'react-icons/io';
 import Image from 'next/image';
 import { ZK_TECO_LOGO_URL } from '@/constants/publicImageUrls';
-import { Trash2 } from 'lucide-react';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import {
   useAuthenticateZkt,
+  useDeleteZktConfig,
+  useSaveZktConfig,
   ZktAuthPayload,
 } from '@/store/server/features/timesheet/zkt/mutation';
-import { setZktPassUrl } from '@/utils/zktToken';
+import { useGetZktConfig } from '@/store/server/features/timesheet/zkt/queries';
 import InsertLinkOutlinedIcon from '@mui/icons-material/InsertLinkOutlined';
 
 const ZKTAddonPage = () => {
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
+  const [savedPassword, setSavedPassword] = React.useState('');
   const {
     isZktConfigured,
-    zktSavedData,
     setIsZktConfigured,
     setZktSavedData,
     resetZktConfiguration,
@@ -29,6 +28,55 @@ const ZKTAddonPage = () => {
 
   const { mutate: authenticateZkt, isLoading: isZktSaving } =
     useAuthenticateZkt();
+  const { mutate: saveZktConfig, isLoading: isSavingZktConfig } =
+    useSaveZktConfig();
+  const { mutate: deleteZktConfig, isLoading: isDeletingZktConfig } =
+    useDeleteZktConfig();
+  const { data: zktConfigData } = useGetZktConfig();
+  const resetZktUiState = React.useCallback(() => {
+    setSavedPassword('');
+    form.resetFields();
+    resetZktConfiguration();
+  }, [form, resetZktConfiguration]);
+
+  React.useEffect(() => {
+    if (!zktConfigData) {
+      resetZktUiState();
+      return;
+    }
+
+    if (
+      (zktConfigData.url || zktConfigData.passUrl || zktConfigData.zkturl) &&
+      zktConfigData.username &&
+      zktConfigData.password
+    ) {
+      const savedUrl =
+        zktConfigData.url ||
+        zktConfigData.passUrl ||
+        zktConfigData.zkturl ||
+        '';
+      setZktSavedData({
+        url: savedUrl,
+        username: zktConfigData.username,
+      });
+      setSavedPassword(zktConfigData.password);
+      form.setFieldsValue({
+        url: savedUrl,
+        username: zktConfigData.username,
+        password: zktConfigData.password,
+      });
+      setIsZktConfigured(true);
+      return;
+    }
+
+    resetZktUiState();
+  }, [
+    form,
+    resetZktUiState,
+    setIsZktConfigured,
+    setZktSavedData,
+    zktConfigData,
+  ]);
 
   const handleFinish = async (values: any) => {
     const payload: ZktAuthPayload = {
@@ -39,18 +87,37 @@ const ZKTAddonPage = () => {
 
     authenticateZkt(payload, {
       onSuccess: (data) => {
-        if (typeof window !== 'undefined' && data?.token) {
-          // Save plain token to localStorage (no encryption needed)
-          window.localStorage.setItem('zktAuthToken', data.token);
-          // Save passUrl to localStorage
-          setZktPassUrl(values.url);
-        }
-
-        setZktSavedData({
-          url: values.url,
-          username: values.username,
-        });
-        setIsZktConfigured(true);
+        saveZktConfig(
+          {
+            url: data?.url || values.url,
+            username: data?.username || values.username,
+            password: values.password,
+            zktToken: data?.token,
+          },
+          {
+            onSuccess: () => {
+              setZktSavedData({
+                url: data?.url || values.url,
+                username: data?.username || values.username,
+              });
+              setSavedPassword(values.password);
+              form.setFieldsValue({
+                url: data?.url || values.url,
+                username: data?.username || values.username,
+                password: values.password,
+              });
+              setIsZktConfigured(true);
+            },
+            onError: (error: any) => {
+              const errorMessage =
+                error?.response?.data?.error ||
+                error?.response?.data?.message ||
+                error?.message ||
+                'Unable to save ZKT configuration.';
+              messageApi.error(errorMessage);
+            },
+          },
+        );
       },
       onError: (error: any) => {
         const errorMessage =
@@ -68,10 +135,22 @@ const ZKTAddonPage = () => {
   };
 
   const handleDelete = () => {
-    resetZktConfiguration();
-    form.resetFields();
-    // You can add API call here to delete the configuration
+    deleteZktConfig(zktConfigData?.id, {
+      onSuccess: () => {
+        resetZktUiState();
+      },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          error?.message ||
+          'Unable to delete ZKT configuration.';
+        messageApi.error(errorMessage);
+      },
+    });
   };
+
+  const isBusy = isZktSaving || isSavingZktConfig || isDeletingZktConfig;
 
   return (
     <>
@@ -80,7 +159,6 @@ const ZKTAddonPage = () => {
         data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-78"
         className="p-3 rounded-lg sm:w-[754px] mx-auto border border-[#D9D9D9]"
       >
-        {/* Logos Section */}
         <div
           data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-80"
           className="flex justify-center items-center"
@@ -116,196 +194,140 @@ const ZKTAddonPage = () => {
           data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-89"
           className="bg-white p-4 "
         >
-          {!isZktConfigured ? (
-            /* Form Section */
-            <Form
-              form={form}
-              layout="vertical"
-              onFinish={handleFinish}
-              className="w-full"
-            >
-              <Form.Item
-                name="url"
-                required={false}
-                label={
-                  <span
-                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-102"
-                    className="text-sm font-medium text-gray-700 pb-2"
-                  >
-                    Enter URL{' '}
-                    <span
-                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-103"
-                      className="text-red-500"
-                    >
-                      *
-                    </span>
-                  </span>
-                }
-                rules={[
-                  { required: true, message: 'Please enter URL!' },
-                  { type: 'url', message: 'Please enter a valid URL!' },
-                ]}
-              >
-                <Input
-                  placeholder="https://example.com"
-                  suffix={<GlobalOutlined className="text-gray-400" />}
-                  className="h-10"
-                />
-              </Form.Item>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="username"
-                    required={false}
-                    label={
-                      <span
-                        data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-122"
-                        className="text-sm font-medium text-gray-700 pb-2"
-                      >
-                        Username{' '}
-                        <span
-                          data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-123"
-                          className="text-red-500"
-                        >
-                          *
-                        </span>
-                      </span>
-                    }
-                    rules={[
-                      { required: true, message: 'Please enter username!' },
-                    ]}
-                  >
-                    <Input placeholder="Username" className="h-10" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="password"
-                    required={false}
-                    label={
-                      <span
-                        data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-135"
-                        className="text-sm font-medium text-gray-700 pb-2"
-                      >
-                        Password{' '}
-                        <span
-                          data-cy="timesheet-settings-zkt-addon-page-tsx-page-span-136"
-                          className="text-red-500"
-                        >
-                          *
-                        </span>
-                      </span>
-                    }
-                    rules={[
-                      { required: true, message: 'Please enter password!' },
-                    ]}
-                  >
-                    <Input.Password placeholder="..." className="h-10" />
-                  </Form.Item>
-                </Col>
-              </Row>
-
-              {/* Buttons */}
-              <Form.Item className="mt-4 mb-0">
-                <div
-                  data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-146"
-                  className="flex justify-end gap-3"
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleFinish}
+            className="w-full"
+          >
+            <Form.Item
+              name="url"
+              required={false}
+              label={
+                <span
+                  data-cy="timesheet-settings-zkt-addon-url-label"
+                  className="text-sm font-medium text-gray-700 pb-2"
                 >
+                  Enter URL{' '}
+                  <span
+                    data-cy="timesheet-settings-zkt-addon-url-required"
+                    className="text-red-500"
+                  >
+                    *
+                  </span>
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Please enter URL!' },
+                { type: 'url', message: 'Please enter a valid URL!' },
+              ]}
+            >
+              <Input
+                placeholder="https://example.com"
+                suffix={<GlobalOutlined className="text-gray-400" />}
+                className="h-10"
+                readOnly={isZktConfigured}
+              />
+            </Form.Item>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="username"
+                  required={false}
+                  label={
+                    <span
+                      data-cy="timesheet-settings-zkt-addon-username-label"
+                      className="text-sm font-medium text-gray-700 pb-2"
+                    >
+                      Username{' '}
+                      <span
+                        data-cy="timesheet-settings-zkt-addon-username-required"
+                        className="text-red-500"
+                      >
+                        *
+                      </span>
+                    </span>
+                  }
+                  rules={[
+                    { required: true, message: 'Please enter username!' },
+                  ]}
+                >
+                  <Input
+                    placeholder="Username"
+                    className="h-10"
+                    readOnly={isZktConfigured}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="password"
+                  required={false}
+                  label={
+                    <span
+                      data-cy="timesheet-settings-zkt-addon-password-label"
+                      className="text-sm font-medium text-gray-700 pb-2"
+                    >
+                      Password{' '}
+                      <span
+                        data-cy="timesheet-settings-zkt-addon-password-required"
+                        className="text-red-500"
+                      >
+                        *
+                      </span>
+                    </span>
+                  }
+                  rules={[
+                    { required: true, message: 'Please enter password!' },
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="..."
+                    className="h-10"
+                    readOnly={isZktConfigured}
+                    value={isZktConfigured ? savedPassword : undefined}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item className="mt-4 mb-0">
+              <div
+                data-cy="timesheet-settings-zkt-addon-action-buttons"
+                className="flex justify-end gap-3"
+              >
+                {!isZktConfigured && (
                   <Button
                     onClick={handleCancel}
                     className="h-8 border-gray-300 text-gray-700 "
-                    disabled={isZktSaving}
+                    disabled={isBusy}
                   >
                     Cancel
                   </Button>
+                )}
+                {!isZktConfigured ? (
                   <Button
                     type="primary"
                     htmlType="submit"
                     className="h-8"
-                    loading={isZktSaving}
+                    loading={isBusy}
                   >
                     Link
                   </Button>
-                </div>
-              </Form.Item>
-            </Form>
-          ) : (
-            /* Configured State */
-            <div
-              data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-167"
-              className="w-full"
-            >
-              {/* User Card */}
-              <div
-                data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-169"
-                className="flex items-center justify-between"
-              >
-                <div
-                  data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-170"
-                  className="flex items-center gap-4"
-                >
-                  {/* Avatar */}
-                  <Avatar
-                    size={40}
-                    src={null} // You can add zktSavedData?.avatarUrl if you store it
-                    className="flex-shrink-0 bg-gray-200"
-                  >
-                    {zktSavedData?.username?.[0]?.toUpperCase() || 'U'}
-                  </Avatar>
-
-                  {/* Name and Link */}
-                  <div
-                    data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-181"
-                    className="flex-1"
-                  >
-                    <div
-                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-182"
-                      className="font-bold text-gray-900 text-sm "
-                    >
-                      {zktSavedData?.username || 'User'}
-                    </div>
-                    <div
-                      data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-185"
-                      className="flex items-center gap-1"
-                    >
-                      <IoIosLink className="text-blue font-bold" size={16} />
-                      <a
-                        href={zktSavedData?.url || 'https://example.com'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 text-sm font-semibold"
-                        data-cy="timesheetinformation-timesheet-settings-zkt-addon-page-tsx-a-250"
-                      >
-                        {zktSavedData?.url || 'https://example.com'}
-                      </a>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Delete Button */}
-                <DeletePopover
-                  titleText="Are you sure you want to delete"
-                  onCancel={() => {
-                    // Popover will close automatically
-                  }}
-                  onDelete={() => {
-                    handleDelete();
-                  }}
-                >
+                ) : (
                   <Button
-                    type="default"
-                    className="p-2 transition-colors border-none shadow-none"
+                    danger
+                    className="h-8"
+                    onClick={handleDelete}
+                    loading={isDeletingZktConfig}
+                    disabled={isZktSaving || isSavingZktConfig}
                   >
-                    <Trash2
-                      size={20}
-                      strokeWidth={1.25}
-                      className="text-gray-700"
-                    />
+                    Disconnect
                   </Button>
-                </DeletePopover>
+                )}
               </div>
-            </div>
-          )}
+            </Form.Item>
+          </Form>
         </div>
       </div>
     </>
