@@ -9,6 +9,7 @@ export enum AttendanceRecordType {
   EARLY = 'early',
   ABSENT = 'absent',
   PRESENT = 'present',
+  clockedOut = 'clockedOut',
 }
 
 export const AttendanceRecordTypeBadgeTheme: Record<
@@ -19,6 +20,7 @@ export const AttendanceRecordTypeBadgeTheme: Record<
   [AttendanceRecordType.EARLY]: StatusBadgeTheme.warning,
   [AttendanceRecordType.ABSENT]: StatusBadgeTheme.danger,
   [AttendanceRecordType.PRESENT]: StatusBadgeTheme.success,
+  [AttendanceRecordType.clockedOut]: StatusBadgeTheme.warning,
 };
 
 export const attendanceRecordTypeOption: {
@@ -26,10 +28,11 @@ export const attendanceRecordTypeOption: {
   value: AttendanceRecordType;
   id: string;
 }[] = [
-  { label: 'Late', id: 'late', value: AttendanceRecordType.LATE },
-  { label: 'Early', id: 'Early', value: AttendanceRecordType.EARLY },
   { label: 'Present', id: 'Present', value: AttendanceRecordType.PRESENT },
   { label: 'Absent', id: 'Absent', value: AttendanceRecordType.ABSENT },
+  { label: 'Late Clock-in', id: 'late', value: AttendanceRecordType.LATE },
+  { label: 'Early Clock-out', id: 'Early', value: AttendanceRecordType.EARLY },
+  { label: 'Not Clocked-out', id: 'clockedOut', value: AttendanceRecordType.clockedOut },
 ];
 
 export interface AttendanceRecord extends DateInfo {
