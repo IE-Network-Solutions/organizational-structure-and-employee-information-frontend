@@ -32,7 +32,11 @@ export const attendanceRecordTypeOption: {
   { label: 'Absent', id: 'Absent', value: AttendanceRecordType.ABSENT },
   { label: 'Late Clock-in', id: 'late', value: AttendanceRecordType.LATE },
   { label: 'Early Clock-out', id: 'Early', value: AttendanceRecordType.EARLY },
-  { label: 'Not Clocked-out', id: 'clockedOut', value: AttendanceRecordType.clockedOut },
+  {
+    label: 'Not Clocked-out',
+    id: 'clockedOut',
+    value: AttendanceRecordType.clockedOut,
+  },
 ];
 
 export interface AttendanceRecord extends DateInfo {
