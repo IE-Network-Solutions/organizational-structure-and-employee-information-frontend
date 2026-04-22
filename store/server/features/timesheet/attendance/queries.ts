@@ -12,22 +12,9 @@ import {
   AttendanceImport,
   AttendanceRecord,
 } from '@/types/timesheet/attendance';
-import { getZktToken, getZktPassUrl } from '@/utils/zktToken';
-import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import dayjs from 'dayjs';
 // const logUserId = useAuthenticationStore.getState().userId;
-
-/**
- * Get passUrl from localStorage or fallback to zustand store
- */
-const getPassUrl = (): string | null => {
-  const passUrlFromStorage = getZktPassUrl();
-  if (passUrlFromStorage) {
-    return passUrlFromStorage;
-  }
-  const zktSavedData = useTimesheetSettingsStore.getState().zktSavedData;
-  return zktSavedData?.url || null;
-};
 
 /**
  * Get today's date formatted as YYYY-MM-DD
@@ -81,20 +68,10 @@ const shouldUseZKTEndpoint = (
  * Fetch ZKT attendance data (real-time) for today
  */
 const fetchZKTAttendance = async (): Promise<ApiResponse<AttendanceRecord>> => {
-  const passUrl = getPassUrl();
-  const zktToken = getZktToken();
-
-  if (!passUrl) {
-    throw new Error('passUrl is not found in localStorage or store');
-  }
-
-  if (!zktToken) {
-    throw new Error('ZKTToken is not found in localStorage');
-  }
-
   // Always use today's date for real-time data
   const today = getTodayDate();
-
+  const requestHeaders = await requestHeader();
+  const { zktToken, passUrl } = await getZktCredentials();
   const requestData = {
     passUrl,
     ZKTToken: zktToken,
@@ -109,10 +86,10 @@ const fetchZKTAttendance = async (): Promise<ApiResponse<AttendanceRecord>> => {
   const response = await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: requestHeaders,
     data: requestData,
+
+    //skipEncryption: true,
   });
 
   // Transform ZKT response to match the expected format

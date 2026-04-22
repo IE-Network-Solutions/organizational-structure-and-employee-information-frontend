@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -34,6 +34,7 @@ function Planning({
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
 }) {
+  const hasAppliedDefaultDepartmentRef = useRef(false);
   const {
     selectedUser,
     activePlanPeriod,
@@ -164,6 +165,7 @@ function Planning({
   }, [activeTab, resetStatuses, resetWeights, setInlineReportPlanId]);
 
   useEffect(() => {
+    if (hasAppliedDefaultDepartmentRef.current) return;
     if (planningFilterDepartment || planningFilterPlanType !== 'all') return;
     const employees = employeeData?.items ?? [];
     if (employees.length === 0) return;
@@ -193,6 +195,7 @@ function Planning({
     if (departmentUserIds.length > 0) {
       setSelectedUser(departmentUserIds);
     }
+    hasAppliedDefaultDepartmentRef.current = true;
   }, [
     planningFilterDepartment,
     planningFilterPlanType,
@@ -205,9 +208,10 @@ function Planning({
   const activePlanningItems = useMemo(() => {
     const items = allPlanning?.items ?? [];
     const activeOnly = items.filter((item: any) => item?.isReported !== true);
+    const currentUserId = String(userId ?? '');
     return [...activeOnly].sort((a: any, b: any) => {
-      const aMine = a?.userId === userId ? 0 : 1;
-      const bMine = b?.userId === userId ? 0 : 1;
+      const aMine = String(a?.userId ?? '') === currentUserId ? 0 : 1;
+      const bMine = String(b?.userId ?? '') === currentUserId ? 0 : 1;
       if (aMine !== bMine) return aMine - bMine;
       const ta = new Date(a?.createdAt || 0).getTime();
       const tb = new Date(b?.createdAt || 0).getTime();
@@ -342,14 +346,18 @@ function Planning({
                     }
                     onEdit={() => handleEdit(originalDataItem.id)}
                     canApprove={
-                      userId ===
-                      (getEmployeeData(originalDataItem?.userId)?.delegatedTo
-                        ?.id ||
-                        getEmployeeData(originalDataItem?.userId)?.reportingTo
-                          ?.id)
+                      String(userId ?? '') ===
+                      String(
+                        getEmployeeData(originalDataItem?.userId)?.delegatedTo
+                          ?.id ||
+                          getEmployeeData(originalDataItem?.userId)?.reportingTo
+                            ?.id ||
+                          '',
+                      )
                     }
                     canEdit={
-                      userId === originalDataItem?.userId &&
+                      String(userId ?? '') ===
+                        String(originalDataItem?.userId ?? '') &&
                       originalDataItem?.isValidated == false &&
                       originalDataItem?.isReported == false &&
                       isDataFromActiveSession(originalDataItem?.createdAt)

@@ -349,13 +349,13 @@ function Page() {
           <div
             data-cy="planning-reporting-toolbar-row"
             className={classNames(
-              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-nowrap items-center gap-2 bg-white py-2',
-              'sm:gap-3 lg:gap-x-8',
+              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
+              'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
             )}
           >
             <div
               data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-359"
-              className="flex shrink-0 items-center sm:min-h-10 sm:justify-center"
+              className="flex w-full shrink-0 items-center sm:w-auto sm:justify-center"
             >
               <ConfigProvider
                 theme={{
@@ -377,13 +377,13 @@ function Page() {
                     { label: 'Reports', value: 2 },
                   ]}
                   className={classNames(
-                    'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 rounded-lg bg-slate-100 !p-1 sm:!p-1.5',
-                    '!h-9 sm:!h-10 sm:!self-center',
+                    'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
+                    '!h-[50px] sm:!h-[50px] sm:!self-center',
                     '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
                     '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
                     '[&_.ant-segmented-item]:!flex [&_.ant-segmented-item]:!flex-none [&_.ant-segmented-item]:!items-center [&_.ant-segmented-item]:!justify-center [&_.ant-segmented-item]:!self-stretch [&_.ant-segmented-item]:!bg-transparent',
                     '[&_.ant-segmented-item-selected]:!z-[1] [&_.ant-segmented-item-selected]:!rounded-md [&_.ant-segmented-item-selected]:!shadow-sm',
-                    '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!min-h-[28px] [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-3 [&_.ant-segmented-item-label]:!py-0.5 [&_.ant-segmented-item-label]:!text-[13px] sm:[&_.ant-segmented-item-label]:!min-h-0 sm:[&_.ant-segmented-item-label]:!px-4 sm:[&_.ant-segmented-item-label]:!py-1 sm:[&_.ant-segmented-item-label]:!text-sm',
+                    '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!h-9 [&_.ant-segmented-item-label]:!min-h-9 [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-3.5 [&_.ant-segmented-item-label]:!py-0 [&_.ant-segmented-item-label]:!text-[14px] sm:[&_.ant-segmented-item-label]:!h-9 sm:[&_.ant-segmented-item-label]:!min-h-9 sm:[&_.ant-segmented-item-label]:!px-4.5 sm:[&_.ant-segmented-item-label]:!py-0 sm:[&_.ant-segmented-item-label]:!text-[14px]',
                     '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
                   )}
                 />
@@ -392,20 +392,20 @@ function Page() {
             {(processedPlanningPeriods.length > 0 || activeTab === 1) && (
               <div
                 data-cy="planning-period-pills"
-                className="flex min-w-0 flex-1 items-center justify-end overflow-hidden sm:min-h-10"
+                className="flex min-w-0 w-full flex-1 items-start justify-between overflow-visible sm:min-h-10 sm:items-center sm:justify-end"
               >
                 <div
                   data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-400"
                   className={classNames(
-                    'flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto overscroll-x-contain pb-0.5 [-webkit-overflow-scrolling:touch] scrollbar-hide',
-                    'sm:gap-3 sm:pb-0',
+                    'flex w-full max-w-full flex-wrap items-center content-center justify-between gap-2 overflow-visible rounded-xl border border-slate-100 bg-slate-50/70 p-1.5',
+                    'sm:flex-nowrap sm:gap-3 lg:ml-auto lg:w-[648px]',
                   )}
                 >
                   <div
                     data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
                     role="tablist"
                     aria-label="Planning period"
-                    className="flex shrink-0 flex-nowrap items-center gap-2"
+                    className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:flex-nowrap"
                   >
                     {processedPlanningPeriods.map(
                       (item: PlanningPeriod, index: number) => {
@@ -420,12 +420,12 @@ function Page() {
                             data-cy={`planning-period-pill-${n}`}
                             onClick={() => setActivePlanPeriod(n)}
                             className={classNames(
-                              'shrink-0 rounded-md border-0 font-medium transition-colors',
+                              'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
                               'text-xs sm:text-sm',
                               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
                               isActive
-                                ? 'bg-slate-200 px-2 py-1 text-slate-800 shadow-sm hover:bg-slate-300 sm:px-2.5'
-                                : 'bg-transparent px-1.5 py-1 text-slate-500 hover:text-slate-800 sm:px-1',
+                                ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
+                                : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
                             )}
                           >
                             {item.planningPeriod.name || 'No name available'}
@@ -436,7 +436,7 @@ function Page() {
                   </div>
                   <div
                     data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
-                    className="shrink-0 self-center"
+                    className="shrink-0 self-start sm:self-center"
                   >
                     <PlanningToolbarFilters />
                   </div>

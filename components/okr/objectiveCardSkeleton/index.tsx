@@ -8,8 +8,6 @@ type ObjectiveCardSkeletonProps = {
    * (used for Team/Company tabs where assignee is shown).
    */
   showAssignee?: boolean;
-  /** When true, render the expanded key-results section placeholder. */
-  expanded?: boolean;
   'data-cy'?: string;
 };
 
@@ -29,7 +27,6 @@ const ShimmerLine = ({
 export const ObjectiveCardSkeleton: React.FC<ObjectiveCardSkeletonProps> = ({
   count = 3,
   showAssignee = false,
-  expanded = true,
   'data-cy': dataCy = 'okr-objective-card-skeleton-list',
 }) => {
   return (
@@ -51,7 +48,7 @@ export const ObjectiveCardSkeleton: React.FC<ObjectiveCardSkeletonProps> = ({
               data-cy={`okr-objective-card-skeleton-card-${idx}`}
             >
               <div
-                className={expanded ? 'p-6 pb-2' : 'p-6'}
+                className="p-6 pb-2"
                 data-cy={`okr-objective-card-skeleton-card-body-${idx}`}
               >
                 <div
@@ -168,86 +165,83 @@ export const ObjectiveCardSkeleton: React.FC<ObjectiveCardSkeletonProps> = ({
                 </div>
               </div>
 
-              {/* Expanded key-results section placeholder */}
-              {expanded ? (
+              <div
+                className="mt-4 border-t border-gray-200 overflow-x-auto"
+                data-cy={`okr-objective-card-skeleton-key-results-${idx}`}
+              >
                 <div
-                  className="mt-4 border-t border-gray-200 overflow-x-auto"
-                  data-cy={`okr-objective-card-skeleton-key-results-${idx}`}
+                  className="min-w-[900px] w-full"
+                  data-cy={`okr-objective-card-skeleton-key-results-inner-${idx}`}
                 >
                   <div
-                    className="min-w-[900px] w-full"
-                    data-cy={`okr-objective-card-skeleton-key-results-inner-${idx}`}
+                    className="bg-gray-50 px-6 py-3 flex gap-4"
+                    data-cy={`okr-objective-card-skeleton-key-results-header-${idx}`}
                   >
-                    <div
-                      className="bg-gray-50 px-6 py-3 flex gap-4"
-                      data-cy={`okr-objective-card-skeleton-key-results-header-${idx}`}
-                    >
-                      <ShimmerLine
-                        className="h-4 w-64"
-                        data-cy={`okr-objective-card-skeleton-key-results-header-col-0-${idx}`}
-                      />
-                      <ShimmerLine
-                        className="h-4 w-24"
-                        data-cy={`okr-objective-card-skeleton-key-results-header-col-1-${idx}`}
-                      />
-                      <ShimmerLine
-                        className="h-4 w-20"
-                        data-cy={`okr-objective-card-skeleton-key-results-header-col-2-${idx}`}
-                      />
-                      <ShimmerLine
-                        className="h-4 w-24"
-                        data-cy={`okr-objective-card-skeleton-key-results-header-col-3-${idx}`}
-                      />
-                      <ShimmerLine
-                        className="h-4 w-56"
-                        data-cy={`okr-objective-card-skeleton-key-results-header-col-4-${idx}`}
-                      />
-                    </div>
-                    <div
-                      className="divide-y divide-gray-200 bg-white"
-                      data-cy={`okr-objective-card-skeleton-key-results-body-${idx}`}
-                    >
-                      {Array.from({ length: 3 }).map(
-                        (unusedRow, rowIdx) => (
-                          void unusedRow,
-                          (
+                    <ShimmerLine
+                      className="h-4 w-64"
+                      data-cy={`okr-objective-card-skeleton-key-results-header-col-0-${idx}`}
+                    />
+                    <ShimmerLine
+                      className="h-4 w-24"
+                      data-cy={`okr-objective-card-skeleton-key-results-header-col-1-${idx}`}
+                    />
+                    <ShimmerLine
+                      className="h-4 w-20"
+                      data-cy={`okr-objective-card-skeleton-key-results-header-col-2-${idx}`}
+                    />
+                    <ShimmerLine
+                      className="h-4 w-24"
+                      data-cy={`okr-objective-card-skeleton-key-results-header-col-3-${idx}`}
+                    />
+                    <ShimmerLine
+                      className="h-4 w-56"
+                      data-cy={`okr-objective-card-skeleton-key-results-header-col-4-${idx}`}
+                    />
+                  </div>
+                  <div
+                    className="divide-y divide-gray-200 bg-white"
+                    data-cy={`okr-objective-card-skeleton-key-results-body-${idx}`}
+                  >
+                    {Array.from({ length: 3 }).map(
+                      (unusedRow, rowIdx) => (
+                        void unusedRow,
+                        (
+                          <div
+                            key={rowIdx}
+                            className="px-6 py-4 flex items-center gap-4"
+                            data-cy={`okr-objective-card-skeleton-kr-row-${idx}-${rowIdx}`}
+                          >
+                            <ShimmerLine
+                              className="h-4 w-72"
+                              data-cy={`okr-objective-card-skeleton-kr-row-col-0-${idx}-${rowIdx}`}
+                            />
+                            <ShimmerLine
+                              className="h-4 w-24"
+                              data-cy={`okr-objective-card-skeleton-kr-row-col-1-${idx}-${rowIdx}`}
+                            />
+                            <ShimmerLine
+                              className="h-4 w-20"
+                              data-cy={`okr-objective-card-skeleton-kr-row-col-2-${idx}-${rowIdx}`}
+                            />
+                            <ShimmerLine
+                              className="h-4 w-24"
+                              data-cy={`okr-objective-card-skeleton-kr-row-col-3-${idx}-${rowIdx}`}
+                            />
+                            <ShimmerLine
+                              className="h-4 w-56"
+                              data-cy={`okr-objective-card-skeleton-kr-row-col-4-${idx}-${rowIdx}`}
+                            />
                             <div
-                              key={rowIdx}
-                              className="px-6 py-4 flex items-center gap-4"
-                              data-cy={`okr-objective-card-skeleton-kr-row-${idx}-${rowIdx}`}
-                            >
-                              <ShimmerLine
-                                className="h-4 w-72"
-                                data-cy={`okr-objective-card-skeleton-kr-row-col-0-${idx}-${rowIdx}`}
-                              />
-                              <ShimmerLine
-                                className="h-4 w-24"
-                                data-cy={`okr-objective-card-skeleton-kr-row-col-1-${idx}-${rowIdx}`}
-                              />
-                              <ShimmerLine
-                                className="h-4 w-20"
-                                data-cy={`okr-objective-card-skeleton-kr-row-col-2-${idx}-${rowIdx}`}
-                              />
-                              <ShimmerLine
-                                className="h-4 w-24"
-                                data-cy={`okr-objective-card-skeleton-kr-row-col-3-${idx}-${rowIdx}`}
-                              />
-                              <ShimmerLine
-                                className="h-4 w-56"
-                                data-cy={`okr-objective-card-skeleton-kr-row-col-4-${idx}-${rowIdx}`}
-                              />
-                              <div
-                                className="ml-auto h-6 w-6 rounded-[4px] border border-gray-200 bg-gray-50"
-                                data-cy={`okr-objective-card-skeleton-kr-row-actions-${idx}-${rowIdx}`}
-                              />
-                            </div>
-                          )
-                        ),
-                      )}
-                    </div>
+                              className="ml-auto h-6 w-6 rounded-[4px] border border-gray-200 bg-gray-50"
+                              data-cy={`okr-objective-card-skeleton-kr-row-actions-${idx}-${rowIdx}`}
+                            />
+                          </div>
+                        )
+                      ),
+                    )}
                   </div>
                 </div>
-              ) : null}
+              </div>
             </div>
           </div>
         );
