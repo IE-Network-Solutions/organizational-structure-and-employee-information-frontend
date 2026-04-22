@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, Divider, Progress, Skeleton, Tag } from 'antd';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import InvoicesTable from '../_components/invoicesTable/invoicesTable';
 import { InvoiceModal } from '../_components/InvoiceModal/InvoiceModal';
 import { ManageSubscriptionModal } from '../_components/ManageSubscriptionModal/ManageSubscriptionModal';
@@ -87,40 +87,6 @@ const AdminDashboard = () => {
       : 0;
 
   useEffect(() => {
-    const manageSubscription = searchParams.get('manageSubscription');
-    if (manageSubscription === '1') {
-      setManageSubscriptionOpen(true);
-      router.replace('/admin/dashboard', { scroll: false });
-    }
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        queryClient.invalidateQueries('invoices').then(() => refetchInvoices());
-        queryClient
-          .invalidateQueries('subscriptions')
-          .then(() => refetchSubscriptions());
-      }
-    };
-    const paymentSuccess = searchParams.get('payment_success');
-    const paymentReturn = searchParams.get('payment_return');
-    if (paymentSuccess === 'true' || paymentReturn === 'true') {
-      queryClient.invalidateQueries('invoices');
-      queryClient.invalidateQueries('subscriptions');
-      refetchInvoices();
-      refetchSubscriptions();
-      router.replace('/admin/dashboard', { scroll: false });
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () =>
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [
-    searchParams,
-    router,
-    queryClient,
-    refetchInvoices,
-    refetchSubscriptions,
-  ]);
-
-  useEffect(() => {
     if (invoicesData?.items?.length) {
       const sorted = [...invoicesData.items].sort(
         (a, b) =>
@@ -180,6 +146,47 @@ const AdminDashboard = () => {
     currenciesLoading ||
     subscriptionsLoading;
 
+  const openManageSubscriptionModal = useCallback(() => {
+    setInvoiceModalOpen(false);
+    setSelectedInvoiceId(null);
+    setManageSubscriptionOpen(true);
+  }, []);
+
+  useEffect(() => {
+    const manageSubscription = searchParams.get('manageSubscription');
+    if (manageSubscription === '1') {
+      openManageSubscriptionModal();
+      router.replace('/admin/dashboard', { scroll: false });
+    }
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries('invoices').then(() => refetchInvoices());
+        queryClient
+          .invalidateQueries('subscriptions')
+          .then(() => refetchSubscriptions());
+      }
+    };
+    const paymentSuccess = searchParams.get('payment_success');
+    const paymentReturn = searchParams.get('payment_return');
+    if (paymentSuccess === 'true' || paymentReturn === 'true') {
+      queryClient.invalidateQueries('invoices');
+      queryClient.invalidateQueries('subscriptions');
+      refetchInvoices();
+      refetchSubscriptions();
+      router.replace('/admin/dashboard', { scroll: false });
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [
+    searchParams,
+    router,
+    queryClient,
+    refetchInvoices,
+    refetchSubscriptions,
+    openManageSubscriptionModal,
+  ]);
+
   const openInvoiceModal = (id: string) => {
     setSelectedInvoiceId(id);
     setInvoiceModalOpen(true);
@@ -198,7 +205,7 @@ const AdminDashboard = () => {
       ) : (
         <div
           data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-200"
-          className="grid gap-4 mb-8 lg:grid-cols-2"
+          className="mb-8 grid gap-4 lg:grid-cols-2"
         >
           {/* Left: Current Subscription */}
           <Card
@@ -274,13 +281,13 @@ const AdminDashboard = () => {
                   </div>
                   <div
                     data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-241"
-                    className="w-[93%]"
+                    className="w-full"
                   >
                     <Progress
                       percent={seatsPercent}
                       showInfo={false}
                       strokeColor="#1C3CA5"
-                      className="mb-4"
+                      className="mb-4 [&_.ant-progress-outer]:!me-0"
                     />
                   </div>
                 </div>
@@ -289,7 +296,7 @@ const AdminDashboard = () => {
                 data-cy="-afterlogin-admin-dashboard-page-tsx-page-p-251"
                 className="text-[16px] text-gray-600 mb-3"
               >
-                Need extra feature or want to update seats?
+                Need Extra feature or want to update seats?
               </p>
               <div
                 data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-254"
@@ -297,9 +304,9 @@ const AdminDashboard = () => {
               >
                 <Button
                   type="primary"
-                  onClick={() => setManageSubscriptionOpen(true)}
+                  onClick={openManageSubscriptionModal}
                   data-cy="manage-subscription-button"
-                  className="w-[265px] font-normal h-10"
+                  className="h-10 w-[185px] rounded-md font-normal"
                 >
                   Manage Subscription
                 </Button>
@@ -397,7 +404,7 @@ const AdminDashboard = () => {
                 <Button
                   onClick={() => router.push('/admin/billing')}
                   data-cy="billing-and-invoice-button"
-                  className="w-[265px] font-normal border-gray-300 h-10"
+                  className="h-10 w-[185px] rounded-md border-gray-300 font-normal"
                 >
                   Billing and Invoice
                 </Button>

@@ -1,7 +1,7 @@
 import { InvoiceRequestBody } from './interface';
 import { Invoice } from '@/types/tenant-management';
 import { crudRequest } from '@/utils/crudRequest';
-import { TENANT_MGMT_URL } from '@/utils/constants';
+import { MANAGE_SUBSCRIPTION_API_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -20,7 +20,7 @@ const getInvoices = async (
   if (typeof page === 'number') query.set('page', String(page));
   if (typeof limit === 'number') query.set('limit', String(limit));
   const qs = query.toString();
-  const url = `${TENANT_MGMT_URL}/subscription/rest/invoices${qs ? `?${qs}` : ''}`;
+  const url = `${MANAGE_SUBSCRIPTION_API_URL}/subscription/rest/invoices${qs ? `?${qs}` : ''}`;
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url,
@@ -53,20 +53,21 @@ export const useGetInvoices = (
 export const useGetInvoiceDetail = (
   invoiceId: string,
   exportType: string = 'pdf',
+  isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<any>>(
     ['invoice-detail', invoiceId, exportType],
     async () => {
       const requestHeaders = await requestHeader();
       return await crudRequest({
-        url: `${TENANT_MGMT_URL}/subscription/rest/invoices/${invoiceId}/detail`,
+        url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/rest/invoices/${invoiceId}/detail`,
         method: 'GET',
         headers: requestHeaders,
         params: { exportType },
       });
     },
     {
-      enabled: !!invoiceId,
+      enabled: !!invoiceId && isEnabled,
       retry: 1,
       refetchOnWindowFocus: false,
     },
