@@ -34,6 +34,7 @@ import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tena
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
 import { IoCheckbox } from 'react-icons/io5';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface ManageSubscriptionModalProps {
   open: boolean;
@@ -106,6 +107,7 @@ export const ManageSubscriptionModal: React.FC<
   ManageSubscriptionModalProps
 > = ({ open, onClose, onContinueToInvoice }) => {
   const { setTransactionType } = usePaymentStore();
+  const { isMobile } = useIsMobile();
   /** Select active plan once per modal open (after data is ready). */
   const defaultSelectionAppliedRef = useRef(false);
   const periodManuallySelectedRef = useRef(false);
@@ -632,11 +634,11 @@ export const ManageSubscriptionModal: React.FC<
         {/* Top controls — equal 3 columns on md+; billing centered in the middle */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-579"
-          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-1 gap-4 md:grid-cols-3 md:items-start md:gap-6"
+          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-3 md:items-start md:gap-6"
         >
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-580"
-            className="md:justify-self-start flex w-full min-w-0 flex-wrap items-center gap-2 md:max-w-none"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-wrap md:justify-self-start md:flex-row md:items-center"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-581"
@@ -646,7 +648,7 @@ export const ManageSubscriptionModal: React.FC<
                 data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-582"
                 className="text-sm font-medium text-gray-700 whitespace-nowrap"
               >
-                Number of Seats
+                {isMobile ? 'Seats' : 'Number of Seats'}
               </span>
               <Tooltip title="Total number of user seats for this subscription">
                 <AiOutlineQuestionCircle
@@ -679,7 +681,7 @@ export const ManageSubscriptionModal: React.FC<
           </div>
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-611"
-            className="flex min-w-0 w-full flex-col items-center text-center"
+            className="hidden min-w-0 w-full flex-col items-center text-center md:flex"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-612"
@@ -737,7 +739,7 @@ export const ManageSubscriptionModal: React.FC<
           </div>
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-650"
-            className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 md:justify-self-end md:max-w-none"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-wrap md:items-center md:justify-end md:justify-self-end"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-651"
@@ -798,204 +800,215 @@ export const ManageSubscriptionModal: React.FC<
                 : 'No paid plans available.'}
             </p>
           ) : null}
-          {plansByCurrency.map(({ currencyId, plans: groupPlans }) => (
-            <div
-              key={currencyId}
-              className="grid w-full min-w-0 grid-cols-1 justify-items-center gap-x-8 gap-y-6 md:grid-cols-2 md:gap-x-10 xl:grid-cols-4 xl:gap-x-10"
-              data-cy={`manage-subscription-plans-currency-${currencyId}`}
-            >
-              {groupPlans.map((plan) => {
-                const badge = getPlanBadge(plan);
-                const isSelected = planManuallySelectedRef.current
-                  ? selectedPlanId === plan.id
-                  : effectiveSelectedPlanId === plan.id;
-                const includedModuleIds = new Set(
-                  selectedModulesByPlan[plan.id] ??
-                    (plan.modules ?? []).map((pm) => pm.moduleId),
-                );
-                const modulesForCard =
-                  allModulesSorted.length > 0
-                    ? orderModulesForPlanCard(allModulesSorted, plan)
-                    : [];
-                return (
-                  <div
-                    key={plan.id}
-                    data-cy={`plan-card-${plan.id}`}
-                    onClick={() => {
-                      planManuallySelectedRef.current = true;
-                      setSelectedPlanId(plan.id);
-                    }}
-                    className={`relative h-[506px] w-[307px] shrink-0 cursor-pointer rounded-xl border bg-gradient-to-b from-white via-white to-[#eef7ff] px-4 pb-4 pt-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-200 max-lg:h-auto max-lg:w-full max-lg:max-w-none ${
-                      isSelected
-                        ? 'border-primary shadow-[0_16px_32px_rgba(30,64,175,0.16)]'
-                        : 'border-[#edf1f5] hover:border-[#bfd5ff]'
-                    }`}
-                  >
-                    {badge && (
-                      <Tag
-                        bordered={false}
-                        className={`absolute right-3 top-3 z-[1] m-0 !rounded-lg px-2 py-0.5 text-[14px] !font-bold leading-tight ${
-                          badge === 'Popular'
-                            ? '!border-0 !bg-[#69B1FF] !text-white'
-                            : '!border !border-solid !border-[#D1D5DB] !bg-white !text-black/60'
-                        }`}
-                        data-cy="plan-card-current-tag"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {badge}
-                      </Tag>
-                    )}
-                    {/* Radio row (Current tag is absolute top-right) */}
+          {plansByCurrency.map(({ currencyId, plans: groupPlans }) => {
+            const orderedGroupPlans = isMobile
+              ? [...groupPlans].sort((a, b) => {
+                  const aSelected = effectiveSelectedPlanId === a.id ? 0 : 1;
+                  const bSelected = effectiveSelectedPlanId === b.id ? 0 : 1;
+                  if (aSelected !== bSelected) return aSelected - bSelected;
+                  return 0;
+                })
+              : groupPlans;
+
+            return (
+              <div
+                key={currencyId}
+                className="grid w-full min-w-0 grid-cols-1 justify-items-center gap-y-4 md:grid-cols-2 md:gap-x-10 md:gap-y-6 xl:grid-cols-4 xl:gap-x-10"
+                data-cy={`manage-subscription-plans-currency-${currencyId}`}
+              >
+                {orderedGroupPlans.map((plan) => {
+                  const badge = getPlanBadge(plan);
+                  const isSelected = planManuallySelectedRef.current
+                    ? selectedPlanId === plan.id
+                    : effectiveSelectedPlanId === plan.id;
+                  const includedModuleIds = new Set(
+                    selectedModulesByPlan[plan.id] ??
+                      (plan.modules ?? []).map((pm) => pm.moduleId),
+                  );
+                  const modulesForCard =
+                    allModulesSorted.length > 0
+                      ? orderModulesForPlanCard(allModulesSorted, plan)
+                      : [];
+                  return (
                     <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
-                      className="relative flex min-h-[28px] items-center"
+                      key={plan.id}
+                      data-cy={`plan-card-${plan.id}`}
+                      onClick={() => {
+                        planManuallySelectedRef.current = true;
+                        setSelectedPlanId(plan.id);
+                      }}
+                      className={`relative h-[506px] w-[307px] shrink-0 cursor-pointer rounded-xl border bg-gradient-to-b from-white via-white to-[#eef7ff] px-4 pb-4 pt-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-200 max-lg:min-h-[366px] max-lg:h-auto max-lg:w-full max-lg:max-w-none ${
+                        isSelected
+                          ? 'border-primary shadow-[0_16px_32px_rgba(30,64,175,0.16)]'
+                          : 'border-[#edf1f5] hover:border-[#bfd5ff]'
+                      }`}
                     >
-                      <span
-                        data-cy={`manage-subscription-plan-${plan.id}-radio`}
-                        className={`flex h-4 w-4 items-center justify-center rounded-full border ${
-                          isSelected
-                            ? 'border-primary'
-                            : 'border-gray-300 bg-white'
-                        }`}
-                      >
-                        {isSelected ? (
-                          <span
-                            data-cy={`manage-subscription-plan-${plan.id}-radio-selected`}
-                            className="h-2 w-2 rounded-full bg-primary"
-                          />
-                        ) : null}
-                      </span>
-                    </div>
-                    {/* Centered plan title, price, description */}
-                    <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
-                      className="px-1 pt-2 text-center"
-                    >
-                      <div
-                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
-                        className="text-[14px] font-bold text-black"
-                      >
-                        {plan.name}
-                      </div>
-                      <div
-                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
-                        className="mt-2 text-[20px] font-bold leading-tight text-black"
-                      >
-                        {getPriceLabel(plan)}
-                      </div>
-                      {plan.description && (
-                        <div
-                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
-                          className="mt-2 text-[14px] font-normal text-black/50"
+                      {badge && (
+                        <Tag
+                          bordered={false}
+                          className={`absolute right-3 top-3 z-[1] m-0 !rounded-lg px-2 py-0.5 text-[14px] !font-bold leading-tight ${
+                            badge === 'Popular'
+                              ? '!border-0 !bg-[#69B1FF] !text-white'
+                              : '!border !border-solid !border-[#D1D5DB] !bg-white !text-black/60'
+                          }`}
+                          data-cy="plan-card-current-tag"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {plan.description}
-                        </div>
+                          {badge}
+                        </Tag>
                       )}
-                    </div>
-                    <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
-                      className="flex justify-center px-2"
-                    >
-                      <Divider className="!my-3 min-w-[96px] !w-[70%] max-w-[180px] border-[#edf1f5]" />
-                    </div>
-                    <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
-                      className="mt-1 flex flex-col items-center gap-1"
-                    >
-                      {modulesLoading && allModulesSorted.length === 0 ? (
-                        <LoadingOutlined
-                          spin
-                          className="text-primary"
-                          aria-label="Loading modules"
-                        />
-                      ) : modulesForCard.length > 0 ? (
-                        modulesForCard.map((mod) => {
-                          const included = includedModuleIds.has(mod.id);
-                          const label =
-                            mod.name?.trim() || mod.code?.trim() || 'Module';
-                          return (
-                            <div
-                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
-                              key={mod.id}
-                              className="flex w-full max-w-full cursor-pointer items-center justify-start gap-2 text-[14px] font-normal"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedModulesByPlan((prev) => {
-                                  const current = new Set(
-                                    prev[plan.id] ??
-                                      (plan.modules ?? []).map(
-                                        (pm) => pm.moduleId,
-                                      ),
-                                  );
-                                  if (current.has(mod.id)) {
-                                    current.delete(mod.id);
-                                  } else {
-                                    current.add(mod.id);
+                      {/* Radio row (Current tag is absolute top-right) */}
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
+                        className="relative flex min-h-[28px] items-center"
+                      >
+                        <span
+                          data-cy={`manage-subscription-plan-${plan.id}-radio`}
+                          className={`flex h-4 w-4 items-center justify-center rounded-full border ${
+                            isSelected
+                              ? 'border-primary'
+                              : 'border-gray-300 bg-white'
+                          }`}
+                        >
+                          {isSelected ? (
+                            <span
+                              data-cy={`manage-subscription-plan-${plan.id}-radio-selected`}
+                              className="h-2 w-2 rounded-full bg-primary"
+                            />
+                          ) : null}
+                        </span>
+                      </div>
+                      {/* Centered plan title, price, description */}
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
+                        className="px-1 pt-2 text-center"
+                      >
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
+                          className="text-[14px] font-bold text-black"
+                        >
+                          {plan.name}
+                        </div>
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
+                          className="mt-2 text-[20px] font-bold leading-tight text-black"
+                        >
+                          {getPriceLabel(plan)}
+                        </div>
+                        {plan.description && (
+                          <div
+                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
+                            className="mt-2 text-[14px] font-normal text-black/50"
+                          >
+                            {plan.description}
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
+                        className="flex justify-center px-2"
+                      >
+                        <Divider className="!my-3 min-w-[96px] !w-[70%] max-w-[180px] border-[#edf1f5]" />
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
+                        className="mt-1 flex flex-col items-center gap-1"
+                      >
+                        {modulesLoading && allModulesSorted.length === 0 ? (
+                          <LoadingOutlined
+                            spin
+                            className="text-primary"
+                            aria-label="Loading modules"
+                          />
+                        ) : modulesForCard.length > 0 ? (
+                          modulesForCard.map((mod) => {
+                            const included = includedModuleIds.has(mod.id);
+                            const label =
+                              mod.name?.trim() || mod.code?.trim() || 'Module';
+                            return (
+                              <div
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
+                                key={mod.id}
+                                className="flex w-full max-w-full cursor-pointer items-center justify-start gap-2 text-[14px] font-normal"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedModulesByPlan((prev) => {
+                                    const current = new Set(
+                                      prev[plan.id] ??
+                                        (plan.modules ?? []).map(
+                                          (pm) => pm.moduleId,
+                                        ),
+                                    );
+                                    if (current.has(mod.id)) {
+                                      current.delete(mod.id);
+                                    } else {
+                                      current.add(mod.id);
+                                    }
+                                    return {
+                                      ...prev,
+                                      [plan.id]: Array.from(current),
+                                    };
+                                  });
+                                }}
+                              >
+                                <span
+                                  data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
+                                  className="inline-flex size-[18px] shrink-0 items-center justify-center"
+                                  aria-hidden
+                                >
+                                  {included ? (
+                                    <IoCheckbox className="size-full text-[#69B1FF]" />
+                                  ) : (
+                                    <span
+                                      data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
+                                      className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
+                                    />
+                                  )}
+                                </span>
+                                <span
+                                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
+                                  className={
+                                    included ? 'text-black' : 'text-black/45'
                                   }
-                                  return {
-                                    ...prev,
-                                    [plan.id]: Array.from(current),
-                                  };
-                                });
-                              }}
+                                >
+                                  {label}
+                                </span>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          (plan.planDetails ?? []).map((detail, i) => (
+                            <div
+                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
+                              key={`${plan.id}-detail-${i}`}
+                              className="flex w-full max-w-full items-center justify-start gap-2 text-[14px] font-normal"
                             >
-                              <span
-                                data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
-                                className="inline-flex size-[18px] shrink-0 items-center justify-center"
+                              <IoCheckbox
+                                className="size-[18px] shrink-0 text-primary"
                                 aria-hidden
-                              >
-                                {included ? (
-                                  <IoCheckbox className="size-full text-[#69B1FF]" />
-                                ) : (
-                                  <span
-                                    data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
-                                    className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
-                                  />
-                                )}
-                              </span>
+                              />
                               <span
-                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
-                                className={
-                                  included ? 'text-black' : 'text-black/45'
-                                }
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
+                                className="text-black"
                               >
-                                {label}
+                                {detail}
                               </span>
                             </div>
-                          );
-                        })
-                      ) : (
-                        (plan.planDetails ?? []).map((detail, i) => (
-                          <div
-                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
-                            key={`${plan.id}-detail-${i}`}
-                            className="flex w-full max-w-full items-center justify-start gap-2 text-[14px] font-normal"
-                          >
-                            <IoCheckbox
-                              className="size-[18px] shrink-0 text-primary"
-                              aria-hidden
-                            />
-                            <span
-                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
-                              className="text-black"
-                            >
-                              {detail}
-                            </span>
-                          </div>
-                        ))
-                      )}
+                          ))
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         {/* Footer */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-817"
-          className="flex justify-end gap-3 max-lg:shrink-0 max-lg:border-t max-lg:border-gray-100 max-lg:pt-3 lg:pt-0 lg:border-t-0"
+          className="flex justify-end gap-3 max-lg:sticky max-lg:bottom-0 max-lg:z-[2] max-lg:shrink-0 max-lg:border-t max-lg:border-gray-100 max-lg:bg-white max-lg:pt-3 lg:pt-0 lg:border-t-0"
         >
           <Button
             onClick={onClose}

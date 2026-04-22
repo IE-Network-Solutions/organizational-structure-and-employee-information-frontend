@@ -606,6 +606,43 @@ h6 {
   opacity: 1 !important;
 }
 
+@media (max-width: 767px) {
+  .manage-subscription-modal.ant-modal {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-content {
+    border-radius: 10px !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-header {
+    padding: 10px 12px 0 !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-body {
+    padding: 10px 12px 12px !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+  }
+
+  .invoice-modal.ant-modal .ant-modal-content {
+    width: calc(100vw - 28px) !important;
+    max-width: calc(100vw - 28px) !important;
+    height: auto !important;
+    max-height: calc(100vh - 40px) !important;
+    border-radius: 10px !important;
+  }
+
+  .invoice-modal.ant-modal .ant-modal-header {
+    padding: 14px 16px 0 !important;
+  }
+}
+
 .ql-container.ql-snow {
   border: none !important;
   font-family: 'Calibre', sans-serif;

@@ -20,6 +20,7 @@ import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { useQueryClient } from 'react-query';
 import dayjs from 'dayjs';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const AdminDashboard = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -41,6 +42,7 @@ const AdminDashboard = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { isMobile } = useIsMobile();
 
   const {
     data: invoicesData,
@@ -193,7 +195,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div id="admin-dashboard" data-cy="admin-dashboard">
+    <div id="admin-dashboard" data-cy="admin-dashboard" className="max-sm:pt-1">
       {/* Current Subscription + Invoice cards */}
       {isLoading ? (
         <Card
@@ -205,17 +207,17 @@ const AdminDashboard = () => {
       ) : (
         <div
           data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-200"
-          className="mb-8 grid gap-4 lg:grid-cols-2"
+          className="mb-6 grid gap-5 lg:mb-8 lg:grid-cols-2"
         >
           {/* Left: Current Subscription */}
           <Card
             id="current-subscription-card"
             data-cy="current-subscription-card"
-            className="rounded-lg shadow-sm h-full"
+            className="h-full rounded-lg shadow-sm"
             style={{
               border: '2px solid rgba(9, 88, 217, 0.3)',
             }}
-            styles={{ body: { padding: '16px' } }}
+            styles={{ body: { padding: isMobile ? '14px 14px 10px' : '16px' } }}
           >
             <div
               data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-209"
@@ -252,7 +254,7 @@ const AdminDashboard = () => {
               >
                 <span
                   data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-227"
-                  className="text-2xl font-bold text-gray-900"
+                  className="text-[16px] font-bold leading-none text-gray-900 sm:text-2xl"
                 >
                   {currentPlan?.name ?? 'No Plan'}
                 </span>
@@ -268,7 +270,7 @@ const AdminDashboard = () => {
                   >
                     <span
                       data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-234"
-                      className="text-sm text-gray-600"
+                      className="text-[11px] text-gray-600 sm:text-sm"
                     >
                       <span
                         data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-235"
@@ -294,7 +296,7 @@ const AdminDashboard = () => {
               )}
               <p
                 data-cy="-afterlogin-admin-dashboard-page-tsx-page-p-251"
-                className="text-[16px] text-gray-600 mb-3"
+                className="mb-3 text-[13px] text-gray-600 sm:text-[16px]"
               >
                 Need Extra feature or want to update seats?
               </p>
@@ -306,7 +308,7 @@ const AdminDashboard = () => {
                   type="primary"
                   onClick={openManageSubscriptionModal}
                   data-cy="manage-subscription-button"
-                  className="h-10 w-[185px] rounded-md font-normal"
+                  className="h-10 w-full max-w-[206px] rounded-md font-normal sm:w-[185px]"
                 >
                   Manage Subscription
                 </Button>
@@ -318,9 +320,9 @@ const AdminDashboard = () => {
           <Card
             id="latest-invoice-card"
             data-cy="latest-invoice-card"
-            className="rounded-lg shadow-sm h-full"
+            className="h-full rounded-lg shadow-sm"
             style={{ border: '2px solid #e5e7eb' }}
-            styles={{ body: { padding: '16px' } }}
+            styles={{ body: { padding: isMobile ? '14px' : '16px' } }}
           >
             <div
               data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-275"
@@ -338,7 +340,7 @@ const AdminDashboard = () => {
                     >
                       <span
                         data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-280"
-                        className="text-[16px] font-medium text-gray-500"
+                        className="text-[14px] font-medium text-gray-500 sm:text-[16px]"
                       >
                         Invoice
                       </span>
@@ -358,12 +360,12 @@ const AdminDashboard = () => {
                     </div>
                     <div
                       data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-297"
-                      className="text-[16px] text-gray-700 font-bold"
+                      className="text-[16px] font-bold text-gray-700"
                     >
                       #{lastInvoice.invoiceNumber}
                     </div>
                   </div>
-                  <Divider className="my-0" />
+                  <Divider className="!my-0" />
                   <div
                     data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-302"
                     className="flex flex-col gap-1 w-full"
@@ -374,7 +376,7 @@ const AdminDashboard = () => {
                     >
                       <span
                         data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-304"
-                        className="text-[16px] text-gray-500"
+                        className="text-[14px] text-gray-500 sm:text-[16px]"
                       >
                         Due Date
                       </span>
@@ -390,7 +392,7 @@ const AdminDashboard = () => {
                     </div>{' '}
                     <span
                       data-cy="-afterlogin-admin-dashboard-page-tsx-page-span-315"
-                      className="text-[16px] text-gray-700 font-bold"
+                      className="text-[16px] font-bold text-gray-700"
                     >
                       {dayjs(lastInvoice.dueAt).format('MMM D, YYYY')}
                     </span>
@@ -399,12 +401,12 @@ const AdminDashboard = () => {
               )}
               <div
                 data-cy="-afterlogin-admin-dashboard-page-tsx-page-div-321"
-                className="flex justify-center mt-6"
+                className="mt-5 flex justify-center sm:mt-6"
               >
                 <Button
                   onClick={() => router.push('/admin/billing')}
                   data-cy="billing-and-invoice-button"
-                  className="h-10 w-[185px] rounded-md border-gray-300 font-normal"
+                  className="h-10 w-full max-w-[206px] rounded-md border-gray-300 font-normal sm:w-[185px]"
                 >
                   Billing and Invoice
                 </Button>

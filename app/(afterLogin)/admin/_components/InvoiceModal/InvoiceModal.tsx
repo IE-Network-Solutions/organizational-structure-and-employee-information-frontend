@@ -218,7 +218,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         >
           <div
             data-cy="invoice-modal-inner-box"
-            className="mx-5 mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#eceff3] bg-white"
+            className="mx-5 mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[#eceff3] bg-white max-sm:mx-4 max-sm:mt-3"
           >
             <div
               data-cy="invoice-modal-scroll"
@@ -226,7 +226,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             >
               <div
                 data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-151"
-                className="flex items-start justify-between gap-4 px-5 pb-4 pt-5"
+                className="flex items-start justify-between gap-4 px-5 pb-4 pt-5 max-sm:px-4 max-sm:pb-3 max-sm:pt-4"
               >
                 <div data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-152">
                   <h2
@@ -260,22 +260,22 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
               <div
                 data-cy="invoice-modal-payment-information"
-                className="px-5 py-4"
+                className="px-5 py-4 max-sm:px-4 max-sm:py-3"
               >
                 <h3
                   data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-h3-177"
-                  className="mb-4 text-[16px] font-semibold text-gray-900"
+                  className="mb-4 text-[16px] font-semibold text-gray-900 max-sm:text-[15px]"
                 >
                   Payment Information
                 </h3>
                 <div
-                  className="-mx-5 mb-4 h-px bg-[#eceff3]"
+                  className="-mx-5 mb-4 h-px bg-[#eceff3] max-sm:-mx-4"
                   data-cy="invoice-modal-separator-under-payment-title"
                   aria-hidden
                 />
                 <div
                   data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-181"
-                  className="flex flex-col gap-4 text-[14px]"
+                  className="flex flex-col gap-4 text-[14px] max-sm:text-[13px]"
                 >
                   {[
                     ['Invoice Number', `#${invoiceData.invoiceNumber}`],
@@ -309,7 +309,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <div
                       data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-211"
                       key={String(label)}
-                      className="grid grid-cols-[140px_minmax(0,1fr)] items-start gap-4"
+                      className="grid grid-cols-[140px_minmax(0,1fr)] items-start gap-4 max-sm:grid-cols-[110px_minmax(0,1fr)] max-sm:gap-3"
                     >
                       <span
                         data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-215"
@@ -334,25 +334,28 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 aria-hidden
               />
 
-              <div data-cy="invoice-modal-plan-detail" className="px-5 py-4">
+              <div
+                data-cy="invoice-modal-plan-detail"
+                className="px-5 py-4 max-sm:px-4 max-sm:py-3"
+              >
                 <h3
                   data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-h3-228"
-                  className="mb-4 text-[16px] font-semibold text-gray-900"
+                  className="mb-4 text-[16px] font-semibold text-gray-900 max-sm:text-[15px]"
                 >
                   Plan Detail
                 </h3>
                 <div
-                  className="-mx-5 mb-4 h-px bg-[#eceff3]"
+                  className="-mx-5 mb-4 h-px bg-[#eceff3] max-sm:-mx-4"
                   data-cy="invoice-modal-separator-under-plan-title"
                   aria-hidden
                 />
                 <div
                   data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-233"
-                  className="flex flex-col gap-3 text-[14px]"
+                  className="flex flex-col gap-3 text-[14px] max-sm:text-[13px]"
                 >
                   <div
                     data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-234"
-                    className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4"
+                    className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4 max-sm:grid-cols-[110px_minmax(0,1fr)] max-sm:gap-3"
                   >
                     <span
                       data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-235"
@@ -373,7 +376,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                   </div>
                   <div
                     data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-242"
-                    className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4"
+                    className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4 max-sm:grid-cols-[110px_minmax(0,1fr)] max-sm:gap-3"
                   >
                     <span
                       data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-243"
@@ -392,7 +395,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                   </div>
                   <div
                     data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-248"
-                    className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4"
+                    className="grid grid-cols-[140px_minmax(0,1fr)] items-center gap-4 max-sm:grid-cols-[110px_minmax(0,1fr)] max-sm:gap-3"
                   >
                     <span
                       data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-span-249"
@@ -424,22 +427,22 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
               <div
                 data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-269"
-                className="px-5 py-4"
+                className="px-5 py-4 max-sm:px-4 max-sm:py-3"
               >
                 <h3
                   data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-h3-270"
-                  className="mb-4 text-[16px] font-semibold text-gray-900"
+                  className="mb-4 text-[16px] font-semibold text-gray-900 max-sm:text-[15px]"
                 >
                   Notes
                 </h3>
                 <div
-                  className="-mx-5 mb-4 h-px bg-[#eceff3]"
+                  className="-mx-5 mb-4 h-px bg-[#eceff3] max-sm:-mx-4"
                   data-cy="invoice-modal-separator-under-notes-title"
                   aria-hidden
                 />
                 <p
                   data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-p-275"
-                  className="text-[13px] leading-normal text-gray-900"
+                  className="text-[13px] leading-normal text-gray-900 max-sm:text-[12px]"
                 >
                   {invoiceData.notes || '—'}
                 </p>
@@ -449,7 +452,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
           <div
             data-cy="admin-components-invoicemodal-invoicemodal-tsx-invoicemodal-div-281"
-            className="ml-auto flex shrink-0 items-center justify-end gap-3 px-5 py-4"
+            className="ml-auto flex shrink-0 items-center justify-end gap-3 px-5 py-4 max-sm:w-full max-sm:px-4 max-sm:pb-4 max-sm:pt-3"
           >
             <Button
               onClick={onClose}
