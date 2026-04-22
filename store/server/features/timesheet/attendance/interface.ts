@@ -3,12 +3,13 @@ export interface AttendanceRequestBody {
   filter: {
     attendanceRecordIds?: string[];
     userIds?: string[];
-    type?: 'late' | 'early' | 'absent' | 'present';
+    type?: 'late' | 'early' | 'absent' | 'present' | '';
     breakTypeId?: string;
     date?: {
       from: string;
       to: string;
     };
+    clockedOut?: boolean;
     locations?: string[];
   };
   data?: Array<{
