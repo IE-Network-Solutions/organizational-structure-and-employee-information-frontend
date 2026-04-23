@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { MANAGE_SUBSCRIPTION_API_URL } from '@/utils/constants';
+import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -15,7 +15,7 @@ const getSubscriptionByTenant = async (
 ) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/subscriptions/get`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/get`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -41,7 +41,7 @@ const calculateSubscriptionPrice = async (
 ) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/rest/slot-transactions/calculation`,
+    url: `${TENANT_MGMT_URL}/subscription/rest/slot-transactions/calculation`,
     method: 'POST',
     headers: requestHeaders,
     data,

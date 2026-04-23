@@ -1,7 +1,7 @@
 import { PaymentRequestBody } from './interface';
 import { Payment } from '@/types/tenant-management';
 import { crudRequest } from '@/utils/crudRequest';
-import { MANAGE_SUBSCRIPTION_API_URL } from '@/utils/constants';
+import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -9,7 +9,7 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 const getPayments = async (data: Partial<PaymentRequestBody>) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/rest/payments`,
+    url: `${TENANT_MGMT_URL}/subscription/rest/payments`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -51,7 +51,7 @@ const initiatePayment = async (
 ) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/payments/initiate/${invoiceId}`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/payments/initiate/${invoiceId}`,
     method: 'POST',
     headers: requestHeaders,
     data,

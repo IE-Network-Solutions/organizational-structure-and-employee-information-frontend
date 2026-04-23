@@ -1,7 +1,7 @@
 import { ModuleRequestBody } from './interface';
 import { Module } from '@/types/tenant-management';
 import { crudRequest } from '@/utils/crudRequest';
-import { MANAGE_SUBSCRIPTION_API_URL } from '@/utils/constants';
+import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -9,7 +9,7 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 const getModules = async (data: Partial<ModuleRequestBody>) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/rest/modules`,
+    url: `${TENANT_MGMT_URL}/subscription/rest/modules`,
     method: 'POST',
     headers: requestHeaders,
     data,

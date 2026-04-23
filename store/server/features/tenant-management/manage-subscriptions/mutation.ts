@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { MANAGE_SUBSCRIPTION_API_URL } from '@/utils/constants';
+import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -14,7 +14,7 @@ import {
 const createSubscription = async (data: Partial<Subscription>) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/subscriptions/create`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/create`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -24,7 +24,7 @@ const createSubscription = async (data: Partial<Subscription>) => {
 const upgradeSubscription = async (data: UpgradeSubscriptionRequest) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/subscriptions/upgrade`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/upgrade`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -34,7 +34,7 @@ const upgradeSubscription = async (data: UpgradeSubscriptionRequest) => {
 const buyAdditionalSlots = async (data: BuyAdditionalSlotsRequest) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/subscriptions/slots`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/slots`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -44,7 +44,7 @@ const buyAdditionalSlots = async (data: BuyAdditionalSlotsRequest) => {
 const renewSubscription = async (data: RenewSubscriptionRequest) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/subscriptions/renew`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/renew`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -54,7 +54,7 @@ const renewSubscription = async (data: RenewSubscriptionRequest) => {
 const prepaySubscription = async (data: PrepaySubscriptionRequest) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${MANAGE_SUBSCRIPTION_API_URL}/subscription/manage/subscriptions/prepay`,
+    url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/prepay`,
     method: 'POST',
     headers: requestHeaders,
     data,

@@ -11,17 +11,7 @@ export const RECRUITMENT_URL = process.env.RECRUITMENT_URL;
 export const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN;
 
 export const TENANT_BASE_URL = process.env.TENANT_BASE_URL;
-const tenantMgmtFromBase = TENANT_BASE_URL
-  ? `${TENANT_BASE_URL.replace(/\/$/, '')}/api/v1`
-  : '';
-
-export const TENANT_MGMT_URL =
-  process.env.NEXT_PUBLIC_TENANT_MGMT_URL?.replace(/\/$/, '') ||
-  tenantMgmtFromBase;
-
-// Dedicated API base URL for admin manage-subscription flow (plans, subscriptions, modules, invoices, payments).
-export const MANAGE_SUBSCRIPTION_API_URL =
-  process.env.NEXT_PUBLIC_MANAGE_SUBSCRIPTION_API_URL?.replace(/\/$/, '') || '';
+export const TENANT_MGMT_URL = `${TENANT_BASE_URL}/api/v1`;
 
 // Notification: NOTIFICATION_URL for REST and WebSocket (WS URL = origin). Push: NEXT_PUBLIC_VAPID_PUBLIC_KEY.
 export const NOTIFICATION_URL = process.env.NOTIFICATION_URL;
