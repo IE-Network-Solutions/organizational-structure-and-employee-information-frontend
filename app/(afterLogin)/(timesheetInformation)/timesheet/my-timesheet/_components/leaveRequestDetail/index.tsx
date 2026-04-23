@@ -171,17 +171,13 @@ const LeaveRequestDetail = () => {
     leaveData?.items?.status === LeaveRequestStatus.APPROVED ||
     leaveData?.items?.status === LeaveRequestStatus.DECLINED;
 
-  // Disable edit when any approval step has been acted on (approval has started)
-  const approvalHasStarted = sortedApprovalData.some(
-    (step) => step.status !== 'Pending',
-  );
-
   const handleCancelRequest = () => {
     if (!leaveRequestSidebarData) return;
+    if (leaveData?.items?.status !== LeaveRequestStatus.PENDING) return;
     Modal.confirm({
-      title: 'Cancel request',
-      content: 'Are you sure you want to cancel this leave request?',
-      okText: 'Yes, cancel',
+      title: 'Delete leave request',
+      content: 'Are you sure you want to delete this leave request?',
+      okText: 'Yes, delete',
       cancelText: 'No',
       okButtonProps: { danger: true },
       onOk: () => {
@@ -233,9 +229,12 @@ const LeaveRequestDetail = () => {
           isHalfday: !!value.isHalfday,
           startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
           endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
-          justificationDocument: value.attachment?.length
-            ? (value.attachment[0]?.response ?? item.justificationDocument)
-            : item.justificationDocument,
+          justificationDocument:
+            value.attachment === undefined
+              ? item.justificationDocument
+              : value.attachment.length
+                ? (value.attachment[0]?.response ?? item.justificationDocument)
+                : null,
           justificationNote: value.note,
           status: LeaveRequestStatus.PENDING,
           approvalWorkflowId:
@@ -583,7 +582,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
-                    disabled={disableActions || approvalHasStarted}
+                    disabled={disableActions}
                   />
                 </Form.Item>
               </Col>
@@ -599,7 +598,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
-                    disabled={disableActions || approvalHasStarted}
+                    disabled={disableActions}
                   />
                 </Form.Item>
               </Col>
@@ -679,17 +678,15 @@ const LeaveRequestDetail = () => {
             data-cy="time-attendance-leave-request-detail-footer-actions"
           >
             <Button
-              danger
-              onClick={handleCancelRequest}
-              disabled={disableActions}
-              data-cy="time-attendance-leave-request-detail-cancel-request-button"
+              onClick={onClose}
+              data-cy="time-attendance-leave-request-detail-close-button"
             >
-              Cancel Request
+              Close
             </Button>
             <Button
               type="primary"
               loading={isUpdating}
-              disabled={disableActions || approvalHasStarted}
+              disabled={disableActions}
               onClick={() => form.submit()}
               data-cy="time-attendance-leave-request-detail-edit-request-button"
             >
