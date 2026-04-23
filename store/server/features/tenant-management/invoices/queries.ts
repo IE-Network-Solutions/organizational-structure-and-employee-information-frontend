@@ -53,6 +53,7 @@ export const useGetInvoices = (
 export const useGetInvoiceDetail = (
   invoiceId: string,
   exportType: string = 'pdf',
+  isEnabled: boolean = true,
 ) => {
   return useQuery<ApiResponse<any>>(
     ['invoice-detail', invoiceId, exportType],
@@ -66,7 +67,7 @@ export const useGetInvoiceDetail = (
       });
     },
     {
-      enabled: !!invoiceId,
+      enabled: !!invoiceId && isEnabled,
       retry: 1,
       refetchOnWindowFocus: false,
     },

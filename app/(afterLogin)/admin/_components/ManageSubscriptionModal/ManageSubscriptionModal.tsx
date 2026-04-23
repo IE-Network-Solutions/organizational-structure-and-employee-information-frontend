@@ -4,9 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Modal,
   Button,
-  Input,
   InputNumber,
-  Radio,
   Tooltip,
   Tag,
   Divider,
@@ -36,6 +34,7 @@ import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tena
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
 import { IoCheckbox } from 'react-icons/io5';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface ManageSubscriptionModalProps {
   open: boolean;
@@ -57,6 +56,42 @@ const getDefaultPeriodTypeId = (plan: Plan | undefined): string | null => {
   return (fromSub ?? sorted[0]).periodTypeId;
 };
 
+const getFallbackPeriodLabel = (pp: PlanPeriod) => {
+  const code = pp.periodType?.code?.trim();
+  if (code) return code;
+  const description = pp.periodType?.description?.trim();
+  if (description) return description;
+  const months = pp.periodType?.periodInMonths;
+  if (months != null && months > 0) {
+    return `${months} month${months === 1 ? '' : 's'}`;
+  }
+  return 'Period';
+};
+
+const getBillingOptionLabel = (pp: PlanPeriod) => {
+  const code = pp.periodType?.code?.toLowerCase() ?? '';
+  const months = pp.periodType?.periodInMonths ?? 0;
+  if (months === 12 || code.includes('annual') || code.includes('year'))
+    return 'Annually';
+  if (months === 1 || code.includes('month')) return 'Monthly';
+  return getFallbackPeriodLabel(pp);
+};
+
+const getBillingHelperLabel = (pp: PlanPeriod | undefined) => {
+  if (!pp) return '';
+  const optionLabel = getBillingOptionLabel(pp).toLowerCase();
+  return `You will be billed ${optionLabel} for the plan you have chosen`;
+};
+
+const getPriceUnitLabel = (pp: PlanPeriod | undefined) => {
+  const code = pp?.periodType?.code?.toLowerCase() ?? '';
+  const months = pp?.periodType?.periodInMonths ?? 0;
+  if (months === 12 || code.includes('annual') || code.includes('year'))
+    return 'Year';
+  if (months === 1 || code.includes('month')) return 'Month';
+  return pp ? getFallbackPeriodLabel(pp) : 'Period';
+};
+
 /** Full catalog rows: modules included on the plan first, then the rest; `orderIndex` within each group. */
 const orderModulesForPlanCard = (catalog: Module[], plan: Plan): Module[] => {
   const includedIds = new Set((plan.modules ?? []).map((pm) => pm.moduleId));
@@ -72,6 +107,7 @@ export const ManageSubscriptionModal: React.FC<
   ManageSubscriptionModalProps
 > = ({ open, onClose, onContinueToInvoice }) => {
   const { setTransactionType } = usePaymentStore();
+  const { isMobile } = useIsMobile();
   /** Select active plan once per modal open (after data is ready). */
   const defaultSelectionAppliedRef = useRef(false);
   const periodManuallySelectedRef = useRef(false);
@@ -83,6 +119,9 @@ export const ManageSubscriptionModal: React.FC<
     useState<Subscription | null>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [seatCount, setSeatCount] = useState<number>(10);
+  const [selectedModulesByPlan, setSelectedModulesByPlan] = useState<
+    Record<string, string[]>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   /** Which billing period (by period type id) is selected — must exist on the selected plan's `periods`. */
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
@@ -113,6 +152,19 @@ export const ManageSubscriptionModal: React.FC<
       (a: Module, b: Module) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0),
     );
   }, [modulesData]);
+
+  useEffect(() => {
+    if (!plans.length) return;
+    setSelectedModulesByPlan((prev) => {
+      const next = { ...prev };
+      for (const plan of plans) {
+        if (!next[plan.id]) {
+          next[plan.id] = (plan.modules ?? []).map((m) => m.moduleId);
+        }
+      }
+      return next;
+    });
+  }, [plans]);
 
   useEffect(() => {
     if (plansData?.items) {
@@ -226,18 +278,10 @@ export const ManageSubscriptionModal: React.FC<
     }
 
     setSelectedPeriodTypeId(getDefaultPeriodTypeId(plan));
-  }, [selectedPlanId, visiblePlans, activeSubscription]);
+  }, [selectedPlanId, visiblePlans, activeSubscription, selectedPeriodTypeId]);
 
   const selectedPlan = visiblePlans.find((p) => p.id === selectedPlanId);
   const currentPlanId = activeSubscription?.planId;
-  const currentPeriodTypeId =
-    activeSubscription?.planPeriod?.periodTypeId ??
-    activeSubscription?.plan?.periods?.find(
-      (pp) => pp.id === activeSubscription?.planPeriodId,
-    )?.periodTypeId ??
-    null;
-  const effectiveSelectedPeriodTypeId =
-    selectedPeriodTypeId ?? currentPeriodTypeId;
   const effectiveSelectedPlanId = selectedPlanId ?? currentPlanId ?? null;
 
   /** Visible plans grouped by currency (typically one group after active-currency filter). */
@@ -273,30 +317,19 @@ export const ManageSubscriptionModal: React.FC<
 
   const getPlanBadge = (plan: Plan) => {
     const isCurrentPlan = plan.id === currentPlanId;
-    const isCurrentBillingType =
-      !!effectiveSelectedPeriodTypeId &&
-      !!currentPeriodTypeId &&
-      effectiveSelectedPeriodTypeId === currentPeriodTypeId;
-    return isCurrentPlan && isCurrentBillingType ? 'Current' : null;
-  };
-
-  const formatPeriodLabel = (pp: PlanPeriod) => {
-    const pt = pp.periodType;
-    const code = pt?.code?.trim();
-    if (code) return code;
-    const desc = pt?.description?.trim();
-    if (desc) return desc;
-    const m = pt?.periodInMonths;
-    if (m != null && m > 0) return `${m} month${m === 1 ? '' : 's'}`;
-    return 'period';
+    if (isCurrentPlan) return 'Current';
+    const name = plan.name?.toLowerCase().trim() ?? '';
+    // API names vary ("Performance", "Performance Plan", etc.); avoid missing Popular on exact match only.
+    if (name.includes('performance')) return 'Popular';
+    return null;
   };
 
   const getPriceLabel = (plan: Plan) => {
-    const currency = plan.currency?.symbol ?? '$';
     const period = getPlanPeriodForSelection(plan, selectedPeriodTypeId);
+    const currency = plan.currency?.symbol ?? '$';
     const price =
       period?.periodSlotPrice ?? plan.slotPrice ?? Number(plan.slotPrice) ?? 0;
-    const periodLabel = period ? formatPeriodLabel(period) : '—';
+    const periodLabel = getPriceUnitLabel(period);
     return `${currency}${Number(price).toFixed(0)} / User / ${periodLabel}`;
   };
 
@@ -315,6 +348,20 @@ export const ManageSubscriptionModal: React.FC<
       : currentSlotTotal > 0
         ? currentSlotTotal
         : 1;
+
+  // Keep seat input valid.
+  useEffect(() => {
+    if (seatCount < minimumSeatCount) {
+      setSeatCount(minimumSeatCount);
+    }
+  }, [seatCount, minimumSeatCount]);
+
+  // On open, default seat count to the minimum valid number.
+  useEffect(() => {
+    if (!open) return;
+    setSeatCount(minimumSeatCount);
+  }, [open, minimumSeatCount]);
+
   const isSeatDecreased = seatCount < minimumSeatCount;
   const isSeatIncreased =
     hasExistingSubscription && seatCount > currentSlotTotal;
@@ -381,23 +428,14 @@ export const ManageSubscriptionModal: React.FC<
     isSeatIncreased,
   ]);
 
-  const billingPeriodOptions = selectedPlan?.periods?.length
-    ? sortPlanPeriods(selectedPlan.periods)
-    : [];
-  const displayedBillingPeriodOptions = useMemo(() => {
-    if (!billingPeriodOptions.length) return [];
-    const currentPeriodId = activeSubscription?.planPeriodId;
-    if (!currentPeriodId) return billingPeriodOptions;
-    return [...billingPeriodOptions].sort((a, b) => {
-      const aCurrent = a.id === currentPeriodId ? 0 : 1;
-      const bCurrent = b.id === currentPeriodId ? 0 : 1;
-      if (aCurrent !== bCurrent) return aCurrent - bCurrent;
-      return (
-        (a.periodType?.periodInMonths ?? 0) -
-        (b.periodType?.periodInMonths ?? 0)
-      );
-    });
-  }, [billingPeriodOptions, activeSubscription?.planPeriodId]);
+  const billingPeriodOptions = useMemo(
+    () =>
+      selectedPlan?.periods?.length
+        ? sortPlanPeriods(selectedPlan.periods)
+        : [],
+    [selectedPlan],
+  );
+  const displayedBillingPeriodOptions = billingPeriodOptions;
 
   const calculationDto: CalculateSubscriptionPriceDto | null = useMemo(() => {
     if (
@@ -437,6 +475,12 @@ export const ManageSubscriptionModal: React.FC<
     useCalculateSubscriptionPrice(calculationDto, isCalculationEnabled);
 
   const totalAmount = calculationData?.item?.totalAmount ?? null;
+  const displayAmount = useMemo(() => {
+    if (!selectedPlanPeriod) return null;
+    const slotPrice =
+      selectedPlanPeriod.periodSlotPrice ?? selectedPlan?.slotPrice ?? 0;
+    return Number(slotPrice) * Number(seatCount || 0);
+  }, [selectedPlanPeriod, selectedPlan, seatCount]);
   const currencySymbol = selectedPlan?.currency?.symbol ?? '$';
 
   const getInvoiceIdFromResponse = (payload: any): string | null => {
@@ -499,7 +543,7 @@ export const ManageSubscriptionModal: React.FC<
             slotTotal: seatCount,
             tenantId: DEFAULT_TENANT_ID,
             currencyId: selectedPlan.currency?.id,
-            subscriptionPrice: Number(totalAmount ?? 0),
+            subscriptionPrice: Number(totalAmount ?? displayAmount ?? 0),
             subscriptionStatus: 'pending' as any,
             isActive: false,
           } as any);
@@ -558,7 +602,7 @@ export const ManageSubscriptionModal: React.FC<
     }
   };
 
-  // Width: fluid from viewport; max ~1100px on large screens.
+  // Wide enough for four 307px plan cards + column gaps (see plan grid gap-x-*).
   // Below lg: modal body is height-capped; only the plan cards scroll so seats / billing / total stay visible.
   return (
     <Modal
@@ -566,7 +610,7 @@ export const ManageSubscriptionModal: React.FC<
       open={open}
       onCancel={onClose}
       footer={null}
-      width="min(92vw, calc(100vw - 32px), 1100px)"
+      width={1400}
       centered
       destroyOnClose
       className="manage-subscription-modal"
@@ -574,9 +618,12 @@ export const ManageSubscriptionModal: React.FC<
       classNames={{
         body: [
           'manage-subscription-modal__body',
+          '!px-5 !pb-5 !pt-4 md:!px-6 md:!pb-6',
           // Narrow viewports: column flex + height cap so only the cards region scrolls inside the modal.
           'max-lg:!flex max-lg:!flex-col max-lg:!min-h-0',
           'max-lg:!max-h-[min(86dvh,calc(100dvh-5.5rem))] max-lg:!overflow-hidden max-lg:!pb-4',
+          // Desktop target design height.
+          'lg:!h-[703px]',
         ].join(' '),
       }}
     >
@@ -587,11 +634,11 @@ export const ManageSubscriptionModal: React.FC<
         {/* Top controls — equal 3 columns on md+; billing centered in the middle */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-579"
-          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-1 gap-4 md:grid-cols-3 md:items-center md:gap-6"
+          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-3 md:items-start md:gap-6"
         >
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-580"
-            className="md:justify-self-start flex w-full min-w-0 flex-wrap items-center gap-2 md:max-w-none"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-wrap md:justify-self-start md:flex-row md:items-center"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-581"
@@ -601,7 +648,7 @@ export const ManageSubscriptionModal: React.FC<
                 data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-582"
                 className="text-sm font-medium text-gray-700 whitespace-nowrap"
               >
-                Number of Seats
+                {isMobile ? 'Seats' : 'Number of Seats'}
               </span>
               <Tooltip title="Total number of user seats for this subscription">
                 <AiOutlineQuestionCircle
@@ -618,7 +665,7 @@ export const ManageSubscriptionModal: React.FC<
                   Math.max(minimumSeatCount, Number(v ?? minimumSeatCount)),
                 )
               }
-              className="!w-[112px] max-w-[112px] shrink-0"
+              className="!h-8 !w-[76px] max-w-[76px] shrink-0"
               controls={false}
               data-cy="manage-subscription-seats"
             />
@@ -634,7 +681,7 @@ export const ManageSubscriptionModal: React.FC<
           </div>
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-611"
-            className="flex min-w-0 w-full flex-col items-center text-center"
+            className="hidden min-w-0 w-full flex-col items-center text-center md:flex"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-612"
@@ -653,44 +700,46 @@ export const ManageSubscriptionModal: React.FC<
               <>
                 <div
                   data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-619"
-                  className="flex flex-wrap justify-center gap-2 font-medium"
+                  className="inline-flex flex-wrap items-center justify-center gap-2.5"
                 >
                   {displayedBillingPeriodOptions.map((pp) => {
-                    const label = formatPeriodLabel(pp);
+                    const label = getBillingOptionLabel(pp);
                     const isActive = selectedPeriodTypeId
                       ? pp.periodTypeId === selectedPeriodTypeId
                       : activeSubscription?.planPeriodId === pp.id;
                     return (
-                      <Button
+                      <button
                         key={pp.id}
-                        type={isActive ? 'primary' : 'default'}
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
                           periodManuallySelectedRef.current = true;
                           setSelectedPeriodTypeId(pp.periodTypeId);
                         }}
                         data-cy={`billing-period-${pp.periodType?.code ?? pp.id}`}
-                        className="font-medium"
+                        className={`min-h-9 min-w-[112px] rounded-lg px-5 py-2 text-[14px] font-medium leading-none transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e40af]/35 ${
+                          isActive
+                            ? 'border border-[#1e40af] bg-[#1e40af] text-white hover:border-[#1e3a8a] hover:bg-[#1e3a8a]'
+                            : 'border border-solid border-[#D1D5DB] bg-white text-[#4B5563] hover:bg-gray-50'
+                        }`}
                       >
                         {label}
-                      </Button>
+                      </button>
                     );
                   })}
                 </div>
                 <p
                   data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-p-642"
-                  className="text-xs text-gray-400 mt-1 max-w-md"
+                  className="mt-2 max-w-md text-[12px] font-normal leading-4 text-[#9ca3af]"
                 >
-                  {selectedPlanPeriod
-                    ? `You will be billed ${formatPeriodLabel(selectedPlanPeriod)} for the plan you have chosen.`
-                    : ''}
+                  {getBillingHelperLabel(selectedPlanPeriod)}
                 </p>
               </>
             )}
           </div>
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-650"
-            className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 md:justify-self-end md:max-w-none"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-wrap md:items-center md:justify-end md:justify-self-end"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-651"
@@ -709,38 +758,37 @@ export const ManageSubscriptionModal: React.FC<
                 />
               </Tooltip>
             </div>
-            <Input
-              readOnly
-              tabIndex={-1}
-              value={
-                isCalculating
-                  ? ''
-                  : totalAmount != null
-                    ? Number(totalAmount).toLocaleString()
-                    : '—'
-              }
-              className="w-full max-w-[160px] shrink-0 font-semibold text-base min-w-0 md:w-[160px]"
-              addonAfter={
-                <span
-                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-674"
-                  className="inline-flex min-w-[40px] items-center justify-center font-semibold text-base text-gray-700"
-                >
-                  {isCalculating ? (
-                    <LoadingOutlined spin className="text-primary" />
-                  ) : (
-                    currencySymbol
-                  )}
-                </span>
-              }
+            <div
+              className="manage-subscription-total-amount-wrap flex h-8 w-full min-w-0 max-w-[168px] shrink-0 items-stretch overflow-hidden rounded-lg border border-[#d1d5db] bg-white md:max-w-[168px]"
               data-cy="manage-subscription-total-amount"
-            />
+            >
+              <span
+                data-cy="manage-subscription-total-amount-value"
+                className="flex min-w-0 flex-1 items-center px-3 text-left text-[13px] font-medium tabular-nums text-[#111827]"
+              >
+                {displayAmount != null
+                  ? Number(displayAmount).toLocaleString()
+                  : '—'}
+              </span>
+              <span
+                data-cy="manage-subscription-total-amount-divider"
+                className="w-px shrink-0 self-stretch bg-[#e5e7eb]"
+                aria-hidden
+              />
+              <span
+                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-674"
+                className="flex w-9 shrink-0 items-center justify-center bg-black/[0.02] text-[13px] font-semibold text-[#374151]"
+              >
+                {currencySymbol}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Plan cards — grouped by currency (filtered to active subscription plan currency when available) */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-688"
-          className="scrollbar-none flex flex-col gap-8 max-lg:min-h-0 max-lg:flex-1 max-lg:overflow-y-auto max-lg:overscroll-y-contain"
+          className="scrollbar-none flex flex-col gap-6 max-lg:min-h-0 max-lg:flex-1 max-lg:overflow-y-auto max-lg:overscroll-y-contain"
         >
           {plansByCurrency.length === 0 ? (
             <p
@@ -752,176 +800,220 @@ export const ManageSubscriptionModal: React.FC<
                 : 'No paid plans available.'}
             </p>
           ) : null}
-          {plansByCurrency.map(({ currencyId, plans: groupPlans }) => (
-            <div
-              key={currencyId}
-              className="grid w-full min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]"
-              data-cy={`manage-subscription-plans-currency-${currencyId}`}
-            >
-              {groupPlans.map((plan) => {
-                const badge = getPlanBadge(plan);
-                const isCurrentPlan = plan.id === currentPlanId;
-                const isCurrentBillingType =
-                  !!effectiveSelectedPeriodTypeId &&
-                  !!currentPeriodTypeId &&
-                  effectiveSelectedPeriodTypeId === currentPeriodTypeId;
-                const isSelected = planManuallySelectedRef.current
-                  ? selectedPlanId === plan.id
-                  : effectiveSelectedPlanId === plan.id &&
-                    (!isCurrentPlan || isCurrentBillingType);
-                const includedModuleIds = new Set(
-                  (plan.modules ?? []).map((pm) => pm.moduleId),
-                );
-                const modulesForCard =
-                  allModulesSorted.length > 0
-                    ? orderModulesForPlanCard(allModulesSorted, plan)
-                    : [];
-                return (
-                  <div
-                    key={plan.id}
-                    data-cy={`plan-card-${plan.id}`}
-                    onClick={() => {
-                      planManuallySelectedRef.current = true;
-                      setSelectedPlanId(plan.id);
-                    }}
-                    className={`relative border rounded-lg bg-gradient-to-b from-white to-[#E8F5FF] p-4 cursor-pointer shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16),0_4px_12px_rgba(0,0,0,0.08)] ${
-                      isSelected
-                        ? 'border-primary shadow-[0_16px_48px_rgba(30,64,175,0.22),0_8px_24px_rgba(0,0,0,0.12)] ring-2 ring-primary/20'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    {badge && (
-                      <Tag
-                        bordered
-                        className="absolute top-3 right-3 z-[1] m-0 border-gray-200 bg-white text-xs font-medium text-gray-700"
-                        data-cy="plan-card-current-tag"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {badge}
-                      </Tag>
-                    )}
-                    {/* Radio row (Current tag is absolute top-right) */}
+          {plansByCurrency.map(({ currencyId, plans: groupPlans }) => {
+            const orderedGroupPlans = isMobile
+              ? [...groupPlans].sort((a, b) => {
+                  const aSelected = effectiveSelectedPlanId === a.id ? 0 : 1;
+                  const bSelected = effectiveSelectedPlanId === b.id ? 0 : 1;
+                  if (aSelected !== bSelected) return aSelected - bSelected;
+                  return 0;
+                })
+              : groupPlans;
+
+            return (
+              <div
+                key={currencyId}
+                className="grid w-full min-w-0 grid-cols-1 justify-items-center gap-y-4 md:grid-cols-2 md:gap-x-10 md:gap-y-6 xl:grid-cols-4 xl:gap-x-10"
+                data-cy={`manage-subscription-plans-currency-${currencyId}`}
+              >
+                {orderedGroupPlans.map((plan) => {
+                  const badge = getPlanBadge(plan);
+                  const isSelected = planManuallySelectedRef.current
+                    ? selectedPlanId === plan.id
+                    : effectiveSelectedPlanId === plan.id;
+                  const includedModuleIds = new Set(
+                    selectedModulesByPlan[plan.id] ??
+                      (plan.modules ?? []).map((pm) => pm.moduleId),
+                  );
+                  const modulesForCard =
+                    allModulesSorted.length > 0
+                      ? orderModulesForPlanCard(allModulesSorted, plan)
+                      : [];
+                  return (
                     <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
-                      className="relative flex min-h-[28px] items-center"
+                      key={plan.id}
+                      data-cy={`plan-card-${plan.id}`}
+                      onClick={() => {
+                        planManuallySelectedRef.current = true;
+                        setSelectedPlanId(plan.id);
+                      }}
+                      className={`relative h-[506px] w-[307px] shrink-0 cursor-pointer rounded-xl border bg-gradient-to-b from-white via-white to-[#eef7ff] px-4 pb-4 pt-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-200 max-lg:min-h-[366px] max-lg:h-auto max-lg:w-full max-lg:max-w-none ${
+                        isSelected
+                          ? 'border-primary shadow-[0_16px_32px_rgba(30,64,175,0.16)]'
+                          : 'border-[#edf1f5] hover:border-[#bfd5ff]'
+                      }`}
                     >
-                      <Radio checked={isSelected} />
-                    </div>
-                    {/* Centered plan title, price, description */}
-                    <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
-                      className=" px-1 pt-2 text-center"
-                    >
-                      <div
-                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
-                        className="font-bold text-gray-900"
-                      >
-                        {plan.name}
-                      </div>
-                      <div
-                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
-                        className=" text-gray-900 font-bold text-lg"
-                      >
-                        {getPriceLabel(plan)}
-                      </div>
-                      {plan.description && (
-                        <div
-                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
-                          className="text-xs text-gray-500"
+                      {badge && (
+                        <Tag
+                          bordered={false}
+                          className={`absolute right-3 top-3 z-[1] m-0 !rounded-lg px-2 py-0.5 text-[14px] !font-bold leading-tight ${
+                            badge === 'Popular'
+                              ? '!border-0 !bg-[#69B1FF] !text-white'
+                              : '!border !border-solid !border-[#D1D5DB] !bg-white !text-black/60'
+                          }`}
+                          data-cy="plan-card-current-tag"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {plan.description}
-                        </div>
+                          {badge}
+                        </Tag>
                       )}
-                    </div>
-                    <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
-                      className="flex justify-center px-2"
-                    >
-                      <Divider className="!my-2 min-w-[96px] w-[65%] max-w-[200px] border-gray-200" />
-                    </div>
-                    <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
-                      className="mt-3 flex flex-col items-center gap-1"
-                    >
-                      {modulesLoading && allModulesSorted.length === 0 ? (
-                        <LoadingOutlined
-                          spin
-                          className="text-primary"
-                          aria-label="Loading modules"
-                        />
-                      ) : modulesForCard.length > 0 ? (
-                        modulesForCard.map((mod) => {
-                          const included = includedModuleIds.has(mod.id);
-                          const label =
-                            mod.name?.trim() || mod.code?.trim() || 'Module';
-                          return (
+                      {/* Radio row (Current tag is absolute top-right) */}
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
+                        className="relative flex min-h-[28px] items-center"
+                      >
+                        <span
+                          data-cy={`manage-subscription-plan-${plan.id}-radio`}
+                          className={`flex h-4 w-4 items-center justify-center rounded-full border ${
+                            isSelected
+                              ? 'border-primary'
+                              : 'border-gray-300 bg-white'
+                          }`}
+                        >
+                          {isSelected ? (
+                            <span
+                              data-cy={`manage-subscription-plan-${plan.id}-radio-selected`}
+                              className="h-2 w-2 rounded-full bg-primary"
+                            />
+                          ) : null}
+                        </span>
+                      </div>
+                      {/* Centered plan title, price, description */}
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
+                        className="px-1 pt-2 text-center"
+                      >
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
+                          className="text-[14px] font-bold text-black"
+                        >
+                          {plan.name}
+                        </div>
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
+                          className="mt-2 text-[20px] font-bold leading-tight text-black"
+                        >
+                          {getPriceLabel(plan)}
+                        </div>
+                        {plan.description && (
+                          <div
+                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
+                            className="mt-2 text-[14px] font-normal text-black/50"
+                          >
+                            {plan.description}
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
+                        className="flex justify-center px-2"
+                      >
+                        <Divider className="!my-3 min-w-[96px] !w-[70%] max-w-[180px] border-[#edf1f5]" />
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
+                        className="mt-1 flex flex-col items-center gap-1"
+                      >
+                        {modulesLoading && allModulesSorted.length === 0 ? (
+                          <LoadingOutlined
+                            spin
+                            className="text-primary"
+                            aria-label="Loading modules"
+                          />
+                        ) : modulesForCard.length > 0 ? (
+                          modulesForCard.map((mod) => {
+                            const included = includedModuleIds.has(mod.id);
+                            const label =
+                              mod.name?.trim() || mod.code?.trim() || 'Module';
+                            return (
+                              <div
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
+                                key={mod.id}
+                                className="flex w-full max-w-full cursor-pointer items-center justify-start gap-2 text-[14px] font-normal"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedModulesByPlan((prev) => {
+                                    const current = new Set(
+                                      prev[plan.id] ??
+                                        (plan.modules ?? []).map(
+                                          (pm) => pm.moduleId,
+                                        ),
+                                    );
+                                    if (current.has(mod.id)) {
+                                      current.delete(mod.id);
+                                    } else {
+                                      current.add(mod.id);
+                                    }
+                                    return {
+                                      ...prev,
+                                      [plan.id]: Array.from(current),
+                                    };
+                                  });
+                                }}
+                              >
+                                <span
+                                  data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
+                                  className="inline-flex size-[18px] shrink-0 items-center justify-center"
+                                  aria-hidden
+                                >
+                                  {included ? (
+                                    <IoCheckbox className="size-full text-[#69B1FF]" />
+                                  ) : (
+                                    <span
+                                      data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
+                                      className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
+                                    />
+                                  )}
+                                </span>
+                                <span
+                                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
+                                  className={
+                                    included ? 'text-black' : 'text-black/45'
+                                  }
+                                >
+                                  {label}
+                                </span>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          (plan.planDetails ?? []).map((detail, i) => (
                             <div
-                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
-                              key={mod.id}
-                              className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
+                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
+                              key={`${plan.id}-detail-${i}`}
+                              className="flex w-full max-w-full items-center justify-start gap-2 text-[14px] font-normal"
                             >
-                              <span
-                                data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
-                                className="inline-flex size-[18px] shrink-0 items-center justify-center"
+                              <IoCheckbox
+                                className="size-[18px] shrink-0 text-primary"
                                 aria-hidden
-                              >
-                                {included ? (
-                                  <IoCheckbox className="size-full text-[#69B1FF]" />
-                                ) : (
-                                  <span
-                                    data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
-                                    className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
-                                  />
-                                )}
-                              </span>
+                              />
                               <span
-                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
-                                className={
-                                  included ? 'text-gray-700' : 'text-gray-400'
-                                }
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
+                                className="text-black"
                               >
-                                {label}
+                                {detail}
                               </span>
                             </div>
-                          );
-                        })
-                      ) : (
-                        (plan.planDetails ?? []).map((detail, i) => (
-                          <div
-                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
-                            key={`${plan.id}-detail-${i}`}
-                            className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
-                          >
-                            <IoCheckbox
-                              className="size-[18px] shrink-0 text-primary"
-                              aria-hidden
-                            />
-                            <span
-                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
-                              className="text-gray-700"
-                            >
-                              {detail}
-                            </span>
-                          </div>
-                        ))
-                      )}
+                          ))
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         {/* Footer */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-817"
-          className="flex justify-end gap-3 max-lg:shrink-0 max-lg:border-t max-lg:border-gray-100 max-lg:pt-3 lg:pt-0 lg:border-t-0"
+          className="flex justify-end gap-3 max-lg:sticky max-lg:bottom-0 max-lg:z-[2] max-lg:shrink-0 max-lg:border-t max-lg:border-gray-100 max-lg:bg-white max-lg:pt-3 lg:pt-0 lg:border-t-0"
         >
           <Button
             onClick={onClose}
             data-cy="manage-subscription-cancel"
-            className="!font-normal !text-[#000000]/[0.7]"
+            className="!h-9 !rounded-md !border-gray-200 !px-4 !font-normal !text-[#000000]/[0.7]"
           >
             Cancel
           </Button>
@@ -945,7 +1037,7 @@ export const ManageSubscriptionModal: React.FC<
                   isSubmitting
                 }
                 data-cy="manage-subscription-continue"
-                className="!font-normal"
+                className="!h-9 !rounded-md !px-5 !font-normal"
               >
                 Continue
               </Button>
