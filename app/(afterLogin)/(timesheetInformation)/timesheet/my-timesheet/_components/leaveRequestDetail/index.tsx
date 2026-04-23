@@ -25,7 +25,7 @@ import {
   useGetSingleLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
 import {
-  useDeleteLeaveRequest,
+ 
   useSetLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
@@ -51,7 +51,7 @@ const LeaveRequestDetail = () => {
     setLeaveRequestSidebarWorkflowData,
     setIsShowLeaveRequestDetail,
   } = useMyTimesheetStore();
-  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+  // const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
   const { mutate: updateLeaveRequest, isLoading: isUpdating } =
     useSetLeaveRequest();
   const { userId } = useAuthenticationStore();
