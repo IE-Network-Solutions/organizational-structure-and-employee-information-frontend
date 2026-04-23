@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import HistoryTableFilter from './tableFilter';
 import { TableColumnsType } from '@/types/table/table';
-import { Button, Table, Tag } from 'antd';
+import { Button, Dropdown, Modal, Table, Tag } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   useGetLeaveRequest,
   useGetSingleApproval,
@@ -15,12 +16,25 @@ import usePagination from '@/utils/usePagination';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { FaPlus } from 'react-icons/fa';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableSkeleton } from '@/components/tableSkeleton';
+import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+
+const dotsButtonStyle: React.CSSProperties = {
+  height: 24,
+  width: 24,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 4,
+  border: '1px solid #D9D9D9',
+  background: '#fff',
+};
 
 const HistoryTable = () => {
   const { isMobile, isTablet } = useIsMobile();
@@ -37,6 +51,7 @@ const HistoryTable = () => {
     isLoading,
     setIsLoading,
   } = useMyTimesheetStore();
+  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
   const [tableData, setTableData] = useState<any[]>([]);
   const { page, limit, orderBy, orderDirection, setPage, setLimit } =
     usePagination(1, 5);
@@ -51,18 +66,9 @@ const HistoryTable = () => {
   );
   useEffect(() => {
     if (isLoading && approverLog) {
-      if (approverLog?.items?.length > 0) {
-        NotificationMessage.warning({
-          message: `The Approval Process has been begin you can't continue to edit the leave request`,
-        });
-        // Clear sidebar state to prevent stale data in add drawer
-        setLeaveRequestSidebarData(null);
-        // Optionally, if you have access to setLeaveRequest and form, also call:
-        // setLeaveRequest(undefined);
-        // form.resetFields();
-      } else {
-        isShow(true);
-      }
+      // Allow editing while request status is still pending (even if approvals started).
+      // Non-pending requests are blocked inside the leave request sidebar itself.
+      isShow(true);
       setIsLoading(false);
     }
   }, [approverLog, isLoading, leaveRequestSidebarData]);
@@ -106,6 +112,35 @@ const HistoryTable = () => {
     isShowDetail(true);
     setLeaveRequestSidebarData(item.id);
     setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId ?? null);
+  };
+
+  const openEdit = (item: LeaveRequest) => {
+    // LeaveRequestSidebar will enforce "pending only" edit.
+    setLeaveRequestSidebarData(item.id);
+    setLeaveRequestSidebarWorkflowData(item.approvalWorkflowId ?? null);
+    setIsLoading(true);
+  };
+
+  const confirmDelete = (item: LeaveRequest) => {
+    if (item.status !== LeaveRequestStatus.PENDING) return;
+    Modal.confirm({
+      title: 'Delete leave request',
+      content: 'Are you sure you want to delete this leave request?',
+      okText: 'Yes, delete',
+      cancelText: 'No',
+      okButtonProps: { danger: true },
+      onOk: () => {
+        deleteLeaveRequest(item.id, {
+          onSuccess: () => {
+            // If the deleted request is currently selected anywhere, clear it.
+            if (leaveRequestSidebarData === item.id) {
+              setLeaveRequestSidebarData(null);
+              setLeaveRequestSidebarWorkflowData(null);
+            }
+          },
+        });
+      },
+    });
   };
 
   const rowCellClass = 'text-sm py-2';
@@ -218,6 +253,60 @@ const HistoryTable = () => {
             >
               {config.label}
             </Tag>
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'actionMenu',
+      width: 84,
+      onCell: () => ({ style: cellStyle }),
+      render: (item?: LeaveRequest) => {
+        if (!item) return null;
+        const isPending = item.status === LeaveRequestStatus.PENDING;
+
+        const menuItems: MenuProps['items'] = [
+          {
+            key: 'edit',
+            label: 'Edit',
+            icon: <EditOutlined />,
+            disabled: !isPending,
+            onClick: () => openEdit(item),
+          },
+          {
+            key: 'delete',
+            label: 'Delete',
+            icon: <DeleteOutlined />,
+            danger: true,
+            disabled: !isPending,
+            onClick: () => confirmDelete(item),
+          },
+        ];
+
+        return (
+          <div
+            className={`${rowCellClass} flex items-center justify-center`}
+            data-cy="time-attendance-leave-requests-table-actions"
+          >
+            <Dropdown
+              menu={{ items: menuItems }}
+              trigger={['click']}
+              placement="bottomRight"
+              getPopupContainer={() => document.body}
+            >
+              <button
+                type="button"
+                onClick={(e) => e.stopPropagation()}
+                style={dotsButtonStyle}
+                className="shrink-0 text-gray-600 hover:text-gray-900"
+                aria-label="Leave request actions"
+                data-cy="time-attendance-leave-requests-table-actions-button"
+              >
+                <HiOutlineDotsHorizontal size={16} />
+              </button>
+            </Dropdown>
           </div>
         );
       },
