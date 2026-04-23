@@ -488,6 +488,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       nFilter['type'] = val.type;
     }
 
+    if (val.type === 'clockedOut') {
+      nFilter['type'] = null as any;
+      nFilter.clockedOut = false;
+    }
+
     if (val.breakTypeId) {
       nFilter['breakTypeId'] = val.breakTypeId;
     }
