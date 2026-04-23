@@ -171,22 +171,22 @@ const LeaveRequestDetail = () => {
     leaveData?.items?.status === LeaveRequestStatus.APPROVED ||
     leaveData?.items?.status === LeaveRequestStatus.DECLINED;
 
-  const handleCancelRequest = () => {
-    if (!leaveRequestSidebarData) return;
-    if (leaveData?.items?.status !== LeaveRequestStatus.PENDING) return;
-    Modal.confirm({
-      title: 'Delete leave request',
-      content: 'Are you sure you want to delete this leave request?',
-      okText: 'Yes, delete',
-      cancelText: 'No',
-      okButtonProps: { danger: true },
-      onOk: () => {
-        deleteLeaveRequest(leaveRequestSidebarData, {
-          onSuccess: () => onClose(),
-        });
-      },
-    });
-  };
+  // const handleCancelRequest = () => {
+  //   if (!leaveRequestSidebarData) return;
+  //   if (leaveData?.items?.status !== LeaveRequestStatus.PENDING) return;
+  //   Modal.confirm({
+  //     title: 'Delete leave request',
+  //     content: 'Are you sure you want to delete this leave request?',
+  //     okText: 'Yes, delete',
+  //     cancelText: 'No',
+  //     okButtonProps: { danger: true },
+  //     onOk: () => {
+  //       deleteLeaveRequest(leaveRequestSidebarData, {
+  //         onSuccess: () => onClose(),
+  //       });
+  //     },
+  //   });
+  // };
 
   // Populate form when leave data is loaded (modal opens with editable form)
   useEffect(() => {
