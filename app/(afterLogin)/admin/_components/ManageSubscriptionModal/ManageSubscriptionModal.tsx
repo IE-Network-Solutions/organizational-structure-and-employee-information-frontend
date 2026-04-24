@@ -25,6 +25,7 @@ import {
 import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { IoCheckbox } from 'react-icons/io5';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -111,8 +112,27 @@ const getPlanDisplayName = (plan: Plan) => {
   return plan.name;
 };
 
-const getErrorMessage = (error: unknown, fallback: string) =>
-  error instanceof Error && error.message ? error.message : fallback;
+const getErrorMessage = (error: unknown, fallback: string) => {
+  const e = error as any;
+  const backendMessage =
+    e?.response?.data?.message ??
+    e?.response?.data?.error ??
+    e?.data?.message ??
+    null;
+  if (typeof backendMessage === 'string' && backendMessage.trim()) {
+    return backendMessage.trim();
+  }
+  if (error instanceof Error && error.message?.trim()) {
+    return error.message.trim();
+  }
+  return fallback;
+};
+
+const normalizeUuid = (value: unknown) => {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
 
 /** Full catalog rows: modules included on the plan first, then the rest; `orderIndex` within each group. */
 const orderModulesForPlanCard = (catalog: Module[], plan: Plan): Module[] => {
@@ -566,13 +586,24 @@ export const ManageSubscriptionModal: React.FC<
         : resolvedTransactionType,
     );
     try {
+      const tenantId =
+        normalizeUuid(useAuthenticationStore.getState().tenantId) ??
+        normalizeUuid(DEFAULT_TENANT_ID);
+      const selectedCurrencyId = normalizeUuid(selectedPlan.currency?.id);
+      if (!tenantId) {
+        setInlineError(
+          'Unable to process subscription update: tenant identifier is missing. Please refresh and try again.',
+        );
+        return;
+      }
+
       let response: any;
       if (!activeSubscription) {
         // If tenant already has a previous subscription (e.g. expired), renew it.
         if (latestSubscription?.id) {
           response = await renewSubscriptionMutation.mutateAsync({
             subscriptionId: latestSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
@@ -583,8 +614,8 @@ export const ManageSubscriptionModal: React.FC<
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
-            tenantId: DEFAULT_TENANT_ID,
-            currencyId: selectedPlan.currency?.id,
+            tenantId,
+            ...(selectedCurrencyId ? { currencyId: selectedCurrencyId } : {}),
             subscriptionPrice: Number(totalAmount ?? displayAmount ?? 0),
             subscriptionStatus: 'pending' as any,
             isActive: false,
@@ -595,7 +626,7 @@ export const ManageSubscriptionModal: React.FC<
           // Keep slot-only increase routed through the legacy upgrade endpoint.
           response = await upgradeSubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
@@ -603,7 +634,7 @@ export const ManageSubscriptionModal: React.FC<
         } else if (isScheduledDowngradeForPrepay) {
           response = await prepaySubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
@@ -611,7 +642,7 @@ export const ManageSubscriptionModal: React.FC<
         } else {
           response = await upgradeSubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
