@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import {
-  Modal,
-  Button,
-  InputNumber,
-  Tooltip,
-  Tag,
-  Divider,
-  notification,
-} from 'antd';
+import { Modal, Button, InputNumber, Tooltip, Tag, Divider } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { AiOutlineQuestionCircle } from 'react-icons/ai';
 import {
@@ -83,6 +75,12 @@ const getBillingHelperLabel = (pp: PlanPeriod | undefined) => {
   return `You will be billed ${optionLabel} for the plan you have chosen`;
 };
 
+const GENERIC_MODAL_ERROR =
+  'We Have encountered an error Upgrading your Subscription Please try Again';
+
+const UUID_LIKE_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 const getPriceUnitLabel = (pp: PlanPeriod | undefined) => {
   const code = pp?.periodType?.code?.toLowerCase() ?? '';
   const months = pp?.periodType?.periodInMonths ?? 0;
@@ -90,6 +88,23 @@ const getPriceUnitLabel = (pp: PlanPeriod | undefined) => {
     return 'Year';
   if (months === 1 || code.includes('month')) return 'Month';
   return pp ? getFallbackPeriodLabel(pp) : 'Period';
+};
+
+const isCustomPlan = (plan: Plan | undefined) => {
+  if (!plan) return false;
+  const name = plan.name?.trim() ?? '';
+  const description = plan.description?.trim().toLowerCase() ?? '';
+  return (
+    name.toLowerCase().includes('custom') ||
+    description.includes('customize your experience') ||
+    name === plan.id ||
+    UUID_LIKE_REGEX.test(name)
+  );
+};
+
+const getPlanDisplayName = (plan: Plan) => {
+  if (isCustomPlan(plan)) return 'Custom';
+  return plan.name;
 };
 
 /** Full catalog rows: modules included on the plan first, then the rest; `orderIndex` within each group. */
@@ -123,6 +138,7 @@ export const ManageSubscriptionModal: React.FC<
     Record<string, string[]>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inlineError, setInlineError] = useState<string | null>(null);
   /** Which billing period (by period type id) is selected — must exist on the selected plan's `periods`. */
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
     string | null
@@ -471,8 +487,11 @@ export const ManageSubscriptionModal: React.FC<
 
   const isCalculationEnabled =
     open && !!calculationDto?.planId && !!calculationDto?.planPeriodId;
-  const { data: calculationData, isLoading: isCalculating } =
-    useCalculateSubscriptionPrice(calculationDto, isCalculationEnabled);
+  const {
+    data: calculationData,
+    isLoading: isCalculating,
+    error: calculationError,
+  } = useCalculateSubscriptionPrice(calculationDto, isCalculationEnabled);
 
   const totalAmount = calculationData?.item?.totalAmount ?? null;
   const displayAmount = useMemo(() => {
@@ -482,6 +501,20 @@ export const ManageSubscriptionModal: React.FC<
     return Number(slotPrice) * Number(seatCount || 0);
   }, [selectedPlanPeriod, selectedPlan, seatCount]);
   const currencySymbol = selectedPlan?.currency?.symbol ?? '$';
+
+  useEffect(() => {
+    if (!open) {
+      setInlineError(null);
+      return;
+    }
+    setInlineError(null);
+  }, [open, selectedPlanId, selectedPeriodTypeId, seatCount]);
+
+  useEffect(() => {
+    if (calculationError) {
+      setInlineError(GENERIC_MODAL_ERROR);
+    }
+  }, [calculationError]);
 
   const getInvoiceIdFromResponse = (payload: any): string | null => {
     // Different endpoints return different shapes (upgrade vs slots vs prepay).
@@ -579,24 +612,18 @@ export const ManageSubscriptionModal: React.FC<
 
       const invoiceId = getInvoiceIdFromResponse(response);
       if (!invoiceId) {
-        notification.error({
-          message: 'Invoice Error',
-          description:
-            'Operation completed but invoice id could not be read from the response. Please check Network → the response body shape (invoice.id / invoices[0].id) or open Billing.',
-        });
+        setInlineError(GENERIC_MODAL_ERROR);
         return;
       }
 
       onClose();
       onContinueToInvoice?.(invoiceId);
     } catch (error) {
-      notification.error({
-        message: 'Operation Failed',
-        description:
-          error instanceof Error
-            ? error.message
-            : 'Failed to process subscription update.',
-      });
+      setInlineError(
+        error instanceof Error && error.message
+          ? GENERIC_MODAL_ERROR
+          : GENERIC_MODAL_ERROR,
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -619,9 +646,9 @@ export const ManageSubscriptionModal: React.FC<
         body: [
           'manage-subscription-modal__body',
           '!px-5 !pb-5 !pt-4 md:!px-6 md:!pb-6',
-          // Narrow viewports: column flex + height cap so only the cards region scrolls inside the modal.
+          '!overflow-y-auto',
           'max-lg:!flex max-lg:!flex-col max-lg:!min-h-0',
-          'max-lg:!max-h-[min(86dvh,calc(100dvh-5.5rem))] max-lg:!overflow-hidden max-lg:!pb-4',
+          'max-lg:!max-h-[min(86dvh,calc(100dvh-5.5rem))] max-lg:!pb-4',
           // Desktop target design height.
           'lg:!h-[703px]',
         ].join(' '),
@@ -634,11 +661,11 @@ export const ManageSubscriptionModal: React.FC<
         {/* Top controls — equal 3 columns on md+; billing centered in the middle */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-579"
-          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-3 md:items-start md:gap-6"
+          className="grid w-full min-w-0 max-lg:shrink-0 grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-3 md:items-center md:gap-6"
         >
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-580"
-            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-wrap md:justify-self-start md:flex-row md:items-center"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-row md:items-center md:gap-3 md:justify-self-start"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-581"
@@ -739,7 +766,7 @@ export const ManageSubscriptionModal: React.FC<
           </div>
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-650"
-            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-wrap md:items-center md:justify-end md:justify-self-end"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-row md:items-center md:justify-end md:gap-3 md:justify-self-end"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-651"
@@ -785,6 +812,15 @@ export const ManageSubscriptionModal: React.FC<
           </div>
         </div>
 
+        {inlineError ? (
+          <div
+            data-cy="manage-subscription-inline-error"
+            className="mt-[-4px] text-center text-[14px] font-semibold leading-5 text-[#E65F5C]"
+          >
+            {inlineError}
+          </div>
+        ) : null}
+
         {/* Plan cards — grouped by currency (filtered to active subscription plan currency when available) */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-688"
@@ -821,6 +857,8 @@ export const ManageSubscriptionModal: React.FC<
                   const isSelected = planManuallySelectedRef.current
                     ? selectedPlanId === plan.id
                     : effectiveSelectedPlanId === plan.id;
+                  const isEditableCustomPlan = isCustomPlan(plan);
+                  const selectedHasError = Boolean(inlineError) && isSelected;
                   const includedModuleIds = new Set(
                     selectedModulesByPlan[plan.id] ??
                       (plan.modules ?? []).map((pm) => pm.moduleId),
@@ -839,7 +877,9 @@ export const ManageSubscriptionModal: React.FC<
                       }}
                       className={`relative h-[506px] w-[307px] shrink-0 cursor-pointer rounded-xl border bg-gradient-to-b from-white via-white to-[#eef7ff] px-4 pb-4 pt-3 shadow-[0_10px_24px_rgba(15,23,42,0.08)] transition-all duration-200 max-lg:min-h-[366px] max-lg:h-auto max-lg:w-full max-lg:max-w-none ${
                         isSelected
-                          ? 'border-primary shadow-[0_16px_32px_rgba(30,64,175,0.16)]'
+                          ? selectedHasError
+                            ? 'border-[#F29B9B] shadow-[0_16px_32px_rgba(230,95,92,0.14)]'
+                            : 'border-primary shadow-[0_16px_32px_rgba(30,64,175,0.16)]'
                           : 'border-[#edf1f5] hover:border-[#bfd5ff]'
                       }`}
                     >
@@ -866,14 +906,18 @@ export const ManageSubscriptionModal: React.FC<
                           data-cy={`manage-subscription-plan-${plan.id}-radio`}
                           className={`flex h-4 w-4 items-center justify-center rounded-full border ${
                             isSelected
-                              ? 'border-primary'
+                              ? selectedHasError
+                                ? 'border-[#E65F5C]'
+                                : 'border-primary'
                               : 'border-gray-300 bg-white'
                           }`}
                         >
                           {isSelected ? (
                             <span
                               data-cy={`manage-subscription-plan-${plan.id}-radio-selected`}
-                              className="h-2 w-2 rounded-full bg-primary"
+                              className={`h-2 w-2 rounded-full ${
+                                selectedHasError ? 'bg-[#E65F5C]' : 'bg-primary'
+                              }`}
                             />
                           ) : null}
                         </span>
@@ -887,7 +931,7 @@ export const ManageSubscriptionModal: React.FC<
                           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
                           className="text-[14px] font-bold text-black"
                         >
-                          {plan.name}
+                          {getPlanDisplayName(plan)}
                         </div>
                         <div
                           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
@@ -929,8 +973,13 @@ export const ManageSubscriptionModal: React.FC<
                               <div
                                 data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
                                 key={mod.id}
-                                className="flex w-full max-w-full cursor-pointer items-center justify-start gap-2 text-[14px] font-normal"
+                                className={`flex w-full max-w-full items-center justify-start gap-2 text-[14px] font-normal ${
+                                  isEditableCustomPlan
+                                    ? 'cursor-pointer'
+                                    : 'cursor-default'
+                                }`}
                                 onClick={(e) => {
+                                  if (!isEditableCustomPlan) return;
                                   e.stopPropagation();
                                   setSelectedModulesByPlan((prev) => {
                                     const current = new Set(
