@@ -162,8 +162,8 @@ const ApprovalTable = () => {
   const requestLabel = isWorkFromHome
     ? 'work from home request'
     : 'leave request';
-  const finalApproval: any = (
-    e: { leaveRequestId: string; status: string },
+  const finalApproval = (
+    e: { leaveRequestId: string; status: 'approved' | 'declined' },
     options?: { onSuccess?: () => void },
   ) => {
     if (isWorkFromHome) {

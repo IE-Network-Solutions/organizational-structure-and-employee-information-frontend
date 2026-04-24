@@ -4,6 +4,7 @@ interface SearchParams {
   name: string;
   entityType: string;
   entityId: string;
+  approvalType: string[];
 }
 interface SelectProps {
   SelectedItemType: Record<string, any> | null;
@@ -45,7 +46,7 @@ interface UserState {
   setWorkflowApplies: (workflowApplies: string | null) => void;
 
   searchParams: SearchParams;
-  setSearchParams: (key: keyof SearchParams, value: string) => void;
+  setSearchParams: (key: keyof SearchParams, value: string | string[]) => void;
 
   selectedItem: SelectProps;
   setSelectedItem: (selectedItem: SelectProps) => void;
@@ -119,6 +120,7 @@ export const useApprovalBranchStore = create<UserState>()(
           name: '',
           entityType: '',
           entityId: '',
+          approvalType: ['Leave', 'WorkFromHome'],
         },
         setSearchParams: (key, value) =>
           set((state) => ({

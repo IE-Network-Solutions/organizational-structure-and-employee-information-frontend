@@ -523,7 +523,7 @@ const ApprovalListTable = () => {
                         : 0,
                     ),
                   )
-                : '-',
+                : 0,
             action: (
               <span
                 data-cy={`time-attendance-settings-approvals-table-row-${index}-no-header-action`}

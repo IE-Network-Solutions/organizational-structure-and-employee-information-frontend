@@ -20,12 +20,16 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
-const TIMESHEET_APPROVAL_TYPE_OPTIONS = [
+
+type TimesheetApprovalTypeValue = 'Leave' | 'WorkFromHome';
+
+const TIMESHEET_APPROVAL_TYPE_OPTIONS: {
+  label: string;
+  value: TimesheetApprovalTypeValue;
+}[] = [
   { label: 'Leave', value: 'Leave' },
   { label: 'Work From Home', value: 'WorkFromHome' },
-] as const;
-type TimesheetApprovalTypeValue =
-  (typeof TIMESHEET_APPROVAL_TYPE_OPTIONS)[number]['value'];
+];
 
 const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
   const stepItems = useMemo(
