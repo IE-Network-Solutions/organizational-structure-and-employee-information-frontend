@@ -16,7 +16,11 @@ import dayjs from 'dayjs';
 import { useGetIntern } from '@/store/server/features/recruitment/intern/query';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
-import { CloseOutlined, LoadingOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useDeleteIntern } from '@/store/server/features/recruitment/intern/mutation';
 import CustomPagination from '@/components/customPagination';
@@ -623,9 +627,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         data-cy="talent-acquisition-intern-table-filters"
         className="flex justify-between items-center py-4"
       >
-        <div
-          data-cy="talent-acquisition-intern-table-input-search-container"
-        >
+        <div data-cy="talent-acquisition-intern-table-input-search-container">
           <Input
             id={`inputInternNames`}
             data-cy="talent-acquisition-intern-table-input-search"
@@ -654,7 +656,7 @@ const InternTable = ({ onEdit }: InternTableProps) => {
             className="border border-[#d9d9d9] text-gray-600 text-sm"
             icon={
               <FilterAltOutlinedIcon className="text-[#374151] text-base" />
-          }
+            }
           >
             {!isMobile && 'Filter'}
           </Button>

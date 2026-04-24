@@ -1,7 +1,7 @@
 'use client';
 import Image from 'next/image';
 import { RiDeleteBin6Line } from 'react-icons/ri';
-import { Button, Dropdown, Form, Modal, Select, Avatar } from 'antd';
+import { Button, Dropdown, Form, Modal, Select, Avatar, Tooltip } from 'antd';
 import { FaPencil } from 'react-icons/fa6';
 import {
   useApprovalFilter,
@@ -66,7 +66,7 @@ const ApprovalListTable = () => {
       searchParams?.entityType ? searchParams.entityType : '',
       searchParams?.entityId ? searchParams.entityId : '',
       searchParams?.name || '',
-      APPROVALTYPES.LEAVE,
+      searchParams?.approvalType || [APPROVALTYPES.LEAVE, 'WorkFromHome'],
     );
 
   // Check if all required data is loaded
@@ -139,9 +139,46 @@ const ApprovalListTable = () => {
     }
   }, [transferModal, deletedItem, form]);
 
-  const data =
+  const groupedWorkflowItems =
     !isDataLoading && allFilterData?.items
-      ? allFilterData.items.map((item: any, index: number) => {
+      ? Object.values(
+          allFilterData.items.reduce((acc: Record<string, any>, item: any) => {
+            const key = `${item?.entityType || ''}::${item?.entityId || ''}`;
+            const existingGroup = acc[key];
+            if (!existingGroup) {
+              acc[key] = {
+                ...item,
+                workflows: [item],
+              };
+              return acc;
+            }
+            const existingUpdatedAt = new Date(
+              existingGroup?.updatedAt || existingGroup?.createdAt || 0,
+            ).getTime();
+            const currentUpdatedAt = new Date(
+              item?.updatedAt || item?.createdAt || 0,
+            ).getTime();
+            existingGroup.workflows = [
+              ...(existingGroup.workflows || []),
+              item,
+            ];
+            // Keep base group fields from the most recently updated workflow.
+            if (currentUpdatedAt >= existingUpdatedAt) {
+              acc[key] = {
+                ...existingGroup,
+                ...item,
+                workflows: existingGroup.workflows,
+              };
+            }
+
+            return acc;
+          }, {}),
+        )
+      : [];
+
+  const data =
+    !isDataLoading && groupedWorkflowItems
+      ? groupedWorkflowItems.map((item: any, index: number) => {
           const employeeInfo = getEmployeeInformation(item?.entityId);
           const departmentInfo = getDepartmentInformation(item?.entityId);
 
@@ -164,20 +201,31 @@ const ApprovalListTable = () => {
             }
           }
 
-          return {
-            key: index,
-            workflow_name: item?.name ? item?.name : '-',
-            applied_to: appliedToValue,
+          const workflowsForCard =
+            Array.isArray(item?.workflows) && item.workflows.length > 0
+              ? item.workflows
+              : [item];
 
-            assigned: (
+          const renderApproverPills = (
+            workflowItem: any,
+            workflowIdx: number,
+          ) => {
+            const sortedApprovers = [...(workflowItem?.approvers ?? [])].sort(
+              (a, b) => a.stepOrder - b.stepOrder,
+            );
+            const showTimelineConnector =
+              workflowItem?.approvalWorkflowType !== 'Parallel';
+
+            return (
               <div
-                className="flex flex-wrap items-center gap-2"
-                id={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
-                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
+                data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-approvers`}
+                className="w-full overflow-x-auto"
               >
-                {[...(item?.approvers ?? [])]
-                  .sort((a, b) => a.stepOrder - b.stepOrder)
-                  ?.map((employee: any, empIndex: number) => {
+                <div
+                  className="flex min-w-max items-center gap-1.5 py-1"
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-approvers-row`}
+                >
+                  {sortedApprovers?.map((employee: any, empIndex: number) => {
                     const employeeInfo = getEmployeeInformation(
                       employee?.userId,
                     );
@@ -197,207 +245,290 @@ const ApprovalListTable = () => {
                     return (
                       <div
                         key={empIndex}
-                        className="flex gap-1 rounded-lg border border-[#d9d9d9] bg-[#f8f8f8] px-2 py-1"
-                        id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
-                        data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-container`}
+                        className="flex items-center"
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-flow-item`}
                       >
-                        <div
-                          className="relative w-6 h-6 rounded-full overflow-hidden"
-                          id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-container`}
-                        >
-                          {(() => {
-                            const raw = employeeInfo?.profileImage;
-                            let avatarSrc: string | null = null;
-
-                            if (typeof raw === 'string' && raw.trim()) {
-                              try {
-                                const parsed = JSON.parse(raw);
-                                if (
-                                  parsed?.url &&
-                                  typeof parsed.url === 'string' &&
-                                  parsed.url.startsWith('http')
-                                ) {
-                                  avatarSrc = parsed.url;
-                                }
-                              } catch {
-                                if (raw.startsWith('http')) avatarSrc = raw;
-                              }
-                            }
-
-                            return avatarSrc ? (
-                              <Image
-                                src={avatarSrc}
-                                alt={displayName || 'User profile'}
-                                fill
-                                className="object-cover"
-                                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar`}
-                              />
+                        {empIndex > 0 && (
+                          <>
+                            {showTimelineConnector ? (
+                              <div
+                                className="mx-0.5 inline-flex h-5 min-w-6 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]"
+                                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-connector-arrow`}
+                              >
+                                →
+                              </div>
                             ) : (
                               <div
-                                data-cy="time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-avatar-default-container"
-                                className="h-full w-full flex items-center justify-center bg-[#f0f0f0]"
-                              >
-                                <Avatar size={24} icon={<UserOutlined />} />
-                              </div>
-                            );
-                          })()}
-                        </div>
-                        <div
-                          className="flex items-center"
-                          id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-info`}
+                                className="mx-0.5 inline-flex h-2 w-2 rounded-full bg-[#D9DEF8]"
+                                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-connector-dot`}
+                              />
+                            )}
+                          </>
+                        )}
+                        <Tooltip
+                          title={displayName}
+                          placement="top"
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-tooltip`}
                         >
-                          <p
-                            className="mb-0 text-base text-[#4d4d4d]"
-                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
-                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${empIndex}-name`}
+                          <div
+                            className="relative h-9 w-9 rounded-full overflow-hidden ring-2 ring-[#EEF0FF] hover:ring-[#C9D0FF] transition-colors cursor-pointer shadow-[0_1px_2px_rgba(16,24,40,0.08)]"
+                            id={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar-container`}
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar-container`}
                           >
-                            {displayName}
-                          </p>
-                        </div>
+                            {(() => {
+                              const raw = employeeInfo?.profileImage;
+                              let avatarSrc: string | null = null;
+
+                              if (typeof raw === 'string' && raw.trim()) {
+                                try {
+                                  const parsed = JSON.parse(raw);
+                                  if (
+                                    parsed?.url &&
+                                    typeof parsed.url === 'string' &&
+                                    parsed.url.startsWith('http')
+                                  ) {
+                                    avatarSrc = parsed.url;
+                                  }
+                                } catch {
+                                  if (raw.startsWith('http')) avatarSrc = raw;
+                                }
+                              }
+
+                              return avatarSrc ? (
+                                <Image
+                                  src={avatarSrc}
+                                  alt={displayName || 'User profile'}
+                                  fill
+                                  className="object-cover"
+                                  data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar`}
+                                />
+                              ) : (
+                                <div
+                                  data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar-default-container`}
+                                  className="h-full w-full flex items-center justify-center bg-[#f0f0f0]"
+                                >
+                                  <Avatar size={30} icon={<UserOutlined />} />
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </Tooltip>
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            );
+          };
+
+          const renderWorkflowAction = (
+            workflowItem: any,
+            workflowIdx: number,
+          ) => {
+            const canAdd = AccessGuard.checkAccess({
+              permissions: [Permissions.CreateApprover],
+            });
+            const canEdit = AccessGuard.checkAccess({
+              permissions: [Permissions.UpdateApprover],
+            });
+            const canDelete = AccessGuard.checkAccess({
+              permissions: [Permissions.DeleteApprover],
+            });
+
+            const menuItems = [
+              canAdd
+                ? {
+                    key: 'add',
+                    label: (
+                      <span
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-add-approver-label`}
+                      >
+                        Add Approver
+                      </span>
+                    ),
+                    icon: (
+                      <FaPlus
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-add-approver-icon`}
+                      />
+                    ),
+                  }
+                : null,
+              canEdit
+                ? {
+                    key: 'edit',
+                    label: (
+                      <span
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-edit-approver-label`}
+                      >
+                        Edit Approver
+                      </span>
+                    ),
+                    icon: (
+                      <FaPencil
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-edit-approver-icon`}
+                      />
+                    ),
+                  }
+                : null,
+              canDelete
+                ? {
+                    key: 'delete',
+                    label: (
+                      <span
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-delete-approver-label`}
+                      >
+                        Delete Workflow
+                      </span>
+                    ),
+                    icon: (
+                      <RiDeleteBin6Line
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-delete-approver-icon`}
+                      />
+                    ),
+                  }
+                : null,
+            ].filter(Boolean);
+
+            if (!menuItems.length) {
+              return (
+                <span
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-no-actions`}
+                />
+              );
+            }
+
+            return (
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                menu={{
+                  items: menuItems as any,
+                  onClick: ({ key }) => {
+                    if (key === 'add') {
+                      setAddModal(true);
+                      setSelectedItem(workflowItem);
+                      setLevel(1);
+                      setApproverType(
+                        workflowItem?.approvalWorkflowType
+                          ? workflowItem?.approvalWorkflowType
+                          : '-',
+                      );
+                    }
+
+                    if (key === 'edit') {
+                      setEditModal(true);
+                      setSelectedItem(workflowItem);
+                      setLevel(
+                        workflowItem?.approvers
+                          ? workflowItem?.approvers?.length
+                          : '-',
+                      );
+                      setWorkflowApplies(
+                        workflowItem?.entityType
+                          ? workflowItem?.entityType
+                          : '-',
+                      );
+                      setApproverType(
+                        workflowItem?.approvalWorkflowType
+                          ? workflowItem?.approvalWorkflowType
+                          : '-',
+                      );
+                    }
+
+                    if (key === 'delete') {
+                      setDeleteModal(true);
+                      setDeletedItem(workflowItem?.id);
+                    }
+                  },
+                }}
+                data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-actions-dropdown`}
+              >
+                <Button
+                  type="default"
+                  className="h-8 w-8 border-0 bg-[#FAFAFA] shadow-none hover:!bg-[#F2F2F2]"
+                  data-cy={`time-attendance-settings-approvals-table-row-${index}-workflow-${workflowIdx}-actions-trigger`}
+                >
+                  <MoreHorizIcon />
+                </Button>
+              </Dropdown>
+            );
+          };
+
+          return {
+            key: index,
+            workflow_name: '',
+            applied_to: appliedToValue,
+
+            assigned: (
+              <div
+                className="flex flex-col gap-3"
+                id={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
+                data-cy={`time-attendance-settings-approvals-table-row-${index}-assigned-container`}
+              >
+                {workflowsForCard.map(
+                  (workflowItem: any, workflowIdx: number) => (
+                    <div
+                      key={workflowItem?.id || workflowIdx}
+                      data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-section`}
+                      className="w-full rounded-lg p-3 bg-[#FAFAFA] flex flex-col gap-2"
+                    >
+                      <div
+                        className="flex items-start justify-between gap-2"
+                        data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-section-header`}
+                      >
+                        <div
+                          className="flex flex-col"
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-titles`}
+                        >
+                          <span
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-label`}
+                            className="text-xs text-gray-500"
+                          >
+                            {workflowItem?.approvalType || '-'}
+                          </span>
+                          <span
+                            data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-workflow-name`}
+                            className="text-xs font-medium text-[#2f2f2f]"
+                          >
+                            {workflowItem?.name || '-'}
+                          </span>
+                        </div>
+                        <div
+                          className="flex justify-end"
+                          data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-actions`}
+                        >
+                          {renderWorkflowAction(workflowItem, workflowIdx)}
+                        </div>
+                      </div>
+                      {renderApproverPills(workflowItem, workflowIdx)}
+                    </div>
+                  ),
+                )}
               </div>
             ),
-            level: item?.approvers
-              ? item?.approvalWorkflowType == 'Parallel'
-                ? (item?.approvers ?? []).length > 0
-                  ? Math.max(
-                      ...(item?.approvers ?? []).map(
-                        (item: any) => item.stepOrder,
-                      ),
-                    )
-                  : 0
-                : item?.approvers?.length
-              : '-',
-            action: (() => {
-              const canAdd = AccessGuard.checkAccess({
-                permissions: [Permissions.CreateApprover],
-              });
-              const canEdit = AccessGuard.checkAccess({
-                permissions: [Permissions.UpdateApprover],
-              });
-              const canDelete = AccessGuard.checkAccess({
-                permissions: [Permissions.DeleteApprover],
-              });
-
-              const menuItems = [
-                canAdd
-                  ? {
-                      key: 'add',
-                      label: (
-                        <span
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-label`}
-                        >
-                          Add Approver
-                        </span>
-                      ),
-                      icon: (
-                        <FaPlus
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-add-approver-icon`}
-                        />
-                      ),
-                    }
-                  : null,
-                canEdit
-                  ? {
-                      key: 'edit',
-                      label: (
-                        <span
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-label`}
-                        >
-                          Edit Approver
-                        </span>
-                      ),
-                      icon: (
-                        <FaPencil
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-edit-approver-icon`}
-                        />
-                      ),
-                    }
-                  : null,
-                canDelete
-                  ? {
-                      key: 'delete',
-                      label: (
-                        <span
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-label`}
-                        >
-                          Delete Workflow
-                        </span>
-                      ),
-                      icon: (
-                        <RiDeleteBin6Line
-                          data-cy={`time-attendance-settings-approvals-table-row-${index}-delete-approver-icon`}
-                        />
-                      ),
-                    }
-                  : null,
-              ].filter(Boolean);
-
-              if (!menuItems.length) {
-                return (
-                  <span
-                    data-cy={`time-attendance-settings-approvals-table-row-${index}-no-actions`}
-                  />
-                );
-              }
-
-              return (
-                <Dropdown
-                  trigger={['click']}
-                  placement="bottomRight"
-                  menu={{
-                    items: menuItems as any,
-                    onClick: ({ key }) => {
-                      if (key === 'add') {
-                        setAddModal(true);
-                        setSelectedItem(item);
-                        setLevel(1);
-                        setApproverType(
-                          item?.approvalWorkflowType
-                            ? item?.approvalWorkflowType
-                            : '-',
-                        );
-                      }
-
-                      if (key === 'edit') {
-                        setEditModal(true);
-                        setSelectedItem(item);
-                        setLevel(
-                          item?.approvers ? item?.approvers?.length : '-',
-                        );
-                        setWorkflowApplies(
-                          item?.entityType ? item?.entityType : '-',
-                        );
-                        setApproverType(
-                          item?.approvalWorkflowType
-                            ? item?.approvalWorkflowType
-                            : '-',
-                        );
-                      }
-
-                      if (key === 'delete') {
-                        setDeleteModal(true);
-                        setDeletedItem(item?.id);
-                      }
-                    },
-                  }}
-                  data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-dropdown`}
-                >
-                  <Button
-                    type="default"
-                    className="h-8 w-8 border border-[#D9D9D9]"
-                    data-cy={`time-attendance-settings-approvals-table-row-${index}-actions-trigger`}
-                    id={`time-attendance-settings-approvals-table-row-${index}-actions-trigger`}
-                  >
-                    <MoreHorizIcon />
-                  </Button>
-                </Dropdown>
-              );
-            })(),
+            level:
+              workflowsForCard.length > 0
+                ? Math.max(
+                    ...workflowsForCard.map((workflowItem: any) =>
+                      workflowItem?.approvers
+                        ? workflowItem?.approvalWorkflowType == 'Parallel'
+                          ? (workflowItem?.approvers ?? []).length > 0
+                            ? Math.max(
+                                ...(workflowItem?.approvers ?? []).map(
+                                  (approverItem: any) => approverItem.stepOrder,
+                                ),
+                              )
+                            : 0
+                          : workflowItem?.approvers?.length
+                        : 0,
+                    ),
+                  )
+                : '-',
+            action: (
+              <span
+                data-cy={`time-attendance-settings-approvals-table-row-${index}-no-header-action`}
+              />
+            ),
           };
         })
       : [];

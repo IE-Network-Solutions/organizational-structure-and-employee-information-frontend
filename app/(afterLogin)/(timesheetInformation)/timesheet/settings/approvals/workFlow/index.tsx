@@ -5,12 +5,27 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { Button, Form, Input, Modal, Radio, Select, Steps, Tag } from 'antd';
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Modal,
+  Radio,
+  Select,
+  Steps,
+  Tag,
+} from 'antd';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
-import { APPROVALTYPES } from '@/types/enumTypes';
 
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
+const TIMESHEET_APPROVAL_TYPE_OPTIONS = [
+  { label: 'Leave', value: 'Leave' },
+  { label: 'Work From Home', value: 'WorkFromHome' },
+] as const;
+type TimesheetApprovalTypeValue =
+  (typeof TIMESHEET_APPROVAL_TYPE_OPTIONS)[number]['value'];
 
 const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
   const stepItems = useMemo(
@@ -278,6 +293,15 @@ const ApprovalWorkFlowModal = ({
       const workflowAppliesId = form.getFieldValue('workflowAppliesId');
       const workflowName = form.getFieldValue('workflowName');
       const carryOverPeriod = form.getFieldValue('carryOverPeriod');
+      const selectedApprovalTypes: TimesheetApprovalTypeValue[] =
+        form.getFieldValue('timesheetApprovalTypes') || [];
+      const isMultiApprovalTypeSelected = selectedApprovalTypes.length > 1;
+      const approvalType = isMultiApprovalTypeSelected
+        ? null
+        : (selectedApprovalTypes[0] ?? null);
+      const approvalTypes = isMultiApprovalTypeSelected
+        ? selectedApprovalTypes
+        : null;
 
       const steps = selections.SectionItemType.flatMap((selection, idx) => {
         const usersForStep = Array.isArray(selection.user)
@@ -297,7 +321,8 @@ const ApprovalWorkFlowModal = ({
             description: carryOverPeriod,
             entityType: workflowApplies,
             entityId: workflowAppliesId,
-            approvalType: APPROVALTYPES.LEAVE,
+            approvalType,
+            approvalTypes,
             approvalWorkflowType: approverType,
             steps,
           },
@@ -527,6 +552,25 @@ const ApprovalWorkFlowModal = ({
         data-cy="approval-workflow-setup-form"
       >
         <Form.Item
+          name="timesheetApprovalTypes"
+          label="Approval Request Type"
+          initialValue={['Leave']}
+          rules={[
+            {
+              required: true,
+              message: 'Please select at least one request type',
+            },
+          ]}
+          data-cy="approval-workflow-timesheet-approval-types-field"
+        >
+          <Checkbox.Group
+            options={TIMESHEET_APPROVAL_TYPE_OPTIONS}
+            className="flex flex-col gap-2"
+            data-cy="approval-workflow-timesheet-approval-types-checkbox-group"
+          />
+        </Form.Item>
+
+        <Form.Item
           name="workflowName"
           label="Workflow Name"
           rules={[{ required: true, message: 'Please input workflow name' }]}
@@ -749,6 +793,20 @@ const ApprovalWorkFlowModal = ({
                   data-cy="approval-workflow-final-applies"
                 >
                   Applied to: {getAppliedToLabel()}
+                </span>
+                <span
+                  className="mt-2 inline-flex items-center rounded-lg border border-gray-200 bg-[#f7f7f7] px-2 py-0.5 text-sm text-[#4d4d4d]"
+                  data-cy="approval-workflow-final-request-types"
+                >
+                  Request type:{' '}
+                  {(
+                    (form.getFieldValue('timesheetApprovalTypes') ||
+                      []) as string[]
+                  )
+                    .map((value) =>
+                      value === 'WorkFromHome' ? 'Work From Home' : value,
+                    )
+                    .join(' and ') || '-'}
                 </span>
               </div>
               <span
