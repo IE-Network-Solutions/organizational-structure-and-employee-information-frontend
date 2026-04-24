@@ -75,8 +75,12 @@ const getBillingHelperLabel = (pp: PlanPeriod | undefined) => {
   return `You will be billed ${optionLabel} for the plan you have chosen`;
 };
 
-const GENERIC_MODAL_ERROR =
-  'We Have encountered an error Upgrading your Subscription Please try Again';
+const FALLBACK_CALCULATION_ERROR =
+  'We could not calculate pricing for the selected plan. Please try again.';
+const FALLBACK_INVOICE_ERROR =
+  'Subscription updated, but we could not open the invoice. Please check Billing and Invoice.';
+const FALLBACK_PROCESSING_ERROR =
+  'Failed to process subscription update. Please try again.';
 
 const UUID_LIKE_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -106,6 +110,9 @@ const getPlanDisplayName = (plan: Plan) => {
   if (isCustomPlan(plan)) return 'Custom';
   return plan.name;
 };
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error && error.message ? error.message : fallback;
 
 /** Full catalog rows: modules included on the plan first, then the rest; `orderIndex` within each group. */
 const orderModulesForPlanCard = (catalog: Module[], plan: Plan): Module[] => {
@@ -512,7 +519,9 @@ export const ManageSubscriptionModal: React.FC<
 
   useEffect(() => {
     if (calculationError) {
-      setInlineError(GENERIC_MODAL_ERROR);
+      setInlineError(
+        getErrorMessage(calculationError, FALLBACK_CALCULATION_ERROR),
+      );
     }
   }, [calculationError]);
 
@@ -612,18 +621,14 @@ export const ManageSubscriptionModal: React.FC<
 
       const invoiceId = getInvoiceIdFromResponse(response);
       if (!invoiceId) {
-        setInlineError(GENERIC_MODAL_ERROR);
+        setInlineError(FALLBACK_INVOICE_ERROR);
         return;
       }
 
       onClose();
       onContinueToInvoice?.(invoiceId);
     } catch (error) {
-      setInlineError(
-        error instanceof Error && error.message
-          ? GENERIC_MODAL_ERROR
-          : GENERIC_MODAL_ERROR,
-      );
+      setInlineError(getErrorMessage(error, FALLBACK_PROCESSING_ERROR));
     } finally {
       setIsSubmitting(false);
     }
