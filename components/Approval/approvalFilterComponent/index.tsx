@@ -1,10 +1,9 @@
-import { EntityTypeList } from '@/store/server/features/approver/interface';
 import { Button, Col, Dropdown, Input, Row, Select } from 'antd';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useApprovalStore } from '@/store/uistate/features/approval';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import { SearchOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
+import { useEffect, useState } from 'react';
 interface User {
   id: string;
   firstName?: string;
@@ -21,6 +20,7 @@ const ApprovalFilterComponent = ({
   searchParams,
   handleSearchInput,
   handleDepartmentChange,
+  handleApprovalTypeChange,
 }: {
   searchParams: any;
   handleSearchInput: (value: string, keyValue: any) => void;
@@ -29,45 +29,76 @@ const ApprovalFilterComponent = ({
     key?: 'entityType' | 'entityId' | undefined,
     options?: { entityType?: string; entityId?: string },
   ) => void;
+  handleApprovalTypeChange: (value: string[]) => void;
 }) => {
-  const { selectedEntityType, setSelectedEntityType } = useApprovalStore();
-  const EntityType: EntityTypeList[] = [
-    {
-      name: 'Department',
-    },
-    {
-      name: 'User',
-    },
-  ];
-
   const { data: users } = useGetAllUsers();
   const { data: departments } = useGetDepartments();
+  const isDepartmentSelected = searchParams?.entityType === 'Department';
+  const isUserSelected = searchParams?.entityType === 'User';
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>('');
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [draftApprovalType, setDraftApprovalType] = useState<string[]>([
+    'Leave',
+    'WorkFromHome',
+  ]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const { Option } = Select;
+  useEffect(() => {
+    setSelectedDepartmentId(
+      isDepartmentSelected ? searchParams?.entityId || '' : '',
+    );
+    setSelectedUserId(isUserSelected ? searchParams?.entityId || '' : '');
+    setDraftApprovalType(
+      searchParams?.approvalType?.length
+        ? searchParams.approvalType
+        : ['Leave', 'WorkFromHome'],
+    );
+  }, [
+    isDepartmentSelected,
+    isUserSelected,
+    searchParams?.entityId,
+    searchParams?.approvalType,
+  ]);
 
-  const handleAppliedForChange = (value: string) => {
-    setSelectedEntityType(value);
-    // When "Applied For" is selected, set entityType in store
-    // We need to pass this to parent to update the store
-    if (value) {
-      // Set entityType to "Department" or "User"
-      handleDepartmentChange(value, 'entityType');
-      // Clear entityId when switching entity type
-      handleDepartmentChange('', 'entityId');
+  const handleDepartmentSelect = (value?: string) => {
+    setSelectedDepartmentId(value || '');
+    if (value) setSelectedUserId('');
+  };
+
+  const handleUserSelect = (value?: string) => {
+    setSelectedUserId(value || '');
+    if (value) setSelectedDepartmentId('');
+  };
+
+  const handleSaveFilter = () => {
+    if (selectedDepartmentId) {
+      handleDepartmentChange(selectedDepartmentId, 'entityId', {
+        entityType: 'Department',
+        entityId: selectedDepartmentId,
+      });
+    } else if (selectedUserId) {
+      handleDepartmentChange(selectedUserId, 'entityId', {
+        entityType: 'User',
+        entityId: selectedUserId,
+      });
     } else {
-      // Clear both when deselecting
       handleDepartmentChange('', 'entityType');
       handleDepartmentChange('', 'entityId');
     }
+
+    handleApprovalTypeChange(
+      draftApprovalType?.length ? draftApprovalType : ['Leave', 'WorkFromHome'],
+    );
+    setIsFilterOpen(false);
   };
 
-  const handleEntityTypeChange = (value: string) => {
-    // When a user/department is selected, pass the ID
-    // The parent will handle setting entityId
-    handleDepartmentChange(value, 'entityId', {
-      entityType: selectedEntityType,
-      entityId: value,
-    });
+  const handleResetFilter = () => {
+    setSelectedDepartmentId('');
+    setSelectedUserId('');
+    setDraftApprovalType(['Leave', 'WorkFromHome']);
+    handleDepartmentChange('', 'entityType');
+    handleDepartmentChange('', 'entityId');
+    handleApprovalTypeChange(['Leave', 'WorkFromHome']);
   };
 
   return (
@@ -94,63 +125,146 @@ const ApprovalFilterComponent = ({
       {/* Filter Dropdown - opens filters (desktop & mobile) */}
       <Col xs={6} sm={4} md={3} lg={3} xl={3} className="flex justify-end">
         <Dropdown
+          open={isFilterOpen}
+          onOpenChange={setIsFilterOpen}
           trigger={['click']}
           placement="bottomRight"
           dropdownRender={() => (
             <div
               id="components-approval-approvalfiltercomponent-index-tsx-index-div-39"
               data-cy="components-approval-approvalfiltercomponent-index-tsx-index-div-39"
-              className="bg-white shadow-lg rounded-md p-4 w-72 space-y-4 border border-[#D9D9D9]"
+              className="bg-white rounded-lg border border-gray-200 min-w-[360px] sm:min-w-[420px] max-w-[92vw] overflow-hidden"
             >
-              <Select
-                placeholder="Applied for"
-                onChange={handleAppliedForChange}
-                allowClear
-                className="w-full"
-                onClear={() => {
-                  setSelectedEntityType('');
-                  handleDepartmentChange('');
-                }}
+              <div
+                className="px-6 pt-5 pb-1 relative"
+                data-cy="approval-filter-modal-header"
               >
-                {EntityType?.map((item: any, index) => (
-                  <Option key={index} value={item?.name}>
-                    {item?.name}
-                  </Option>
-                ))}
-              </Select>
+                <button
+                  type="button"
+                  onClick={() => setIsFilterOpen(false)}
+                  className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
+                  aria-label="Close filter"
+                  data-cy="approval-filter-close-button"
+                >
+                  <CloseOutlined />
+                </button>
+                <h3
+                  className="text-xl font-semibold text-gray-900 pr-8"
+                  data-cy="approval-filter-modal-title"
+                >
+                  Filter
+                </h3>
+                <p
+                  className="text-sm text-gray-500 mt-1"
+                  data-cy="approval-filter-modal-subtitle"
+                >
+                  Select all filters that apply
+                </p>
+              </div>
 
-              {selectedEntityType === 'User' && (
-                <Select
-                  id={`selectUserDropdown${searchParams.entityType}`}
-                  placeholder="User"
-                  onChange={handleEntityTypeChange}
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  className="w-full"
-                  options={users?.items?.map((user: User) => ({
-                    value: user.id,
-                    label:
-                      `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim(),
-                  }))}
-                />
-              )}
+              <div
+                className="px-6 py-4 space-y-4"
+                data-cy="approval-filter-modal-body"
+              >
+                <Row gutter={12}>
+                  <Col span={12}>
+                    <label
+                      className="text-sm font-medium text-gray-800 mb-2 block"
+                      data-cy="approval-filter-department-label"
+                    >
+                      Department
+                    </label>
+                    <Select
+                      id="approval-filter-department-select"
+                      placeholder="Select Department"
+                      value={selectedDepartmentId || undefined}
+                      onChange={handleDepartmentSelect}
+                      allowClear
+                      showSearch
+                      optionFilterProp="label"
+                      className="w-full"
+                      disabled={!!selectedUserId}
+                      options={departments?.map((dept: Department) => ({
+                        value: dept.id,
+                        label: dept.name,
+                      }))}
+                      data-cy="approval-filter-department-select"
+                    />
+                  </Col>
+                  <Col span={12}>
+                    <label
+                      className="text-sm font-medium text-gray-800 mb-2 block"
+                      data-cy="approval-filter-user-label"
+                    >
+                      User
+                    </label>
+                    <Select
+                      id="approval-filter-user-select"
+                      placeholder="Select User"
+                      value={selectedUserId || undefined}
+                      onChange={handleUserSelect}
+                      allowClear
+                      showSearch
+                      optionFilterProp="label"
+                      className="w-full"
+                      disabled={!!selectedDepartmentId}
+                      options={users?.items?.map((user: User) => ({
+                        value: user.id,
+                        label:
+                          `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim(),
+                      }))}
+                      data-cy="approval-filter-user-select"
+                    />
+                  </Col>
+                </Row>
 
-              {selectedEntityType === 'Department' && (
-                <Select
-                  id={`selectDepartmentDropdown${searchParams.entityType}`}
-                  placeholder="Department"
-                  onChange={handleEntityTypeChange}
-                  allowClear
-                  showSearch
-                  optionFilterProp="label"
-                  className="w-full"
-                  options={departments?.map((dept: Department) => ({
-                    value: dept.id,
-                    label: dept.name,
-                  }))}
-                />
-              )}
+                <div data-cy="approval-filter-approval-type-field">
+                  <label
+                    className="text-sm font-medium text-gray-800 mb-2 block"
+                    data-cy="approval-filter-approval-type-label"
+                  >
+                    Approval Type
+                  </label>
+                  <Select
+                    placeholder="Select Approval Type"
+                    mode="multiple"
+                    value={draftApprovalType}
+                    onChange={setDraftApprovalType}
+                    allowClear
+                    className="w-full"
+                    data-cy="approval-filter-approval-type-select"
+                    maxTagCount="responsive"
+                    onClear={() =>
+                      setDraftApprovalType(['Leave', 'WorkFromHome'])
+                    }
+                    options={[
+                      { label: 'Leave', value: 'Leave' },
+                      { label: 'Work From Home', value: 'WorkFromHome' },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              <div
+                className="px-6 py-4 flex justify-end gap-2 border-t border-gray-100"
+                data-cy="approval-filter-modal-footer"
+              >
+                <Button
+                  onClick={handleResetFilter}
+                  className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
+                  data-cy="approval-filter-reset-button"
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="primary"
+                  className="h-8 font-normal text-sm text-white"
+                  onClick={handleSaveFilter}
+                  data-cy="approval-filter-save-button"
+                >
+                  Save Filter
+                </Button>
+              </div>
             </div>
           )}
         >

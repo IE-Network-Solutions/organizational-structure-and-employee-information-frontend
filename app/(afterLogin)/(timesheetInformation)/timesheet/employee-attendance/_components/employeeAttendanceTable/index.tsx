@@ -558,12 +558,17 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         data-cy="time-attendance-employee-attendance-table-container"
       >
         <div
-          className="flex overflow-x-auto scrollbar-none  w-full"
+          className="flex min-w-0 w-full overflow-x-auto scrollbar-none"
           id="time-attendance-employee-attendance-table-scroll-wrapper"
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
           {isFetching ? (
-            <TableSkeleton columns={columns} />
+            <TableSkeleton
+              columns={columns}
+              scroll={{ x: 'max-content' }}
+              className="[&_.ant-table]:w-full"
+              data-cy="time-attendance-employee-attendance-table-skeleton-wrapper"
+            />
           ) : (
             <Table
               columns={columns}

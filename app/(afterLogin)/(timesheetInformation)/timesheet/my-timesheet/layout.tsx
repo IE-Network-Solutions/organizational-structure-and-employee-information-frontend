@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useEffect } from 'react';
+import { FC, ReactNode, useEffect, useMemo } from 'react';
 import { Tabs, Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,6 +17,7 @@ import ViewAttendanceSidebar from './_components/viewAttendanceSidebar';
 import CheckOutSidebar from './_components/checkOutSidebar';
 import LeaveRequestSidebar from './_components/leaveRequestSidebar';
 import LeaveRequestDetail from './_components/leaveRequestDetail';
+import WorkFromHomeRequestSidebar from './_components/workFromHomeRequestSidebar';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const MY_TIMESHEET_BASE = '/timesheet/my-timesheet';
@@ -80,6 +81,41 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
   };
 
   const activeKey = getActiveKey();
+
+  const breadcrumbItems = useMemo(() => {
+    const items: { title: ReactNode }[] = [
+      {
+        title: (
+          <Link
+            href="/timesheet"
+            data-cy="time-attendance-my-timesheet-breadcrumb-timesheet-link"
+          >
+            Time and Attendance
+          </Link>
+        ),
+      },
+      {
+        title: (
+          <Link
+            href={`${MY_TIMESHEET_BASE}/overview`}
+            data-cy="time-attendance-my-timesheet-breadcrumb-my-timesheet-link"
+          >
+            My Timesheet
+          </Link>
+        ),
+      },
+    ];
+    if (pathname.includes('/work-from-home')) {
+      items.push({
+        title: (
+          <span data-cy="time-attendance-my-timesheet-breadcrumb-work-from-home">
+            Work From Home
+          </span>
+        ),
+      });
+    }
+    return items;
+  }, [pathname]);
 
   const tabItems: TabsProps['items'] = [
     {
@@ -161,21 +197,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
                 subtitle={
                   <Breadcrumb
                     className="mt-2 mb-0"
-                    items={[
-                      {
-                        title: (
-                          <Link
-                            href="/timesheet"
-                            data-cy="time-attendance-my-timesheet-breadcrumb-timesheet-link"
-                          >
-                            Time and Attendance
-                          </Link>
-                        ),
-                      },
-                      {
-                        title: 'My Timesheet',
-                      },
-                    ]}
+                    items={breadcrumbItems}
                     data-cy="time-attendance-my-timesheet-breadcrumb"
                   />
                 }
@@ -198,34 +220,36 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
           </div>
         </div>
 
-        <div
-          className="bg-white mb-4"
-          data-cy="time-attendance-my-timesheet-tabs-container"
-          id="time-attendance-my-timesheet-tabs-container"
-        >
+        {!pathname.includes('/work-from-home') && (
           <div
-            className="px-4 pr-4 sm:pr-6"
-            data-cy="time-attendance-my-timesheet-tabs-wrapper"
+            className="bg-white mb-4"
+            data-cy="time-attendance-my-timesheet-tabs-container"
+            id="time-attendance-my-timesheet-tabs-container"
           >
-            <Tabs
-              activeKey={activeKey}
-              onChange={handleTabChange}
-              items={tabItems}
-              tabBarStyle={{
-                marginBottom: 0,
-                marginLeft: 0,
-                paddingLeft: 0,
-                paddingRight: 0,
-              }}
-              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
-              data-cy="time-attendance-my-timesheet-tabs"
-              id="time-attendance-my-timesheet-tabs"
-            />
+            <div
+              className="px-0"
+              data-cy="time-attendance-my-timesheet-tabs-wrapper"
+            >
+              <Tabs
+                activeKey={activeKey}
+                onChange={handleTabChange}
+                items={tabItems}
+                tabBarStyle={{
+                  marginBottom: 0,
+                  marginLeft: 0,
+                  paddingLeft: 0,
+                  paddingRight: 0,
+                }}
+                className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+                data-cy="time-attendance-my-timesheet-tabs"
+                id="time-attendance-my-timesheet-tabs"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div
-          className="px-4 pr-4 sm:pr-4 pb-6"
+          className="px-0 pb-6"
           data-cy="time-attendance-my-timesheet-content-wrapper"
           id="time-attendance-my-timesheet-content-wrapper"
         >
@@ -235,6 +259,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
 
       <ViewAttendanceSidebar data-cy="time-attendance-my-timesheet-view-attendance-sidebar" />
       <LeaveRequestSidebar data-cy="time-attendance-my-timesheet-leave-request-sidebar" />
+      <WorkFromHomeRequestSidebar data-cy="time-attendance-my-timesheet-work-from-home-request-sidebar" />
       <LeaveRequestDetail data-cy="time-attendance-my-timesheet-leave-request-detail" />
       <CheckOutSidebar data-cy="time-attendance-my-timesheet-check-out-sidebar" />
     </div>
