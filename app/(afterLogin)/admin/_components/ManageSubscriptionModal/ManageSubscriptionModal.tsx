@@ -25,6 +25,7 @@ import {
 import type { CalculateSubscriptionPriceDto } from '@/store/server/features/tenant-management/manage-subscriptions/interface';
 import { DEFAULT_TENANT_ID } from '@/utils/constants';
 import { usePaymentStore } from '@/store/uistate/features/tenant-managment/useState';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { IoCheckbox } from 'react-icons/io5';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -75,8 +76,26 @@ const getBillingHelperLabel = (pp: PlanPeriod | undefined) => {
   return `You will be billed ${optionLabel} for the plan you have chosen`;
 };
 
-const GENERIC_MODAL_ERROR =
-  'We Have encountered an error Upgrading your Subscription Please try Again';
+const FALLBACK_CALCULATION_ERROR =
+  'We could not calculate pricing for the selected plan. Please try again.';
+const FALLBACK_INVOICE_ERROR =
+  'Subscription updated, but we could not open the invoice. Please check Billing and Invoice.';
+const FALLBACK_PROCESSING_ERROR =
+  'Failed to process subscription update. Please try again.';
+
+const CURRENCY_FILTER_CODES = ['USD', 'ETB'] as const;
+type CurrencyFilterCode = (typeof CURRENCY_FILTER_CODES)[number];
+
+const normalizeCurrencyCode = (value: unknown): CurrencyFilterCode | null => {
+  if (typeof value !== 'string') return null;
+  const code = value.trim().toUpperCase();
+  return CURRENCY_FILTER_CODES.includes(code as CurrencyFilterCode)
+    ? (code as CurrencyFilterCode)
+    : null;
+};
+
+const getPlanCurrencyCode = (plan: Plan): CurrencyFilterCode | null =>
+  normalizeCurrencyCode(plan.currency?.code);
 
 const UUID_LIKE_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -105,6 +124,28 @@ const isCustomPlan = (plan: Plan | undefined) => {
 const getPlanDisplayName = (plan: Plan) => {
   if (isCustomPlan(plan)) return 'Custom';
   return plan.name;
+};
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  const e = error as any;
+  const backendMessage =
+    e?.response?.data?.message ??
+    e?.response?.data?.error ??
+    e?.data?.message ??
+    null;
+  if (typeof backendMessage === 'string' && backendMessage.trim()) {
+    return backendMessage.trim();
+  }
+  if (error instanceof Error && error.message?.trim()) {
+    return error.message.trim();
+  }
+  return fallback;
+};
+
+const normalizeUuid = (value: unknown) => {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 };
 
 /** Full catalog rows: modules included on the plan first, then the rest; `orderIndex` within each group. */
@@ -143,6 +184,8 @@ export const ManageSubscriptionModal: React.FC<
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
     string | null
   >(null);
+  const [selectedCurrencyCode, setSelectedCurrencyCode] =
+    useState<CurrencyFilterCode | null>(null);
 
   const { data: plansData } = useGetPlans({ filter: {} }, true, true, 'ASC');
   const { data: subscriptionsData } = useGetSubscriptions(
@@ -213,18 +256,73 @@ export const ManageSubscriptionModal: React.FC<
       setSeatCount(baselineSubscription.slotTotal);
   }, [subscriptionsData]);
 
-  /** Currency must follow the tenant's current/most-recent subscription plan. */
   const activePlanCurrencyId =
     activeSubscription?.plan?.currencyId ??
     activeSubscription?.currencyId ??
     latestSubscription?.plan?.currencyId ??
     latestSubscription?.currencyId ??
     null;
+  const activePlanCurrencyCode =
+    normalizeCurrencyCode(activeSubscription?.plan?.currency?.code) ??
+    normalizeCurrencyCode(latestSubscription?.plan?.currency?.code) ??
+    normalizeCurrencyCode(
+      plans.find((plan) => plan.currencyId === activePlanCurrencyId)?.currency
+        ?.code,
+    );
+
+  const currencyOptions = useMemo(
+    () =>
+      CURRENCY_FILTER_CODES.map((code) => {
+        const matchingPlans = plans.filter(
+          (plan) => getPlanCurrencyCode(plan) === code,
+        );
+        return {
+          code,
+          label: code,
+          disabled: matchingPlans.length === 0,
+        };
+      }),
+    [plans],
+  );
+  const firstAvailableCurrencyCode =
+    currencyOptions.find((option) => !option.disabled)?.code ?? null;
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedCurrencyCode(null);
+      return;
+    }
+    setSelectedCurrencyCode((prev) => {
+      if (
+        prev &&
+        currencyOptions.some(
+          (option) => option.code === prev && !option.disabled,
+        )
+      ) {
+        return prev;
+      }
+      if (
+        activePlanCurrencyCode &&
+        currencyOptions.some(
+          (option) =>
+            option.code === activePlanCurrencyCode && !option.disabled,
+        )
+      ) {
+        return activePlanCurrencyCode;
+      }
+      return firstAvailableCurrencyCode;
+    });
+  }, [
+    open,
+    currencyOptions,
+    activePlanCurrencyCode,
+    firstAvailableCurrencyCode,
+  ]);
 
   const visiblePlans = useMemo(() => {
-    if (!activePlanCurrencyId) return plans;
-    return plans.filter((p) => p.currencyId === activePlanCurrencyId);
-  }, [plans, activePlanCurrencyId]);
+    if (!selectedCurrencyCode) return [];
+    return plans.filter((p) => getPlanCurrencyCode(p) === selectedCurrencyCode);
+  }, [plans, selectedCurrencyCode]);
 
   /** Keep selection inside the visible list; prefer the active subscription plan when fixing. */
   useEffect(() => {
@@ -300,7 +398,7 @@ export const ManageSubscriptionModal: React.FC<
   const currentPlanId = activeSubscription?.planId;
   const effectiveSelectedPlanId = selectedPlanId ?? currentPlanId ?? null;
 
-  /** Visible plans grouped by currency (typically one group after active-currency filter). */
+  /** Visible plans grouped by the selected currency. */
   const plansByCurrency = useMemo(() => {
     const byId = new Map<string, Plan[]>();
     for (const plan of visiblePlans) {
@@ -500,7 +598,6 @@ export const ManageSubscriptionModal: React.FC<
       selectedPlanPeriod.periodSlotPrice ?? selectedPlan?.slotPrice ?? 0;
     return Number(slotPrice) * Number(seatCount || 0);
   }, [selectedPlanPeriod, selectedPlan, seatCount]);
-  const currencySymbol = selectedPlan?.currency?.symbol ?? '$';
 
   useEffect(() => {
     if (!open) {
@@ -512,7 +609,9 @@ export const ManageSubscriptionModal: React.FC<
 
   useEffect(() => {
     if (calculationError) {
-      setInlineError(GENERIC_MODAL_ERROR);
+      setInlineError(
+        getErrorMessage(calculationError, FALLBACK_CALCULATION_ERROR),
+      );
     }
   }, [calculationError]);
 
@@ -557,13 +656,24 @@ export const ManageSubscriptionModal: React.FC<
         : resolvedTransactionType,
     );
     try {
+      const tenantId =
+        normalizeUuid(useAuthenticationStore.getState().tenantId) ??
+        normalizeUuid(DEFAULT_TENANT_ID);
+      const selectedCurrencyId = normalizeUuid(selectedPlan.currency?.id);
+      if (!tenantId) {
+        setInlineError(
+          'Unable to process subscription update: tenant identifier is missing. Please refresh and try again.',
+        );
+        return;
+      }
+
       let response: any;
       if (!activeSubscription) {
         // If tenant already has a previous subscription (e.g. expired), renew it.
         if (latestSubscription?.id) {
           response = await renewSubscriptionMutation.mutateAsync({
             subscriptionId: latestSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
@@ -574,8 +684,8 @@ export const ManageSubscriptionModal: React.FC<
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
-            tenantId: DEFAULT_TENANT_ID,
-            currencyId: selectedPlan.currency?.id,
+            tenantId,
+            ...(selectedCurrencyId ? { currencyId: selectedCurrencyId } : {}),
             subscriptionPrice: Number(totalAmount ?? displayAmount ?? 0),
             subscriptionStatus: 'pending' as any,
             isActive: false,
@@ -586,7 +696,7 @@ export const ManageSubscriptionModal: React.FC<
           // Keep slot-only increase routed through the legacy upgrade endpoint.
           response = await upgradeSubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
@@ -594,7 +704,7 @@ export const ManageSubscriptionModal: React.FC<
         } else if (isScheduledDowngradeForPrepay) {
           response = await prepaySubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
@@ -602,7 +712,7 @@ export const ManageSubscriptionModal: React.FC<
         } else {
           response = await upgradeSubscriptionMutation.mutateAsync({
             subscriptionId: activeSubscription.id,
-            tenantId: DEFAULT_TENANT_ID,
+            tenantId,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
@@ -612,18 +722,14 @@ export const ManageSubscriptionModal: React.FC<
 
       const invoiceId = getInvoiceIdFromResponse(response);
       if (!invoiceId) {
-        setInlineError(GENERIC_MODAL_ERROR);
+        setInlineError(FALLBACK_INVOICE_ERROR);
         return;
       }
 
       onClose();
       onContinueToInvoice?.(invoiceId);
     } catch (error) {
-      setInlineError(
-        error instanceof Error && error.message
-          ? GENERIC_MODAL_ERROR
-          : GENERIC_MODAL_ERROR,
-      );
+      setInlineError(getErrorMessage(error, FALLBACK_PROCESSING_ERROR));
     } finally {
       setIsSubmitting(false);
     }
@@ -646,11 +752,9 @@ export const ManageSubscriptionModal: React.FC<
         body: [
           'manage-subscription-modal__body',
           '!px-5 !pb-5 !pt-4 md:!px-6 md:!pb-6',
-          '!overflow-y-auto',
           'max-lg:!flex max-lg:!flex-col max-lg:!min-h-0',
-          'max-lg:!max-h-[min(86dvh,calc(100dvh-5.5rem))] max-lg:!pb-4',
-          // Desktop target design height.
-          'lg:!h-[703px]',
+          'max-lg:!pb-4',
+          'lg:!min-h-[703px]',
         ].join(' '),
       }}
     >
@@ -766,7 +870,7 @@ export const ManageSubscriptionModal: React.FC<
           </div>
           <div
             data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-650"
-            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-row md:items-center md:justify-end md:gap-3 md:justify-self-end"
+            className="flex w-full min-w-0 flex-col items-start gap-2 md:max-w-none md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-2 md:justify-self-end"
           >
             <div
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-651"
@@ -786,28 +890,50 @@ export const ManageSubscriptionModal: React.FC<
               </Tooltip>
             </div>
             <div
-              className="manage-subscription-total-amount-wrap flex h-8 w-full min-w-0 max-w-[168px] shrink-0 items-stretch overflow-hidden rounded-lg border border-[#d1d5db] bg-white md:max-w-[168px]"
-              data-cy="manage-subscription-total-amount"
+              data-cy="manage-subscription-total-controls"
+              className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end"
             >
-              <span
-                data-cy="manage-subscription-total-amount-value"
-                className="flex min-w-0 flex-1 items-center px-3 text-left text-[13px] font-medium tabular-nums text-[#111827]"
+              <div
+                className="manage-subscription-total-amount-wrap flex h-8 w-full min-w-0 max-w-[128px] shrink-0 items-center rounded-lg border border-[#d1d5db] bg-white md:w-[128px]"
+                data-cy="manage-subscription-total-amount"
               >
-                {displayAmount != null
-                  ? Number(displayAmount).toLocaleString()
-                  : '—'}
-              </span>
-              <span
-                data-cy="manage-subscription-total-amount-divider"
-                className="w-px shrink-0 self-stretch bg-[#e5e7eb]"
-                aria-hidden
-              />
-              <span
-                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-674"
-                className="flex w-9 shrink-0 items-center justify-center bg-black/[0.02] text-[13px] font-semibold text-[#374151]"
+                <span
+                  data-cy="manage-subscription-total-amount-value"
+                  className="flex min-w-0 flex-1 items-center px-3 text-left text-[13px] font-medium tabular-nums text-[#111827]"
+                >
+                  {displayAmount != null
+                    ? Number(displayAmount).toLocaleString()
+                    : '—'}
+                </span>
+              </div>
+              <div
+                data-cy="manage-subscription-currency-filter"
+                className="inline-flex h-8 shrink-0 items-stretch overflow-hidden rounded-lg border border-[#d1d5db] bg-white"
+                aria-label="Filter plans by currency"
               >
-                {currencySymbol}
-              </span>
+                {currencyOptions.map((option) => {
+                  const isActive = selectedCurrencyCode === option.code;
+                  return (
+                    <button
+                      key={option.code}
+                      type="button"
+                      disabled={option.disabled}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCurrencyCode(option.code);
+                      }}
+                      data-cy={`manage-subscription-currency-${option.code}`}
+                      className={`flex min-w-[52px] items-center justify-center px-3 text-[13px] font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1e40af]/35 ${
+                        isActive
+                          ? 'bg-[#1e40af] text-white'
+                          : 'bg-white text-[#4B5563] hover:bg-gray-50'
+                      } ${option.disabled ? 'cursor-not-allowed opacity-45 hover:bg-white' : ''}`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -821,19 +947,19 @@ export const ManageSubscriptionModal: React.FC<
           </div>
         ) : null}
 
-        {/* Plan cards — grouped by currency (filtered to active subscription plan currency when available) */}
+        {/* Plan cards — filtered by the selected currency */}
         <div
           data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-688"
-          className="scrollbar-none flex flex-col gap-6 max-lg:min-h-0 max-lg:flex-1 max-lg:overflow-y-auto max-lg:overscroll-y-contain"
+          className="scrollbar-none flex flex-col gap-6 max-lg:min-h-0 max-lg:flex-1"
         >
           {plansByCurrency.length === 0 ? (
             <p
               data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-p-690"
               className="text-sm text-gray-500 text-center py-6"
             >
-              {activePlanCurrencyId
-                ? 'No paid plans are available in your subscription currency.'
-                : 'No paid plans available.'}
+              {selectedCurrencyCode
+                ? `No paid ${selectedCurrencyCode} plans available.`
+                : 'No paid USD or ETB plans available.'}
             </p>
           ) : null}
           {plansByCurrency.map(({ currencyId, plans: groupPlans }) => {
