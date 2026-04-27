@@ -16,7 +16,6 @@ import {
   Steps,
   Tag,
 } from 'antd';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
@@ -104,7 +103,6 @@ const ApprovalWorkFlowModal = ({
 }: ApprovalWorkFlowModalProps) => {
   const {
     mutate: createApprover,
-    isSuccess,
     isLoading: isCreateLoading,
   } = useCreateApproverMutation();
   const [form] = Form.useForm();
@@ -122,40 +120,12 @@ const ApprovalWorkFlowModal = ({
   } = useApprovalStore();
   const { data: usersData } = useGetAllUsers();
   const { data: departmentsData } = useGetDepartments();
-  const router = useRouter();
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     if (!openApprovalModal) return;
     setCurrent(0);
   }, [openApprovalModal]);
-
-  useEffect(() => {
-    if (!isSuccess) return;
-    NotificationMessage.success({
-      message: 'Success',
-      description: 'Approver created successfully',
-    });
-    onCancelApprovalModal();
-    setCurrent(0);
-    form.resetFields();
-    setApproverType(null);
-    setWorkflowApplies(null);
-    setWorkflowUserId(null);
-    setLevel(1);
-    setSelections({ SectionItemType: Array(1).fill({ user: null }) });
-    router.push('/timesheet/settings/approvals');
-  }, [
-    form,
-    isSuccess,
-    onCancelApprovalModal,
-    router,
-    setApproverType,
-    setLevel,
-    setSelections,
-    setWorkflowApplies,
-    setWorkflowUserId,
-  ]);
 
   const users = useMemo(() => usersData?.items || [], [usersData?.items]);
   const departments = useMemo(
@@ -337,6 +307,7 @@ const ApprovalWorkFlowModal = ({
               message: 'Success',
               description: 'Approver created successfully',
             });
+            handleCancel();
           },
           onError: (error: any) => {
             NotificationMessage.error({
@@ -569,7 +540,7 @@ const ApprovalWorkFlowModal = ({
         >
           <Checkbox.Group
             options={TIMESHEET_APPROVAL_TYPE_OPTIONS}
-            className="flex flex-col gap-2"
+            className="flex flex-wrap items-center gap-4"
             data-cy="approval-workflow-timesheet-approval-types-checkbox-group"
           />
         </Form.Item>
