@@ -45,6 +45,7 @@ const shouldUseZKTEndpoint = (
     (filter.userIds && filter.userIds.length > 0) ||
     (filter.attendanceRecordIds && filter.attendanceRecordIds.length > 0) ||
     filter.type ||
+    filter.clockedOut !== undefined ||
     filter.breakTypeId ||
     (filter.locations && filter.locations.length > 0);
 
