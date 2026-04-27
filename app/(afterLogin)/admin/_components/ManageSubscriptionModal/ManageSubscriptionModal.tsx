@@ -276,7 +276,6 @@ export const ManageSubscriptionModal: React.FC<
         const matchingPlans = plans.filter(
           (plan) => getPlanCurrencyCode(plan) === code,
         );
-        const currency = matchingPlans[0]?.currency;
         return {
           code,
           label: code,
@@ -305,7 +304,8 @@ export const ManageSubscriptionModal: React.FC<
       if (
         activePlanCurrencyCode &&
         currencyOptions.some(
-          (option) => option.code === activePlanCurrencyCode && !option.disabled,
+          (option) =>
+            option.code === activePlanCurrencyCode && !option.disabled,
         )
       ) {
         return activePlanCurrencyCode;
@@ -889,7 +889,10 @@ export const ManageSubscriptionModal: React.FC<
                 />
               </Tooltip>
             </div>
-            <div className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end">
+            <div
+              data-cy="manage-subscription-total-controls"
+              className="flex w-full min-w-0 flex-wrap items-center gap-2 md:w-auto md:justify-end"
+            >
               <div
                 className="manage-subscription-total-amount-wrap flex h-8 w-full min-w-0 max-w-[128px] shrink-0 items-center rounded-lg border border-[#d1d5db] bg-white md:w-[128px]"
                 data-cy="manage-subscription-total-amount"
