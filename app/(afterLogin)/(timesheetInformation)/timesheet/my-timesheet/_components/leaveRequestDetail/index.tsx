@@ -171,6 +171,20 @@ const LeaveRequestDetail = () => {
     leaveData?.items?.status === LeaveRequestStatus.APPROVED ||
     leaveData?.items?.status === LeaveRequestStatus.DECLINED;
 
+  const approverLogItems: any[] = Array.isArray(approverLog)
+    ? approverLog
+    : ((approverLog as any)?.items ?? []);
+
+  const approvalHasApprovedStep = approverLogItems.some(
+    (log) => String(log?.action ?? '').toLowerCase() === 'approved',
+  );
+
+  // If approval process has started (at least one "Approved" action), only allow editing
+  // description + attachment while the leave is still pending.
+  const lockCoreFields =
+    leaveData?.items?.status === LeaveRequestStatus.PENDING &&
+    approvalHasApprovedStep;
+
   // const handleCancelRequest = () => {
   //   if (!leaveRequestSidebarData) return;
   //   if (leaveData?.items?.status !== LeaveRequestStatus.PENDING) return;
@@ -564,6 +578,7 @@ const LeaveRequestDetail = () => {
                 size="middle"
                 options={typeOptions()}
                 placeholder="Select Leave Type"
+                disabled={disableActions || lockCoreFields}
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
                 }
@@ -582,7 +597,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
-                    disabled={disableActions}
+                    disabled={disableActions || lockCoreFields}
                   />
                 </Form.Item>
               </Col>
@@ -598,7 +613,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
-                    disabled={disableActions}
+                    disabled={disableActions || lockCoreFields}
                   />
                 </Form.Item>
               </Col>
@@ -608,7 +623,9 @@ const LeaveRequestDetail = () => {
               valuePropName="checked"
               className={itemClass}
             >
-              <Checkbox>Half Date</Checkbox>
+              <Checkbox disabled={disableActions || lockCoreFields}>
+                Half Date
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="note"
@@ -630,6 +647,7 @@ const LeaveRequestDetail = () => {
                 placeholder="Select Delegate"
                 className={controlClass}
                 allowClear
+                disabled={disableActions || lockCoreFields}
                 filterOption={(input: string, option: any) =>
                   (option?.label ?? '')
                     .toLowerCase()
