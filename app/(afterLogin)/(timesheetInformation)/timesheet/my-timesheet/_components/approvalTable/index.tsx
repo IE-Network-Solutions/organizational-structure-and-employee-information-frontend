@@ -99,7 +99,6 @@ const ApprovalTable = () => {
   const {
     data: leaveApprovalData,
     isLoading: isLoadingLeaveApproval,
-    isFetching: isFetchingLeaveApproval,
     refetch: refetchLeave,
   } = useGetApprovalLeaveRequestAllStatus(
     userId ?? '',
@@ -111,7 +110,6 @@ const ApprovalTable = () => {
   const {
     data: workFromHomeApprovalData,
     isLoading: isLoadingWorkFromHomeApproval,
-    isFetching: isFetchingWorkFromHomeApproval,
     refetch: refetchWorkFromHome,
   } = useGetWorkFromHomeApprovalAllStatus(
     userId ?? '',
@@ -128,28 +126,15 @@ const ApprovalTable = () => {
     setSelectedRowKeys([]);
   }, [searchEmployee, filterStatus, approvalTypeFilter]);
 
-  // When page, page size, or filters change, refetch so the endpoint is called with the new params
-  useEffect(() => {
-    if (approvalTypeFilter === 'WorkFromHome') {
-      refetchWorkFromHome();
-    } else {
-      refetchLeave();
-    }
-  }, [
-    approvalTypeFilter,
-    userCurrentPage,
-    pageSize,
-    searchEmployee,
-    filterStatus,
-    refetchLeave,
-    refetchWorkFromHome,
-  ]);
-
-  /** True on first load and on every refetch (e.g. filter / page changes). `isLoading` alone misses refetches when `keepPreviousData` is on. */
+  /**
+   * Use only initial-loading state for table skeleton.
+   * Keeping refetch (`isFetching`) out of this prevents action buttons/popconfirms
+   * from getting disabled mid-interaction (seen on WFH approve flow).
+   */
   const isApprovalListLoading =
     approvalTypeFilter === 'WorkFromHome'
-      ? isLoadingWorkFromHomeApproval || isFetchingWorkFromHomeApproval
-      : isLoadingLeaveApproval || isFetchingLeaveApproval;
+      ? isLoadingWorkFromHomeApproval
+      : isLoadingLeaveApproval;
 
   // Normalize response: support both { items, meta } and { data: { items, meta } }
   const approvalData =
