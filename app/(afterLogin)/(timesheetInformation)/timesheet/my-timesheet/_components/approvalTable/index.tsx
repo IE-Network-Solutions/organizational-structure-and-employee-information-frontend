@@ -148,13 +148,29 @@ const ApprovalTable = () => {
     ? 'work from home request'
     : 'leave request';
   const finalApproval = (
-    e: { leaveRequestId: string; status: 'approved' | 'declined' },
+    e: {
+      leaveRequestId?: string;
+      workFromHomeRequestId?: string;
+      status: 'approved' | 'declined';
+    },
     options?: { onSuccess?: () => void },
   ) => {
     if (isWorkFromHome) {
-      finalWorkFromHomeApprover(e, { onSuccess: () => options?.onSuccess?.() });
+      finalWorkFromHomeApprover(
+        {
+          workFromHomeRequestId: e.workFromHomeRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
     } else {
-      finalApprover(e, { onSuccess: () => options?.onSuccess?.() });
+      finalApprover(
+        {
+          leaveRequestId: e.leaveRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
     }
   };
   const reject: any = (e: {
@@ -171,7 +187,9 @@ const ApprovalTable = () => {
       onSuccess: () => {
         setRejectComment('');
         finalApproval(
-          { leaveRequestId: e.requestId, status: 'declined' },
+          isWorkFromHome
+            ? { workFromHomeRequestId: e.requestId, status: 'declined' }
+            : { leaveRequestId: e.requestId, status: 'declined' },
           {
             onSuccess: () =>
               isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
@@ -194,7 +212,9 @@ const ApprovalTable = () => {
       onSuccess: (data) => {
         if (data?.last === true) {
           finalApproval(
-            { leaveRequestId: e.requestId, status: 'approved' },
+            isWorkFromHome
+              ? { workFromHomeRequestId: e.requestId, status: 'approved' }
+              : { leaveRequestId: e.requestId, status: 'approved' },
             {
               onSuccess: () =>
                 isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
