@@ -73,11 +73,9 @@ function Page() {
         isLoading={isStatsLoading}
       />
 
-      <Card
-        bordered
-        className="rounded-lg p-3"
+      <div
+        className="w-full"
         data-cy="recognition-categories-card-wrapper"
-        bodyStyle={{ padding: 0 }}
       >
         <Input.Group
           compact
@@ -127,7 +125,7 @@ function Page() {
             : recognitionType?.items?.map((item: any) => (
                 <Card
                   key={item.id}
-                  className="cursor-pointer rounded-lg border border-[#D1D5DB] bg-white p-3"
+                  className="cursor-pointer rounded-lg border border-[#D1D5DB] bg-[#F9FAFB] p-3"
                   onClick={() =>
                     navigate.push(
                       `/feedback/recognition/detail?recognitionTypeId=${item.id}`,
@@ -141,22 +139,38 @@ function Page() {
                     className="flex flex-col gap-1"
                     data-cy={`recognition-card-content-${item.id}`}
                   >
-                    <div
-                      className="flex items-center gap-3"
-                      data-cy={`recognition-card-header-${item.id}`}
-                    >
-                      <span
-                        className="flex h-8 w-8 items-center justify-center rounded-md bg-lightblue text-primary"
-                        data-cy={`recognition-card-icon-${item.id}`}
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="flex items-center gap-3"
+                        data-cy={`recognition-card-header-${item.id}`}
                       >
-                        <MdOutlineEmojiEvents size={24} className="text-base" />
-                      </span>
-                      <p
-                        className="min-w-0 truncate text-sm font-normal leading-normal text-black"
-                        data-cy={`recognition-card-title-${item.id}`}
+                        <span
+                          className="flex h-8 w-8 items-center justify-center rounded-md bg-lightblue text-primary"
+                          data-cy={`recognition-card-icon-${item.id}`}
+                        >
+                          <MdOutlineEmojiEvents
+                            size={24}
+                            className="text-base"
+                          />
+                        </span>
+                        <p
+                          className="min-w-0 truncate text-sm font-normal leading-normal text-black line-clamp-1 max-w-[120px]"
+                          data-cy={`recognition-card-title-${item.id}`}
+                        >
+                          {item?.name ?? '-'}
+                        </p>
+                      </div>
+                      <div
+                        className="flex flex-nowrap items-center gap-3"
+                        data-cy={`recognition-card-pills-${item.id}`}
                       >
-                        {item?.name ?? '-'}
-                      </p>
+                        <span
+                          className="inline-flex rounded-[4px] border border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-xs leading-none font-normal text-[#1677FF] w-20"
+                          data-cy={`recognition-card-types-pill-${item.id}`}
+                        >
+                          {(item?.children?.length ?? 0) + ' Types'}
+                        </span>
+                      </div>
                     </div>
                     <div
                       className="min-w-0"
@@ -168,23 +182,6 @@ function Page() {
                       >
                         {item?.description ?? 'Recognition category'}
                       </p>
-                    </div>
-                    <div
-                      className="flex flex-wrap items-center gap-3"
-                      data-cy={`recognition-card-pills-${item.id}`}
-                    >
-                      <span
-                        className="inline-flex rounded-[4px] border border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-xs leading-none font-normal text-[#1677FF]"
-                        data-cy={`recognition-card-types-pill-${item.id}`}
-                      >
-                        {(item?.children?.length ?? 0) + ' Types'}
-                      </span>
-                      <span
-                        className="inline-flex rounded-[4px] border border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-xs leading-none font-normal text-[#1677FF]"
-                        data-cy={`recognition-card-recognitions-pill-${item.id}`}
-                      >
-                        {(item?.recognitionCount ?? 0) + ' Recognitions'}
-                      </span>
                     </div>
                   </div>
                 </Card>
@@ -207,7 +204,7 @@ function Page() {
             data-cy="recognition-categories-pagination"
           />
         )}
-      </Card>
+      </div>
     </div>
   );
 }
