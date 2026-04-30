@@ -73,10 +73,7 @@ function Page() {
         isLoading={isStatsLoading}
       />
 
-      <div
-        className="w-full"
-        data-cy="recognition-categories-card-wrapper"
-      >
+      <div className="w-full" data-cy="recognition-categories-card-wrapper">
         <Input.Group
           compact
           className="max-w-[320px] mb-4"
@@ -139,7 +136,10 @@ function Page() {
                     className="flex flex-col gap-1"
                     data-cy={`recognition-card-content-${item.id}`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div
+                      className="flex items-center justify-between"
+                      data-cy={`recognition-card-row-${item.id}`}
+                    >
                       <div
                         className="flex items-center gap-3"
                         data-cy={`recognition-card-header-${item.id}`}

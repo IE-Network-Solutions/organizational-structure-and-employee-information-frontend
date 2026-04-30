@@ -50,7 +50,9 @@ const LeaveRequestSidebar = () => {
     false,
     false,
   );
-  const { data: approverLog } = useGetSingleApproval(leaveRequestSidebarData ?? '');
+  const { data: approverLog } = useGetSingleApproval(
+    leaveRequestSidebarData ?? '',
+  );
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
   const { data: leaveTypesData } = useGetLeaveTypes();
@@ -110,7 +112,9 @@ const LeaveRequestSidebar = () => {
   // If approval process has started (at least one "Approved" action), only allow editing
   // description + attachment while the leave is still pending.
   const lockCoreFields =
-    !!leaveRequest && leaveRequest.status === LeaveRequestStatus.PENDING && approvalHasApprovedStep;
+    !!leaveRequest &&
+    leaveRequest.status === LeaveRequestStatus.PENDING &&
+    approvalHasApprovedStep;
 
   useEffect(() => {
     if (leaveRequestSidebarData) {

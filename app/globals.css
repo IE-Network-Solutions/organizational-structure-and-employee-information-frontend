@@ -516,12 +516,7 @@ h6 {
 .manage-subscription-modal.ant-modal,
 .invoice-modal.ant-modal {
   font-family:
-    Calibri,
-    'Calibri Light',
-    Candara,
-    'Segoe UI',
-    system-ui,
-    sans-serif;
+    Calibri, 'Calibri Light', Candara, 'Segoe UI', system-ui, sans-serif;
 }
 
 .manage-subscription-modal.ant-modal .ant-modal-content,
