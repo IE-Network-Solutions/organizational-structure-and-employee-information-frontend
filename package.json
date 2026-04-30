@@ -8,7 +8,7 @@
     "start": "next start -p 3001",
     "stage": "next start -p 3005",
     "start:test": "pm2 start pwa.ecosystem.config.js",
-    "lint": "eslint --rulesdir eslint-rules \"app\" \"components\" \"constants\" \"helpers\" \"hooks\" \"providers\" \"store\" \"types\" \"utils\" --ext .js,.jsx,.ts,.tsx --cache --cache-location .eslintcache",
+    "lint": "eslint --rulesdir eslint-rules . --ext .js,.jsx,.ts,.tsx --fix --quiet",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "test": "jest"
   },
