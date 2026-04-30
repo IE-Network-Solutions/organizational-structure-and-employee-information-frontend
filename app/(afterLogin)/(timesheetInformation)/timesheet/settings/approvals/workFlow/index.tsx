@@ -101,10 +101,8 @@ const ApprovalWorkFlowModal = ({
   openApprovalModal,
   onCancelApprovalModal,
 }: ApprovalWorkFlowModalProps) => {
-  const {
-    mutate: createApprover,
-    isLoading: isCreateLoading,
-  } = useCreateApproverMutation();
+  const { mutate: createApprover, isLoading: isCreateLoading } =
+    useCreateApproverMutation();
   const [form] = Form.useForm();
   const {
     setApproverType,

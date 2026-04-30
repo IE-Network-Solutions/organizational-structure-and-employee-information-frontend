@@ -81,7 +81,7 @@ function RecognitionStatsCards({
       {cards.map((card) => (
         <Card
           key={card.key}
-          className="bg-white w-full border border-[#E5E7EB] rounded-lg p-3 md:w-full min-w-[265px]"
+          className="bg-white w-full border border-[#E5E7EB] rounded-lg p-3 md:w-full min-w-[225px]"
           bordered
           bodyStyle={{ padding: 0 }}
           data-cy={card.cardCy}
