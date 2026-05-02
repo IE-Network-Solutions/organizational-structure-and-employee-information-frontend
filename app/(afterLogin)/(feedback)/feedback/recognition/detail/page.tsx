@@ -515,7 +515,7 @@ function DetailPage() {
       </Modal>
 
       <div
-        className="border border-gray-200 rounded-lg p-4"
+        className="rounded-lg border border-[#DEE2E6] bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
         data-cy="recognition-history-filters-card"
       >
         <div
