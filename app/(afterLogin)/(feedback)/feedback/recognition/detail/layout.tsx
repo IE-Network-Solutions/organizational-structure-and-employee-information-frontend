@@ -35,8 +35,11 @@ function RecognitionDetailLayoutShell({
   );
 
   return (
-    <div className="" data-cy="recognition-detail-layout">
-      <div className="mb-1 py-3" data-cy="recognition-detail-layout-toolbar">
+    <div className="text-[#333]" data-cy="recognition-detail-layout">
+      <div
+        className="border-b border-[#DEE2E6] pb-1 pt-2"
+        data-cy="recognition-detail-layout-toolbar"
+      >
         <div
           className="w-full min-w-0"
           data-cy="recognition-detail-layout-breadcrumb-row"
@@ -52,8 +55,14 @@ function RecognitionDetailLayoutShell({
               <CustomBreadcrumb
                 href="/feedback/recognition"
                 backControlDataCy="recognition-detail-back"
+                showBottomSeparator={false}
+                rootClassName="!mb-0"
+                compact
+                subtitleClassName="!text-[#6C757D] !font-normal"
                 titleClassName={
-                  isRecognitionTypeLoading ? '!block !min-h-8' : undefined
+                  isRecognitionTypeLoading
+                    ? '!block !min-h-8'
+                    : '!text-[#000] !text-2xl !font-bold !tracking-tight'
                 }
                 title={
                   isRecognitionTypeLoading ? (
@@ -72,14 +81,14 @@ function RecognitionDetailLayoutShell({
                     ''
                   ) : (
                     <Breadcrumb
-                      className="mt-1 text-sm"
+                      className="mt-1.5 text-sm [&_.ant-breadcrumb-separator]:text-[#6C757D]"
                       data-cy="recognition-detail-breadcrumb"
                       items={[
                         {
                           title: (
                             <Link
                               href="/feedback/conversation"
-                              className="text-gray-500"
+                              className="text-[#6C757D] hover:text-[#495057]"
                               data-cy="recognition-breadcrumb-cfr"
                             >
                               CFR
@@ -90,7 +99,7 @@ function RecognitionDetailLayoutShell({
                           title: (
                             <Link
                               href="/feedback/recognition"
-                              className="text-gray-500 hover:text-gray-700"
+                              className="text-[#6C757D] hover:text-[#495057]"
                               data-cy="recognition-breadcrumb-recognition"
                             >
                               Recognition
@@ -124,17 +133,17 @@ function RecognitionDetailLayoutShell({
       </div>
 
       <nav
-        className="flex gap-8 border-b border-gray-200 mt-4 mb-4"
+        className="-mb-px mt-2 flex gap-10 border-b border-[#DEE2E6]"
         aria-label="Recognition sections"
         data-cy="recognition-detail-tabs"
       >
         <Link
           href={historyHref}
           className={
-            `-mb-px border-b-2 pb-3 text-sm font-medium ` +
+            `-mb-px border-b-[3px] pb-3 text-sm transition-colors ` +
             (isHistoryActive
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-500 hover:text-gray-700')
+              ? 'border-primary font-semibold text-primary'
+              : 'border-transparent font-medium text-[#495057] hover:text-[#212529]')
           }
           data-cy="recognition-tab-history"
         >
@@ -143,10 +152,10 @@ function RecognitionDetailLayoutShell({
         <Link
           href={typesHref}
           className={
-            `-mb-px border-b-2 pb-3 text-sm font-medium ` +
+            `-mb-px border-b-[3px] pb-3 text-sm transition-colors ` +
             (isTypesActive
-              ? 'border-primary text-primary font-semibold'
-              : 'border-transparent text-gray-500 hover:text-gray-700')
+              ? 'border-primary font-semibold text-primary'
+              : 'border-transparent font-medium text-[#495057] hover:text-[#212529]')
           }
           data-cy="recognition-tab-types"
         >
@@ -154,7 +163,9 @@ function RecognitionDetailLayoutShell({
         </Link>
       </nav>
 
-      {children}
+      <div className="mt-5" data-cy="recognition-detail-layout-children">
+        {children}
+      </div>
 
       <RecognitionTypeModal
         visible={visible}
