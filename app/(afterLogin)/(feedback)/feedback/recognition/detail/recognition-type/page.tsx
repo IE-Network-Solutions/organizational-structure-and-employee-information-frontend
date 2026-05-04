@@ -21,6 +21,7 @@ function Page() {
       currentType,
     );
 
+    
   const { data: departments } = useGetDepartments();
 
   const departmentNameById = useMemo(() => {
