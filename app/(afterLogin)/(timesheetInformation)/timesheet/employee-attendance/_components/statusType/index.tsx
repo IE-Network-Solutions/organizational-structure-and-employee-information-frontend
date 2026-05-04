@@ -1,6 +1,6 @@
 import { Button, Tag } from 'antd';
 
-const statusType = (val: string) => {
+const statusType = (val: string | null | undefined) => {
   if (val === 'present') {
     return (
       <Tag
@@ -41,7 +41,27 @@ const statusType = (val: string) => {
         EARLY
       </Tag>
     );
-  } else if (val === null || val === '') {
+  } else if (val === 'remote') {
+    return (
+      <Tag
+        id="roleTypeRemoteCheckIn"
+        data-cy="roleTypeRemoteCheckIn"
+        className="bg-[#f9f0ff] text-[#722ed1] text-xs font-medium py-0.5 px-2 border border-[#d3adf7] hover:bg-purple-50 h-[22px]"
+      >
+        REMOTE
+      </Tag>
+    );
+  } else if (val === 'onsite') {
+    return (
+      <Tag
+        id="roleTypeOnsiteCheckIn"
+        data-cy="roleTypeOnsiteCheckIn"
+        className="text-green-700 text-xs font-medium py-0.5 px-2 bg-[#f6ffed] border border-[#b7eb8f] hover:bg-green-50 h-[22px]"
+      >
+        ON-SITE
+      </Tag>
+    );
+  } else if (val === null || val === '' || val === undefined) {
     return (
       <Button
         id="roleTypeNull"

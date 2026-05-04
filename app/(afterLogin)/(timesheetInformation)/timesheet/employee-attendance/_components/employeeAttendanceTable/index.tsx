@@ -38,6 +38,13 @@ import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
 import statusType from '../statusType';
 
+/** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
+const hasAttendanceTimestamp = (value: unknown): boolean => {
+  if (value == null) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  return true;
+};
+
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
   isImport: boolean;
@@ -394,6 +401,92 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: (
         <span
           className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-remote-check-in-span"
+          data-cy="time-attendance-employee-attendance-table-remote-check-in-span"
+        >
+          Remote Clocked In
+        </span>
+      ),
+      dataIndex: 'isRemoteCheckedIn',
+      key: 'isRemoteCheckedIn',
+      width: 120,
+      render: (val: boolean | undefined, record: any) => {
+        if (!hasAttendanceTimestamp(record.clockIn)) {
+          return (
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+              data-cy={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+              className="text-center text-sm font-normal text-[#4d4d4d]"
+            >
+              -
+            </div>
+          );
+        }
+        const statusKey =
+          val === true ? 'remote' : val === false ? 'onsite' : null;
+        return (
+          <div
+            id={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+            data-cy={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+            className="text-center"
+          >
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-in-badge-${record.key}`}
+              data-cy="time-attendance-employee-attendance-row-remote-check-in-badge-div"
+            >
+              {statusKey ? statusType(statusKey) : statusType(null)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-remote-check-out-span"
+          data-cy="time-attendance-employee-attendance-table-remote-check-out-span"
+        >
+          Remote Clocked Out 
+        </span>
+      ),
+      dataIndex: 'isRemoteCheckedOut',
+      key: 'isRemoteCheckedOut',
+      width: 120,
+      render: (val: boolean | undefined, record: any) => {
+        if (!hasAttendanceTimestamp(record.clockOut)) {
+          return (
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+              data-cy={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+              className="text-center text-sm font-normal text-[#4d4d4d]"
+            >
+              -
+            </div>
+          );
+        }
+        const statusKey =
+          val === true ? 'remote' : val === false ? 'onsite' : null;
+        return (
+          <div
+            id={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+            data-cy={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+            className="text-center"
+          >
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-out-badge-${record.key}`}
+              data-cy="time-attendance-employee-attendance-row-remote-check-out-badge-div"
+            >
+              {statusKey ? statusType(statusKey) : statusType(null)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
           id="time-attendance-employee-attendance-table-action-span"
           data-cy="time-attendance-employee-attendance-table-action-span"
         >
@@ -457,6 +550,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           createdBy: item.createdBy,
           createdAt: item.createdAt,
           clockIn: item?.startAt,
+          isRemoteCheckedIn: item?.isRemoteCheckedIn,
+          isRemoteCheckedOut: item?.isRemoteCheckedOut,
           clockOut: item?.endAt,
           status: item,
           totalTime:

@@ -51,6 +51,10 @@ export interface AttendanceRecord extends DateInfo {
   earlyByMinutes: number;
   isAbsent: boolean;
   isOnGoing: boolean;
+  /** True when the user checked in remotely (office vs remote), if provided by API */
+  isRemoteCheckedIn?: boolean;
+  /** True when the user checked out remotely, if provided by API */
+  isRemoteCheckedOut?: boolean;
   overTimeMinutes: number;
   attendanceImportId: string | null;
   import: AttendanceImport;
