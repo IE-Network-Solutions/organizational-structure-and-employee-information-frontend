@@ -7,17 +7,20 @@ import VariablePayTable from '../../(compensation)/benefit/variablePay/_componen
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import VPScoreCard from './_components/vpScoreCard';
 import { useGetAllCalculatedVpScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useGetActiveEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 
 const VariablePayPage = () => {
   const setOpenModal = useVariablePayStore((s) => s.setOpenModal);
-  const userId = useAuthenticationStore.getState().userId;
+  const { data: activeEmployee } = useGetActiveEmployee();
+  const activeUserIds: string[] =
+    activeEmployee?.items?.map((employee: { id: string }) => employee.id) ??
+    [];
   const {
     isLoading: isRefreshLoading,
     refetch,
     isRefetching,
-  } = useGetAllCalculatedVpScore([userId], false);
+  } = useGetAllCalculatedVpScore(activeUserIds, false);
 
   return (
     <div
@@ -75,7 +78,11 @@ const VariablePayPage = () => {
                   }
                   className="flex flex-shrink-0 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white font-normal text-[#5d5d5d] max-md:h-8 max-md:w-8 max-md:p-0"
                   onClick={() => refetch()}
-                  disabled={isRefreshLoading || isRefetching}
+                  disabled={
+                    activeUserIds.length === 0 ||
+                    isRefreshLoading ||
+                    isRefetching
+                  }
                   data-cy="variable-pay-score-card-refresh-button"
                   id="variable-pay-score-card-refresh-button"
                 >
