@@ -41,6 +41,7 @@ import {
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Select } from 'antd';
 import dayjs from 'dayjs';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
 const { Option } = Select;
 
@@ -95,6 +96,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     useUpdateKeyResult();
   const { mutateAsync: deleteMilestoneById } = useDeleteMilestone();
   const { userId } = useAuthenticationStore();
+  const { data: metrics } = useGetMetrics();
   const isBasicOkr = useIsBasicOkr();
   const { isMobile, isTablet } = useIsMobile();
   const { setKeyResultValue, setKeyResultId, setObjectiveId, okrTab } =
@@ -438,21 +440,31 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         {objectiveEditMode || rowInlineEdit ? (
           <td
             className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
-            data-cy={`okr-key-result-table-row-deadline-inline-${keyResult?.id}`}
+            data-cy={`okr-key-result-table-row-metric-type-inline-${keyResult?.id}`}
           >
-            <DatePicker
-              value={
-                rowKeyResult?.deadline ? dayjs(rowKeyResult.deadline) : null
-              }
-              format="YYYY-MM-DD"
+            <Select
+              value={rowKeyResult?.metricTypeId ?? undefined}
+              placeholder="Metric type"
               size="middle"
-              status={!rowKeyResult?.deadline ? 'error' : ''}
-              onChange={(date) =>
-                setRowField('deadline', date ? date.format('YYYY-MM-DD') : null)
-              }
-              className="h-9 w-full max-w-[11rem] min-w-0 sm:w-[160px] sm:max-w-none"
+              className="h-9 w-[160px] min-w-[160px]"
               disabled={!canInlineEditNow}
-            />
+              onChange={(value) => {
+                const selectedMetric = metrics?.items?.find(
+                  (metric: any) => metric.id === value,
+                );
+                setRowField('metricTypeId', value);
+                if (selectedMetric) {
+                  setRowField('key_type', selectedMetric.name);
+                  setRowField('metricType', selectedMetric);
+                }
+              }}
+            >
+              {metrics?.items?.map((metric: any) => (
+                <Option key={metric?.id} value={metric?.id}>
+                  {metric?.name}
+                </Option>
+              ))}
+            </Select>
           </td>
         ) : (
           <td
@@ -473,6 +485,24 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                 ) : null}
               </span>
             </span>
+          </td>
+        )}
+        {(objectiveEditMode || rowInlineEdit) && (
+          <td
+            className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
+            data-cy={`okr-key-result-table-row-deadline-inline-${keyResult?.id}`}
+          >
+            <DatePicker
+              value={rowKeyResult?.deadline ? dayjs(rowKeyResult.deadline) : null}
+              format="YYYY-MM-DD"
+              size="middle"
+              status={!rowKeyResult?.deadline ? 'error' : ''}
+              onChange={(date) =>
+                setRowField('deadline', date ? date.format('YYYY-MM-DD') : null)
+              }
+              className="h-9 w-[160px] min-w-[160px]"
+              disabled={!canInlineEditNow}
+            />
           </td>
         )}
         <td

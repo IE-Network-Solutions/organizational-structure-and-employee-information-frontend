@@ -47,6 +47,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   updateKeyResult,
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
+  disableMetricTypeEdit: disableMetricTypeEditProp,
   hideRemoveButton,
 }) => {
   const { Option } = Select;
@@ -57,6 +58,8 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   const isBasic = useIsBasicOkr();
   const disableWeightEdit =
     disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
+  const disableMetricTypeEdit =
+    disableMetricTypeEditProp ?? Number(keyItem?.progress ?? 0) !== 0;
   const storeKey = `milestone-${keyItem?.id ?? 'new'}-${index}`;
   const setMilestonesInStore = useMilestoneFormStore((s) => s.setMilestones);
   const cardViewKey = `milestone-${keyItem?.id ?? 'new'}-${index}`;
@@ -515,6 +518,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                   className="w-full h-10 rounded-lg text-base"
                   data-cy={`okr-milestone-desktop-type-select-${index}`}
                   placeholder="Please select a metric type"
+                  disabled={disableMetricTypeEdit}
                   onChange={(value) => {
                     const selectedMetric = metrics?.items?.find(
                       (metric) => metric.id === value,
@@ -801,6 +805,45 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       }
                       onPressEnter={(e) => e.preventDefault()}
                     />
+                  </Form.Item>
+                  <Form.Item
+                    className="w-44 mb-0"
+                    label={
+                      <KeyResultFieldLabel
+                        label="Metric Type"
+                        tooltip="Select a metric type"
+                      />
+                    }
+                  >
+                    <Select
+                      className={`w-full ${INPUT_CLASS}`}
+                      data-cy={`okr-milestone-desktop-advanced-type-select-${index}`}
+                      placeholder="Select metric type"
+                      disabled={disableMetricTypeEdit}
+                      value={
+                        metrics?.items?.find(
+                          (metric) => metric.name === keyItem.key_type,
+                        )?.id || ''
+                      }
+                      onChange={(value) => {
+                        const selectedMetric = metrics?.items?.find(
+                          (metric) => metric.id === value,
+                        );
+                        if (selectedMetric) {
+                          updateKeyResult(index, 'metricTypeId', value);
+                          updateKeyResult(index, 'key_type', selectedMetric.name);
+                        }
+                      }}
+                    >
+                      <Option value="" disabled>
+                        Please select a metric type
+                      </Option>
+                      {metrics?.items?.map((metric) => (
+                        <Option key={metric?.id} value={metric?.id}>
+                          {metric?.name}
+                        </Option>
+                      ))}
+                    </Select>
                   </Form.Item>
                   <Form.Item
                     className="w-32 mb-0"
