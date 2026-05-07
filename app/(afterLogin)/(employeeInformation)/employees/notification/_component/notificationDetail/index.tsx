@@ -16,9 +16,7 @@ interface NotificationDetailProps {
   id: string;
 }
 
-export const NotificationDetailVisible = ({
-  id,
-}: NotificationDetailProps) => {
+export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
   const userId = useAuthenticationStore.getState().userId;
   const { data } = useGetNotifications(userId ?? '');
   const { isNotificationDetailVisible, setIsNotificationDetailVisible } =

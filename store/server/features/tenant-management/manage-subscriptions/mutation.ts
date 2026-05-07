@@ -1,7 +1,7 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { TENANT_MGMT_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { Subscription } from '@/types/tenant-management';
 import {
@@ -10,6 +10,7 @@ import {
   RenewSubscriptionRequest,
   UpgradeSubscriptionRequest,
 } from './interface';
+import { ApiResponse } from '@/types/commons/responseTypes';
 
 const createSubscription = async (data: Partial<Subscription>) => {
   const requestHeaders = await requestHeader();
@@ -23,6 +24,7 @@ const createSubscription = async (data: Partial<Subscription>) => {
 
 const upgradeSubscription = async (data: UpgradeSubscriptionRequest) => {
   const requestHeaders = await requestHeader();
+
   return await crudRequest({
     url: `${TENANT_MGMT_URL}/subscription/manage/subscriptions/upgrade`,
     method: 'POST',
@@ -114,4 +116,22 @@ export const usePrepaySubscription = () => {
       handleSuccessMessage('PUT');
     },
   });
+};
+
+const getAllPlans = async (currencyId?: string) => {
+  const requestHeaders = await requestHeader();
+  const url = currencyId
+    ? `${TENANT_MGMT_URL}/subscription/rest/modules/all?currencyId=${currencyId}`
+    : `${TENANT_MGMT_URL}/subscription/rest/modules/all`;
+  return await crudRequest({
+    url,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+};
+
+export const useGetAllPlans = (currencyId?: string) => {
+  return useQuery<ApiResponse<any>>(['plans', currencyId], () =>
+    getAllPlans(currencyId),
+  );
 };
