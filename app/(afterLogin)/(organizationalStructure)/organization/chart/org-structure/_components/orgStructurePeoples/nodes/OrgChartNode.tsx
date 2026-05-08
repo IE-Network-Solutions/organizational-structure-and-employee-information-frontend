@@ -160,6 +160,7 @@ export function OrgChartNode(props: NodeProps<OrgNode>) {
           name: data.department?.name ?? '',
           description: data.department?.description ?? '',
           branchId: data.department?.branchId ?? '',
+          departmentColor: data.department?.departmentColor ?? '',
         },
         mouseEvent,
       );

@@ -477,6 +477,13 @@ const InvoicesTable = ({
     },
   ];
 
+  const visibleColumns =
+    isMobile || isTablet
+      ? columns.filter((column) =>
+          ['Invoice ID', 'Issue Date', 'Plan'].includes(String(column.title)),
+        )
+      : columns;
+
   const paginatedData = isControlledPagination
     ? filteredData
     : filteredData.slice(
@@ -573,7 +580,7 @@ const InvoicesTable = ({
             ]
               .filter(Boolean)
               .join(' ')}
-            columns={columns}
+            columns={visibleColumns}
             dataSource={paginatedData}
             rowKey="id"
             scroll={{ x: 'max-content' }}

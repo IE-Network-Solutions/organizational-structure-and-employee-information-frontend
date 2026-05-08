@@ -2,7 +2,7 @@
 
 import React, { FC, ReactNode } from 'react';
 import Link from 'next/link';
-import { Tabs, Button } from 'antd';
+import { Typography, Breadcrumb, Divider, Tabs, Button } from 'antd';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -11,7 +11,8 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { EmployeTypeManagementStore } from '@/store/uistate/features/employees/settings/emplyeTypeDrawer';
 import { useSettingStore } from '@/store/uistate/features/employees/settings/rolePermission';
-import CustomBreadcrumb from '@/components/common/breadCramp';
+
+const { Title } = Typography;
 
 const RolePermissionNewButton: FC = () => {
   const { tabButton, setCurrentModal, currentModal } = useSettingStore();
@@ -59,9 +60,8 @@ interface SettingsLayoutProps {
 
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
-  const path = pathname ?? '';
   const router = useRouter();
-  const layoutSlug = toSlug(path || 'settings-layout');
+  const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
   const { setOpen, setIsEditMode, setEditingEmploymentType } =
     EmployeTypeManagementStore();
@@ -73,10 +73,10 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   };
 
   const getActiveKey = () => {
-    if (path.includes('/employementType')) return 'employementType';
-    if (path.includes('/rolePermission')) return 'rolePermission';
-    if (path.includes('/positions')) return 'positions';
-    if (path.includes('/customFields')) return 'customFields';
+    if (pathname.includes('/employementType')) return 'employementType';
+    if (pathname.includes('/rolePermission')) return 'rolePermission';
+    if (pathname.includes('/positions')) return 'positions';
+    if (pathname.includes('/customFields')) return 'customFields';
     return 'employementType';
   };
 
@@ -163,25 +163,25 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         id={`settings-layout-content-${layoutSlug}`}
         data-cy={`settings-layout-content-${layoutSlug}`}
       >
-        <div className="py-2" data-cy={`settings-page-header-${layoutSlug}`}>
-          <CustomBreadcrumb
-            title="Employee Settings"
-            subtitle={
-              <>
-                <Link className="text-black" href="/employees/manage-employees">
-                  Employee
-                </Link>
-                <span data-cy="employee-settings-breadcrumb-separator">
-                  {' '}
-                  /{' '}
-                </span>
-                <span data-cy="employee-settings-breadcrumb-current">
-                  Employee Settings
-                </span>
-              </>
-            }
-            data-cy="employee-settings-breadcrumb"
+        <div
+          className="pb-4 py-4"
+          data-cy={`settings-page-header-${layoutSlug}`}
+        >
+          <Title level={4} className="!mb-1 !font-bold !text-gray-700">
+            Employee Settings
+          </Title>
+          <Breadcrumb
+            className="text-sm text-gray-400"
+            items={[
+              {
+                title: <Link href="/employees/manage-employees">Employee</Link>,
+              },
+              {
+                title: 'Employee Settings',
+              },
+            ]}
           />
+          <Divider className="!my-0 !mt-4 !border-gray-200" />
         </div>
 
         <div

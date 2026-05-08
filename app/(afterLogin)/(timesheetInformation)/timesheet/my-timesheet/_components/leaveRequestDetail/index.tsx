@@ -24,10 +24,7 @@ import {
   useGetSingleApprovalLog,
   useGetSingleLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
-import {
-  useDeleteLeaveRequest,
-  useSetLeaveRequest,
-} from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { useSetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useAllApproval } from '@/store/server/features/approver/queries';
@@ -51,7 +48,7 @@ const LeaveRequestDetail = () => {
     setLeaveRequestSidebarWorkflowData,
     setIsShowLeaveRequestDetail,
   } = useMyTimesheetStore();
-  const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
+  // const { mutate: deleteLeaveRequest } = useDeleteLeaveRequest();
   const { mutate: updateLeaveRequest, isLoading: isUpdating } =
     useSetLeaveRequest();
   const { userId } = useAuthenticationStore();
@@ -171,26 +168,36 @@ const LeaveRequestDetail = () => {
     leaveData?.items?.status === LeaveRequestStatus.APPROVED ||
     leaveData?.items?.status === LeaveRequestStatus.DECLINED;
 
-  // Disable edit when any approval step has been acted on (approval has started)
-  const approvalHasStarted = sortedApprovalData.some(
-    (step) => step.status !== 'Pending',
+  const approverLogItems: any[] = Array.isArray(approverLog)
+    ? approverLog
+    : ((approverLog as any)?.items ?? []);
+
+  const approvalHasApprovedStep = approverLogItems.some(
+    (log) => String(log?.action ?? '').toLowerCase() === 'approved',
   );
 
-  const handleCancelRequest = () => {
-    if (!leaveRequestSidebarData) return;
-    Modal.confirm({
-      title: 'Cancel request',
-      content: 'Are you sure you want to cancel this leave request?',
-      okText: 'Yes, cancel',
-      cancelText: 'No',
-      okButtonProps: { danger: true },
-      onOk: () => {
-        deleteLeaveRequest(leaveRequestSidebarData, {
-          onSuccess: () => onClose(),
-        });
-      },
-    });
-  };
+  // If approval process has started (at least one "Approved" action), only allow editing
+  // description + attachment while the leave is still pending.
+  const lockCoreFields =
+    leaveData?.items?.status === LeaveRequestStatus.PENDING &&
+    approvalHasApprovedStep;
+
+  // const handleCancelRequest = () => {
+  //   if (!leaveRequestSidebarData) return;
+  //   if (leaveData?.items?.status !== LeaveRequestStatus.PENDING) return;
+  //   Modal.confirm({
+  //     title: 'Delete leave request',
+  //     content: 'Are you sure you want to delete this leave request?',
+  //     okText: 'Yes, delete',
+  //     cancelText: 'No',
+  //     okButtonProps: { danger: true },
+  //     onOk: () => {
+  //       deleteLeaveRequest(leaveRequestSidebarData, {
+  //         onSuccess: () => onClose(),
+  //       });
+  //     },
+  //   });
+  // };
 
   // Populate form when leave data is loaded (modal opens with editable form)
   useEffect(() => {
@@ -233,9 +240,12 @@ const LeaveRequestDetail = () => {
           isHalfday: !!value.isHalfday,
           startAt: dayjs(value.startDate).format('YYYY-MM-DD'),
           endAt: dayjs(value.endDate).format('YYYY-MM-DD'),
-          justificationDocument: value.attachment?.length
-            ? (value.attachment[0]?.response ?? item.justificationDocument)
-            : item.justificationDocument,
+          justificationDocument:
+            value.attachment === undefined
+              ? item.justificationDocument
+              : value.attachment.length
+                ? (value.attachment[0]?.response ?? item.justificationDocument)
+                : null,
           justificationNote: value.note,
           status: LeaveRequestStatus.PENDING,
           approvalWorkflowId:
@@ -565,6 +575,7 @@ const LeaveRequestDetail = () => {
                 size="middle"
                 options={typeOptions()}
                 placeholder="Select Leave Type"
+                disabled={disableActions || lockCoreFields}
                 suffixIcon={
                   <MdKeyboardArrowDown size={16} className="text-gray-900" />
                 }
@@ -583,7 +594,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
-                    disabled={disableActions || approvalHasStarted}
+                    disabled={disableActions || lockCoreFields}
                   />
                 </Form.Item>
               </Col>
@@ -599,7 +610,7 @@ const LeaveRequestDetail = () => {
                     size="middle"
                     onChange={handleDateChange}
                     format={DATE_FORMAT}
-                    disabled={disableActions || approvalHasStarted}
+                    disabled={disableActions || lockCoreFields}
                   />
                 </Form.Item>
               </Col>
@@ -609,7 +620,9 @@ const LeaveRequestDetail = () => {
               valuePropName="checked"
               className={itemClass}
             >
-              <Checkbox>Half Date</Checkbox>
+              <Checkbox disabled={disableActions || lockCoreFields}>
+                Half Date
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="note"
@@ -631,6 +644,7 @@ const LeaveRequestDetail = () => {
                 placeholder="Select Delegate"
                 className={controlClass}
                 allowClear
+                disabled={disableActions || lockCoreFields}
                 filterOption={(input: string, option: any) =>
                   (option?.label ?? '')
                     .toLowerCase()
@@ -679,17 +693,15 @@ const LeaveRequestDetail = () => {
             data-cy="time-attendance-leave-request-detail-footer-actions"
           >
             <Button
-              danger
-              onClick={handleCancelRequest}
-              disabled={disableActions}
-              data-cy="time-attendance-leave-request-detail-cancel-request-button"
+              onClick={onClose}
+              data-cy="time-attendance-leave-request-detail-close-button"
             >
-              Cancel Request
+              Close
             </Button>
             <Button
               type="primary"
               loading={isUpdating}
-              disabled={disableActions || approvalHasStarted}
+              disabled={disableActions}
               onClick={() => form.submit()}
               data-cy="time-attendance-leave-request-detail-edit-request-button"
             >

@@ -58,7 +58,7 @@ function getNotificationIcon(
   return FileTextOutlined;
 }
 
-const PANEL_WIDTH = 400;
+const PANEL_WIDTH = 375;
 const MAX_HEIGHT = 520;
 const LIST_LIMIT = 100;
 type FilterType = 'all' | 'unread' | 'seen';
@@ -180,7 +180,11 @@ function getNotificationPath(item: NotificationType): string {
 
 export function NotificationDropdownPanel({
   open: isOpen,
-}: { open?: boolean } = {}) {
+  onRequestClose,
+}: {
+  open?: boolean;
+  onRequestClose?: () => void;
+} = {}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const canAccessRoute = useCanAccessRoute();
@@ -311,6 +315,7 @@ export function NotificationDropdownPanel({
     const path = getNotificationPath(item);
     if (!canAccessRoute(path)) return;
     if (isUnread(item)) markAsRead(item.id);
+    onRequestClose?.();
     router.push(path);
   };
 

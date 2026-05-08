@@ -17,6 +17,7 @@ type MyTimesheetState = {
   isShowViewSidebar: boolean;
   isShowViewSidebarAttendance: boolean;
   isShowLeaveRequestSidebar: boolean;
+  isShowWorkFromHomeRequestSidebar: boolean;
   isLoading: boolean;
   isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
@@ -42,6 +43,9 @@ type MyTimesheetAction = {
     isShowViewSidebarAttendance: boolean,
   ) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
+  setIsShowWorkFromHomeRequestSidebar: (
+    isShowWorkFromHomeRequestSidebar: boolean,
+  ) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
   setLeaveRequestSidebarData: (leaveRequestSidebarData: string | null) => void;
@@ -82,6 +86,11 @@ const useMyTimesheetSlice: StateCreator<
   isShowLeaveRequestSidebar: false,
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar) => {
     set({ isShowLeaveRequestSidebar });
+  },
+
+  isShowWorkFromHomeRequestSidebar: false,
+  setIsShowWorkFromHomeRequestSidebar: (isShowWorkFromHomeRequestSidebar) => {
+    set({ isShowWorkFromHomeRequestSidebar });
   },
 
   isLoading: false,

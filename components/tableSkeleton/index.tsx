@@ -1,9 +1,24 @@
 import { Table } from 'antd';
+import type { TableProps } from 'antd';
 
-export const TableSkeleton = ({ columns }: { columns: any[] }) => {
+type TableSkeletonProps = {
+  columns: any[];
+  /** Match the loaded table’s `scroll` so the skeleton spans the same width (e.g. `{ x: 'max-content' }`). */
+  scroll?: TableProps<unknown>['scroll'];
+  className?: string;
+  'data-cy'?: string;
+};
+
+export const TableSkeleton = ({
+  columns,
+  scroll = { x: 'max-content' },
+  className,
+  'data-cy': dataCy,
+}: TableSkeletonProps) => {
   return (
     <Table
       rowKey="id"
+      data-cy={dataCy}
       columns={columns}
       dataSource={Array.from({ length: columns.length }).map(
         (unusedValue, i) => {
@@ -14,8 +29,14 @@ export const TableSkeleton = ({ columns }: { columns: any[] }) => {
         },
       )}
       pagination={false}
-      scroll={{ x: 1200 }}
-      className="cursor-pointer"
+      scroll={scroll}
+      style={{ width: '100%', minWidth: '100%' }}
+      className={[
+        'cursor-pointer w-full min-w-0 [&_.ant-table]:min-w-full',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
       loading={false}
       rowClassName={(unusedRecord, rowIndex) =>
         rowIndex % 2 === 1 ? 'bg-[#fafafa]' : ''
@@ -34,7 +55,7 @@ export const TableSkeleton = ({ columns }: { columns: any[] }) => {
                         data-cy={`table-skeleton-cell-inner-${idx}`}
                       >
                         <div
-                          className="animate-pulse bg-gray-200 h-4 rounded w-5/6"
+                          className="h-4 w-full max-w-full animate-pulse rounded bg-gray-200"
                           data-cy={`table-skeleton-cell-shimmer-${idx}`}
                         />
                       </div>

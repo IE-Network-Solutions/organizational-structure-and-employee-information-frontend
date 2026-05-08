@@ -25,6 +25,7 @@ const ATTENDANCE_STATUS_TAG_COLOR: Record<AttendanceRecordType, string> = {
   [AttendanceRecordType.LATE]: 'warning',
   [AttendanceRecordType.EARLY]: 'warning',
   [AttendanceRecordType.ABSENT]: 'error',
+  [AttendanceRecordType.clockedOut]: 'warning',
 };
 
 export default function RecentAttendanceCard() {

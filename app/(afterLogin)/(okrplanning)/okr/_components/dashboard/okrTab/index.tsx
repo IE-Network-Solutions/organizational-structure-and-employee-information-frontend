@@ -99,7 +99,6 @@ export default function OkrTab({
   const {
     data: userObjectives,
     isLoading,
-    isFetching: userFetching,
     refetch: userRefetch,
   } = useGetUserObjective(
     userId,
@@ -113,7 +112,6 @@ export default function OkrTab({
   const {
     data: teamObjective,
     isLoading: teamLoading,
-    isFetching: teamFetching,
     refetch,
   } = useGetTeamObjective(
     teamPageSize,
@@ -128,7 +126,6 @@ export default function OkrTab({
   const {
     data: companyObjective,
     isLoading: companyLoading,
-    isFetching: companyFetching,
     refetch: CompanyRefetch,
   } = useGetCompanyObjective(
     userId,
@@ -141,9 +138,9 @@ export default function OkrTab({
     sessionIds,
   );
 
-  const isUserLoading = isLoading || userFetching;
-  const isTeamLoading = teamLoading || teamFetching;
-  const isCompanyLoading = companyLoading || companyFetching;
+  const isUserLoading = isLoading;
+  const isTeamLoading = teamLoading;
+  const isCompanyLoading = companyLoading;
 
   const canVieTeamOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
@@ -219,7 +216,6 @@ export default function OkrTab({
               data-cy="okr-my-okr-loading-skeleton"
               count={Math.min(Number(pageSize || 3), 6)}
               showAssignee={false}
-              expanded={true}
             />
           ) : null}
           {userObjectives?.items?.length !== 0 && (
@@ -299,7 +295,6 @@ export default function OkrTab({
                     data-cy="okr-team-okr-loading-skeleton"
                     count={Math.min(Number(teamPageSize || 3), 6)}
                     showAssignee={true}
-                    expanded={true}
                   />
                 ) : null}
                 {teamObjective?.items?.length !== 0 && (
@@ -383,7 +378,6 @@ export default function OkrTab({
                     data-cy="okr-company-okr-loading-skeleton"
                     count={Math.min(Number(companyPageSize || 3), 6)}
                     showAssignee={true}
-                    expanded={true}
                   />
                 ) : null}
                 {companyObjective?.items?.length !== 0 && (
