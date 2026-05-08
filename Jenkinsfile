@@ -197,7 +197,7 @@ if (branchName.contains('develop-redesign-branch')) {
                                     --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
                             else
                                 if [ "${BRANCH_NAME}" = "staging" ]; then
-                                    docker stack deploy --with-registry-auth -c docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
+                                    docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
                                 elif [ "${BRANCH_NAME}" = "develop-redesign-branch" ]; then
                                     docker stack deploy --with-registry-auth -c redesign-docker-compose.yml redesign || { echo "Stack deploy (redesign) failed"; exit 1; }
                                 else
