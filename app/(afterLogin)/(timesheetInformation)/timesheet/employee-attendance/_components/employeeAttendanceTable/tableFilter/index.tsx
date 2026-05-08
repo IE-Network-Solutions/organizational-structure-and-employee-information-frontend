@@ -1,7 +1,11 @@
 import React, { FC } from 'react';
 import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
 import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
-import { attendanceRecordTypeOption } from '@/types/timesheet/attendance';
+import {
+  AttendanceCheckInSource,
+  AttendanceCheckOutSource,
+  attendanceRecordTypeOption,
+} from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
@@ -31,6 +35,36 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       value: breakType.id,
       label: breakType.title,
     })) || [];
+
+  const clockInMethodOptions = [
+    {
+      value: AttendanceCheckInSource.IMPORTED,
+      label: AttendanceCheckInSource.IMPORTED,
+    },
+    {
+      value: AttendanceCheckInSource.REMOTE_CHECKED_IN,
+      label: AttendanceCheckInSource.REMOTE_CHECKED_IN,
+    },
+    {
+      value: AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN,
+      label: AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN,
+    },
+  ];
+
+  const clockOutMethodOptions = [
+    {
+      value: AttendanceCheckOutSource.IMPORTED,
+      label: AttendanceCheckOutSource.IMPORTED,
+    },
+    {
+      value: AttendanceCheckOutSource.REMOTE_CHECKED_OUT,
+      label: AttendanceCheckOutSource.REMOTE_CHECKED_OUT,
+    },
+    {
+      value: AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT,
+      label: AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT,
+    },
+  ];
 
   const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
   const selectClassName = 'w-full h-10 rounded-md border-gray-300';
@@ -264,6 +298,78 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             />
           </Form.Item>
         </div>
+        <Row gutter={16} className="mt-4">
+          <Col lg={12} md={12} sm={24} xs={24}>
+            <div
+              id="time-attendance-employee-attendance-mobile-filter-check-in-method-select-div"
+              data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select-div"
+              className="mb-4"
+            >
+              <label
+                id="time-attendance-employee-attendance-mobile-filter-check-in-method-select-label"
+                data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select-label"
+                className={labelClassName}
+              >
+                Clock In Method
+              </label>
+              <Form.Item
+                name="checkInSource"
+                className="mb-0"
+                data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select-form-item"
+              >
+                <Select
+                  placeholder="Select Clock In Method"
+                  allowClear
+                  className={selectClassName}
+                  options={clockInMethodOptions}
+                  size="large"
+                  onChange={(value) => {
+                    form.setFieldsValue({ checkInSource: value });
+                    onChange(getFilterValues());
+                  }}
+                  value={form.getFieldValue('checkInSource')}
+                  id="time-attendance-employee-attendance-mobile-filter-check-in-method-select"
+                  data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select"
+                />
+              </Form.Item>
+            </div>
+          </Col>
+          <Col lg={12} md={12} sm={24} xs={24}>
+            <div
+              id="time-attendance-employee-attendance-mobile-filter-check-out-method-select-div"
+              data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select-div"
+              className="mb-4"
+            >
+              <label
+                id="time-attendance-employee-attendance-mobile-filter-check-out-method-select-label"
+                data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select-label"
+                className={labelClassName}
+              >
+                Clock Out Method
+              </label>
+              <Form.Item
+                name="checkOutSource"
+                className="mb-0"
+                data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select-form-item"
+              >
+                <Select
+                  placeholder="Select Clock Out Method"
+                  allowClear
+                  className={selectClassName}
+                  options={clockOutMethodOptions}
+                  size="large"
+                  onChange={(value) => {
+                    form.setFieldsValue({ checkOutSource: value });
+                    onChange(getFilterValues());
+                  }}
+                  value={form.getFieldValue('checkOutSource')}
+                  id="time-attendance-employee-attendance-mobile-filter-check-out-method-select"
+                  data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select"
+                />
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
       </div>
 
       {/* Footer */}

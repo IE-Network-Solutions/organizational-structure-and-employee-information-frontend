@@ -61,6 +61,49 @@ const statusType = (val: string | null | undefined) => {
         ON-SITE
       </Tag>
     );
+  } else if (val === 'imported') {
+    return (
+      <Tag
+        id="roleTypeImportedAttendance"
+        data-cy="roleTypeImportedAttendance"
+        className="text-amber-700 text-xs font-medium py-0.5 px-2 bg-[#fffbe6] border border-[#ffe58f] hover:bg-amber-50 h-[22px]"
+      >
+        IMPORTED
+      </Tag>
+    );
+  } else if (val === 'IMPORTED') {
+    return (
+      <Tag
+        id="roleTypeImportedAttendance"
+        data-cy="roleTypeImportedAttendance"
+        className="text-amber-700 text-xs font-medium py-0.5 px-2 bg-[#fffbe6] border border-[#ffe58f] hover:bg-amber-50 h-[22px]"
+      >
+        IMPORTED
+      </Tag>
+    );
+  } else if (val === 'REMOTE_CHECKED_IN' || val === 'REMOTE_CHECKED_OUT') {
+    return (
+      <Tag
+        id="roleTypeRemoteCheckIn"
+        data-cy="roleTypeRemoteCheckIn"
+        className="bg-[#f9f0ff] text-[#722ed1] text-xs font-medium py-0.5 px-2 border border-[#d3adf7] hover:bg-purple-50 h-[22px]"
+      >
+        {val}
+      </Tag>
+    );
+  } else if (
+    val === 'ATTENDANCE_DEVICE_CHECKED_IN' ||
+    val === 'ATTENDANCE_DEVICE_CHECKED_OUT'
+  ) {
+    return (
+      <Tag
+        id="roleTypeOnsiteCheckIn"
+        data-cy="roleTypeOnsiteCheckIn"
+        className="text-green-700 text-xs font-medium py-0.5 px-2 bg-[#f6ffed] border border-[#b7eb8f] hover:bg-green-50 h-[22px]"
+      >
+        {val}
+      </Tag>
+    );
   } else if (val === null || val === '' || val === undefined) {
     return (
       <Button

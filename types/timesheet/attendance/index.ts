@@ -39,6 +39,18 @@ export const attendanceRecordTypeOption: {
   },
 ];
 
+export enum AttendanceCheckOutSource {
+  IMPORTED = 'IMPORTED',
+  REMOTE_CHECKED_OUT = 'REMOTE_CHECKED_OUT',
+  ATTENDANCE_DEVICE_CHECKED_OUT = 'ATTENDANCE_DEVICE_CHECKED_OUT',
+}
+
+export enum AttendanceCheckInSource {
+  IMPORTED = 'IMPORTED',
+  REMOTE_CHECKED_IN = 'REMOTE_CHECKED_IN',
+  ATTENDANCE_DEVICE_CHECKED_IN = 'ATTENDANCE_DEVICE_CHECKED_IN',
+}
+
 export interface AttendanceRecord extends DateInfo {
   id: string;
   userId: string;
@@ -51,10 +63,8 @@ export interface AttendanceRecord extends DateInfo {
   earlyByMinutes: number;
   isAbsent: boolean;
   isOnGoing: boolean;
-  /** True when the user checked in remotely (office vs remote), if provided by API */
-  isRemoteCheckedIn?: boolean;
-  /** True when the user checked out remotely, if provided by API */
-  isRemoteCheckedOut?: boolean;
+  checkInSource?: AttendanceCheckInSource;
+  checkOutSource?: AttendanceCheckOutSource;
   overTimeMinutes: number;
   attendanceImportId: string | null;
   import: AttendanceImport;

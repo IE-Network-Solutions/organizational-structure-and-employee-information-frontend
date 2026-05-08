@@ -19,7 +19,11 @@ import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
-import { AttendanceRecord } from '@/types/timesheet/attendance';
+import {
+  AttendanceCheckInSource,
+  AttendanceCheckOutSource,
+  AttendanceRecord,
+} from '@/types/timesheet/attendance';
 import {
   formatBreakTypeToStatus,
   formatToAttendanceStatuses,
@@ -449,10 +453,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           Remote Clocked In
         </span>
       ),
-      dataIndex: 'isRemoteCheckedIn',
-      key: 'isRemoteCheckedIn',
+      dataIndex: 'checkInSource',
+      key: 'checkInSource',
       width: 120,
-      render: (val: boolean | undefined, record: any) => {
+      render: (val: AttendanceCheckInSource | undefined, record: any) => {
         if (!hasAttendanceTimestamp(record.clockIn)) {
           return (
             <div
@@ -464,8 +468,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             </div>
           );
         }
-        const statusKey =
-          val === true ? 'remote' : val === false ? 'onsite' : null;
         return (
           <div
             id={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
@@ -476,7 +478,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               id={`time-attendance-employee-attendance-row-remote-check-in-badge-${record.key}`}
               data-cy="time-attendance-employee-attendance-row-remote-check-in-badge-div"
             >
-              {statusKey ? statusType(statusKey) : statusType(null)}
+              {val ? statusType(val) : statusType(null)}
             </div>
           </div>
         );
@@ -492,10 +494,10 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           Remote Clocked Out 
         </span>
       ),
-      dataIndex: 'isRemoteCheckedOut',
-      key: 'isRemoteCheckedOut',
+      dataIndex: 'checkOutSource',
+      key: 'checkOutSource',
       width: 120,
-      render: (val: boolean | undefined, record: any) => {
+      render: (val: AttendanceCheckOutSource | undefined, record: any) => {
         if (!hasAttendanceTimestamp(record.clockOut)) {
           return (
             <div
@@ -507,8 +509,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             </div>
           );
         }
-        const statusKey =
-          val === true ? 'remote' : val === false ? 'onsite' : null;
         return (
           <div
             id={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
@@ -519,7 +519,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               id={`time-attendance-employee-attendance-row-remote-check-out-badge-${record.key}`}
               data-cy="time-attendance-employee-attendance-row-remote-check-out-badge-div"
             >
-              {statusKey ? statusType(statusKey) : statusType(null)}
+              {val ? statusType(val) : statusType(null)}
             </div>
           </div>
         );
@@ -592,8 +592,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           createdBy: item.createdBy,
           createdAt: item.createdAt,
           clockIn: item?.startAt,
-          isRemoteCheckedIn: item?.isRemoteCheckedIn,
-          isRemoteCheckedOut: item?.isRemoteCheckedOut,
+          checkInSource: item?.checkInSource,
+          checkOutSource: item?.checkOutSource,
           clockOut: item?.endAt,
           status: item,
           totalTime:
@@ -632,6 +632,14 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
     if (val.breakTypeId) {
       nFilter['breakTypeId'] = val.breakTypeId;
+    }
+
+    if (val.checkInSource) {
+      nFilter['checkInSource'] = val.checkInSource;
+    }
+
+    if (val.checkOutSource) {
+      nFilter['checkOutSource'] = val.checkOutSource;
     }
 
     if (val.employeeId) {
