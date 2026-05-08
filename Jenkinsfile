@@ -11,7 +11,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
+                        string(credentialsId: 'TEST_SERVER', variable: 'TEST_SERVER'),
+                        string(credentialsId: 'STAGING_SERVER', variable: 'STAGING_SERVER'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD')
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(
@@ -196,7 +197,7 @@ if (branchName.contains('develop-redesign-branch')) {
                                     --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
                             else
                                 if [ "${BRANCH_NAME}" = "staging" ]; then
-                                    docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
+                                    docker stack deploy --with-registry-auth -c docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
                                 elif [ "${BRANCH_NAME}" = "develop-redesign-branch" ]; then
                                     docker stack deploy --with-registry-auth -c redesign-docker-compose.yml redesign || { echo "Stack deploy (redesign) failed"; exit 1; }
                                 else
