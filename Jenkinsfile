@@ -22,17 +22,17 @@ pipeline {
 
 if (branchName.contains('develop-redesign-branch')) {
     env.REMOTE_SERVER = TEST_SERVER
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
+    env.SECRETS_PATH = '/home/azureuser/secrets/.osei-front-env-redesign'
     env.SECRET_KEY = 'testpass'
 
 } else if (branchName.contains('develop')) {
     env.REMOTE_SERVER = TEST_SERVER
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+    env.SECRETS_PATH = '/home/azureuser/secrets/.osei-front-env'
     env.SECRET_KEY = 'testpass'
 
 } else if (branchName.contains('staging')) {
     env.REMOTE_SERVER = STAGING_SERVER
-    env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
+    env.SECRETS_PATH = '/home/azureuser/secrets/staging/.osei-front-env'
     env.SECRET_KEY = 'stagingpass'
 
 } else if (branchName.contains('production')) {
