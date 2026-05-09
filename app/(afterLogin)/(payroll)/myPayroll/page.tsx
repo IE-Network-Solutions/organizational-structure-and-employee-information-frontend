@@ -249,10 +249,10 @@ export default function MyPayroll() {
         : 0);
 
     const entitledDeductionTotal =
-      (breakdown?.pension?.reduce(
-        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-        0,
-      ) || 0) +
+      // (breakdown?.pension?.reduce(
+      //   (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
+      //   0,
+      // ) || 0) +
       (breakdown?.totalDeductionWithPension?.reduce(
         (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
         0,
@@ -431,10 +431,10 @@ export default function MyPayroll() {
               value={entitledDeductionTotal.toFixed(2)}
               large
               tags={[
-                ...(breakdown?.pension?.map((p: any) => ({
-                  label: p.type,
-                  value: parseFloat(p.amount || '0').toFixed(2),
-                })) || []),
+                // ...(breakdown?.pension?.map((p: any) => ({
+                //   label: p.type,
+                //   value: parseFloat(p.amount || '0').toFixed(2),
+                // })) || []),
                 ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
                   label: d.type,
                   value: parseFloat(d.amount || '0').toFixed(2),
@@ -622,11 +622,11 @@ export default function MyPayroll() {
                           : 0);
 
                       const entitledDeductionTotal =
-                        (breakdown?.pension?.reduce(
-                          (acc: number, item: any) =>
-                            acc + parseFloat(item.amount || '0'),
-                          0,
-                        ) || 0) +
+                        // (breakdown?.pension?.reduce(
+                        //   (acc: number, item: any) =>
+                        //     acc + parseFloat(item.amount || '0'),
+                        //   0,
+                        // ) || 0) +
                         (breakdown?.totalDeductionWithPension?.reduce(
                           (acc: number, item: any) =>
                             acc + parseFloat(item.amount || '0'),
@@ -760,10 +760,10 @@ export default function MyPayroll() {
                               value={entitledDeductionTotal.toFixed(2)}
                               large
                               tags={[
-                                ...(breakdown?.pension?.map((p: any) => ({
-                                  label: p.type,
-                                  value: parseFloat(p.amount || '0').toFixed(2),
-                                })) || []),
+                                // ...(breakdown?.pension?.map((p: any) => ({
+                                //   label: p.type,
+                                //   value: parseFloat(p.amount || '0').toFixed(2),
+                                // })) || []),
                                 ...(breakdown?.totalDeductionWithPension?.map(
                                   (d: any) => ({
                                     label: d.type,
