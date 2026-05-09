@@ -5,12 +5,12 @@ const nextConfig = {
  basePath:
   process.env.NODE_ENV === "development"
     ? ""
-    : "/collaboration",
+    : "/workspace",
 
 assetPrefix:
   process.env.NODE_ENV === "development"
     ? undefined
-    : "/collaboration",
+    : "/workspace",
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
     cpus: 1,
