@@ -2,6 +2,15 @@ import withPWA from 'next-pwa';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+ basePath:
+  process.env.NODE_ENV === "development"
+    ? ""
+    : "/collaboration",
+
+assetPrefix:
+  process.env.NODE_ENV === "development"
+    ? undefined
+    : "/collaboration",
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
     cpus: 1,
