@@ -6,7 +6,7 @@ const isDev = process.env.NODE_ENV === "development";
 const nextConfig = {
   output: "standalone",
   basePath: isDev ? "" : "/workspace",
-  assetPrefix: isDev ? "" : "/workspace",
+  // assetPrefix: isDev ? "" : "/workspace",
   
   experimental: {
     cpus: 1,
