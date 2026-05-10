@@ -1,28 +1,24 @@
 import withPWA from 'next-pwa';
 
+const isDev = process.env.NODE_ENV === "development";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
- basePath:
-  process.env.NODE_ENV === "development"
-    ? ""
-    : "/workspace",
-
-assetPrefix:
-  process.env.NODE_ENV === "development"
-    ? undefined
-    : "/workspace",
+  basePath: isDev ? "" : "/workspace",
+  assetPrefix: isDev ? "" : "/workspace",
+  
   experimental: {
-    // This can help reduce memory usage during builds on servers with many cores.
     cpus: 1,
   },
+  
   images: {
     domains: [
       'cdn.prod.website-files.com',
       'files.ienetworks.co',
       'example.com',
     ],
-     remotePatterns: [
+    remotePatterns: [
       {
         protocol: 'https',
         hostname: 'files.ienetworks.co',
@@ -30,6 +26,7 @@ assetPrefix:
       },
     ],
   },
+  
   env: {
     PAYROLL_DEV_URL: process.env.PAYROLL_DEV_URL,
     ORG_AND_EMP_URL: process.env.ORG_AND_EMP_URL,
@@ -48,14 +45,13 @@ assetPrefix:
     AI_BASE_URL: process.env.NEXT_PUBLIC_AI_BASE_URL,
     AI_REC_BASE_URL: process.env.NEXT_PUBLIC_AI_REC_BASE_URL,
     NEXT_PUBLIC_AZURE_APP_SERVICE: process.env.NEXT_PUBLIC_AZURE_APP_SERVICE,
-    NEXT_PUBLIC_ENCRYPTION_DISABLED:
-      process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
+    NEXT_PUBLIC_ENCRYPTION_DISABLED: process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
   },
 };
 
 const pwaConfig = withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
+  disable: isDev || process.env.DISABLE_PWA === 'true',
   register: true,
   skipWaiting: false,
   sw: 'sw.js',
@@ -67,7 +63,7 @@ const pwaConfig = withPWA({
         cacheName: 'google-fonts',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
+          maxAgeSeconds: 365 * 24 * 60 * 60
         }
       }
     },
@@ -78,7 +74,7 @@ const pwaConfig = withPWA({
         cacheName: 'google-fonts-static',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
+          maxAgeSeconds: 365 * 24 * 60 * 60
         }
       }
     },
@@ -89,7 +85,7 @@ const pwaConfig = withPWA({
         cacheName: 'static-image-assets',
         expiration: {
           maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60
         }
       }
     },
@@ -100,7 +96,7 @@ const pwaConfig = withPWA({
         cacheName: 'static-js-css-assets',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60
         }
       }
     },
@@ -111,23 +107,11 @@ const pwaConfig = withPWA({
         cacheName: 'api-cache',
         expiration: {
           maxEntries: 16,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60
         },
         networkTimeoutSeconds: 10
       }
     },
-    // {
-    //   urlPattern: /.*/i,
-    //   handler: 'NetworkFirst',
-    //   options: {
-    //     cacheName: 'others',
-    //     expiration: {
-    //       maxEntries: 32,
-    //       maxAgeSeconds: 24 * 60 * 60 // 24 hours
-    //     },
-    //     networkTimeoutSeconds: 10
-    //   }
-    // }
   ]
 });
 
