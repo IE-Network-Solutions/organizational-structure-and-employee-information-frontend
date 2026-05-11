@@ -15,16 +15,16 @@ const nextConfig = {
       beforeFiles: [
         // 3. Map the prefixed requests back to internal Next.js paths
         {
-          source: "/workspace/_next/:path*",
+          source: "/_next/:path*",
           destination: "/_next/:path*",
         },
         // Map PWA files and static assets
         {
-          source: "/workspace/sw.js",
+          source: "/sw.js",
           destination: "/sw.js",
         },
         {
-          source: "/workspace/workbox-:hash.js",
+          source: "/workbox-:hash.js",
           destination: "/workbox-:hash.js",
         },
       ],
