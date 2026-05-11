@@ -11,8 +11,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([
-                        string(credentialsId: 'TEST_SERVER', variable: 'TEST_SERVER'),
-                        string(credentialsId: 'STAGING_SERVER', variable: 'STAGING_SERVER'),
+                        string(credentialsId: 'REMOTE_SERVER_TEST', variable: 'REMOTE_SERVER_TEST'),
                         string(credentialsId: 'REMOTE_SERVER_PROD', variable: 'REMOTE_SERVER_PROD')
                     ]) {
                         def branchName = env.GIT_BRANCH ?: sh(
@@ -21,19 +20,19 @@ pipeline {
                         ).trim()
 
 if (branchName.contains('develop-redesign-branch')) {
-    env.REMOTE_SERVER = TEST_SERVER
-    env.SECRETS_PATH = '/home/azureuser/secrets/.osei-front-env-redesign'
-    env.SECRET_KEY = 'testpass'
+    env.REMOTE_SERVER = REMOTE_SERVER_TEST
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
+    env.SECRET_KEY = 'peptest'
 
 } else if (branchName.contains('develop')) {
-    env.REMOTE_SERVER = TEST_SERVER
-    env.SECRETS_PATH = '/home/azureuser/secrets/.osei-front-env'
-    env.SECRET_KEY = 'testpass'
+    env.REMOTE_SERVER = REMOTE_SERVER_TEST
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+    env.SECRET_KEY = 'peptest'
 
 } else if (branchName.contains('staging')) {
-    env.REMOTE_SERVER = STAGING_SERVER
-    env.SECRETS_PATH = '/home/azureuser/secrets/staging/.osei-front-env'
-    env.SECRET_KEY = 'stagingpass'
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
+    env.SECRET_KEY = 'pepproduction'
 
 } else if (branchName.contains('production')) {
     env.REMOTE_SERVER = REMOTE_SERVER_PROD
