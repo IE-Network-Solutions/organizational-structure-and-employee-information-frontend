@@ -5,8 +5,31 @@ const isDev = process.env.NODE_ENV === "development";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  basePath: isDev ? "" : "/workspace",
-  // assetPrefix: isDev ? "" : "/workspace",
+  
+  // 1. Remove basePath because Nginx is stripping the prefix
+  // 2. Add assetPrefix so JS/CSS are requested via /workspace/_next/...
+  assetPrefix: isDev ? undefined : "/workspace",
+
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // 3. Map the prefixed requests back to internal Next.js paths
+        {
+          source: "/workspace/_next/:path*",
+          destination: "/_next/:path*",
+        },
+        // Map PWA files and static assets
+        {
+          source: "/workspace/sw.js",
+          destination: "/sw.js",
+        },
+        {
+          source: "/workspace/workbox-:hash.js",
+          destination: "/workbox-:hash.js",
+        },
+      ],
+    };
+  },
   
   experimental: {
     cpus: 1,
@@ -55,16 +78,15 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: false,
   sw: 'sw.js',
+  // Ensure the PWA knows it's running under /workspace
+  scope: '/workspace/', 
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
       handler: 'CacheFirst',
       options: {
         cacheName: 'google-fonts',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60
-        }
+        expiration: { maxEntries: 4, maxAgeSeconds: 365 * 24 * 60 * 60 }
       }
     },
     {
@@ -72,43 +94,25 @@ const pwaConfig = withPWA({
       handler: 'CacheFirst',
       options: {
         cacheName: 'google-fonts-static',
-        expiration: {
-          maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60
-        }
+        expiration: { maxEntries: 4, maxAgeSeconds: 365 * 24 * 60 * 60 }
       }
     },
     {
       urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
       handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-image-assets',
-        expiration: {
-          maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60
-        }
-      }
+      options: { cacheName: 'static-image-assets', expiration: { maxEntries: 64, maxAgeSeconds: 24 * 60 * 60 } }
     },
     {
       urlPattern: /\.(?:js|css)$/i,
       handler: 'StaleWhileRevalidate',
-      options: {
-        cacheName: 'static-js-css-assets',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60
-        }
-      }
+      options: { cacheName: 'static-js-css-assets', expiration: { maxEntries: 32, maxAgeSeconds: 24 * 60 * 60 } }
     },
     {
       urlPattern: /^\/api\/.*/i,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'api-cache',
-        expiration: {
-          maxEntries: 16,
-          maxAgeSeconds: 24 * 60 * 60
-        },
+        expiration: { maxEntries: 16, maxAgeSeconds: 24 * 60 * 60 },
         networkTimeoutSeconds: 10
       }
     },
