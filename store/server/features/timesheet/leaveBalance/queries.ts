@@ -46,6 +46,14 @@ const getAllLeaveBalanceWithFilter = async (
     headers: requestHeaders,
   });
 };
+const getAllLeaveBalanceWithoutFilter = async () => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/leave-balance/all/without-filter`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+};
 export const useGetLeaveBalance = (userId: string, leaveTypeId: string) =>
   useQuery<any>(
     ['leave-balance', userId, leaveTypeId],
@@ -70,6 +78,18 @@ export const useGetAllLeaveBalanceWithFilter = (
   useQuery<ApiResponse<LeaveBalance>>(
     ['leave-balance-data-with-filter', userId, leaveTypeId],
     () => getAllLeaveBalanceWithFilter(userId, leaveTypeId),
+    {
+      enabled: false,
+    },
+  );
+
+export const useGetAllLeaveBalanceWithoutFilter = () =>
+  useQuery<ApiResponse<LeaveBalance>>(
+    ['leave-balance-data-without-filter'],
+    () => getAllLeaveBalanceWithoutFilter(),
+    {
+      enabled: false,
+    },
   );
 
 export const useGetLeaveBalanceTableData = (

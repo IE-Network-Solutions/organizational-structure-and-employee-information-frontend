@@ -41,6 +41,7 @@ import {
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Select } from 'antd';
 import dayjs from 'dayjs';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 
 const { Option } = Select;
 
@@ -95,6 +96,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     useUpdateKeyResult();
   const { mutateAsync: deleteMilestoneById } = useDeleteMilestone();
   const { userId } = useAuthenticationStore();
+  const { data: metrics } = useGetMetrics();
   const isBasicOkr = useIsBasicOkr();
   const { isMobile, isTablet } = useIsMobile();
   const { setKeyResultValue, setKeyResultId, setObjectiveId, okrTab } =
@@ -137,12 +139,11 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     }
   }, [rowInlineEdit, keyResult]);
 
-  // Seed from server only when the modal opens. Do not depend on
-  // `keyResult.milestones` while open — a new array reference from the parent
-  // would reset local state and undo deletes / weight edits before Save.
+  // Seed only when the modal opens. Do not depend on milestone arrays while open;
+  // a new parent reference would reset local edits before Save.
   useEffect(() => {
     if (!openMilestoneModal) return;
-    const initial = (keyResult?.milestones || []).map((milestone: any) => ({
+    const initial = (rowKeyResult?.milestones || []).map((milestone: any) => ({
       ...milestone,
     }));
     baselineMilestoneIdsRef.current = new Set(
@@ -323,6 +324,14 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     const metric =
       rowEditableKeyResult?.metricType?.name || rowEditableKeyResult?.key_type;
     if (
+      metric === 'Milestone' &&
+      (!rowEditableKeyResult?.milestones ||
+        rowEditableKeyResult.milestones.length === 0)
+    ) {
+      message.warning('At least one milestone is required.');
+      return false;
+    }
+    if (
       (metric === 'Numeric' ||
         metric === 'Currency' ||
         metric === 'Percentage') &&
@@ -373,6 +382,12 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     );
     if (totalWeight !== 100) {
       message.warning('Milestone weights must total 100.');
+      return;
+    }
+
+    if (objectiveEditMode || rowInlineEdit) {
+      setRowField('milestones', editableMilestones);
+      closeMilestoneModal();
       return;
     }
 
@@ -438,21 +453,31 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         {objectiveEditMode || rowInlineEdit ? (
           <td
             className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
-            data-cy={`okr-key-result-table-row-deadline-inline-${keyResult?.id}`}
+            data-cy={`okr-key-result-table-row-metric-type-inline-${keyResult?.id}`}
           >
-            <DatePicker
-              value={
-                rowKeyResult?.deadline ? dayjs(rowKeyResult.deadline) : null
-              }
-              format="YYYY-MM-DD"
+            <Select
+              value={rowKeyResult?.metricTypeId ?? undefined}
+              placeholder="Metric type"
               size="middle"
-              status={!rowKeyResult?.deadline ? 'error' : ''}
-              onChange={(date) =>
-                setRowField('deadline', date ? date.format('YYYY-MM-DD') : null)
-              }
-              className="h-9 w-full max-w-[11rem] min-w-0 sm:w-[160px] sm:max-w-none"
+              className="h-9 w-[160px] min-w-[160px]"
               disabled={!canInlineEditNow}
-            />
+              onChange={(value) => {
+                const selectedMetric = metrics?.items?.find(
+                  (metric: any) => metric.id === value,
+                );
+                setRowField('metricTypeId', value);
+                if (selectedMetric) {
+                  setRowField('key_type', selectedMetric.name);
+                  setRowField('metricType', selectedMetric);
+                }
+              }}
+            >
+              {metrics?.items?.map((metric: any) => (
+                <Option key={metric?.id} value={metric?.id}>
+                  {metric?.name}
+                </Option>
+              ))}
+            </Select>
           </td>
         ) : (
           <td
@@ -473,6 +498,26 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                 ) : null}
               </span>
             </span>
+          </td>
+        )}
+        {(objectiveEditMode || rowInlineEdit) && (
+          <td
+            className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
+            data-cy={`okr-key-result-table-row-deadline-inline-${keyResult?.id}`}
+          >
+            <DatePicker
+              value={
+                rowKeyResult?.deadline ? dayjs(rowKeyResult.deadline) : null
+              }
+              format="YYYY-MM-DD"
+              size="middle"
+              status={!rowKeyResult?.deadline ? 'error' : ''}
+              onChange={(date) =>
+                setRowField('deadline', date ? date.format('YYYY-MM-DD') : null)
+              }
+              className="h-9 w-full max-w-[11rem] min-w-0 sm:w-[160px] sm:max-w-none"
+              disabled={!canInlineEditNow}
+            />
           </td>
         )}
         <td
@@ -522,6 +567,21 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                   disabled={!canInlineEditNow}
                 />
               </div>
+            ) : isMilestoneMetric ? (
+              <Button
+                type="default"
+                size="middle"
+                icon={<PlusOutlined />}
+                className="h-9 whitespace-nowrap"
+                disabled={!canInlineEditNow}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenMilestoneModal(true);
+                }}
+                data-cy={`okr-key-result-table-row-add-milestone-${keyResult?.id}`}
+              >
+                Add Milestone
+              </Button>
             ) : (
               <span className="text-gray-400">-</span>
             )
