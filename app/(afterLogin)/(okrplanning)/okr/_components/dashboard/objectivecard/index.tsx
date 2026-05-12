@@ -674,9 +674,18 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     data-cy={`okr-objective-card-th-metrics-${objective?.id}`}
                   >
                     {isInlineEditing || isAnyKeyResultInlineEditActive
-                      ? 'Deadline'
+                      ? 'Metric Type'
                       : 'Metrics'}
                   </th>
+                  {(isInlineEditing || isAnyKeyResultInlineEditActive) && (
+                    <th
+                      scope="col"
+                      className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[120px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[160px]"
+                      data-cy={`okr-objective-card-th-deadline-${objective?.id}`}
+                    >
+                      Deadline
+                    </th>
+                  )}
                   <th
                     scope="col"
                     className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[80px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[90px]"
