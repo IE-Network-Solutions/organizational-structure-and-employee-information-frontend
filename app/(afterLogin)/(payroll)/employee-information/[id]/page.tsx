@@ -477,10 +477,10 @@ const EmployeeProfile = () => {
               value={entitledDeductionTotal.toFixed(2)}
               large
               tags={[
-                ...(breakdown?.pension?.map((p: any) => ({
-                  label: p.type,
-                  value: parseFloat(p.amount || '0').toFixed(2),
-                })) || []),
+                // ...(breakdown?.pension?.map((p: any) => ({
+                //   label: p.type,
+                //   value: parseFloat(p.amount || '0').toFixed(2),
+                // })) || []),
                 ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
                   label: d.type,
                   value: parseFloat(d.amount || '0').toFixed(2),
