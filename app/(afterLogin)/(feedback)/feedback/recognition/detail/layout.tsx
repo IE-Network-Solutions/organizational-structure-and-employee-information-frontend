@@ -35,9 +35,12 @@ function RecognitionDetailLayoutShell({
   );
 
   return (
-    <div className="text-[#333]" data-cy="recognition-detail-layout">
+    <div
+      className="min-h-full py-4 text-[#333]"
+      data-cy="recognition-detail-layout"
+    >
       <div
-        className="border-b border-[#DEE2E6] pb-1 pt-2"
+        className="border-b border-[#E5E7EB] pb-2 pt-0"
         data-cy="recognition-detail-layout-toolbar"
       >
         <div
@@ -133,16 +136,16 @@ function RecognitionDetailLayoutShell({
       </div>
 
       <nav
-        className="-mb-px mt-2 flex gap-10 border-b border-[#DEE2E6]"
+        className="-mb-px mt-5 flex gap-10 border-b border-[#E5E7EB]"
         aria-label="Recognition sections"
         data-cy="recognition-detail-tabs"
       >
         <Link
           href={historyHref}
           className={
-            `-mb-px border-b-[3px] pb-3 text-sm transition-colors ` +
+            `-mb-px inline-block border-b-2 pb-2.5 text-sm transition-colors no-underline ` +
             (isHistoryActive
-              ? 'border-primary font-semibold text-primary'
+              ? 'border-[#1E40AF] font-semibold text-[#1E40AF]'
               : 'border-transparent font-medium text-[#495057] hover:text-[#212529]')
           }
           data-cy="recognition-tab-history"
@@ -152,9 +155,9 @@ function RecognitionDetailLayoutShell({
         <Link
           href={typesHref}
           className={
-            `-mb-px border-b-[3px] pb-3 text-sm transition-colors ` +
+            `-mb-px inline-block border-b-2 pb-2.5 text-sm transition-colors no-underline ` +
             (isTypesActive
-              ? 'border-primary font-semibold text-primary'
+              ? 'border-[#1E40AF] font-semibold text-[#1E40AF]'
               : 'border-transparent font-medium text-[#495057] hover:text-[#212529]')
           }
           data-cy="recognition-tab-types"
@@ -163,7 +166,7 @@ function RecognitionDetailLayoutShell({
         </Link>
       </nav>
 
-      <div className="mt-5" data-cy="recognition-detail-layout-children">
+      <div className="mt-6 pb-2" data-cy="recognition-detail-layout-children">
         {children}
       </div>
 

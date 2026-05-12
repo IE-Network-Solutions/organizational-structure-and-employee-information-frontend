@@ -46,7 +46,7 @@ function Page() {
       >
         {isLoading ? (
           <div
-            className="flex min-h-[220px] items-center justify-center rounded-lg border border-[#DEE2E6] bg-[#F8F9FA] py-16"
+            className="flex min-h-[220px] items-center justify-center rounded-lg border border-transparent bg-white py-16 shadow-none"
             data-cy="recognition-type-page-loading"
           >
             <Spin size="large" />
@@ -71,6 +71,9 @@ function Page() {
               current={currentType}
               total={recognitionTypeResponse?.meta?.totalItems ?? 0}
               pageSize={pageSizeType}
+              showPageSizeChanger={false}
+              goToOnRight
+              goToInputPlaceholder="Input"
               onChange={(page, size) => {
                 setCurrentType(page);
                 setPageSizeType(size);
