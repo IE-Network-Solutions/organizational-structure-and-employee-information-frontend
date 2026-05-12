@@ -94,16 +94,6 @@ function Page() {
             }}
             allowClear
             size="large"
-            styles={{
-              affixWrapper: {
-                alignItems: 'stretch',
-              },
-              suffix: {
-                display: 'flex',
-                alignItems: 'stretch',
-                marginInlineEnd: 0,
-              },
-            }}
             suffix={
               <span
                 className="flex items-stretch text-[#6B7280]"
@@ -112,8 +102,12 @@ function Page() {
                 <span
                   className="shrink-0 self-stretch w-px bg-[#E5E7EB]"
                   aria-hidden
+                  data-cy="recognition-search-icon-divider"
                 />
-                <span className="flex items-center pl-2">
+                <span
+                  className="flex items-center pl-2"
+                  data-cy="recognition-search-icon"
+                >
                   <IoSearchOutline />
                 </span>
               </span>

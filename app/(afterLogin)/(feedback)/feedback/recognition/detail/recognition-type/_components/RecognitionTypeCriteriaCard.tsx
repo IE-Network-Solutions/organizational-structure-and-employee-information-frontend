@@ -185,13 +185,19 @@ export default function RecognitionTypeCriteriaCard({
           className="flex min-h-0 flex-col bg-[#F9FAFB]"
           data-cy={`recognition-type-criteria-body-${type.id}`}
         >
-          <div className="flex min-h-0 w-full">
+          <div
+            className="flex min-h-0 w-full"
+            data-cy={`recognition-type-criteria-body-row-${type.id}`}
+          >
             <div
               className="shrink-0 self-stretch w-[10px] rounded-r-[8px] bg-white sm:w-[11px]"
               aria-hidden
               data-cy={`recognition-type-criteria-body-edge-accent-${type.id}`}
             />
-            <div className="min-w-0 flex-1 bg-white px-5 py-4 sm:px-6">
+            <div
+              className="min-w-0 flex-1 bg-white px-5 py-4 sm:px-6"
+              data-cy={`recognition-type-criteria-body-content-${type.id}`}
+            >
               <RecognitionTypeCriteriaTable
                 dataSource={criteria}
                 data-cy={`recognition-type-criteria-table-${type.id}`}
@@ -216,6 +222,7 @@ export default function RecognitionTypeCriteriaCard({
         onClose={() => setImportOpen(false)}
         recognitionTypeId={type.id}
         recognitionTypeName={type.name}
+        data-cy={`recognition-type-criteria-import-modal-${type.id}`}
       />
     </div>
   );
