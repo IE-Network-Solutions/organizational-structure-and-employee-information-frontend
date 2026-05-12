@@ -139,12 +139,11 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     }
   }, [rowInlineEdit, keyResult]);
 
-  // Seed from server only when the modal opens. Do not depend on
-  // `keyResult.milestones` while open — a new array reference from the parent
-  // would reset local state and undo deletes / weight edits before Save.
+  // Seed only when the modal opens. Do not depend on milestone arrays while open;
+  // a new parent reference would reset local edits before Save.
   useEffect(() => {
     if (!openMilestoneModal) return;
-    const initial = (keyResult?.milestones || []).map((milestone: any) => ({
+    const initial = (rowKeyResult?.milestones || []).map((milestone: any) => ({
       ...milestone,
     }));
     baselineMilestoneIdsRef.current = new Set(
@@ -325,6 +324,14 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     const metric =
       rowEditableKeyResult?.metricType?.name || rowEditableKeyResult?.key_type;
     if (
+      metric === 'Milestone' &&
+      (!rowEditableKeyResult?.milestones ||
+        rowEditableKeyResult.milestones.length === 0)
+    ) {
+      message.warning('At least one milestone is required.');
+      return false;
+    }
+    if (
       (metric === 'Numeric' ||
         metric === 'Currency' ||
         metric === 'Percentage') &&
@@ -375,6 +382,12 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     );
     if (totalWeight !== 100) {
       message.warning('Milestone weights must total 100.');
+      return;
+    }
+
+    if (objectiveEditMode || rowInlineEdit) {
+      setRowField('milestones', editableMilestones);
+      closeMilestoneModal();
       return;
     }
 
@@ -552,6 +565,21 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                   disabled={!canInlineEditNow}
                 />
               </div>
+            ) : isMilestoneMetric ? (
+              <Button
+                type="default"
+                size="middle"
+                icon={<PlusOutlined />}
+                className="h-9 whitespace-nowrap"
+                disabled={!canInlineEditNow}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenMilestoneModal(true);
+                }}
+                data-cy={`okr-key-result-table-row-add-milestone-${keyResult?.id}`}
+              >
+                Add Milestone
+              </Button>
             ) : (
               <span className="text-gray-400">-</span>
             )
