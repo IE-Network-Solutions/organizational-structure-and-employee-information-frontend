@@ -481,7 +481,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               {val ? (
                 statusType(val)
               ) : (
-                <span className="text-sm font-normal text-[#4d4d4d]">-</span>
+                <span
+                  className="text-sm font-normal text-[#4d4d4d]"
+                  data-cy={`time-attendance-employee-attendance-row-remote-check-in-source-dash-${record.key}`}
+                >
+                  -
+                </span>
               )}
             </div>
           </div>
@@ -526,7 +531,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               {val ? (
                 statusType(val)
               ) : (
-                <span className="text-sm font-normal text-[#4d4d4d]">-</span>
+                <span
+                  className="text-sm font-normal text-[#4d4d4d]"
+                  data-cy={`time-attendance-employee-attendance-row-remote-check-out-source-dash-${record.key}`}
+                >
+                  -
+                </span>
               )}
             </div>
           </div>
