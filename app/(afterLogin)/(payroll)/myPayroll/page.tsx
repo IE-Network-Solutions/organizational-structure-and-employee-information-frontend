@@ -253,10 +253,10 @@ export default function MyPayroll() {
       //   (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
       //   0,
       // ) || 0) +
-      (breakdown?.totalDeductionWithPension?.reduce(
+      breakdown?.totalDeductionWithPension?.reduce(
         (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
         0,
-      ) || 0);
+      ) || 0;
 
     return (
       <Row
@@ -627,11 +627,11 @@ export default function MyPayroll() {
                         //     acc + parseFloat(item.amount || '0'),
                         //   0,
                         // ) || 0) +
-                        (breakdown?.totalDeductionWithPension?.reduce(
+                        breakdown?.totalDeductionWithPension?.reduce(
                           (acc: number, item: any) =>
                             acc + parseFloat(item.amount || '0'),
                           0,
-                        ) || 0);
+                        ) || 0;
 
                       return (
                         <Col
