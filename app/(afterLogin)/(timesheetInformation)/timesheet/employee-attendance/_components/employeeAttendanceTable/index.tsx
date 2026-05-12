@@ -478,7 +478,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               id={`time-attendance-employee-attendance-row-remote-check-in-badge-${record.key}`}
               data-cy="time-attendance-employee-attendance-row-remote-check-in-badge-div"
             >
-              {val ? statusType(val) : statusType(null)}
+              {val ? (
+                statusType(val)
+              ) : (
+                <span className="text-sm font-normal text-[#4d4d4d]">-</span>
+              )}
             </div>
           </div>
         );
@@ -519,7 +523,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               id={`time-attendance-employee-attendance-row-remote-check-out-badge-${record.key}`}
               data-cy="time-attendance-employee-attendance-row-remote-check-out-badge-div"
             >
-              {val ? statusType(val) : statusType(null)}
+              {val ? (
+                statusType(val)
+              ) : (
+                <span className="text-sm font-normal text-[#4d4d4d]">-</span>
+              )}
             </div>
           </div>
         );
