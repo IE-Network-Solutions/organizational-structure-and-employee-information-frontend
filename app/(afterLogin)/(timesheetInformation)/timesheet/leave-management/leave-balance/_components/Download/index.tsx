@@ -20,13 +20,17 @@ const DownloadLeaveBalance: React.FC<DownloadLeaveBalanceProps> = ({
   const { isMobile } = useIsMobile();
   const buttonClass = 'font-normal w-10 sm:w-full h-[40px] rounded-lg';
 
-  const { refetch: refetchFiltered } =
-    useGetAllLeaveBalanceWithFilter(selectedUserId, leaveTypeId);
+  const { refetch: refetchFiltered } = useGetAllLeaveBalanceWithFilter(
+    selectedUserId,
+    leaveTypeId,
+  );
   const { refetch: refetchAll } = useGetAllLeaveBalanceWithoutFilter();
 
   const handleDownload = async (downloadType: 'all' | 'filtered') => {
     if (downloadType === 'filtered' && !selectedUserId) {
-      message.warning('Select a user before downloading filtered leave balance');
+      message.warning(
+        'Select a user before downloading filtered leave balance',
+      );
       return;
     }
 

@@ -137,7 +137,10 @@ export default function RecognitionTypeCriteriaTable({
         dataCy ? `${dataCy}-outer` : 'recognition-type-criteria-table-outer'
       }
     >
-      <div className="p-3 md:p-4" data-cy={dataCy ?? 'recognition-type-criteria-table-inner'}>
+      <div
+        className="p-3 md:p-4"
+        data-cy={dataCy ?? 'recognition-type-criteria-table-inner'}
+      >
         {loading ? (
           <TableSkeleton columns={columns} />
         ) : (

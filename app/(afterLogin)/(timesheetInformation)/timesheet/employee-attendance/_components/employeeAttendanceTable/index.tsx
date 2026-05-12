@@ -491,7 +491,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           id="time-attendance-employee-attendance-table-remote-check-out-span"
           data-cy="time-attendance-employee-attendance-table-remote-check-out-span"
         >
-          Remote Clocked Out 
+          Remote Clocked Out
         </span>
       ),
       dataIndex: 'checkOutSource',

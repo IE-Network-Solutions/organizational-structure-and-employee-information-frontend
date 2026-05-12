@@ -51,6 +51,26 @@ export enum AttendanceCheckInSource {
   ATTENDANCE_DEVICE_CHECKED_IN = 'ATTENDANCE_DEVICE_CHECKED_IN',
 }
 
+export const attendanceCheckInSourceLabels: Record<
+  AttendanceCheckInSource,
+  string
+> = {
+  [AttendanceCheckInSource.IMPORTED]: 'Imported',
+  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote checked in',
+  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]:
+    'Attendance device checked in',
+};
+
+export const attendanceCheckOutSourceLabels: Record<
+  AttendanceCheckOutSource,
+  string
+> = {
+  [AttendanceCheckOutSource.IMPORTED]: 'Imported',
+  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote checked out',
+  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]:
+    'Attendance device checked out',
+};
+
 export interface AttendanceRecord extends DateInfo {
   id: string;
   userId: string;

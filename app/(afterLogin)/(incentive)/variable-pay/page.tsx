@@ -14,8 +14,7 @@ const VariablePayPage = () => {
   const setOpenModal = useVariablePayStore((s) => s.setOpenModal);
   const { data: activeEmployee } = useGetActiveEmployee();
   const activeUserIds: string[] =
-    activeEmployee?.items?.map((employee: { id: string }) => employee.id) ??
-    [];
+    activeEmployee?.items?.map((employee: { id: string }) => employee.id) ?? [];
   const {
     isLoading: isRefreshLoading,
     refetch,

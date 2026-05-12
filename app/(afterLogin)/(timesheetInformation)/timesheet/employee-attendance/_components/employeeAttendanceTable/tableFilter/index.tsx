@@ -4,6 +4,8 @@ import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   AttendanceCheckInSource,
   AttendanceCheckOutSource,
+  attendanceCheckInSourceLabels,
+  attendanceCheckOutSourceLabels,
   attendanceRecordTypeOption,
 } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
@@ -39,30 +41,42 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const clockInMethodOptions = [
     {
       value: AttendanceCheckInSource.IMPORTED,
-      label: AttendanceCheckInSource.IMPORTED,
+      label: attendanceCheckInSourceLabels[AttendanceCheckInSource.IMPORTED],
     },
     {
       value: AttendanceCheckInSource.REMOTE_CHECKED_IN,
-      label: AttendanceCheckInSource.REMOTE_CHECKED_IN,
+      label:
+        attendanceCheckInSourceLabels[
+          AttendanceCheckInSource.REMOTE_CHECKED_IN
+        ],
     },
     {
       value: AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN,
-      label: AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN,
+      label:
+        attendanceCheckInSourceLabels[
+          AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN
+        ],
     },
   ];
 
   const clockOutMethodOptions = [
     {
       value: AttendanceCheckOutSource.IMPORTED,
-      label: AttendanceCheckOutSource.IMPORTED,
+      label: attendanceCheckOutSourceLabels[AttendanceCheckOutSource.IMPORTED],
     },
     {
       value: AttendanceCheckOutSource.REMOTE_CHECKED_OUT,
-      label: AttendanceCheckOutSource.REMOTE_CHECKED_OUT,
+      label:
+        attendanceCheckOutSourceLabels[
+          AttendanceCheckOutSource.REMOTE_CHECKED_OUT
+        ],
     },
     {
       value: AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT,
-      label: AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT,
+      label:
+        attendanceCheckOutSourceLabels[
+          AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT
+        ],
     },
   ];
 
