@@ -18,6 +18,10 @@ import type {
   PlanOwner,
   ViewMode,
 } from '../types';
+import {
+  getKeyResultProgressPercent,
+  getKeyResultProgressRatioText,
+} from '@/utils/okrKeyResultProgressDisplay';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   mergeUserKeyResultsIntoOwnerGroups,
@@ -121,6 +125,7 @@ interface AggregatedKR {
   metricType: string;
   targetValue: string | number;
   currentValue: string | number;
+  progressLabel: string;
   isDeleted: boolean;
 }
 
@@ -154,24 +159,8 @@ export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
       entry.seenKRs.add(kr.id);
 
       const allTasks = getAllKRTasks(kr);
-      const totalWeight = allTasks.reduce(
-        (s, t) => s + (Number(t.weight) || 0),
-        0,
-      );
-      const completedWeight = allTasks
-        .filter(
-          (t) =>
-            t.status === 'completed' ||
-            t.status === 'Done' ||
-            t.isAchieved === true,
-        )
-        .reduce((s, t) => s + (Number(t.weight) || 0), 0);
-
-      const prog = kr.progress
-        ? Number(kr.progress)
-        : totalWeight > 0
-          ? Math.round((completedWeight / totalWeight) * 100)
-          : 0;
+      const prog = getKeyResultProgressPercent(kr as any);
+      const progressLabel = getKeyResultProgressRatioText(kr as any);
 
       entry.krs.push({
         id: kr.id,
@@ -181,6 +170,7 @@ export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
         metricType: kr.metricType?.name || 'N/A',
         targetValue: kr.targetValue ?? 0,
         currentValue: kr.currentValue ?? 0,
+        progressLabel,
         isDeleted: kr.deletedAt != null,
       });
     }
@@ -409,7 +399,7 @@ function KRProgressCard({
               {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
             </span>
           </span>
-          {kr.metricType !== 'N/A' && kr.metricType !== 'Milestone' && (
+          {kr.metricType !== 'N/A' && (
             <>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-368"
@@ -421,7 +411,7 @@ function KRProgressCard({
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-369"
                 className="shrink-0 tabular-nums"
               >
-                {formatNum(kr.currentValue)} / {formatNum(kr.targetValue)}
+                {kr.progressLabel}
               </span>
             </>
           )}
