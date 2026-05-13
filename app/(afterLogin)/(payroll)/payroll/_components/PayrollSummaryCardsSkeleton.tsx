@@ -4,10 +4,17 @@ import { Card } from 'antd';
 
 const CARD_COUNT = 5;
 
+/** Match {@link Payroll} summary row: horizontal scroll below `sm`; grid from `sm` up. */
+const PAYROLL_SUMMARY_CARDS_ROW_CLASS =
+  'mb-8 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x sm:grid sm:grid-cols-2 sm:overflow-x-visible sm:snap-none lg:grid-cols-5';
+
+const PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS =
+  'min-w-[228px] w-[min(88vw,304px)] shrink-0 snap-start sm:min-w-0 sm:h-full sm:w-full sm:shrink sm:max-w-none';
+
 function PayrollSummaryCardSkeleton({ index }: { index: number }) {
   return (
     <div
-      className="w-full min-w-0"
+      className="h-full w-full min-w-0"
       data-cy={`payroll-summary-card-skeleton-column-${index}`}
     >
       <Card
@@ -54,12 +61,19 @@ const PayrollSummaryCardsSkeleton = () => (
   <div
     id="payroll-summary-cards-skeleton-row"
     data-cy="payroll-summary-cards-skeleton-row"
-    className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
+    className={PAYROLL_SUMMARY_CARDS_ROW_CLASS}
   >
     {Array.from({ length: CARD_COUNT }, (unused, i) => (
-      <PayrollSummaryCardSkeleton key={`payroll-summary-sk-${i}`} index={i} />
+      <div
+        key={`payroll-summary-sk-wrap-${i}`}
+        className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+        data-cy={`payroll-summary-cards-skeleton-scroll-item-${i}`}
+      >
+        <PayrollSummaryCardSkeleton index={i} />
+      </div>
     ))}
   </div>
 );
 
 export default PayrollSummaryCardsSkeleton;
+
