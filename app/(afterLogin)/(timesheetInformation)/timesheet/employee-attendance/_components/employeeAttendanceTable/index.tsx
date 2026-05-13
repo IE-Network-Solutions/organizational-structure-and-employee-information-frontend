@@ -450,7 +450,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           id="time-attendance-employee-attendance-table-remote-check-in-span"
           data-cy="time-attendance-employee-attendance-table-remote-check-in-span"
         >
-          Remote Clocked In
+          Clock-in Method
         </span>
       ),
       dataIndex: 'checkInSource',
@@ -500,7 +500,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           id="time-attendance-employee-attendance-table-remote-check-out-span"
           data-cy="time-attendance-employee-attendance-table-remote-check-out-span"
         >
-          Remote Clocked Out
+          Clock-out Method
         </span>
       ),
       dataIndex: 'checkOutSource',
