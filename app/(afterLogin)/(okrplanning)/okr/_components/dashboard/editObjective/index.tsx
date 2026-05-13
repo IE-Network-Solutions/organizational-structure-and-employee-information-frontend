@@ -135,7 +135,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           keyType === 'Numeric' ||
           keyType === 'Percentage'
         ) {
-          if (keyResult?.initialValue > keyResult?.targetValue) {
+          if (
+            Number(keyResult?.initialValue) >= Number(keyResult?.targetValue)
+          ) {
             return false;
           }
         }
@@ -224,9 +226,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             ) {
               // Check if at least one milestone is added
 
-              if (keyResult?.initialValue > keyResult?.targetValue) {
+              if (
+                Number(keyResult?.initialValue) >=
+                Number(keyResult?.targetValue)
+              ) {
                 NotificationMessage.warning({
-                  message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
+                  message: `On number:${index + 1} title:${keyResult.title}: Target value must be greater than the initial value.`,
                 });
                 return; // Stop submission if the sum is not 100
               }
