@@ -54,7 +54,7 @@ const CopilotFloatEntry: React.FC = () => {
       style={{
         position: 'fixed',
         bottom: inset,
-        right: !showBot ? 0 : inset,
+        right: showBot ? 0 : inset,
       }}
       data-cy="copilot-float-entry"
     >
@@ -99,16 +99,16 @@ const CopilotFloatEntry: React.FC = () => {
         ) : null}
 
 
-        {!showBot ? (
+        {showBot ? (
           <button
             type="button"
-            onClick={() => setShowBot(true)}
+            onClick={() => setShowBot(false)}
             className="box-border inline-flex shrink-0 flex-col items-center justify-center border-0 shadow-md rounded-l-2xl"
             style={{
               width: 16,
               height: 60,
-              backgroundColor: '#1e40af',
-              boxShadow: '0 4px 14px rgba(11, 31, 58, 0.4)',
+              backgroundColor: COPILOT_THEME.floatFabBorder,
+              boxShadow: COPILOT_THEME.floatFabCollapsedShadow,
             }}
             aria-label="Open Chat With Copilot"
             id="copilot-float-trigger-vertical-pill"
@@ -134,7 +134,7 @@ const CopilotFloatEntry: React.FC = () => {
               borderRadius: COPILOT_THEME.floatFabRadius,
               backgroundColor: COPILOT_THEME.floatFabBg,
               border: `${COPILOT_THEME.floatFabBorderWidth}px solid ${COPILOT_THEME.floatFabBorder}`,
-              boxShadow: COPILOT_THEME.floatFabShadow,
+              boxShadow: COPILOT_THEME.floatFabExpandedShadow,
               color: COPILOT_FLOAT_INDIGO,
             }}
             data-cy="copilot-float-expanded-trigger"
@@ -142,7 +142,7 @@ const CopilotFloatEntry: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="flex flex-1 items-center justify-center border-0 bg-transparent px-1 text-inherit transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40"
+              className="flex flex-1 items-center justify-center bg-transparent px-1 text-inherit transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 border-none"
               aria-label="Open Chat With Copilot"
               id="copilot-float-trigger"
               data-cy="copilot-float-trigger"
@@ -151,12 +151,12 @@ const CopilotFloatEntry: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setShowBot(false)}
-              className="flex items-center justify-center border-0 border-l border-[#E5E7EB] bg-transparent px-1 text-gray-600 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40"
+              onClick={() => setShowBot(true)}
+              className="flex items-center justify-center border-0 border-[#E5E7EB] bg-transparent px-1 text-gray-600 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40"
               aria-label="Collapse copilot launcher"
               data-cy="copilot-float-trigger-collapse"
             >
-              <KeyboardArrowRightIcon sx={{ fontSize: 22 }} aria-hidden />
+              <KeyboardArrowRightIcon sx={{ fontSize: 22 }} aria-hidden className="text-[#1e40af]" />
             </button>
           </div>
         )}
