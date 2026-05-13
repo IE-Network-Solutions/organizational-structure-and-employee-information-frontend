@@ -20,12 +20,19 @@ export const COPILOT_FIGMA_EMBED_SRC =
  */
 export const COPILOT_THEME = {
   floatFabBg: '#FFFFFF',
-  floatFabBorder: '#2563EB',
+  floatFabBorder: '#1e40af',
   floatFabBorderWidth: 1,
   floatFabIcon: '#1E40AF',
   floatFabRadius: 6,
   floatFabShadow:
-    '0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(37, 99, 235, 0.12)',
+    '0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(30, 64, 175, 0.12)',
+  /**
+   * Expanded white launcher (pencil + chevron): soft #1e40af bloom, heavier toward
+   * bottom-right and right edge (reference UI).
+   */
+  floatFabExpandedShadow: '3px 3px 8.9px 2px #1E40AFCC',
+  /** Collapsed vertical tab shadow — #1e40af */
+  floatFabCollapsedShadow: '0 4px 14px rgba(30, 64, 175, 0.45)',
   /** Popover pill — 265×46 */
   floatPopoverBorder: '#E5E7EB',
   floatPopoverText: '#374151',
