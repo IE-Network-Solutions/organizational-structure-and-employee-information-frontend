@@ -21,7 +21,10 @@ import { DATE_FORMAT } from '@/utils/constants';
 import dayjs from 'dayjs';
 import { LeaveRequest, LeaveRequestStatus } from '@/types/timesheet/settings';
 import React, { useEffect, useState } from 'react';
-import { useGetLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/queries';
+import {
+  useGetLeaveRequest,
+  useGetSingleApproval,
+} from '@/store/server/features/timesheet/leaveRequest/queries';
 import CustomUpload from '@/components/form/customUpload';
 import { InboxOutlined } from '@ant-design/icons';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -46,6 +49,9 @@ const LeaveRequestSidebar = () => {
     { filter },
     false,
     false,
+  );
+  const { data: approverLog } = useGetSingleApproval(
+    leaveRequestSidebarData ?? '',
   );
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
@@ -94,6 +100,21 @@ const LeaveRequestSidebar = () => {
     selectedBalance != null
       ? (selectedBalance.totalBalance ?? 0).toFixed(1)
       : null;
+
+  const approverLogItems: any[] = Array.isArray(approverLog)
+    ? approverLog
+    : ((approverLog as any)?.items ?? []);
+
+  const approvalHasApprovedStep = approverLogItems.some(
+    (log) => String(log?.action ?? '').toLowerCase() === 'approved',
+  );
+
+  // If approval process has started (at least one "Approved" action), only allow editing
+  // description + attachment while the leave is still pending.
+  const lockCoreFields =
+    !!leaveRequest &&
+    leaveRequest.status === LeaveRequestStatus.PENDING &&
+    approvalHasApprovedStep;
 
   useEffect(() => {
     if (leaveRequestSidebarData) {
@@ -361,7 +382,10 @@ const LeaveRequestSidebar = () => {
                 size="large"
                 options={typeOptions()}
                 placeholder="Select Leave Type"
-                disabled={leaveRequest?.status === LeaveRequestStatus.APPROVED}
+                disabled={
+                  leaveRequest?.status === LeaveRequestStatus.APPROVED ||
+                  lockCoreFields
+                }
                 suffixIcon={
                   <MdKeyboardArrowDown
                     data-cy="time-attendance-leave-request-sidebar-type-select-icon"
@@ -389,7 +413,10 @@ const LeaveRequestSidebar = () => {
               data-cy="time-attendance-leave-request-sidebar-half-day"
             >
               <Checkbox
-                disabled={leaveRequest?.status === LeaveRequestStatus.APPROVED}
+                disabled={
+                  leaveRequest?.status === LeaveRequestStatus.APPROVED ||
+                  lockCoreFields
+                }
                 data-cy="time-attendance-leave-request-sidebar-half-day-checkbox"
               >
                 Half Date
@@ -419,7 +446,8 @@ const LeaveRequestSidebar = () => {
                     size="large"
                     onChange={handleChange}
                     disabled={
-                      leaveRequest?.status === LeaveRequestStatus.APPROVED
+                      leaveRequest?.status === LeaveRequestStatus.APPROVED ||
+                      lockCoreFields
                     }
                     format={DATE_FORMAT}
                     id="time-attendance-leave-request-sidebar-start-date-picker"
@@ -447,7 +475,8 @@ const LeaveRequestSidebar = () => {
                     size="large"
                     onChange={handleChange}
                     disabled={
-                      leaveRequest?.status === LeaveRequestStatus.APPROVED
+                      leaveRequest?.status === LeaveRequestStatus.APPROVED ||
+                      lockCoreFields
                     }
                     format={DATE_FORMAT}
                     id="time-attendance-leave-request-sidebar-end-date-picker"
@@ -487,6 +516,7 @@ const LeaveRequestSidebar = () => {
                 placeholder="Select Delegate"
                 className={controlClass}
                 allowClear
+                disabled={lockCoreFields}
                 filterOption={(input: any, option: any) =>
                   (option?.label ?? '')
                     .toLowerCase()

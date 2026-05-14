@@ -183,7 +183,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
       <div
         id="ai-job-detail-loading"
         data-cy="ai-job-detail-loading"
-        className="flex items-center justify-center min-h-screen bg-gray-50"
+        className="flex items-center justify-center min-h-screen"
       >
         <div
           id="ai-job-detail-loading-spinner"
@@ -198,7 +198,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
   return (
     <div
       id="ai-job-detail-page"
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen"
       data-cy="ai-job-detail-page"
     >
       {/* Header */}
@@ -351,6 +351,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                 <div
                   id="ai-job-detail-candidates-empty-state"
                   data-cy="ai-job-detail-candidates-empty-state"
+                  className="flex items-center justify-center"
                 >
                   <EmptyState />
                 </div>

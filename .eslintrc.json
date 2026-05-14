@@ -56,6 +56,11 @@
     }
   ],
   "ignorePatterns": [
+    ".next/",
+    "node_modules/",
+    "out/",
+    "dist/",
+    "coverage/",
     "public/workbox-*.js",
     "public/sw.js",
     "public/fallback-*.js",

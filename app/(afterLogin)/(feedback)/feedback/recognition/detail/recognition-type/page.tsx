@@ -4,7 +4,7 @@ import CustomPagination from '@/components/customPagination';
 import { useGetRecognitionTypeChildById } from '@/store/server/features/CFR/recognition/queries';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { Card, Empty } from 'antd';
+import { Empty, Spin } from 'antd';
 import React, { useMemo } from 'react';
 import RecognitionTypesCriteriaList from './_components/RecognitionTypesCriteriaList';
 import { useSearchParams } from 'next/navigation';
@@ -35,17 +35,25 @@ function Page() {
   }, [departments]);
 
   return (
-    <div data-cy="recognition-type-page" id="recognitionTypePage">
-      <Card
-        bordered={false}
-        className="rounded-lg"
+    <div
+      className="min-w-0"
+      data-cy="recognition-type-page"
+      id="recognitionTypePage"
+    >
+      <div
+        className="min-h-[120px]"
         data-cy="recognition-type-criteria-card-wrapper"
-        bodyStyle={{ padding: 0 }}
-        loading={isLoading}
       >
-        {!isLoading && recognitionTypeResponse?.items?.length === 0 ? (
+        {isLoading ? (
           <div
-            className="flex min-h-[200px] items-center justify-center"
+            className="flex min-h-[220px] items-center justify-center rounded-lg border border-transparent bg-white py-16 shadow-none"
+            data-cy="recognition-type-page-loading"
+          >
+            <Spin size="large" />
+          </div>
+        ) : !recognitionTypeResponse?.items?.length ? (
+          <div
+            className="flex min-h-[200px] items-center justify-center rounded-lg border border-dashed border-[#DEE2E6] bg-white py-12"
             data-cy="recognition-type-criteria-empty-wrap"
           >
             <Empty description="No recognition types found" />
@@ -58,22 +66,27 @@ function Page() {
         )}
 
         {!isLoading && recognitionTypeResponse?.items?.length > 0 ? (
-          <CustomPagination
-            current={currentType}
-            total={recognitionTypeResponse?.meta?.totalItems ?? 0}
-            pageSize={pageSizeType}
-            onChange={(page, size) => {
-              setCurrentType(page);
-              setPageSizeType(size);
-            }}
-            onShowSizeChange={(size: number) => {
-              setPageSizeType(size);
-              setCurrentType(1);
-            }}
-            data-cy="recognition-type-pagination"
-          />
+          <div className="mt-6" data-cy="recognition-type-pagination-wrap">
+            <CustomPagination
+              current={currentType}
+              total={recognitionTypeResponse?.meta?.totalItems ?? 0}
+              pageSize={pageSizeType}
+              showPageSizeChanger={false}
+              goToOnRight
+              goToInputPlaceholder="Input"
+              onChange={(page, size) => {
+                setCurrentType(page);
+                setPageSizeType(size);
+              }}
+              onShowSizeChange={(size: number) => {
+                setPageSizeType(size);
+                setCurrentType(1);
+              }}
+              data-cy="recognition-type-pagination"
+            />
+          </div>
         ) : null}
-      </Card>
+      </div>
     </div>
   );
 }

@@ -9,7 +9,7 @@ export enum AttendanceRecordType {
   EARLY = 'early',
   ABSENT = 'absent',
   PRESENT = 'present',
-  clockedOut = 'clockedOut'
+  clockedOut = 'clockedOut',
 }
 
 export const AttendanceRecordTypeBadgeTheme: Record<
@@ -39,6 +39,38 @@ export const attendanceRecordTypeOption: {
   },
 ];
 
+export enum AttendanceCheckOutSource {
+  IMPORTED = 'IMPORTED',
+  REMOTE_CHECKED_OUT = 'REMOTE_CHECKED_OUT',
+  ATTENDANCE_DEVICE_CHECKED_OUT = 'ATTENDANCE_DEVICE_CHECKED_OUT',
+}
+
+export enum AttendanceCheckInSource {
+  IMPORTED = 'IMPORTED',
+  REMOTE_CHECKED_IN = 'REMOTE_CHECKED_IN',
+  ATTENDANCE_DEVICE_CHECKED_IN = 'ATTENDANCE_DEVICE_CHECKED_IN',
+}
+
+export const attendanceCheckInSourceLabels: Record<
+  AttendanceCheckInSource,
+  string
+> = {
+  [AttendanceCheckInSource.IMPORTED]: 'Imported',
+  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote checked in',
+  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]:
+    'Attendance device checked in',
+};
+
+export const attendanceCheckOutSourceLabels: Record<
+  AttendanceCheckOutSource,
+  string
+> = {
+  [AttendanceCheckOutSource.IMPORTED]: 'Imported',
+  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote checked out',
+  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]:
+    'Attendance device checked out',
+};
+
 export interface AttendanceRecord extends DateInfo {
   id: string;
   userId: string;
@@ -51,6 +83,8 @@ export interface AttendanceRecord extends DateInfo {
   earlyByMinutes: number;
   isAbsent: boolean;
   isOnGoing: boolean;
+  checkInSource?: AttendanceCheckInSource;
+  checkOutSource?: AttendanceCheckOutSource;
   overTimeMinutes: number;
   attendanceImportId: string | null;
   import: AttendanceImport;

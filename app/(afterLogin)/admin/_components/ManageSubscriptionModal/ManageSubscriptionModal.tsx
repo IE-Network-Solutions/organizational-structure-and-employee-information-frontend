@@ -11,6 +11,7 @@ import {
   Tag,
   Divider,
   notification,
+  Checkbox,
 } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { AiOutlineQuestionCircle } from 'react-icons/ai';
@@ -27,7 +28,9 @@ import { useGetSubscriptions } from '@/store/server/features/tenant-management/s
 import { useGetEmployeeStatus } from '@/store/server/features/dashboard/employee-status/queries';
 import { useCalculateSubscriptionPrice } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import {
+  useBuyAdditionalSlots,
   useCreateSubscription,
+  useGetAllPlans,
   usePrepaySubscription,
   useRenewSubscription,
   useUpgradeSubscription,
@@ -68,6 +71,25 @@ const orderModulesForPlanCard = (catalog: Module[], plan: Plan): Module[] => {
   });
 };
 
+const getModulePrice = (mod: any): number => {
+  const candidates = [
+    mod?.price,
+    mod?.modulePrice,
+    mod?.amount,
+    mod?.monthlyPrice,
+    mod?.slotPrice,
+    mod?.cost,
+    mod?.pricing?.price,
+    mod?.pricing?.amount,
+  ];
+
+  for (const value of candidates) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed >= 0) return parsed;
+  }
+  return 0;
+};
+
 export const ManageSubscriptionModal: React.FC<
   ManageSubscriptionModalProps
 > = ({ open, onClose, onContinueToInvoice }) => {
@@ -84,12 +106,15 @@ export const ManageSubscriptionModal: React.FC<
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [seatCount, setSeatCount] = useState<number>(10);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCustomPlanSelected, setIsCustomPlanSelected] = useState(false);
+  const [customSelectedModuleIds, setCustomSelectedModuleIds] = useState<
+    string[]
+  >([]);
   /** Which billing period (by period type id) is selected — must exist on the selected plan's `periods`. */
   const [selectedPeriodTypeId, setSelectedPeriodTypeId] = useState<
     string | null
   >(null);
 
-  const { data: plansData } = useGetPlans({ filter: {} }, true, true, 'ASC');
   const { data: subscriptionsData } = useGetSubscriptions(
     { filter: { tenantId: [DEFAULT_TENANT_ID] } },
     true,
@@ -103,9 +128,26 @@ export const ManageSubscriptionModal: React.FC<
   );
   const createSubscriptionMutation = useCreateSubscription();
   const upgradeSubscriptionMutation = useUpgradeSubscription();
+  const buyAdditionalSlotsMutation = useBuyAdditionalSlots();
   const renewSubscriptionMutation = useRenewSubscription();
   const prepaySubscriptionMutation = usePrepaySubscription();
 
+  /** Currency must follow the tenant's current/most-recent subscription plan. */
+  const activePlanCurrencyId =
+    activeSubscription?.plan?.currencyId ??
+    activeSubscription?.currencyId ??
+    latestSubscription?.plan?.currencyId ??
+    latestSubscription?.currencyId ??
+    undefined;
+
+  const { data: allPlansData } = useGetAllPlans(activePlanCurrencyId);
+  const { data: plansData } = useGetPlans(
+    { filter: {} },
+    true,
+    true,
+    'ASC',
+    activePlanCurrencyId,
+  );
   const allModulesSorted = useMemo(() => {
     const items = modulesData?.items;
     if (!Array.isArray(items)) return [];
@@ -113,6 +155,51 @@ export const ManageSubscriptionModal: React.FC<
       (a: Module, b: Module) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0),
     );
   }, [modulesData]);
+
+  const customPlanModules = useMemo(() => {
+    const allPlansPayload = allPlansData as any;
+    const rawModules =
+      allPlansPayload?.items ??
+      allPlansPayload?.item ??
+      allPlansPayload?.data?.items ??
+      allPlansPayload?.data?.item ??
+      allPlansPayload?.data;
+
+    if (!Array.isArray(rawModules)) return [];
+
+    return rawModules
+      .map((mod: any, index: number) => ({
+        id: String(
+          mod?.id ??
+            mod?.moduleId ??
+            mod?.code ??
+            mod?.name ??
+            `custom-module-${index}`,
+        ),
+        label:
+          mod?.name?.trim() ||
+          mod?.moduleName?.trim() ||
+          mod?.title?.trim() ||
+          mod?.code?.trim() ||
+          `Module ${index + 1}`,
+        orderIndex: Number(mod?.orderIndex ?? index),
+        isCoreModule: mod?.isCoreModule === true,
+        price: getModulePrice(mod),
+      }))
+      .sort((a, b) => a.orderIndex - b.orderIndex);
+  }, [allPlansData]);
+
+  /** Core modules stay selected and cannot be toggled off. */
+  useEffect(() => {
+    const coreIds = customPlanModules
+      .filter((m) => m.isCoreModule)
+      .map((m) => m.id);
+    const allowedIds = new Set(customPlanModules.map((m) => m.id));
+    setCustomSelectedModuleIds((prev) => {
+      const kept = prev.filter((id) => allowedIds.has(id));
+      return Array.from(new Set([...coreIds, ...kept]));
+    });
+  }, [customPlanModules]);
 
   useEffect(() => {
     if (plansData?.items) {
@@ -145,14 +232,6 @@ export const ManageSubscriptionModal: React.FC<
       setSeatCount(baselineSubscription.slotTotal);
   }, [subscriptionsData]);
 
-  /** Currency must follow the tenant's current/most-recent subscription plan. */
-  const activePlanCurrencyId =
-    activeSubscription?.plan?.currencyId ??
-    activeSubscription?.currencyId ??
-    latestSubscription?.plan?.currencyId ??
-    latestSubscription?.currencyId ??
-    null;
-
   const visiblePlans = useMemo(() => {
     if (!activePlanCurrencyId) return plans;
     return plans.filter((p) => p.currencyId === activePlanCurrencyId);
@@ -179,6 +258,8 @@ export const ManageSubscriptionModal: React.FC<
       defaultSelectionAppliedRef.current = false;
       periodManuallySelectedRef.current = false;
       planManuallySelectedRef.current = false;
+      setIsCustomPlanSelected(false);
+      setCustomSelectedModuleIds([]);
       return;
     }
     if (!visiblePlans.length) return;
@@ -344,16 +425,85 @@ export const ManageSubscriptionModal: React.FC<
     Number(selectedPlan?.slotPrice) ??
     0;
 
-  const currentPeriodInMonths = currentPlanPeriod?.periodType?.periodInMonths;
-  const targetPeriodInMonths = selectedPlanPeriod?.periodType?.periodInMonths;
+  const currentPlanModuleIds = useMemo(
+    () =>
+      (activeSubscription?.plan?.modules ?? [])
+        .map((pm) => pm.moduleId)
+        .filter(Boolean),
+    [activeSubscription?.plan?.modules],
+  );
+  const selectedPlanModuleIds = useMemo(
+    () =>
+      (selectedPlan?.modules ?? []).map((pm) => pm.moduleId).filter(Boolean),
+    [selectedPlan?.modules],
+  );
+  const coreCustomModuleIds = useMemo(
+    () =>
+      customPlanModules
+        .filter((m) => m.isCoreModule)
+        .map((m) => m.id)
+        .filter(Boolean),
+    [customPlanModules],
+  );
+  const targetModuleIds = useMemo(() => {
+    if (isCustomPlanSelected) {
+      return Array.from(
+        new Set([...coreCustomModuleIds, ...customSelectedModuleIds]),
+      );
+    }
+    return selectedPlanModuleIds;
+  }, [
+    isCustomPlanSelected,
+    coreCustomModuleIds,
+    customSelectedModuleIds,
+    selectedPlanModuleIds,
+  ]);
+  const isModuleSelectionUnchanged = useMemo(() => {
+    if (!activeSubscription) return false;
+    if (targetModuleIds.length !== currentPlanModuleIds.length) return false;
+    const currentSet = new Set(currentPlanModuleIds);
+    return targetModuleIds.every((id) => currentSet.has(id));
+  }, [activeSubscription, targetModuleIds, currentPlanModuleIds]);
+  const isSlotOnlyChange = useMemo(() => {
+    if (!activeSubscription) return false;
+    const isSeatOnlyChanged =
+      isSeatIncreased && !isPlanChanged && !isPeriodChanged;
+    return isSeatOnlyChanged && isModuleSelectionUnchanged;
+  }, [
+    activeSubscription,
+    isSeatIncreased,
+    isPlanChanged,
+    isPeriodChanged,
+    isModuleSelectionUnchanged,
+  ]);
+
+  const modulePriceById = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const mod of customPlanModules) {
+      map.set(mod.id, Number(mod.price ?? 0));
+    }
+    return map;
+  }, [customPlanModules]);
+
+  const getModuleUnitPriceTotal = (moduleIds: string[]) =>
+    moduleIds.reduce(
+      (acc, id) => acc + Number(modulePriceById.get(id) ?? 0),
+      0,
+    );
+
+  const targetCustomModulesUnitTotal = getModuleUnitPriceTotal(targetModuleIds);
+  const currentCustomModulesUnitTotal =
+    getModuleUnitPriceTotal(currentPlanModuleIds);
+  const targetTotalForDowngradeCheck = isCustomPlanSelected
+    ? targetCustomModulesUnitTotal * seatCount
+    : targetPeriodSlotPrice * seatCount;
+  const currentTotalForDowngradeCheck = isCustomPlanSelected
+    ? currentCustomModulesUnitTotal * currentSlotTotal
+    : currentPeriodSlotPrice * currentSlotTotal;
 
   const isScheduledDowngradeForPrepay =
     !!activeSubscription &&
-    (isPlanChanged || isPeriodChanged) &&
-    (targetPeriodSlotPrice < currentPeriodSlotPrice ||
-      (typeof currentPeriodInMonths === 'number' &&
-        typeof targetPeriodInMonths === 'number' &&
-        targetPeriodInMonths < currentPeriodInMonths));
+    targetTotalForDowngradeCheck < currentTotalForDowngradeCheck;
 
   const nextBillingDateLabel = activeSubscription?.endAt
     ? new Date(activeSubscription.endAt).toLocaleDateString()
@@ -436,8 +586,28 @@ export const ManageSubscriptionModal: React.FC<
   const { data: calculationData, isLoading: isCalculating } =
     useCalculateSubscriptionPrice(calculationDto, isCalculationEnabled);
 
-  const totalAmount = calculationData?.item?.totalAmount ?? null;
+  const apiCalculatedTotalAmount = calculationData?.item?.totalAmount ?? null;
+  const customModulesTotalAmount = useMemo(() => {
+    if (!isCustomPlanSelected) return null;
+    if (!customSelectedModuleIds.length) return 0;
+    const selectedIds = new Set(customSelectedModuleIds);
+    const modulesUnitTotal = customPlanModules.reduce((acc, mod) => {
+      if (!selectedIds.has(mod.id)) return acc;
+      return acc + Number(mod.price ?? 0);
+    }, 0);
+    return modulesUnitTotal * seatCount;
+  }, [
+    isCustomPlanSelected,
+    customSelectedModuleIds,
+    customPlanModules,
+    seatCount,
+  ]);
+  const totalAmount = isCustomPlanSelected
+    ? customModulesTotalAmount
+    : apiCalculatedTotalAmount;
   const currencySymbol = selectedPlan?.currency?.symbol ?? '$';
+  const canSubmitCustomPlan =
+    isCustomPlanSelected && customSelectedModuleIds.length > 0;
 
   const getInvoiceIdFromResponse = (payload: any): string | null => {
     // Different endpoints return different shapes (upgrade vs slots vs prepay).
@@ -468,32 +638,42 @@ export const ManageSubscriptionModal: React.FC<
     if (
       !selectedPlan ||
       !selectedPlanPeriod ||
-      !resolvedTransactionType ||
+      (!resolvedTransactionType && !isCustomPlanSelected) ||
       isSeatDecreased
     )
       return;
 
     setIsSubmitting(true);
-    setTransactionType(
-      isScheduledDowngradeForPrepay
-        ? TransactionType.PREPAY_SUBSCRIPTION
-        : resolvedTransactionType,
-    );
+    const transactionTypeForStore = isScheduledDowngradeForPrepay
+      ? TransactionType.PREPAY_SUBSCRIPTION
+      : (resolvedTransactionType ??
+        (isCustomPlanSelected ? TransactionType.PURCHASE_SUBSCRIPTION : null));
+    setTransactionType(transactionTypeForStore);
+
+    const customModuleIdsPayload = isCustomPlanSelected
+      ? {
+          modules: targetModuleIds,
+        }
+      : {};
+
     try {
       let response: any;
       if (!activeSubscription) {
         // If tenant already has a previous subscription (e.g. expired), renew it.
         if (latestSubscription?.id) {
-          response = await renewSubscriptionMutation.mutateAsync({
+          const renewPayload = {
             subscriptionId: latestSubscription.id,
             tenantId: DEFAULT_TENANT_ID,
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
-          });
+            ...customModuleIdsPayload,
+          };
+
+          response = await renewSubscriptionMutation.mutateAsync(renewPayload);
         } else {
           // Brand new tenant with no subscription history.
-          response = await createSubscriptionMutation.mutateAsync({
+          const createPayload = {
             planId: selectedPlan.id,
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
@@ -502,34 +682,50 @@ export const ManageSubscriptionModal: React.FC<
             subscriptionPrice: Number(totalAmount ?? 0),
             subscriptionStatus: 'pending' as any,
             isActive: false,
-          } as any);
+            ...customModuleIdsPayload,
+          } as any;
+
+          response =
+            await createSubscriptionMutation.mutateAsync(createPayload);
         }
       } else {
-        if (resolvedTransactionType === TransactionType.PURCHASE_SLOTS) {
-          // Keep slot-only increase routed through the legacy upgrade endpoint.
-          response = await upgradeSubscriptionMutation.mutateAsync({
-            subscriptionId: activeSubscription.id,
+        if (
+          resolvedTransactionType === TransactionType.PURCHASE_SLOTS &&
+          isSlotOnlyChange
+        ) {
+          const buySlotsPayload = {
+            // subscriptionId: activeSubscription.id,
             tenantId: DEFAULT_TENANT_ID,
-            planId: selectedPlan.id,
-            planPeriodId: selectedPlanPeriod.id,
-            slots: seatCount,
-          });
+            newSlotsAmount: seatCount,
+          };
+
+          response =
+            await buyAdditionalSlotsMutation.mutateAsync(buySlotsPayload);
         } else if (isScheduledDowngradeForPrepay) {
-          response = await prepaySubscriptionMutation.mutateAsync({
+          const prepayPayload = {
             subscriptionId: activeSubscription.id,
             tenantId: DEFAULT_TENANT_ID,
-            planId: selectedPlan.id,
+            ...(isCustomPlanSelected ? {} : { planId: selectedPlan.id }),
+            // ...(isCustomPlanSelected ? {} : { planPeriodId: selectedPlanPeriod.id }),
             planPeriodId: selectedPlanPeriod.id,
             slotTotal: seatCount,
-          });
+            ...customModuleIdsPayload,
+          };
+
+          response =
+            await prepaySubscriptionMutation.mutateAsync(prepayPayload);
         } else {
-          response = await upgradeSubscriptionMutation.mutateAsync({
+          const upgradePayload = {
             subscriptionId: activeSubscription.id,
             tenantId: DEFAULT_TENANT_ID,
-            planId: selectedPlan.id,
+            ...(isCustomPlanSelected ? {} : { planId: selectedPlan.id }),
             planPeriodId: selectedPlanPeriod.id,
             slots: seatCount,
-          });
+            ...customModuleIdsPayload,
+          };
+
+          response =
+            await upgradeSubscriptionMutation.mutateAsync(upgradePayload);
         }
       }
 
@@ -713,7 +909,7 @@ export const ManageSubscriptionModal: React.FC<
               readOnly
               tabIndex={-1}
               value={
-                isCalculating
+                !isCustomPlanSelected && isCalculating
                   ? ''
                   : totalAmount != null
                     ? Number(totalAmount).toLocaleString()
@@ -725,7 +921,7 @@ export const ManageSubscriptionModal: React.FC<
                   data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-674"
                   className="inline-flex min-w-[40px] items-center justify-center font-semibold text-base text-gray-700"
                 >
-                  {isCalculating ? (
+                  {!isCustomPlanSelected && isCalculating ? (
                     <LoadingOutlined spin className="text-primary" />
                   ) : (
                     currencySymbol
@@ -752,165 +948,267 @@ export const ManageSubscriptionModal: React.FC<
                 : 'No paid plans available.'}
             </p>
           ) : null}
-          {plansByCurrency.map(({ currencyId, plans: groupPlans }) => (
-            <div
-              key={currencyId}
-              className="grid w-full min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]"
-              data-cy={`manage-subscription-plans-currency-${currencyId}`}
-            >
-              {groupPlans.map((plan) => {
-                const badge = getPlanBadge(plan);
-                const isCurrentPlan = plan.id === currentPlanId;
-                const isCurrentBillingType =
-                  !!effectiveSelectedPeriodTypeId &&
-                  !!currentPeriodTypeId &&
-                  effectiveSelectedPeriodTypeId === currentPeriodTypeId;
-                const isSelected = planManuallySelectedRef.current
-                  ? selectedPlanId === plan.id
-                  : effectiveSelectedPlanId === plan.id &&
-                    (!isCurrentPlan || isCurrentBillingType);
-                const includedModuleIds = new Set(
-                  (plan.modules ?? []).map((pm) => pm.moduleId),
-                );
-                const modulesForCard =
-                  allModulesSorted.length > 0
-                    ? orderModulesForPlanCard(allModulesSorted, plan)
-                    : [];
-                return (
+          {plansByCurrency.map(
+            ({ currencyId, plans: groupPlans }, groupIndex) => (
+              <div
+                key={currencyId}
+                className="grid w-full min-w-0 gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))]"
+                data-cy={`manage-subscription-plans-currency-${currencyId}`}
+              >
+                {groupPlans.map((plan) => {
+                  const badge = getPlanBadge(plan);
+                  const isCurrentPlan = plan.id === currentPlanId;
+                  const isCurrentBillingType =
+                    !!effectiveSelectedPeriodTypeId &&
+                    !!currentPeriodTypeId &&
+                    effectiveSelectedPeriodTypeId === currentPeriodTypeId;
+                  const isSelected =
+                    !isCustomPlanSelected &&
+                    (planManuallySelectedRef.current
+                      ? selectedPlanId === plan.id
+                      : effectiveSelectedPlanId === plan.id &&
+                        (!isCurrentPlan || isCurrentBillingType));
+                  const includedModuleIds = new Set(
+                    (plan.modules ?? []).map((pm) => pm.moduleId),
+                  );
+                  const modulesForCard =
+                    allModulesSorted.length > 0
+                      ? orderModulesForPlanCard(allModulesSorted, plan)
+                      : [];
+                  return (
+                    <div
+                      key={plan.id}
+                      data-cy={`plan-card-${plan.id}`}
+                      onClick={() => {
+                        setIsCustomPlanSelected(false);
+                        planManuallySelectedRef.current = true;
+                        setSelectedPlanId(plan.id);
+                      }}
+                      className={`relative border rounded-lg bg-gradient-to-b from-white to-[#E8F5FF] p-4 cursor-pointer shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16),0_4px_12px_rgba(0,0,0,0.08)] ${
+                        isSelected
+                          ? 'border-primary shadow-[0_16px_48px_rgba(30,64,175,0.22),0_8px_24px_rgba(0,0,0,0.12)] ring-2 ring-primary/20'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      {badge && (
+                        <Tag
+                          bordered
+                          className="absolute top-3 right-3 z-[1] m-0 border-gray-200 bg-white text-xs font-medium text-gray-700"
+                          data-cy="plan-card-current-tag"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {badge}
+                        </Tag>
+                      )}
+                      {/* Radio row (Current tag is absolute top-right) */}
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
+                        className="relative flex min-h-[28px] items-center"
+                      >
+                        <Radio checked={isSelected} />
+                      </div>
+                      {/* Centered plan title, price, description */}
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
+                        className=" px-1 pt-2 text-center"
+                      >
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
+                          className="font-bold text-gray-900"
+                        >
+                          {plan.name}
+                        </div>
+                        <div
+                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
+                          className=" text-gray-900 font-bold text-lg"
+                        >
+                          {getPriceLabel(plan)}
+                        </div>
+                        {plan.description && (
+                          <div
+                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
+                            className="text-xs text-gray-500"
+                          >
+                            {plan.description}
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
+                        className="flex justify-center px-2"
+                      >
+                        <Divider className="!my-2 min-w-[96px] w-[65%] max-w-[200px] border-gray-200" />
+                      </div>
+                      <div
+                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
+                        className="mt-3 flex flex-col items-center gap-1"
+                      >
+                        {modulesLoading && allModulesSorted.length === 0 ? (
+                          <LoadingOutlined
+                            spin
+                            className="text-primary"
+                            aria-label="Loading modules"
+                          />
+                        ) : modulesForCard.length > 0 ? (
+                          modulesForCard.map((mod) => {
+                            const included = includedModuleIds.has(mod.id);
+                            const label =
+                              mod.name?.trim() || mod.code?.trim() || 'Module';
+                            return (
+                              <div
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
+                                key={mod.id}
+                                className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
+                              >
+                                <span
+                                  data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
+                                  className="inline-flex size-[18px] shrink-0 items-center justify-center"
+                                  aria-hidden
+                                >
+                                  {included ? (
+                                    <IoCheckbox className="size-full text-[#69B1FF]" />
+                                  ) : (
+                                    <span
+                                      data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
+                                      className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
+                                    />
+                                  )}
+                                </span>
+                                <span
+                                  data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
+                                  className={
+                                    included ? 'text-gray-700' : 'text-gray-400'
+                                  }
+                                >
+                                  {label}
+                                </span>
+                              </div>
+                            );
+                          })
+                        ) : (
+                          (plan.planDetails ?? []).map((detail, i) => (
+                            <div
+                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
+                              key={`${plan.id}-detail-${i}`}
+                              className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
+                            >
+                              <IoCheckbox
+                                className="size-[18px] shrink-0 text-primary"
+                                aria-hidden
+                              />
+                              <span
+                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
+                                className="text-gray-700"
+                              >
+                                {detail}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {groupIndex === 0 ? (
                   <div
-                    key={plan.id}
-                    data-cy={`plan-card-${plan.id}`}
+                    data-cy="plan-card-custom"
                     onClick={() => {
                       planManuallySelectedRef.current = true;
-                      setSelectedPlanId(plan.id);
+                      setIsCustomPlanSelected(true);
                     }}
                     className={`relative border rounded-lg bg-gradient-to-b from-white to-[#E8F5FF] p-4 cursor-pointer shadow-[0_8px_24px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.16),0_4px_12px_rgba(0,0,0,0.08)] ${
-                      isSelected
+                      isCustomPlanSelected
                         ? 'border-primary shadow-[0_16px_48px_rgba(30,64,175,0.22),0_8px_24px_rgba(0,0,0,0.12)] ring-2 ring-primary/20'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    {badge && (
-                      <Tag
-                        bordered
-                        className="absolute top-3 right-3 z-[1] m-0 border-gray-200 bg-white text-xs font-medium text-gray-700"
-                        data-cy="plan-card-current-tag"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {badge}
-                      </Tag>
-                    )}
-                    {/* Radio row (Current tag is absolute top-right) */}
                     <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-745"
+                      data-cy="plan-card-custom-radio"
                       className="relative flex min-h-[28px] items-center"
                     >
-                      <Radio checked={isSelected} />
+                      <Radio checked={isCustomPlanSelected} />
                     </div>
-                    {/* Centered plan title, price, description */}
                     <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-749"
+                      data-cy="plan-card-custom-title"
                       className=" px-1 pt-2 text-center"
                     >
                       <div
-                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-750"
+                        data-cy="plan-card-custom-title-text"
                         className="font-bold text-gray-900"
                       >
-                        {plan.name}
+                        Custom
                       </div>
                       <div
-                        data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-751"
+                        data-cy="plan-card-custom-title-price"
                         className=" text-gray-900 font-bold text-lg"
                       >
-                        {getPriceLabel(plan)}
+                        $1 / User / Month
                       </div>
-                      {plan.description && (
-                        <div
-                          data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-755"
-                          className="text-xs text-gray-500"
-                        >
-                          {plan.description}
-                        </div>
-                      )}
+                      <div
+                        data-cy="plan-card-custom-title-description"
+                        className="text-xs text-gray-500"
+                      >
+                        Customize your experience
+                      </div>
                     </div>
                     <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-760"
+                      data-cy="plan-card-custom-divider"
                       className="flex justify-center px-2"
                     >
                       <Divider className="!my-2 min-w-[96px] w-[65%] max-w-[200px] border-gray-200" />
                     </div>
                     <div
-                      data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-763"
+                      data-cy="plan-card-custom-modules"
                       className="mt-3 flex flex-col items-center gap-1"
                     >
-                      {modulesLoading && allModulesSorted.length === 0 ? (
-                        <LoadingOutlined
-                          spin
-                          className="text-primary"
-                          aria-label="Loading modules"
-                        />
-                      ) : modulesForCard.length > 0 ? (
-                        modulesForCard.map((mod) => {
-                          const included = includedModuleIds.has(mod.id);
-                          const label =
-                            mod.name?.trim() || mod.code?.trim() || 'Module';
-                          return (
-                            <div
-                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-776"
-                              key={mod.id}
-                              className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
-                            >
-                              <span
-                                data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-wrap`}
-                                className="inline-flex size-[18px] shrink-0 items-center justify-center"
-                                aria-hidden
-                              >
-                                {included ? (
-                                  <IoCheckbox className="size-full text-[#69B1FF]" />
-                                ) : (
-                                  <span
-                                    data-cy={`manage-subscription-plan-${plan.id}-module-${mod.id}-icon-empty`}
-                                    className="size-[15px] shrink-0 rounded-sm bg-white shadow-[inset_0_0_0_1px_#d1d5db]"
-                                  />
-                                )}
-                              </span>
-                              <span
-                                data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-784"
-                                className={
-                                  included ? 'text-gray-700' : 'text-gray-400'
-                                }
-                              >
-                                {label}
-                              </span>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        (plan.planDetails ?? []).map((detail, i) => (
+                      {customPlanModules.length > 0 ? (
+                        customPlanModules.map((mod) => (
                           <div
-                            data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-div-796"
-                            key={`${plan.id}-detail-${i}`}
+                            key={mod.id}
                             className="flex w-full max-w-full items-center justify-start gap-2 text-sm"
+                            onClick={(e) => e.stopPropagation()}
+                            data-cy={`plan-card-custom-module-${mod.id}`}
                           >
-                            <IoCheckbox
-                              className="size-[18px] shrink-0 text-primary"
-                              aria-hidden
+                            <Checkbox
+                              disabled={mod.isCoreModule}
+                              checked={
+                                mod.isCoreModule ||
+                                customSelectedModuleIds.includes(mod.id)
+                              }
+                              onChange={(e) => {
+                                if (mod.isCoreModule) return;
+                                const checked = e.target.checked;
+                                setCustomSelectedModuleIds((prev) =>
+                                  checked
+                                    ? prev.includes(mod.id)
+                                      ? prev
+                                      : [...prev, mod.id]
+                                    : prev.filter((id) => id !== mod.id),
+                                );
+                              }}
                             />
                             <span
-                              data-cy="admin-components-managesubscriptionmodal-managesubscriptionmodal-tsx-managesubscriptionmodal-span-804"
+                              data-cy={`plan-card-custom-module-${mod.id}-label`}
                               className="text-gray-700"
                             >
-                              {detail}
+                              {mod.label}
                             </span>
                           </div>
                         ))
+                      ) : (
+                        <span
+                          data-cy="plan-card-custom-modules-empty"
+                          className="text-xs text-gray-400"
+                        >
+                          No modules available.
+                        </span>
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          ))}
+                ) : null}
+              </div>
+            ),
+          )}
         </div>
 
         {/* Footer */}
@@ -939,9 +1237,9 @@ export const ManageSubscriptionModal: React.FC<
                 onClick={handleContinue}
                 loading={isSubmitting}
                 disabled={
-                  !calculationDto ||
+                  (!canSubmitCustomPlan && !calculationDto) ||
                   isSeatDecreased ||
-                  isCalculating ||
+                  (!isCustomPlanSelected && isCalculating) ||
                   isSubmitting
                 }
                 data-cy="manage-subscription-continue"

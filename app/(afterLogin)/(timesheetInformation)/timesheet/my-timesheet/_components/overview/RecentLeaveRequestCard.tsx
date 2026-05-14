@@ -59,7 +59,7 @@ export default function RecentLeaveRequestCard() {
             className="block text-lg font-semibold text-gray-900"
             data-cy="my-timesheet-overview-recent-leave-title"
           >
-            Recent Leave Request
+            Recent Leave
           </span>
           <Link
             href="/timesheet/my-timesheet/leave"

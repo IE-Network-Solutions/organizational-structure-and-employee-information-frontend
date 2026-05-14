@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { useCopilotStore } from '@/store/uistate/features/copilot';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CopilotAiEditIcon, { COPILOT_FLOAT_INDIGO } from './CopilotAiEditIcon';
 import { COPILOT_THEME } from './copilotTheme';
 
 /** Dashboard: 60×60 squircle, pill label 265×46, ~8–10px gap */
-const FLOAT_BTN = 60;
+const BOT_BTN_WIDTH = 84;
+const BOT_BTN_HEIGHT = 60;
 const POPOVER_W = 265;
 const POPOVER_H = 46;
 const GAP = 9;
@@ -17,7 +19,7 @@ const HINT_KEY_PREFIX = 'copilot_float_hint_seen';
  * Pill label + 60×60 tile — ~6px radius, 1px blue border, blue pencil + sparkle icon (20×20 asset).
  */
 const CopilotFloatEntry: React.FC = () => {
-  const { isOpen, setIsOpen } = useCopilotStore();
+  const { isOpen, setIsOpen, showBot, setShowBot } = useCopilotStore();
   const { token, userId } = useAuthenticationStore();
   const inset = COPILOT_THEME.floatInset;
   const [showHint, setShowHint] = useState(false);
@@ -52,7 +54,7 @@ const CopilotFloatEntry: React.FC = () => {
       style={{
         position: 'fixed',
         bottom: inset,
-        right: inset,
+        right: showBot ? 0 : inset,
       }}
       data-cy="copilot-float-entry"
     >
@@ -96,25 +98,68 @@ const CopilotFloatEntry: React.FC = () => {
           </div>
         ) : null}
 
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="box-border inline-flex shrink-0 items-center justify-center bg-white transition-[transform,box-shadow] hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB]/40 focus-visible:ring-offset-2"
-          style={{
-            width: FLOAT_BTN,
-            height: FLOAT_BTN,
-            borderRadius: COPILOT_THEME.floatFabRadius,
-            backgroundColor: COPILOT_THEME.floatFabBg,
-            border: `${COPILOT_THEME.floatFabBorderWidth}px solid ${COPILOT_THEME.floatFabBorder}`,
-            boxShadow: COPILOT_THEME.floatFabShadow,
-            color: COPILOT_FLOAT_INDIGO,
-          }}
-          aria-label="Open Chat With Copilot"
-          id="copilot-float-trigger"
-          data-cy="copilot-float-trigger"
-        >
-          <CopilotAiEditIcon size={28} aria-hidden />
-        </button>
+
+        {showBot ? (
+          <button
+            type="button"
+            onClick={() => setShowBot(false)}
+            className="box-border inline-flex shrink-0 flex-col items-center justify-center border-0 shadow-md rounded-l-2xl"
+            style={{
+              width: 16,
+              height: 60,
+              backgroundColor: COPILOT_THEME.floatFabBorder,
+              boxShadow: COPILOT_THEME.floatFabCollapsedShadow,
+            }}
+            aria-label="Open Chat With Copilot"
+            id="copilot-float-trigger-vertical-pill"
+            data-cy="copilot-float-trigger-vertical-pill"
+          >
+            <svg
+              width={22}
+              height={22}
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden
+              data-cy="copilot-float-vertical-pill-sparkle"
+            >
+            </svg>
+          </button>
+        ) : (
+          <div
+            className="box-border inline-flex shrink-0 items-stretch overflow-hidden bg-white transition-[transform,box-shadow] hover:-translate-y-px"
+            style={{
+              width: BOT_BTN_WIDTH,
+              height: BOT_BTN_HEIGHT,
+              borderRadius: COPILOT_THEME.floatFabRadius,
+              backgroundColor: COPILOT_THEME.floatFabBg,
+              border: `${COPILOT_THEME.floatFabBorderWidth}px solid ${COPILOT_THEME.floatFabBorder}`,
+              boxShadow: COPILOT_THEME.floatFabExpandedShadow,
+              color: COPILOT_FLOAT_INDIGO,
+            }}
+            data-cy="copilot-float-expanded-trigger"
+          >
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="flex flex-1 items-center justify-center bg-transparent px-1 text-inherit transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40 border-none"
+              aria-label="Open Chat With Copilot"
+              id="copilot-float-trigger"
+              data-cy="copilot-float-trigger"
+            >
+              <CopilotAiEditIcon size={28} aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowBot(true)}
+              className="flex items-center justify-center border-0 border-[#E5E7EB] bg-transparent px-1 text-gray-600 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563EB]/40"
+              aria-label="Collapse copilot launcher"
+              data-cy="copilot-float-trigger-collapse"
+            >
+              <KeyboardArrowRightIcon sx={{ fontSize: 22 }} aria-hidden className="text-[#1e40af]" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -506,14 +506,16 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
             data-cy={`okr-key-result-table-row-deadline-inline-${keyResult?.id}`}
           >
             <DatePicker
-              value={rowKeyResult?.deadline ? dayjs(rowKeyResult.deadline) : null}
+              value={
+                rowKeyResult?.deadline ? dayjs(rowKeyResult.deadline) : null
+              }
               format="YYYY-MM-DD"
               size="middle"
               status={!rowKeyResult?.deadline ? 'error' : ''}
               onChange={(date) =>
                 setRowField('deadline', date ? date.format('YYYY-MM-DD') : null)
               }
-              className="h-9 w-[160px] min-w-[160px]"
+              className="h-9 w-full max-w-[11rem] min-w-0 sm:w-[160px] sm:max-w-none"
               disabled={!canInlineEditNow}
             />
           </td>

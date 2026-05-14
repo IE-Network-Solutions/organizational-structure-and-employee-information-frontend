@@ -43,6 +43,13 @@ const ApprovalBranchFilter = () => {
       onSelectChange(value, key);
     }
   };
+
+  const handleApprovalTypeChange = (value: string[]) => {
+    const normalized =
+      value && value.length > 0 ? value : ['Leave', 'WorkFromHome'];
+    setSearchParams('approvalType', normalized);
+  };
+
   return (
     <div
       className="flex sm:block"
@@ -53,6 +60,7 @@ const ApprovalBranchFilter = () => {
         searchParams={searchParams}
         handleSearchInput={handleSearchInput}
         handleDepartmentChange={handleDepartmentChange}
+        handleApprovalTypeChange={handleApprovalTypeChange}
         data-cy="settings-approvals-filter-component"
       />
       <AccessGuard

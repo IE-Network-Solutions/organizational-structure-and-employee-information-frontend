@@ -515,7 +515,7 @@ function DetailPage() {
       </Modal>
 
       <div
-        className="border border-gray-200 rounded-lg p-4"
+        className="rounded-none border border-[#E5E7EB] bg-white p-4 shadow-none"
         data-cy="recognition-history-filters-card"
       >
         <div
@@ -799,7 +799,7 @@ function DetailPage() {
               // locale={{
               //   emptyText: <EmptyState />,
               // }}
-              className="cursor-pointer"
+              className="cursor-pointer [&_.ant-table]:rounded-none [&_.ant-table-container]:rounded-none [&_.ant-table-content]:rounded-none"
               onRow={(record) => ({
                 onClick: () => handleRowClick(record),
               })}

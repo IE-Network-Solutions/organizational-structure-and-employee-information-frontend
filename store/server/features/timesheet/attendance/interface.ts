@@ -1,3 +1,8 @@
+import {
+  AttendanceCheckInSource,
+  AttendanceCheckOutSource,
+} from '@/types/timesheet/attendance';
+
 export interface AttendanceRequestBody {
   exportType?: 'PDF' | 'EXCEL';
   filter: {
@@ -11,6 +16,8 @@ export interface AttendanceRequestBody {
     };
     clockedOut?: boolean;
     locations?: string[];
+    checkInSource?: AttendanceCheckInSource;
+    checkOutSource?: AttendanceCheckOutSource;
   };
   data?: Array<{
     id: string;

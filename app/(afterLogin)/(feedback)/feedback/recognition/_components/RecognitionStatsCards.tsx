@@ -75,13 +75,13 @@ function RecognitionStatsCards({
 
   return (
     <div
-      className="flex w-full gap-4 my-6 overflow-x-auto scrollbar-none md:grid md:overflow-x-visible md:scrollbar-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+      className="my-5 grid w-full grid-cols-1 gap-3 overflow-x-auto scrollbar-none sm:grid-cols-2 lg:grid-cols-4 md:overflow-x-visible"
       data-cy="recognition-stats-cards"
     >
       {cards.map((card) => (
         <Card
           key={card.key}
-          className="bg-white w-full border border-[#E5E7EB] rounded-lg p-3 md:w-full min-w-[265px]"
+          className="min-w-[225px] rounded-lg border border-[#E5E7EB] bg-white p-3"
           bordered
           bodyStyle={{ padding: 0 }}
           data-cy={card.cardCy}
@@ -92,13 +92,13 @@ function RecognitionStatsCards({
               data-cy={`${card.cardCy}-header`}
             >
               <span
-                className="flex h-8 w-8 items-center justify-center rounded-md bg-lightblue text-primary"
+                className="flex h-8 w-8 items-center justify-center rounded-[4px] border border-[#DBEAFE] bg-[#EFF6FF] text-[#1D4ED8]"
                 data-cy={`${card.cardCy}-icon`}
               >
                 {card.icon}
               </span>
               <p
-                className="text-base font-normal leading-normal text-black"
+                className="text-sm font-medium leading-normal text-[#374151]"
                 data-cy={card.labelCy}
               >
                 {card.label}
@@ -110,7 +110,7 @@ function RecognitionStatsCards({
               </div>
             ) : (
               <p
-                className="pl-9 text-[24px] leading-none font-bold text-black"
+                className="pl-0 text-[26px] font-semibold leading-none tracking-tight text-[#111827] sm:text-[28px]"
                 data-cy={card.valueCy}
               >
                 {card.value}

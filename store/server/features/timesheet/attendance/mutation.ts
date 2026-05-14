@@ -6,12 +6,10 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
   EditAttendance,
-  ZKTAttendanceRequestBody,
 } from '@/store/server/features/timesheet/attendance/interface';
+import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import useAttendanceImportErrorModalStore from '@/store/uistate/features/timesheet/employeeAttendanceImport';
-import { getZktToken, getZktPassUrl } from '@/utils/zktToken';
-import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
@@ -145,21 +143,6 @@ export const useSetCurrentAttendance = () => {
 };
 
 /**
- * Get passUrl from localStorage or fallback to zustand store
- */
-const getPassUrl = (): string | null => {
-  // Try to get from localStorage first
-  const passUrlFromStorage = getZktPassUrl();
-  if (passUrlFromStorage) {
-    return passUrlFromStorage;
-  }
-
-  // Fallback to zustand store
-  const zktSavedData = useTimesheetSettingsStore.getState().zktSavedData;
-  return zktSavedData?.url || null;
-};
-
-/**
  * Get today's date formatted as YYYY-MM-DD
  */
 const getTodayDate = (): string => {
@@ -172,27 +155,17 @@ const getTodayDate = (): string => {
 const fetchZKTAttendance = async (filter?: {
   date: { from: string; to: string };
 }): Promise<any> => {
-  const passUrl = getPassUrl();
-  const zktToken = getZktToken();
-
-  if (!passUrl) {
-    throw new Error('passUrl is not found in localStorage or store');
-  }
-
-  if (!zktToken) {
-    throw new Error('ZKTToken is not found in localStorage');
-  }
-
   // Default to today's date if no filter is provided
   const today = getTodayDate();
+  const requestHeaders = await requestHeader();
+  const { zktToken, passUrl } = await getZktCredentials();
   const dateFilter = filter || {
     date: {
       from: today,
       to: today,
     },
   };
-
-  const requestData: ZKTAttendanceRequestBody = {
+  const requestData = {
     passUrl,
     ZKTToken: zktToken,
     filter: dateFilter,
@@ -201,10 +174,10 @@ const fetchZKTAttendance = async (filter?: {
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: requestHeaders,
     data: requestData,
+
+    // skipEncryption: true,
   });
 };
 
