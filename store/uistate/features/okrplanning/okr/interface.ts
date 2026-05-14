@@ -54,6 +54,7 @@ export interface KeyResult {
 export interface Objective {
   id?: string;
   allignedKeyResultId?: string | null;
+  metricTypeId?: string | null;
   title: string;
   deadline: string;
   userId: string;
@@ -107,6 +108,8 @@ export interface OKRFormProps {
   embedInOkrSheet?: boolean;
   /** When true, weight input is disabled (e.g. in Edit KR modal) */
   disableWeightEdit?: boolean;
+  /** When true, metric type selector is disabled (e.g. when KR progress is not zero) */
+  disableMetricTypeEdit?: boolean;
   /** Called when Save succeeds (e.g. to collapse inline edit back to card view) */
   onSaveSuccess?: () => void;
   /** When true, the remove key result button is hidden (e.g. in Edit KR modal where delete is handled separately) */

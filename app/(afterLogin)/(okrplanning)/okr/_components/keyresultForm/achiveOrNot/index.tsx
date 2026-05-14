@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import { Button, Form, DatePicker, Input, InputNumber } from 'antd';
+import { Button, Form, DatePicker, Input, InputNumber, Select } from 'antd';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import {
   useOKRStore,
   useAchieveOrNotStore,
@@ -28,15 +29,20 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   updateKeyResult,
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
+  disableMetricTypeEdit: disableMetricTypeEditProp,
   onSaveSuccess,
   hideRemoveButton,
 }) => {
+  const { Option } = Select;
   const [form] = Form.useForm();
   const { objectiveValue } = useOKRStore();
+  const { data: metrics } = useGetMetrics();
   const { isMobile } = useIsMobile();
   const isBasic = useIsBasicOkr();
   const disableWeightEdit =
     disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
+  const disableMetricTypeEdit =
+    disableMetricTypeEditProp ?? Number(keyItem?.progress ?? 0) !== 0;
   const cardViewKey = `${keyItem?.id ?? 'new'}-${index}`;
   const setCardView = useAchieveOrNotStore((s) => s.setCardView);
   const isCardView = useAchieveOrNotStore(
@@ -285,6 +291,45 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                         updateKeyResult(index, 'title', e.target.value)
                       }
                     />
+                  </Form.Item>
+                  <Form.Item
+                    className="w-44 mb-0"
+                    label={
+                      <KeyResultFieldLabel
+                        label="Metric Type"
+                        tooltip="Select a metric type"
+                      />
+                    }
+                  >
+                    <Select
+                      className={`w-full ${INPUT_CLASS}`}
+                      data-cy={`okr-achieve-desktop-advanced-type-select-${index}`}
+                      placeholder="Select metric type"
+                      disabled={disableMetricTypeEdit}
+                      value={
+                        metrics?.items?.find(
+                          (metric) => metric.name === keyItem.key_type,
+                        )?.id || ''
+                      }
+                      onChange={(value) => {
+                        const selectedMetric = metrics?.items?.find(
+                          (metric) => metric.id === value,
+                        );
+                        if (selectedMetric) {
+                          updateKeyResult(index, 'metricTypeId', value);
+                          updateKeyResult(index, 'key_type', selectedMetric.name);
+                        }
+                      }}
+                    >
+                      <Option value="" disabled>
+                        Please select a metric type
+                      </Option>
+                      {metrics?.items?.map((metric) => (
+                        <Option key={metric?.id} value={metric?.id}>
+                          {metric?.name}
+                        </Option>
+                      ))}
+                    </Select>
                   </Form.Item>
                   <Form.Item
                     className="w-32 mb-0"

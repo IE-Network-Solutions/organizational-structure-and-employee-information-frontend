@@ -31,6 +31,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import {
   useUpdateKeyResult,
   useUpdateObjective,
@@ -77,6 +78,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
   const { mutate: updateKeyResult } = useUpdateKeyResult();
+  const { data: metrics } = useGetMetrics();
   const { isMobile, isTablet } = useIsMobile();
   const { data: activeFiscalYear } = useGetActiveFiscalYears();
   const [isInlineEditing, setIsInlineEditing] = useState(false);
@@ -87,6 +89,10 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const [editableAlignmentId, setEditableAlignmentId] = useState<string | null>(
     objective?.allignedKeyResultId || null,
   );
+  const [editableMetricTypeId, setEditableMetricTypeId] = useState<
+    string | null
+  >(objective?.metricTypeId || null);
+  const canEditMetricType = Number(objective?.objectiveProgress ?? 0) === 0;
 
   // Get active session ID
   const activeSessionId = activeFiscalYear?.sessions?.find(
@@ -115,6 +121,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setEditableTitle(objective?.title || '');
     setEditableDeadline(objective?.deadline || null);
     setEditableAlignmentId(objective?.allignedKeyResultId || null);
+    setEditableMetricTypeId(objective?.metricTypeId || null);
     setIsInlineEditing(true);
   };
 
@@ -122,6 +129,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setEditableTitle(objective?.title || '');
     setEditableDeadline(objective?.deadline || null);
     setEditableAlignmentId(objective?.allignedKeyResultId || null);
+    setEditableMetricTypeId(objective?.metricTypeId || null);
     setIsInlineEditing(false);
   };
 
@@ -134,6 +142,10 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     }
     if (!editableDeadline) {
       message.warning('Deadline is required.');
+      return;
+    }
+    if (!editableMetricTypeId) {
+      message.warning('Metric type is required.');
       return;
     }
     const {
@@ -151,6 +163,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         title: trimmedTitle,
         deadline: editableDeadline,
         allignedKeyResultId: editableAlignmentId,
+        metricTypeId: editableMetricTypeId,
       },
       {
         onSuccess: () => setIsInlineEditing(false),
@@ -163,11 +176,13 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       setEditableTitle(objective?.title || '');
       setEditableDeadline(objective?.deadline || null);
       setEditableAlignmentId(objective?.allignedKeyResultId || null);
+      setEditableMetricTypeId(objective?.metricTypeId || null);
     }
   }, [
     objective?.title,
     objective?.deadline,
     objective?.allignedKeyResultId,
+    objective?.metricTypeId,
     isInlineEditing,
   ]);
 
@@ -418,6 +433,36 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                               />
                             </div>
                             <div
+                              className="flex min-w-0 w-full shrink-0 flex-col gap-1 sm:w-[220px]"
+                              data-cy={`okr-objective-basic-inline-metric-type-wrap-${objective?.id}`}
+                            >
+                              <span
+                                className="text-xs font-medium uppercase tracking-wide text-slate-500"
+                                data-cy={`okr-objective-basic-inline-metric-type-label-${objective?.id}`}
+                              >
+                                Metric Type
+                              </span>
+                              <Select
+                                allowClear
+                                value={editableMetricTypeId ?? undefined}
+                                placeholder="Select metric type"
+                                size="middle"
+                                disabled={!canEditMetricType}
+                                className="w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!items-center md:[&_.ant-select-selector]:!h-8"
+                                status={!editableMetricTypeId ? 'error' : ''}
+                                onChange={(value) =>
+                                  setEditableMetricTypeId(value ?? null)
+                                }
+                                options={(metrics?.items || []).map(
+                                  (metric: any) => ({
+                                    value: metric.id,
+                                    label: metric.name,
+                                  }),
+                                )}
+                                data-cy={`okr-objective-basic-inline-metric-type-${objective?.id}`}
+                              />
+                            </div>
+                            <div
                               className="flex min-w-0 w-full shrink-0 flex-col gap-1 sm:w-[180px]"
                               data-cy={`okr-objective-basic-inline-deadline-wrap-${objective?.id}`}
                             >
@@ -472,7 +517,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                                 disabled={
                                   !editableTitle.trim() ||
                                   !editableAlignmentId ||
-                                  !editableDeadline
+                                  !editableDeadline ||
+                                  !editableMetricTypeId
                                 }
                                 data-cy={`okr-objective-basic-inline-save-${objective?.id}`}
                               />
