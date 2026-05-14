@@ -69,7 +69,7 @@ const CreatePosition: React.FC = () => {
   return (
     <div
       data-cy="settings-position-create-drawer"
-      className="border border-gray-200 rounded-lg"
+      className="rounded-lg"
     >
       <Form
         form={form}

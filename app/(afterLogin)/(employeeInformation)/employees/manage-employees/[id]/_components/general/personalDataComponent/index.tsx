@@ -126,12 +126,15 @@ function PersonalDataComponent({
           ) : null
         }
         className="my-6 mt-0"
+        bordered={false}
+        style={{ background: '#F9FAFB' }}
         id="personal-data-card"
         data-cy="personal-data-card"
         headStyle={{
           borderBottom: 'none',
           paddingLeft: '16px',
           paddingRight: '16px',
+          background: '#F9FAFB',
         }}
       >
         <Row

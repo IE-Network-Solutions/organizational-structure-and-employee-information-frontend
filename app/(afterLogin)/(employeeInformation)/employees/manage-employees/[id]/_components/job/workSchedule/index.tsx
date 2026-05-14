@@ -346,15 +346,18 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
           </AccessGuard>
         ) : null
       }
-      className="work-schedule-card rounded-lg border border-gray-200 my-6 mt-0"
+      className="work-schedule-card rounded-lg my-6 mt-0"
+      bordered={false}
+      style={{ background: '#F9FAFB' }}
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
       headStyle={{
         borderBottom: 'none',
         paddingLeft: '16px',
         paddingRight: '16px',
+        background: '#F9FAFB',
       }}
-      bodyStyle={{ padding: '12px 16px 12px 16px' }}
+      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
     >
       {!edit.workSchedule ? (
         <div className="px-3" data-cy="job-work-schedule-display-wrapper">
