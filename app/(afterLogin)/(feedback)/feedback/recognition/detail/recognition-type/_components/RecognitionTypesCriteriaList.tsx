@@ -57,7 +57,7 @@ export default function RecognitionTypesCriteriaList({
 
   return (
     <div
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-4"
       data-cy="recognition-types-criteria-list"
     >
       {rows.map((type) => {

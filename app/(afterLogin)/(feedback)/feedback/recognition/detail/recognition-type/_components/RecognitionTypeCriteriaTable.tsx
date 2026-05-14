@@ -1,7 +1,7 @@
 'use client';
 
 import { TableSkeleton } from '@/components/tableSkeleton';
-import { Table } from 'antd';
+import { Table, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import React from 'react';
 
@@ -16,12 +16,14 @@ export type CriteriaTableRecord = {
 };
 
 const tableClassName =
-  'recognition-criteria-nested-table overflow-hidden rounded-lg border border-[#DEE2E6] bg-white ' +
-  '[&_.ant-table]:rounded-lg [&_.ant-table]:bg-white ' +
-  '[&_.ant-table-thead>tr>th]:!bg-[#F8F9FA] [&_.ant-table-thead>tr>th]:!text-[#333] [&_.ant-table-thead>tr>th]:!font-semibold ' +
-  '[&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#DEE2E6] [&_.ant-table-thead>tr>th]:py-3 ' +
-  '[&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#DEE2E6] [&_.ant-table-tbody>tr:last-child>td]:!border-b-0 ' +
-  '[&_.ant-table-tbody>tr>td]:bg-white [&_.ant-table-tbody>tr:hover>td]:!bg-[#FAFBFC]';
+  'recognition-criteria-nested-table overflow-hidden rounded-none border border-[#E5E7EB] bg-white ' +
+  '[&_.ant-table]:rounded-none [&_.ant-table]:bg-white ' +
+  '[&_.ant-table-thead>tr>th]:!bg-[#F9FAFB] [&_.ant-table-thead>tr>th]:!text-[#374151] [&_.ant-table-thead>tr>th]:!font-semibold ' +
+  '[&_.ant-table-thead>tr>th]:!border-x-0 [&_.ant-table-thead>tr>th]:!border-b [&_.ant-table-thead>tr>th]:!border-[#E5E7EB] [&_.ant-table-thead>tr>th]:py-3 ' +
+  '[&_.ant-table-thead>tr>th]:before:!hidden ' +
+  '[&_.ant-table-tbody>tr>td]:!border-x-0 [&_.ant-table-tbody>tr>td]:!border-b [&_.ant-table-tbody>tr>td]:!border-[#E5E7EB] [&_.ant-table-tbody>tr:last-child>td]:!border-b-0 ' +
+  '[&_.ant-table-tbody>tr>td]:before:!hidden ' +
+  '[&_.ant-table-tbody>tr>td]:bg-white [&_.ant-table-tbody>tr:hover>td]:!bg-white';
 
 const columns: TableColumnsType<CriteriaTableRecord> = [
   {
@@ -30,7 +32,7 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
     key: 'criteriaName',
     render: (notUsedCell: unknown, record: CriteriaTableRecord) => (
       <span
-        className="text-sm font-medium text-[#333]"
+        className="text-sm font-medium leading-5 text-[#374151]"
         data-cy="recognition-type-criteria-table-criteria-pill"
       >
         {record?.criteria?.criteriaName ?? '-'}
@@ -57,9 +59,10 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
     dataIndex: 'operator',
     key: 'operator',
     width: 100,
+    align: 'center',
     render: (v) => (
       <span
-        className="text-sm text-[#333]"
+        className="text-sm text-[#495057]"
         data-cy="recognition-type-criteria-table-operator"
       >
         {v ?? '-'}
@@ -71,9 +74,10 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
     dataIndex: 'condition',
     key: 'condition',
     width: 100,
+    align: 'center',
     render: (v) => (
       <span
-        className="text-sm text-[#333]"
+        className="text-sm text-[#495057]"
         data-cy="recognition-type-criteria-table-condition"
       >
         {v ?? '-'}
@@ -85,22 +89,19 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
     dataIndex: 'active',
     key: 'active',
     width: 100,
-    render: (notUsedStatus: unknown, record: CriteriaTableRecord) =>
-      record?.active ? (
-        <span
-          className="inline-flex rounded-md bg-[#DCFCE7] px-2.5 py-0.5 text-xs font-medium leading-tight text-[#166534]"
-          data-cy="recognition-type-criteria-status-active"
-        >
-          Active
-        </span>
-      ) : (
-        <span
-          className="inline-flex rounded-md border border-[#DEE2E6] bg-[#F8F9FA] px-2.5 py-0.5 text-xs font-medium leading-tight text-[#495057]"
-          data-cy="recognition-type-criteria-status-inactive"
-        >
-          Inactive
-        </span>
-      ),
+    align: 'center',
+    render: (notUsedStatus: unknown, record: CriteriaTableRecord) => (
+      <Tag
+        className="m-0 rounded-[4px] border border-[#D1D5DB] bg-[#F9FAFB] px-2 py-1 text-xs font-medium leading-none text-[#6B7280]"
+        data-cy={
+          record?.active
+            ? 'recognition-type-criteria-status-active'
+            : 'recognition-type-criteria-status-inactive'
+        }
+      >
+        {record?.active ? 'Active' : 'Inactive'}
+      </Tag>
+    ),
   },
   {
     title: 'Value',
@@ -110,7 +111,7 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
     align: 'center',
     render: (v) => (
       <span
-        className="text-sm tabular-nums text-[#333]"
+        className="text-sm tabular-nums text-[#495057]"
         data-cy="recognition-type-criteria-table-value"
       >
         {v ?? '-'}
@@ -122,23 +123,26 @@ const columns: TableColumnsType<CriteriaTableRecord> = [
 type Props = {
   dataSource: CriteriaTableRecord[];
   loading?: boolean;
+  /** Edge-to-edge inside parent card (no extra horizontal inset) */
+  flush?: boolean;
   'data-cy'?: string;
 };
 
 export default function RecognitionTypeCriteriaTable({
   dataSource,
   loading = false,
+  flush = false,
   'data-cy': dataCy,
 }: Props) {
   return (
     <div
-      className="rounded-lg bg-white p-1 shadow-sm ring-1 ring-[#DEE2E6]/60"
+      className="rounded-none bg-white"
       data-cy={
         dataCy ? `${dataCy}-outer` : 'recognition-type-criteria-table-outer'
       }
     >
       <div
-        className="p-3 md:p-4"
+        className={flush ? 'p-0' : 'px-4 py-3 sm:px-5 md:px-6 md:py-4'}
         data-cy={dataCy ?? 'recognition-type-criteria-table-inner'}
       >
         {loading ? (

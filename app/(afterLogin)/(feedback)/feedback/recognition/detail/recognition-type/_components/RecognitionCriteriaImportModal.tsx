@@ -23,6 +23,7 @@ type Props = {
   onClose: () => void;
   recognitionTypeId: string;
   recognitionTypeName?: string;
+  'data-cy'?: string;
 };
 
 function pickUploadFile(values: { fileName?: unknown }) {
@@ -44,6 +45,7 @@ export default function RecognitionCriteriaImportModal({
   onClose,
   recognitionTypeId,
   recognitionTypeName,
+  'data-cy': dataCy = 'recognition-criteria-import-modal',
 }: Props) {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
@@ -183,7 +185,7 @@ export default function RecognitionCriteriaImportModal({
         content: 'rounded-xl',
         header: 'rounded-t-xl',
       }}
-      data-cy="recognition-criteria-import-modal"
+      data-cy={dataCy}
     >
       <div
         className="mb-6 rounded-lg bg-gray-100 px-4 py-4 flex flex-col justify-center items-center"
