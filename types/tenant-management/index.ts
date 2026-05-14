@@ -53,6 +53,7 @@ export enum InvoiceStatus {
  * Invoice types
  */
 export enum InvoiceType {
+  PREPAY = 'prepay',
   NEW = 'new',
   RENEWAL = 'renewal',
   UPGRADE = 'upgrade',
@@ -395,6 +396,8 @@ export interface UpgradeSubscriptionRequest {
   planId?: string;
   planPeriodId?: string;
   slots?: number;
+  /** Selected application module ids (e.g. custom subscription build). */
+  moduleIds?: string[];
   description?: string;
   subscriptionStatus?: SubscriptionStatus;
   cancelReason?: string;
@@ -404,7 +407,7 @@ export interface UpgradeSubscriptionRequest {
  * Additional slots purchase parameters
  */
 export interface BuyAdditionalSlotsRequest {
-  subscriptionId: string;
+  // subscriptionId: string;
   tenantId: string;
   newSlotsAmount: number;
 }
@@ -415,6 +418,8 @@ export interface RenewSubscriptionRequest {
   planId?: string;
   planPeriodId?: string;
   slotTotal?: number;
+  /** Selected application module ids (e.g. custom subscription build). */
+  moduleIds?: string[];
 }
 
 export interface PrepaySubscriptionRequest {
@@ -424,6 +429,8 @@ export interface PrepaySubscriptionRequest {
   planId?: string;
   planPeriodId?: string;
   slotTotal?: number;
+  /** Selected application module ids (e.g. custom subscription build). */
+  moduleIds?: string[];
 }
 /**
  * Tenant
