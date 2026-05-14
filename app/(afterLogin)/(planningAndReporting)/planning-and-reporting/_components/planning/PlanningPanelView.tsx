@@ -229,6 +229,7 @@ function KRProgressCard({
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
   const metricLabel = formatKrMetricTypeLabel(kr.metricType);
+  const showTaskCount = kr.taskCount > 0;
 
   const rowSelected =
     inlinePickEnabled &&
@@ -383,22 +384,24 @@ function KRProgressCard({
               </span>
             </>
           ) : null}
-          <span
-            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
-            className="flex min-w-0 shrink items-center gap-1 truncate"
-          >
+          {showTaskCount ? (
             <span
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
-              className="inline-block h-1 w-1 shrink-0 rounded-full"
-              style={{ backgroundColor: color }}
-            />
-            <span
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
-              className="truncate"
+              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
+              className="flex min-w-0 shrink items-center gap-1 truncate"
             >
-              {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
+              <span
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
+                className="inline-block h-1 w-1 shrink-0 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+              <span
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
+                className="truncate"
+              >
+                {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
+              </span>
             </span>
-          </span>
+          ) : null}
           {kr.metricType !== 'N/A' && (
             <>
               <span

@@ -76,4 +76,3 @@ const PayrollSummaryCardsSkeleton = () => (
 );
 
 export default PayrollSummaryCardsSkeleton;
-
