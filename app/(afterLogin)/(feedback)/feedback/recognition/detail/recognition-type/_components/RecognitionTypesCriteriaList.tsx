@@ -47,7 +47,7 @@ export default function RecognitionTypesCriteriaList({
   if (!rows.length) {
     return (
       <div
-        className="rounded-lg border border-dashed border-gray-200 bg-gray-50/50 py-12 text-center text-sm text-gray-500"
+        className="rounded-lg border border-dashed border-[#DEE2E6] bg-white py-12 text-center text-sm text-[#6C757D]"
         data-cy="recognition-types-criteria-empty"
       >
         No recognition types match your search.
@@ -57,7 +57,7 @@ export default function RecognitionTypesCriteriaList({
 
   return (
     <div
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-5"
       data-cy="recognition-types-criteria-list"
     >
       {rows.map((type) => {

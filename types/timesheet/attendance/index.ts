@@ -9,7 +9,7 @@ export enum AttendanceRecordType {
   EARLY = 'early',
   ABSENT = 'absent',
   PRESENT = 'present',
-  clockedOut = 'clockedOut'
+  clockedOut = 'clockedOut',
 }
 
 export const AttendanceRecordTypeBadgeTheme: Record<

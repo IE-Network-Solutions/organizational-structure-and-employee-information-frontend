@@ -38,6 +38,12 @@ const ApprovalFilter = () => {
     }
   };
 
+  const handleApprovalTypeChange = (value: string[]) => {
+    const normalizedValue =
+      value && value.length > 0 ? value : ['Leave', 'WorkFromHome'];
+    setSearchParams('approvalType', normalizedValue);
+  };
+
   return (
     <div
       className="flex justify-between gap-4 sm:block"
@@ -53,6 +59,7 @@ const ApprovalFilter = () => {
           searchParams={searchParams}
           handleSearchInput={handleSearchInput}
           handleDepartmentChange={handleDepartmentChange}
+          handleApprovalTypeChange={handleApprovalTypeChange}
           data-cy="time-attendance-settings-approvals-filter-component"
         />
       </div>

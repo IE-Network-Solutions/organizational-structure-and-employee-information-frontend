@@ -145,7 +145,7 @@ const AIJobMatchingPage: React.FC = () => {
       <div
         id="ai-job-matching-page-loading"
         data-cy="ai-job-matching-page-loading"
-        className="min-h-screen bg-gray-50"
+        className="min-h-screen"
       >
         <div
           id="ai-job-matching-header-loading"
@@ -217,7 +217,7 @@ const AIJobMatchingPage: React.FC = () => {
     return (
       <div
         id="ai-job-matching-page-error"
-        className="min-h-screen bg-gray-50"
+        className="min-h-screen"
         data-cy="ai-job-matching-page-error"
       >
         <div
@@ -259,7 +259,7 @@ const AIJobMatchingPage: React.FC = () => {
   return (
     <div
       id="ai-job-matching-page"
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen"
       data-cy="ai-job-matching-page"
     >
       {/* Header */}

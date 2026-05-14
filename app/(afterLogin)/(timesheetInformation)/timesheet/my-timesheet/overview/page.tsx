@@ -4,6 +4,7 @@ import { Row, Col } from 'antd';
 import CurrentTimeCard from '../_components/overview/CurrentTimeCard';
 import RecentAttendanceCard from '../_components/overview/RecentAttendanceCard';
 import RecentLeaveRequestCard from '../_components/overview/RecentLeaveRequestCard';
+import RecentWorkFromHomeRequestCard from '../_components/overview/RecentWorkFromHomeRequestCard';
 
 export default function OverviewPage() {
   return (
@@ -16,11 +17,14 @@ export default function OverviewPage() {
         <Col xs={24}>
           <CurrentTimeCard />
         </Col>
-        <Col xs={24} lg={12} className="flex flex-col">
+        <Col xs={24} lg={8} className="flex flex-col">
           <RecentAttendanceCard />
         </Col>
-        <Col xs={24} lg={12} className="flex flex-col">
+        <Col xs={24} lg={8} className="flex flex-col">
           <RecentLeaveRequestCard />
+        </Col>
+        <Col xs={24} lg={8} className="flex flex-col">
+          <RecentWorkFromHomeRequestCard />
         </Col>
       </Row>
     </div>

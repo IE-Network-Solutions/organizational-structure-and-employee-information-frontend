@@ -3,6 +3,7 @@ import React, {
   FC,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { Avatar, Button, Dropdown, Table } from 'antd';
@@ -37,6 +38,7 @@ import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
 import statusType from '../statusType';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -78,6 +80,46 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
+  const importWarnings: Array<{
+    line?: number;
+    warning?: string;
+    userId?: string;
+  }> = (data as any)?.summary?.importWarnings ?? [];
+  const lastWarningSignatureRef = useRef<string>('');
+
+  useEffect(() => {
+    if (importWarnings.length === 0) return;
+
+    const warningSignature = importWarnings
+      .map(
+        (warning) =>
+          `${warning?.line ?? ''}|${warning?.userId ?? ''}|${warning?.warning ?? ''}`,
+      )
+      .join('||');
+
+    if (warningSignature === lastWarningSignatureRef.current) return;
+
+    lastWarningSignatureRef.current = warningSignature;
+
+    const warningLines = importWarnings
+      .slice(0, 5)
+      .map((warning) => {
+        const lineText = `Line ${warning?.line ?? '-'}`;
+        const warningText = warning?.warning || 'Warning';
+        const userText = warning?.userId ? ` (User: ${warning.userId})` : '';
+        return `${lineText} - ${warningText}${userText}`;
+      })
+      .join('\n');
+
+    const remainingCount = importWarnings.length - 5;
+    const remainingText =
+      remainingCount > 0 ? `\n...and ${remainingCount} more warning(s)` : '';
+
+    NotificationMessage.warning({
+      message: `Import Warnings (${importWarnings.length})`,
+      description: `${warningLines}${remainingText}`,
+    });
+  }, [importWarnings]);
 
   const { isMobile, isTablet } = useIsMobile();
   const EmpRender = ({ userId }: any) => {
@@ -558,12 +600,17 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         data-cy="time-attendance-employee-attendance-table-container"
       >
         <div
-          className="flex overflow-x-auto scrollbar-none  w-full"
+          className="flex min-w-0 w-full overflow-x-auto scrollbar-none"
           id="time-attendance-employee-attendance-table-scroll-wrapper"
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
           {isFetching ? (
-            <TableSkeleton columns={columns} />
+            <TableSkeleton
+              columns={columns}
+              scroll={{ x: 'max-content' }}
+              className="[&_.ant-table]:w-full"
+              data-cy="time-attendance-employee-attendance-table-skeleton-wrapper"
+            />
           ) : (
             <Table
               columns={columns}
