@@ -170,7 +170,7 @@ const BankInformationComponent = ({
       }
       className="bank-information-card rounded-lg my-6"
       bordered={false}
-      style={{ background: '#F9FAFB' }}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="bank-information-card"
       data-cy="bank-information-card"
       headStyle={{

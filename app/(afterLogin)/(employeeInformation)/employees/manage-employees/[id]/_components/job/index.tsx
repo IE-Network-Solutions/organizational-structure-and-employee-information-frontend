@@ -367,7 +367,7 @@ function Job({ id }: { id: string }) {
             }
             className="employment-information-card rounded-lg my-6 mt-0"
             bordered={false}
-            style={{ background: '#F9FAFB' }}
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
             id="job-employment-card"
             data-cy="job-employment-card"
             headStyle={{
@@ -541,7 +541,7 @@ function Job({ id }: { id: string }) {
             loading={isLoading}
             className="job-information-card rounded-lg my-6 mt-0"
             bordered={false}
-            style={{ background: '#F9FAFB' }}
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
             title={
               isEditModalVisible ? (
                 <div

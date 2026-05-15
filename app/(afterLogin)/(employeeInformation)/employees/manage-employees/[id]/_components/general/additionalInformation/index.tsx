@@ -354,7 +354,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       }
       className="additional-information-card rounded-lg my-6"
       bordered={false}
-      style={{ background: '#F9FAFB' }}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="additional-information-card"
       data-cy="additional-information-card"
       headStyle={{

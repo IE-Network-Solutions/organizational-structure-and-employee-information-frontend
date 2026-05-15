@@ -180,35 +180,50 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
     0,
   );
 
+  const weightColor =
+    totalWeight === 100
+      ? { bg: '#f6ffed', border: '#b7eb8f', text: '#389e0d' }
+      : totalWeight > 100
+        ? { bg: '#fff1f0', border: '#ffa39e', text: '#cf1322' }
+        : { bg: '#fff7e6', border: '#ffd591', text: '#d46b08' };
+
   return (
     <div
-      className="space-y-2 border border-gray-200 rounded-md"
+      className="rounded-xl bg-[#F9FAFB]"
       id="probation-page-container"
       data-cy="probation-page-container"
     >
-      {/* Header: On-boarding Tasks, Total Weight, Add Probation Target */}
+      {/* Header */}
       <div
-        className="flex flex-wrap items-center justify-between gap-3 p-4"
+        className="flex flex-wrap items-center justify-between gap-3 px-4 pt-4 pb-3"
         id="probation-create-target-wrapper"
         data-cy="probation-create-target-wrapper"
       >
-        <h2
-          className="text-lg font-semibold text-gray-900 m-0"
-          data-cy="probation-onboarding-tasks-title"
-        >
-          On-boarding Tasks
-        </h2>
+        <div>
+          <p className="text-sm font-semibold text-gray-800 m-0" data-cy="probation-onboarding-tasks-title">
+            Probation Targets
+          </p>
+          <p className="text-xs text-gray-400 m-0 mt-0.5">
+            Track tasks and scores per probation target
+          </p>
+        </div>
         <div
           className="flex items-center gap-3"
           data-cy="probation-header-actions"
         >
-          <span
-            className="inline-flex items-center px-1 py-1 rounded border border-[#ffd591] bg-[#fff7e6] text-[#fa8c16] text-xs font-normal"
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border"
+            style={{ background: weightColor.bg, borderColor: weightColor.border, color: weightColor.text }}
             id="probation-total-weight"
             data-cy="probation-total-weight"
           >
-            Total Weight {totalWeight}
-          </span>
+            <span>Total Weight:</span>
+            <strong>{totalWeight}</strong>
+            {totalWeight !== 100 && (
+              <span className="opacity-70">/ 100</span>
+            )}
+            {totalWeight === 100 && <span>✓</span>}
+          </div>
           <AccessGuard
             permissions={[Permissions.CreateProbationTarget]}
             id="probation-create-target-guard"
@@ -233,7 +248,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
       <div
         id="probation-accordion-wrapper"
         data-cy="probation-accordion-wrapper"
-        className="px-4 gap-2 pb-4"
+        className="px-4 pb-4"
       >
         <ProbationTargetAccordion
           probationTargets={probationTargets || []}

@@ -398,6 +398,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
         data-cy="role-permission-card"
         headStyle={{ borderBottom: 'none' }}
         bordered={false}
+        style={{ boxShadow: 'none' }}
         bodyStyle={{ padding: '0' }}
       >
         <Form
@@ -419,7 +420,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
         >
           {/* Roles Section */}
           <div
-            className="border-[1px] border-[#D9D9D9] rounded-md p-2 mb-4"
+            className="rounded-md p-2 mb-4"
             id="roles-section"
             data-cy="roles-section"
           >
@@ -442,11 +443,12 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                     data-cy={`role-col-${role.id}`}
                   >
                     <Card
-                      className={`rounded-lg border cursor-pointer transition-all ${
+                      className={`rounded-lg border cursor-pointer transition-all duration-200 ${
                         isSelected
-                          ? 'border-[#1e40af] bg-blue-50'
-                          : 'border-gray-200 hover:shadow-md'
+                          ? 'border-[#1e40af] bg-[#EFF6FF] shadow-[0_0_0_3px_rgba(30,64,175,0.12)]'
+                          : 'border-transparent bg-[#F9FAFB] hover:border-[#1e40af]/30 hover:bg-white hover:shadow-sm'
                       }`}
+                      style={{ boxShadow: isSelected ? undefined : 'none' }}
                       onClick={() => {
                         onRoleChangeHandler(role.id);
                       }}
@@ -526,19 +528,16 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
           </div>
 
           {/* Main Content Row */}
-          <Row
-            // gutter={6}
+          <div
             id="main-content-row"
             data-cy="main-content-row"
-            justify="space-between"
+            className="flex gap-6 items-start"
           >
             {/* Left Column - Permission Management */}
-            <Col
-              xs={24}
-              lg={16}
+            <div
               id="permission-management-col"
               data-cy="permission-management-col"
-              className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
+              className="flex-[2] min-w-0 mb-4 rounded-md px-6 py-4 bg-[#F9FAFB]"
             >
               <div data-cy="active-permission-group-filters-container">
                 <Space direction="vertical" size="middle" className="w-full">
@@ -649,7 +648,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
               {/* Permission Groups List - collapsible panels with permissions nested under each group */}
               <div
-                className="max-h-96 overflow-y-auto scrollbar-hide"
+                className="max-h-96 overflow-y-auto scrollbar-hide mt-4"
                 id="role-permission-collapse"
                 data-cy="role-permission-collapse"
               >
@@ -657,7 +656,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                   ghost
                   bordered={false}
                   expandIcon={() => null}
-                  className="role-permission-collapse [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-gray-200 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:bg-gray-50 [&_.ant-collapse-item]:mb-3 [&_.ant-collapse-header]:px-4 [&_.ant-collapse-header]:py-3 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-content-box]:px-4 [&_.ant-collapse-content-box]:pb-4 [&_.ant-collapse-content-box]:pt-0"
+                  className="role-permission-collapse [&_.ant-collapse-item]:border-0 [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:bg-white [&_.ant-collapse-item]:mb-3 [&_.ant-collapse-header]:px-4 [&_.ant-collapse-header]:py-3 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-content-box]:px-4 [&_.ant-collapse-content-box]:pb-4 [&_.ant-collapse-content-box]:pt-0"
                 >
                   {filteredGroupPermissions.map((group: any) => {
                     const selectedCount = getGroupSelectedCount(group);
@@ -799,15 +798,13 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                   })}
                 </Collapse>
               </div>
-            </Col>
+            </div>
 
             {/* Right Column - Active Permissions */}
-            <Col
-              xs={24}
-              lg={7}
+            <div
               id="active-permissions-col"
               data-cy="active-permissions-col"
-              className="mb-4 border-[1px] border-[#D9D9D9] rounded-md px-2 py-4"
+              className="w-80 shrink-0 mb-4 rounded-md px-6 py-4 bg-[#F9FAFB]"
             >
               <div data-cy="active-permission-list-container" className="mb-4">
                 <div
@@ -871,7 +868,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           {permissions.map((permission: any) => (
                             <div
                               key={permission.id}
-                              className="flex items-center justify-between px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm"
+                              className="flex items-center justify-between px-3 py-1.5 bg-white rounded-lg"
                               id={`active-permission-item-${permission.id}`}
                               data-cy={`active-permission-item-${permission.id}`}
                             >
@@ -902,8 +899,8 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                   )
                 )}
               </div>
-            </Col>
-          </Row>
+            </div>
+          </div>
 
           {/* Hidden form fields for submission */}
           <Form.Item

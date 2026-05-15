@@ -348,7 +348,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
       }
       className="work-schedule-card rounded-lg my-6 mt-0"
       bordered={false}
-      style={{ background: '#F9FAFB' }}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
       headStyle={{

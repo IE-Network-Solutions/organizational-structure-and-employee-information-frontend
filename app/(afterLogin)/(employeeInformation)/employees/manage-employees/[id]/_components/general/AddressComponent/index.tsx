@@ -168,7 +168,7 @@ const AddressComponent = ({
       }
       className="address-card rounded-lg my-6"
       bordered={false}
-      style={{ background: '#F9FAFB' }}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="address-card"
       data-cy="address-card"
       headStyle={{

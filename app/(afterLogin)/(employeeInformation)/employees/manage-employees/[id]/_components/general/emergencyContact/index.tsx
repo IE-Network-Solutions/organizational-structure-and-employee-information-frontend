@@ -185,7 +185,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
       }
       className="emergency-contact-card rounded-lg my-6 mt-0"
       bordered={false}
-      style={{ background: '#F9FAFB' }}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="emergency-contact-card"
       data-cy="emergency-contact-card"
       headStyle={{

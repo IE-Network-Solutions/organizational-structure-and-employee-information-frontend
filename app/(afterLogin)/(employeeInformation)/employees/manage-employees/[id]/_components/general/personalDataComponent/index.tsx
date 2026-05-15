@@ -127,7 +127,7 @@ function PersonalDataComponent({
         }
         className="my-6 mt-0"
         bordered={false}
-        style={{ background: '#F9FAFB' }}
+        style={{ background: '#F9FAFB', boxShadow: 'none' }}
         id="personal-data-card"
         data-cy="personal-data-card"
         headStyle={{
