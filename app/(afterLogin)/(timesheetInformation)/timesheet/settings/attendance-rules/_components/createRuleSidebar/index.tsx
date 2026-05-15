@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import TimerIcon from '@mui/icons-material/Timer';
+import TimerOffOutlinedIcon from '@mui/icons-material/TimerOffOutlined';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import UpdateIcon from '@mui/icons-material/Update';
 import TimerOffIcon from '@mui/icons-material/TimerOff';
@@ -34,73 +34,54 @@ import {
   AttendanceRuleType,
   AttendanceRuleTypes,
 } from '@/types/timesheet/attendance';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import TextEditor from '@/components/form/textEditor';
 import dayjs from 'dayjs';
 
 type StepType = 1 | 2 | 3;
 
-const actionOptions = [
+const ACTION_TYPE_OPTIONS = [
   {
-    label: (
-      <span
-        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-warning-letter-label"
-        className="text-sm font-normal text-black opacity-70"
-      >
-        Warning Letter
-      </span>
-    ),
+    label: 'Warning Letter',
     value: AttendanceActionType.WARNING_LETTER,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-warning-letter-label',
   },
   {
-    label: (
-      <span
-        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-reprimand-label"
-        className="text-sm font-normal text-black opacity-70"
-      >
-        Reprimand
-      </span>
-    ),
+    label: 'Reprimand',
     value: AttendanceActionType.REPRIMAND,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-reprimand-label',
   },
   {
-    label: (
-      <span
-        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-salary-deduction-label"
-        className="text-sm font-normal text-black opacity-70"
-      >
-        Salary Deduction
-      </span>
-    ),
+    label: 'Salary Deduction',
     value: AttendanceActionType.SALARY_DEDUCTION,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-salary-deduction-label',
   },
-];
+] as const;
 
-const deductionTypeOptions = [
+const actionCheckboxGroupClassName =
+  'grid w-full grid-cols-1 gap-3 sm:grid-cols-3 [&_.ant-checkbox-wrapper]:m-0 [&_.ant-checkbox-wrapper]:flex [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:items-center [&_.ant-checkbox-wrapper]:gap-2 [&_.ant-checkbox-wrapper]:rounded-md [&_.ant-checkbox-wrapper]:bg-[#F3F4F6] [&_.ant-checkbox-wrapper]:px-3 [&_.ant-checkbox-wrapper]:py-2 [&_.ant-checkbox-wrapper]:after:hidden';
+
+const DEDUCTION_TYPE_OPTIONS = [
   {
-    label: (
-      <span
-        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-amount-in-days-label"
-        className="text-sm font-normal text-black opacity-70"
-      >
-        Amount in Days
-      </span>
-    ),
+    label: 'Amount in Days',
     value: false,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-amount-in-days-label',
   },
   {
-    label: (
-      <span
-        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-fixed-amount-label"
-        className="text-sm font-normal text-black opacity-70"
-      >
-        Fixed Amount
-      </span>
-    ),
+    label: 'Fixed Amount',
     value: true,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-fixed-amount-label',
   },
-];
+] as const;
+
+const deductionRadioGroupClassName =
+  'grid w-full grid-cols-1 gap-3 sm:grid-cols-3 [&_.ant-radio-wrapper]:m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:w-full [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:gap-2 [&_.ant-radio-wrapper]:rounded-md [&_.ant-radio-wrapper]:bg-[#F3F4F6] [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:py-2 [&_.ant-radio-wrapper]:after:hidden';
 
 /** API may return ruleType as a UUID string or a populated rule-type object. */
 const resolveRuleTypeId = (
@@ -131,22 +112,40 @@ const isLetterAction = (actionType?: string | string[]) => {
   );
 };
 
+const getActionLabel = (actionTypes?: string | string[]): string => {
+  const types = Array.isArray(actionTypes) ? actionTypes : [actionTypes];
+  if (types.includes(AttendanceActionType.REPRIMAND)) return 'Reprimand';
+  if (types.includes(AttendanceActionType.SALARY_DEDUCTION)) return 'Salary Deduction';
+  if (types.includes(AttendanceActionType.WARNING_LETTER)) return 'Warning';
+  return 'Warning';
+};
+
+const RULE_TYPE_TOPIC_BY_TYPE: Record<AttendanceRuleType, string> = {
+  [AttendanceRuleType.ABSENT]: 'Absenteeism',
+  [AttendanceRuleType.LATE]: 'Late Arrival',
+  [AttendanceRuleType.EARLY_CLOCK_OUT]: 'Early Clock-out',
+  [AttendanceRuleType.MISSED_CHECK_IN_OUT]: 'Missed Check-in/out',
+  [AttendanceRuleType.BREAK]: 'Break',
+};
+
+const getRuleTopic = (
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+): string => {
+  if (ruleName) return ruleName;
+  if (ruleType && ruleType in RULE_TYPE_TOPIC_BY_TYPE) {
+    return RULE_TYPE_TOPIC_BY_TYPE[ruleType as AttendanceRuleType];
+  }
+  return 'Attendance';
+};
+
 const getDefaultLetterTemplate = (
   ruleType?: AttendanceRuleType | string,
   ruleName?: string,
   actionTypes?: string | string[],
 ) => {
-  const types = Array.isArray(actionTypes) ? actionTypes : [actionTypes];
-  const actionLabel = types.includes(AttendanceActionType.REPRIMAND)
-    ? 'Reprimand'
-    : 'Warning';
-  const topic =
-    ruleName ??
-    (ruleType === AttendanceRuleType.ABSENT
-      ? 'Absenteeism'
-      : ruleType === AttendanceRuleType.LATE
-        ? 'Late Arrival'
-        : 'Attendance');
+  const actionLabel = getActionLabel(actionTypes);
+  const topic = getRuleTopic(ruleType, ruleName);
 
   const bodyParagraph =
     ruleType === AttendanceRuleType.ABSENT
@@ -178,13 +177,13 @@ const getDefaultLetterTemplate = (
 const getIcon = (ruleType: AttendanceRuleType) => {
   switch (ruleType) {
     case AttendanceRuleType.LATE:
-      return <TimerIcon className="text-amber-600" />;
+      return <TimerOffOutlinedIcon className="text-amber-600" />;
     case AttendanceRuleType.ABSENT:
       return <EventBusyIcon className="text-red-500" />;
     case AttendanceRuleType.EARLY_CLOCK_OUT:
       return <UpdateIcon className="text-[#1e40af]" />;
     case AttendanceRuleType.MISSED_CHECK_IN_OUT:
-      return <TimerOffIcon className="text-slate-600" />;
+      return <TimerOffOutlinedIcon className="text-slate-600" />;
     case AttendanceRuleType.BREAK:
       return <EventBusyIcon className="text-slate-600" />;
     default:
@@ -315,6 +314,28 @@ const CreateRuleSidebar = () => {
   } = useUpdateAttendanceRule();
   const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
   const { data: breakTypesData } = useGetBreakTypes();
+
+  const ruleOrder = [
+    'LATE',
+    'ABSENT',
+    'EARLY_CLOCK_OUT',
+    'MISSED_CHECK_IN_OUT',
+  ];
+  
+  const sortedAttendanceRuleTypes = useMemo(
+    () => [...(attendanceRuleTypesData?.items ?? [])].sort((a, b) =>
+      ruleOrder.indexOf(a.ruleType) - ruleOrder.indexOf(b.ruleType)
+    ),
+    [attendanceRuleTypesData?.items],
+  );
+
+  // const sortedAttendanceRuleTypes = useMemo(
+  //   () =>
+  //     [...(attendanceRuleTypesData?.items ?? [])].sort((a, b) =>
+  //       a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
+  //     ),
+  //   [attendanceRuleTypesData?.items],
+  // );
 
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState<StepType>(1);
@@ -494,7 +515,7 @@ const CreateRuleSidebar = () => {
       data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-container"
       className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"
     >
-      {attendanceRuleTypesData?.items?.map((rule) => {
+      {sortedAttendanceRuleTypes.map((rule) => {
         const isSelected = selectedTypeId === rule.id;
         return (
           <button
@@ -680,11 +701,12 @@ const CreateRuleSidebar = () => {
               label={
                 <span
                   data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-to-take-label"
-                  className="text-sm font-normal text-gray-900 pr-1"
+                  className="text-sm font-normal text-gray-900"
                 >
-                  Action To Take
+                  Actions To Take
                 </span>
               }
+              required
               rules={[
                 {
                   required: true,
@@ -694,9 +716,20 @@ const CreateRuleSidebar = () => {
               name="actionTypes"
             >
               <Checkbox.Group
-                options={actionOptions}
+                className={actionCheckboxGroupClassName}
                 data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-checkbox"
-              />
+              >
+                {ACTION_TYPE_OPTIONS.map((option) => (
+                  <Checkbox key={option.value} value={option.value}>
+                    <span
+                      data-cy={option.dataCy}
+                      className="text-sm font-normal text-black/70"
+                    >
+                      {option.label}
+                    </span>
+                  </Checkbox>
+                ))}
+              </Checkbox.Group>
             </Form.Item>
           </Col>
           <Form.Item
@@ -742,9 +775,20 @@ const CreateRuleSidebar = () => {
                         name="isFixed"
                       >
                         <Radio.Group
-                          options={deductionTypeOptions}
+                          className={deductionRadioGroupClassName}
                           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-radio"
-                        />
+                        >
+                          {DEDUCTION_TYPE_OPTIONS.map((option) => (
+                            <Radio key={String(option.value)} value={option.value}>
+                              <span
+                                data-cy={option.dataCy}
+                                className="text-sm font-normal text-black/70"
+                              >
+                                {option.label}
+                              </span>
+                            </Radio>
+                          ))}
+                        </Radio.Group>
                       </Form.Item>
                     </Col>
                   )}
