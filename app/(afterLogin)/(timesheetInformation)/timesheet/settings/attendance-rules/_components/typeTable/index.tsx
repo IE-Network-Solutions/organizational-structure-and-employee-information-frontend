@@ -240,7 +240,7 @@ const TypeTable: FC = () => {
                   data-cy="time-attendance-settings-attendance-rules-type-table-row-container"
                   className="flex items-start justify-between gap-3"
                 >
-                  <div>
+                  <div id="time-attendance-settings-attendance-rules-type-table-row-content-container" data-cy="time-attendance-settings-attendance-rules-type-table-row-content-container" className="flex flex-col gap-1">
                     <div
                       className="text-sm font-bold text-black opacity-70"
                       id="time-attendance-settings-attendance-rules-type-table-row-title"
