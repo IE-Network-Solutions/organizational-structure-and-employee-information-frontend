@@ -147,10 +147,10 @@ export interface AttendanceRule extends DateInfo {
   isFixed?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
-  ruleType: string;
+  ruleType: string | AttendanceRuleTypes;
   actionTypes: AttendanceActionType | string;
   letterTemplate?: string;
-  breakType?: string;
+  breakType?: string | BreakType;
 }
 
 export enum AttendanceRuleType {

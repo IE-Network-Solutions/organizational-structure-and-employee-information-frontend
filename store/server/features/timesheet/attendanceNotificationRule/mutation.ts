@@ -8,7 +8,7 @@ import { AttendanceRule } from '@/types/timesheet/attendance';
 const createAttendanceRule = async (data: Partial<AttendanceRule>) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `https://anne-hdtv-video-returning.trycloudflare.com/api/v1/attendance-rules`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rules`,
     method: 'POST',
     headers: requestHeaders,
     data,

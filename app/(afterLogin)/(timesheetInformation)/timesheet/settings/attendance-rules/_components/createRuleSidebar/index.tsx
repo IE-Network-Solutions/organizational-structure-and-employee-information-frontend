@@ -27,10 +27,12 @@ import {
   useGetAttendanceRuleTypes,
 } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+import { BreakType } from '@/types/timesheet/breakType';
 import {
   AttendanceActionType,
   AttendanceRule,
   AttendanceRuleType,
+  AttendanceRuleTypes,
 } from '@/types/timesheet/attendance';
 import React, { useEffect, useState } from 'react';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
@@ -99,6 +101,26 @@ const deductionTypeOptions = [
     value: true,
   },
 ];
+
+/** API may return ruleType as a UUID string or a populated rule-type object. */
+const resolveRuleTypeId = (
+  ruleType?: string | AttendanceRuleTypes | null,
+): string | undefined => {
+  if (!ruleType) return undefined;
+  if (typeof ruleType === 'string') return ruleType;
+  if (typeof ruleType === 'object' && ruleType.id) return ruleType.id;
+  return undefined;
+};
+
+/** API may return breakType as a UUID string or a populated break-type object. */
+const resolveBreakTypeId = (
+  breakType?: string | BreakType | null,
+): string | undefined => {
+  if (!breakType) return undefined;
+  if (typeof breakType === 'string') return breakType;
+  if (typeof breakType === 'object' && breakType.id) return breakType.id;
+  return undefined;
+};
 
 const isLetterAction = (actionType?: string | string[]) => {
   const types = Array.isArray(actionType) ? actionType : [actionType];
@@ -176,7 +198,7 @@ const StepHeader = ({ currentStep }: { currentStep: StepType }) => {
 
   return (
     <div
-      className="mb-6 px-4"
+      className="mb-6 px-4 hidden sm:block"
       id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header"
       data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header"
     >
@@ -239,13 +261,14 @@ const buildAttendanceRulePayload = (
     effectiveStartDate,
     resetDays: Number(values.resetDays),
     ruleAppliedDays: Number(values.ruleAppliedDays),
-    ruleType: selectedTypeId,
+    ruleType: resolveRuleTypeId(selectedTypeId) ?? selectedTypeId,
     actionTypes: values.actionTypes,
     description: values.description,
   };
 
-  if (isBreakRule && values.breakType) {
-    payload.breakType = values.breakType;
+  const breakTypeId = resolveBreakTypeId(values.breakType);
+  if (isBreakRule && breakTypeId) {
+    payload.breakType = breakTypeId;
   }
 
   const actionTypesArray = Array.isArray(values.actionTypes)
@@ -323,8 +346,11 @@ const CreateRuleSidebar = () => {
   useEffect(() => {
     if (attendanceRuleData?.item) {
       const item = attendanceRuleData.item;
+      const ruleTypeId = resolveRuleTypeId(
+        item.ruleType as string | AttendanceRuleTypes,
+      );
       const matchingRule = attendanceRuleTypesData?.items?.find(
-        (rule) => rule.id === item.ruleType,
+        (rule) => rule.id === ruleTypeId,
       );
       form.setFieldsValue({
         name: item.name,
@@ -334,7 +360,7 @@ const CreateRuleSidebar = () => {
         resetDays: item.resetDays,
         ruleAppliedDays: item.ruleAppliedDays,
         actionTypes: item.actionTypes,
-        breakType: item.breakType,
+        breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
@@ -348,7 +374,7 @@ const CreateRuleSidebar = () => {
               )
             : undefined),
       });
-      setSelectedTypeId(item.ruleType);
+      setSelectedTypeId(ruleTypeId ?? null);
       setCurrentStep(isLetterAction(item.actionTypes) ? 3 : 2);
     }
   }, [attendanceRuleData, attendanceRuleTypesData?.items, form]);
@@ -403,18 +429,19 @@ const CreateRuleSidebar = () => {
   };
 
   const submitRule = async () => {
-    if (!selectedTypeId) return;
+    const ruleTypeId = resolveRuleTypeId(selectedTypeId);
+    if (!ruleTypeId) return;
 
     await form.validateFields(getStepTwoFieldsToValidate());
 
-    if (isLetterAction(form.getFieldValue('actionType'))) {
+    if (isLetterAction(form.getFieldValue('actionTypes'))) {
       await form.validateFields(['letterTemplate']);
     }
 
     const values = form.getFieldsValue(true);
     const payload = buildAttendanceRulePayload(
       values,
-      selectedTypeId,
+      ruleTypeId,
       !!selectedRule?.isBreak,
     );
 
@@ -796,7 +823,7 @@ const CreateRuleSidebar = () => {
               name="description"
             >
               <Input.TextArea
-                className="w-full"
+                className={controlClass}
                 placeholder="Textarea"
                 id="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
                 data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"

@@ -240,13 +240,23 @@ const TypeTable: FC = () => {
                   data-cy="time-attendance-settings-attendance-rules-type-table-row-container"
                   className="flex items-start justify-between gap-3"
                 >
-                  <div
-                    className="text-sm font-bold text-black opacity-70"
-                    id="time-attendance-settings-attendance-rules-type-table-row-title"
-                    data-cy="time-attendance-settings-attendance-rules-type-table-row-title"
-                  >
-                    {rule.name}
+                  <div>
+                    <div
+                      className="text-sm font-bold text-black opacity-70"
+                      id="time-attendance-settings-attendance-rules-type-table-row-title"
+                      data-cy="time-attendance-settings-attendance-rules-type-table-row-title"
+                    >
+                      {rule.name}
+                    </div>
+                    <div
+                      className="text-sm font-normal text-black opacity-70"
+                      id="time-attendance-settings-attendance-rules-type-table-row-description"
+                      data-cy="time-attendance-settings-attendance-rules-type-table-row-description"
+                    >
+                      {rule.description}
+                    </div>
                   </div>
+
                   <AccessGuard
                     permissions={[
                       Permissions.UpdateAttendanceRule,
