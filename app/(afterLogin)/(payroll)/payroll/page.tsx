@@ -93,12 +93,12 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
 
-/** Summary cards: horizontal scroll below `sm`; grid from `sm` up. */
+/** Summary cards: horizontal scroll on phone & tablet; 5-col grid from `lg` up. */
 const PAYROLL_SUMMARY_CARDS_ROW_CLASS =
-  'mb-8 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x sm:grid sm:grid-cols-2 sm:overflow-x-visible sm:snap-none lg:grid-cols-5';
+  'mb-8 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x lg:grid lg:grid-cols-5 lg:overflow-x-visible lg:snap-none';
 
 const PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS =
-  'min-w-[228px] w-[min(88vw,304px)] shrink-0 snap-start sm:min-w-0 sm:h-full sm:w-full sm:shrink sm:max-w-none';
+  'min-w-[228px] w-[min(88vw,304px)] shrink-0 snap-start lg:min-w-0 lg:h-full lg:w-full lg:shrink lg:max-w-none';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
