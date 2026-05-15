@@ -202,12 +202,12 @@ const TypeTable: FC = () => {
         <div
           id="time-attendance-settings-attendance-rules-type-table-skeleton-container"
           data-cy="time-attendance-settings-attendance-rules-type-table-skeleton-container"
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
         >
-          {Array.from({ length: 4 }).map((notUsed, index) => (
+          {Array.from({ length: 6 }).map((notUsed, index) => (
             <div
               key={index}
-              className="h-24 rounded-xl bg-gray-100 animate-pulse"
+              className="min-h-[88px] rounded-xl bg-gray-100 animate-pulse"
               id={`time-attendance-settings-attendance-rules-type-table-card-skeleton-${index}`}
               data-cy={`time-attendance-settings-attendance-rules-type-table-card-skeleton-${index}`}
             />
@@ -215,7 +215,7 @@ const TypeTable: FC = () => {
         </div>
       ) : (
         <div
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-fr"
           id="time-attendance-settings-attendance-rules-type-table"
           data-cy="time-attendance-settings-attendance-rules-type-table"
         >
@@ -228,67 +228,80 @@ const TypeTable: FC = () => {
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
             </div>
           ) : (
-            tableData.map((rule) => (
-              <div
-                key={rule.id}
-                className="rounded-xl bg-[#F3F4F6] px-4 py-4"
-                id={`time-attendance-settings-attendance-rules-type-table-card-${rule.id}`}
-                data-cy={`time-attendance-settings-attendance-rules-type-table-card-${rule.id}`}
-              >
+            tableData.map((rule) => {
+
+              return (
                 <div
-                  id="time-attendance-settings-attendance-rules-type-table-row-container"
-                  data-cy="time-attendance-settings-attendance-rules-type-table-row-container"
-                  className="flex items-start justify-between gap-3"
+                  key={rule.id}
+                  className="flex h-full min-h-[88px] flex-col rounded-xl bg-[#F3F4F6] p-4"
+                  id={`time-attendance-settings-attendance-rules-type-table-card-${rule.id}`}
+                  data-cy={`time-attendance-settings-attendance-rules-type-table-card-${rule.id}`}
                 >
-                  <div id="time-attendance-settings-attendance-rules-type-table-row-content-container" data-cy="time-attendance-settings-attendance-rules-type-table-row-content-container" className="flex flex-col gap-1">
+                  <div
+                    id="time-attendance-settings-attendance-rules-type-table-row-container"
+                    data-cy="time-attendance-settings-attendance-rules-type-table-row-container"
+                    className="flex min-w-0 items-start gap-2"
+                  >
                     <div
-                      className="text-sm font-bold text-black opacity-70"
-                      id="time-attendance-settings-attendance-rules-type-table-row-title"
-                      data-cy="time-attendance-settings-attendance-rules-type-table-row-title"
+                      id="time-attendance-settings-attendance-rules-type-table-row-content-container"
+                      data-cy="time-attendance-settings-attendance-rules-type-table-row-content-container"
+                      className="min-w-0 flex-1"
                     >
-                      {rule.name}
+                      <p
+                        className="text-sm font-bold leading-snug text-gray-900 line-clamp-2 break-words"
+                        id="time-attendance-settings-attendance-rules-type-table-row-title"
+                        data-cy="time-attendance-settings-attendance-rules-type-table-row-title"
+                        title={rule.name}
+                      >
+                        {rule.name}
+                      </p>
+                      {rule.description ? (
+                        <p
+                          className="mt-1 text-sm font-normal leading-snug text-gray-500 line-clamp-2 break-words"
+                          id="time-attendance-settings-attendance-rules-type-table-row-description"
+                          data-cy="time-attendance-settings-attendance-rules-type-table-row-description"
+                          title={rule.description}
+                        >
+                          {rule.description}
+                        </p>
+                      ) : null}
                     </div>
-                    <div
-                      className="text-sm font-normal text-black opacity-70"
-                      id="time-attendance-settings-attendance-rules-type-table-row-description"
-                      data-cy="time-attendance-settings-attendance-rules-type-table-row-description"
-                    >
-                      {rule.description}
+
+                    <div className="shrink-0 -mr-1">
+                      <AccessGuard
+                        permissions={[
+                          Permissions.UpdateAttendanceRule,
+                          Permissions.DeleteAttendanceRule,
+                        ]}
+                        data-cy="time-attendance-settings-attendance-rules-type-table-row-actions-access-guard"
+                      >
+                        <Dropdown
+                          trigger={['click']}
+                          placement="bottomRight"
+                          menu={{ items: ruleMenuItems(rule) }}
+                          overlayClassName="attendance-rules-rule-card-menu"
+                        >
+                          <Button
+                            type="text"
+                            size="small"
+                            disabled={isLoading || isLoadingDeleteRule}
+                            id={`time-attendance-settings-attendance-rules-type-table-row-menu-${rule.id}`}
+                            data-cy="time-attendance-settings-attendance-rules-type-table-row-action-buttons"
+                            aria-label="Rule actions"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreHorizIcon
+                              sx={{ fontSize: 20 }}
+                              className="text-gray-600"
+                            />
+                          </Button>
+                        </Dropdown>
+                      </AccessGuard>
                     </div>
                   </div>
-
-                  <AccessGuard
-                    permissions={[
-                      Permissions.UpdateAttendanceRule,
-                      Permissions.DeleteAttendanceRule,
-                    ]}
-                    data-cy="time-attendance-settings-attendance-rules-type-table-row-actions-access-guard"
-                  >
-                    <Dropdown
-                      trigger={['click']}
-                      placement="bottomRight"
-                      menu={{ items: ruleMenuItems(rule) }}
-                      overlayClassName="attendance-rules-rule-card-menu"
-                    >
-                      <Button
-                        type="text"
-                        size="small"
-                        disabled={isLoading || isLoadingDeleteRule}
-                        id={`time-attendance-settings-attendance-rules-type-table-row-menu-${rule.id}`}
-                        data-cy="time-attendance-settings-attendance-rules-type-table-row-action-buttons"
-                        aria-label="Rule actions"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreHorizIcon
-                          sx={{ fontSize: 20 }}
-                          className="text-gray-600"
-                        />
-                      </Button>
-                    </Dropdown>
-                  </AccessGuard>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
