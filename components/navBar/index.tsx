@@ -100,6 +100,7 @@ interface CustomMenuItem {
   moduleCode?: string;
 }
 
+import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
 import { AiOutlineRight } from 'react-icons/ai';
@@ -272,7 +273,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const pathname = usePathname();
   const { userId, tenantId } = useAuthenticationStore();
   useGetEmployee(userId);
-  const { userData } = useAuthenticationStore();
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
@@ -833,6 +833,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
+      // Always read from the store so checks after async refresh see up-to-date permissions.
+      // Persisted auth strips userPermissions until fetchCurrentUserAndUpdateStore runs.
+      const userData = useAuthenticationStore.getState().userData;
       // Get all routes and their permissions
       const routesWithPermissions = getRoutesAndPermissions(treeData);
 
@@ -915,7 +918,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       );
       return hasAllPermissions;
     },
-    [treeData, userData],
+    [treeData],
   );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
@@ -996,19 +999,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   // ✅ Check permission on pathname change
   useEffect(() => {
+    let cancelled = false;
+
     const checkPermissions = async () => {
       setIsCheckingPermissions(true);
+      try {
+        if (pathname === '/') {
+          router.push('/dashboard');
+          return;
+        }
 
-      if (pathname === '/') {
-        router.push('/dashboard');
-      } else if (!checkPathnamePermissions(pathname)) {
-        router.push('/unauthorized');
+        const state = useAuthenticationStore.getState();
+        const isOwner =
+          state.userData?.role?.slug?.toLowerCase() === 'owner';
+        if (
+          state.token &&
+          state.localId &&
+          !isOwner &&
+          state.userData?.userPermissions === undefined
+        ) {
+          await fetchCurrentUserAndUpdateStore();
+          if (cancelled) return;
+        }
+
+        if (!checkPathnamePermissions(pathname)) {
+          router.push('/unauthorized');
+        }
+      } finally {
+        setIsCheckingPermissions(false);
       }
-
-      setIsCheckingPermissions(false);
     };
 
     checkPermissions();
+    return () => {
+      cancelled = true;
+    };
   }, [pathname, router, checkPathnamePermissions, setIsCheckingPermissions]);
 
   const findParentMenuKey = React.useCallback(
