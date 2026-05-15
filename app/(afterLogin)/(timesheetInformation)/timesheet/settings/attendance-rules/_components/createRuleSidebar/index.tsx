@@ -17,7 +17,6 @@ import CustomLabel from '@/components/form/customLabel/customLabel';
 import TimerOffOutlinedIcon from '@mui/icons-material/TimerOffOutlined';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import UpdateIcon from '@mui/icons-material/Update';
-import TimerOffIcon from '@mui/icons-material/TimerOff';
 import {
   useCreateAttendanceRule,
   useUpdateAttendanceRule,
@@ -115,7 +114,8 @@ const isLetterAction = (actionType?: string | string[]) => {
 const getActionLabel = (actionTypes?: string | string[]): string => {
   const types = Array.isArray(actionTypes) ? actionTypes : [actionTypes];
   if (types.includes(AttendanceActionType.REPRIMAND)) return 'Reprimand';
-  if (types.includes(AttendanceActionType.SALARY_DEDUCTION)) return 'Salary Deduction';
+  if (types.includes(AttendanceActionType.SALARY_DEDUCTION))
+    return 'Salary Deduction';
   if (types.includes(AttendanceActionType.WARNING_LETTER)) return 'Warning';
   return 'Warning';
 };
@@ -321,11 +321,12 @@ const CreateRuleSidebar = () => {
     'EARLY_CLOCK_OUT',
     'MISSED_CHECK_IN_OUT',
   ];
-  
+
   const sortedAttendanceRuleTypes = useMemo(
-    () => [...(attendanceRuleTypesData?.items ?? [])].sort((a, b) =>
-      ruleOrder.indexOf(a.ruleType) - ruleOrder.indexOf(b.ruleType)
-    ),
+    () =>
+      [...(attendanceRuleTypesData?.items ?? [])].sort(
+        (a, b) => ruleOrder.indexOf(a.ruleType) - ruleOrder.indexOf(b.ruleType),
+      ),
     [attendanceRuleTypesData?.items],
   );
 
@@ -779,7 +780,10 @@ const CreateRuleSidebar = () => {
                           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-radio"
                         >
                           {DEDUCTION_TYPE_OPTIONS.map((option) => (
-                            <Radio key={String(option.value)} value={option.value}>
+                            <Radio
+                              key={String(option.value)}
+                              value={option.value}
+                            >
                               <span
                                 data-cy={option.dataCy}
                                 className="text-sm font-normal text-black/70"
