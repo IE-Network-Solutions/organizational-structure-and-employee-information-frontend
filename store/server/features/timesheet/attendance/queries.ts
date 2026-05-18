@@ -11,6 +11,7 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import {
   AttendanceImport,
   AttendanceRecord,
+  AttendanceRuleViolation,
 } from '@/types/timesheet/attendance';
 import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import dayjs from 'dayjs';
@@ -130,6 +131,29 @@ const getAttendances = async (
     params: query,
   });
 };
+
+const getRuleViolations = async (query: RequestCommonQueryData) => {
+  const requestHeaders = await requestHeader();
+  const { page, limit } = query;
+
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations`,
+    method: 'GET',
+    headers: requestHeaders,
+    params: { page, limit },
+  });
+};
+
+export const useGetRuleViolations = (query: RequestCommonQueryData) => {
+  return useQuery<ApiResponse<AttendanceRuleViolation>>(
+    ['attendance-rule-violations', query],
+    () => getRuleViolations(query),
+    { keepPreviousData: true },
+  );
+};
+
+
+
 const exportAttendanceData = async (data: any) => {
   const requestHeaders = await requestHeader();
   try {
