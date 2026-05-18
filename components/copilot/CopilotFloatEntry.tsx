@@ -98,7 +98,6 @@ const CopilotFloatEntry: React.FC = () => {
           </div>
         ) : null}
 
-
         {showBot ? (
           <button
             type="button"
@@ -122,8 +121,7 @@ const CopilotFloatEntry: React.FC = () => {
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden
               data-cy="copilot-float-vertical-pill-sparkle"
-            >
-            </svg>
+            ></svg>
           </button>
         ) : (
           <div
@@ -156,7 +154,11 @@ const CopilotFloatEntry: React.FC = () => {
               aria-label="Collapse copilot launcher"
               data-cy="copilot-float-trigger-collapse"
             >
-              <KeyboardArrowRightIcon sx={{ fontSize: 22 }} aria-hidden className="text-[#1e40af]" />
+              <KeyboardArrowRightIcon
+                sx={{ fontSize: 22 }}
+                aria-hidden
+                className="text-[#1e40af]"
+              />
             </button>
           </div>
         )}
