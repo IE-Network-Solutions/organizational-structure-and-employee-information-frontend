@@ -127,17 +127,47 @@ export interface AttendanceNotificationType extends DateInfo {
   id: string;
   title: string;
   unit: AttendanceTypeUnit;
-  attendanceNotificationRules: AttendanceNotificationRule[];
+  attendanceRules: AttendanceRule[];
   isActive: boolean;
 }
 
-export interface AttendanceNotificationRule extends DateInfo {
+export enum AttendanceActionType {
+  WARNING_LETTER = 'WARNING_LETTER',
+  REPRIMAND = 'REPRIMAND',
+  SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+}
+
+export interface AttendanceRule extends DateInfo {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  attendanceNotificationType: string;
-  attendanceNotificationTypeId: string;
-  value: number;
+  effectiveStartDate: string;
+  resetDays: number;
+  ruleAppliedDays: number;
+  isFixed?: boolean;
+  deductibleFixedAmount?: number;
+  deductibleSalaryDays?: number;
+  ruleType: string | AttendanceRuleTypes;
+  actionTypes: AttendanceActionType | string;
+  letterTemplate?: string;
+  breakType?: string | BreakType;
+}
+
+export enum AttendanceRuleType {
+  EARLY_CLOCK_OUT = 'EARLY_CLOCK_OUT',
+  LATE = 'LATE',
+  ABSENT = 'ABSENT',
+  MISSED_CHECK_IN_OUT = 'MISSED_CHECK_IN_OUT',
+  BREAK = 'BREAK',
+}
+
+export interface AttendanceRuleTypes extends DateInfo {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string;
+  isBreak: boolean;
+  ruleType: AttendanceRuleType | string;
 }
 
 export interface AttendanceRule {
