@@ -211,7 +211,7 @@ const statusType = (val: string | null | undefined) => {
       <Tag
         id="EarlyCheckout"
         data-cy="EarlyCheckout"
-        className="text-[#ff4d4f] text-xs font-medium py-1 px-2 bg-[#fff1f0] border border-[#ffccc7]"
+        className="text-[#1677FF] text-xs font-medium py-0.5 px-2 bg-[#e6f4ff] border border-[#91caff] h-[22px]"
       >
         Early Checkout
       </Tag>
@@ -221,9 +221,9 @@ const statusType = (val: string | null | undefined) => {
       <Tag
         id="MissedCheckinOut"
         data-cy="MissedCheckinOut"
-        className="text-[#ff4d4f] text-xs font-medium py-1 px-2 bg-[#fff1f0] border border-[#ffccc7]"
+        className="text-[#595959] text-xs font-medium py-0.5 px-2 bg-[#fafafa] border border-[#d9d9d9] h-[22px]"
       >
-        Missed Checkin/out
+        Missed Check-in / Out
       </Tag>
     );
   } else {

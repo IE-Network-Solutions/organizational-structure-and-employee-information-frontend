@@ -5,6 +5,7 @@ import { requestHeader } from '@/helpers/requestHeader';
 import {
   AttendanceImportLogsBody,
   AttendanceRequestBody,
+  RuleViolationQueryParams,
 } from '@/store/server/features/timesheet/attendance/interface';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
@@ -132,27 +133,39 @@ const getAttendances = async (
   });
 };
 
-const getRuleViolations = async (query: RequestCommonQueryData) => {
+const getRuleViolations = async (query: RuleViolationQueryParams) => {
   const requestHeaders = await requestHeader();
-  const { page, limit } = query;
+  const params: Record<string, string | number | boolean> = {};
+
+  if (query.page != null) params.page = query.page;
+  if (query.limit != null) params.limit = query.limit;
+  if (query.search?.trim()) params.search = query.search.trim();
+  if (query.userId) params.userId = query.userId;
+  if (query.attendanceRuleId) params.attendanceRuleId = query.attendanceRuleId;
+  if (query.ruleTypeId) params.ruleTypeId = query.ruleTypeId;
+  if (query.actionTaken != null) params.actionTaken = query.actionTaken;
+  if (query.actionType) params.actionType = query.actionType;
+  if (query.actionTypes) params.actionTypes = query.actionTypes;
+  if (query.from) params.from = query.from;
+  if (query.to) params.to = query.to;
+  if (query.orderBy) params.orderBy = query.orderBy;
+  if (query.orderDirection) params.orderDirection = query.orderDirection;
 
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations`,
     method: 'GET',
     headers: requestHeaders,
-    params: { page, limit },
+    params,
   });
 };
 
-export const useGetRuleViolations = (query: RequestCommonQueryData) => {
+export const useGetRuleViolations = (query: RuleViolationQueryParams) => {
   return useQuery<ApiResponse<AttendanceRuleViolation>>(
     ['attendance-rule-violations', query],
     () => getRuleViolations(query),
     { keepPreviousData: true },
   );
 };
-
-
 
 const exportAttendanceData = async (data: any) => {
   const requestHeaders = await requestHeader();

@@ -1,30 +1,40 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
 import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
-import {
-  AttendanceCheckInSource,
-  AttendanceCheckOutSource,
-  attendanceCheckInSourceLabels,
-  attendanceCheckOutSourceLabels,
-  attendanceRecordTypeOption,
-} from '@/types/timesheet/attendance';
+import { AttendanceActionType } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { useGetAttendanceRuleTypes } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
 }
 
+const ACTION_TYPE_OPTIONS = [
+  {
+    label: 'Warning Letter',
+    value: AttendanceActionType.WARNING_LETTER,
+  },
+  {
+    label: 'Reprimand',
+    value: AttendanceActionType.REPRIMAND,
+  },
+  {
+    label: 'Salary Deduction',
+    value: AttendanceActionType.SALARY_DEDUCTION,
+  },
+] as const;
+
 const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
+  const [searchText, setSearchText] = useState('');
   const { data: employeeData } = useGetAllUsers();
-  const { data: breakTypeData } = useGetBreakTypes();
   const { showViolationFilter, setShowViolationFilter } =
     useEmployeeAttendanceStore();
+  const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
 
   const employeeOptions =
     employeeData?.items?.map((employee: any) => ({
@@ -32,80 +42,32 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       label: `${employee?.firstName} ${employee?.middleName} ${employee?.lastName}`,
     })) || [];
 
-  const breakTypeOptions =
-    breakTypeData?.items?.map((breakType: any) => ({
-      value: breakType.id,
-      label: breakType.title,
-    })) || [];
-
-  const clockInMethodOptions = [
-    {
-      value: AttendanceCheckInSource.IMPORTED,
-      label: attendanceCheckInSourceLabels[AttendanceCheckInSource.IMPORTED],
-    },
-    {
-      value: AttendanceCheckInSource.REMOTE_CHECKED_IN,
-      label:
-        attendanceCheckInSourceLabels[
-          AttendanceCheckInSource.REMOTE_CHECKED_IN
-        ],
-    },
-    {
-      value: AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN,
-      label:
-        attendanceCheckInSourceLabels[
-          AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN
-        ],
-    },
-  ];
-
-  const clockOutMethodOptions = [
-    {
-      value: AttendanceCheckOutSource.IMPORTED,
-      label: attendanceCheckOutSourceLabels[AttendanceCheckOutSource.IMPORTED],
-    },
-    {
-      value: AttendanceCheckOutSource.REMOTE_CHECKED_OUT,
-      label:
-        attendanceCheckOutSourceLabels[
-          AttendanceCheckOutSource.REMOTE_CHECKED_OUT
-        ],
-    },
-    {
-      value: AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT,
-      label:
-        attendanceCheckOutSourceLabels[
-          AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT
-        ],
-    },
-  ];
-
   const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
   const selectClassName = 'w-full h-10 rounded-md border-gray-300';
 
-  const getFilterValues = (): CommonObject => {
-    const values = { ...form.getFieldsValue() };
-    if (values.startDate && values.endDate) {
-      values.date = [values.startDate, values.endDate];
-    }
-    return values;
+  const getFilterValues = (): CommonObject => ({
+    ...form.getFieldsValue(),
+    search: searchText.trim() || undefined,
+  });
+
+  const applyFilters = () => {
+    onChange(getFilterValues());
   };
 
   const MobileFilters = () => (
     <div
       className="bg-white rounded-lg border border-gray-200 min-w-[320px] sm:max-w-[420px] overflow-hidden"
-      id="time-attendance-employee-attendance-mobile-filter-menu"
-      data-cy="time-attendance-employee-attendance-mobile-filter-menu"
+      id="time-attendance-rule-violation-mobile-filter-menu"
+      data-cy="time-attendance-rule-violation-mobile-filter-menu"
     >
-      {/* Header */}
       <div
         className="px-6 pt-5 pb-1 relative"
-        id="time-attendance-employee-attendance-mobile-filter-header"
-        data-cy="time-attendance-employee-attendance-mobile-filter-header"
+        id="time-attendance-rule-violation-mobile-filter-header"
+        data-cy="time-attendance-rule-violation-mobile-filter-header"
       >
         <button
-          id="time-attendance-employee-attendance-mobile-filter-close-button"
-          data-cy="time-attendance-employee-attendance-mobile-filter-close-button"
+          id="time-attendance-rule-violation-mobile-filter-close-button"
+          data-cy="time-attendance-rule-violation-mobile-filter-close-button"
           type="button"
           onClick={() => setShowViolationFilter(false)}
           className="absolute top-5 right-6 p-1 text-gray-500 hover:text-gray-700 rounded transition-colors"
@@ -113,98 +75,78 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         >
           <CloseOutlined
             className="text-base"
-            data-cy="time-attendance-employee-attendance-mobile-filter-close-button-icon"
+            data-cy="time-attendance-rule-violation-mobile-filter-close-button-icon"
           />
         </button>
         <h3
-          id="time-attendance-employee-attendance-mobile-filter-title"
-          data-cy="time-attendance-employee-attendance-mobile-filter-title"
+          id="time-attendance-rule-violation-mobile-filter-title"
+          data-cy="time-attendance-rule-violation-mobile-filter-title"
           className="text-xl font-semibold text-gray-900 pr-8"
         >
           Filter
         </h3>
         <p
-          id="time-attendance-employee-attendance-mobile-filter-description"
-          data-cy="time-attendance-employee-attendance-mobile-filter-description"
+          id="time-attendance-rule-violation-mobile-filter-description"
+          data-cy="time-attendance-rule-violation-mobile-filter-description"
           className="text-sm text-gray-500 mt-1"
         >
           Select all filters that apply
         </p>
       </div>
 
-      {/* Filter fields */}
       <div
-        id="time-attendance-employee-attendance-mobile-filter-fields"
-        data-cy="time-attendance-employee-attendance-mobile-filter-fields"
+        id="time-attendance-rule-violation-mobile-filter-fields"
+        data-cy="time-attendance-rule-violation-mobile-filter-fields"
         className="px-6 py-4"
       >
         <Row gutter={16} className="mt-4">
           <Col lg={12} md={12} sm={24} xs={24}>
             <div
-              id="time-attendance-employee-attendance-mobile-filter-check-in-method-select-div"
-              data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select-div"
+              data-cy="time-attendance-rule-violation-mobile-filter-rule-select-div"
               className="mb-4"
             >
               <label
-                id="time-attendance-employee-attendance-mobile-filter-check-in-method-select-label"
-                data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select-label"
+                data-cy="time-attendance-rule-violation-mobile-filter-rule-select-label"
                 className={labelClassName}
               >
                 Rule
               </label>
-              <Form.Item
-                name="checkInSource"
-                className="mb-0"
-                data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select-form-item"
-              >
+              <Form.Item name="ruleTypeId" className="mb-0">
                 <Select
                   placeholder="Select Rule"
                   allowClear
                   className={selectClassName}
-                  options={clockInMethodOptions}
-                  size="large"
-                  onChange={(value) => {
-                    form.setFieldsValue({ checkInSource: value });
-                    onChange(getFilterValues());
-                  }}
-                  value={form.getFieldValue('checkInSource')}
-                  id="time-attendance-employee-attendance-mobile-filter-check-in-method-select"
-                  data-cy="time-attendance-employee-attendance-mobile-filter-check-in-method-select"
+                  options={attendanceRuleTypesData?.items?.map((item) => ({
+                    label: item.name,
+                    value: item.id,
+                  }))}
+                  onChange={() => applyFilters()}
+                  id="time-attendance-rule-violation-mobile-filter-rule-select"
+                  data-cy="time-attendance-rule-violation-mobile-filter-rule-select"
                 />
               </Form.Item>
             </div>
           </Col>
           <Col lg={12} md={12} sm={24} xs={24}>
             <div
-              id="time-attendance-employee-attendance-mobile-filter-check-out-method-select-div"
-              data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select-div"
+              data-cy="time-attendance-rule-violation-mobile-filter-actions-select-div"
               className="mb-4"
             >
               <label
-                id="time-attendance-employee-attendance-mobile-filter-check-out-method-select-label"
-                data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select-label"
+                data-cy="time-attendance-rule-violation-mobile-filter-actions-select-label"
                 className={labelClassName}
               >
                 Actions
               </label>
-              <Form.Item
-                name="checkOutSource"
-                className="mb-0"
-                data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select-form-item"
-              >
+              <Form.Item name="actionType" className="mb-0">
                 <Select
                   placeholder="Select Actions"
                   allowClear
                   className={selectClassName}
-                  options={clockOutMethodOptions}
-                  size="large"
-                  onChange={(value) => {
-                    form.setFieldsValue({ checkOutSource: value });
-                    onChange(getFilterValues());
-                  }}
-                  value={form.getFieldValue('checkOutSource')}
-                  id="time-attendance-employee-attendance-mobile-filter-check-out-method-select"
-                  data-cy="time-attendance-employee-attendance-mobile-filter-check-out-method-select"
+                  options={ACTION_TYPE_OPTIONS as any}
+                  onChange={() => applyFilters()}
+                  id="time-attendance-rule-violation-mobile-filter-action-select"
+                  data-cy="time-attendance-rule-violation-mobile-filter-action-select"
                 />
               </Form.Item>
             </div>
@@ -213,26 +155,20 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         <Row gutter={16}>
           <Col lg={12} md={12} sm={24} xs={24}>
             <div
-              id="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-              data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+              data-cy="time-attendance-rule-violation-mobile-filter-start-date-select-div"
               className="mb-4"
             >
               <label
-                id="time-attendance-employee-attendance-mobile-filter-employee-select-label"
-                data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-label"
+                data-cy="time-attendance-rule-violation-mobile-filter-start-date-select-label"
                 className={labelClassName}
               >
                 Date From
               </label>
               <Form.Item
                 name="startDate"
-                id="time-attendance-history-table-filter-mobile-start-date"
-                data-cy="time-attendance-history-table-filter-mobile-start-date"
                 rules={[
                   ({ getFieldValue }) => ({
-                    /* eslint-disable @typescript-eslint/naming-convention */
-                    validator(_, value) {
-                      /* eslint-enable @typescript-eslint/naming-convention */
+                    validator(notUsed, value) {
                       if (
                         !value ||
                         !getFieldValue('endDate') ||
@@ -251,35 +187,29 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   className="w-full h-[40px]"
                   placeholder="Select Date"
                   format={DATE_FORMAT}
-                  id="time-attendance-history-table-filter-mobile-start-date-picker"
-                  data-cy="time-attendance-history-table-filter-mobile-start-date-picker"
+                  onChange={() => applyFilters()}
+                  id="time-attendance-rule-violation-mobile-filter-start-date-picker"
+                  data-cy="time-attendance-rule-violation-mobile-filter-start-date-picker"
                 />
               </Form.Item>
             </div>
           </Col>
           <Col lg={12} md={12} sm={24} xs={24}>
             <div
-              id="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-              data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
+              data-cy="time-attendance-rule-violation-mobile-filter-end-date-select-div"
               className="mb-4"
             >
               <label
-                id="time-attendance-employee-attendance-mobile-filter-end-date-label"
-                data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-label"
+                data-cy="time-attendance-rule-violation-mobile-filter-end-date-select-label"
                 className={labelClassName}
               >
                 Date To
               </label>
               <Form.Item
                 name="endDate"
-                id="time-attendance-history-table-filter-mobile-end-date"
-                data-cy="time-attendance-history-table-filter-mobile-end-date"
                 rules={[
                   ({ getFieldValue }) => ({
-                    /* eslint-disable @typescript-eslint/naming-convention */
-                    validator(_, value) {
-                      /* eslint-enable @typescript-eslint/naming-convention */
-
+                    validator(notUsed, value) {
                       if (
                         !value ||
                         !getFieldValue('startDate') ||
@@ -298,28 +228,28 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                   className="w-full h-[40px]"
                   placeholder="Select Date"
                   format={DATE_FORMAT}
-                  id="time-attendance-history-table-filter-mobile-end-date-picker"
-                  data-cy="time-attendance-history-table-filter-mobile-end-date-picker"
+                  onChange={() => applyFilters()}
+                  id="time-attendance-rule-violation-mobile-filter-end-date-picker"
+                  data-cy="time-attendance-rule-violation-mobile-filter-end-date-picker"
                 />
               </Form.Item>
             </div>
           </Col>
         </Row>
-
       </div>
 
-      {/* Footer */}
       <div
-        data-cy="time-attendance-employee-attendance-mobile-filter-footer"
+        data-cy="time-attendance-rule-violation-mobile-filter-footer"
         className="px-6 py-4 flex justify-end gap-2"
       >
         <Button
           onClick={() => {
             form.resetFields();
+            setSearchText('');
             onChange({});
           }}
           className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
-          data-cy="time-attendance-employee-attendance-mobile-filter-reset"
+          data-cy="time-attendance-rule-violation-mobile-filter-reset"
         >
           Reset
         </Button>
@@ -327,9 +257,10 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           type="primary"
           className="h-8 font-normal text-sm text-white"
           onClick={() => {
+            applyFilters();
             setShowViolationFilter(false);
           }}
-          data-cy="time-attendance-employee-attendance-mobile-filter-save"
+          data-cy="time-attendance-rule-violation-mobile-filter-save"
         >
           Save Filter
         </Button>
@@ -340,51 +271,43 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   return (
     <Form
       form={form}
-      onFieldsChange={() => onChange(getFilterValues())}
-      id="time-attendance-employee-attendance-filter-form"
-      data-cy="time-attendance-employee-attendance-filter-form"
+      id="time-attendance-rule-violation-filter-form"
+      data-cy="time-attendance-rule-violation-filter-form"
     >
       <div
-        id="time-attendance-employee-attendance-mobile-filter-div"
-        data-cy="time-attendance-employee-attendance-mobile-filter-div"
+        id="time-attendance-rule-violation-filter-div"
+        data-cy="time-attendance-rule-violation-filter-div"
+        className="flex justify-between gap-3"
       >
         <div
-          id="time-attendance-employee-attendance-mobile-filter-date-range-div"
-          data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
-          className="flex justify-between"
+          id="time-attendance-rule-violation-filter-employee-select-div"
+          data-cy="time-attendance-rule-violation-filter-employee-select-div"
+          className="flex flex-1 gap-3 flex-wrap"
         >
           <div
-            data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-            className="w-1/2 sm:w-1/3 "
+            data-cy="time-attendance-rule-violation-filter-employee-select-div"
+            className="w-full sm:w-1/3 min-w-[200px]"
           >
-            <Form.Item
-              data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
-              name="employeeId"
-              className="mb-0"
-            >
+            <Form.Item name="employeeId" className="mb-0">
               <Select
-                id="time-attendance-employee-attendance-mobile-filter-employee-select"
-                data-cy="time-attendance-employee-attendance-mobile-filter-employee-select"
                 placeholder="Search Employee"
                 allowClear
                 className="h-8"
                 options={employeeOptions}
                 showSearch
                 optionFilterProp="label"
-                onChange={(value) => {
-                  form.setFieldsValue({ employeeId: value });
-                  onChange(getFilterValues());
-                }}
+                onChange={() => applyFilters()}
                 filterOption={(input, option) =>
                   (typeof option?.label === 'string'
                     ? option.label.toLowerCase()
                     : ''
                   ).includes(input.toLowerCase())
                 }
-                value={form.getFieldValue('employeeId')}
+                id="time-attendance-rule-violation-employee-select"
+                data-cy="time-attendance-rule-violation-employee-select"
                 suffixIcon={
                   <div
-                    data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-suffix-icon-div"
+                    data-cy="time-attendance-rule-violation-employee-select-suffix-icon-div"
                     className="text-gray-400 border-l p-2"
                   >
                     <SearchOutlined />
@@ -393,26 +316,26 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               />
             </Form.Item>
           </div>
-
-          <Dropdown
-            overlay={<MobileFilters />}
-            trigger={['click']}
-            open={showViolationFilter}
-            onOpenChange={setShowViolationFilter}
-            data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
-          >
-            <Button
-              className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
-              id="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              icon={
-                <FilterAltOutlinedIcon className="text-[#374151] text-base" />
-              }
-            >
-              Filter
-            </Button>
-          </Dropdown>
         </div>
+
+        <Dropdown
+          overlay={<MobileFilters />}
+          trigger={['click']}
+          open={showViolationFilter}
+          onOpenChange={setShowViolationFilter}
+          data-cy="time-attendance-rule-violation-filter-dropdown"
+        >
+          <Button
+            className="h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]"
+            id="time-attendance-rule-violation-filter-toggle-button"
+            data-cy="time-attendance-rule-violation-filter-toggle-button"
+            icon={
+              <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+            }
+          >
+            Filter
+          </Button>
+        </Dropdown>
       </div>
     </Form>
   );

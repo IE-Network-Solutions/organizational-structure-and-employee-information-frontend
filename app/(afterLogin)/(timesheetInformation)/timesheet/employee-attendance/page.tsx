@@ -410,7 +410,10 @@ const EmployeeAttendance = () => {
             </div>
           )}
           {activeTabKey === '2' && (
-            <div>
+            <div
+              id="time-attendance-rule-violation-actions-row"
+              data-cy="time-attendance-rule-violation-actions-row"
+            >
               <PermissionWrapper
                 permissions={[Permissions.ExportEmployeeAttendanceInformation]}
                 data-cy="time-attendance-employee-attendance-export-permission-wrapper"

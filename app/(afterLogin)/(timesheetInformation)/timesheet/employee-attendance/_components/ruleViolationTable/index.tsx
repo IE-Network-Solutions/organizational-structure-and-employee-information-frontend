@@ -3,17 +3,26 @@ import React, {
   FC,
   SetStateAction,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { Avatar, Button, Dropdown, Table } from 'antd';
 import TableFilter from './tableFilter';
-import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import {
+  AttendanceRequestBody,
+  RuleViolationQueryParams,
+} from '@/store/server/features/timesheet/attendance/interface';
 import { useGetRuleViolations } from '@/store/server/features/timesheet/attendance/queries';
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
-import { AttendanceRuleViolation } from '@/types/timesheet/attendance';
+import {
+  AttendanceRuleType,
+  AttendanceRuleTypes,
+  AttendanceRuleViolation,
+} from '@/types/timesheet/attendance';
+import { useGetAttendanceRuleTypes } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
@@ -30,6 +39,78 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import statusType from '../statusType';
+import EditRuleViolationModal from './editModal';
+import DeleteRuleViolationModal from './deleteRuleViolation';
+
+const resolveViolationRuleType = (
+  item: AttendanceRuleViolation,
+  ruleTypes?: AttendanceRuleTypes[],
+): string | undefined => {
+  if (item.attendanceRuleTypes?.ruleType) {
+    return String(item.attendanceRuleTypes.ruleType);
+  }
+
+  const ruleType = item.attendanceRule?.ruleType;
+  if (
+    typeof ruleType === 'object' &&
+    ruleType !== null &&
+    'ruleType' in ruleType
+  ) {
+    return String(ruleType.ruleType);
+  }
+  if (
+    typeof ruleType === 'string' &&
+    Object.values(AttendanceRuleType).includes(ruleType as AttendanceRuleType)
+  ) {
+    return ruleType;
+  }
+
+  const typeId =
+    item.attendanceRule?.attendanceRuleTypeId ??
+    (typeof ruleType === 'string' ? ruleType : undefined);
+  if (typeId && ruleTypes?.length) {
+    const match = ruleTypes.find((type) => type.id === typeId);
+    if (match?.ruleType) return String(match.ruleType);
+  }
+
+  return undefined;
+};
+
+const buildViolationQuery = (
+  val: CommonObject,
+): Partial<RuleViolationQueryParams> => {
+  const params: Partial<RuleViolationQueryParams> = {};
+
+  if (val.search?.trim()) {
+    params.search = val.search.trim();
+  }
+  if (val.employeeId) {
+    params.userId = val.employeeId;
+  }
+  if (val.ruleTypeId) {
+    params.ruleTypeId = val.ruleTypeId;
+  }
+  if (val.attendanceRuleId) {
+    params.attendanceRuleId = val.attendanceRuleId;
+  }
+  if (val.actionType) {
+    params.actionType = val.actionType;
+  }
+  if (Array.isArray(val.actionTypes) && val.actionTypes.length > 0) {
+    params.actionTypes = val.actionTypes.join(',');
+  }
+  if (val.actionTaken != null) {
+    params.actionTaken = val.actionTaken;
+  }
+  if (val.startDate) {
+    params.from = dayjs(val.startDate).format('YYYY-MM-DD');
+  }
+  if (val.endDate) {
+    params.to = dayjs(val.endDate).format('YYYY-MM-DD');
+  }
+
+  return params;
+};
 
 interface RuleViolationTableRow {
   key: string;
@@ -38,6 +119,7 @@ interface RuleViolationTableRow {
   actionTypes: string[];
   createdAt: string;
   ruleAppliedDays: number | undefined;
+  violationRuleType: string | undefined;
   record: AttendanceRuleViolation;
 }
 
@@ -49,14 +131,16 @@ interface RuleViolationTableProps {
 }
 
 const RuleViolationTable: FC<RuleViolationTableProps> = ({
-  setBodyRequest,
   isImport,
   selectedRowKeys,
   setSelectedRowKeys,
 }) => {
   const [tableData, setTableData] = useState<RuleViolationTableRow[]>([]);
+  const [violationFilters, setViolationFilters] = useState<
+    Partial<RuleViolationQueryParams>
+  >({});
   const pathname = usePathname();
-  const {  setOrderBy, setOrderDirection } =
+  const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
     usePagination(1, 10);
 
   const {
@@ -69,23 +153,32 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
 
   useEffect(() => {
     resetPagination();
+    setViolationFilters({});
   }, [pathname]);
 
   const {
-    setEmployeeId,
-    setIsShowEmployeeAttendanceSidebar,
-    setEmployeeAttendanceId,
+    setIsShowEditRuleViolationModal,
+    setIsShowDeleteRuleViolationModal,
+    setSelectedViolation,
   } = useEmployeeAttendanceStore();
-  const { setFilter } = useEmployeeAttendanceStore();
+
+  const ruleViolationQuery = useMemo<RuleViolationQueryParams>(
+    () => ({
+      page: currentPage,
+      limit: pageSize,
+      orderBy,
+      orderDirection,
+      ...violationFilters,
+    }),
+    [currentPage, pageSize, orderBy, orderDirection, violationFilters],
+  );
 
   const {
     data: ruleViolationsData,
     isFetching,
     refetch,
-  } = useGetRuleViolations({
-    page: currentPage,
-    limit: pageSize,
-  });
+  } = useGetRuleViolations(ruleViolationQuery);
+  const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
 
   const { isMobile, isTablet } = useIsMobile();
 
@@ -118,8 +211,14 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           size={24}
           icon={<UserOutlined />}
         />
-        <div className="flex-1">
-          <div className="text-sm font-normal text-[#4d4d4d] flex gap-2">
+        <div
+          data-cy="time-attendance-rule-violation-row-employee-name-div-${userId}-div"
+          className="flex-1"
+        >
+          <div
+            data-cy="time-attendance-rule-violation-row-employee-name-div-${userId}-text-div"
+            className="text-sm font-normal text-[#4d4d4d] flex gap-2"
+          >
             {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
             {employeeData?.lastName || '-'}
           </div>
@@ -157,7 +256,12 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
       dataIndex: 'ruleName',
       key: 'ruleName',
       render: (ruleName: string) => (
-        <div className="text-sm font-normal text-[#4d4d4d]">{ruleName || '-'}</div>
+        <div
+          data-cy="time-attendance-rule-violation-table-rule-name-div"
+          className="text-sm font-normal text-[#4d4d4d]"
+        >
+          {ruleName || '-'}
+        </div>
       ),
     },
     {
@@ -178,7 +282,12 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
         >
           {actionTypes?.length
             ? actionTypes.map((type) => (
-                <div key={type}>{statusType(type)}</div>
+                <div
+                  data-cy="time-attendance-rule-violation-table-action-tags-div"
+                  key={type}
+                >
+                  {statusType(type)}
+                </div>
               ))
             : '-'}
         </div>
@@ -196,7 +305,10 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (createdAt: string | null) => (
-        <div className="text-sm font-normal text-[#4d4d4d]">
+        <div
+          data-cy="time-attendance-rule-violation-table-action-given-on-div"
+          className="text-sm font-normal text-[#4d4d4d]"
+        >
           {createdAt ? dayjs(createdAt).format(DATE_FORMAT) : '-'}
         </div>
       ),
@@ -210,13 +322,30 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           Violation
         </span>
       ),
-      dataIndex: 'ruleAppliedDays',
-      key: 'ruleAppliedDays',
-      render: (ruleAppliedDays: number) => (
-        <div className="text-sm font-normal text-[#4d4d4d]">
-          {ruleAppliedDays != null ? `${ruleAppliedDays} days` : '-'}
-        </div>
-      ),
+      key: 'violation',
+      render: (notUsed: unknown, row: RuleViolationTableRow) => {
+        const hasDays = row.ruleAppliedDays != null;
+        const hasRuleType = Boolean(row.violationRuleType);
+
+        if (!hasDays && !hasRuleType) return '-';
+
+        return (
+          <div
+            className="flex items-center gap-2 flex-wrap"
+            data-cy="time-attendance-rule-violation-table-violation-cell"
+          >
+            {hasDays && (
+              <span
+                data-cy="time-attendance-rule-violation-table-violation-cell-days-span"
+                className="text-sm font-normal text-[#4d4d4d] whitespace-nowrap"
+              >
+                {row.ruleAppliedDays} Days
+              </span>
+            )}
+            {hasRuleType && statusType(row.violationRuleType)}
+          </div>
+        );
+      },
     },
     {
       title: (
@@ -231,75 +360,65 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
       key: 'actions',
       render: (record: AttendanceRuleViolation) => (
         <Dropdown
-            trigger={['click']}
-            getPopupContainer={() => document.body}
-            // open={actionOpenId === item.id}
-            // onOpenChange={(open) => {
-            //   if (open) {
-            //     setActionOpenId(item.id);
-            //   } else if (actionOpenId === item.id) {
-            //     setActionOpenId(null);
-            //     setDeleteConfirmOpenId(null);
-            //   }
-            // }}
-            dropdownRender={() => (
-              <div
-                data-cy="talent-acquisition-talent-roaster-table-button-delete-confirm-dropdown"
-                className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md"
-              >
-                 
-                  <>
-                    <button
-                      type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
-                    //   onClick={(e) => {
-                    //     e.stopPropagation();
-                    //     handleEdit(item);
-                    //     setActionOpenId(null);
-                    //   }}
-                      data-cy="talent-acquisition-talent-roaster-table-button-edit"
-                    >
-                      <EditOutlinedIcon fontSize="small" />
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
-                    //   onClick={(e) => {
-                    //     e.stopPropagation();
-                    //     setDeleteConfirmOpenId(item.id);
-                    //   }}
-                      data-cy="talent-acquisition-talent-roaster-table-button-delete"
-                    >
-                      <SaveAltIcon fontSize="small" />
-                      Export
-                    </button>
-                    <button
-                      type="button"
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
-                    //   onClick={(e) => {
-                    //     e.stopPropagation();
-                    //     setDeleteConfirmOpenId(item.id);
-                    //   }}
-                      data-cy="talent-acquisition-talent-roaster-table-button-delete"
-                    >
-                      <RemoveCircleOutlineOutlinedIcon fontSize="small" />
-                      Remove Action
-                    </button>
-                  </>
-                
-              </div>
-            )}
-          >
-            <Button
-              onClick={(e: any) => e.stopPropagation()}
-              type="default"
-              className="border-[1px] border-[#D9D9D9] rounded-md p-1 h-8"
-              data-cy="talent-acquisition-talent-roaster-table-button-action"
+          trigger={['click']}
+          getPopupContainer={() => document.body}
+          dropdownRender={() => (
+            <div
+              data-cy="time-attendance-rule-violation-table-button-delete-confirm-dropdown"
+              className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md"
             >
-              <MoreHorizIcon />
-            </Button>
-          </Dropdown>
+              <>
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedViolation(record.id, record.actionTypes ?? []);
+                    setIsShowEditRuleViolationModal(true);
+                  }}
+                  data-cy="time-attendance-rule-violation-table-button-edit"
+                >
+                  <EditOutlinedIcon fontSize="small" />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                  //   onClick={(e) => {
+                  //     e.stopPropagation();
+                  //     setDeleteConfirmOpenId(item.id);
+                  //   }}
+                  data-cy="time-attendance-rule-violation-table-button-delete"
+                >
+                  <SaveAltIcon fontSize="small" />
+                  Export
+                </button>
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedViolation(record.id, record.actionTypes ?? []);
+                    setIsShowDeleteRuleViolationModal(true);
+                  }}
+                  data-cy="time-attendance-rule-violation-table-button-delete"
+                >
+                  <RemoveCircleOutlineOutlinedIcon fontSize="small" />
+                  Remove Action
+                </button>
+              </>
+            </div>
+          )}
+        >
+          <Button
+            onClick={(e: any) => e.stopPropagation()}
+            type="default"
+            className="border-[1px] border-[#D9D9D9] rounded-md p-1 h-8"
+            data-cy="time-attendance-rule-violation-table-button-action"
+          >
+            <MoreHorizIcon />
+          </Button>
+        </Dropdown>
       ),
     },
   ];
@@ -329,57 +448,22 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
         actionTypes: item.actionTypes ?? [],
         createdAt: item.createdAt,
         ruleAppliedDays: item.attendanceRule?.ruleAppliedDays,
+        violationRuleType: resolveViolationRuleType(
+          item,
+          attendanceRuleTypesData?.items,
+        ),
         record: item,
       })),
     );
-  }, [ruleViolationsData]);
+  }, [ruleViolationsData, attendanceRuleTypesData?.items]);
 
   const onFilterChange = (val: CommonObject) => {
-    const nFilter: Partial<AttendanceRequestBody['filter']> = {};
-    if (val.date) {
-      nFilter['date'] = {
-        from: val.date[0]
-          ? dayjs(val.date[0]).format('YYYY-MM-DD')
-          : val.date[0],
-        to: val.date[1] ? dayjs(val.date[1]).format('YYYY-MM-DD') : val.date[1],
-      };
-    }
-
-    if (val.type) {
-      nFilter['type'] = val.type;
-    }
-
-    if (val.type === 'clockedOut') {
-      nFilter['type'] = null as any;
-      nFilter.clockedOut = false;
-    }
-
-    if (val.breakTypeId) {
-      nFilter['breakTypeId'] = val.breakTypeId;
-    }
-
-    if (val.checkInSource) {
-      nFilter['checkInSource'] = val.checkInSource;
-    }
-
-    if (val.checkOutSource) {
-      nFilter['checkOutSource'] = val.checkOutSource;
-    }
-
-    if (val.employeeId) {
-      nFilter['userIds'] = Array.isArray(val.employeeId)
-        ? val.employeeId
-        : [val.employeeId];
-    }
-
-    setFilter(nFilter);
-    setBodyRequest((prev) => ({
-      ...prev,
-      filter: nFilter,
-    }));
+    setViolationFilters(buildViolationQuery(val));
+    setCurrentPage(1);
   };
 
-  const handleTableChange = (pagination: any, _filters: any, sorter: any) => {
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    void filters;
     setCurrentPage(pagination.current ?? 1);
     setPageSize(pagination.pageSize ?? 10);
     setOrderDirection(sorter['order']);
@@ -414,14 +498,25 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
       data-cy="time-attendance-rule-violation-table-card"
       className="border-[1px] border-[#D9D9D9] rounded-lg"
     >
-      <div className="mb-4 px-5 pt-4">
+      <div
+        className="mb-4 px-2 sm:px-5 pt-4"
+        id="time-attendance-rule-violation-table-filter-section"
+        data-cy="time-attendance-rule-violation-table-filter-section"
+      >
         <TableFilter
           data-cy="time-attendance-rule-violation-table-filter"
           onChange={onFilterChange}
         />
       </div>
-      <div>
-        <div className="flex min-w-0 w-full overflow-x-auto scrollbar-none">
+      <div
+        id="time-attendance-rule-violation-table-wrapper"
+        data-cy="time-attendance-rule-violation-table-wrapper"
+      >
+        <div
+          className="flex min-w-0 w-full overflow-x-auto scrollbar-none"
+          id="time-attendance-rule-violation-table-container"
+          data-cy="time-attendance-rule-violation-table-container"
+        >
           {isFetching ? (
             <TableSkeleton
               columns={columns}
@@ -475,6 +570,12 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
             }}
           />
         )}
+        <EditRuleViolationModal
+          setIsShowEditRuleViolationModal={setIsShowEditRuleViolationModal}
+        />
+        <DeleteRuleViolationModal
+          setIsShowDeleteRuleViolationModal={setIsShowDeleteRuleViolationModal}
+        />
       </div>
     </div>
   );

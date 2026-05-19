@@ -9,6 +9,17 @@ type EmployeeAttendanceState = {
   isShowBreakAttendanceImportSidebar: boolean;
   isShowMobileFilters: boolean;
   showViolationFilter: boolean;
+  isShowEditRuleViolationModal: boolean;
+  setIsShowEditRuleViolationModal: (
+    isShowEditRuleViolationModal: boolean,
+  ) => void;
+  isShowDeleteRuleViolationModal: boolean;
+  setIsShowDeleteRuleViolationModal: (
+    isShowDeleteRuleViolationModal: boolean,
+  ) => void;
+  selectedViolationId: string;
+  selectedViolationActionTypes: string[];
+  setSelectedViolation: (id: string, actionTypes: string[]) => void;
 };
 
 type EmployeeAttendanceStateAction = {
@@ -27,6 +38,13 @@ type EmployeeAttendanceStateAction = {
   setShowViolationFilter: (showViolationFilter: boolean) => void;
   selectedRowKeys: Key[];
   setSelectedRowKeys: (selectedRowKeys: Key[]) => void;
+  setIsShowEditRuleViolationModal: (
+    isShowEditRuleViolationModal: boolean,
+  ) => void;
+  setIsShowDeleteRuleViolationModal: (
+    isShowDeleteRuleViolationModal: boolean,
+  ) => void;
+  setSelectedViolation: (id: string, actionTypes: string[]) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -70,6 +88,21 @@ const employeeAttendanceSlice: StateCreator<
   selectedRowKeys: [],
   setSelectedRowKeys: (selectedRowKeys: Key[]) => {
     set({ selectedRowKeys });
+  },
+  isShowEditRuleViolationModal: false,
+  setIsShowEditRuleViolationModal: (isShowEditRuleViolationModal: boolean) => {
+    set({ isShowEditRuleViolationModal });
+  },
+  isShowDeleteRuleViolationModal: false,
+  setIsShowDeleteRuleViolationModal: (
+    isShowDeleteRuleViolationModal: boolean,
+  ) => {
+    set({ isShowDeleteRuleViolationModal });
+  },
+  selectedViolationId: '',
+  selectedViolationActionTypes: [],
+  setSelectedViolation: (id: string, actionTypes: string[]) => {
+    set({ selectedViolationId: id, selectedViolationActionTypes: actionTypes });
   },
 });
 
