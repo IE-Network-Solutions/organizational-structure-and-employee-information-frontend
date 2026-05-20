@@ -54,5 +54,8 @@ export function useReportingData() {
     );
   }, [allReporting?.items, cadence, employeeData]);
 
-  return { reportSummaries };
+  return {
+    reportSummaries,
+    reportingItems: allReporting?.items ?? [],
+  };
 }

@@ -191,8 +191,19 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
+  const { reportSummaries, reportingItems } = useReportingData();
+
+  const krPanelPlans = activeTab === 2 ? reportSummaries : planSummaries;
+  const krPanelTransformedData =
+    activeTab === 2 ? reportingItems : transformedData;
+
   const krPanelBlockingLoading =
-    planningLoading || (userKeyResultsLoading && planSummaries.length === 0);
+    activeTab === 2
+      ? userKeyResultsLoading &&
+        reportSummaries.length === 0 &&
+        planSummaries.length === 0
+      : planningLoading ||
+        (userKeyResultsLoading && planSummaries.length === 0);
 
   const { targets: planningTargets, isLoading: planningTargetsLoading } =
     usePlanningTargets(userId, selectedTab?.id);
@@ -229,7 +240,6 @@ function Page() {
     }
   }, [activeTab, setInlinePlanningMode, setMobilePlanComposerOpen]);
 
-  const { reportSummaries } = useReportingData();
   const [highlightedKRId, setHighlightedKRId] = useState<string | null>(null);
   const [activeThread, setActiveThread] = useState<{
     id: string;
@@ -463,8 +473,8 @@ function Page() {
                 <KRPanelSkeleton />
               ) : (
                 <KRLeftPanel
-                  plans={planSummaries}
-                  transformedData={transformedData}
+                  plans={krPanelPlans}
+                  transformedData={krPanelTransformedData}
                   userId={userId}
                   highlightedKRId={highlightedKRId}
                   activeThread={activeThread}
@@ -610,15 +620,15 @@ function Page() {
               <KRPanelSkeleton />
             ) : (
               <KRLeftPanel
-                plans={planSummaries}
-                transformedData={transformedData}
+                plans={krPanelPlans}
+                transformedData={krPanelTransformedData}
                 userId={userId}
                 highlightedKRId={highlightedKRId}
                 activeThread={activeThread}
                 onCloseThread={handleCloseThread}
                 threadEntities={threadEntities}
                 inlinePlanningMode
-                activeTab={1}
+                activeTab={activeTab}
                 planningTargets={planningTargets}
                 planningTargetsLoading={planningTargetsLoading}
                 selectedPlanningTargetId={selectedPlanningTargetId}

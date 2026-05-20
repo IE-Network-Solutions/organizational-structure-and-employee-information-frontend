@@ -11,6 +11,7 @@ export type KeyResultMetricName =
   | 'Numeric'
   | 'Currency'
   | 'Percentage'
+  | 'Percent'
   | string;
 
 export function getMetricTypeName(kr: {
@@ -69,6 +70,7 @@ export function formatValueForMetric(
     case 'Currency':
       return `$${formatPlainNumber(value)}`;
     case 'Percentage':
+    case 'Percent':
       return `${formatPlainNumber(value)}%`;
     case 'Numeric':
     default:
@@ -78,6 +80,25 @@ export function formatValueForMetric(
 
 export function formatRawProgressValue(value: number): string {
   return formatPlainNumber(value);
+}
+
+/** Backend `progress` as 0–100 (handles 0–1 fractions). */
+export function normalizeProgressPercent(kr: {
+  progress?: number | string | null;
+}): number {
+  let p = Number(kr?.progress ?? 0);
+  if (!Number.isFinite(p)) p = 0;
+  if (p > 0 && p <= 1) p *= 100;
+  return Math.min(100, Math.max(0, Math.round(p)));
+}
+
+function isPercentScaleMetric(metric: KeyResultMetricName): boolean {
+  return (
+    metric === 'Achieve' ||
+    metric === 'Achieved' ||
+    metric === 'Percentage' ||
+    metric === 'Percent'
+  );
 }
 
 /** Prominent "achieved / target" string for the KR card (Plan, Report, OKR). */
@@ -98,15 +119,21 @@ export function getKeyResultProgressRatioText(kr: {
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {
-    const p = Math.min(
-      100,
-      Math.max(0, Math.round(Number(kr?.progress ?? 0) || 0)),
-    );
-    return `${p}/100`;
+    return `${normalizeProgressPercent(kr)}/100`;
   }
 
   const current = getNumericMetricCurrentValue(kr);
   const target = getNumericMetricTargetValue(kr);
+
+  if (target > 0) {
+    return `${formatRawProgressValue(current)}/${formatRawProgressValue(target)}`;
+  }
+
+  const percent = normalizeProgressPercent(kr);
+  if (percent > 0 || isPercentScaleMetric(metric)) {
+    return `${percent}/100`;
+  }
+
   return `${formatRawProgressValue(current)}/${formatRawProgressValue(target)}`;
 }
 
@@ -132,10 +159,7 @@ export function getKeyResultProgressPercent(kr: {
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {
-    let p = Number(kr?.progress ?? 0);
-    if (!Number.isFinite(p)) p = 0;
-    if (p > 0 && p <= 1) p *= 100;
-    return Math.min(100, Math.max(0, Math.round(p)));
+    return normalizeProgressPercent(kr);
   }
 
   const initial = Number(kr?.initialValue ?? 0);
@@ -147,8 +171,5 @@ export function getKeyResultProgressPercent(kr: {
     return Math.min(100, Math.max(0, Math.round(raw)));
   }
 
-  let p = Number(kr?.progress ?? 0);
-  if (!Number.isFinite(p)) p = 0;
-  if (p > 0 && p <= 1) p *= 100;
-  return Math.min(100, Math.max(0, Math.round(p)));
+  return normalizeProgressPercent(kr);
 }
