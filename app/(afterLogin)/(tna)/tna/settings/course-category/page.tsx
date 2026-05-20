@@ -6,7 +6,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Button, Form, Input, Modal, Pagination } from 'antd';
+import { Button, Card, Col, Form, Input, Modal, Pagination, Row } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useGetCourseCategory } from '@/store/server/features/tna/courseCategory/queries';
 import { useSetCourseCategory } from '@/store/server/features/tna/courseCategory/mutation';
@@ -228,150 +228,186 @@ const TnaCourseCategoryPage = () => {
     </>
   );
 
-  const desktopForm = (
-    <div
-      className="hidden lg:block flex-1 self-start border border-[#D9D9D9] rounded-lg bg-white p-5"
-      data-cy="tna-course-category-form-container"
-    >
-      <Form
-        form={form}
-        requiredMark={CustomLabel}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={{ title: '', description: '' }}
-        className="[&_.ant-form-item-label]:pb-2"
-        data-cy="tna-course-category-form"
-      >
-        {formFields}
-        <Form.Item className="mb-0 mt-6">
-          <div
-            className="flex justify-end gap-2"
-            data-cy="tna-course-category-form-actions"
-          >
-            {isEditing && (
-              <Button
-                onClick={handleCancel}
-                className="h-9 px-5 rounded-md text-[14px] font-normal"
-                id="tna-course-category-form-cancel-button"
-                data-cy="tna-course-category-form-cancel-button"
-              >
-                Cancel
-              </Button>
-            )}
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={isSaving}
-              className="h-9 px-6 rounded-md text-[14px] font-normal"
-              id="tna-course-category-form-submit-button"
-              data-cy="tna-course-category-form-submit-button"
-            >
-              {isEditing ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </Form.Item>
-      </Form>
-    </div>
-  );
-
   return (
-    <div id="tnaCourseCategoryPageId" data-cy="tna-course-category-page">
+    <div
+      className="w-full h-auto"
+      id="tnaCourseCategoryPageId"
+      data-cy="tna-course-category-page"
+    >
       {isCourseCategoryLoading ? (
         <CourseCategoryPageSkeleton />
       ) : (
-        <div
-          className="flex flex-col lg:flex-row gap-4 lg:gap-5"
-          data-cy="tna-course-category-two-column"
-        >
-          <div
-            className="w-full lg:w-[60%] border border-[#D9D9D9] rounded-lg bg-white p-3 lg:p-4"
-            data-cy="tna-course-category-list-container"
-          >
-            <Input
-              allowClear
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              suffix={<SearchOutlined className="text-[rgba(0,0,0,0.45)]" />}
-              className="mb-3 rounded-md text-[13px] lg:hidden"
-              data-cy="tna-course-category-search-input"
-              id="tnaCourseCategorySearchInputId"
-            />
-            {filteredItems.length === 0 ? (
+        <Row gutter={[16, 16]} data-cy="tna-course-category-two-column">
+          {/* List Column */}
+          <Col xl={12} lg={12} md={12} sm={24} xs={24}>
+            <Card
+              className="border-0 rounded-lg"
+              bodyStyle={{ padding: 0 }}
+              id="tna-course-category-list-card"
+              data-cy="tna-course-category-list-card"
+            >
               <div
-                className="w-full min-h-[200px] flex items-center justify-center"
-                data-cy="tna-course-category-list-empty"
-                id="tnaCourseCategoryListEmptyId"
+                className="p-4"
+                id="tna-course-category-search-container"
+                data-cy="tna-course-category-search-container"
               >
-                <EmptyState
-                  title={
-                    isSearchFilteredEmpty
-                      ? 'No categories match your search'
-                      : 'No course categories yet'
+                <Input
+                  allowClear
+                  placeholder="Search Category"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pr-0 py-0"
+                  id="tnaCourseCategorySearchInputId"
+                  data-cy="tna-course-category-search-input"
+                  suffix={
+                    <div
+                      className="text-gray-400 border-l border-gray-300 px-3 py-2"
+                      data-cy="tna-course-category-search-icon-container"
+                    >
+                      <SearchOutlined data-cy="tna-course-category-search-icon" />
+                    </div>
                   }
-                  description={
-                    isSearchFilteredEmpty
-                      ? 'Try a different search term.'
-                      : isLgUp
-                        ? 'Use the form on the right to create your first category.'
-                        : 'Create a category to organize your courses.'
-                  }
-                  actionText={!isLgUp ? 'Create category' : undefined}
-                  onAction={!isLgUp ? openCreateCategory : undefined}
                 />
               </div>
-            ) : (
-              <>
-                <div
-                  className="flex flex-col gap-3"
-                  data-cy="tna-course-category-list"
-                >
-                  {paginatedItems.map((item) => (
-                    <CourseCategoryCard
-                      key={item.id}
-                      item={item}
-                      isActive={selectedCategoryId === item.id}
-                      onEdit={(category: CourseCategory) => {
-                        setSelectedCategoryId(category.id);
-                        if (!isLgUp) {
-                          setMobileModalOpen(true);
-                        }
-                      }}
-                      onDeleted={(deletedId: string) => {
-                        if (deletedId === selectedCategoryId) {
-                          if (!isLgUp) {
-                            closeMobileComposer();
-                          } else {
-                            handleCancel();
-                          }
-                        }
-                      }}
-                      data-cy={`tna-course-category-card-${item.id}`}
-                    />
-                  ))}
-                </div>
-                {filteredItems.length > PAGE_SIZE && (
+              <div
+                id="tna-course-category-list-container"
+                data-cy="tna-course-category-list-container"
+              >
+                {filteredItems.length === 0 ? (
                   <div
-                    className="flex justify-center mt-4 pt-2 border-t border-[#F0F0F0]"
-                    data-cy="tna-course-category-pagination-wrap"
+                    className="w-full min-h-[200px] flex items-center justify-center"
+                    data-cy="tna-course-category-list-empty"
+                    id="tnaCourseCategoryListEmptyId"
                   >
-                    <Pagination
-                      size="small"
-                      current={page}
-                      pageSize={PAGE_SIZE}
-                      total={filteredItems.length}
-                      onChange={(p) => setPage(p)}
-                      showSizeChanger={false}
-                      data-cy="tna-course-category-pagination"
+                    <EmptyState
+                      title={
+                        isSearchFilteredEmpty
+                          ? 'No categories match your search'
+                          : 'No course categories yet'
+                      }
+                      description={
+                        isSearchFilteredEmpty
+                          ? 'Try a different search term.'
+                          : isLgUp
+                            ? 'Use the form on the right to create your first category.'
+                            : 'Create a category to organize your courses.'
+                      }
+                      actionText={!isLgUp ? 'Create category' : undefined}
+                      onAction={!isLgUp ? openCreateCategory : undefined}
                     />
                   </div>
+                ) : (
+                  <>
+                    <div
+                      className="flex flex-col gap-3 px-4 pb-4"
+                      data-cy="tna-course-category-list"
+                    >
+                      {paginatedItems.map((item) => (
+                        <CourseCategoryCard
+                          key={item.id}
+                          item={item}
+                          isActive={selectedCategoryId === item.id}
+                          onEdit={(category: CourseCategory) => {
+                            setSelectedCategoryId(category.id);
+                            if (!isLgUp) {
+                              setMobileModalOpen(true);
+                            }
+                          }}
+                          onDeleted={(deletedId: string) => {
+                            if (deletedId === selectedCategoryId) {
+                              if (!isLgUp) {
+                                closeMobileComposer();
+                              } else {
+                                handleCancel();
+                              }
+                            }
+                          }}
+                          data-cy={`tna-course-category-card-${item.id}`}
+                        />
+                      ))}
+                    </div>
+                    {filteredItems.length > PAGE_SIZE && (
+                      <div
+                        className="flex justify-center mt-4 pt-2 border-t border-[#F0F0F0] pb-4"
+                        data-cy="tna-course-category-pagination-wrap"
+                      >
+                        <Pagination
+                          size="small"
+                          current={page}
+                          pageSize={PAGE_SIZE}
+                          total={filteredItems.length}
+                          onChange={(p) => setPage(p)}
+                          showSizeChanger={false}
+                          data-cy="tna-course-category-pagination"
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-          </div>
+              </div>
+            </Card>
+          </Col>
 
-          {desktopForm}
-        </div>
+          {/* Form Column */}
+          <Col
+            xl={12}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="hidden lg:block"
+            data-cy="tna-course-category-form-col"
+          >
+            <Card
+              className="border-0 rounded-lg"
+              bodyStyle={{ padding: '20px' }}
+              id="tna-course-category-form-container"
+              data-cy="tna-course-category-form-container"
+            >
+              <Form
+                form={form}
+                requiredMark={CustomLabel}
+                layout="vertical"
+                onFinish={onFinish}
+                initialValues={{ title: '', description: '' }}
+                className="[&_.ant-form-item-label]:pb-2"
+                data-cy="tna-course-category-form"
+              >
+                {formFields}
+                <Form.Item
+                  className="mb-0 mt-6"
+                  data-cy="tna-course-category-form-actions-item"
+                >
+                  <div
+                    className="flex justify-end gap-2"
+                    data-cy="tna-course-category-form-actions"
+                  >
+                    {isEditing && (
+                      <Button
+                        onClick={handleCancel}
+                        className="h-9 px-5 rounded-md text-[14px] font-normal"
+                        id="tna-course-category-form-cancel-button"
+                        data-cy="tna-course-category-form-cancel-button"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={isSaving}
+                      className="h-9 px-6 rounded-md text-[14px] font-normal"
+                      id="tna-course-category-form-submit-button"
+                      data-cy="tna-course-category-form-submit-button"
+                    >
+                      {isEditing ? 'Update' : 'Create'}
+                    </Button>
+                  </div>
+                </Form.Item>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
       )}
 
       {!isLgUp && (
