@@ -199,11 +199,17 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
         id="probation-create-target-wrapper"
         data-cy="probation-create-target-wrapper"
       >
-        <div>
-          <p className="text-sm font-semibold text-gray-800 m-0" data-cy="probation-onboarding-tasks-title">
+        <div data-cy="probation-onboarding-tasks-title-wrapper">
+          <p
+            className="text-sm font-semibold text-gray-800 m-0"
+            data-cy="probation-onboarding-tasks-title"
+          >
             Probation Targets
           </p>
-          <p className="text-xs text-gray-400 m-0 mt-0.5">
+          <p
+            className="text-xs text-gray-400 m-0 mt-0.5"
+            data-cy="probation-onboarding-tasks-subtitle"
+          >
             Track tasks and scores per probation target
           </p>
         </div>
@@ -213,16 +219,26 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
         >
           <div
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border"
-            style={{ background: weightColor.bg, borderColor: weightColor.border, color: weightColor.text }}
+            style={{
+              background: weightColor.bg,
+              borderColor: weightColor.border,
+              color: weightColor.text,
+            }}
             id="probation-total-weight"
             data-cy="probation-total-weight"
           >
-            <span>Total Weight:</span>
-            <strong>{totalWeight}</strong>
+            <span data-cy="probation-total-weight-label">Total Weight:</span>
+            <strong data-cy="probation-total-weight-value">
+              {totalWeight}
+            </strong>
             {totalWeight !== 100 && (
-              <span className="opacity-70">/ 100</span>
+              <span className="opacity-70" data-cy="probation-total-weight-max">
+                / 100
+              </span>
             )}
-            {totalWeight === 100 && <span>✓</span>}
+            {totalWeight === 100 && (
+              <span data-cy="probation-total-weight-check">✓</span>
+            )}
           </div>
           <AccessGuard
             permissions={[Permissions.CreateProbationTarget]}

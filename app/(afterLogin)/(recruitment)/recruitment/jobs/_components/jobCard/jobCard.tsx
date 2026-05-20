@@ -15,7 +15,6 @@ import ShareToSocialMedia from '../modals/share';
 import ChangeStatusModal from '../modals/changeJobStatus';
 import EditJob from '../modals/editJob/editModal';
 import Link from 'next/link';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
@@ -273,15 +272,6 @@ const JobCard: React.FC = () => {
     : (jobList?.items ?? []);
 
   const { mutate: deleteJob, isLoading } = useDeleteJobs();
-
-  const { data: departments } = useGetDepartments();
-
-  const getDepartmentName = (jobDepartmentId: string | undefined) => {
-    const department =
-      departments &&
-      departments.find((dept: any) => dept.id === jobDepartmentId);
-    return department ? department.name : '';
-  };
 
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);

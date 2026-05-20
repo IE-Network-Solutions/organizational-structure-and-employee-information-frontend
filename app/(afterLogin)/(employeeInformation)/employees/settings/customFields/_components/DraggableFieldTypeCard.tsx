@@ -35,7 +35,10 @@ const DraggableFieldTypeCard: React.FC<DraggableFieldTypeCardProps> = ({
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), opacity: isDragging ? 0.45 : 1 }}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        opacity: isDragging ? 0.45 : 1,
+      }}
       {...attributes}
       {...listeners}
       className={`p-3 rounded-lg bg-white border cursor-grab active:cursor-grabbing z-50 transition-colors select-none ${

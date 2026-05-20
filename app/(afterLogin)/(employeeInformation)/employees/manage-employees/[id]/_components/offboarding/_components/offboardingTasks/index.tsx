@@ -99,7 +99,10 @@ function TemplateTaskDraggable({
       data: { type: 'template' as const, index, task: item },
     });
   const style = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, opacity: isDragging ? 0.45 : 1 }
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.45 : 1,
+      }
     : { opacity: isDragging ? 0.45 : 1 };
   return (
     <div
@@ -108,14 +111,25 @@ function TemplateTaskDraggable({
       {...listeners}
       {...attributes}
       className={`bg-white rounded-lg p-3 mb-2 cursor-grab active:cursor-grabbing select-none transition-colors border ${
-        isDragging ? 'drag-item-active' : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
+        isDragging
+          ? 'drag-item-active'
+          : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
       }`}
       id={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
       data-cy={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
     >
-      <div className="flex items-center gap-2">
-        <DragIndicatorIcon style={{ fontSize: 16 }} className="text-gray-300 shrink-0" aria-hidden />
-        <div>
+      <div
+        className="flex items-center gap-2"
+        data-cy={`offboarding-template-draggable-row-${toSlug(item.id ?? index)}`}
+      >
+        <DragIndicatorIcon
+          style={{ fontSize: 16 }}
+          className="text-gray-300 shrink-0"
+          aria-hidden
+        />
+        <div
+          data-cy={`offboarding-template-draggable-text-${toSlug(item.id ?? index)}`}
+        >
           <div
             className="font-medium text-sm text-gray-800"
             data-cy={`offboarding-template-draggable-title-${toSlug(item.id ?? index)}`}
@@ -150,7 +164,10 @@ function EmployeeTaskDraggable({
       data: { type: 'employee' as const, task },
     });
   const style = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, opacity: isDragging ? 0.45 : 1 }
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.45 : 1,
+      }
     : { opacity: isDragging ? 0.45 : 1 };
   return (
     <div
@@ -159,14 +176,26 @@ function EmployeeTaskDraggable({
       {...listeners}
       {...attributes}
       className={`bg-white rounded-lg p-4 mb-3 cursor-grab active:cursor-grabbing select-none transition-colors border ${
-        isDragging ? 'drag-item-active' : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
+        isDragging
+          ? 'drag-item-active'
+          : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
       }`}
       id={`offboarding-task-${taskSlug}`}
       data-cy={`offboarding-task-${taskSlug}`}
     >
-      <div className="flex items-center gap-2 w-full">
-        <DragIndicatorIcon style={{ fontSize: 16 }} className="text-gray-300 shrink-0" aria-hidden />
-        <div className="flex flex-1 justify-between items-center min-w-0">
+      <div
+        className="flex items-center gap-2 w-full"
+        data-cy={`offboarding-task-row-${taskSlug}`}
+      >
+        <DragIndicatorIcon
+          style={{ fontSize: 16 }}
+          className="text-gray-300 shrink-0"
+          aria-hidden
+        />
+        <div
+          className="flex flex-1 justify-between items-center min-w-0"
+          data-cy={`offboarding-task-content-${taskSlug}`}
+        >
           {children}
         </div>
       </div>
@@ -188,7 +217,9 @@ function DroppableArea({
     <div
       ref={setNodeRef}
       className={`${className ?? ''} rounded-lg border-2 transition-all ${
-        isOver ? 'drop-zone-active' : 'border-dashed border-[#D1D5DB] hover:border-[#1E40AF]/40'
+        isOver
+          ? 'drop-zone-active'
+          : 'border-dashed border-[#D1D5DB] hover:border-[#1E40AF]/40'
       }`}
       style={{ minHeight: 120, padding: '8px' }}
       data-cy={`offboarding-droppable-${id}`}
@@ -351,19 +382,29 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     >
       <style data-cy="offboarding-tasks-dnd-style" jsx global>{`
         @keyframes drag-item-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45); }
-          50%       { box-shadow: 0 0 0 5px rgba(30, 64, 175, 0); }
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45);
+          }
+          50% {
+            box-shadow: 0 0 0 5px rgba(30, 64, 175, 0);
+          }
         }
         .drag-item-active {
-          border-color: #1E40AF !important;
+          border-color: #1e40af !important;
           animation: drag-item-pulse 1s ease-in-out infinite;
         }
         @keyframes drop-zone-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35); }
-          50%       { box-shadow: 0 0 0 7px rgba(30, 64, 175, 0); }
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 7px rgba(30, 64, 175, 0);
+          }
         }
         .drop-zone-active {
-          border-color: #1E40AF !important;
+          border-color: #1e40af !important;
           border-style: solid !important;
           animation: drop-zone-pulse 1s ease-in-out infinite;
         }
@@ -380,11 +421,24 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             style={{ background: '#F9FAFB', boxShadow: 'none' }}
             id="core-offboarding-tasks-card"
             data-cy="core-offboarding-tasks-card"
-            headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+            headStyle={{
+              borderBottom: '1px solid #F3F4F6',
+              background: '#F9FAFB',
+            }}
             title={
-              <div>
-                <p className="text-sm font-semibold text-gray-800 m-0">Core Offboarding Tasks</p>
-                <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Drag a task to the employee board</p>
+              <div data-cy="core-offboarding-tasks-card-title">
+                <p
+                  className="text-sm font-semibold text-gray-800 m-0"
+                  data-cy="core-offboarding-tasks-card-heading"
+                >
+                  Core Offboarding Tasks
+                </p>
+                <p
+                  className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                  data-cy="core-offboarding-tasks-card-subheading"
+                >
+                  Drag a task to the employee board
+                </p>
               </div>
             }
           >
@@ -425,11 +479,24 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
             style={{ background: '#F9FAFB', boxShadow: 'none' }}
             id="offboarding-tasks-card"
             data-cy="offboarding-tasks-card"
-            headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+            headStyle={{
+              borderBottom: '1px solid #F3F4F6',
+              background: '#F9FAFB',
+            }}
             title={
-              <div>
-                <p className="text-sm font-semibold text-gray-800 m-0">Off-boarding Tasks</p>
-                <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Drop tasks here or add manually</p>
+              <div data-cy="offboarding-tasks-card-title">
+                <p
+                  className="text-sm font-semibold text-gray-800 m-0"
+                  data-cy="offboarding-tasks-card-heading"
+                >
+                  Off-boarding Tasks
+                </p>
+                <p
+                  className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                  data-cy="offboarding-tasks-card-subheading"
+                >
+                  Drop tasks here or add manually
+                </p>
               </div>
             }
             extra={

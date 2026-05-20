@@ -131,11 +131,24 @@ const CustomAddJobFields: React.FC = () => {
           bordered={false}
           className="flex-1 min-w-0 rounded-xl"
           style={{ background: '#F9FAFB', boxShadow: 'none' }}
-          headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+          headStyle={{
+            borderBottom: '1px solid #F3F4F6',
+            background: '#F9FAFB',
+          }}
           title={
-            <div>
-              <p className="text-sm font-semibold text-gray-800 m-0">Available Input Types</p>
-              <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Click or drag to add a question</p>
+            <div data-cy="talent-acquisition-custom-fields-available-types-title">
+              <p
+                className="text-sm font-semibold text-gray-800 m-0"
+                data-cy="talent-acquisition-custom-fields-available-types-heading"
+              >
+                Available Input Types
+              </p>
+              <p
+                className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                data-cy="talent-acquisition-custom-fields-available-types-subheading"
+              >
+                Click or drag to add a question
+              </p>
             </div>
           }
           data-cy="talent-acquisition-custom-fields-available-types"
@@ -161,8 +174,12 @@ const CustomAddJobFields: React.FC = () => {
                   className="flex items-center gap-2"
                   data-cy="talent-acquisition-custom-fields-input-type-row"
                 >
-                  <GripVertical size={16} className="text-gray-300 shrink-0" aria-hidden />
-                  <div>
+                  <GripVertical
+                    size={16}
+                    className="text-gray-300 shrink-0"
+                    aria-hidden
+                  />
+                  <div data-cy="talent-acquisition-custom-fields-input-type-text">
                     <div
                       className="font-medium text-sm text-gray-800"
                       data-cy="talent-acquisition-custom-fields-input-type-label"
@@ -191,11 +208,24 @@ const CustomAddJobFields: React.FC = () => {
             bordered={false}
             className="rounded-xl"
             style={{ background: '#F9FAFB', boxShadow: 'none' }}
-            headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+            headStyle={{
+              borderBottom: '1px solid #F3F4F6',
+              background: '#F9FAFB',
+            }}
             title={
-              <div>
-                <p className="text-sm font-semibold text-gray-800 m-0">Template Questions</p>
-                <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Drop question types here or click on the left</p>
+              <div data-cy="talent-acquisition-custom-fields-questions-title">
+                <p
+                  className="text-sm font-semibold text-gray-800 m-0"
+                  data-cy="talent-acquisition-custom-fields-questions-heading"
+                >
+                  Template Questions
+                </p>
+                <p
+                  className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                  data-cy="talent-acquisition-custom-fields-questions-subheading"
+                >
+                  Drop question types here or click on the left
+                </p>
               </div>
             }
             data-cy="talent-acquisition-custom-fields-questions"

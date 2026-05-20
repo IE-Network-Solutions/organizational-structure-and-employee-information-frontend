@@ -376,7 +376,10 @@ function Job({ id }: { id: string }) {
               paddingRight: '16px',
               background: '#F9FAFB',
             }}
-            bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
+            bodyStyle={{
+              padding: '12px 16px 12px 16px',
+              background: '#F9FAFB',
+            }}
           >
             {isEditing ? (
               <Form
@@ -634,7 +637,10 @@ function Job({ id }: { id: string }) {
               paddingRight: '16px',
               background: '#F9FAFB',
             }}
-            bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
+            bodyStyle={{
+              padding: '12px 16px 12px 16px',
+              background: '#F9FAFB',
+            }}
           >
             {isEditModalVisible && selectedJobRecord ? (
               <Form

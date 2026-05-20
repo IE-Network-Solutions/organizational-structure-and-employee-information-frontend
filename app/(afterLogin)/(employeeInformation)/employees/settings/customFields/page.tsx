@@ -61,10 +61,7 @@ const FIELD_TYPES = [
     id: 'radio',
     label: 'Radio box',
     description: (
-      <p
-        data-cy="settings-custom-fields-radio-description"
-        className="text-xs"
-      >
+      <p data-cy="settings-custom-fields-radio-description" className="text-xs">
         Input field for single value
       </p>
     ),
@@ -235,21 +232,31 @@ const CustomFieldsPage: React.FC = () => {
       data-cy="settings-custom-fields-page"
     >
       <style data-cy="settings-custom-fields-page-style" jsx global>{`
-@keyframes drag-item-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45); }
-          50%       { box-shadow: 0 0 0 5px rgba(30, 64, 175, 0); }
+        @keyframes drag-item-pulse {
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45);
+          }
+          50% {
+            box-shadow: 0 0 0 5px rgba(30, 64, 175, 0);
+          }
         }
         .drag-item-active {
-          border-color: #1E40AF !important;
+          border-color: #1e40af !important;
           animation: drag-item-pulse 1s ease-in-out infinite;
         }
 
         @keyframes drop-zone-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35); }
-          50%       { box-shadow: 0 0 0 7px rgba(30, 64, 175, 0); }
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 7px rgba(30, 64, 175, 0);
+          }
         }
         .drop-zone-active {
-          border-color: #1E40AF !important;
+          border-color: #1e40af !important;
           border-style: solid !important;
           animation: drop-zone-pulse 1s ease-in-out infinite;
         }
@@ -264,12 +271,25 @@ const CustomFieldsPage: React.FC = () => {
               id="settings-custom-fields-field-types-card"
               data-cy="settings-custom-fields-field-types-card"
               title={
-                <div>
-                  <p className="text-sm font-semibold text-gray-800 m-0">Field Types</p>
-                  <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Drag a type onto a form section</p>
+                <div data-cy="settings-custom-fields-field-types-title">
+                  <p
+                    className="text-sm font-semibold text-gray-800 m-0"
+                    data-cy="settings-custom-fields-field-types-heading"
+                  >
+                    Field Types
+                  </p>
+                  <p
+                    className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                    data-cy="settings-custom-fields-field-types-subheading"
+                  >
+                    Drag a type onto a form section
+                  </p>
                 </div>
               }
-              headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+              headStyle={{
+                borderBottom: '1px solid #F3F4F6',
+                background: '#F9FAFB',
+              }}
             >
               <div
                 data-cy="settings-custom-fields-field-types-list"
@@ -295,12 +315,25 @@ const CustomFieldsPage: React.FC = () => {
               className="rounded-xl"
               style={{ boxShadow: 'none', background: '#F9FAFB' }}
               title={
-                <div>
-                  <p className="text-sm font-semibold text-gray-800 m-0">Form Sections</p>
-                  <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Drop field types here to add custom fields</p>
+                <div data-cy="settings-custom-fields-form-sections-title">
+                  <p
+                    className="text-sm font-semibold text-gray-800 m-0"
+                    data-cy="settings-custom-fields-form-sections-heading"
+                  >
+                    Form Sections
+                  </p>
+                  <p
+                    className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                    data-cy="settings-custom-fields-form-sections-subheading"
+                  >
+                    Drop field types here to add custom fields
+                  </p>
                 </div>
               }
-              headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+              headStyle={{
+                borderBottom: '1px solid #F3F4F6',
+                background: '#F9FAFB',
+              }}
             >
               <div
                 data-cy="settings-custom-fields-form-categories-list"

@@ -67,10 +67,7 @@ const CreatePosition: React.FC = () => {
   };
 
   return (
-    <div
-      data-cy="settings-position-create-drawer"
-      className="rounded-lg"
-    >
+    <div data-cy="settings-position-create-drawer" className="rounded-lg">
       <Form
         form={form}
         layout="vertical"
