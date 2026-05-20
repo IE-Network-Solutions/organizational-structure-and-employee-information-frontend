@@ -998,7 +998,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // Wait for persisted auth (token, userPermissions) before checking access.
   // Without this, reload can run the check with empty store state and redirect to /unauthorized.
   useEffect(() => {
-    if (!hasHydrated) return;
+    if (!hasHydrated) {
+      setIsCheckingPermissions(false);
+      return;
+    }
 
     let cancelled = false;
 
