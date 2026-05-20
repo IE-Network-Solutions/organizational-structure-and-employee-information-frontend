@@ -19,6 +19,7 @@ docs/
 /out/
 
 /.cursor
+/.claude
 
 # production
 /build
