@@ -1,4 +1,4 @@
-import { Col, Form, Row } from 'antd';
+import { Col, Row } from 'antd';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
@@ -17,7 +17,6 @@ function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
 
   const { setEdit } = useEmployeeManagementStore();
-  const [form] = Form.useForm();
   const { data: employeeInformationForm } = useGetEmployeInformationForms();
 
   const mergedFields =
@@ -43,45 +42,45 @@ function General({ id }: { id: string }) {
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
-  const handleSaveChanges = (editKey: keyof EditState, values: any) => {
-    form
-      .validateFields()
-      .then(() => {
-        switch (editKey) {
-          case 'general':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values,
-            });
-            break;
-          case 'addresses':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { addresses: values },
-            });
-            break;
-          case 'emergencyContact':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { emergencyContact: values },
-            });
-            break;
-          case 'bankInformation':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { bankInformation: values },
-            });
-            break;
-          case 'additionalInformation':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { additionalInformation: values },
-            });
-            break;
-        }
-        setEdit(editKey);
-      })
-      .catch();
+
+  const handleSaveChanges = (
+    editKey: keyof EditState,
+    values: any,
+    options?: { onSuccess?: () => void },
+  ) => {
+    const employeeInfoId = employeeData?.employeeInformation?.id;
+    if (!employeeInfoId) return;
+
+    let payload: Record<string, unknown>;
+    switch (editKey) {
+      case 'general':
+        payload = values;
+        break;
+      case 'addresses':
+        payload = { addresses: values };
+        break;
+      case 'emergencyContact':
+        payload = { emergencyContact: values };
+        break;
+      case 'bankInformation':
+        payload = { bankInformation: values };
+        break;
+      case 'additionalInformation':
+        payload = { additionalInformation: values };
+        break;
+      default:
+        return;
+    }
+
+    updateEmployeeInformation(
+      { id: employeeInfoId, values: payload, userId: id },
+      {
+        onSuccess: () => {
+          setEdit(editKey);
+          options?.onSuccess?.();
+        },
+      },
+    );
   };
 
   return (

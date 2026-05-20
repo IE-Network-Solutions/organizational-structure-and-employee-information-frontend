@@ -5,6 +5,10 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 import { useMutation, useQueryClient } from 'react-query';
+import {
+  extractBankInformationFromPatchResponse,
+  normalizeBankInformation,
+} from '@/utils/employeeBankInformation';
 
 // Mutation function for updating profile image
 const updateProfileImageMutation = async (formData: FormData) => {
@@ -120,6 +124,32 @@ const updateEmployeeMutation = async (id: string, values: any) => {
     data: values,
   });
 };
+
+/** Merge PATCH payload into cached employeeInformation (nested objects shallow-merged). */
+export function mergeEmployeeInformationCache(
+  current: Record<string, unknown> | undefined,
+  patch: Record<string, unknown>,
+): Record<string, unknown> {
+  const next = { ...(current ?? {}) };
+  for (const [key, value] of Object.entries(patch)) {
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      next[key] !== null &&
+      typeof next[key] === 'object' &&
+      !Array.isArray(next[key])
+    ) {
+      next[key] = {
+        ...(next[key] as Record<string, unknown>),
+        ...(value as Record<string, unknown>),
+      };
+    } else {
+      next[key] = value;
+    }
+  }
+  return next;
+}
 const updateEmployeeInformation = async (id: string, values: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -250,16 +280,62 @@ export const useUpdateEmployeeJobInformation = () => {
     },
   );
 };
+export type UpdateEmployeeVariables = {
+  id: string;
+  values: Record<string, unknown>;
+  /** User id for `['employee', userId]` query cache (route param). */
+  userId?: string;
+};
+
 // useUpdateEmployee hook remains unchanged
 export const useUpdateEmployee = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
+    ({ id, values }: UpdateEmployeeVariables) =>
       updateEmployeeMutation(id, values),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('employee');
+      onSuccess: (data, variables) => {
+        const { userId, values } = variables;
+        const bankPatch = extractBankInformationFromPatchResponse(data, values);
+
+        if (userId) {
+          queryClient.setQueryData(['employee', userId], (old: any) => {
+            if (!old?.employeeInformation) return old;
+
+            let employeeInformation = mergeEmployeeInformationCache(
+              old.employeeInformation,
+              values,
+            );
+
+            if (bankPatch && Object.keys(bankPatch).length > 0) {
+              employeeInformation = {
+                ...employeeInformation,
+                bankInformation: {
+                  ...normalizeBankInformation(
+                    employeeInformation.bankInformation,
+                  ),
+                  ...bankPatch,
+                },
+              };
+            } else if (
+              data &&
+              typeof data === 'object' &&
+              (data as { id?: string }).id &&
+              !bankPatch
+            ) {
+              employeeInformation = mergeEmployeeInformationCache(
+                employeeInformation,
+                data as Record<string, unknown>,
+              );
+            }
+
+            return { ...old, employeeInformation };
+          });
+        }
+
+        // Refresh list views only — do not refetch ['employee', userId] or stale GET overwrites the patch.
+        queryClient.invalidateQueries('employees');
         NotificationMessage.success({
           message: 'Successfully Updated',
           description: 'Employee successfully updated',

@@ -367,7 +367,6 @@ export const useGetEmployees = () => {
  */
 export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employee', empId], () => getEmployee(empId), {
-    keepPreviousData: true,
     // Only fetch if we have a real employee id.
     // Also guard against empId accidentally being the string "undefined".
     enabled: !!empId && empId !== 'undefined' && empId.length > 0,

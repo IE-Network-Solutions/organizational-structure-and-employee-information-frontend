@@ -3,8 +3,13 @@ import {
   EditState,
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
+import {
+  BANK_DEFAULT_FIELD_KEYS,
+  BANK_DEFAULT_FIELDS,
+  buildBankFieldsForDisplay,
+} from '@/utils/employeeBankInformation';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
@@ -22,6 +27,52 @@ const BankInformationComponent = ({
   const { isLoading, data: employeeData } = useGetEmployee(id);
 
   const [form] = Form.useForm();
+  const [savedBankSnapshot, setSavedBankSnapshot] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
+
+  const bankInformationFields = useMemo(
+    () =>
+      mergedFields?.filter(
+        (field: any) => field?.formTitle === 'bankInformation',
+      ) || [],
+    [mergedFields],
+  );
+
+  const customBankFieldsOnly = useMemo(
+    () =>
+      bankInformationFields.filter(
+        (field: any) => !BANK_DEFAULT_FIELD_KEYS.has(field.fieldName),
+      ),
+    [bankInformationFields],
+  );
+
+  const allFields = useMemo(
+    () =>
+      buildBankFieldsForDisplay(
+        employeeData,
+        bankInformationFields,
+        savedBankSnapshot,
+      ),
+    [employeeData, bankInformationFields, savedBankSnapshot],
+  );
+
+  useEffect(() => {
+    if (!savedBankSnapshot) return;
+    const current = buildBankFieldsForDisplay(employeeData, bankInformationFields);
+    const savedAccount = String(savedBankSnapshot.accountNumber ?? '');
+    const currentAccount = String(current.accountNumber ?? '');
+    if (savedAccount && savedAccount === currentAccount) {
+      setSavedBankSnapshot(null);
+    }
+  }, [employeeData, bankInformationFields, savedBankSnapshot]);
+
+  useEffect(() => {
+    if (edit.bankInformation) {
+      form.setFieldsValue(allFields);
+    }
+  }, [edit.bankInformation, allFields, form]);
 
   const getFieldValidation = (fieldName: string) => {
     return (
@@ -30,32 +81,18 @@ const BankInformationComponent = ({
     );
   };
 
-  // Filter custom fields for bankInformation section
-  const bankInformationFields =
-    mergedFields?.filter(
-      (field: any) => field?.formTitle === 'bankInformation',
-    ) || [];
-
-  // Merge existing employee data with custom fields
-  const existingData = employeeData?.employeeInformation?.bankInformation || {};
-  const defaultFields = {
-    bankName: '',
-    branch: '',
-    accountName: '',
-    accountNumber: '',
-  };
-  const allFields = { ...defaultFields, ...existingData };
-
-  // Add custom fields to allFields if they don't exist
-  bankInformationFields.forEach((field: any) => {
-    if (!(field.fieldName in allFields)) {
-      allFields[field.fieldName] = '';
-    }
-  });
-
   const handleEditChange = (editKey: keyof EditState) => {
     setEdit(editKey);
   };
+
+  const handleBankSave = (values: Record<string, unknown>) => {
+    handleSaveChanges('bankInformation', values, {
+      onSuccess: () => {
+        setSavedBankSnapshot(values);
+      },
+    });
+  };
+
   const titleMap: Record<string, string> = {
     bankName: 'Bank Name',
     accountNumber: 'Account Number',
@@ -88,25 +125,20 @@ const BankInformationComponent = ({
 
   const customLabel = (field: any) => field.label || getLabel(field.fieldName);
 
-  // Get all default fields (show all, even if empty)
-  const defaultFieldKeys = Object.keys(defaultFields);
-  const defaultFieldItems = defaultFieldKeys.map((key) => ({
+  const defaultFieldItems = Object.keys(BANK_DEFAULT_FIELDS).map((key) => ({
     label: getLabel(key),
     value: getDisplayValue(key, allFields[key]),
     key,
   }));
 
-  // Get custom fields
-  const customFieldItems = bankInformationFields.map((field: any) => ({
+  const customFieldItems = customBankFieldsOnly.map((field: any) => ({
     label: customLabel(field),
     value: getDisplayValue(field.fieldName, allFields[field.fieldName]),
     key: field.fieldName,
   }));
 
-  // Combine all items
   const allItems = [...defaultFieldItems, ...customFieldItems];
 
-  // Split into two columns - distribute evenly
   const midPoint = Math.ceil(allItems.length / 2);
   const leftItems = allItems.slice(0, midPoint);
   const rightItems = allItems.slice(midPoint);
@@ -181,9 +213,8 @@ const BankInformationComponent = ({
       {edit.bankInformation ? (
         <Form
           form={form}
-          onFinish={(values) => handleSaveChanges('bankInformation', values)}
+          onFinish={handleBankSave}
           layout="vertical"
-          style={{ display: edit ? 'block' : 'none' }} // Hide form when not in edit mode
           initialValues={allFields}
           id="bank-information-form"
           data-cy="bank-information-form"
@@ -212,7 +243,10 @@ const BankInformationComponent = ({
                 <Button
                   type="default"
                   size="small"
-                  onClick={() => setEdit('bankInformation')}
+                  onClick={() => {
+                    setSavedBankSnapshot(null);
+                    setEdit('bankInformation');
+                  }}
                   id="bank-information-cancel-btn"
                   data-cy="bank-information-cancel-btn"
                   className="border border-red-500 h-6 w-6"
@@ -245,7 +279,7 @@ const BankInformationComponent = ({
               id="bank-information-form-col"
               data-cy="bank-information-form-col"
             >
-              {Object.entries(allFields).map(([key, val]) => (
+              {Object.keys(allFields).map((key) => (
                 <Form.Item
                   key={key}
                   name={key}
@@ -271,7 +305,6 @@ const BankInformationComponent = ({
                           case 'accountNumber':
                             fieldValidation = 'any';
                             break;
-                          // case 'accountNumber':
                           case 'accountName':
                           case 'branch':
                           case 'bankName':
@@ -292,15 +325,9 @@ const BankInformationComponent = ({
                       },
                     },
                   ]}
-                  // rules={
-                  //   ['bankName', 'accountNumber'].includes(key)
-                  //     ? [{ required: true, message: `Please enter the ${key}` }]
-                  //     : []
-                  // }
                 >
                   <Input
                     placeholder={key.replace(/_/g, ' ')}
-                    defaultValue={val?.toString()}
                     id={`bank-information-${key}-input`}
                     data-cy={`bank-information-${key}-input`}
                   />
