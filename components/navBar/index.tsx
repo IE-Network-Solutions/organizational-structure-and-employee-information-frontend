@@ -68,6 +68,7 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -100,7 +101,6 @@ interface CustomMenuItem {
   moduleCode?: string;
 }
 
-import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
 import { AiOutlineRight } from 'react-icons/ai';
@@ -271,7 +271,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId, tenantId } = useAuthenticationStore();
+  const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
   useGetEmployee(userId);
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -833,9 +833,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
-      // Always read from the store so checks after async refresh see up-to-date permissions.
-      // Persisted auth strips userPermissions until fetchCurrentUserAndUpdateStore runs.
-      const userData = useAuthenticationStore.getState().userData;
       // Get all routes and their permissions
       const routesWithPermissions = getRoutesAndPermissions(treeData);
 
@@ -918,7 +915,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       );
       return hasAllPermissions;
     },
-    [treeData],
+    [treeData, userData],
   );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
     filter: { isActive: true },
@@ -998,7 +995,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   // ✅ Check permission on pathname change
+  // Wait for persisted auth (token, userPermissions) before checking access.
+  // Without this, reload can run the check with empty store state and redirect to /unauthorized.
   useEffect(() => {
+    if (!hasHydrated) return;
+
     let cancelled = false;
 
     const checkPermissions = async () => {
@@ -1012,21 +1013,34 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         const state = useAuthenticationStore.getState();
         const isOwner =
           state.userData?.role?.slug?.toLowerCase() === 'owner';
-        if (
-          state.token &&
-          state.localId &&
-          !isOwner &&
-          state.userData?.userPermissions === undefined
-        ) {
-          await fetchCurrentUserAndUpdateStore();
+
+        const hasNoPermissions =
+          !state.userData?.userPermissions ||
+          (Array.isArray(state.userData.userPermissions) &&
+            state.userData.userPermissions.length === 0);
+
+        if (state.token && state.localId && !isOwner && hasNoPermissions) {
+          const success = await fetchCurrentUserAndUpdateStore();
           if (cancelled) return;
+          if (!success) {
+            const refreshed = useAuthenticationStore.getState();
+            const stillNoPerms =
+              !refreshed.userData?.userPermissions ||
+              (Array.isArray(refreshed.userData.userPermissions) &&
+                refreshed.userData.userPermissions.length === 0);
+            if (stillNoPerms) {
+              return;
+            }
+          }
         }
 
         if (!checkPathnamePermissions(pathname)) {
           router.push('/unauthorized');
         }
       } finally {
-        setIsCheckingPermissions(false);
+        if (!cancelled) {
+          setIsCheckingPermissions(false);
+        }
       }
     };
 
@@ -1034,7 +1048,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return () => {
       cancelled = true;
     };
-  }, [pathname, router, checkPathnamePermissions, setIsCheckingPermissions]);
+  }, [
+    pathname,
+    router,
+    checkPathnamePermissions,
+    setIsCheckingPermissions,
+    hasHydrated,
+    userData,
+  ]);
 
   const findParentMenuKey = React.useCallback(
     (pathname: string, menuItems: CustomMenuItem[]): string | null => {
