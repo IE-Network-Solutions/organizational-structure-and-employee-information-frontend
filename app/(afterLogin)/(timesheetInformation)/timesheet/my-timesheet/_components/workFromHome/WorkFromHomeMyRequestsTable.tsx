@@ -14,7 +14,31 @@ import { TableSkeleton } from '@/components/tableSkeleton';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 
 const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
-const LEAVE_TABLE_SCROLL_X = 920;
+const LEAVE_TABLE_SCROLL_X = 1120;
+
+function extractWorkFromHomeRejectionReason(item: any): string {
+  const approvalComments = item?.approvalComments;
+  const firstApprovalComment = Array.isArray(approvalComments)
+    ? approvalComments[0]
+    : approvalComments;
+  const fromApprovalComments =
+    firstApprovalComment?.comment ??
+    firstApprovalComment?.commentText ??
+    firstApprovalComment?.content ??
+    (typeof firstApprovalComment === 'string' ? firstApprovalComment : '') ??
+    '';
+
+  if (fromApprovalComments) return fromApprovalComments;
+
+  return (
+    item?.rejectedReason ??
+    item?.rejectionReason ??
+    item?.rejectionComment ??
+    item?.rejectReason ??
+    item?.comment ??
+    ''
+  );
+}
 
 const statusTagConfig: Record<
   LeaveRequestStatus,
@@ -65,18 +89,27 @@ export default function WorkFromHomeMyRequestsTable({
   useEffect(() => {
     if (data?.items) {
       setTableData(
-        data.items.map((item: any) => ({
-          key: item.id,
-          startAt: item.startAt,
-          endAt: item.endAt,
-          days:
-            item.days ??
-            (item.startAt && item.endAt
-              ? dayjs(item.endAt).diff(dayjs(item.startAt), 'day') + 1
-              : '-'),
-          reason: item.reason ?? item.justificationNote ?? '-',
-          status: normalizeStatus(item.status),
-        })),
+        data.items.map((item: any) => {
+          const status = normalizeStatus(item.status);
+          const rejectedReason =
+            status === LeaveRequestStatus.DECLINED
+              ? extractWorkFromHomeRejectionReason(item)
+              : '';
+
+          return {
+            key: item.id,
+            startAt: item.startAt,
+            endAt: item.endAt,
+            days:
+              item.days ??
+              (item.startAt && item.endAt
+                ? dayjs(item.endAt).diff(dayjs(item.startAt), 'day') + 1
+                : '-'),
+            reason: item.reason ?? item.justificationNote ?? '-',
+            status,
+            rejectedReason,
+          };
+        }),
       );
     } else {
       setTableData([]);
@@ -170,6 +203,28 @@ export default function WorkFromHomeMyRequestsTable({
         );
       },
     },
+    {
+      title: 'Rejected Reason',
+      dataIndex: 'rejectedReason',
+      key: 'rejectedReason',
+      width: 200,
+      ellipsis: true,
+      onCell: () => ({ style: cellStyle }),
+      render: (text: string, record: { status: LeaveRequestStatus }) => {
+        const value =
+          record.status === LeaveRequestStatus.DECLINED ? text || '-' : '-';
+
+        return (
+          <div
+            className={`${rowCellClass} max-w-[200px] truncate text-gray-900`}
+            data-cy="time-attendance-wfh-my-requests-cell-rejected-reason"
+            title={value !== '-' ? value : undefined}
+          >
+            {value}
+          </div>
+        );
+      },
+    },
   ];
 
   const meta = data?.meta;
@@ -216,7 +271,7 @@ export default function WorkFromHomeMyRequestsTable({
             <TableSkeleton columns={columns} />
           ) : (
             <Table
-              className="[&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.wfh-requests-row-even>td]:!bg-[#FAFAFA] [&_tr.wfh-requests-row-odd>td]:!bg-white"
+              className="[&_.ant-table]:min-w-[1120px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.wfh-requests-row-even>td]:!bg-[#FAFAFA] [&_tr.wfh-requests-row-odd>td]:!bg-white"
               columns={columns}
               dataSource={tableData}
               pagination={false}
