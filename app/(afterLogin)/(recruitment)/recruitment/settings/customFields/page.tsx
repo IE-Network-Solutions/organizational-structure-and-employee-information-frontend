@@ -1,5 +1,7 @@
 'use client';
 import React, { useCallback, useState } from 'react';
+import { Card } from 'antd';
+import { GripVertical } from 'lucide-react';
 import CustomFieldsDrawer from './customFieldsDrawer';
 import CustomFieldModal from './CustomFieldModal';
 import { useRecruitmentSettingsStore } from '@/store/uistate/features/recruitment/settings';
@@ -117,57 +119,28 @@ const CustomAddJobFields: React.FC = () => {
 
   return (
     <div
-      className="py-3 sm:p-5 rounded-2xl bg-white h-full"
+      className="py-3 sm:p-5 bg-white h-full"
       data-cy="talent-acquisition-custom-fields-page-container"
     >
-      {/* <div
-        className="flex justify-end items-center mb-6"
-        data-cy="talent-acquisition-custom-fields-page-header"
-      >
-        <AccessGuard permissions={[Permissions.CreateCustomFields]}>
-          <Button
-            type="primary"
-            id="createUserButton"
-            data-cy="talent-acquisition-custom-fields-button-new"
-            className="h-10 px-4 recruitment-settings-primary-btn"
-            icon={
-              <UserPlus
-                size={18}
-                data-cy="talent-acquisition-custom-fields-button-new-icon"
-              />
-            }
-            onClick={() => showCreateModal(null)}
-          >
-            <span
-              className="hidden sm:inline"
-              data-cy="talent-acquisition-custom-fields-button-new-text"
-            >
-              New Field
-            </span>
-          </Button>
-        </AccessGuard>
-      </div> */}
-
-      {/* Two columns on desktop; stacked on mobile: Available Input Types then Existing Template Questions */}
       <div
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full"
+        className="flex flex-col sm:flex-row gap-4 w-full"
         data-cy="talent-acquisition-custom-fields-grid"
       >
-        {/* Left / Top on mobile: Available Input Types */}
-        <div
-          className="space-y-2"
-          data-cy="talent-acquisition-custom-fields-available-section"
+        {/* Left panel: Available Input Types */}
+        <Card
+          bordered={false}
+          className="flex-1 min-w-0 rounded-xl"
+          style={{ background: '#F9FAFB', boxShadow: 'none' }}
+          headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+          title={
+            <div>
+              <p className="text-sm font-semibold text-gray-800 m-0">Available Input Types</p>
+              <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Click or drag to add a question</p>
+            </div>
+          }
+          data-cy="talent-acquisition-custom-fields-available-types"
         >
-          <h2
-            className="text-sm font-medium text-gray-700 lg:sr-only"
-            data-cy="talent-acquisition-custom-fields-available-heading"
-          >
-            Available Input Types
-          </h2>
-          <div
-            className="recruitment-settings-panel p-4 space-y-3 self-start"
-            data-cy="talent-acquisition-custom-fields-available-types"
-          >
+          <div data-cy="talent-acquisition-custom-fields-available-section">
             {AVAILABLE_INPUT_TYPES.map((item) => (
               <div
                 key={item.label}
@@ -177,10 +150,10 @@ const CustomAddJobFields: React.FC = () => {
                 onClick={() => {
                   if (window.innerWidth < 1024) showCreateModal(item.fieldType);
                 }}
-                className={`recruitment-settings-card p-4 lg:cursor-grab lg:active:cursor-grabbing cursor-pointer transition-all duration-200 ease-out ${
+                className={`bg-white rounded-lg p-3 mb-2 lg:cursor-grab lg:active:cursor-grabbing cursor-pointer select-none transition-colors border ${
                   draggingFieldType === item.fieldType
-                    ? 'recruitment-settings-dragging-card'
-                    : ''
+                    ? 'recruitment-settings-dragging-card border-[#1E40AF]'
+                    : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
                 }`}
                 data-cy={`talent-acquisition-custom-fields-input-type-${item.label.replace(/\s+/g, '-')}`}
               >
@@ -188,53 +161,60 @@ const CustomAddJobFields: React.FC = () => {
                   className="flex items-center gap-2"
                   data-cy="talent-acquisition-custom-fields-input-type-row"
                 >
-                  <span
-                    className="flex-shrink-0 w-5 h-5 rounded-full border-2 border-gray-400"
-                    data-cy="talent-acquisition-custom-fields-input-type-icon"
-                  />
-                  <p
-                    className="recruitment-settings-card-title text-gray-900"
-                    data-cy="talent-acquisition-custom-fields-input-type-label"
-                  >
-                    {item.label}
-                  </p>
+                  <GripVertical size={16} className="text-gray-300 shrink-0" aria-hidden />
+                  <div>
+                    <div
+                      className="font-medium text-sm text-gray-800"
+                      data-cy="talent-acquisition-custom-fields-input-type-label"
+                    >
+                      {item.label}
+                    </div>
+                    <div
+                      className="text-xs text-gray-500 mt-1"
+                      data-cy="talent-acquisition-custom-fields-input-type-description"
+                    >
+                      {item.description}
+                    </div>
+                  </div>
                 </div>
-                <p
-                  className="recruitment-settings-input-type-description mt-1"
-                  data-cy="talent-acquisition-custom-fields-input-type-description"
-                >
-                  {item.description}
-                </p>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-        {/* Right / Bottom on mobile: Existing Template Questions (drop zone) */}
+        {/* Right panel: Template Questions (drop zone) */}
         <div
-          className="space-y-2"
+          className="flex-1 min-w-0"
           data-cy="talent-acquisition-custom-fields-questions-section"
         >
-          <h2
-            className="text-sm font-medium text-gray-700 lg:sr-only"
-            data-cy="talent-acquisition-custom-fields-questions-heading"
-          >
-            Existing Template Questions
-          </h2>
-          <div
-            className={`recruitment-settings-panel p-4 space-y-3 self-start min-h-[200px] transition-colors ${
-              isDragOver
-                ? 'ring-2 ring-[#3B82F6] ring-offset-2 bg-blue-50/50'
-                : ''
-            }`}
+          <Card
+            bordered={false}
+            className="rounded-xl"
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
+            headStyle={{ borderBottom: '1px solid #F3F4F6', background: '#F9FAFB' }}
+            title={
+              <div>
+                <p className="text-sm font-semibold text-gray-800 m-0">Template Questions</p>
+                <p className="text-xs font-normal text-gray-400 m-0 mt-0.5">Drop question types here or click on the left</p>
+              </div>
+            }
             data-cy="talent-acquisition-custom-fields-questions"
-            onDragOver={handleDragOver}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
           >
-            <CustomFieldsCard />
-          </div>
+            <div
+              className={`rounded-lg border-2 transition-all p-2 min-h-[120px] ${
+                isDragOver
+                  ? 'custom-fields-drop-active'
+                  : 'border-dashed border-[#D1D5DB] hover:border-[#1E40AF]/40'
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              data-cy="talent-acquisition-custom-fields-drop-zone"
+            >
+              <CustomFieldsCard />
+            </div>
+          </Card>
         </div>
       </div>
       <CustomFieldModal

@@ -455,7 +455,7 @@ const JobCard: React.FC = () => {
                       type="button"
                       id={`talent-acquisition-job-card-button-menu-${job?.id}`}
                       data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
-                      className="flex items-center justify-center w-8 h-8 rounded-[6px] text-gray-600 hover:bg-gray-50 shrink-0 border border-solid border-[#D9D9D9] bg-white cursor-pointer"
+                      className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-800 shrink-0 cursor-pointer bg-transparent border-none"
                     >
                       <BsThreeDots className="w-4 h-4" />
                     </button>

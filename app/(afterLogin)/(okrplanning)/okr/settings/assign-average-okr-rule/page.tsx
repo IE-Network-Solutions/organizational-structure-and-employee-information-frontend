@@ -261,7 +261,7 @@ const AssignAverageOkrRulePage = () => {
   return (
     <div className="w-full" data-cy="average-okr-rule-assignment-page">
       <div
-        className="min-h-[400px] rounded-xl border border-[#f0f0f0] bg-white px-4 pb-6 pt-4 sm:px-6 sm:pb-8 sm:pt-5 lg:px-8"
+        className="min-h-[400px] rounded-xl bg-white px-4 pb-6 pt-4 sm:px-6 sm:pb-8 sm:pt-5 lg:px-8"
         data-cy="average-okr-rule-assignment-main-container"
       >
         <div
@@ -320,7 +320,7 @@ const AssignAverageOkrRulePage = () => {
             {filteredAssignments.map((item) => (
               <div
                 key={item.id}
-                className="rounded-[8px] border border-[#d9d9d9] bg-white p-4 transition-shadow hover:shadow-sm sm:p-5"
+                className="rounded-[8px] bg-[#F9FAFB] p-4 transition-shadow hover:shadow-sm sm:p-5"
                 data-cy={`average-okr-rule-assignment-card-${item.id}`}
               >
                 <div
@@ -373,12 +373,12 @@ const AssignAverageOkrRulePage = () => {
                   >
                     <button
                       type="button"
-                      className="flex h-6 w-6 items-center justify-center rounded-[4px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
+                      className="flex h-6 w-6 items-center justify-center text-[#8c8c8c] transition-colors hover:text-[#262626] bg-transparent border-none cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
                       data-cy={`average-okr-rule-assignment-card-menu-button-${item.id}`}
                     >
                       <EllipsisOutlined
-                        className="text-sm"
+                        style={{ fontSize: 14 }}
                         data-cy={`average-okr-rule-assignment-card-menu-icon-${item.id}`}
                       />
                     </button>
