@@ -88,7 +88,7 @@ const PositionCards: React.FC = () => {
           {Array.from({ length: 5 }).map((notUsed, index) => (
             <div
               key={index}
-              className="flex items-center justify-between gap-2 my-2 mx-1 border-gray-100 border rounded-md px-2 py-2"
+              className="flex items-center justify-between gap-2 my-2 mx-1 rounded-md px-2 pt-3 pb-2 bg-[#F9FAFB]"
               id={`settings-position-card-skeleton-${index}`}
               data-cy={`settings-position-card-skeleton-${index}`}
             >
@@ -157,7 +157,7 @@ const PositionCards: React.FC = () => {
           return (
             <div
               key={index}
-              className="flex items-center justify-between gap-2 my-2 mx-1 border-gray-100 border rounded-md px-2 py-2"
+              className="flex items-center justify-between gap-2 my-2 mx-1 rounded-md px-2 pt-3 pb-2 bg-[#F9FAFB]"
               id={`settings-position-card-${positionSlug}`}
               data-cy={`settings-position-card-${positionSlug}`}
             >
@@ -180,8 +180,8 @@ const PositionCards: React.FC = () => {
                 >
                   <Button
                     type="text"
-                    icon={<MoreHorizIcon fontSize="small" />}
-                    className="w-7 h-7 !p-0 leading-none flex items-center justify-center border border-[#D9D9D9] rounded-md [&_.ant-btn-icon]:m-0 [&_.ant-btn-icon]:leading-none"
+                    icon={<MoreHorizIcon style={{ fontSize: 14 }} />}
+                    className="!w-6 !h-6 !p-0 leading-none flex items-center justify-center !bg-transparent [&_.ant-btn-icon]:m-0 [&_.ant-btn-icon]:leading-none"
                     id={`settings-position-menu-btn-${positionSlug}`}
                     data-cy={`settings-position-menu-btn-${positionSlug}`}
                   />

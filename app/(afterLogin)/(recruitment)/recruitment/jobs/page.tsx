@@ -213,7 +213,7 @@ const RecruitmentPage: React.FC = () => {
         <div
           id="talent-acquisition-jobs-page-div-job-card"
           data-cy="talent-acquisition-jobs-page-div-job-card"
-          className="mt-4 sm:mt-6 bg-white border border-gray-200 rounded-xl p-4 sm:p-5"
+          className="mt-4 sm:mt-6 bg-white"
         >
           <div
             className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 mb-4"

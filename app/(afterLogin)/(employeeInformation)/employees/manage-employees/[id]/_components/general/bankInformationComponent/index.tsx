@@ -168,15 +168,18 @@ const BankInformationComponent = ({
           </AccessGuard>
         ) : null
       }
-      className="bank-information-card rounded-lg border border-gray-200 my-6"
+      className="bank-information-card rounded-lg my-6"
+      bordered={false}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="bank-information-card"
       data-cy="bank-information-card"
       headStyle={{
         borderBottom: 'none',
         paddingLeft: '16px',
         paddingRight: '16px',
+        background: '#F9FAFB',
       }}
-      bodyStyle={{ padding: '12px 16px 12px 16px' }}
+      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
     >
       {edit.bankInformation ? (
         <Form
