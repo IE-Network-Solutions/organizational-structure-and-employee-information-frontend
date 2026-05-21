@@ -308,8 +308,10 @@ const FiscalYearListCard: React.FC = () => {
               <Col xs={24} sm={24} md={12} lg={12} xl={12} key={fYear?.id}>
                 <Card
                   key={fYear?.id}
-                  className="my-3 h-fit border-[#D9D9D9]"
-                  bodyStyle={{ padding: '12px 14px' }}
+                  className="my-3 h-fit"
+                  bordered={false}
+                  style={{ background: '#F9FAFB' }}
+                  bodyStyle={{ padding: '12px 14px', background: '#F9FAFB' }}
                   data-cy={`org-settings-fiscal-year-card-${fiscalYearId}`}
                   id="org-settings-fiscal-year-card"
                 >
@@ -330,13 +332,13 @@ const FiscalYearListCard: React.FC = () => {
                       >
                         {expandedYears[fYear?.id || ''] ? (
                           <IoIosArrowUp
-                            size={24}
+                            size={16}
                             data-cy="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"
                             id="org-settings-fiscalyear-fiscalyearcard-page-mdkeyboardarrowup-1"
                           />
                         ) : (
                           <IoIosArrowDown
-                            size={24}
+                            size={16}
                             data-cy="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"
                             id="org-settings-fiscalyear-fiscalyearcard-page-ioiosarrowdown-1"
                           />
@@ -433,14 +435,15 @@ const FiscalYearListCard: React.FC = () => {
                         >
                           <button
                             type="button"
-                            className="cursor-pointer text-black hover:text-black p-1.5 border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9] h-9 w-9 shrink-0"
+                            className="cursor-pointer text-black hover:text-black border border-[#D9D9D9] rounded-md bg-transparent flex items-center justify-center hover:border-[#D9D9D9] h-6 w-6 shrink-0"
                             id={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
                             data-cy={`org-settings-fiscal-year-actions-button-${fiscalYearId}`}
                           >
                             <BsThreeDots
                               id={`org-settings-fiscal-year-actions-${fiscalYearId}`}
                               data-cy={`org-settings-fiscal-year-actions-${fiscalYearId}`}
-                              className="text-lg text-black"
+                              className="text-black"
+                              size={16}
                             />
                           </button>
                         </Dropdown>
@@ -458,8 +461,8 @@ const FiscalYearListCard: React.FC = () => {
                         return (
                           <div
                             key={session.id}
-                            className="mt-3 border border-[#D9D9D9] rounded-md"
-                            style={{ marginLeft: '0px' }}
+                            className="mt-3 rounded-md"
+                            style={{ marginLeft: '0px', background: '#FFFFFF' }}
                             data-cy={`org-settings-fiscal-year-session-${sessionId}`}
                             id={`org-settings-fiscal-year-session-${sessionId}`}
                           >

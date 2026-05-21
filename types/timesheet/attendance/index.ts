@@ -39,6 +39,38 @@ export const attendanceRecordTypeOption: {
   },
 ];
 
+export enum AttendanceCheckOutSource {
+  IMPORTED = 'IMPORTED',
+  REMOTE_CHECKED_OUT = 'REMOTE_CHECKED_OUT',
+  ATTENDANCE_DEVICE_CHECKED_OUT = 'ATTENDANCE_DEVICE_CHECKED_OUT',
+}
+
+export enum AttendanceCheckInSource {
+  IMPORTED = 'IMPORTED',
+  REMOTE_CHECKED_IN = 'REMOTE_CHECKED_IN',
+  ATTENDANCE_DEVICE_CHECKED_IN = 'ATTENDANCE_DEVICE_CHECKED_IN',
+}
+
+export const attendanceCheckInSourceLabels: Record<
+  AttendanceCheckInSource,
+  string
+> = {
+  [AttendanceCheckInSource.IMPORTED]: 'Imported',
+  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote checked in',
+  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]:
+    'Attendance device checked in',
+};
+
+export const attendanceCheckOutSourceLabels: Record<
+  AttendanceCheckOutSource,
+  string
+> = {
+  [AttendanceCheckOutSource.IMPORTED]: 'Imported',
+  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote checked out',
+  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]:
+    'Attendance device checked out',
+};
+
 export interface AttendanceRecord extends DateInfo {
   id: string;
   userId: string;
@@ -51,6 +83,8 @@ export interface AttendanceRecord extends DateInfo {
   earlyByMinutes: number;
   isAbsent: boolean;
   isOnGoing: boolean;
+  checkInSource?: AttendanceCheckInSource;
+  checkOutSource?: AttendanceCheckOutSource;
   overTimeMinutes: number;
   attendanceImportId: string | null;
   import: AttendanceImport;
@@ -93,15 +127,45 @@ export interface AttendanceNotificationType extends DateInfo {
   id: string;
   title: string;
   unit: AttendanceTypeUnit;
-  attendanceNotificationRules: AttendanceNotificationRule[];
+  attendanceRules: AttendanceRule[];
   isActive: boolean;
 }
 
-export interface AttendanceNotificationRule extends DateInfo {
+export enum AttendanceActionType {
+  WARNING_LETTER = 'WARNING_LETTER',
+  REPRIMAND = 'REPRIMAND',
+  SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+}
+
+export interface AttendanceRule extends DateInfo {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  attendanceNotificationType: string;
-  attendanceNotificationTypeId: string;
-  value: number;
+  effectiveStartDate: string;
+  resetDays: number;
+  ruleAppliedDays: number;
+  isFixed?: boolean;
+  deductibleFixedAmount?: number;
+  deductibleSalaryDays?: number;
+  ruleType: string | AttendanceRuleTypes;
+  actionTypes: AttendanceActionType | string;
+  letterTemplate?: string;
+  breakType?: string | BreakType;
+}
+
+export enum AttendanceRuleType {
+  EARLY_CLOCK_OUT = 'EARLY_CLOCK_OUT',
+  LATE = 'LATE',
+  ABSENT = 'ABSENT',
+  MISSED_CHECK_IN_OUT = 'MISSED_CHECK_IN_OUT',
+  BREAK = 'BREAK',
+}
+
+export interface AttendanceRuleTypes extends DateInfo {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string;
+  isBreak: boolean;
+  ruleType: AttendanceRuleType | string;
 }

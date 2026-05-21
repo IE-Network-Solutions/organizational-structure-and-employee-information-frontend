@@ -172,7 +172,8 @@ const EmploymentType = () => {
                   data-cy={`employment-type-card-col-${record.__slug}`}
                 >
                   <Card
-                    className="border-[1px] border-[#D9D9D9] rounded-lg"
+                    className="rounded-lg border-0"
+                    style={{ background: '#F9FAFB' }}
                     id={`employment-type-card-${record.__slug}`}
                     data-cy={`employment-type-card-${record.__slug}`}
                     title={
@@ -195,12 +196,12 @@ const EmploymentType = () => {
                           placement="bottomRight"
                         >
                           <Button
-                            type="default"
-                            className="w-8 h-8 border border-[#D9D9D9]"
+                            type="text"
+                            className="!w-6 !h-6 !min-w-0 !p-0 !border-0 flex items-center justify-center"
                             id={`employment-type-menu-btn-${record.__slug}`}
                             data-cy={`employment-type-menu-btn-${record.__slug}`}
                           >
-                            <MoreHorizIcon />
+                            <MoreHorizIcon style={{ fontSize: 14 }} />
                           </Button>
                         </Dropdown>
                       </div>
@@ -208,6 +209,7 @@ const EmploymentType = () => {
                     headStyle={{
                       borderBottom: 'none',
                       padding: '12px 16px 12px 16px',
+                      background: '#F9FAFB',
                     }}
                     bodyStyle={{ padding: '0px 16px 12px 16px' }}
                   >

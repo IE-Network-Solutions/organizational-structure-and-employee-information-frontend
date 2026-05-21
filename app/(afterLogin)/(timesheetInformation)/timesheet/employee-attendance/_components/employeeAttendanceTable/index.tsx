@@ -3,6 +3,7 @@ import React, {
   FC,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 import { Avatar, Button, Dropdown, Table } from 'antd';
@@ -18,7 +19,11 @@ import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
-import { AttendanceRecord } from '@/types/timesheet/attendance';
+import {
+  AttendanceCheckInSource,
+  AttendanceCheckOutSource,
+  AttendanceRecord,
+} from '@/types/timesheet/attendance';
 import {
   formatBreakTypeToStatus,
   formatToAttendanceStatuses,
@@ -37,6 +42,14 @@ import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
 import statusType from '../statusType';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+
+/** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
+const hasAttendanceTimestamp = (value: unknown): boolean => {
+  if (value == null) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  return true;
+};
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -78,6 +91,46 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
+  const importWarnings: Array<{
+    line?: number;
+    warning?: string;
+    userId?: string;
+  }> = (data as any)?.summary?.importWarnings ?? [];
+  const lastWarningSignatureRef = useRef<string>('');
+
+  useEffect(() => {
+    if (importWarnings.length === 0) return;
+
+    const warningSignature = importWarnings
+      .map(
+        (warning) =>
+          `${warning?.line ?? ''}|${warning?.userId ?? ''}|${warning?.warning ?? ''}`,
+      )
+      .join('||');
+
+    if (warningSignature === lastWarningSignatureRef.current) return;
+
+    lastWarningSignatureRef.current = warningSignature;
+
+    const warningLines = importWarnings
+      .slice(0, 5)
+      .map((warning) => {
+        const lineText = `Line ${warning?.line ?? '-'}`;
+        const warningText = warning?.warning || 'Warning';
+        const userText = warning?.userId ? ` (User: ${warning.userId})` : '';
+        return `${lineText} - ${warningText}${userText}`;
+      })
+      .join('\n');
+
+    const remainingCount = importWarnings.length - 5;
+    const remainingText =
+      remainingCount > 0 ? `\n...and ${remainingCount} more warning(s)` : '';
+
+    NotificationMessage.warning({
+      message: `Import Warnings (${importWarnings.length})`,
+      description: `${warningLines}${remainingText}`,
+    });
+  }, [importWarnings]);
 
   const { isMobile, isTablet } = useIsMobile();
   const EmpRender = ({ userId }: any) => {
@@ -394,6 +447,106 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       title: (
         <span
           className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-remote-check-in-span"
+          data-cy="time-attendance-employee-attendance-table-remote-check-in-span"
+        >
+          Clock-in Method
+        </span>
+      ),
+      dataIndex: 'checkInSource',
+      key: 'checkInSource',
+      width: 120,
+      render: (val: AttendanceCheckInSource | undefined, record: any) => {
+        if (!hasAttendanceTimestamp(record.clockIn)) {
+          return (
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+              data-cy={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+              className="text-center text-sm font-normal text-[#4d4d4d]"
+            >
+              -
+            </div>
+          );
+        }
+        return (
+          <div
+            id={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+            data-cy={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
+            className="text-center"
+          >
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-in-badge-${record.key}`}
+              data-cy="time-attendance-employee-attendance-row-remote-check-in-badge-div"
+            >
+              {val ? (
+                statusType(val)
+              ) : (
+                <span
+                  className="text-sm font-normal text-[#4d4d4d]"
+                  data-cy={`time-attendance-employee-attendance-row-remote-check-in-source-dash-${record.key}`}
+                >
+                  -
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
+          id="time-attendance-employee-attendance-table-remote-check-out-span"
+          data-cy="time-attendance-employee-attendance-table-remote-check-out-span"
+        >
+          Clock-out Method
+        </span>
+      ),
+      dataIndex: 'checkOutSource',
+      key: 'checkOutSource',
+      width: 120,
+      render: (val: AttendanceCheckOutSource | undefined, record: any) => {
+        if (!hasAttendanceTimestamp(record.clockOut)) {
+          return (
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+              data-cy={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+              className="text-center text-sm font-normal text-[#4d4d4d]"
+            >
+              -
+            </div>
+          );
+        }
+        return (
+          <div
+            id={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+            data-cy={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
+            className="text-center"
+          >
+            <div
+              id={`time-attendance-employee-attendance-row-remote-check-out-badge-${record.key}`}
+              data-cy="time-attendance-employee-attendance-row-remote-check-out-badge-div"
+            >
+              {val ? (
+                statusType(val)
+              ) : (
+                <span
+                  className="text-sm font-normal text-[#4d4d4d]"
+                  data-cy={`time-attendance-employee-attendance-row-remote-check-out-source-dash-${record.key}`}
+                >
+                  -
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: (
+        <span
+          className="font-bold text-base text-[#4b4b4b]"
           id="time-attendance-employee-attendance-table-action-span"
           data-cy="time-attendance-employee-attendance-table-action-span"
         >
@@ -457,6 +610,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           createdBy: item.createdBy,
           createdAt: item.createdAt,
           clockIn: item?.startAt,
+          checkInSource: item?.checkInSource,
+          checkOutSource: item?.checkOutSource,
           clockOut: item?.endAt,
           status: item,
           totalTime:
@@ -495,6 +650,14 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
     if (val.breakTypeId) {
       nFilter['breakTypeId'] = val.breakTypeId;
+    }
+
+    if (val.checkInSource) {
+      nFilter['checkInSource'] = val.checkInSource;
+    }
+
+    if (val.checkOutSource) {
+      nFilter['checkOutSource'] = val.checkOutSource;
     }
 
     if (val.employeeId) {

@@ -21,9 +21,9 @@ const setWorkFromHomeRequest = async ({
   });
 };
 
-/** Final approve/decline step — same payload shape as leave escalate; backend may map `leaveRequestId` to WFH id. */
+/** Final approve/decline step for WFH requests. */
 const setFinalWorkFromHomeRequest = async (data: {
-  leaveRequestId: string;
+  workFromHomeRequestId: string;
   status: 'approved' | 'declined';
 }) => {
   const requestHeaders = await requestHeader();

@@ -129,7 +129,7 @@ const CustomFieldsCard: React.FC = () => {
           return (
             <div
               key={templateItem?.id ?? index}
-              className="recruitment-settings-card relative p-4"
+              className="bg-white rounded-lg p-3 relative transition-colors border border-[#E5E7EB] mb-2 last:mb-0"
               data-cy="recruitment-recruitment-settings-customfields-customfieldscard-index-tsx-div-85"
             >
               {showMenu && (
@@ -155,13 +155,13 @@ const CustomFieldsCard: React.FC = () => {
                 </div>
               )}
               <h3
-                className="recruitment-settings-question-title text-[16px] font-normal pr-8"
+                className="text-sm font-medium text-gray-800 pr-8"
                 data-cy={`talent-acquisition-custom-fields-card-title-${templateItem?.id}`}
               >
                 {displayTitle}
               </h3>
               <span
-                className="recruitment-settings-card-type-pill inline-block mt-2 px-2.5 py-0.5 rounded"
+                className="inline-block mt-2 px-2.5 py-0.5 rounded text-xs font-normal text-gray-500 bg-[#F9FAFB] border border-[#D1D5DB]"
                 data-cy={`talent-acquisition-custom-fields-card-type-${templateItem?.id}`}
               >
                 {typeLabel}
@@ -172,7 +172,7 @@ const CustomFieldsCard: React.FC = () => {
       ) : (
         <div
           data-cy="settings-customfields-customfieldscard-index-tsx-index-div-122"
-          className="text-center py-8 text-gray-500 rounded-lg border border-gray-200"
+          className="text-center py-8 text-gray-500"
         >
           No custom fields available.
         </div>

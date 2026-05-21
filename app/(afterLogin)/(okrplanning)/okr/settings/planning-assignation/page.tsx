@@ -232,7 +232,7 @@ const PlanAssignment: React.FC = () => {
       data-cy="okr-planning-assignation-container-display-div"
     >
       <div
-        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white h-[calc(100vh-320px)] flex flex-col"
+        className="rounded-xl pt-5 px-8 pb-8 bg-white h-[calc(100vh-320px)] flex flex-col"
         id="okr-planning-assignation-main-container"
         data-cy="okr-planning-assignation-main-container"
       >
@@ -308,7 +308,7 @@ const PlanAssignment: React.FC = () => {
                 return (
                   <div
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                    className="bg-[#F9FAFB] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
@@ -393,11 +393,11 @@ const PlanAssignment: React.FC = () => {
                         >
                           <button
                             type="button"
-                            className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
+                            className="flex h-8 w-8 items-center justify-center text-[#8c8c8c] transition-colors hover:text-[#262626] bg-transparent border-none cursor-pointer"
                             onClick={(e) => e.stopPropagation()}
                             data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
                           >
-                            <EllipsisOutlined className="text-lg" />
+                            <EllipsisOutlined style={{ fontSize: 14 }} />
                           </button>
                         </Dropdown>
                       </div>

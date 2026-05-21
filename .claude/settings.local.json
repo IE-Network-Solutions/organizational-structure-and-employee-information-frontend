@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const fs=require\\('fs'\\);const p='c:/Users/ie/Documents/organizational-structure-and-employee-information-frontend/app/\\(afterLogin\\)/\\(employeeInformation\\)/employees/manage-employees/[id]/_components/general/emergencyContact/index.tsx';fs.writeFileSync\\(p,fs.readFileSync\\(p,'utf8'\\).replace\\(/\\\\r\\\\n/g,'\\\\n'\\),'utf8'\\);console.log\\('done'\\)\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const p='c:/Users/ie/Documents/organizational-structure-and-employee-information-frontend/app/\\(afterLogin\\)/\\(employeeInformation\\)/employees/manage-employees/[id]/_components/documents/index.tsx';fs.writeFileSync\\(p,fs.readFileSync\\(p,'utf8'\\).replace\\(/\\\\r\\\\n/g,'\\\\n'\\),'utf8'\\);console.log\\('done'\\)\")",
+      "Bash(node -e \"const fs=require\\('fs'\\);const p='c:/Users/ie/Documents/organizational-structure-and-employee-information-frontend/app/\\(afterLogin\\)/\\(employeeInformation\\)/employees/manage-employees/[id]/_components/job/index.tsx';fs.writeFileSync\\(p,fs.readFileSync\\(p,'utf8'\\).replace\\(/\\\\r\\\\n/g,'\\\\n'\\),'utf8'\\);console.log\\('done'\\)\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\ie\\\\Documents\\\\organizational-structure-and-employee-information-frontend\\\\app\\\\\\(afterLogin\\)\\\\\\(employeeInformation\\)\\\\employees\\\\manage-employees\\\\[id]\\\\\" -Recurse -Directory | Select-Object FullName)",
+      "Bash(dir /s \"c:\\\\Users\\\\ie\\\\Documents\\\\organizational-structure-and-employee-information-frontend\\\\app\")",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\ie\\\\Documents\\\\organizational-structure-and-employee-information-frontend\\\\app\\\\\\(afterLogin\\)\\\\\\(employeeInformation\\)\\\\employees\\\\manage-employees\" -Recurse | ForEach-Object { $_.FullName })",
+      "Bash(sed -i 's/\\\\r//' \"c:/Users/ie/Documents/organizational-structure-and-employee-information-frontend/app/\\(afterLogin\\)/\\(employeeInformation\\)/employees/manage-employees/[id]/_components/general/AddressComponent/index.tsx\")",
+      "Bash(sed -i 's/\\\\r//' \"c:/Users/ie/Documents/organizational-structure-and-employee-information-frontend/app/\\(afterLogin\\)/\\(employeeInformation\\)/employees/manage-employees/[id]/_components/rolePermission/index.tsx\")",
+      "Bash(sed -i 's/\\\\r//' \"c:/Users/ie/Documents/organizational-structure-and-employee-information-frontend/app/\\(afterLogin\\)/\\(employeeInformation\\)/employees/manage-employees/[id]/_components/probation/_components/probationTargetAccordion/index.tsx\")",
+      "Bash(npx tsc *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\ie\\Documents\\organizational-structure-and-employee-information-frontend\\app\\(afterLogin)\\(employeeInformation)\\employees\\manage-employees\\[id]\\_components\\general\\AddressComponent",
+      "c:\\Users\\ie\\Documents\\organizational-structure-and-employee-information-frontend\\app\\(afterLogin)\\(employeeInformation)\\employees\\manage-employees\\[id]\\_components\\rolePermission",
+      "c:\\Users\\ie\\Documents\\organizational-structure-and-employee-information-frontend\\app\\(afterLogin)\\(employeeInformation)\\employees\\manage-employees\\[id]\\_components\\probation\\_components\\probationTargetAccordion"
+    ]
+  }
+}

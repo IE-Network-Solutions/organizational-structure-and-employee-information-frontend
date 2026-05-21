@@ -365,15 +365,21 @@ function Job({ id }: { id: string }) {
                 </button>
               ) : null
             }
-            className="employment-information-card rounded-lg border border-gray-200 my-6 mt-0"
+            className="employment-information-card rounded-lg my-6 mt-0"
+            bordered={false}
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
             id="job-employment-card"
             data-cy="job-employment-card"
             headStyle={{
               borderBottom: 'none',
               paddingLeft: '16px',
               paddingRight: '16px',
+              background: '#F9FAFB',
             }}
-            bodyStyle={{ padding: '12px 16px 12px 16px' }}
+            bodyStyle={{
+              padding: '12px 16px 12px 16px',
+              background: '#F9FAFB',
+            }}
           >
             {isEditing ? (
               <Form
@@ -536,7 +542,9 @@ function Job({ id }: { id: string }) {
         <Col lg={12} sm={24} xs={24}>
           <Card
             loading={isLoading}
-            className="job-information-card rounded-lg border border-gray-200 my-6 mt-0"
+            className="job-information-card rounded-lg my-6 mt-0"
+            bordered={false}
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
             title={
               isEditModalVisible ? (
                 <div
@@ -608,12 +616,12 @@ function Job({ id }: { id: string }) {
                       >
                         <Button
                           type="default"
-                          className="border border-[#d9d9d9] h-6 w-6"
+                          className="border-0 h-6 w-6"
                           id="job-information-menu-btn"
                           data-cy="job-information-menu-btn"
                           size="small"
                         >
-                          <MoreHorizIcon className="text-sm" />
+                          <MoreHorizIcon style={{ fontSize: 14 }} />
                         </Button>
                       </Dropdown>
                     </div>
@@ -627,8 +635,12 @@ function Job({ id }: { id: string }) {
               borderBottom: 'none',
               paddingLeft: '16px',
               paddingRight: '16px',
+              background: '#F9FAFB',
             }}
-            bodyStyle={{ padding: '12px 16px 12px 16px' }}
+            bodyStyle={{
+              padding: '12px 16px 12px 16px',
+              background: '#F9FAFB',
+            }}
           >
             {isEditModalVisible && selectedJobRecord ? (
               <Form
@@ -1001,7 +1013,7 @@ function Job({ id }: { id: string }) {
 
                 // Find the matching basic salary for the active job
                 const matchingSalary = basicSalaryData?.find(
-                  (salary: any) => salary.jobInfoId === activeJob.id,
+                  (salary: any) => salary.jobInfoId === activeJob.id && salary.status === true,
                 );
                 const currentSalary = matchingSalary?.basicSalary || null;
                 const manager =

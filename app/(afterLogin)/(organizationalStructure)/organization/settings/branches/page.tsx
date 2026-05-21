@@ -251,7 +251,9 @@ const Branches = () => {
               <Card
                 key={item.id || branchId}
                 loading={isLoading}
-                className="h-full pt-2 px-1 pb-4 border-[#D9D9D9]"
+                bordered={false}
+                className="h-full pt-2 px-1 pb-4 cursor-pointer hover:shadow-sm"
+                style={{ background: '#F9FAFB' }}
                 data-cy={`org-settings-branch-card-${branchId}`}
                 id={`org-settings-branch-card-${branchId}`}
                 styles={{
