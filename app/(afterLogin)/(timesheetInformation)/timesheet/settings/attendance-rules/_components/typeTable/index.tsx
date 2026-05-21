@@ -266,7 +266,10 @@ const TypeTable: FC = () => {
                       ) : null}
                     </div>
 
-                    <div data-cy="time-attendance-settings-attendance-rules-type-table-row-actions-container" className="shrink-0 -mr-1">
+                    <div
+                      data-cy="time-attendance-settings-attendance-rules-type-table-row-actions-container"
+                      className="shrink-0 -mr-1"
+                    >
                       <AccessGuard
                         permissions={[
                           Permissions.UpdateAttendanceRule,

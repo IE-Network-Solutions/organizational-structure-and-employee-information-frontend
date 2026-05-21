@@ -6,6 +6,7 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
   EditAttendance,
+  EditRuleViolation,
 } from '@/store/server/features/timesheet/attendance/interface';
 import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -40,6 +41,27 @@ const setEditAttendance = async (data: EditAttendance, id: string) => {
     method: 'PATCH',
     headers: requestHeaders,
     data,
+  });
+};
+const editRuleViolation = async (
+  data: EditRuleViolation,
+  violationId: string,
+) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/${violationId}/action-types`,
+    method: 'PATCH',
+    headers: requestHeaders,
+    data,
+  });
+};
+
+const deleteRuleViolation = async (violationId: string) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/${violationId}`,
+    method: 'DELETE',
+    headers: requestHeaders,
   });
 };
 
@@ -125,6 +147,33 @@ export const useSetEditAttendance = () => {
           message: 'Successfully Edit',
           description: 'Attendance successfully Edit.',
         });
+      },
+    },
+  );
+};
+
+export const useEditRuleViolation = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({ data, violationId }: { data: EditRuleViolation; violationId: string }) =>
+      editRuleViolation(data, violationId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+        handleSuccessMessage('PATCH', 'Rule Violation successfully edited.');
+      },
+    },
+  );
+};
+
+export const useDeleteRuleViolation = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (violationId: string) => deleteRuleViolation(violationId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+        handleSuccessMessage('DELETE', 'Rule Violation successfully deleted.');
       },
     },
   );
