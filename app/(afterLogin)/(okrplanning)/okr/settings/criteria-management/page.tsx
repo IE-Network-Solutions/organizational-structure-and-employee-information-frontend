@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { Dropdown, MenuProps, Tag } from 'antd';
+import { Card, Dropdown, MenuProps } from 'antd';
 import ScoringModal from './_components/criteria-drawer';
 import CriteriaManagementPageSkeleton from './_components/criteriaManagementPageSkeleton';
 import EmptyState from '@/components/empty';
@@ -13,7 +13,7 @@ import {
 import { useDeleteVpScoring } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { EllipsisOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 
 function Page() {
@@ -188,29 +188,34 @@ function Page() {
           </div>
         ) : (
           <div
-            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
             id="okr-criteria-management-cards-grid"
             data-cy="okr-criteria-management-cards-grid"
           >
             {assignedCriteriaData.map((item: any) => (
-              <div
+              <Card
                 key={item.key}
-                className="relative rounded-[8px] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
+                bordered={false}
+                className="rounded-xl hover:shadow-sm transition-shadow"
+                style={{ background: '#F9FAFB', boxShadow: 'none' }}
+                bodyStyle={{ padding: '16px' }}
                 id={`okr-criteria-card-${item.key}`}
                 data-cy={`okr-criteria-card-${item.key}`}
               >
+                {/* Name + 3-dot */}
                 <div
-                  className="mb-6 flex items-start justify-between"
+                  className="flex items-start justify-between gap-2 mb-4"
                   data-cy={`okr-criteria-card-header-${item.key}`}
                 >
                   <p
-                    className="mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
+                    className="flex-1 min-w-0 text-sm font-semibold text-gray-800 m-0 leading-5"
                     id={`okr-criteria-card-name-${item.key}`}
                     data-cy={`okr-criteria-card-name-${item.key}`}
                   >
                     {item.name}
                   </p>
                   <div
+                    className="shrink-0"
                     id={`okr-criteria-card-menu-wrapper-${item.key}`}
                     data-cy={`okr-criteria-card-menu-wrapper-${item.key}`}
                   >
@@ -221,36 +226,61 @@ function Page() {
                     >
                       <button
                         type="button"
-                        className="flex h-8 w-8 items-center justify-center text-[#8c8c8c] transition-colors hover:text-[#262626] bg-transparent border-none cursor-pointer"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-colors bg-transparent border-none cursor-pointer p-0"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-criteria-card-menu-button-${item.key}`}
                       >
-                        <EllipsisOutlined style={{ fontSize: 14 }} />
+                        <MoreHorizIcon
+                          style={{ fontSize: 18 }}
+                          data-cy={`okr-criteria-card-menu-icon-${item.key}`}
+                        />
                       </button>
                     </Dropdown>
                   </div>
                 </div>
 
+                {/* Stats */}
                 <div
-                  className="flex items-center justify-between"
+                  className="flex items-end justify-between"
                   data-cy={`okr-criteria-card-footer-${item.key}`}
                 >
-                  <Tag
-                    className="m-0 rounded-[4px] border-[#d9d9d9] bg-[#fafafa] px-2 py-0.5 text-[12px] font-medium text-[#595959]"
-                    id={`okr-criteria-card-percentage-${item.key}`}
-                    data-cy={`okr-criteria-card-percentage-${item.key}`}
+                  <div
+                    data-cy={`okr-criteria-card-percentage-block-${item.key}`}
                   >
-                    Total %: {item.totalPercentage.replace('%', '')}
-                  </Tag>
-                  <Tag
-                    className="m-0 rounded-[4px] border-[#d9d9d9] bg-[#fafafa] px-2 py-0.5 text-[12px] font-medium text-[#595959]"
-                    id={`okr-criteria-card-count-${item.key}`}
-                    data-cy={`okr-criteria-card-count-${item.key}`}
+                    <p
+                      className="text-lg font-bold text-gray-800 m-0 leading-6"
+                      id={`okr-criteria-card-percentage-${item.key}`}
+                      data-cy={`okr-criteria-card-percentage-${item.key}`}
+                    >
+                      {item.totalPercentage}
+                    </p>
+                    <p
+                      className="text-xs text-gray-400 m-0 mt-0.5"
+                      data-cy={`okr-criteria-card-percentage-label-${item.key}`}
+                    >
+                      Total %
+                    </p>
+                  </div>
+                  <div
+                    className="text-right"
+                    data-cy={`okr-criteria-card-count-block-${item.key}`}
                   >
-                    Count: {item.criteriaCount}
-                  </Tag>
+                    <p
+                      className="text-lg font-bold text-gray-800 m-0 leading-6"
+                      id={`okr-criteria-card-count-${item.key}`}
+                      data-cy={`okr-criteria-card-count-${item.key}`}
+                    >
+                      {item.criteriaCount}
+                    </p>
+                    <p
+                      className="text-xs text-gray-400 m-0 mt-0.5"
+                      data-cy={`okr-criteria-card-count-label-${item.key}`}
+                    >
+                      Count
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}
