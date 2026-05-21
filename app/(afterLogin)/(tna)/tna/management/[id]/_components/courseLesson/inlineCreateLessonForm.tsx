@@ -233,7 +233,7 @@ const InlineCreateLessonForm: FC = () => {
   return (
     <div
       id="tna-inline-create-lesson"
-      className="mb-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="mb-3 rounded-xl bg-[#F9FAFB] p-4"
       data-cy="tna-inline-create-lesson"
     >
       <Form
@@ -333,7 +333,7 @@ const InlineCreateLessonForm: FC = () => {
 
       {!materialWizardOpen ? (
         <div
-          className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-2.5 sm:flex-row sm:items-center sm:justify-between"
+          className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
           data-cy="tna-inline-create-lesson-footer"
         >
           <Button

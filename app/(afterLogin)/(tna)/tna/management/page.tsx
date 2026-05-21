@@ -203,7 +203,7 @@ const TnaManagementPage = () => {
         </header>
 
         <div
-          className="box-border flex w-full max-w-[404px] flex-col gap-4 rounded-lg border border-[#D9D9D9] p-3 md:max-w-none"
+          className="box-border flex w-full max-w-[404px] flex-col gap-4 md:max-w-none"
           data-cy="tna-management-main-panel"
         >
           <div className="w-full" data-cy="tna-management-filter-wrap">

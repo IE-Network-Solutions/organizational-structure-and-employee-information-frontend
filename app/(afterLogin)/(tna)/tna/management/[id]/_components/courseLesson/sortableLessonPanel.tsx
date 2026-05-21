@@ -47,7 +47,7 @@ const SortableLessonPanel: FC<SortableLessonPanelProps> = ({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="rounded-lg border border-gray-200 bg-white"
+      className="rounded-xl bg-[#F9FAFB] overflow-hidden"
       data-cy={`tna-sortable-lesson-panel-${lesson.id}`}
     >
       <div
@@ -62,7 +62,7 @@ const SortableLessonPanel: FC<SortableLessonPanelProps> = ({
           {!isEditingSection || isAddingMaterial ? (
             <button
               type="button"
-              className="inline-flex h-8 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 outline-none hover:bg-gray-50 active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+              className="inline-flex h-8 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-gray-400 outline-none hover:text-gray-600 active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
               aria-label={`Drag to reorder ${lesson.title}`}
               id={`tnaCourseLessonDragHandle${lesson.id}Id`}
               data-cy="tna-course-lesson-drag-handle"
@@ -108,7 +108,7 @@ const SortableLessonPanel: FC<SortableLessonPanelProps> = ({
           <Button
             type="text"
             size="small"
-            className="shrink-0 inline-flex h-8 w-8 min-w-8 items-center justify-center rounded-md border border-gray-200 !bg-white !p-0 leading-none text-gray-500 hover:!bg-gray-50 hover:!text-gray-700 [&_.ant-btn-icon]:m-0"
+            className="shrink-0 inline-flex h-8 w-8 min-w-8 items-center justify-center rounded-md !bg-transparent !border-none !p-0 leading-none text-gray-400 hover:!bg-gray-200 hover:!text-gray-700 [&_.ant-btn-icon]:m-0"
             aria-label={`Edit section ${lesson.title}`}
             data-cy={`tna-course-lesson-section-edit-${lesson.id}`}
             onClick={(e) => {
@@ -123,7 +123,7 @@ const SortableLessonPanel: FC<SortableLessonPanelProps> = ({
 
       {isExpanded ? (
         <div
-          className="bg-white px-4 pb-4 pt-0"
+          className="border-t border-gray-100 bg-white px-4 pb-4 pt-3"
           data-cy="tna-course-lesson-collapse-body"
         >
           {children}
