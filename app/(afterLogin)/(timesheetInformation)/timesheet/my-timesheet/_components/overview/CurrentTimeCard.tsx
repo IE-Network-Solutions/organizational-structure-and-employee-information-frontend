@@ -15,12 +15,13 @@ import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { formatBreakTypeToStatus } from '@/helpers/formatTo';
 import { BreakType } from '@/types/timesheet/breakType';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
+import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
+import { useRemoteAttendanceCamera } from '@/hooks/useRemoteAttendanceCamera';
 
 const { Text } = Typography;
 
@@ -62,12 +63,12 @@ export default function CurrentTimeCard() {
   const { userId } = useAuthenticationStore();
   const { checkStatus, currentAttendance, setCurrentAttendance, breakTypes } =
     useMyTimesheetStore();
+  const { isLoading: isCameraFlowLoading } = useRemoteAttendanceCamera();
 
   const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance(
     userId ?? '',
   );
-  const { mutate: setCurrentAttendanceMutation, isLoading } =
-    useSetCurrentAttendance();
+  const { isLoading: isMutationLoading } = useSetCurrentAttendance();
 
   useEffect(() => {
     setCurrentAttendance(
@@ -79,58 +80,6 @@ export default function CurrentTimeCard() {
     const timer = setInterval(() => setCurrentTime(dayjs()), 1000);
     return () => clearInterval(timer);
   }, []);
-
-  const getCoords = (callback: (position: GeolocationPosition) => void) => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(callback, () => {
-        NotificationMessage.error({
-          message: 'No access to geolocation',
-          description:
-            'To check-in/check-out we need to have access to geolocation.',
-        });
-      });
-    } else {
-      NotificationMessage.error({
-        message: 'No access to geolocation',
-        description:
-          'To check-in/check-out we need to have access to geolocation.',
-      });
-    }
-  };
-
-  const handleCheckIn = () => {
-    getCoords((pos) => {
-      setCurrentAttendanceMutation({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        isSignIn: true,
-        userId: userId ?? '',
-      });
-    });
-  };
-
-  const handleCheckOut = () => {
-    getCoords((pos) => {
-      setCurrentAttendanceMutation({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        isSignIn: false,
-        userId: userId ?? '',
-      });
-    });
-  };
-
-  const handleBreakStart = (breakTypeId: string) => {
-    getCoords((pos) => {
-      setCurrentAttendanceMutation({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        isSignIn: false,
-        userId: userId ?? '',
-        breakTypeId,
-      });
-    });
-  };
 
   const isToday = currentAttendance?.createdAt
     ? dayjs(currentAttendance.createdAt).isSame(dayjs(), 'day')
@@ -159,7 +108,7 @@ export default function CurrentTimeCard() {
     [currentAttendance, breakTypes],
   );
 
-  const loading = isLoading || isFetching;
+  const loading = isMutationLoading || isFetching || isCameraFlowLoading;
 
   return (
     <Card
@@ -205,18 +154,19 @@ export default function CurrentTimeCard() {
                 permissions={[Permissions.CheckInRemotely]}
                 data-cy="my-timesheet-overview-check-in-guard"
               >
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<CiLogin size={20} />}
-                  loading={loading}
-                  onClick={handleCheckIn}
-                  data-cy="my-timesheet-overview-check-in-button"
-                  id="my-timesheet-overview-check-in-button"
-                  className="px-8 py-6 text-lg font-medium"
-                >
-                  Check In
-                </Button>
+                <RemoteAttendanceActionButton action={{ isSignIn: true }}>
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<CiLogin size={20} />}
+                    loading={loading}
+                    data-cy="my-timesheet-overview-check-in-button"
+                    id="my-timesheet-overview-check-in-button"
+                    className="px-8 py-6 text-lg font-medium"
+                  >
+                    Check In
+                  </Button>
+                </RemoteAttendanceActionButton>
               </AccessGuard>
             )}
 
@@ -232,34 +182,39 @@ export default function CurrentTimeCard() {
                   data-cy="my-timesheet-overview-current-time-card-started-actions"
                 >
                   {currentBreakByTime && (
+                    <RemoteAttendanceActionButton
+                      action={{
+                        isSignIn: false,
+                        breakTypeId: currentBreakByTime.id ?? '',
+                      }}
+                    >
+                      <Button
+                        type="primary"
+                        ghost
+                        size="large"
+                        icon={<RiCupLine size={20} />}
+                        loading={loading}
+                        data-cy="my-timesheet-overview-break-start-button"
+                        id="my-timesheet-overview-break-start-button"
+                        className="!border-primary !text-primary hover:!bg-primary/10 px-8 py-6 text-lg font-medium"
+                      >
+                        {currentBreakByTime.title} Start
+                      </Button>
+                    </RemoteAttendanceActionButton>
+                  )}
+                  <RemoteAttendanceActionButton action={{ isSignIn: false }}>
                     <Button
                       type="primary"
-                      ghost
                       size="large"
-                      icon={<RiCupLine size={20} />}
+                      icon={<CiLogin size={20} />}
                       loading={loading}
-                      onClick={() =>
-                        handleBreakStart(currentBreakByTime.id ?? '')
-                      }
-                      data-cy="my-timesheet-overview-break-start-button"
-                      id="my-timesheet-overview-break-start-button"
-                      className="!border-primary !text-primary hover:!bg-primary/10 px-8 py-6 text-lg font-medium"
+                      data-cy="my-timesheet-overview-check-out-button"
+                      id="my-timesheet-overview-check-out-button"
+                      className="px-8 py-6 text-lg font-medium"
                     >
-                      {currentBreakByTime.title} Start
+                      Check Out
                     </Button>
-                  )}
-                  <Button
-                    type="primary"
-                    size="large"
-                    icon={<CiLogin size={20} />}
-                    loading={loading}
-                    onClick={handleCheckOut}
-                    data-cy="my-timesheet-overview-check-out-button"
-                    id="my-timesheet-overview-check-out-button"
-                    className="px-8 py-6 text-lg font-medium"
-                  >
-                    Check Out
-                  </Button>
+                  </RemoteAttendanceActionButton>
                 </Space>
               </AccessGuard>
             )}
@@ -281,18 +236,19 @@ export default function CurrentTimeCard() {
                       On {ongoingBreak.title} - Timer Running
                     </Text>
                   )}
-                  <Button
-                    type="primary"
-                    size="large"
-                    icon={<CiAlarmOn size={20} />}
-                    loading={loading}
-                    onClick={handleCheckIn}
-                    data-cy="my-timesheet-overview-end-break-button"
-                    id="my-timesheet-overview-end-break-button"
-                    className="px-8 py-6 text-lg font-medium"
-                  >
-                    End Break
-                  </Button>
+                  <RemoteAttendanceActionButton action={{ isSignIn: true }}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      icon={<CiAlarmOn size={20} />}
+                      loading={loading}
+                      data-cy="my-timesheet-overview-end-break-button"
+                      id="my-timesheet-overview-end-break-button"
+                      className="px-8 py-6 text-lg font-medium"
+                    >
+                      End Break
+                    </Button>
+                  </RemoteAttendanceActionButton>
                 </div>
               </AccessGuard>
             )}
