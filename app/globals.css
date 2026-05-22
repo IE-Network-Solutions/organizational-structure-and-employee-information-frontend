@@ -316,6 +316,25 @@
   color: #1890ff !important;
 }
 
+.radius-resize-handle-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.radius-resize-handle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3636f0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+}
+
+.radius-resize-handle:active {
+  cursor: grabbing;
+}
+
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;

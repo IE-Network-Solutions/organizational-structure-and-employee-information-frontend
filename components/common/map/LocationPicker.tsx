@@ -57,11 +57,43 @@ L.Icon.Default.mergeOptions({
     'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+const MIN_RADIUS_KM = 0.01;
+const MAX_RADIUS_KM = 10;
+const RADIUS_STEP_KM = 0.01;
+
+function clampRadiusKm(km: number): number {
+  return Math.min(
+    MAX_RADIUS_KM,
+    Math.max(MIN_RADIUS_KM, Number(Number(km).toFixed(3))),
+  );
+}
+
+/** Point on the circle edge (east of center) for the resize handle */
+function getEdgeLatLng(
+  lat: number,
+  lng: number,
+  radiusKm: number,
+): [number, number] {
+  const radiusMeters = radiusKm * 1000;
+  const metersPerDegreeLng =
+    111320 * Math.cos((lat * Math.PI) / 180) || 111320;
+  const deltaLng = radiusMeters / metersPerDegreeLng;
+  return [lat, lng + deltaLng];
+}
+
+const resizeHandleIcon = L.divIcon({
+  className: 'radius-resize-handle-icon',
+  html: '<div class="radius-resize-handle" title="Drag to resize"></div>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+});
+
 interface LocationPickerProps {
   latitude: number;
   longitude: number;
   radius: number;
   onLocationChange: (lat: number, lng: number) => void;
+  onRadiusChange?: (radius: number) => void;
   height?: string;
   width?: string;
   /** Enable automatic zoom to selected location (default: true) */
@@ -174,7 +206,7 @@ const MapClickHandler: React.FC<{
   onLocationChange: (lat: number, lng: number) => void;
 }> = ({ onLocationChange }) => {
   useMapEvents({
-    dblclick: (e) => {
+    click: (e) => {
       const { lat, lng } = e.latlng;
       onLocationChange(lat, lng);
     },
@@ -182,11 +214,65 @@ const MapClickHandler: React.FC<{
   return null;
 };
 
+/** Draggable handle on the circle edge to resize radius */
+const CircleResizeHandle: React.FC<{
+  center: [number, number];
+  radiusKm: number;
+  onRadiusChange: (radius: number) => void;
+}> = ({ center, radiusKm, onRadiusChange }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [handlePosition, setHandlePosition] = useState<[number, number]>(() =>
+    getEdgeLatLng(center[0], center[1], radiusKm),
+  );
+
+  useEffect(() => {
+    if (!isDragging) {
+      setHandlePosition(getEdgeLatLng(center[0], center[1], radiusKm));
+    }
+  }, [center, radiusKm, isDragging]);
+
+  const updateRadiusFromDrag = (dragLat: number, dragLng: number) => {
+    const centerLatLng = L.latLng(center[0], center[1]);
+    const dragLatLng = L.latLng(dragLat, dragLng);
+    const meters = centerLatLng.distanceTo(dragLatLng);
+    onRadiusChange(clampRadiusKm(meters / 1000));
+  };
+
+  return (
+    <Marker
+      position={handlePosition}
+      draggable
+      icon={resizeHandleIcon}
+      zIndexOffset={1000}
+      eventHandlers={{
+        dragstart: () => setIsDragging(true),
+        drag: (e) => {
+          const { lat, lng } = e.target.getLatLng();
+          setHandlePosition([lat, lng]);
+          updateRadiusFromDrag(lat, lng);
+        },
+        dragend: (e) => {
+          const { lat, lng } = e.target.getLatLng();
+          updateRadiusFromDrag(lat, lng);
+          setIsDragging(false);
+        },
+        click: (e) => {
+          L.DomEvent.stopPropagation(e);
+        },
+        mousedown: (e) => {
+          L.DomEvent.stopPropagation(e);
+        },
+      }}
+    />
+  );
+};
+
 const LocationPicker: React.FC<LocationPickerProps> = ({
   latitude,
   longitude,
   radius,
   onLocationChange,
+  onRadiusChange,
   height = '400px',
   width = '100%',
   autoZoom = true,
@@ -217,6 +303,16 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
     onLocationChange(lat, lng);
   };
 
+  const handleRadiusChange = (newRadiusKm: number) => {
+    const clamped = clampRadiusKm(newRadiusKm);
+    setCurrentRadius(clamped);
+    onRadiusChange?.(clamped);
+  };
+
+  const adjustRadius = (deltaKm: number) => {
+    handleRadiusChange(currentRadius + deltaKm);
+  };
+
   if (!isClient) {
     return (
       <div
@@ -232,7 +328,10 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   }
 
   return (
-    <div style={{ height, width }} data-cy="location-picker">
+    <div
+      style={{ height, width, position: 'relative' }}
+      data-cy="location-picker"
+    >
       <MapContainer
         center={position}
         zoom={zoomLevel}
@@ -259,15 +358,50 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         <Marker position={position} />
         <Circle
           center={position}
-          radius={currentRadius * 1000} // Convert km to meters
+          radius={currentRadius * 1000}
           pathOptions={{
             color: '#3636F0',
             fillColor: '#3636F0',
             fillOpacity: 0.15,
-            weight: 1,
+            weight: 2,
           }}
         />
+        {onRadiusChange && (
+          <CircleResizeHandle
+            center={position}
+            radiusKm={currentRadius}
+            onRadiusChange={handleRadiusChange}
+          />
+        )}
       </MapContainer>
+
+      {onRadiusChange && (
+        <div
+          className="absolute bottom-3 right-3 z-[1000] flex flex-col gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-md"
+          data-cy="location-picker-radius-controls"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            type="button"
+            aria-label="Increase radius"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-lg font-semibold text-[#3636F0] hover:bg-[#EFF6FF]"
+            onClick={() => adjustRadius(RADIUS_STEP_KM)}
+            data-cy="location-picker-radius-increase"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            aria-label="Decrease radius"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-lg font-semibold text-[#3636F0] hover:bg-[#EFF6FF] disabled:opacity-40"
+            disabled={currentRadius <= MIN_RADIUS_KM}
+            onClick={() => adjustRadius(-RADIUS_STEP_KM)}
+            data-cy="location-picker-radius-decrease"
+          >
+            −
+          </button>
+        </div>
+      )}
     </div>
   );
 };
