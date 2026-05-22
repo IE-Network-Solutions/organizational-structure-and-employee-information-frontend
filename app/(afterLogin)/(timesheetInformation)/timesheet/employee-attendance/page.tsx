@@ -17,6 +17,7 @@ import EmployeeAttendanceTable from './_components/employeeAttendanceTable';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import {
   UseExportAttendanceData,
+  useExportRuleViolationsExcel,
   useGetAttendances,
 } from '@/store/server/features/timesheet/attendance/queries';
 import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
@@ -55,6 +56,10 @@ const EmployeeAttendance = () => {
   );
   const { mutate: exportAttendanceData, isLoading: isExportingData } =
     UseExportAttendanceData();
+  const {
+    mutate: exportRuleViolationsExcel,
+    isLoading: isExportingRuleViolations,
+  } = useExportRuleViolationsExcel();
   // Log the current state of data and request
   useEffect(() => {
     if (bodyRequest.exportType) {
@@ -73,10 +78,22 @@ const EmployeeAttendance = () => {
     filter,
     selectedRowKeys,
     setSelectedRowKeys,
+    violationFilters,
   } = useEmployeeAttendanceStore();
   const [activeTabKey, setActiveTabKey] = useState('1');
 
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
+
+  const onExportRuleViolations = () => {
+    exportRuleViolationsExcel(violationFilters, {
+      onSuccess: () => {
+        message.success('Download completed successfully!');
+      },
+      onError: () => {
+        message.error('Failed to export. Please try again.');
+      },
+    });
+  };
 
   const onExport = async (type: 'PDF' | 'EXCEL') => {
     setExportType(type);
@@ -416,93 +433,25 @@ const EmployeeAttendance = () => {
             >
               <PermissionWrapper
                 permissions={[Permissions.ExportEmployeeAttendanceInformation]}
-                data-cy="time-attendance-employee-attendance-export-permission-wrapper"
+                data-cy="time-attendance-rule-violation-export-permission-wrapper"
               >
-                <Popover
-                  trigger="click"
-                  placement={isSmallScreen ? 'bottomLeft' : 'bottomRight'}
-                  title={
-                    <div
-                      id="time-attendance-employee-attendance-export-popover-title"
-                      data-cy="time-attendance-employee-attendance-export-popover-title"
-                      className="text-base text-gray-900 font-bold"
-                    >
-                      Export Format
-                    </div>
+                <Button
+                  icon={
+                    <SaveAltIcon
+                      data-cy="time-attendance-rule-violation-export-button-icon"
+                      className="text-white"
+                    />
                   }
-                  content={
-                    <div
-                      id="time-attendance-employee-attendance-export-popover-content"
-                      data-cy="time-attendance-employee-attendance-export-popover-content"
-                      className="pt-4"
-                    >
-                      <Row
-                        id="time-attendance-employee-attendance-export-popover-content-row"
-                        data-cy="time-attendance-employee-attendance-export-popover-content-row"
-                        gutter={[8, 8]}
-                      >
-                        <Col
-                          id="time-attendance-employee-attendance-export-popover-content-row-col-1"
-                          data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1"
-                          span={12}
-                        >
-                          <Button
-                            size="small"
-                            className="w-full flex items-center justify-center gap-1"
-                            type="primary"
-                            icon={
-                              <TbLayoutList
-                                data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1-icon"
-                                size={16}
-                              />
-                            }
-                            onClick={() => onExport('EXCEL')}
-                            loading={isExportingData && exportType === 'EXCEL'}
-                            disabled={isExportDisabled}
-                            id="time-attendance-employee-attendance-export-excel-button"
-                            data-cy="time-attendance-employee-attendance-export-excel-button"
-                          >
-                            Excel
-                          </Button>
-                        </Col>
-                        <Col span={12}>
-                          <Button
-                            size="small"
-                            className="w-full flex items-center justify-center gap-1"
-                            type="primary"
-                            icon={<LuBookmark size={16} />}
-                            // onClick={() => onExport('PDF')}
-                            loading={isExportingData && exportType === 'PDF'}
-                            disabled={isExportDisabled}
-                            id="time-attendance-employee-attendance-export-pdf-button"
-                            data-cy="time-attendance-employee-attendance-export-pdf-button"
-                          >
-                            PDF
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  }
-                  id="time-attendance-employee-attendance-export-popover"
-                  data-cy="time-attendance-employee-attendance-export-popover"
+                  size="large"
+                  type="primary"
+                  loading={isExportingRuleViolations}
+                  onClick={onExportRuleViolations}
+                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
+                  id="time-attendance-rule-violation-export-button"
+                  data-cy="time-attendance-rule-violation-export-button"
                 >
-                  <Button
-                    icon={
-                      <SaveAltIcon
-                        data-cy="time-attendance-employee-attendance-export-button-icon"
-                        className="text-white"
-                      />
-                    }
-                    size="large"
-                    type="primary"
-                    loading={isExportLoading}
-                    className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
-                    id="time-attendance-employee-attendance-export-button"
-                    data-cy="time-attendance-employee-attendance-export-button"
-                  >
-                    {!isSmallScreen && 'Export'}
-                  </Button>
-                </Popover>
+                  {!isSmallScreen && 'Export'}
+                </Button>
               </PermissionWrapper>
             </div>
           )}

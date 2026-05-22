@@ -66,6 +66,13 @@ export interface EditRuleViolation {
   actionTypes: string[];
 }
 
+export type ExportWarningLetterFormat = 'PDF' | 'DOCX';
+
+export interface ExportWarningLetterBody {
+  violationId: string;
+  format: ExportWarningLetterFormat;
+}
+
 export type RuleViolationQueryParams = {
   page?: number | string;
   limit?: number | string;

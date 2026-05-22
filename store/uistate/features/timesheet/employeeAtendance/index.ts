@@ -1,5 +1,6 @@
 import { Key } from 'react';
 import { create, StateCreator } from 'zustand';
+import { RuleViolationQueryParams } from '@/store/server/features/timesheet/attendance/interface';
 
 type EmployeeAttendanceState = {
   isShowEmployeeAttendanceSidebar: boolean;
@@ -20,6 +21,7 @@ type EmployeeAttendanceState = {
   selectedViolationId: string;
   selectedViolationActionTypes: string[];
   setSelectedViolation: (id: string, actionTypes: string[]) => void;
+  violationFilters: Partial<RuleViolationQueryParams>;
 };
 
 type EmployeeAttendanceStateAction = {
@@ -45,6 +47,7 @@ type EmployeeAttendanceStateAction = {
     isShowDeleteRuleViolationModal: boolean,
   ) => void;
   setSelectedViolation: (id: string, actionTypes: string[]) => void;
+  setViolationFilters: (filters: Partial<RuleViolationQueryParams>) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -52,6 +55,8 @@ const employeeAttendanceSlice: StateCreator<
 > = (set) => ({
   filter: null,
   setFilter: (filter: any) => set({ filter }),
+  violationFilters: {},
+  setViolationFilters: (violationFilters) => set({ violationFilters }),
   isShowEmployeeAttendanceSidebar: false,
   setIsShowEmployeeAttendanceSidebar: (
     isShowEmployeeAttendanceSidebar: boolean,

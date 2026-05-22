@@ -7,6 +7,7 @@ import {
   AttendanceRequestBody,
   RuleViolationQueryParams,
 } from '@/store/server/features/timesheet/attendance/interface';
+import { toRuleViolationApiParams } from '@/store/server/features/timesheet/attendance/ruleViolationParams';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import {
@@ -135,21 +136,10 @@ const getAttendances = async (
 
 const getRuleViolations = async (query: RuleViolationQueryParams) => {
   const requestHeaders = await requestHeader();
-  const params: Record<string, string | number | boolean> = {};
-
-  if (query.page != null) params.page = query.page;
-  if (query.limit != null) params.limit = query.limit;
-  if (query.search?.trim()) params.search = query.search.trim();
-  if (query.userId) params.userId = query.userId;
-  if (query.attendanceRuleId) params.attendanceRuleId = query.attendanceRuleId;
-  if (query.ruleTypeId) params.ruleTypeId = query.ruleTypeId;
-  if (query.actionTaken != null) params.actionTaken = query.actionTaken;
-  if (query.actionType) params.actionType = query.actionType;
-  if (query.actionTypes) params.actionTypes = query.actionTypes;
-  if (query.from) params.from = query.from;
-  if (query.to) params.to = query.to;
-  if (query.orderBy) params.orderBy = query.orderBy;
-  if (query.orderDirection) params.orderDirection = query.orderDirection;
+  const params = toRuleViolationApiParams(query, {
+    includePagination: true,
+    includeSort: true,
+  });
 
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations`,
@@ -165,6 +155,46 @@ export const useGetRuleViolations = (query: RuleViolationQueryParams) => {
     () => getRuleViolations(query),
     { keepPreviousData: true },
   );
+};
+
+const exportRuleViolationsExcel = async (
+  query: Partial<RuleViolationQueryParams>,
+) => {
+  const requestHeaders = await requestHeader();
+  const params = toRuleViolationApiParams(query);
+
+  try {
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/export/excel`,
+      method: 'GET',
+      headers: requestHeaders,
+      params,
+      skipEncryption: true,
+      responseType: 'blob',
+    });
+
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Rule Violation List Export.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useExportRuleViolationsExcel = () => {
+  return useMutation(exportRuleViolationsExcel);
 };
 
 const exportAttendanceData = async (data: any) => {

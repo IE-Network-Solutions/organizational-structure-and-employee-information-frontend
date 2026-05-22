@@ -7,6 +7,7 @@ import {
   AttendanceSetShiftRequestBody,
   EditAttendance,
   EditRuleViolation,
+  ExportWarningLetterBody,
 } from '@/store/server/features/timesheet/attendance/interface';
 import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -63,6 +64,41 @@ const deleteRuleViolation = async (violationId: string) => {
     method: 'DELETE',
     headers: requestHeaders,
   });
+};
+
+const exportWarningLetter = async ({
+  violationId,
+  format,
+}: ExportWarningLetterBody) => {
+  const requestHeaders = await requestHeader();
+  const response = await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/export/letter`,
+    method: 'POST',
+    headers: requestHeaders,
+    data: { violationId, format },
+    skipEncryption: true,
+    responseType: 'blob',
+  });
+
+  const mimeType =
+    format === 'PDF'
+      ? 'application/pdf'
+      : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  const extension = format === 'PDF' ? 'pdf' : 'docx';
+
+  const blob =
+    response instanceof Blob
+      ? response
+      : new Blob([response], { type: mimeType });
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `Warning Letter.${extension}`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 };
 
 const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
@@ -177,6 +213,10 @@ export const useDeleteRuleViolation = () => {
       },
     },
   );
+};
+
+export const useExportWarningLetter = () => {
+  return useMutation(exportWarningLetter);
 };
 
 export const useSetCurrentAttendance = () => {
