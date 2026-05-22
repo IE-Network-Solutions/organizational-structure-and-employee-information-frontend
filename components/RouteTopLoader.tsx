@@ -3,6 +3,23 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { GlobalStateStore } from '@/store/uistate/features/global';
 
+/** Links that trigger file download / blob export, not SPA route changes. */
+const shouldIgnoreAnchorNavigation = (anchor: HTMLAnchorElement): boolean => {
+  if (anchor.hasAttribute('download')) return true;
+  if (anchor.dataset.skipRouteLoader === 'true') return true;
+
+  const href = anchor.getAttribute('href') ?? anchor.href;
+  if (!href) return false;
+
+  const lower = href.toLowerCase();
+  return (
+    lower.startsWith('blob:') ||
+    lower.startsWith('data:') ||
+    lower.startsWith('mailto:') ||
+    lower.startsWith('tel:')
+  );
+};
+
 // A minimal, Basecamp-like top loader that appears when navigation takes a moment.
 // Delays showing to avoid flicker on fast transitions, and ensures a smooth hide.
 export default function RouteTopLoader() {
@@ -83,6 +100,8 @@ export default function RouteTopLoader() {
       if (!target) return;
       const anchor = target.closest('a[href]') as HTMLAnchorElement | null;
       if (!anchor) return;
+      if (shouldIgnoreAnchorNavigation(anchor)) return;
+
       const url = new URL(anchor.href, window.location.href);
       const isSameOrigin = url.origin === window.location.origin;
       const isNewTab = anchor.target && anchor.target !== '_self';
