@@ -1,20 +1,24 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { getCurrentToken } from '@/utils/getCurrentToken';
+import {
+  getCurrentToken,
+  getOptionalToken,
+} from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
 const submitResponseMutation = async (id: string, values: any) => {
-  const token = await getCurrentToken();
+  const token = await getOptionalToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+
+  const headers: Record<string, string> = {};
+  if (tenantId) headers.tenantId = tenantId;
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   return crudRequest({
     url: `${ORG_DEV_URL}/responses/public/${id}`,
     method: 'post',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
+    headers,
     data: values,
   });
 };
