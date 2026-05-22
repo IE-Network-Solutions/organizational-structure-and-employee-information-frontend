@@ -7,8 +7,12 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 import {
   extractBankInformationFromPatchResponse,
+  mergeEmployeeInformationRowPreservingBank,
   normalizeBankInformation,
+  normalizePatchPayloadForCache,
+  parseEmployeeInformationJsonFields,
 } from '@/utils/employeeBankInformation';
+import { getEmployeeInformationById } from '@/store/server/features/employees/employeeManagment/queries';
 
 // Mutation function for updating profile image
 const updateProfileImageMutation = async (formData: FormData) => {
@@ -295,8 +299,9 @@ export const useUpdateEmployee = () => {
     ({ id, values }: UpdateEmployeeVariables) =>
       updateEmployeeMutation(id, values),
     {
-      onSuccess: (data, variables) => {
-        const { userId, values } = variables;
+      onSuccess: async (data, variables) => {
+        const { userId, values, id: employeeInfoId } = variables;
+        const cachePatch = normalizePatchPayloadForCache(values);
         const bankPatch = extractBankInformationFromPatchResponse(data, values);
 
         if (userId) {
@@ -305,7 +310,7 @@ export const useUpdateEmployee = () => {
 
             let employeeInformation = mergeEmployeeInformationCache(
               old.employeeInformation,
-              values,
+              cachePatch,
             );
 
             if (bankPatch && Object.keys(bankPatch).length > 0) {
@@ -321,21 +326,47 @@ export const useUpdateEmployee = () => {
             } else if (
               data &&
               typeof data === 'object' &&
-              (data as { id?: string }).id &&
-              !bankPatch
+              (data as { id?: string }).id
             ) {
               employeeInformation = mergeEmployeeInformationCache(
                 employeeInformation,
-                data as Record<string, unknown>,
+                parseEmployeeInformationJsonFields(
+                  data as Record<string, unknown>,
+                ),
               );
             }
 
             return { ...old, employeeInformation };
           });
+
+          // GET /users/:id can stay Redis-stale after PATCH employee-information.
+          // Load the updated row from GET /employee-information/:id instead.
+          try {
+            const freshEmployeeInfo = await getEmployeeInformationById(
+              employeeInfoId,
+            );
+            if (freshEmployeeInfo && typeof freshEmployeeInfo === 'object') {
+              queryClient.setQueryData(['employee', userId], (old: any) => {
+                if (!old?.employeeInformation) return old;
+                return {
+                  ...old,
+                  employeeInformation: mergeEmployeeInformationRowPreservingBank(
+                    old.employeeInformation,
+                    freshEmployeeInfo as Record<string, unknown>,
+                    bankPatch,
+                  ),
+                };
+              });
+            }
+          } catch {
+            // Keep optimistic cache from PATCH response / submitted values
+          }
         }
 
-        // Refresh list views only — do not refetch ['employee', userId] or stale GET overwrites the patch.
+        // List only — do not invalidate ['employee', userId]: refetch hits GET /users/:id
+        // which can be Redis-stale or fail (network toast) and overwrite the cache we just set.
         queryClient.invalidateQueries('employees');
+
         NotificationMessage.success({
           message: 'Successfully Updated',
           description: 'Employee successfully updated',

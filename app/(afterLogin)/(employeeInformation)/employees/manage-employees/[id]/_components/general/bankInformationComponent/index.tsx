@@ -6,10 +6,11 @@ import {
 import {
   BANK_DEFAULT_FIELD_KEYS,
   BANK_DEFAULT_FIELDS,
+  bankInformationMatchesSnapshot,
   buildBankFieldsForDisplay,
 } from '@/utils/employeeBankInformation';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { validateField } from '../../../../_components/formValidator';
@@ -58,21 +59,28 @@ const BankInformationComponent = ({
     [employeeData, bankInformationFields, savedBankSnapshot],
   );
 
-  useEffect(() => {
-    if (!savedBankSnapshot) return;
-    const current = buildBankFieldsForDisplay(employeeData, bankInformationFields);
-    const savedAccount = String(savedBankSnapshot.accountNumber ?? '');
-    const currentAccount = String(current.accountNumber ?? '');
-    if (savedAccount && savedAccount === currentAccount) {
-      setSavedBankSnapshot(null);
-    }
-  }, [employeeData, bankInformationFields, savedBankSnapshot]);
+  const wasEditingBankRef = useRef(false);
 
+  // Only seed the form when entering edit mode — not on every allFields/query change.
   useEffect(() => {
-    if (edit.bankInformation) {
-      form.setFieldsValue(allFields);
+    const justOpened = edit.bankInformation && !wasEditingBankRef.current;
+    wasEditingBankRef.current = edit.bankInformation;
+    if (justOpened) {
+      form.setFieldsValue(
+        buildBankFieldsForDisplay(
+          employeeData,
+          bankInformationFields,
+          savedBankSnapshot,
+        ),
+      );
     }
-  }, [edit.bankInformation, allFields, form]);
+  }, [
+    edit.bankInformation,
+    employeeData,
+    bankInformationFields,
+    savedBankSnapshot,
+    form,
+  ]);
 
   const getFieldValidation = (fieldName: string) => {
     return (
@@ -86,10 +94,10 @@ const BankInformationComponent = ({
   };
 
   const handleBankSave = (values: Record<string, unknown>) => {
+    setSavedBankSnapshot(values);
     handleSaveChanges('bankInformation', values, {
-      onSuccess: () => {
-        setSavedBankSnapshot(values);
-      },
+      onSuccess: () => setSavedBankSnapshot(values),
+      onError: () => setSavedBankSnapshot(null),
     });
   };
 

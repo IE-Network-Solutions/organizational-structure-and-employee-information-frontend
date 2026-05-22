@@ -457,7 +457,7 @@ const ManageEmployees: React.FC<any> = () => {
             />
 
             <div
-              className="flex items-center gap-2 flex-wrap bg-blue-600"
+              className="flex items-center gap-2 flex-wrap"
               id="manage-employees-active-filters"
               data-cy="manage-employees-active-filters"
             >

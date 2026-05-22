@@ -12,6 +12,7 @@ import EmergencyContact from './emergencyContact';
 import AddressComponent from './AddressComponent';
 import { useGetEmployeInformationForms } from '@/store/server/features/employees/employeeManagment/employeInformationForm/queries';
 import AdditionalInformation from './additionalInformation';
+import { prepareJsonFieldForPatch } from '@/utils/employeeBankInformation';
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
@@ -20,8 +21,8 @@ function General({ id }: { id: string }) {
   const { data: employeeInformationForm } = useGetEmployeInformationForms();
 
   const mergedFields =
-    employeeInformationForm?.items.flatMap((form) =>
-      form.form.map((field) => {
+    (employeeInformationForm?.items ?? []).flatMap((form) =>
+      (form.form ?? []).map((field) => {
         // Handle both FormField and FormFieldWithFieldProperty types
         if ('field' in field) {
           // FormFieldWithFieldProperty case
@@ -46,7 +47,7 @@ function General({ id }: { id: string }) {
   const handleSaveChanges = (
     editKey: keyof EditState,
     values: any,
-    options?: { onSuccess?: () => void },
+    options?: { onSuccess?: () => void; onError?: () => void },
   ) => {
     const employeeInfoId = employeeData?.employeeInformation?.id;
     if (!employeeInfoId) return;
@@ -57,16 +58,36 @@ function General({ id }: { id: string }) {
         payload = values;
         break;
       case 'addresses':
-        payload = { addresses: values };
+        payload = {
+          addresses: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.addresses,
+            values,
+          ),
+        };
         break;
       case 'emergencyContact':
-        payload = { emergencyContact: values };
+        payload = {
+          emergencyContact: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.emergencyContact,
+            values,
+          ),
+        };
         break;
       case 'bankInformation':
-        payload = { bankInformation: values };
+        payload = {
+          bankInformation: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.bankInformation,
+            values,
+          ),
+        };
         break;
       case 'additionalInformation':
-        payload = { additionalInformation: values };
+        payload = {
+          additionalInformation: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.additionalInformation,
+            values,
+          ),
+        };
         break;
       default:
         return;
@@ -76,8 +97,11 @@ function General({ id }: { id: string }) {
       { id: employeeInfoId, values: payload, userId: id },
       {
         onSuccess: () => {
-          setEdit(editKey);
           options?.onSuccess?.();
+          setEdit(editKey);
+        },
+        onError: () => {
+          options?.onError?.();
         },
       },
     );

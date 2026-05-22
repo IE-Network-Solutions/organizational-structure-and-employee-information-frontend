@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, TableColumnsType, Avatar as AntAvatar } from 'antd';
+import React, { useMemo } from 'react';
+import { Table, TableColumnsType, Avatar as AntAvatar, Empty } from 'antd';
 import { EmployeeData } from '@/types/dashboard/adminManagement';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
@@ -89,7 +89,12 @@ const UserTable = () => {
   const { userCurrentPage, pageSize, setUserCurrentPage, setPageSize } =
     useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
-  const { data: allFilterData, isLoading } = useEmployeeAllFilter(
+  const {
+    data: allFilterData,
+    isLoading,
+    isFetching,
+    isError,
+  } = useEmployeeAllFilter(
     pageSize,
     userCurrentPage,
     searchParams.allOffices ? searchParams.allOffices : '',
@@ -109,9 +114,12 @@ const UserTable = () => {
   });
 
   const MAX_NAME_LENGTH = 20;
-  const data = allFilterData?.items?.map((item: any) => {
-    const fullName =
-      item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
+  const data = useMemo(() => {
+    const items = allFilterData?.items ?? [];
+    return items.map((item: any) => {
+    const first = item?.firstName ?? '';
+    const middle = item?.middleName ?? '';
+    const fullName = `${first} ${middle}`.trim() || '—';
     const displayName =
       fullName.length > MAX_NAME_LENGTH
         ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
@@ -202,8 +210,8 @@ const UserTable = () => {
           className="text-[#4d4d4d] text-sm font-normal"
         >
           {' '}
-          {item?.employeeJobInformation[0]?.position?.name
-            ? item?.employeeJobInformation[0]?.position?.name
+          {item?.employeeJobInformation?.[0]?.position?.name
+            ? item?.employeeJobInformation?.[0]?.position?.name
             : '-'}
         </span>
       ),
@@ -213,8 +221,8 @@ const UserTable = () => {
           className="text-[#4d4d4d] text-sm font-normal"
         >
           {' '}
-          {item?.employeeJobInformation[0]?.department?.name
-            ? item?.employeeJobInformation[0]?.department?.name
+          {item?.employeeJobInformation?.[0]?.department?.name
+            ? item?.employeeJobInformation?.[0]?.department?.name
             : '-'}
         </span>
       ),
@@ -234,7 +242,8 @@ const UserTable = () => {
         </div>
       ),
     };
-  });
+    });
+  }, [allFilterData?.items]);
 
   const baseColumns = getBaseColumns(isMobile);
   const columns = isMobile
@@ -262,8 +271,20 @@ const UserTable = () => {
         data-cy="user-table-wrapper"
         className="user-table-wrapper"
       >
-        {isLoading ? (
+        {isLoading || (isFetching && !allFilterData) ? (
           <TableSkeleton columns={columns} />
+        ) : isError ? (
+          <div
+            className="py-8 text-center text-[#4d4d4d]"
+            data-cy="user-table-error"
+          >
+            Could not load employees. Check that the API is running and try
+            again.
+          </div>
+        ) : !data?.length ? (
+          <div className="py-12" data-cy="user-table-empty">
+            <Empty description="No employees found" />
+          </div>
         ) : (
           <Table
             className="w-full cursor-pointer"
