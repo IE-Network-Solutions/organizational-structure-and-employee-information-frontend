@@ -1,6 +1,37 @@
 import { auth } from '@/utils/firebaseConfig';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+/** Token from Zustand store or auth cookie (client-only). */
+export const getStoredAuthToken = (): string | null => {
+  const storeToken = useAuthenticationStore.getState().token;
+  if (storeToken) return storeToken;
+
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)token=([^;]*)/);
+  if (!match?.[1]) return null;
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+};
+
+/**
+ * Returns a token when available; does not throw (for public API routes).
+ */
+export const getOptionalToken = async (): Promise<string | null> => {
+  try {
+    if (auth.currentUser) {
+      const currentToken = await auth.currentUser.getIdToken(false);
+      useAuthenticationStore.getState().setToken(currentToken);
+      return currentToken;
+    }
+  } catch {
+    // Fall through to stored token.
+  }
+  return getStoredAuthToken();
+};
+
 /**
  * Helper function to get the current Firebase token and update the authentication store
  * This ensures you always have the most up-to-date token from Firebase
