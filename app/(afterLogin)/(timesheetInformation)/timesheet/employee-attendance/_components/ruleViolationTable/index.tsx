@@ -6,12 +6,14 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Avatar, Button, Dropdown, Table } from 'antd';
+import { Avatar, Button, Dropdown, Table, message } from 'antd';
 import TableFilter from './tableFilter';
 import {
   AttendanceRequestBody,
+  ExportWarningLetterFormat,
   RuleViolationQueryParams,
 } from '@/store/server/features/timesheet/attendance/interface';
+import { useExportWarningLetter } from '@/store/server/features/timesheet/attendance/mutation';
 import { useGetRuleViolations } from '@/store/server/features/timesheet/attendance/queries';
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
@@ -23,6 +25,7 @@ import {
   AttendanceRuleViolation,
 } from '@/types/timesheet/attendance';
 import { useGetAttendanceRuleTypes } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
+import { buildRuleViolationQueryParams } from '@/store/server/features/timesheet/attendance/ruleViolationParams';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
@@ -76,42 +79,6 @@ const resolveViolationRuleType = (
   return undefined;
 };
 
-const buildViolationQuery = (
-  val: CommonObject,
-): Partial<RuleViolationQueryParams> => {
-  const params: Partial<RuleViolationQueryParams> = {};
-
-  if (val.search?.trim()) {
-    params.search = val.search.trim();
-  }
-  if (val.employeeId) {
-    params.userId = val.employeeId;
-  }
-  if (val.ruleTypeId) {
-    params.ruleTypeId = val.ruleTypeId;
-  }
-  if (val.attendanceRuleId) {
-    params.attendanceRuleId = val.attendanceRuleId;
-  }
-  if (val.actionType) {
-    params.actionType = val.actionType;
-  }
-  if (Array.isArray(val.actionTypes) && val.actionTypes.length > 0) {
-    params.actionTypes = val.actionTypes.join(',');
-  }
-  if (val.actionTaken != null) {
-    params.actionTaken = val.actionTaken;
-  }
-  if (val.startDate) {
-    params.from = dayjs(val.startDate).format('YYYY-MM-DD');
-  }
-  if (val.endDate) {
-    params.to = dayjs(val.endDate).format('YYYY-MM-DD');
-  }
-
-  return params;
-};
-
 interface RuleViolationTableRow {
   key: string;
   userId: string;
@@ -136,10 +103,17 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
   setSelectedRowKeys,
 }) => {
   const [tableData, setTableData] = useState<RuleViolationTableRow[]>([]);
-  const [violationFilters, setViolationFilters] = useState<
-    Partial<RuleViolationQueryParams>
-  >({});
+  const [exportSubmenuOpenId, setExportSubmenuOpenId] = useState<string | null>(
+    null,
+  );
   const pathname = usePathname();
+  const {
+    violationFilters,
+    setViolationFilters,
+    setIsShowEditRuleViolationModal,
+    setIsShowDeleteRuleViolationModal,
+    setSelectedViolation,
+  } = useEmployeeAttendanceStore();
   const { orderBy, orderDirection, setOrderBy, setOrderDirection } =
     usePagination(1, 10);
 
@@ -154,13 +128,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
   useEffect(() => {
     resetPagination();
     setViolationFilters({});
-  }, [pathname]);
-
-  const {
-    setIsShowEditRuleViolationModal,
-    setIsShowDeleteRuleViolationModal,
-    setSelectedViolation,
-  } = useEmployeeAttendanceStore();
+  }, [pathname, resetPagination, setViolationFilters]);
 
   const ruleViolationQuery = useMemo<RuleViolationQueryParams>(
     () => ({
@@ -179,8 +147,41 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
     refetch,
   } = useGetRuleViolations(ruleViolationQuery);
   const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
+  const {
+    mutate: exportWarningLetter,
+    isLoading: isExportingWarningLetter,
+    variables: exportingLetterVariables,
+  } = useExportWarningLetter();
 
   const { isMobile, isTablet } = useIsMobile();
+
+  const handleExportWarningLetter = (
+    event: React.MouseEvent,
+    violationId: string,
+    format: ExportWarningLetterFormat,
+  ) => {
+    event.stopPropagation();
+    exportWarningLetter(
+      { violationId, format },
+      {
+        onSuccess: () => {
+          setExportSubmenuOpenId(null);
+          message.success('Download completed successfully!');
+        },
+        onError: () => {
+          message.error('Failed to export warning letter. Please try again.');
+        },
+      },
+    );
+  };
+
+  const isExportingLetterForRow = (
+    violationId: string,
+    format: ExportWarningLetterFormat,
+  ) =>
+    isExportingWarningLetter &&
+    exportingLetterVariables?.violationId === violationId &&
+    exportingLetterVariables?.format === format;
 
   const EmpRender = ({ userId }: { userId: string }) => {
     const {
@@ -364,8 +365,8 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           getPopupContainer={() => document.body}
           dropdownRender={() => (
             <div
-              data-cy="time-attendance-rule-violation-table-button-delete-confirm-dropdown"
-              className="min-w-[145px] rounded-lg bg-white border border-[#D9D9D9] p-1 shadow-md"
+              data-cy="time-attendance-rule-violation-table-actions-dropdown"
+              className="min-w-[145px] overflow-visible rounded-lg border border-[#D9D9D9] bg-white p-1 shadow-md"
             >
               <>
                 <button
@@ -381,18 +382,67 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
                   <EditOutlinedIcon fontSize="small" />
                   Edit
                 </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
-                  //   onClick={(e) => {
-                  //     e.stopPropagation();
-                  //     setDeleteConfirmOpenId(item.id);
-                  //   }}
-                  data-cy="time-attendance-rule-violation-table-button-delete"
+                <div
+                  className="relative overflow-visible"
+                  onMouseEnter={() => setExportSubmenuOpenId(record.id)}
+                  onMouseLeave={() => setExportSubmenuOpenId(null)}
+                  data-cy="time-attendance-rule-violation-table-button-export-submenu"
                 >
-                  <SaveAltIcon fontSize="small" />
-                  Export
-                </button>
+                  <button
+                    type="button"
+                    className={`w-full text-left px-3 py-2 text-sm rounded flex items-center gap-2 ${
+                      exportSubmenuOpenId === record.id
+                        ? 'bg-[#F5F5F5]'
+                        : 'hover:bg-[#F5F5F5]'
+                    }`}
+                    onClick={(e) => e.stopPropagation()}
+                    data-cy="time-attendance-rule-violation-table-button-export"
+                  >
+                    <SaveAltIcon fontSize="small" />
+                    Export
+                  </button>
+                  {exportSubmenuOpenId === record.id && (
+                    <div
+                      className="absolute right-full top-0 z-[1100] flex pl-1"
+                      onClick={(e) => e.stopPropagation()}
+                      data-cy="time-attendance-rule-violation-table-export-submenu"
+                    >
+                      <div
+                        className="flex min-w-[100px] flex-col gap-2 rounded-lg border border-[#D9D9D9] bg-white p-2 shadow-md"
+                        data-cy="time-attendance-rule-violation-table-export-submenu-dropdown"
+                      >
+                        <button
+                          type="button"
+                          className="w-full rounded border border-[#D9D9D9] bg-white px-3 py-2 text-center text-sm text-gray-900 hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-60"
+                          id="time-attendance-rule-violation-export-docx-button"
+                          data-cy="time-attendance-rule-violation-export-docx-button"
+                          disabled={isExportingWarningLetter}
+                          onClick={(e) =>
+                            handleExportWarningLetter(e, record.id, 'DOCX')
+                          }
+                        >
+                          {isExportingLetterForRow(record.id, 'DOCX')
+                            ? 'Exporting...'
+                            : 'DOCX'}
+                        </button>
+                        <button
+                          type="button"
+                          className="w-full rounded border border-[#D9D9D9] bg-white px-3 py-2 text-center text-sm text-gray-900 hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-60"
+                          id="time-attendance-rule-violation-export-pdf-button"
+                          data-cy="time-attendance-rule-violation-export-pdf-button"
+                          disabled={isExportingWarningLetter}
+                          onClick={(e) =>
+                            handleExportWarningLetter(e, record.id, 'PDF')
+                          }
+                        >
+                          {isExportingLetterForRow(record.id, 'PDF')
+                            ? 'Exporting...'
+                            : 'PDF'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
                   className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
@@ -458,7 +508,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
   }, [ruleViolationsData, attendanceRuleTypesData?.items]);
 
   const onFilterChange = (val: CommonObject) => {
-    setViolationFilters(buildViolationQuery(val));
+    setViolationFilters(buildRuleViolationQueryParams(val));
     setCurrentPage(1);
   };
 
