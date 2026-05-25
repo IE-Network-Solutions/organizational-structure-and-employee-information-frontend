@@ -39,7 +39,8 @@ const GroupPermissionCard: React.FC<GroupPermissionCardProps> = (props) => {
         paddingLeft: '2px',
         paddingRight: '2px',
       }}
-      className="cursor-pointer relative px-3  rounded-lg border-1 border-200"
+      className="cursor-pointer relative px-3 rounded-lg border-0"
+      style={{ background: '#F9FAFB' }}
       key={props?.item?.id}
       id={`settings-group-permission-card-${props?.item?.id}`}
       data-cy={`settings-group-permission-card-${props?.item?.id}`}

@@ -132,7 +132,7 @@ const DefineOkrRule = () => {
     >
       {/* Container with Border */}
       <div
-        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+        className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
         id="okr-define-okr-rule-main-container"
         data-cy="okr-define-okr-rule-main-container"
       >
@@ -160,7 +160,7 @@ const DefineOkrRule = () => {
             {listItems.map((item: any) => (
               <div
                 key={item.id}
-                className="relative rounded-[12px] border border-[#d9d9d9] bg-white p-5 transition-shadow hover:shadow-sm"
+                className="relative rounded-[12px] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
                 id={`okr-rule-card-${item.id}`}
                 data-cy={`okr-rule-card-${item.id}`}
               >
@@ -186,11 +186,11 @@ const DefineOkrRule = () => {
                     >
                       <button
                         type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
+                        className="flex h-8 w-8 items-center justify-center text-[#8c8c8c] transition-colors hover:text-[#262626] bg-transparent border-none cursor-pointer"
                         onClick={(e) => e.stopPropagation()}
                         data-cy={`okr-rule-card-menu-button-${item.id}`}
                       >
-                        <EllipsisOutlined className="text-lg" />
+                        <EllipsisOutlined style={{ fontSize: 14 }} />
                       </button>
                     </Dropdown>
                   </div>

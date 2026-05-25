@@ -9,7 +9,7 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetAggregateAuditLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
+import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
 import { AuditLog } from '@/types/tenant-management';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -34,6 +34,10 @@ const AUDIT_LOG_MODULES = [
   { label: 'Time and attendance', value: 'TimesheetAuditLog' },
 ];
 
+const ALL_AUDIT_LOG_MODULE_VALUES = AUDIT_LOG_MODULES.map(
+  (module) => module.value,
+);
+
 const AuditLogPage = () => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,8 +59,8 @@ const AuditLogPage = () => {
   const [dateTo, setDateTo] = useState<Dayjs | null>(null);
 
   const queryParams = useMemo(() => {
-    const params = {
-      module: selectedModule ?? 'all',
+    const params: AggregateAuditLogParams = {
+      modules: selectedModule ? [selectedModule] : ALL_AUDIT_LOG_MODULE_VALUES,
       page: currentPage,
       limit: pageSize,
       orderBy: 'performedAt',
@@ -66,7 +70,7 @@ const AuditLogPage = () => {
       ...(dateFrom && { startDate: dateFrom.format('YYYY-MM-DD') }),
       ...(dateTo && { endDate: dateTo.format('YYYY-MM-DD') }),
     };
-    return params as AggregateAuditLogParams;
+    return params;
   }, [
     currentPage,
     pageSize,
@@ -79,7 +83,7 @@ const AuditLogPage = () => {
   ]);
 
   // Fetch audit logs from API
-  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditLogs(
+  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditPostLogs(
     queryParams,
     true,
   );

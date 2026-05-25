@@ -83,6 +83,12 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
         headerBg: '#FFF',
         contentBg: '#FFF',
       },
+      Tabs: {
+        inkBarColor: '#1E40AF',
+        itemActiveColor: '#1E40AF',
+        itemSelectedColor: '#1E40AF',
+        itemHoverColor: '#1E40AF',
+      },
     },
   };
 

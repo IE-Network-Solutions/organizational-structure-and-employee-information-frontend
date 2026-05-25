@@ -111,7 +111,7 @@ export default function WorkFromHomeApprovalsTable() {
   const rawItems = payload?.items ?? approvalData?.items ?? [];
 
   const finalApproval = (
-    e: { leaveRequestId: string; status: 'approved' | 'declined' },
+    e: { workFromHomeRequestId: string; status: 'approved' | 'declined' },
     options?: { onSuccess?: () => void },
   ) => {
     finalWfh(e, { onSuccess: () => options?.onSuccess?.() });
@@ -131,7 +131,7 @@ export default function WorkFromHomeApprovalsTable() {
       onSuccess: () => {
         setRejectComment('');
         finalApproval(
-          { leaveRequestId: e.requestId, status: 'declined' },
+          { workFromHomeRequestId: e.requestId, status: 'declined' },
           { onSuccess: () => refetch() },
         );
       },
@@ -151,7 +151,7 @@ export default function WorkFromHomeApprovalsTable() {
       onSuccess: (data) => {
         if (data?.last === true) {
           finalApproval(
-            { leaveRequestId: e.requestId, status: 'approved' },
+            { workFromHomeRequestId: e.requestId, status: 'approved' },
             { onSuccess: () => refetch() },
           );
         } else {

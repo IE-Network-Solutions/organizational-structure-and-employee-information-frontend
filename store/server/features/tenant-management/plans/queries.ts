@@ -9,10 +9,15 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 const getPlans = async (
   data: Partial<PlanRequestBody>,
   orderDirection: 'ASC' | 'DESC' = 'ASC',
+  currencyId?: string,
 ) => {
   const requestHeaders = await requestHeader();
+  const url = new URL(`${TENANT_MGMT_URL}/subscription/rest/plans`);
+  url.searchParams.append('orderDirection', orderDirection);
+  if (currencyId) url.searchParams.append('currencyId', currencyId);
+
   return await crudRequest({
-    url: `${TENANT_MGMT_URL}/subscription/rest/plans?orderDirection=${orderDirection}`,
+    url: url.toString(),
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -24,10 +29,13 @@ export const useGetPlans = (
   isKeepData: boolean = true,
   isEnabled: boolean = true,
   orderDirection: 'ASC' | 'DESC' = 'ASC',
+  currencyId?: string,
 ) => {
   return useQuery<ApiResponse<Plan>>(
-    Object.keys(data).length ? ['plans', data] : 'plans',
-    () => getPlans(data, orderDirection),
+    Object.keys(data).length
+      ? ['plans', data, currencyId]
+      : ['plans', currencyId],
+    () => getPlans(data, orderDirection, currencyId),
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,

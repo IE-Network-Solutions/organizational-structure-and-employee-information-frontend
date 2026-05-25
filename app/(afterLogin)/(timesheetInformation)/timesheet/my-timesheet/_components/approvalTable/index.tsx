@@ -99,7 +99,6 @@ const ApprovalTable = () => {
   const {
     data: leaveApprovalData,
     isLoading: isLoadingLeaveApproval,
-    isFetching: isFetchingLeaveApproval,
     refetch: refetchLeave,
   } = useGetApprovalLeaveRequestAllStatus(
     userId ?? '',
@@ -111,7 +110,6 @@ const ApprovalTable = () => {
   const {
     data: workFromHomeApprovalData,
     isLoading: isLoadingWorkFromHomeApproval,
-    isFetching: isFetchingWorkFromHomeApproval,
     refetch: refetchWorkFromHome,
   } = useGetWorkFromHomeApprovalAllStatus(
     userId ?? '',
@@ -128,28 +126,15 @@ const ApprovalTable = () => {
     setSelectedRowKeys([]);
   }, [searchEmployee, filterStatus, approvalTypeFilter]);
 
-  // When page, page size, or filters change, refetch so the endpoint is called with the new params
-  useEffect(() => {
-    if (approvalTypeFilter === 'WorkFromHome') {
-      refetchWorkFromHome();
-    } else {
-      refetchLeave();
-    }
-  }, [
-    approvalTypeFilter,
-    userCurrentPage,
-    pageSize,
-    searchEmployee,
-    filterStatus,
-    refetchLeave,
-    refetchWorkFromHome,
-  ]);
-
-  /** True on first load and on every refetch (e.g. filter / page changes). `isLoading` alone misses refetches when `keepPreviousData` is on. */
+  /**
+   * Use only initial-loading state for table skeleton.
+   * Keeping refetch (`isFetching`) out of this prevents action buttons/popconfirms
+   * from getting disabled mid-interaction (seen on WFH approve flow).
+   */
   const isApprovalListLoading =
     approvalTypeFilter === 'WorkFromHome'
-      ? isLoadingWorkFromHomeApproval || isFetchingWorkFromHomeApproval
-      : isLoadingLeaveApproval || isFetchingLeaveApproval;
+      ? isLoadingWorkFromHomeApproval
+      : isLoadingLeaveApproval;
 
   // Normalize response: support both { items, meta } and { data: { items, meta } }
   const approvalData =
@@ -163,13 +148,29 @@ const ApprovalTable = () => {
     ? 'work from home request'
     : 'leave request';
   const finalApproval = (
-    e: { leaveRequestId: string; status: 'approved' | 'declined' },
+    e: {
+      leaveRequestId?: string;
+      workFromHomeRequestId?: string;
+      status: 'approved' | 'declined';
+    },
     options?: { onSuccess?: () => void },
   ) => {
     if (isWorkFromHome) {
-      finalWorkFromHomeApprover(e, { onSuccess: () => options?.onSuccess?.() });
+      finalWorkFromHomeApprover(
+        {
+          workFromHomeRequestId: e.workFromHomeRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
     } else {
-      finalApprover(e, { onSuccess: () => options?.onSuccess?.() });
+      finalApprover(
+        {
+          leaveRequestId: e.leaveRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
     }
   };
   const reject: any = (e: {
@@ -186,7 +187,9 @@ const ApprovalTable = () => {
       onSuccess: () => {
         setRejectComment('');
         finalApproval(
-          { leaveRequestId: e.requestId, status: 'declined' },
+          isWorkFromHome
+            ? { workFromHomeRequestId: e.requestId, status: 'declined' }
+            : { leaveRequestId: e.requestId, status: 'declined' },
           {
             onSuccess: () =>
               isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
@@ -209,7 +212,9 @@ const ApprovalTable = () => {
       onSuccess: (data) => {
         if (data?.last === true) {
           finalApproval(
-            { leaveRequestId: e.requestId, status: 'approved' },
+            isWorkFromHome
+              ? { workFromHomeRequestId: e.requestId, status: 'approved' }
+              : { leaveRequestId: e.requestId, status: 'approved' },
             {
               onSuccess: () =>
                 isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
