@@ -1,3 +1,8 @@
+import {
+  AttendanceCheckInSource,
+  AttendanceCheckOutSource,
+} from '@/types/timesheet/attendance';
+
 export interface AttendanceRequestBody {
   exportType?: 'PDF' | 'EXCEL';
   filter: {
@@ -11,6 +16,8 @@ export interface AttendanceRequestBody {
     };
     clockedOut?: boolean;
     locations?: string[];
+    checkInSource?: AttendanceCheckInSource;
+    checkOutSource?: AttendanceCheckOutSource;
   };
   data?: Array<{
     id: string;
@@ -54,6 +61,33 @@ export interface EditAttendance {
   isAbsent: boolean;
   isOnGoing: boolean;
 }
+
+export interface EditRuleViolation {
+  actionTypes: string[];
+}
+
+export type ExportWarningLetterFormat = 'PDF' | 'DOCX';
+
+export interface ExportWarningLetterBody {
+  violationId: string;
+  format: ExportWarningLetterFormat;
+}
+
+export type RuleViolationQueryParams = {
+  page?: number | string;
+  limit?: number | string;
+  search?: string;
+  userId?: string;
+  attendanceRuleId?: string;
+  ruleTypeId?: string;
+  actionTaken?: boolean;
+  actionType?: string;
+  actionTypes?: string;
+  from?: string;
+  to?: string;
+  orderBy?: string;
+  orderDirection?: 'ASC' | 'DESC';
+};
 
 export interface ZKTAttendanceRequestBody {
   passUrl: string;

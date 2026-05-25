@@ -33,6 +33,7 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableSkeleton } from '@/components/tableSkeleton';
+import { InvoiceType } from '@/types/tenant-management';
 
 dayjs.extend(isBetween);
 
@@ -146,13 +147,20 @@ const InvoicesTable = ({
     }
   };
 
-  const getPlanName = (subscriptionId: string) => {
+  const getPlanName = (invoiceRow: Invoice) => {
+    const { subscriptionId } = invoiceRow;
     // First try to find subscription by id
     const subscription = subscriptions?.find(
       (sub) => sub.id === subscriptionId,
     );
 
     if (subscription?.plan?.name) {
+      if (invoiceRow.invoiceType === InvoiceType.PREPAY) {
+        return (
+          (invoiceRow.paymentMetadata as any)?.targetState?.plan?.name ??
+          subscription.plan.name
+        );
+      }
       return subscription.plan.name;
     }
 
@@ -248,7 +256,7 @@ const InvoicesTable = ({
     {
       title: 'Plan',
       dataIndex: 'subscriptionId',
-      render: (subscriptionId: string) => (
+      render: (subscriptionId: string, record: Invoice) => (
         <div
           id={`invoice-plan-${subscriptionId}`}
           data-cy={`invoice-plan-${subscriptionId}`}
@@ -258,7 +266,7 @@ const InvoicesTable = ({
             id={`invoice-plan-name-${subscriptionId}`}
             data-cy={`invoice-plan-name-${subscriptionId}`}
           >
-            {getPlanName(subscriptionId)}
+            {getPlanName(record)}
           </span>
         </div>
       ),

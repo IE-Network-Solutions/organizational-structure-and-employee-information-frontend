@@ -105,7 +105,7 @@ const Permission: React.FC<any> = () => {
         <div
           id="settings-permission-table"
           data-cy="settings-permission-table"
-          className="rounded-xl border border-[#E5E7EB] bg-white p-3"
+          className="rounded-xl p-3"
         >
           <div
             data-cy="settings-permission-horizontal-list"
@@ -118,7 +118,7 @@ const Permission: React.FC<any> = () => {
               ) => (
                 <div
                   key={item?.id ?? item?.slug ?? `${index}`}
-                  className="inline-flex max-w-full items-center rounded-lg bg-white px-2.5 py-2 text-sm text-[#334155] ring-1 ring-[#EEF2F7]"
+                  className="inline-flex max-w-full items-center rounded-lg bg-[#F9FAFB] px-2.5 py-2 text-sm text-[#334155]"
                   data-cy={`settings-permission-item-${item?.id ?? item?.slug}`}
                 >
                   <span

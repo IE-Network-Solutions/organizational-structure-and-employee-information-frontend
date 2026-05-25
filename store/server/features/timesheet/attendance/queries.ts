@@ -5,12 +5,15 @@ import { requestHeader } from '@/helpers/requestHeader';
 import {
   AttendanceImportLogsBody,
   AttendanceRequestBody,
+  RuleViolationQueryParams,
 } from '@/store/server/features/timesheet/attendance/interface';
+import { toRuleViolationApiParams } from '@/store/server/features/timesheet/attendance/ruleViolationParams';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import {
   AttendanceImport,
   AttendanceRecord,
+  AttendanceRuleViolation,
 } from '@/types/timesheet/attendance';
 import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import dayjs from 'dayjs';
@@ -130,6 +133,70 @@ const getAttendances = async (
     params: query,
   });
 };
+
+const getRuleViolations = async (query: RuleViolationQueryParams) => {
+  const requestHeaders = await requestHeader();
+  const params = toRuleViolationApiParams(query, {
+    includePagination: true,
+    includeSort: true,
+  });
+
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations`,
+    method: 'GET',
+    headers: requestHeaders,
+    params,
+  });
+};
+
+export const useGetRuleViolations = (query: RuleViolationQueryParams) => {
+  return useQuery<ApiResponse<AttendanceRuleViolation>>(
+    ['attendance-rule-violations', query],
+    () => getRuleViolations(query),
+    { keepPreviousData: true },
+  );
+};
+
+const exportRuleViolationsExcel = async (
+  query: Partial<RuleViolationQueryParams>,
+) => {
+  const requestHeaders = await requestHeader();
+  const params = toRuleViolationApiParams(query);
+
+  try {
+    const response = await crudRequest({
+      url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/export/excel`,
+      method: 'GET',
+      headers: requestHeaders,
+      params,
+      skipEncryption: true,
+      responseType: 'blob',
+    });
+
+    const blob =
+      response instanceof Blob
+        ? response
+        : new Blob([response], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          });
+
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Rule Violation List Export.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const useExportRuleViolationsExcel = () => {
+  return useMutation(exportRuleViolationsExcel);
+};
+
 const exportAttendanceData = async (data: any) => {
   const requestHeaders = await requestHeader();
   try {

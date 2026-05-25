@@ -29,7 +29,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
     <div
       id="payroll-summary-card-view-column"
       data-cy={dataCy || 'payroll-summary-card-view-column'}
-      className="w-full min-w-0"
+      className="h-full w-full min-w-0"
     >
       <Card
         id="payroll-summary-card-view-card"

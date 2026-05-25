@@ -425,17 +425,14 @@ const ManageEmployees: React.FC<any> = () => {
           </div>
         </div>
       </div>
-      <div
-        className="border border-[#D9D9D9] rounded-lg "
-        data-cy="manage-employees-table-section"
-      >
+      <div className="rounded-lg" data-cy="manage-employees-table-section">
         <div
           className="w-full h-auto"
           id="manage-employees-content"
           data-cy="manage-employees-content"
         >
           <div
-            className="flex justify-between gap-4 mb-2 px-3 pt-3"
+            className="flex justify-between gap-4 mb-2 pt-3"
             id="manage-employees-filter-row"
             data-cy="manage-employees-filter-row"
           >

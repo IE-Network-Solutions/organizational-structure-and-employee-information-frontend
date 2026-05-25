@@ -77,7 +77,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
       >
         {/* Left navigation sidebar */}
         <nav
-          className="flex lg:flex-col flex-row gap-2 rounded-lg p-2 lg:p-3 border border-gray-200"
+          className="flex lg:flex-col flex-row gap-2 rounded-lg p-2 lg:p-3"
           id="settings-role-permission-tabs"
           data-cy="settings-role-permission-tabs"
           role="tablist"
@@ -149,7 +149,7 @@ const ParentRolePermissionCards: React.FC<OnChange> = (props) => {
         {/* Right content panel */}
         <div
           data-cy="settings-role-permission-content-container"
-          className="flex-1 min-w-0 border border-gray-200 rounded-2xl p-4 lg:p-5"
+          className="flex-1 min-w-0 rounded-2xl p-4 lg:p-5"
         >
           {activeKey === '1' && (
             <div

@@ -37,7 +37,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
     <Spin spinning={isLoading} data-cy={`tna-course-card-spinner-${item?.id}`}>
       <div
         className={classNames(
-          'group relative flex h-[295px] min-w-0 w-full cursor-pointer flex-col gap-0 overflow-hidden rounded-[8px] border border-[#D9D9D9] bg-white pb-3 transition-shadow hover:shadow-md md:border-gray-200',
+          'group relative flex h-[295px] min-w-0 w-full cursor-pointer flex-col gap-0 overflow-hidden rounded-[8px] bg-[#F9FAFB] pb-3 transition-shadow hover:shadow-md',
           { 'opacity-70': item?.isDraft },
           [className],
         )}

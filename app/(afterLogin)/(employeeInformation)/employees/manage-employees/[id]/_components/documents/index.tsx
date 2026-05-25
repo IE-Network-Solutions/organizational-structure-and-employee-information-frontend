@@ -70,7 +70,7 @@ const Documents = ({ id }: { id: string }) => {
           return (
             <Card
               key={doc.id}
-              className="rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+              className="rounded-lg border border-gray-200"
               id={`documents-card-${doc.id}`}
               data-cy={`documents-card-${doc.id}`}
               bodyStyle={{ padding: '16px' }}
@@ -201,7 +201,8 @@ const Documents = ({ id }: { id: string }) => {
                   Upload Document
                 </span>
               }
-              className="rounded-lg border border-gray-200"
+              className="rounded-lg"
+              bordered={false}
               id="documents-upload-card"
               data-cy="documents-upload-card"
               headStyle={{
@@ -309,7 +310,8 @@ const Documents = ({ id }: { id: string }) => {
                 Documents
               </span>
             }
-            className="rounded-lg border border-gray-200"
+            className="rounded-lg"
+            bordered={false}
             id="documents-list-card"
             data-cy="documents-list-card"
             headStyle={{ borderBottom: 'none', paddingBottom: '16px' }}

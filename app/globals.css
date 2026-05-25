@@ -1977,9 +1977,8 @@ h6 {
 }
 
 .recruitment-settings-card {
-  border: 1px solid var(--recruitment-settings-border);
   border-radius: var(--recruitment-settings-radius);
-  background: #ffffff;
+  background: #F9FAFB;
 }
 
 .recruitment-settings-card-title {
@@ -2016,15 +2015,15 @@ h6 {
 }
 
 .recruitment-settings-more-btn {
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  border: none;
+  background: transparent;
 }
 .recruitment-settings-more-btn:hover {
-  background: rgb(243 244 246);
+  background: transparent;
 }
 
 .recruitment-settings-dragging-card {
-  transform: scale(0.98) rotate(8deg);
+  transform: scale(0.98);
   transform-origin: center center;
   opacity: 0.7;
   box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
@@ -2032,6 +2031,16 @@ h6 {
     transform 0.2s ease-out,
     opacity 0.2s ease-out,
     box-shadow 0.2s ease-out;
+}
+
+@keyframes custom-fields-drop-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35); }
+  50%       { box-shadow: 0 0 0 7px rgba(30, 64, 175, 0); }
+}
+.custom-fields-drop-active {
+  border-color: #1E40AF !important;
+  border-style: solid !important;
+  animation: custom-fields-drop-pulse 1s ease-in-out infinite;
 }
 
 .recruitment-settings-status-drag-placeholder {
