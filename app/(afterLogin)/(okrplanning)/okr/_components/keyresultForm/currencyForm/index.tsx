@@ -67,12 +67,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         if (
           value == null ||
           targetValue == null ||
-          Number(value) <= Number(targetValue)
+          Number(value) < Number(targetValue)
         ) {
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error('Initial value must be less than or equal to target value'),
+          new Error('Initial value must be less than the target value.'),
         );
       },
     }),
@@ -90,14 +90,12 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
         if (
           value == null ||
           initialValue == null ||
-          Number(value) >= Number(initialValue)
+          Number(value) > Number(initialValue)
         ) {
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error(
-            'Target value must be greater than or equal to initial value',
-          ),
+          new Error('Target value must be greater than the initial value.'),
         );
       },
     }),
