@@ -5,6 +5,7 @@ import { FieldType } from '@/types/enumTypes';
 import { Checkbox, Form, Input, Radio } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import React, { useMemo, useRef } from 'react';
+import RatingField from './ratingField';
 
 interface RenderOptionsProps {
   type: string;
@@ -12,6 +13,7 @@ interface RenderOptionsProps {
   questionId: string;
   form: any;
   isAnonymous?: boolean;
+  disabled?: boolean;
 }
 
 const RenderOptions: React.FC<RenderOptionsProps> = ({
@@ -20,6 +22,7 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
   questionId,
   form,
   isAnonymous = false,
+  disabled = false,
 }) => {
   const userId = useAuthenticationStore.getState().userId || null;
 
@@ -229,6 +232,18 @@ const RenderOptions: React.FC<RenderOptionsProps> = ({
               'single',
             );
           }}
+        />
+      )}
+      {type === FieldType.RATING && (
+        <RatingField
+          questionId={questionId}
+          field={field as Array<Record<string, string>>}
+          form={form}
+          matchingAnswer={matchingAnswer}
+          disabled={disabled}
+          onAnswerChange={(responseDetail) =>
+            handleSelection(responseDetail, 'single')
+          }
         />
       )}
     </div>

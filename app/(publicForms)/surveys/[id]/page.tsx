@@ -16,6 +16,11 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import RenderOptions from './_components/fieldTypes';
+import {
+  isDescriptionRequired,
+  RATING_DESCRIPTION_VALUE,
+} from './_components/fieldTypes/ratingField';
+import { FieldType } from '@/types/enumTypes';
 import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
 import {
   useSubmitFormResponse,
@@ -752,16 +757,61 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                     required={false}
                     className="!mb-0"
                     label={null}
-                    rules={
-                      q.required
-                        ? [
-                            {
-                              required: true,
-                              message: 'This field is required.',
-                            },
-                          ]
-                        : []
-                    }
+                    rules={(() => {
+                      const rules: {
+                        required?: boolean;
+                        message?: string;
+                        validator?: (
+                          _: unknown,
+                          value: unknown,
+                        ) => Promise<void>;
+                      }[] = [];
+                      if (q.required) {
+                        rules.push({
+                          required: true,
+                          message: 'This field is required.',
+                        });
+                      }
+                      if (
+                        q.fieldType === FieldType.RATING &&
+                        isDescriptionRequired(
+                          (q.field ?? []).find(
+                            (f: { value?: string }) =>
+                              f.value === RATING_DESCRIPTION_VALUE,
+                          ),
+                        )
+                      ) {
+                        rules.push({
+                          validator: async () => {
+                            const entry = usePublicFormStore
+                              .getState()
+                              .selectedAnswer.find(
+                                (a) => String(a.questionId) === String(q.id),
+                              );
+                            const descField = (q.field ?? []).find(
+                              (f: { value?: string; id?: string }) =>
+                                f.value === RATING_DESCRIPTION_VALUE,
+                            );
+                            const descId = descField?.id;
+                            const feedback = entry?.responseDetail?.find(
+                              (d) =>
+                                descId != null &&
+                                String(d.id) === String(descId),
+                            )?.value;
+                            if (
+                              feedback == null ||
+                              String(feedback).trim() === '' ||
+                              feedback === RATING_DESCRIPTION_VALUE
+                            ) {
+                              return Promise.reject(
+                                new Error('Feedback is required.'),
+                              );
+                            }
+                          },
+                        });
+                      }
+                      return rules;
+                    })()}
                   >
                     <RenderOptions
                       type={q?.fieldType}
@@ -769,6 +819,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       field={q?.field}
                       form={form}
                       isAnonymous={publicForm?.isAnonymous}
+                      disabled={isViewingOldSubmittedResponse}
                     />
                   </Form.Item>
                 </div>

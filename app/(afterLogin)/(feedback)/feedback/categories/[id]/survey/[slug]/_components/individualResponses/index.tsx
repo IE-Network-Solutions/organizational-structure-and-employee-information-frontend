@@ -15,6 +15,7 @@ import {
   surveyTypePillClassName,
 } from '../surveyFieldUi';
 import { SurveyChoiceBarRow } from '../surveyChoiceBarRow';
+import RatingResponseSummary from '../ratingResponseSummary';
 import { FieldType } from '@/types/enumTypes';
 import EmptyState from '@/components/empty';
 
@@ -389,7 +390,9 @@ const IndividualResponses = ({ id }: Params) => {
                   ? question.question
                   : 'Question Name';
               const totalCount = entries.length;
-              const choiceBased = isSurveyChoiceFieldType(question.fieldType);
+              const isRating = question.fieldType === FieldType.RATING;
+              const choiceBased =
+                isSurveyChoiceFieldType(question.fieldType) && !isRating;
               const barSummaryChoice =
                 choiceBased && isSurveyBarSummaryChoiceType(question.fieldType);
               const choiceRows = choiceBased
@@ -403,9 +406,10 @@ const IndividualResponses = ({ id }: Params) => {
                       showRespondents,
                     )
                   : [];
-              const textLines = !choiceBased
-                ? getFreeTextLines(entries, showRespondents)
-                : [];
+              const textLines =
+                !choiceBased && !isRating
+                  ? getFreeTextLines(entries, showRespondents)
+                  : [];
 
               return (
                 <div
@@ -457,7 +461,13 @@ const IndividualResponses = ({ id }: Params) => {
                         data-cy={`individual-response-question-${qid}-body`}
                         className="border-t border-gray-100 px-3 pb-3 pt-0"
                       >
-                        {choiceBased ? (
+                        {isRating ? (
+                          <RatingResponseSummary
+                            questionId={qid}
+                            question={question}
+                            entries={entries}
+                          />
+                        ) : choiceBased ? (
                           <div className="pt-3">
                             {barSummaryChoice ? (
                               totalCount === 0 ? (
