@@ -18,12 +18,9 @@ import type {
   PlanOwner,
   ViewMode,
 } from '../types';
-import {
-  getKeyResultProgressPercent,
-  getKeyResultProgressRatioText,
-} from '@/utils/okrKeyResultProgressDisplay';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
+  aggregateKeyResultForPanel,
   mergeUserKeyResultsIntoOwnerGroups,
   type KRPanelOwnerGroup,
   type ParentPlanContext,
@@ -159,20 +156,7 @@ export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
       entry.seenKRs.add(kr.id);
 
       const allTasks = getAllKRTasks(kr);
-      const prog = getKeyResultProgressPercent(kr as any);
-      const progressLabel = getKeyResultProgressRatioText(kr as any);
-
-      entry.krs.push({
-        id: kr.id,
-        title: kr.title || kr.name || 'Untitled KR',
-        progress: prog,
-        taskCount: allTasks.length,
-        metricType: kr.metricType?.name || 'N/A',
-        targetValue: kr.targetValue ?? 0,
-        currentValue: kr.currentValue ?? 0,
-        progressLabel,
-        isDeleted: kr.deletedAt != null,
-      });
+      entry.krs.push(aggregateKeyResultForPanel(kr, allTasks.length));
     }
   }
 
@@ -229,6 +213,7 @@ function KRProgressCard({
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
   const metricLabel = formatKrMetricTypeLabel(kr.metricType);
+
   const showTaskCount = kr.taskCount > 0;
 
   const rowSelected =
@@ -402,7 +387,7 @@ function KRProgressCard({
               </span>
             </span>
           ) : null}
-          {kr.metricType !== 'N/A' && (
+          {kr.progressLabel ? (
             <>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-368"
@@ -412,12 +397,12 @@ function KRProgressCard({
               </span>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-369"
-                className="shrink-0 tabular-nums"
+                className="shrink-0 tabular-nums font-medium text-[#64748B]"
               >
                 {kr.progressLabel}
               </span>
             </>
-          )}
+          ) : null}
         </div>
         {pickButton ? (
           <div

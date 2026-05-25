@@ -5,6 +5,10 @@ import DefaultCardForm from '../planForms/defaultForm';
 import { NAME } from '@/types/enumTypes';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 import { DownOutlined, UpOutlined } from '@ant-design/icons';
+import {
+  getKeyResultProgressPercent,
+  getKeyResultProgressRatioText,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 interface Milestone {
   id: number;
@@ -202,11 +206,8 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-155"
                         className="flex items-center gap-6"
                       >
-                        {/* Dynamic Progress Indicator */}
-                        {(kr?.metricType?.name === NAME.NUMERIC ||
-                          kr?.metricType?.name === NAME.CURRENCY ||
-                          kr?.metricType?.name === NAME.PERCENTAGE ||
-                          kr?.metricType?.name === NAME.KPI) && (
+                        {/* Achieved / target (all metric types) */}
+                        {kr?.metricType?.name ? (
                           <div
                             data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-161"
                             className="flex items-center gap-2"
@@ -219,53 +220,27 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-163"
                                 className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
                               ></span>
-                              Progress
+                              Achieved
                             </span>
                             <div
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-166"
                               className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
                             >
-                              {kr?.metricType?.name === NAME.PERCENTAGE ? (
-                                <span
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-168"
-                                  className="text-[#574CFF] font-bold"
-                                >
-                                  {kr?.progress}%
-                                </span>
-                              ) : (
-                                <div
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-172"
-                                  className="flex items-center gap-1"
-                                >
-                                  <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-173"
-                                    className="text-[#574CFF] font-bold"
-                                  >
-                                    {kr?.metricType?.name === NAME.CURRENCY
-                                      ? '$'
-                                      : ''}
-                                    {(kr?.currentValue ?? 0).toLocaleString()}
-                                  </span>
-                                  <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-179"
-                                    className="text-gray-500"
-                                  >
-                                    from
-                                  </span>
-                                  <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-180"
-                                    className="text-[#574CFF] font-bold"
-                                  >
-                                    {kr?.metricType?.name === NAME.CURRENCY
-                                      ? '$'
-                                      : ''}
-                                    {(kr?.targetValue ?? 0).toLocaleString()}
-                                  </span>
-                                </div>
-                              )}
+                              <span
+                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-168"
+                                className="text-[#574CFF] font-bold tabular-nums"
+                              >
+                                {getKeyResultProgressRatioText(kr)}
+                              </span>
+                              <span
+                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-progress-pct"
+                                className="ml-2 text-[10px] font-medium text-gray-500"
+                              >
+                                ({getKeyResultProgressPercent(kr)}%)
+                              </span>
                             </div>
                           </div>
-                        )}
+                        ) : null}
                       </div>
 
                       <div
