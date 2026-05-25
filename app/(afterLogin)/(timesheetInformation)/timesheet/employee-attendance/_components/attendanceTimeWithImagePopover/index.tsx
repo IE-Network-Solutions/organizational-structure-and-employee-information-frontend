@@ -40,7 +40,7 @@ const AttendanceTimeWithImagePopover: React.FC<
       overlayInnerStyle={{ padding: 0 }}
       content={
         <div
-          className="flex min-w-[400px] max-w-[480px] items-center gap-10 rounded-xl bg-white p-4 pl-4 pr-7 shadow-[0_4px_16px_rgba(15,23,42,0.12)]"
+          className="flex min-w-[400px] max-w-[480px] items-center gap-[15px] rounded-xl bg-white p-4 pl-4 pr-7 shadow-[0_4px_16px_rgba(15,23,42,0.12)]"
           data-cy={dataCy ? `${dataCy}-popover-content` : undefined}
         >
           <div
@@ -56,7 +56,7 @@ const AttendanceTimeWithImagePopover: React.FC<
             />
           </div>
           <div
-            className="ml-auto flex min-w-[160px] flex-1 flex-col justify-center gap-1 py-1 pl-6"
+            className="flex min-w-[160px] flex-1 flex-col justify-center gap-1 py-1"
             data-cy={dataCy ? `${dataCy}-popover-text` : undefined}
           >
             <p

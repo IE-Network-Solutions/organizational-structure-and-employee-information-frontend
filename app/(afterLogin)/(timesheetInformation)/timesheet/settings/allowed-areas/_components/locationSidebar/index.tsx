@@ -370,82 +370,90 @@ const LocationSidebar = () => {
                 >
                   <Input />
                 </Form.Item>
-                {/* Radius (km) — directly above latitude / longitude */}
-                <Form.Item
-                  data-cy="time-attendance-settings-allowed-areas-sidebar-radius-form-item"
-                  id="time-attendance-settings-allowed-areas-sidebar-radius-form-item"
-                  label={
-                    <span
-                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
-                      id="time-attendance-settings-allowed-areas-sidebar-radius-label"
-                      className="text-sm font-normal text-gray-900"
-                    >
-                      Radius (km)
-                    </span>
-                  }
-                  name="distance"
-                  rules={[
-                    { required: true, message: 'Required' },
-                    {
-                      type: 'number',
-                      min: 0.01,
-                      max: 10,
-                      message: 'Enter a value between 0.01 and 10 km',
-                    },
-                  ]}
-                  className="mt-5 mb-0"
+                {/* Radius (km) — label/input spacing matches latitude / longitude */}
+                <div
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  className="mt-5 space-y-1"
                 >
-                  <InputNumber
-                    min={0.01}
-                    max={10}
-                    step={0.001}
-                    precision={3}
-                    controls
-                    inputMode="decimal"
-                    className={`${controlClass} w-full`}
-                    style={{ width: '100%' }}
-                    placeholder="e.g. 0.1"
-                    addonAfter="km"
-                    parser={(value) => {
-                      const parsed = value?.replace(/[^\d.]/g, '') ?? '';
-                      return parsed === ''
-                        ? ('' as unknown as number)
-                        : Number(parsed);
-                    }}
-                    formatter={(value) =>
-                      value === undefined || value === null
-                        ? ''
-                        : String(value).replace(/[^\d.]/g, '')
-                    }
-                    onKeyDown={(e) => {
-                      const allowedKeys = [
-                        'Backspace',
-                        'Delete',
-                        'Tab',
-                        'ArrowLeft',
-                        'ArrowRight',
-                        'Home',
-                        'End',
-                      ];
-                      if (
-                        allowedKeys.includes(e.key) ||
-                        (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key))
-                      ) {
-                        return;
+                  <span
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                    id="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                    className="text-sm font-normal text-gray-900"
+                  >
+                    Radius (km)
+                    <span
+                      className="ml-1 text-error"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                  <Form.Item
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-form-item"
+                    name="distance"
+                    rules={[
+                      { required: true, message: 'Required' },
+                      {
+                        type: 'number',
+                        min: 0.01,
+                        max: 10,
+                        message: 'Enter a value between 0.01 and 10 km',
+                      },
+                    ]}
+                    noStyle
+                  >
+                    <InputNumber
+                      min={0.01}
+                      max={10}
+                      step={0.001}
+                      precision={3}
+                      controls
+                      inputMode="decimal"
+                      className={controlClass}
+                      style={{ width: '100%' }}
+                      placeholder="e.g. 0.1"
+                      parser={(value) => {
+                        const parsed = value?.replace(/[^\d.]/g, '') ?? '';
+                        return parsed === ''
+                          ? ('' as unknown as number)
+                          : Number(parsed);
+                      }}
+                      formatter={(value) =>
+                        value === undefined || value === null
+                          ? ''
+                          : String(value).replace(/[^\d.]/g, '')
                       }
-                      if (!/^[0-9.]$/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                    onChange={(value) => {
-                      if (value !== null && value !== undefined) {
-                        handleRadiusChange(Number(value));
-                      }
-                    }}
-                    id="time-attendance-settings-allowed-areas-sidebar-radius-input"
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input"
-                  />
-                </Form.Item>
+                      onKeyDown={(e) => {
+                        const allowedKeys = [
+                          'Backspace',
+                          'Delete',
+                          'Tab',
+                          'ArrowLeft',
+                          'ArrowRight',
+                          'Home',
+                          'End',
+                        ];
+                        if (
+                          allowedKeys.includes(e.key) ||
+                          (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key))
+                        ) {
+                          return;
+                        }
+                        if (!/^[0-9.]$/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(value) => {
+                        if (value !== null && value !== undefined) {
+                          handleRadiusChange(Number(value));
+                        }
+                      }}
+                      id="time-attendance-settings-allowed-areas-sidebar-radius-input"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input"
+                    />
+                  </Form.Item>
+                </div>
 
                 {/* Lat / Long — directly below radius */}
                 <div
