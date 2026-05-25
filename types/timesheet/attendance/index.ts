@@ -169,3 +169,32 @@ export interface AttendanceRuleTypes extends DateInfo {
   isBreak: boolean;
   ruleType: AttendanceRuleType | string;
 }
+
+export interface AttendanceRule {
+  id: string;
+  name: string;
+  description: string;
+  effectiveStartDate: string;
+  resetDays: number;
+  ruleAppliedDays: number;
+  isFixed?: boolean;
+  deductibleFixedAmount?: number;
+  deductibleSalaryDays?: number;
+  actionTypes: AttendanceActionType | string;
+  letterTemplate?: string;
+  breakTypeId: string;
+  attendanceRuleTypeId: string;
+}
+
+export interface AttendanceRuleViolation extends DateInfo {
+  id: string;
+  userId: string;
+  tenantId: string;
+  attendanceRuleId: string;
+  actionTypes: string[];
+  actionTaken: boolean;
+  actionTakenAt: string | null;
+  attendanceRule: AttendanceRule;
+  attendanceRuleTypes?: AttendanceRuleTypes;
+  logs: unknown[];
+}

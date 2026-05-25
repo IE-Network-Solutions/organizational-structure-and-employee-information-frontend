@@ -156,6 +156,76 @@ const statusType = (val: string | null | undefined) => {
         InActive
       </Tag>
     );
+  } else if (val === 'SALARY_DEDUCTION') {
+    return (
+      <Tag
+        id="SalaryDeduction"
+        data-cy="roleTypeInActive"
+        className="text-[#ff4d4f] text-xs font-medium py-1 px-2 bg-[#fff1f0] border border-[#ffccc7]"
+      >
+        Salary Deduction
+      </Tag>
+    );
+  } else if (val === 'WARNING_LETTER') {
+    return (
+      <Tag
+        id="warningLetter"
+        data-cy="warningLetter"
+        className="text-[#1677FF] text-xs font-medium py-1 px-2 bg-[#e6f4ff] border border-[#91caff]"
+      >
+        Warning Letter
+      </Tag>
+    );
+  } else if (val === 'REPRIMAND') {
+    return (
+      <Tag
+        id="Reprimand"
+        data-cy="Reprimand"
+        className="text-[#FA8C16] text-xs font-medium py-0.5 px-2 bg-[#fff7e6] border border-[#ffd591] h-[22px]"
+      >
+        Reprimand
+      </Tag>
+    );
+  } else if (val === 'LATE') {
+    return (
+      <Tag
+        id="LateArrival"
+        data-cy="LateArrival"
+        className="text-[#FA8C16] text-xs font-medium py-0.5 px-2 bg-[#fff7e6] border border-[#ffd591] h-[22px]"
+      >
+        Late Arrival
+      </Tag>
+    );
+  } else if (val === 'ABSENT') {
+    return (
+      <Tag
+        id="Absent"
+        data-cy="Absent"
+        className="text-[#ff4d4f] text-xs font-medium py-1 px-2 bg-[#fff1f0] border border-[#ffccc7]"
+      >
+        Absent
+      </Tag>
+    );
+  } else if (val === 'EARLY_CLOCK_OUT') {
+    return (
+      <Tag
+        id="EarlyCheckout"
+        data-cy="EarlyCheckout"
+        className="text-[#1677FF] text-xs font-medium py-0.5 px-2 bg-[#e6f4ff] border border-[#91caff] h-[22px]"
+      >
+        Early Checkout
+      </Tag>
+    );
+  } else if (val === 'MISSED_CHECK_IN_OUT') {
+    return (
+      <Tag
+        id="MissedCheckinOut"
+        data-cy="MissedCheckinOut"
+        className="text-[#595959] text-xs font-medium py-0.5 px-2 bg-[#fafafa] border border-[#d9d9d9] h-[22px]"
+      >
+        Missed Check-in / Out
+      </Tag>
+    );
   } else {
     return (
       <Button

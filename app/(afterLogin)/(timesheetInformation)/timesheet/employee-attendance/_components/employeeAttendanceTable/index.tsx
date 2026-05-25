@@ -709,7 +709,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       <div
         id="time-attendance-employee-attendance-table-filter-section"
         data-cy="time-attendance-employee-attendance-table-filter-section"
-        className="mb-4 px-5 pt-4"
+        className="mb-4 px-2 sm:px-5 pt-4"
       >
         <TableFilter
           data-cy="time-attendance-employee-attendance-table-filter"

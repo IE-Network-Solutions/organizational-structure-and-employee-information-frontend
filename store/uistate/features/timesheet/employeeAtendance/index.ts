@@ -1,5 +1,6 @@
 import { Key } from 'react';
 import { create, StateCreator } from 'zustand';
+import { RuleViolationQueryParams } from '@/store/server/features/timesheet/attendance/interface';
 
 type EmployeeAttendanceState = {
   isShowEmployeeAttendanceSidebar: boolean;
@@ -8,6 +9,19 @@ type EmployeeAttendanceState = {
   employeeId: string;
   isShowBreakAttendanceImportSidebar: boolean;
   isShowMobileFilters: boolean;
+  showViolationFilter: boolean;
+  isShowEditRuleViolationModal: boolean;
+  setIsShowEditRuleViolationModal: (
+    isShowEditRuleViolationModal: boolean,
+  ) => void;
+  isShowDeleteRuleViolationModal: boolean;
+  setIsShowDeleteRuleViolationModal: (
+    isShowDeleteRuleViolationModal: boolean,
+  ) => void;
+  selectedViolationId: string;
+  selectedViolationActionTypes: string[];
+  setSelectedViolation: (id: string, actionTypes: string[]) => void;
+  violationFilters: Partial<RuleViolationQueryParams>;
 };
 
 type EmployeeAttendanceStateAction = {
@@ -23,8 +37,17 @@ type EmployeeAttendanceStateAction = {
   filter: any;
   setFilter: (filter: any) => void;
   setIsShowMobileFilters: (isShowMobileFilters: boolean) => void;
+  setShowViolationFilter: (showViolationFilter: boolean) => void;
   selectedRowKeys: Key[];
   setSelectedRowKeys: (selectedRowKeys: Key[]) => void;
+  setIsShowEditRuleViolationModal: (
+    isShowEditRuleViolationModal: boolean,
+  ) => void;
+  setIsShowDeleteRuleViolationModal: (
+    isShowDeleteRuleViolationModal: boolean,
+  ) => void;
+  setSelectedViolation: (id: string, actionTypes: string[]) => void;
+  setViolationFilters: (filters: Partial<RuleViolationQueryParams>) => void;
 };
 
 const employeeAttendanceSlice: StateCreator<
@@ -32,6 +55,8 @@ const employeeAttendanceSlice: StateCreator<
 > = (set) => ({
   filter: null,
   setFilter: (filter: any) => set({ filter }),
+  violationFilters: {},
+  setViolationFilters: (violationFilters) => set({ violationFilters }),
   isShowEmployeeAttendanceSidebar: false,
   setIsShowEmployeeAttendanceSidebar: (
     isShowEmployeeAttendanceSidebar: boolean,
@@ -61,9 +86,28 @@ const employeeAttendanceSlice: StateCreator<
   setIsShowMobileFilters: (isShowMobileFilters: boolean) => {
     set({ isShowMobileFilters });
   },
+  showViolationFilter: false,
+  setShowViolationFilter: (showViolationFilter: boolean) => {
+    set({ showViolationFilter });
+  },
   selectedRowKeys: [],
   setSelectedRowKeys: (selectedRowKeys: Key[]) => {
     set({ selectedRowKeys });
+  },
+  isShowEditRuleViolationModal: false,
+  setIsShowEditRuleViolationModal: (isShowEditRuleViolationModal: boolean) => {
+    set({ isShowEditRuleViolationModal });
+  },
+  isShowDeleteRuleViolationModal: false,
+  setIsShowDeleteRuleViolationModal: (
+    isShowDeleteRuleViolationModal: boolean,
+  ) => {
+    set({ isShowDeleteRuleViolationModal });
+  },
+  selectedViolationId: '',
+  selectedViolationActionTypes: [],
+  setSelectedViolation: (id: string, actionTypes: string[]) => {
+    set({ selectedViolationId: id, selectedViolationActionTypes: actionTypes });
   },
 });
 

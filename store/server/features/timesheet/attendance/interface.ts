@@ -62,6 +62,33 @@ export interface EditAttendance {
   isOnGoing: boolean;
 }
 
+export interface EditRuleViolation {
+  actionTypes: string[];
+}
+
+export type ExportWarningLetterFormat = 'PDF' | 'DOCX';
+
+export interface ExportWarningLetterBody {
+  violationId: string;
+  format: ExportWarningLetterFormat;
+}
+
+export type RuleViolationQueryParams = {
+  page?: number | string;
+  limit?: number | string;
+  search?: string;
+  userId?: string;
+  attendanceRuleId?: string;
+  ruleTypeId?: string;
+  actionTaken?: boolean;
+  actionType?: string;
+  actionTypes?: string;
+  from?: string;
+  to?: string;
+  orderBy?: string;
+  orderDirection?: 'ASC' | 'DESC';
+};
+
 export interface ZKTAttendanceRequestBody {
   passUrl: string;
   ZKTToken: string;
