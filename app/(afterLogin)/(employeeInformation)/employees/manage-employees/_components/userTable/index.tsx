@@ -1,6 +1,5 @@
-import React from 'react';
-import { Table, TableColumnsType, Avatar as AntAvatar } from 'antd';
-import { EmployeeData } from '@/types/dashboard/adminManagement';
+import React, { useMemo } from 'react';
+import { Table, TableColumnsType, Avatar as AntAvatar, Empty } from 'antd';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
 import userTypeButton from '../userTypeButton';
@@ -18,7 +17,7 @@ const tableClassName = 'text-[#4d4d4d] text-base font-bold';
 
 const getBaseColumns = (
   isMobileView: boolean,
-): TableColumnsType<EmployeeData> => [
+): TableColumnsType<Record<string, unknown>> => [
   {
     title: (
       <span data-cy="user-table-id-span" className={tableClassName}>
@@ -89,7 +88,12 @@ const UserTable = () => {
   const { userCurrentPage, pageSize, setUserCurrentPage, setPageSize } =
     useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
-  const { data: allFilterData, isLoading } = useEmployeeAllFilter(
+  const {
+    data: allFilterData,
+    isLoading,
+    isFetching,
+    isError,
+  } = useEmployeeAllFilter(
     pageSize,
     userCurrentPage,
     searchParams.allOffices ? searchParams.allOffices : '',
@@ -109,132 +113,136 @@ const UserTable = () => {
   });
 
   const MAX_NAME_LENGTH = 20;
-  const data = allFilterData?.items?.map((item: any) => {
-    const fullName =
-      item?.firstName + ' ' + (item?.middleName ? item?.middleName : '');
-    const displayName =
-      fullName.length > MAX_NAME_LENGTH
-        ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-        : fullName;
-    return {
-      key: item?.id,
-      employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
-      employee_name: (
-        <div
-          className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
-          id={`user-table-employee-name-${item?.id}`}
-          data-cy={`user-table-employee-name-${item?.id}`}
-        >
+  const data = useMemo(() => {
+    const items = allFilterData?.items ?? [];
+    return items.map((item: any) => {
+      const first = item?.firstName ?? '';
+      const middle = item?.middleName ?? '';
+      const fullName = `${first} ${middle}`.trim() || '—';
+      const displayName =
+        fullName.length > MAX_NAME_LENGTH
+          ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
+          : fullName;
+      return {
+        key: item?.id,
+        employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
+        employee_name: (
           <div
-            className="relative w-6 h-6 rounded-full overflow-hidden"
-            id={`user-table-employee-avatar-wrapper-${item?.id}`}
-            data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}
+            className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
+            id={`user-table-employee-name-${item?.id}`}
+            data-cy={`user-table-employee-name-${item?.id}`}
           >
-            {(() => {
-              if (
-                item?.profileImage &&
-                typeof item?.profileImage === 'string'
-              ) {
-                try {
-                  const parsed = JSON.parse(item.profileImage);
-                  const url =
-                    parsed.url && parsed.url.startsWith('http')
-                      ? parsed.url
-                      : null;
+            <div
+              className="relative w-6 h-6 rounded-full overflow-hidden"
+              id={`user-table-employee-avatar-wrapper-${item?.id}`}
+              data-cy={`user-table-employee-avatar-wrapper-${item?.id}`}
+            >
+              {(() => {
+                if (
+                  item?.profileImage &&
+                  typeof item?.profileImage === 'string'
+                ) {
+                  try {
+                    const parsed = JSON.parse(item.profileImage);
+                    const url =
+                      parsed.url && parsed.url.startsWith('http')
+                        ? parsed.url
+                        : null;
 
-                  if (url) {
-                    return (
-                      <Image
-                        src={url}
-                        alt="Employee avatar"
-                        layout="fill"
-                        className="object-cover"
-                        id={`user-table-employee-avatar-${item?.id}`}
-                        data-cy={`user-table-employee-avatar-${item?.id}`}
-                      />
-                    );
-                  }
-                } catch {
-                  if (item.profileImage.startsWith('http')) {
-                    return (
-                      <Image
-                        src={item.profileImage}
-                        alt="Employee avatar"
-                        layout="fill"
-                        className="object-cover"
-                        id={`user-table-employee-avatar-${item?.id}`}
-                        data-cy={`user-table-employee-avatar-${item?.id}`}
-                      />
-                    );
+                    if (url) {
+                      return (
+                        <Image
+                          src={url}
+                          alt="Employee avatar"
+                          layout="fill"
+                          className="object-cover"
+                          id={`user-table-employee-avatar-${item?.id}`}
+                          data-cy={`user-table-employee-avatar-${item?.id}`}
+                        />
+                      );
+                    }
+                  } catch {
+                    if (item.profileImage.startsWith('http')) {
+                      return (
+                        <Image
+                          src={item.profileImage}
+                          alt="Employee avatar"
+                          layout="fill"
+                          className="object-cover"
+                          id={`user-table-employee-avatar-${item?.id}`}
+                          data-cy={`user-table-employee-avatar-${item?.id}`}
+                        />
+                      );
+                    }
                   }
                 }
-              }
 
-              // Fallback: Ant Design default avatar when no valid profile image
-              return (
-                <AntAvatar
-                  size={24}
-                  icon={<UserOutlined />}
-                  className="w-6 h-6"
-                  data-cy={`user-table-employee-avatar-${item?.id}`}
-                />
-              );
-            })()}
-          </div>
-          <div
-            className="flex flex-col justify-center"
-            id={`user-table-employee-info-${item?.id}`}
-            data-cy={`user-table-employee-info-${item?.id}`}
-          >
-            <span
-              id={`user-table-employee-display-name-${item?.id}`}
-              data-cy={`user-table-employee-display-name-${item?.id}`}
-              className="text-[#4d4d4d] text-sm font-normal"
+                // Fallback: Ant Design default avatar when no valid profile image
+                return (
+                  <AntAvatar
+                    size={24}
+                    icon={<UserOutlined />}
+                    className="w-6 h-6"
+                    data-cy={`user-table-employee-avatar-${item?.id}`}
+                  />
+                );
+              })()}
+            </div>
+            <div
+              className="flex flex-col justify-center"
+              id={`user-table-employee-info-${item?.id}`}
+              data-cy={`user-table-employee-info-${item?.id}`}
             >
-              {displayName}
-            </span>
+              <span
+                id={`user-table-employee-display-name-${item?.id}`}
+                data-cy={`user-table-employee-display-name-${item?.id}`}
+                className="text-[#4d4d4d] text-sm font-normal"
+              >
+                {displayName}
+              </span>
+            </div>
           </div>
-        </div>
-      ),
-      job_title: (
-        <span
-          data-cy="user-table-employee-job-title-span"
-          className="text-[#4d4d4d] text-sm font-normal"
-        >
-          {' '}
-          {item?.employeeJobInformation[0]?.position?.name
-            ? item?.employeeJobInformation[0]?.position?.name
-            : '-'}
-        </span>
-      ),
-      department: (
-        <span
-          data-cy="user-table-employee-department-span"
-          className="text-[#4d4d4d] text-sm font-normal"
-        >
-          {' '}
-          {item?.employeeJobInformation[0]?.department?.name
-            ? item?.employeeJobInformation[0]?.department?.name
-            : '-'}
-        </span>
-      ),
-      account: (
-        <div data-cy="user-table-employee-account-div" className="pr-2">
-          {userTypeButton(!item?.deletedAt ? 'Active' : 'InActive')}
-        </div>
-      ),
-      role: (
-        <div data-cy="user-table-employee-role-div" className="pr-2">
+        ),
+        job_title: (
           <span
-            data-cy="user-table-employee-role-span"
+            data-cy="user-table-employee-job-title-span"
             className="text-[#4d4d4d] text-sm font-normal"
           >
-            {item?.role?.name ? item?.role?.name : ' - '}
+            {' '}
+            {item?.employeeJobInformation?.[0]?.position?.name
+              ? item?.employeeJobInformation?.[0]?.position?.name
+              : '-'}
           </span>
-        </div>
-      ),
-    };
-  });
+        ),
+        department: (
+          <span
+            data-cy="user-table-employee-department-span"
+            className="text-[#4d4d4d] text-sm font-normal"
+          >
+            {' '}
+            {item?.employeeJobInformation?.[0]?.department?.name
+              ? item?.employeeJobInformation?.[0]?.department?.name
+              : '-'}
+          </span>
+        ),
+        account: (
+          <div data-cy="user-table-employee-account-div" className="pr-2">
+            {userTypeButton(!item?.deletedAt ? 'Active' : 'InActive')}
+          </div>
+        ),
+        role: (
+          <div data-cy="user-table-employee-role-div" className="pr-2">
+            <span
+              data-cy="user-table-employee-role-span"
+              className="text-[#4d4d4d] text-sm font-normal"
+            >
+              {item?.role?.name ? item?.role?.name : ' - '}
+            </span>
+          </div>
+        ),
+      };
+    });
+  }, [allFilterData?.items]);
 
   const baseColumns = getBaseColumns(isMobile);
   const columns = isMobile
@@ -262,8 +270,20 @@ const UserTable = () => {
         data-cy="user-table-wrapper"
         className="user-table-wrapper"
       >
-        {isLoading ? (
+        {isLoading || (isFetching && !allFilterData) ? (
           <TableSkeleton columns={columns} />
+        ) : isError ? (
+          <div
+            className="py-8 text-center text-[#4d4d4d]"
+            data-cy="user-table-error"
+          >
+            Could not load employees. Check that the API is running and try
+            again.
+          </div>
+        ) : !data?.length ? (
+          <div className="py-12" data-cy="user-table-empty">
+            <Empty description="No employees found" />
+          </div>
         ) : (
           <Table
             className="w-full cursor-pointer"

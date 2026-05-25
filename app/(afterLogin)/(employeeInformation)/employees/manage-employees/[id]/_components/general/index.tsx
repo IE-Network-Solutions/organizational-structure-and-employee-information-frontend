@@ -1,4 +1,4 @@
-import { Col, Form, Row } from 'antd';
+import { Col, Row } from 'antd';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
@@ -12,17 +12,17 @@ import EmergencyContact from './emergencyContact';
 import AddressComponent from './AddressComponent';
 import { useGetEmployeInformationForms } from '@/store/server/features/employees/employeeManagment/employeInformationForm/queries';
 import AdditionalInformation from './additionalInformation';
+import { prepareJsonFieldForPatch } from '@/utils/employeeBankInformation';
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
 
   const { setEdit } = useEmployeeManagementStore();
-  const [form] = Form.useForm();
   const { data: employeeInformationForm } = useGetEmployeInformationForms();
 
   const mergedFields =
-    employeeInformationForm?.items.flatMap((form) =>
-      form.form.map((field) => {
+    (employeeInformationForm?.items ?? []).flatMap((form) =>
+      (form.form ?? []).map((field) => {
         // Handle both FormField and FormFieldWithFieldProperty types
         if ('field' in field) {
           // FormFieldWithFieldProperty case
@@ -43,45 +43,68 @@ function General({ id }: { id: string }) {
 
   const { mutate: updateEmployeeInformation } = useUpdateEmployee();
   useGetNationalities();
-  const handleSaveChanges = (editKey: keyof EditState, values: any) => {
-    form
-      .validateFields()
-      .then(() => {
-        switch (editKey) {
-          case 'general':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values,
-            });
-            break;
-          case 'addresses':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { addresses: values },
-            });
-            break;
-          case 'emergencyContact':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { emergencyContact: values },
-            });
-            break;
-          case 'bankInformation':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { bankInformation: values },
-            });
-            break;
-          case 'additionalInformation':
-            updateEmployeeInformation({
-              id: employeeData?.employeeInformation?.id,
-              values: { additionalInformation: values },
-            });
-            break;
-        }
-        setEdit(editKey);
-      })
-      .catch();
+
+  const handleSaveChanges = (
+    editKey: keyof EditState,
+    values: any,
+    options?: { onSuccess?: () => void; onError?: () => void },
+  ) => {
+    const employeeInfoId = employeeData?.employeeInformation?.id;
+    if (!employeeInfoId) return;
+
+    let payload: Record<string, unknown>;
+    switch (editKey) {
+      case 'general':
+        payload = values;
+        break;
+      case 'addresses':
+        payload = {
+          addresses: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.addresses,
+            values,
+          ),
+        };
+        break;
+      case 'emergencyContact':
+        payload = {
+          emergencyContact: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.emergencyContact,
+            values,
+          ),
+        };
+        break;
+      case 'bankInformation':
+        payload = {
+          bankInformation: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.bankInformation,
+            values,
+          ),
+        };
+        break;
+      case 'additionalInformation':
+        payload = {
+          additionalInformation: prepareJsonFieldForPatch(
+            employeeData?.employeeInformation?.additionalInformation,
+            values,
+          ),
+        };
+        break;
+      default:
+        return;
+    }
+
+    updateEmployeeInformation(
+      { id: employeeInfoId, values: payload, userId: id },
+      {
+        onSuccess: () => {
+          options?.onSuccess?.();
+          setEdit(editKey);
+        },
+        onError: () => {
+          options?.onError?.();
+        },
+      },
+    );
   };
 
   return (
