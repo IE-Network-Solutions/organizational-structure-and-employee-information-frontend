@@ -213,11 +213,9 @@ function KRProgressCard({
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
   const metricLabel = formatKrMetricTypeLabel(kr.metricType);
-<<<<<<< PPII-2205-progress-not-visible-on-plan-report-page-for-key-results
-  const showTaskCount = true;
-=======
+
   const showTaskCount = kr.taskCount > 0;
->>>>>>> develop-redesign-branch
+
 
   const rowSelected =
     inlinePickEnabled &&
