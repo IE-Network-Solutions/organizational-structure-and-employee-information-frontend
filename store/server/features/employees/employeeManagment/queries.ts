@@ -8,6 +8,11 @@ import {
 
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { normalizePaginatedListResponse } from '@/utils/employeeListResponse';
+import {
+  mergeEmployeeInformationRowPreservingBank,
+  parseEmployeeInformationJsonFields,
+} from '@/utils/employeeBankInformation';
 
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
@@ -94,10 +99,10 @@ export const useGetEmployeeStatus = () => {
 export const employeeAllFilter = async (
   pageSize: number,
   currentPage: number,
-  departmentId: string,
-  isDeleted: string,
   branchId: string,
+  departmentId: string,
   searchString: string,
+  isDeleted: string,
   gender: string,
   employmentTypeId: string,
   joinedDate: string,
@@ -122,7 +127,7 @@ export const employeeAllFilter = async (
       tenantId: tenantId,
     },
   });
-  return response;
+  return normalizePaginatedListResponse(response);
 };
 
 /**
@@ -148,10 +153,10 @@ export const useEmployeeDepartments = () => {
  *
  * @param pageSize - The number of items to display per page.
  * @param currentPage - The current page number.
- * @param searchString - The search string for filtering employees.
  * @param branch - The branch ID to filter employees by.
- * @param isDeleted - The deletion status to filter employees.
  * @param department - The department ID to filter employees by.
+ * @param searchString - The search string for filtering employees.
+ * @param isDeleted - The deletion status to filter employees.
  * @param gender - The gender for filtering.
  * @param joinedDate - The joined date for filtering.
  * @param joinedDateType - The type of joined date for filtering.
@@ -160,28 +165,30 @@ export const useEmployeeDepartments = () => {
 export const useEmployeeAllFilter = (
   pageSize: number,
   currentPage: number,
-  searchString: string,
   branch: string,
-  isDeleted: string,
   department: string,
+  searchString: string,
+  isDeleted: string,
   gender: string,
   employmentTypeId: string,
   joinedDate: string,
   joinedDateType: 'before' | 'after',
 ) => {
-  return useQuery<any>(
+  const tenantId = useAuthenticationStore((s) => s.tenantId);
+  return useQuery(
     [
       'employees',
       pageSize,
       currentPage,
-      searchString,
       branch,
-      isDeleted,
       department,
+      searchString,
+      isDeleted,
       gender,
       employmentTypeId,
       joinedDate,
       joinedDateType,
+      tenantId,
     ],
     () =>
       employeeAllFilter(
@@ -198,6 +205,10 @@ export const useEmployeeAllFilter = (
       ),
     {
       keepPreviousData: true,
+      enabled: !!tenantId,
+      retry: 1,
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
     },
   );
 };
@@ -249,6 +260,20 @@ const getActiveEmployee = async () => {
 export const useGetActiveEmployee = () =>
   useQuery<any>('ActiveEmployees', getActiveEmployee);
 
+export const getEmployeeInformationById = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/employee-information/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 const getEmployee = async (id: string) => {
   // Prevent API call if id is not available
   if (!id || id === '' || id === 'undefined') {
@@ -270,6 +295,44 @@ const getEmployee = async (id: string) => {
       method: 'GET',
       headers,
     });
+
+    const employeeInformationId = response?.employeeInformation?.id as
+      | string
+      | undefined;
+
+    // GET /users/:id can return Redis-stale nested employeeInformation; load the DB row directly.
+    if (employeeInformationId) {
+      try {
+        const freshRow = await getEmployeeInformationById(
+          employeeInformationId,
+        );
+        if (freshRow && typeof freshRow === 'object') {
+          return {
+            ...response,
+            employeeInformation: mergeEmployeeInformationRowPreservingBank(
+              response.employeeInformation
+                ? parseEmployeeInformationJsonFields(
+                    response.employeeInformation,
+                  )
+                : undefined,
+              freshRow as Record<string, unknown>,
+              null,
+            ),
+          };
+        }
+      } catch {
+        // Fall back to nested user payload
+      }
+    }
+
+    if (response?.employeeInformation) {
+      return {
+        ...response,
+        employeeInformation: parseEmployeeInformationJsonFields(
+          response.employeeInformation,
+        ),
+      };
+    }
     return response;
   } catch (error) {
     if (isUserNotFoundError(error)) {
@@ -367,8 +430,7 @@ export const useGetEmployees = () => {
  */
 export const useGetEmployee = (empId: string) =>
   useQuery<any>(['employee', empId], () => getEmployee(empId), {
-    keepPreviousData: true,
-    // Only fetch if we have a real employee id.
-    // Also guard against empId accidentally being the string "undefined".
     enabled: !!empId && empId !== 'undefined' && empId.length > 0,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
