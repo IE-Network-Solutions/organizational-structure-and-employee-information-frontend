@@ -6,6 +6,7 @@ import {
 import {
   BANK_DEFAULT_FIELD_KEYS,
   BANK_DEFAULT_FIELDS,
+  bankInformationMatchesSnapshot,
   buildBankFieldsForDisplay,
 } from '@/utils/employeeBankInformation';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
@@ -59,6 +60,19 @@ const BankInformationComponent = ({
   );
 
   const wasEditingBankRef = useRef(false);
+
+  // Drop local snapshot once GET /users + employee-information reflects the same bank values.
+  useEffect(() => {
+    if (
+      savedBankSnapshot &&
+      bankInformationMatchesSnapshot(
+        employeeData?.employeeInformation,
+        savedBankSnapshot,
+      )
+    ) {
+      setSavedBankSnapshot(null);
+    }
+  }, [employeeData?.employeeInformation, savedBankSnapshot]);
 
   // Only seed the form when entering edit mode — not on every allFields/query change.
   useEffect(() => {
@@ -222,7 +236,6 @@ const BankInformationComponent = ({
           form={form}
           onFinish={handleBankSave}
           layout="vertical"
-          initialValues={allFields}
           id="bank-information-form"
           data-cy="bank-information-form"
         >

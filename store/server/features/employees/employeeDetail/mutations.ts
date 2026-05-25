@@ -342,19 +342,19 @@ export const useUpdateEmployee = () => {
           // GET /users/:id can stay Redis-stale after PATCH employee-information.
           // Load the updated row from GET /employee-information/:id instead.
           try {
-            const freshEmployeeInfo = await getEmployeeInformationById(
-              employeeInfoId,
-            );
+            const freshEmployeeInfo =
+              await getEmployeeInformationById(employeeInfoId);
             if (freshEmployeeInfo && typeof freshEmployeeInfo === 'object') {
               queryClient.setQueryData(['employee', userId], (old: any) => {
                 if (!old?.employeeInformation) return old;
                 return {
                   ...old,
-                  employeeInformation: mergeEmployeeInformationRowPreservingBank(
-                    old.employeeInformation,
-                    freshEmployeeInfo as Record<string, unknown>,
-                    bankPatch,
-                  ),
+                  employeeInformation:
+                    mergeEmployeeInformationRowPreservingBank(
+                      old.employeeInformation,
+                      freshEmployeeInfo as Record<string, unknown>,
+                      bankPatch,
+                    ),
                 };
               });
             }

@@ -6,7 +6,9 @@ export const BANK_DEFAULT_FIELDS: Record<string, string> = {
   accountNumber: '',
 };
 
-export const BANK_DEFAULT_FIELD_KEYS = new Set(Object.keys(BANK_DEFAULT_FIELDS));
+export const BANK_DEFAULT_FIELD_KEYS = new Set(
+  Object.keys(BANK_DEFAULT_FIELDS),
+);
 
 /** employee_information JSON columns stored as strings in the API/DB. */
 export const EMPLOYEE_INFO_JSON_FIELDS = [
@@ -26,7 +28,11 @@ export function normalizeBankInformation(
     if (!trimmed) return {};
     try {
       const parsed = JSON.parse(trimmed);
-      if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        !Array.isArray(parsed)
+      ) {
         return { ...(parsed as Record<string, unknown>) };
       }
     } catch {
@@ -140,7 +146,9 @@ export function parseEmployeeInformationJsonFields(
 }
 
 export function buildBankFieldsForDisplay(
-  employeeData: { employeeInformation?: { bankInformation?: unknown } } | undefined,
+  employeeData:
+    | { employeeInformation?: { bankInformation?: unknown } }
+    | undefined,
   bankInformationCustomFields: Array<{ fieldName: string }>,
   override?: Record<string, unknown> | null,
 ): Record<string, unknown> {
@@ -185,7 +193,9 @@ export function bankInformationMatchesSnapshot(
   snapshot: Record<string, unknown> | null,
 ): boolean {
   if (!snapshot) return false;
-  const fromApi = normalizeBankInformation(employeeInformation?.bankInformation);
+  const fromApi = normalizeBankInformation(
+    employeeInformation?.bankInformation,
+  );
   return Object.keys(BANK_DEFAULT_FIELDS).every(
     (key) => String(fromApi[key] ?? '') === String(snapshot[key] ?? ''),
   );

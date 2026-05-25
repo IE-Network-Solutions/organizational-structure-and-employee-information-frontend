@@ -9,7 +9,10 @@ import {
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { normalizePaginatedListResponse } from '@/utils/employeeListResponse';
-import { parseEmployeeInformationJsonFields } from '@/utils/employeeBankInformation';
+import {
+  mergeEmployeeInformationRowPreservingBank,
+  parseEmployeeInformationJsonFields,
+} from '@/utils/employeeBankInformation';
 
 /**
  * Function to fetch a list of employee branches by sending a GET request to the API.
@@ -292,6 +295,36 @@ const getEmployee = async (id: string) => {
       method: 'GET',
       headers,
     });
+
+    const employeeInformationId = response?.employeeInformation?.id as
+      | string
+      | undefined;
+
+    // GET /users/:id can return Redis-stale nested employeeInformation; load the DB row directly.
+    if (employeeInformationId) {
+      try {
+        const freshRow = await getEmployeeInformationById(
+          employeeInformationId,
+        );
+        if (freshRow && typeof freshRow === 'object') {
+          return {
+            ...response,
+            employeeInformation: mergeEmployeeInformationRowPreservingBank(
+              response.employeeInformation
+                ? parseEmployeeInformationJsonFields(
+                    response.employeeInformation,
+                  )
+                : undefined,
+              freshRow as Record<string, unknown>,
+              null,
+            ),
+          };
+        }
+      } catch {
+        // Fall back to nested user payload
+      }
+    }
+
     if (response?.employeeInformation) {
       return {
         ...response,
