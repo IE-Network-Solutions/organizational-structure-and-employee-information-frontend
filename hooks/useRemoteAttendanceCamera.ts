@@ -13,7 +13,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 export function useRemoteAttendanceCamera() {
   const isConfirmingCameraRef = useRef(false);
   const { userId } = useAuthenticationStore();
-  const { mutate: setCurrentAttendanceMutation, isLoading } =
+  const { mutateAsync: setCurrentAttendanceMutation } =
     useSetCurrentAttendance();
   const { setIsShowCheckOutSidebar } = useMyTimesheetStore();
 
@@ -52,21 +52,34 @@ export function useRemoteAttendanceCamera() {
   );
 
   const submitAttendance = useCallback(
-    (
+    async (
       action: RemoteAttendanceAction,
       file: string,
       position: GeolocationPosition,
     ) => {
-      setCurrentAttendanceMutation({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-        isSignIn: action.isSignIn,
-        userId: userId ?? '',
-        file,
-        ...(action.breakTypeId ? { breakTypeId: action.breakTypeId } : {}),
-      });
-      resetCameraFlow();
-      setCapturedAttendancePhotoUrl(null);
+      if (!userId) {
+        NotificationMessage.error({
+          message: 'Unable to submit attendance',
+          description:
+            'Your session is missing user information. Please log in and try again.',
+        });
+        return;
+      }
+
+      try {
+        await setCurrentAttendanceMutation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          isSignIn: action.isSignIn,
+          userId,
+          file,
+          ...(action.breakTypeId ? { breakTypeId: action.breakTypeId } : {}),
+        });
+        resetCameraFlow();
+        setCapturedAttendancePhotoUrl(null);
+      } catch {
+        // Keep pendingAction / pendingCoords so the user can retry after failure.
+      }
     },
     [
       setCurrentAttendanceMutation,
@@ -122,7 +135,7 @@ export function useRemoteAttendanceCamera() {
         return;
       }
 
-      const submit = (coords: { latitude: number; longitude: number }) => {
+      const submit = async (coords: { latitude: number; longitude: number }) => {
         const position = {
           coords: { latitude: coords.latitude, longitude: coords.longitude },
         } as GeolocationPosition;
@@ -134,18 +147,18 @@ export function useRemoteAttendanceCamera() {
           return;
         }
 
-        submitAttendance(action, fileUrl, position);
+        await submitAttendance(action, fileUrl, position);
       };
 
       const coords =
         useRemoteAttendanceCameraStore.getState().pendingCoords;
       if (coords) {
-        submit(coords);
+        void submit(coords);
         return;
       }
 
       getCoords((pos) =>
-        submit({
+        void submit({
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
         }),
@@ -171,7 +184,6 @@ export function useRemoteAttendanceCamera() {
     pendingAction,
     showCameraConfirm,
     showCameraCapture,
-    isLoading,
     startAttendanceWithCamera,
     handleCameraConfirm,
     handleCameraConfirmCancel,

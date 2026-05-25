@@ -10,7 +10,6 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
-import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import {
   CheckStatus,
   useMyTimesheetStore,
@@ -21,7 +20,7 @@ import { formatBreakTypeToStatus } from '@/helpers/formatTo';
 import { BreakType } from '@/types/timesheet/breakType';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
-import { useRemoteAttendanceCamera } from '@/hooks/useRemoteAttendanceCamera';
+import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 
 const { Text } = Typography;
 
@@ -63,12 +62,13 @@ export default function CurrentTimeCard() {
   const { userId } = useAuthenticationStore();
   const { checkStatus, currentAttendance, setCurrentAttendance, breakTypes } =
     useMyTimesheetStore();
-  const { isLoading: isCameraFlowLoading } = useRemoteAttendanceCamera();
+  const isSubmitInProgress = useRemoteAttendanceCameraStore(
+    (s) => s.isSubmitInProgress,
+  );
 
   const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance(
     userId ?? '',
   );
-  const { isLoading: isMutationLoading } = useSetCurrentAttendance();
 
   useEffect(() => {
     setCurrentAttendance(
@@ -108,7 +108,7 @@ export default function CurrentTimeCard() {
     [currentAttendance, breakTypes],
   );
 
-  const loading = isMutationLoading || isFetching || isCameraFlowLoading;
+  const loading = isSubmitInProgress || isFetching;
 
   return (
     <Card

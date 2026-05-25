@@ -226,35 +226,55 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           attendanceRecord,
           filter?.breakTypeId,
         );
-        const showBreakTimes = hasBreakTypeFilter && !!attendanceBreak;
-        const { imageUrl, allowedAreaName } =
-          showBreakTimes
+        const isFilteringByBreak = Boolean(filter?.breakTypeId);
+        const showBreakTimes = isFilteringByBreak
+          ? attendanceBreak != null
+          : false;
+        const noMatchingBreak = isFilteringByBreak && attendanceBreak == null;
+
+        const { imageUrl, allowedAreaName } = noMatchingBreak
+          ? { imageUrl: null, allowedAreaName: null }
+          : showBreakTimes
             ? getBreakClockInInfo(attendanceBreak)
             : getClockInInfo(record.geolocations);
 
-        const clockInDate = showBreakTimes ? attendanceBreak?.endAt : date;
-        const clockInEventLabel = showBreakTimes ? 'Break check in' : 'Check in';
+        const clockInDate = noMatchingBreak
+          ? null
+          : showBreakTimes
+            ? attendanceBreak?.endAt
+            : date;
+        const clockInEventLabel = isFilteringByBreak
+          ? 'Break check in'
+          : 'Check in';
         const clockInTimeLabel = formatAttendanceTimeLabel(clockInDate);
 
-        const timeContent = showBreakTimes ? (
-            attendanceBreak?.endAt ? (
-              dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
-                DATETIME_FORMAT,
-              )
-            ) : (
-              <div
-                id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner-missed-break-clock-in-div`}
-                data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner-missed-break-clock-in-div`}
-                className={MISSED_BREAK_BADGE_CLASS}
-              >
-                Missed Break Clock In
-              </div>
+        const timeContent = noMatchingBreak ? (
+          <div
+            id={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-no-matching-break`}
+            data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-no-matching-break`}
+            className={MISSED_BREAK_BADGE_CLASS}
+          >
+            Missed Break Clock In
+          </div>
+        ) : showBreakTimes ? (
+          attendanceBreak?.endAt ? (
+            dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
+              DATETIME_FORMAT,
             )
-          ) : date ? (
-            dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
           ) : (
-            '-'
-          );
+            <div
+              id={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-missed-break-clock-in`}
+              data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-missed-break-clock-in`}
+              className={MISSED_BREAK_BADGE_CLASS}
+            >
+              Missed Break Clock In
+            </div>
+          )
+        ) : date ? (
+          dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
+        ) : (
+          '-'
+        );
 
         return (
           <div
@@ -294,37 +314,55 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           attendanceRecord,
           filter?.breakTypeId,
         );
-        const showBreakTimes = hasBreakTypeFilter && !!attendanceBreak;
-        const { imageUrl, allowedAreaName } =
-          showBreakTimes
+        const isFilteringByBreak = Boolean(filter?.breakTypeId);
+        const showBreakTimes = isFilteringByBreak
+          ? attendanceBreak != null
+          : false;
+        const noMatchingBreak = isFilteringByBreak && attendanceBreak == null;
+
+        const { imageUrl, allowedAreaName } = noMatchingBreak
+          ? { imageUrl: null, allowedAreaName: null }
+          : showBreakTimes
             ? getBreakClockOutInfo(attendanceBreak)
             : getClockOutInfo(record.geolocations);
 
-        const clockOutDate = showBreakTimes ? attendanceBreak?.startAt : date;
-        const clockOutEventLabel = showBreakTimes
+        const clockOutDate = noMatchingBreak
+          ? null
+          : showBreakTimes
+            ? attendanceBreak?.startAt
+            : date;
+        const clockOutEventLabel = isFilteringByBreak
           ? 'Break check out'
           : 'Check out';
         const clockOutTimeLabel = formatAttendanceTimeLabel(clockOutDate);
 
-        const timeContent = showBreakTimes ? (
-            attendanceBreak?.startAt ? (
-              dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
-                DATETIME_FORMAT,
-              )
-            ) : (
-              <div
-                id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner-missed-break-clock-out-div`}
-                data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner-missed-break-clock-out-div`}
-                className={MISSED_BREAK_BADGE_CLASS}
-              >
-                Missed Break Clock Out
-              </div>
+        const timeContent = noMatchingBreak ? (
+          <div
+            id={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-no-matching-break`}
+            data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-no-matching-break`}
+            className={MISSED_BREAK_BADGE_CLASS}
+          >
+            Missed Break Clock Out
+          </div>
+        ) : showBreakTimes ? (
+          attendanceBreak?.startAt ? (
+            dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
+              DATETIME_FORMAT,
             )
-          ) : date ? (
-            dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
           ) : (
-            '-'
-          );
+            <div
+              id={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-missed-break-clock-out`}
+              data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-missed-break-clock-out`}
+              className={MISSED_BREAK_BADGE_CLASS}
+            >
+              Missed Break Clock Out
+            </div>
+          )
+        ) : date ? (
+          dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
+        ) : (
+          '-'
+        );
 
         return (
           <div

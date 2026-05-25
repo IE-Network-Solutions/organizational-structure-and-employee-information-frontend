@@ -10,6 +10,7 @@ import {
 import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import useAttendanceImportErrorModalStore from '@/store/uistate/features/timesheet/employeeAttendanceImport';
+import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
@@ -133,6 +134,12 @@ export const useSetEditAttendance = () => {
 export const useSetCurrentAttendance = () => {
   const queryClient = useQueryClient();
   return useMutation(setCurrentAttendance, {
+    onMutate: () => {
+      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
+    },
+    onSettled: () => {
+      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
+    },
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('current-attendance');

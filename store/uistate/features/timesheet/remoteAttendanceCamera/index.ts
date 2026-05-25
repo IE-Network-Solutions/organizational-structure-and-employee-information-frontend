@@ -21,6 +21,8 @@ type RemoteAttendanceCameraState = {
   pendingCoords: { latitude: number; longitude: number } | null;
   capturedAttendancePhotoUrl: string | null;
   confirmAnchorRect: ConfirmAnchorRect | null;
+  /** Shared across my-timesheet UI; true while setCurrentAttendance mutation is in flight */
+  isSubmitInProgress: boolean;
 };
 
 type RemoteAttendanceCameraActions = {
@@ -34,6 +36,7 @@ type RemoteAttendanceCameraActions = {
   setConfirmAnchorFromElement: (element: HTMLElement) => void;
   clearConfirmAnchor: () => void;
   resetCameraFlow: () => void;
+  setIsSubmitInProgress: (isSubmitInProgress: boolean) => void;
 };
 
 export const useRemoteAttendanceCameraStore = create<
@@ -45,8 +48,10 @@ export const useRemoteAttendanceCameraStore = create<
   pendingCoords: null,
   capturedAttendancePhotoUrl: null,
   confirmAnchorRect: null,
+  isSubmitInProgress: false,
 
   setPendingAction: (pendingAction) => set({ pendingAction }),
+  setIsSubmitInProgress: (isSubmitInProgress) => set({ isSubmitInProgress }),
   setShowCameraConfirm: (showCameraConfirm) => set({ showCameraConfirm }),
   setShowCameraCapture: (showCameraCapture) => set({ showCameraCapture }),
   setPendingCoords: (pendingCoords) => set({ pendingCoords }),

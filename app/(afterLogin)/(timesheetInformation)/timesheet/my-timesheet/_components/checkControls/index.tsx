@@ -4,7 +4,6 @@ import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
-import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import { useEffect, useState } from 'react';
 import {
   calculateAttendanceRecordToTotalWorkTime,
@@ -18,21 +17,22 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CiLogin, CiLogout } from 'react-icons/ci';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
-import { useRemoteAttendanceCamera } from '@/hooks/useRemoteAttendanceCamera';
+import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
   const { userId } = useAuthenticationStore();
   const { checkStatus, currentAttendance, setCurrentAttendance } =
     useMyTimesheetStore();
-  const { isLoading: isCameraFlowLoading } = useRemoteAttendanceCamera();
+  const isSubmitInProgress = useRemoteAttendanceCameraStore(
+    (s) => s.isSubmitInProgress,
+  );
 
   const { isMobile } = useIsMobile();
   const { data: currentAttendanceData, isFetching } =
     useGetCurrentAttendance(userId);
-  const { isLoading: isMutationLoading } = useSetCurrentAttendance();
 
-  const loading = isMutationLoading || isFetching || isCameraFlowLoading;
+  const loading = isSubmitInProgress || isFetching;
 
   useEffect(() => {
     setCurrentAttendance(
