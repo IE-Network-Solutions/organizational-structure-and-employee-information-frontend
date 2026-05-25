@@ -6,7 +6,6 @@ import {
 import {
   BANK_DEFAULT_FIELD_KEYS,
   BANK_DEFAULT_FIELDS,
-  bankInformationMatchesSnapshot,
   buildBankFieldsForDisplay,
 } from '@/utils/employeeBankInformation';
 import { Card, Col, Input, Form, Row, Button } from 'antd';
