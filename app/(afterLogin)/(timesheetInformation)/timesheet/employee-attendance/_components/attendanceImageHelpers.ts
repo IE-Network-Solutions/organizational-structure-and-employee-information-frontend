@@ -6,6 +6,11 @@ export type AttendanceGeoImageInfo = {
   allowedAreaName: string | null;
 };
 
+export type AttendanceImageHoverInfo = AttendanceGeoImageInfo & {
+  eventLabel: string;
+  timeLabel: string | null;
+};
+
 const findGeoWithImage = (
   geolocations?: Geolocation[],
   isSignIn?: boolean,
@@ -57,4 +62,58 @@ export const getBreakClockInInfo = (
   attendanceBreak?: AttendanceBreak,
 ): AttendanceGeoImageInfo => {
   return toGeoImageInfo(findGeoWithImage(attendanceBreak?.geolocations, true));
+};
+
+/** Prefer check-in photo for row hover; fall back to check-out. */
+export const getRowAttendanceImageHoverInfo = (
+  record: {
+    clockIn?: string | null;
+    clockOut?: string | null;
+    geolocations?: Geolocation[];
+    attendanceBreaks?: AttendanceBreak[];
+  },
+  hasBreakTypeFilter: boolean,
+  formatTimeLabel: (date?: string | null) => string | null,
+): AttendanceImageHoverInfo | null => {
+  const attendanceBreak = record.attendanceBreaks?.[0];
+
+  const clockInInfo =
+    hasBreakTypeFilter && attendanceBreak
+      ? getBreakClockInInfo(attendanceBreak)
+      : getClockInInfo(record.geolocations);
+
+  if (clockInInfo.imageUrl) {
+    const clockInDate =
+      hasBreakTypeFilter && attendanceBreak?.breakType
+        ? attendanceBreak.endAt
+        : record.clockIn;
+    return {
+      ...clockInInfo,
+      eventLabel:
+        hasBreakTypeFilter && attendanceBreak?.breakType
+          ? 'Break check in'
+          : 'Check in',
+      timeLabel: formatTimeLabel(clockInDate),
+    };
+  }
+
+  const clockOutInfo =
+    hasBreakTypeFilter && attendanceBreak
+      ? getBreakClockOutInfo(attendanceBreak)
+      : getClockOutInfo(record.geolocations);
+
+  if (!clockOutInfo.imageUrl) return null;
+
+  const clockOutDate =
+    hasBreakTypeFilter && attendanceBreak?.breakType
+      ? attendanceBreak.startAt
+      : record.clockOut;
+  return {
+    ...clockOutInfo,
+    eventLabel:
+      hasBreakTypeFilter && attendanceBreak?.breakType
+        ? 'Break check out'
+        : 'Check out',
+    timeLabel: formatTimeLabel(clockOutDate),
+  };
 };

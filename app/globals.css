@@ -2525,3 +2525,15 @@ h6 {
 .copilot-generating-dots__dot:nth-child(3) {
   animation-delay: 0.4s;
 }
+
+/* Employee attendance: image hover card popover */
+.attendance-image-hover-popover .ant-popover-inner {
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+}
+
+.attendance-image-hover-popover .ant-popover-inner-content {
+  padding: 0;
+}

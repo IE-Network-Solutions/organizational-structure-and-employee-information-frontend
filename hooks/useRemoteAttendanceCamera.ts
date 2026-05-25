@@ -109,6 +109,7 @@ export function useRemoteAttendanceCamera() {
     }
     setShowCameraConfirm(false);
     setPendingAction(null);
+    useRemoteAttendanceCameraStore.getState().clearConfirmAnchor();
   }, [setShowCameraConfirm, setPendingAction]);
 
   const handlePhotoCaptured = useCallback(
