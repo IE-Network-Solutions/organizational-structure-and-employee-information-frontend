@@ -17,7 +17,7 @@ import {
 } from '@/helpers/calculateHelper';
 import { TableColumnsType } from '@/types/table/table';
 import dayjs from 'dayjs';
-import { DATE_FORMAT, DATETIME_FORMAT, TIME_FORMAT } from '@/utils/constants';
+import { DATE_FORMAT, TIME_FORMAT } from '@/utils/constants';
 import {
   AttendanceBreak,
   AttendanceCheckInSource,
@@ -55,9 +55,12 @@ import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/qu
 
 const formatAttendanceTimeLabel = (date?: string | null): string | null => {
   if (!date) return null;
-  const parsed = dayjs(date, 'YYYY-MM-DD HH:mm');
+  const parsed = dayjs(date);
   return parsed.isValid() ? parsed.format(TIME_FORMAT) : null;
 };
+
+const formatAttendanceCellTime = (date?: string | null): string =>
+  formatAttendanceTimeLabel(date) ?? '-';
 
 /** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
 const hasAttendanceTimestamp = (value: unknown): boolean => {
@@ -258,9 +261,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           </div>
         ) : showBreakTimes ? (
           attendanceBreak?.endAt ? (
-            dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
-              DATETIME_FORMAT,
-            )
+            formatAttendanceCellTime(attendanceBreak.endAt)
           ) : (
             <div
               id={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-missed-break-clock-in`}
@@ -270,10 +271,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               Missed Break Clock In
             </div>
           )
-        ) : date ? (
-          dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
         ) : (
-          '-'
+          formatAttendanceCellTime(date)
         );
 
         return (
@@ -346,9 +345,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           </div>
         ) : showBreakTimes ? (
           attendanceBreak?.startAt ? (
-            dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
-              DATETIME_FORMAT,
-            )
+            formatAttendanceCellTime(attendanceBreak.startAt)
           ) : (
             <div
               id={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-missed-break-clock-out`}
@@ -358,10 +355,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               Missed Break Clock Out
             </div>
           )
-        ) : date ? (
-          dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
         ) : (
-          '-'
+          formatAttendanceCellTime(date)
         );
 
         return (
