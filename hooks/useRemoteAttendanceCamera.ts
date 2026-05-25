@@ -21,7 +21,6 @@ export function useRemoteAttendanceCamera() {
     pendingAction,
     showCameraConfirm,
     showCameraCapture,
-    pendingCoords,
     setPendingAction,
     setShowCameraConfirm,
     setShowCameraCapture,
@@ -108,12 +107,7 @@ export function useRemoteAttendanceCamera() {
         longitude: pos.coords.longitude,
       }),
     );
-  }, [
-    getCoords,
-    setShowCameraConfirm,
-    setShowCameraCapture,
-    setPendingCoords,
-  ]);
+  }, [getCoords, setShowCameraConfirm, setShowCameraCapture, setPendingCoords]);
 
   const handleCameraConfirmCancel = useCallback(() => {
     if (isConfirmingCameraRef.current) {
@@ -135,7 +129,10 @@ export function useRemoteAttendanceCamera() {
         return;
       }
 
-      const submit = async (coords: { latitude: number; longitude: number }) => {
+      const submit = async (coords: {
+        latitude: number;
+        longitude: number;
+      }) => {
         const position = {
           coords: { latitude: coords.latitude, longitude: coords.longitude },
         } as GeolocationPosition;
@@ -150,18 +147,18 @@ export function useRemoteAttendanceCamera() {
         await submitAttendance(action, fileUrl, position);
       };
 
-      const coords =
-        useRemoteAttendanceCameraStore.getState().pendingCoords;
+      const coords = useRemoteAttendanceCameraStore.getState().pendingCoords;
       if (coords) {
         void submit(coords);
         return;
       }
 
-      getCoords((pos) =>
-        void submit({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-        }),
+      getCoords(
+        (pos) =>
+          void submit({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }),
       );
     },
     [

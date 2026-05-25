@@ -52,9 +52,7 @@ export const getClockOutInfo = (
 export const getBreakClockOutInfo = (
   attendanceBreak?: AttendanceBreak,
 ): AttendanceGeoImageInfo => {
-  return toGeoImageInfo(
-    findGeoWithImage(attendanceBreak?.geolocations, false),
-  );
+  return toGeoImageInfo(findGeoWithImage(attendanceBreak?.geolocations, false));
 };
 
 /** Break check-in (end break) photo and allowed area. */

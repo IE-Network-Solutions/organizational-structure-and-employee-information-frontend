@@ -120,7 +120,10 @@ const AttendancePhotoCaptureModal: FC<AttendancePhotoCaptureModalProps> = ({
           style={{ height: MODAL_HEIGHT }}
           data-cy="attendance-photo-capture-modal-content"
         >
-          <div className="relative flex-1 min-h-0 overflow-hidden">
+          <div
+            className="relative flex-1 min-h-0 overflow-hidden"
+            data-cy="attendance-photo-capture-webcam-wrap"
+          >
             {open && (
               <Webcam
                 audio={false}
@@ -137,7 +140,10 @@ const AttendancePhotoCaptureModal: FC<AttendancePhotoCaptureModalProps> = ({
             className="shrink-0 flex flex-col items-center justify-center gap-2 px-4 py-5 bg-black/80 border-t border-white/10 z-10"
             data-cy="attendance-photo-capture-footer"
           >
-            <p className="text-white text-sm text-center m-0 opacity-90">
+            <p
+              className="text-white text-sm text-center m-0 opacity-90"
+              data-cy="attendance-photo-capture-instructions"
+            >
               Position your face in the frame, then tap Capture
             </p>
             <Button

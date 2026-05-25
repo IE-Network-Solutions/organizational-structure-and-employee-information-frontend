@@ -75,8 +75,7 @@ function getEdgeLatLng(
   radiusKm: number,
 ): [number, number] {
   const radiusMeters = radiusKm * 1000;
-  const metersPerDegreeLng =
-    111320 * Math.cos((lat * Math.PI) / 180) || 111320;
+  const metersPerDegreeLng = 111320 * Math.cos((lat * Math.PI) / 180) || 111320;
   const deltaLng = radiusMeters / metersPerDegreeLng;
   return [lat, lng + deltaLng];
 }

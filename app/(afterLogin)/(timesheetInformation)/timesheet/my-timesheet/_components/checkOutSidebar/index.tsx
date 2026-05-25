@@ -103,7 +103,8 @@ const CheckOutSidebar = () => {
     if (!photo) {
       NotificationMessage.error({
         message: 'Photo required',
-        description: 'Please capture your attendance photo before checking out.',
+        description:
+          'Please capture your attendance photo before checking out.',
       });
       return;
     }

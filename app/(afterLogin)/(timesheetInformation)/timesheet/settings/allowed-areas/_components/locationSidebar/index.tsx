@@ -282,8 +282,8 @@ const LocationSidebar = () => {
                     className=" bg-[#e6f4ff] m-0 text-sm font-normal text-[#2748b3]"
                   >
                     Click on the map to set latitude and longitude. Drag the
-                    blue handle on the circle edge or use the +/− buttons on
-                    the map to change the radius. You can also type radius below.
+                    blue handle on the circle edge or use the +/− buttons on the
+                    map to change the radius. You can also type radius below.
                   </p>
                 </div>
 
@@ -408,7 +408,9 @@ const LocationSidebar = () => {
                     addonAfter="km"
                     parser={(value) => {
                       const parsed = value?.replace(/[^\d.]/g, '') ?? '';
-                      return parsed === '' ? ('' as unknown as number) : Number(parsed);
+                      return parsed === ''
+                        ? ('' as unknown as number)
+                        : Number(parsed);
                     }}
                     formatter={(value) =>
                       value === undefined || value === null

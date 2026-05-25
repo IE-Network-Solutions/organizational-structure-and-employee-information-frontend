@@ -405,7 +405,12 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
           if (!breakTypeForStatus) {
             return (
-              <span className="text-sm font-normal text-[#4d4d4d]">-</span>
+              <span
+                className="text-sm font-normal text-[#4d4d4d]"
+                data-cy="time-attendance-employee-attendance-row-status-empty"
+              >
+                -
+              </span>
             );
           }
 
