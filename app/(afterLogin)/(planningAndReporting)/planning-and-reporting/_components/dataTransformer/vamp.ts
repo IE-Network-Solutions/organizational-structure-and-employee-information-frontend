@@ -21,6 +21,40 @@ const planGroupedTaskHasContent = (task: any): boolean =>
 const reportGroupedTaskHasContent = (t: any): boolean =>
   !!(t?.title || t?.taskName || t?.task || t?.achieveMK);
 
+const hasUsableMetricValue = (value: unknown): boolean =>
+  value !== undefined &&
+  value !== null &&
+  value !== '' &&
+  Number.isFinite(Number(value));
+
+const getKeyResultCurrentValue = (
+  rawKeyResult: any,
+  allTasks: Array<{ achieved?: number; status?: string; weight?: number }>,
+  viewMode: ViewMode,
+) => {
+  const metricTypeName = rawKeyResult?.metricType?.name;
+
+  if (metricTypeName === 'Milestone') {
+    return rawKeyResult?.currentValue ?? 0;
+  }
+
+  if (hasUsableMetricValue(rawKeyResult?.currentValue)) {
+    return Number(rawKeyResult.currentValue);
+  }
+
+  if (viewMode === 'reporting') {
+    const summedAchieved = allTasks.reduce(
+      (sum, task) => sum + (Number(task.achieved) || 0),
+      0,
+    );
+    if (summedAchieved > 0) {
+      return summedAchieved;
+    }
+  }
+
+  return 0;
+};
+
 /**
  * Normalize priority values to match the expected format
  */
@@ -175,12 +209,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const targetValue = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
   // Calculate achieved as sum of weights of completed/achieved tasks for this key result only
   // IMPORTANT: Sum the WEIGHTS of completed tasks, not the achieved values
-  const achievedValue =
-    viewMode === 'reporting'
-      ? allTasks
-          .filter((t) => t.status === 'completed' || t.isAchieved === true)
-          .reduce((sum, t) => sum + (Number(t.weight) || 0), 0)
-      : 0;
+  const currentValue = getKeyResultCurrentValue(keyResult, allTasks, viewMode);
 
   return {
     id: keyResult.id || '',
@@ -197,7 +226,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
       : null,
     metricType: keyResult.metricType,
     targetValue: keyResult.targetValue || targetValue,
-    currentValue: achievedValue, // Always use calculated achieved value from this key result's tasks
+    currentValue,
     progress: keyResult.progress || 0,
     deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
   };
@@ -470,6 +499,8 @@ export const transformReportToPlanSummary = (
       0,
     );
 
+    const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
+
     return {
       ...kr,
       // Ensure title is preserved even if keyResult is deleted
@@ -479,7 +510,7 @@ export const transformReportToPlanSummary = (
       milestones: finalMilestones,
       parentTask: finalParentTasks,
       targetValue: kr.targetValue || 0,
-      currentValue: achieved, // Sum of weights of achieved tasks for this key result only
+      currentValue,
       progress: totalWeight > 0 ? (achieved / totalWeight) * 100 : 0,
       deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
       objective: kr.objective

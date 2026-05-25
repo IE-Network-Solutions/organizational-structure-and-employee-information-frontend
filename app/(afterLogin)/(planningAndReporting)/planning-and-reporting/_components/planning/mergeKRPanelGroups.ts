@@ -1,4 +1,5 @@
 import type { PlanOwner, PlanSummary } from '../types';
+import { getKeyResultProgressRatioText } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
 export interface KRPanelAggregatedKR {
@@ -9,6 +10,7 @@ export interface KRPanelAggregatedKR {
   metricType: string;
   targetValue: string | number;
   currentValue: string | number;
+  progressLabel: string;
   isDeleted: boolean;
 }
 
@@ -40,6 +42,7 @@ function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
     metricType: kr.metricType?.name ?? 'N/A',
     targetValue: kr.targetValue ?? 0,
     currentValue: kr.currentValue ?? 0,
+    progressLabel: getKeyResultProgressRatioText(kr),
     isDeleted: kr.deletedAt != null,
   };
 }
