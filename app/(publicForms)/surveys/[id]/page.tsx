@@ -2,6 +2,7 @@
 /* eslint-disable local-rules/data-cy-required */
 import React, {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -32,6 +33,7 @@ import {
   getResponseSubmissionIdForRow,
 } from './prefillFromIndividualResponses';
 import { useRouter } from 'next/navigation';
+import { getStoredAuthToken } from '@/utils/getCurrentToken';
 
 interface Params {
   id: string;
@@ -167,8 +169,36 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
   >(null);
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [loginRequiredModalOpen, setLoginRequiredModalOpen] = useState(false);
+  const [authGateReady, setAuthGateReady] = useState(false);
 
   const prefillAppliedKeyRef = useRef<string | null>(null);
+
+  const redirectToLogin = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('redirectAfterLogin', `/surveys/${id}`);
+    }
+    router.replace('/authentication/login');
+  }, [id, router]);
+
+  useEffect(() => {
+    if (!publicForm) {
+      setAuthGateReady(false);
+      return;
+    }
+
+    if (publicForm.isAnonymous) {
+      setAuthGateReady(true);
+      return;
+    }
+
+    const token = getStoredAuthToken() || authToken;
+    if (!token) {
+      redirectToLogin();
+      return;
+    }
+
+    setAuthGateReady(true);
+  }, [publicForm, authToken, redirectToLogin]);
 
   const submissionHistory = useMemo(
     () => inferSubmissionHistoryFromResponseRows(responseRows),
@@ -319,7 +349,10 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
     );
   }
 
-  if (isLoading || !publicForm || awaitingPriorResponses) {
+  const requiresLogin =
+    !!publicForm && !publicForm.isAnonymous && !authGateReady;
+
+  if (isLoading || !publicForm || awaitingPriorResponses || requiresLogin) {
     return (
       <div
         className="relative min-h-[100dvh] bg-white"
@@ -523,6 +556,11 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
               });
             }}
             onFinish={() => {
+              if (!publicForm.isAnonymous && !getStoredAuthToken()) {
+                redirectToLogin();
+                return;
+              }
+
               if (isUpdateFlow) {
                 if (isViewingOldSubmittedResponse) {
                   NotificationMessage.error({
