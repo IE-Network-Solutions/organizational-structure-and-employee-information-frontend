@@ -218,7 +218,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     metricType: keyResult.metricType,
     key_type: keyResult.key_type,
     milestones: isMilestoneMetric
-      ? keyResult.milestones ?? finalMilestones
+      ? (keyResult.milestones ?? finalMilestones)
       : finalMilestones,
     progress: keyResult.progress,
     currentValue,
@@ -232,7 +232,9 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     title: keyResult.title || keyResult.name,
     tasks: finalTasks,
     milestones: isMilestoneMetric
-      ? (keyResult.milestones?.length ? keyResult.milestones : finalMilestones)
+      ? keyResult.milestones?.length
+        ? keyResult.milestones
+        : finalMilestones
       : finalMilestones,
     parentTask: finalParentTasks,
     objective: keyResult.objective
@@ -499,23 +501,6 @@ export const transformReportToPlanSummary = (
         (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
       ),
     ];
-
-    // Calculate achieved as sum of weights of completed/achieved tasks
-    // IMPORTANT: Sum the WEIGHTS of completed tasks, not the achieved values
-    const achieved = allTasks
-      .filter((t: any) => {
-        // Check if task is completed/achieved
-        return t.status === 'completed' || t.isAchieved === true;
-      })
-      .reduce((sum: number, t: any) => {
-        // Use weight, not achieved value
-        return sum + (Number(t.weight) || 0);
-      }, 0);
-
-    const totalWeight = allTasks.reduce(
-      (sum: number, t: any) => sum + (t.weight || 0),
-      0,
-    );
 
     const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
     const initialValue = kr.initialValue;

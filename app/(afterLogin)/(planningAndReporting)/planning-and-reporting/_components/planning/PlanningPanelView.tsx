@@ -216,7 +216,6 @@ function KRProgressCard({
 
   const showTaskCount = kr.taskCount > 0;
 
-
   const rowSelected =
     inlinePickEnabled &&
     planningTargetsForKr.some((t) => t.id === selectedPlanningTargetId);

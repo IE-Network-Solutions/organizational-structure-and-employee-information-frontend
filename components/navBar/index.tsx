@@ -1014,8 +1014,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         }
 
         const state = useAuthenticationStore.getState();
-        const isOwner =
-          state.userData?.role?.slug?.toLowerCase() === 'owner';
+        const isOwner = state.userData?.role?.slug?.toLowerCase() === 'owner';
 
         const hasNoPermissions =
           !state.userData?.userPermissions ||
