@@ -14,6 +14,7 @@ export interface SurveyQuestionEditorFormProps {
   form: FormInstance;
   questionId: string;
   showChoiceEditor: boolean;
+  showRatingEditor?: boolean;
   primaryAction: SurveyQuestionEditorPrimaryAction;
   submitLoading?: boolean;
   /** Required flag is kept outside Form store so submit always matches the checkbox (Form.List + checkbox can desync). */
@@ -37,6 +38,7 @@ const SurveyQuestionEditorForm: React.FC<SurveyQuestionEditorFormProps> = ({
   form,
   questionId,
   showChoiceEditor,
+  showRatingEditor = false,
   primaryAction,
   submitLoading,
   surveyQuestionRequired,
@@ -94,32 +96,131 @@ const SurveyQuestionEditorForm: React.FC<SurveyQuestionEditorFormProps> = ({
           <Input data-cy={`survey-question-field-type-hidden-${questionId}`} />
         </Form.Item>
 
-        <div
-          className="rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-3"
-          data-cy={`survey-question-required-block-${questionId}`}
-        >
-          <div className="mb-0">
-            <Checkbox
-              checked={surveyQuestionRequired}
-              onChange={(e) => onSurveyQuestionRequiredChange(e.target.checked)}
-              className="[&_.ant-checkbox-inner]:rounded-full"
-              data-cy={`survey-question-required-${questionId}`}
-            >
-              <span
-                className="font-medium text-gray-900"
-                data-cy={`survey-question-required-label-${questionId}`}
+        {!showRatingEditor && (
+          <div
+            className="rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-3"
+            data-cy={`survey-question-required-block-${questionId}`}
+          >
+            <div className="mb-0">
+              <Checkbox
+                checked={surveyQuestionRequired}
+                onChange={(e) =>
+                  onSurveyQuestionRequiredChange(e.target.checked)
+                }
+                className="[&_.ant-checkbox-inner]:rounded-full"
+                data-cy={`survey-question-required-${questionId}`}
               >
-                Required
-              </span>
-            </Checkbox>
-            <p
-              className="mb-0 mt-1 pl-6 text-xs text-gray-500"
-              data-cy={`survey-question-required-hint-${questionId}`}
-            >
-              can not be submitted if question is not answered
-            </p>
+                <span
+                  className="font-medium text-gray-900"
+                  data-cy={`survey-question-required-label-${questionId}`}
+                >
+                  Required
+                </span>
+              </Checkbox>
+              <p
+                className="mb-0 mt-1 pl-6 text-xs text-gray-500"
+                data-cy={`survey-question-required-hint-${questionId}`}
+              >
+                can not be submitted if question is not answered
+              </p>
+            </div>
           </div>
-        </div>
+        )}
+
+        {showRatingEditor && (
+          <div data-cy={`survey-question-rating-section-${questionId}`}>
+            <Form.Item
+              label={
+                <span className="inline-flex items-center gap-1 text-sm font-normal text-gray-900">
+                  <span
+                    data-cy={`survey-question-rating-stars-label-${questionId}`}
+                  >
+                    Rating in stars
+                  </span>
+                  <span className="text-red-500" aria-hidden>
+                    *
+                  </span>
+                </span>
+              }
+              name="ratingStarCount"
+              required={false}
+              rules={[
+                { required: true, message: 'Please enter the number of stars' },
+                {
+                  validator: async (_, value) => {
+                    const n = Number(value);
+                    if (!Number.isInteger(n) || n < 1 || n > 10) {
+                      return Promise.reject(
+                        new Error('Enter a whole number between 1 and 10'),
+                      );
+                    }
+                  },
+                },
+              ]}
+              className="mb-0"
+            >
+              <Input
+                type="number"
+                min={1}
+                max={10}
+                placeholder="add number for rating"
+                className="rounded-md font-normal text-gray-900"
+                styles={inputHeight40Styles}
+                data-cy={`survey-question-rating-stars-input-${questionId}`}
+              />
+            </Form.Item>
+
+            <Form.Item
+              label={
+                <span
+                  className="text-sm font-normal text-gray-900"
+                  data-cy={`survey-question-rating-description-label-${questionId}`}
+                >
+                  Description
+                </span>
+              }
+              name="ratingDescription"
+              className="mb-0 mt-4"
+            >
+              <Input.TextArea
+                rows={3}
+                placeholder="Description for rating"
+                className="rounded-md font-normal text-gray-900"
+                data-cy={`survey-question-rating-description-input-${questionId}`}
+              />
+            </Form.Item>
+
+            <div
+              className="mt-4 rounded-lg border border-gray-200 bg-gray-50/80 px-3 py-3"
+              data-cy={`survey-question-rating-description-required-block-${questionId}`}
+            >
+              <Form.Item
+                name="ratingDescriptionRequired"
+                valuePropName="checked"
+                className="mb-0"
+              >
+                <Checkbox
+                  className="[&_.ant-checkbox-inner]:rounded-full"
+                  data-cy={`survey-question-rating-description-required-${questionId}`}
+                >
+                  <span
+                    className="font-medium text-gray-900"
+                    data-cy={`survey-question-rating-description-required-label-${questionId}`}
+                  >
+                    Description Required
+                  </span>
+                </Checkbox>
+              </Form.Item>
+              <p
+                className="mb-0 mt-1 pl-6 text-xs text-gray-500"
+                data-cy={`survey-question-rating-description-required-hint-${questionId}`}
+              >
+                Set the description as required to make sure the user gives
+                feedback
+              </p>
+            </div>
+          </div>
+        )}
 
         {showChoiceEditor && (
           <div data-cy={`survey-question-choices-section-${questionId}`}>
