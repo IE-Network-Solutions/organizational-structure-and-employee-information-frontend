@@ -304,7 +304,7 @@ const SurveyQuestionEditorForm: React.FC<SurveyQuestionEditorFormProps> = ({
         )}
 
         <div
-          className="mt-2 flex justify-end gap-2 border-t border-gray-100 pt-4"
+          className="mt-2 flex justify-end gap-2  border-gray-100 pt-4"
           data-cy={`survey-question-form-actions-${questionId}`}
         >
           <Button
