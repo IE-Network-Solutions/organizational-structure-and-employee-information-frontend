@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Avatar, Button, Dropdown, Table } from 'antd';
+import { Button, Dropdown, Table } from 'antd';
 import TableFilter from './tableFilter';
 import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
@@ -16,10 +16,10 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { TableColumnsType } from '@/types/table/table';
-import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
+import { DATE_FORMAT, DATETIME_FORMAT, TIME_FORMAT } from '@/utils/constants';
 import {
+  AttendanceBreak,
   AttendanceCheckInSource,
   AttendanceCheckOutSource,
   AttendanceRecord,
@@ -29,7 +29,14 @@ import {
   formatToAttendanceStatuses,
 } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
-import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import EmployeeAttendanceNameCell from '../employeeAttendanceNameCell';
+import AttendanceTimeWithImagePopover from '../attendanceTimeWithImagePopover';
+import {
+  getBreakClockInInfo,
+  getBreakClockOutInfo,
+  getClockInInfo,
+  getClockOutInfo,
+} from '../attendanceImageHelpers';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { EmployeeAttendance } from '@/types/timesheet/employeeAttendance';
 import CustomPagination from '@/components/customPagination';
@@ -42,7 +49,15 @@ import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
 import statusType from '../statusType';
+import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+
+const formatAttendanceTimeLabel = (date?: string | null): string | null => {
+  if (!date) return null;
+  const parsed = dayjs(date, 'YYYY-MM-DD HH:mm');
+  return parsed.isValid() ? parsed.format(TIME_FORMAT) : null;
+};
 
 /** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
 const hasAttendanceTimestamp = (value: unknown): boolean => {
@@ -50,6 +65,22 @@ const hasAttendanceTimestamp = (value: unknown): boolean => {
   if (typeof value === 'string') return value.trim().length > 0;
   return true;
 };
+
+const getFilteredAttendanceBreak = (
+  attendanceRecord: AttendanceRecord | null | undefined,
+  breakTypeId?: string,
+): AttendanceBreak | undefined => {
+  if (!attendanceRecord?.attendanceBreaks?.length) return undefined;
+  if (breakTypeId) {
+    return attendanceRecord.attendanceBreaks.find(
+      (b) => b.breakTypeId === breakTypeId,
+    );
+  }
+  return attendanceRecord.attendanceBreaks[0];
+};
+
+const MISSED_BREAK_BADGE_CLASS =
+  'min-h-6 max-w-full py-1 px-3 flex items-center justify-center rounded-lg font-bold text-[10px] whitespace-normal text-center bg-red-100 text-red-600';
 
 interface EmployeeAttendanceTableProps {
   setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
@@ -87,6 +118,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setEmployeeAttendanceId,
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
+  const { data: breakTypeData } = useGetBreakTypes();
+  const hasBreakTypeFilter = !!filter?.breakTypeId;
+  const selectedBreakType = breakTypeData?.items?.find(
+    (bt) => bt.id === filter?.breakTypeId,
+  );
   const { data, isFetching, refetch } = useGetAttendances(
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
@@ -133,54 +169,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   }, [importWarnings]);
 
   const { isMobile, isTablet } = useIsMobile();
-  const EmpRender = ({ userId }: any) => {
-    const {
-      isLoading,
-      data: employeeData,
-      isError,
-    } = useGetSimpleEmployee(userId);
-
-    if (isLoading)
-      return (
-        <div
-          id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-loading-div`}
-          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-loading-div`}
-        >
-          ...
-        </div>
-      );
-    if (isError) return <>-</>;
-
-    return employeeData ? (
-      <div
-        id={`time-attendance-employee-attendance-row-employee-name-div-${userId}`}
-        data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}`}
-        className="flex items-center gap-1.5"
-      >
-        <Avatar
-          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-avatar`}
-          size={24}
-          icon={<UserOutlined />}
-        />
-        <div
-          id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-div`}
-          data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-div`}
-          className="flex-1"
-        >
-          <div
-            id={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-text-div`}
-            data-cy={`time-attendance-employee-attendance-row-employee-name-div-${userId}-name-text-div`}
-            className="text-sm font-normal text-[#4d4d4d] flex gap-2"
-          >
-            {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
-            {employeeData?.lastName || '-'}
-          </div>
-        </div>
-      </div>
-    ) : (
-      '-'
-    );
-  };
 
   const columns: TableColumnsType<any> = [
     {
@@ -195,8 +183,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
       dataIndex: 'userId',
       key: 'createdBy',
-      render: (text: string) => <EmpRender userId={text} />,
-      width: 250,
+      render: (text: string) => <EmployeeAttendanceNameCell userId={text} />,
+      width: 280,
     },
     {
       title: (
@@ -231,53 +219,78 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
       dataIndex: 'clockIn',
       key: 'clockIn',
+      width: hasBreakTypeFilter ? 200 : undefined,
       render: (date: string, record: any) => {
-        const attendanceBreak = record.attendanceBreaks?.[0];
-        const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
+        const attendanceRecord = record.status as AttendanceRecord;
+        const attendanceBreak = getFilteredAttendanceBreak(
+          attendanceRecord,
+          filter?.breakTypeId,
+        );
+        const isFilteringByBreak = Boolean(filter?.breakTypeId);
+        const showBreakTimes = isFilteringByBreak
+          ? attendanceBreak != null
+          : false;
+        const noMatchingBreak = isFilteringByBreak && attendanceBreak == null;
+
+        const { imageUrl, allowedAreaName } = noMatchingBreak
+          ? { imageUrl: null, allowedAreaName: null }
+          : showBreakTimes
+            ? getBreakClockInInfo(attendanceBreak)
+            : getClockInInfo(record.geolocations);
+
+        const clockInDate = noMatchingBreak
+          ? null
+          : showBreakTimes
+            ? attendanceBreak?.endAt
+            : date;
+        const clockInEventLabel = isFilteringByBreak
+          ? 'Break check in'
+          : 'Check in';
+        const clockInTimeLabel = formatAttendanceTimeLabel(clockInDate);
+
+        const timeContent = noMatchingBreak ? (
+          <div
+            id={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-no-matching-break`}
+            data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-no-matching-break`}
+            className={MISSED_BREAK_BADGE_CLASS}
+          >
+            Missed Break Clock In
+          </div>
+        ) : showBreakTimes ? (
+          attendanceBreak?.endAt ? (
+            dayjs(attendanceBreak.endAt, 'YYYY-MM-DD HH:mm').format(
+              DATETIME_FORMAT,
+            )
+          ) : (
+            <div
+              id={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-missed-break-clock-in`}
+              data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-missed-break-clock-in`}
+              className={MISSED_BREAK_BADGE_CLASS}
+            >
+              Missed Break Clock In
+            </div>
+          )
+        ) : date ? (
+          dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
+        ) : (
+          '-'
+        );
+
         return (
           <div
             id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}`}
             data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}`}
+            className="text-sm font-normal text-[#4d4d4d]"
           >
-            {hasBreakTypeFilter &&
-            attendanceBreak &&
-            attendanceBreak?.breakType ? (
-              <div
-                id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div`}
-                data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div`}
-                className="text-sm font-normal text-[#4d4d4d]"
-              >
-                <div
-                  id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner`}
-                  data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner`}
-                  className="text-sm font-normal text-[#4d4d4d]"
-                >
-                  {attendanceBreak?.endAt ? (
-                    dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
-                      DATETIME_FORMAT,
-                    )
-                  ) : (
-                    <div
-                      id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner-missed-break-clock-in-div`}
-                      data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-break-type-div-inner-missed-break-clock-in-div`}
-                      className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600"
-                    >
-                      Missed Break Clock In
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div
-                id={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
-                data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
-                className="text-sm font-normal text-[#4d4d4d]"
-              >
-                {date
-                  ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
-                  : '-'}
-              </div>
-            )}
+            <AttendanceTimeWithImagePopover
+              imageUrl={imageUrl}
+              allowedAreaName={allowedAreaName}
+              eventLabel={clockInEventLabel}
+              timeLabel={clockInTimeLabel}
+              dataCy={`time-attendance-employee-attendance-row-clock-in-${record.key}`}
+            >
+              {timeContent}
+            </AttendanceTimeWithImagePopover>
           </div>
         );
       },
@@ -294,53 +307,78 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
       dataIndex: 'clockOut',
       key: 'clockOut',
+      width: hasBreakTypeFilter ? 200 : undefined,
       render: (date: string, record: any) => {
-        const attendanceBreak = record.attendanceBreaks?.[0];
-        const hasBreakTypeFilter = filter?.breakTypeId; // Only show breaks when break type filter is selected
+        const attendanceRecord = record.status as AttendanceRecord;
+        const attendanceBreak = getFilteredAttendanceBreak(
+          attendanceRecord,
+          filter?.breakTypeId,
+        );
+        const isFilteringByBreak = Boolean(filter?.breakTypeId);
+        const showBreakTimes = isFilteringByBreak
+          ? attendanceBreak != null
+          : false;
+        const noMatchingBreak = isFilteringByBreak && attendanceBreak == null;
+
+        const { imageUrl, allowedAreaName } = noMatchingBreak
+          ? { imageUrl: null, allowedAreaName: null }
+          : showBreakTimes
+            ? getBreakClockOutInfo(attendanceBreak)
+            : getClockOutInfo(record.geolocations);
+
+        const clockOutDate = noMatchingBreak
+          ? null
+          : showBreakTimes
+            ? attendanceBreak?.startAt
+            : date;
+        const clockOutEventLabel = isFilteringByBreak
+          ? 'Break check out'
+          : 'Check out';
+        const clockOutTimeLabel = formatAttendanceTimeLabel(clockOutDate);
+
+        const timeContent = noMatchingBreak ? (
+          <div
+            id={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-no-matching-break`}
+            data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-no-matching-break`}
+            className={MISSED_BREAK_BADGE_CLASS}
+          >
+            Missed Break Clock Out
+          </div>
+        ) : showBreakTimes ? (
+          attendanceBreak?.startAt ? (
+            dayjs(attendanceBreak.startAt, 'YYYY-MM-DD HH:mm').format(
+              DATETIME_FORMAT,
+            )
+          ) : (
+            <div
+              id={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-missed-break-clock-out`}
+              data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-missed-break-clock-out`}
+              className={MISSED_BREAK_BADGE_CLASS}
+            >
+              Missed Break Clock Out
+            </div>
+          )
+        ) : date ? (
+          dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
+        ) : (
+          '-'
+        );
+
         return (
           <div
             id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}`}
             data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}`}
+            className="text-sm font-normal text-[#4d4d4d]"
           >
-            {hasBreakTypeFilter &&
-            attendanceBreak &&
-            attendanceBreak?.breakType ? (
-              <div
-                id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div`}
-                data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div`}
-                className="text-sm font-normal text-[#4d4d4d]"
-              >
-                <div
-                  id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner`}
-                  data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner`}
-                  className="text-sm font-normal text-[#4d4d4d]"
-                >
-                  {attendanceBreak?.startAt ? (
-                    dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
-                      DATETIME_FORMAT,
-                    )
-                  ) : (
-                    <div
-                      id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner-missed-break-clock-out-div`}
-                      data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-break-type-div-inner-missed-break-clock-out-div`}
-                      className="min-h-6 py-1 px-4 flex items-center justify-center rounded-lg font-bold text-[10px] w-max bg-red-100 text-red-600"
-                    >
-                      Missed Break Clock Out
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div
-                id={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
-                data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
-                className="text-sm font-normal text-[#4d4d4d]"
-              >
-                {date
-                  ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
-                  : '-'}
-              </div>
-            )}
+            <AttendanceTimeWithImagePopover
+              imageUrl={imageUrl}
+              allowedAreaName={allowedAreaName}
+              eventLabel={clockOutEventLabel}
+              timeLabel={clockOutTimeLabel}
+              dataCy={`time-attendance-employee-attendance-row-clock-out-${record.key}`}
+            >
+              {timeContent}
+            </AttendanceTimeWithImagePopover>
           </div>
         );
       },
@@ -357,45 +395,57 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       ),
       dataIndex: 'status',
       key: 'status',
-      render: (record: AttendanceRecord) => {
-        const attendanceBreak = record.attendanceBreaks?.[0];
-        const hasBreakTypeFilter = filter?.breakTypeId;
-
+      width: hasBreakTypeFilter ? 220 : undefined,
+      render: (attendanceRecord: AttendanceRecord) => {
         if (hasBreakTypeFilter) {
+          const breakTypeForStatus =
+            selectedBreakType ??
+            getFilteredAttendanceBreak(attendanceRecord, filter?.breakTypeId)
+              ?.breakType;
+
+          if (!breakTypeForStatus) {
+            return (
+              <span
+                className="text-sm font-normal text-[#4d4d4d]"
+                data-cy="time-attendance-employee-attendance-row-status-empty"
+              >
+                -
+              </span>
+            );
+          }
+
           const breakStatus = formatBreakTypeToStatus(
-            attendanceBreak?.breakType,
-            record,
+            breakTypeForStatus,
+            attendanceRecord,
           );
+          const statusKey = breakStatus.status.text.replace(/\s+/g, '-');
           return (
             <div
-              id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
-              data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-div`}
-              className="text-center"
+              id={`time-attendance-employee-attendance-row-status-badge-${statusKey}-div`}
+              data-cy={`time-attendance-employee-attendance-row-status-badge-${statusKey}-div`}
+              className="min-w-0 max-w-full"
             >
-              <div
-                id={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
-                data-cy={`time-attendance-employee-attendance-row-status-badge-${breakStatus.status.text}-text-div`}
-              >
-                {statusType(breakStatus.status.text)}
-              </div>
-            </div>
-          );
-        } else {
-          const statuses = formatToAttendanceStatuses(record);
-          return (
-            <div data-cy="time-attendance-employee-attendance-row-status-badge-div">
-              {statuses.map((status) => (
-                <div
-                  key={status.status}
-                  id={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
-                  data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
-                >
-                  {statusType(status.status)}
-                </div>
-              ))}
+              <StatusBadge theme={breakStatus.status.theme}>
+                {breakStatus.status.text}
+              </StatusBadge>
             </div>
           );
         }
+
+        const statuses = formatToAttendanceStatuses(attendanceRecord);
+        return (
+          <div data-cy="time-attendance-employee-attendance-row-status-badge-div">
+            {statuses.map((status) => (
+              <div
+                key={status.status}
+                id={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
+                data-cy={`time-attendance-employee-attendance-row-status-badge-${status.status}-status-div`}
+              >
+                {statusType(status.status)}
+              </div>
+            ))}
+          </div>
+        );
       },
     },
 
@@ -620,7 +670,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             `${timeToHour(calcTotal)}:${timeToLastMinute(calcTotal)} hrs`,
           overTime: `${timeToHour(item.overTimeMinutes)}:${timeToLastMinute(item.overTimeMinutes)} hrs`,
           action: item,
-          attendanceBreaks: item.attendanceBreaks, // Pass through attendance breaks data
+          attendanceBreaks: item.attendanceBreaks,
+          geolocations: item.geolocations,
         };
       });
 
@@ -736,6 +787,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             <Table
               columns={columns}
               dataSource={tableData}
+              tableLayout={hasBreakTypeFilter ? 'fixed' : 'auto'}
               rowSelection={{
                 checkStrictly: false,
                 selectedRowKeys: getCurrentPageSelectedKeys(),

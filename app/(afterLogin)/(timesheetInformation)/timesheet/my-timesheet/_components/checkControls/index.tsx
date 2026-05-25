@@ -4,7 +4,6 @@ import {
   CheckStatus,
   useMyTimesheetStore,
 } from '@/store/uistate/features/timesheet/myTimesheet';
-import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import { useEffect, useState } from 'react';
 import {
   calculateAttendanceRecordToTotalWorkTime,
@@ -12,28 +11,28 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import { useGetCurrentAttendance } from '@/store/server/features/timesheet/attendance/queries';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CiLogin, CiLogout } from 'react-icons/ci';
+import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
+import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
   const { userId } = useAuthenticationStore();
-  const {
-    checkStatus,
-    setIsShowCheckOutSidebar,
-    currentAttendance,
-    setCurrentAttendance,
-  } = useMyTimesheetStore();
+  const { checkStatus, currentAttendance, setCurrentAttendance } =
+    useMyTimesheetStore();
+  const isSubmitInProgress = useRemoteAttendanceCameraStore(
+    (s) => s.isSubmitInProgress,
+  );
 
   const { isMobile } = useIsMobile();
   const { data: currentAttendanceData, isFetching } =
     useGetCurrentAttendance(userId);
-  const { mutate: setCurrentAttendanceData, isLoading } =
-    useSetCurrentAttendance();
+
+  const loading = isSubmitInProgress || isFetching;
 
   useEffect(() => {
     setCurrentAttendance(
@@ -49,83 +48,52 @@ const CheckControl = () => {
     }
   }, [checkStatus, currentAttendance]);
 
-  const getCoords = (setLocation: (position: GeolocationPosition) => void) => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation(position);
-        },
-        () => {
-          NotificationMessage.error({
-            message: `No access to geolocation`,
-            description: `To check-in/check-out we need to have access to geolocation.`,
-          });
-        },
-      );
-    } else {
-      NotificationMessage.error({
-        message: `No access to geolocation`,
-        description: `To check-in/check-out we need to have access to geolocation.`,
-      });
-    }
-  };
-
-  const setAttendance = (isSignIn: boolean) => {
-    getCoords((pos) => {
-      setCurrentAttendanceData({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-        isSignIn,
-        userId: userId,
-      });
-    });
-  };
-
   const mobileMenuItems = [
     {
       key: 'break',
       label: (
-        <Button
-          type="text"
-          icon={
-            <GoClock
-              data-cy="time-attendance-check-controls-mobile-break-check-out-button-icon"
-              size={20}
-            />
-          }
-          loading={isLoading || isFetching}
-          onClick={() => {
-            getCoords(() => {
-              setIsShowCheckOutSidebar(true);
-            });
+        <RemoteAttendanceActionButton
+          action={{
+            isSignIn: false,
+            openBreakCheckOutSidebarAfterCapture: true,
           }}
-          id="time-attendance-check-controls-mobile-break-check-out-button"
-          data-cy="time-attendance-check-controls-mobile-break-check-out-button"
         >
-          Break Check Out
-        </Button>
+          <Button
+            type="text"
+            icon={
+              <GoClock
+                data-cy="time-attendance-check-controls-mobile-break-check-out-button-icon"
+                size={20}
+              />
+            }
+            loading={loading}
+            id="time-attendance-check-controls-mobile-break-check-out-button"
+            data-cy="time-attendance-check-controls-mobile-break-check-out-button"
+          >
+            Break Check Out
+          </Button>
+        </RemoteAttendanceActionButton>
       ),
     },
     {
       key: 'checkout',
       label: (
-        <Button
-          type="text"
-          icon={
-            <GoClock
-              data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
-              size={20}
-            />
-          }
-          loading={isLoading || isFetching}
-          onClick={() => {
-            setAttendance(false);
-          }}
-          id="time-attendance-check-controls-mobile-check-out-menu-button"
-          data-cy="time-attendance-check-controls-mobile-check-out-menu-button"
-        >
-          Check Out
-        </Button>
+        <RemoteAttendanceActionButton action={{ isSignIn: false }}>
+          <Button
+            type="text"
+            icon={
+              <GoClock
+                data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
+                size={20}
+              />
+            }
+            loading={loading}
+            id="time-attendance-check-controls-mobile-check-out-menu-button"
+            data-cy="time-attendance-check-controls-mobile-check-out-menu-button"
+          >
+            Check Out
+          </Button>
+        </RemoteAttendanceActionButton>
       ),
     },
   ];
@@ -137,25 +105,24 @@ const CheckControl = () => {
           data-cy="time-attendance-check-controls-check-in-button-access-guard"
           permissions={[Permissions.CheckInRemotely]}
         >
-          <Button
-            className="h-10 sm:h-10 text-base"
-            id="time-attendance-check-controls-check-in-button"
-            data-cy="time-attendance-check-controls-check-in-button"
-            size="large"
-            type="primary"
-            icon={
-              <CiLogin
-                data-cy="time-attendance-check-controls-check-in-button-icon"
-                size={isMobile ? 20 : 16}
-              />
-            }
-            loading={isLoading || isFetching}
-            onClick={() => {
-              setAttendance(true);
-            }}
-          >
-            {isMobile ? '' : 'Check in'}
-          </Button>
+          <RemoteAttendanceActionButton action={{ isSignIn: true }}>
+            <Button
+              className="h-10 sm:h-10 text-base"
+              id="time-attendance-check-controls-check-in-button"
+              data-cy="time-attendance-check-controls-check-in-button"
+              size="large"
+              type="primary"
+              icon={
+                <CiLogin
+                  data-cy="time-attendance-check-controls-check-in-button-icon"
+                  size={isMobile ? 20 : 16}
+                />
+              }
+              loading={loading}
+            >
+              {isMobile ? '' : 'Check in'}
+            </Button>
+          </RemoteAttendanceActionButton>
         </AccessGuard>
       );
     case CheckStatus.started:
@@ -178,44 +145,45 @@ const CheckControl = () => {
                   id="time-attendance-check-controls-started-buttons"
                   data-cy="time-attendance-check-controls-started-buttons"
                 >
-                  <Button
-                    className="h-10 text-base px-2"
-                    size="large"
-                    id="time-attendance-check-controls-break-check-out-button"
-                    data-cy="time-attendance-check-controls-break-check-out-button"
-                    icon={
-                      <GoClock
-                        data-cy="time-attendance-check-controls-break-check-out-button-icon"
-                        size={20}
-                      />
-                    }
-                    loading={isLoading || isFetching}
-                    onClick={() => {
-                      getCoords(() => {
-                        setIsShowCheckOutSidebar(true);
-                      });
+                  <RemoteAttendanceActionButton
+                    action={{
+                      isSignIn: false,
+                      openBreakCheckOutSidebarAfterCapture: true,
                     }}
                   >
-                    Break Check Out
-                  </Button>
-                  <Button
-                    className="h-10 text-base"
-                    size="large"
-                    id="time-attendance-check-controls-check-out-button"
-                    data-cy="time-attendance-check-controls-check-out-button"
-                    icon={
-                      <CiLogout
-                        data-cy="time-attendance-check-controls-check-out-button-icon"
-                        size={20}
-                      />
-                    }
-                    loading={isLoading || isFetching}
-                    onClick={() => {
-                      setAttendance(false);
-                    }}
-                  >
-                    Check Out
-                  </Button>
+                    <Button
+                      className="h-10 text-base px-2"
+                      size="large"
+                      id="time-attendance-check-controls-break-check-out-button"
+                      data-cy="time-attendance-check-controls-break-check-out-button"
+                      icon={
+                        <GoClock
+                          data-cy="time-attendance-check-controls-break-check-out-button-icon"
+                          size={20}
+                        />
+                      }
+                      loading={loading}
+                    >
+                      Break Check Out
+                    </Button>
+                  </RemoteAttendanceActionButton>
+                  <RemoteAttendanceActionButton action={{ isSignIn: false }}>
+                    <Button
+                      className="h-10 text-base"
+                      size="large"
+                      id="time-attendance-check-controls-check-out-button"
+                      data-cy="time-attendance-check-controls-check-out-button"
+                      icon={
+                        <CiLogout
+                          data-cy="time-attendance-check-controls-check-out-button-icon"
+                          size={20}
+                        />
+                      }
+                      loading={loading}
+                    >
+                      Check Out
+                    </Button>
+                  </RemoteAttendanceActionButton>
                 </div>
               </AccessGuard>
             </Space>
@@ -241,7 +209,7 @@ const CheckControl = () => {
                       size={20}
                     />
                   }
-                  loading={isLoading || isFetching}
+                  loading={loading}
                 />
               </Dropdown>
             </AccessGuard>
@@ -268,24 +236,23 @@ const CheckControl = () => {
             data-cy="time-attendance-check-controls-break-check-in-button-access-guard"
             permissions={[Permissions.CheckInRemotely]}
           >
-            <Button
-              className="h-14 text-base"
-              size="large"
-              id="time-attendance-check-controls-break-check-in-button"
-              data-cy="time-attendance-check-controls-break-check-in-button"
-              icon={
-                <CiLogin
-                  data-cy="time-attendance-check-controls-break-check-in-button-icon"
-                  size={30}
-                />
-              }
-              loading={isLoading || isFetching}
-              onClick={() => {
-                setAttendance(true);
-              }}
-            >
-              {isMobile ? '' : 'Check in'}
-            </Button>
+            <RemoteAttendanceActionButton action={{ isSignIn: true }}>
+              <Button
+                className="h-14 text-base"
+                size="large"
+                id="time-attendance-check-controls-break-check-in-button"
+                data-cy="time-attendance-check-controls-break-check-in-button"
+                icon={
+                  <CiLogin
+                    data-cy="time-attendance-check-controls-break-check-in-button-icon"
+                    size={30}
+                  />
+                }
+                loading={loading}
+              >
+                {isMobile ? '' : 'Check in'}
+              </Button>
+            </RemoteAttendanceActionButton>
           </AccessGuard>
         </Space>
       );
