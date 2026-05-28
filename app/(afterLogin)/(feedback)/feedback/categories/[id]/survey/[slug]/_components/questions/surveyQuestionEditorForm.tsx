@@ -149,9 +149,9 @@ const SurveyQuestionEditorForm: React.FC<SurveyQuestionEditorFormProps> = ({
                 {
                   validator: async (_, value) => {
                     const n = Number(value);
-                    if (!Number.isInteger(n) || n < 1 || n > 10) {
+                    if (!Number.isInteger(n) || n < 3 || n > 10) {
                       return Promise.reject(
-                        new Error('Enter a whole number between 1 and 10'),
+                        new Error('Enter a whole number between 3 and 10'),
                       );
                     }
                   },
@@ -161,7 +161,7 @@ const SurveyQuestionEditorForm: React.FC<SurveyQuestionEditorFormProps> = ({
             >
               <Input
                 type="number"
-                min={1}
+                min={3}
                 max={10}
                 placeholder="add number for rating"
                 className="rounded-md font-normal text-gray-900"

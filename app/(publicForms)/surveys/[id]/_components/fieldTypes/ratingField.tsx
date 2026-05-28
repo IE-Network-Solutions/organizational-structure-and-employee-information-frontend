@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Input } from 'antd';
+import { Form, Input } from 'antd';
 import { Star } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -46,6 +46,18 @@ const RatingField: React.FC<RatingFieldProps> = ({
   onAnswerChange,
   disabled = false,
 }) => {
+  const { errors } = Form.Item.useStatus();
+  const errorMessages = useMemo(() => {
+    const list = (errors ?? []).map((e) => String(e));
+    return Array.from(new Set(list));
+  }, [errors]);
+  const starError =
+    errorMessages.find((m) =>
+      m.toLowerCase().includes('this field is required'),
+    ) ?? null;
+  const feedbackError =
+    errorMessages.find((m) => m.toLowerCase().includes('feedback')) ?? null;
+
   const { starOptions, descConfig } = useMemo(
     () => parseRatingFieldConfig(field),
     [field],
@@ -167,6 +179,14 @@ const RatingField: React.FC<RatingFieldProps> = ({
           );
         })}
       </div>
+      {starError ? (
+        <p
+          className="mt-[-8px] text-[13px] text-[#ff4d4f]"
+          data-cy={`public-survey-rating-stars-error-${questionId}`}
+        >
+          {starError}
+        </p>
+      ) : null}
 
       <Input.TextArea
         rows={4}
@@ -177,6 +197,14 @@ const RatingField: React.FC<RatingFieldProps> = ({
         className="rounded-lg"
         data-cy={`public-survey-rating-feedback-${questionId}`}
       />
+      {feedbackError ? (
+        <p
+          className="mt-[-8px] text-[13px] text-[#ff4d4f]"
+          data-cy={`public-survey-rating-feedback-error-${questionId}`}
+        >
+          {feedbackError}
+        </p>
+      ) : null}
     </div>
   );
 };
