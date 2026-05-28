@@ -547,19 +547,19 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
             className="px-5 py-6 sm:px-8 sm:py-8"
             colon={false}
             disabled={isViewingOldSubmittedResponse}
-            onFinishFailed={({ errorFields }) => {
-              const firstError = errorFields[0]?.errors?.[0];
-              NotificationMessage.error({
-                message:
-                  firstError ??
-                  (isUpdateFlow
-                    ? 'We could not save your update.'
-                    : 'We could not submit your answers.'),
-                description: isUpdateFlow
-                  ? 'Fix the highlighted questions below, then tap Update response again.'
-                  : 'Fix the highlighted questions below, then submit again.',
-              });
-            }}
+            // onFinishFailed={({ errorFields }) => {
+            //   const firstError = errorFields[0]?.errors?.[0];
+            //   NotificationMessage.error({
+            //     message:
+            //       firstError ??
+            //       (isUpdateFlow
+            //         ? 'We could not save your update.'
+            //         : 'We could not submit your answers.'),
+            //     description: isUpdateFlow
+            //       ? 'Fix the highlighted questions below, then tap Update response again.'
+            //       : 'Fix the highlighted questions below, then submit again.',
+            //   });
+            // }}
             onFinish={() => {
               if (!publicForm.isAnonymous && !getStoredAuthToken()) {
                 redirectToLogin();
@@ -650,14 +650,22 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       respData?.details ??
                       respData?.Details ??
                       respData?.error_description;
+                    const backendText =
+                      `${backendMsg ?? ''} ${backendDetails ?? ''}`.toLowerCase();
+                    const isClosedSurvey =
+                      backendText.includes('expired') ||
+                      backendText.includes('closed') ||
+                      backendText.includes('no longer accept responses');
 
                     NotificationMessage.error({
                       message: 'Update failed',
-                      description: backendDetails
-                        ? `${backendMsg ?? 'Server error'}`
-                        : (backendMsg ??
-                          e?.message ??
-                          'Something went wrong while saving. Check your connection and try again.'),
+                      description: isClosedSurvey
+                        ? 'This survey is closed and no longer accepts responses.'
+                        : backendDetails
+                          ? `${backendMsg ?? 'Server error'}`
+                          : (backendMsg ??
+                            e?.message ??
+                            'Something went wrong while saving. Check your connection and try again.'),
                     });
                   } finally {
                     setIsUpdatingAll(false);
@@ -711,11 +719,11 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       return;
                     }
 
-                    NotificationMessage.error({
-                      message: 'Submit failed',
-                      description:
-                        'Something went wrong. Check your connection and try again.',
-                    });
+                    // NotificationMessage.error({
+                    //   message: 'Submit failed',
+                    //   description:
+                    //     'Something went wrong. Check your connection and try again.',
+                    // });
                   },
                 },
               );
@@ -757,6 +765,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                     required={false}
                     className="!mb-0"
                     label={null}
+                    help={q.fieldType === FieldType.RATING ? '' : undefined}
                     rules={(() => {
                       const rules: {
                         required?: boolean;
@@ -804,7 +813,9 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                               feedback === RATING_DESCRIPTION_VALUE
                             ) {
                               return Promise.reject(
-                                new Error('Feedback is required.'),
+                                new Error(
+                                  'Feedback or description is required.',
+                                ),
                               );
                             }
                           },
