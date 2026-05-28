@@ -650,8 +650,8 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       respData?.details ??
                       respData?.Details ??
                       respData?.error_description;
-                    const backendText = `${backendMsg ?? ''} ${backendDetails ?? ''}`
-                      .toLowerCase();
+                    const backendText =
+                      `${backendMsg ?? ''} ${backendDetails ?? ''}`.toLowerCase();
                     const isClosedSurvey =
                       backendText.includes('expired') ||
                       backendText.includes('closed') ||
@@ -813,7 +813,9 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                               feedback === RATING_DESCRIPTION_VALUE
                             ) {
                               return Promise.reject(
-                                new Error('Feedback or description is required.'),
+                                new Error(
+                                  'Feedback or description is required.',
+                                ),
                               );
                             }
                           },

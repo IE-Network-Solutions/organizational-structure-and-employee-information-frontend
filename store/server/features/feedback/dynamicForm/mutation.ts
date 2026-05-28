@@ -37,12 +37,13 @@ function buildSubmitResponsePayload(values: unknown): Array<{
 }> {
   if (!Array.isArray(values)) return [];
   return values.map((q: Record<string, unknown>) => {
-    const questionId =
-      q?.questionId != null ? String(q.questionId) : undefined;
+    const questionId = q?.questionId != null ? String(q.questionId) : undefined;
     return {
       questionId,
       respondentId:
-        q?.respondentId === undefined ? undefined : (q.respondentId as string | null),
+        q?.respondentId === undefined
+          ? undefined
+          : (q.respondentId as string | null),
       responseDetail: mapResponseDetailItems(q?.responseDetail, questionId),
     };
   });
