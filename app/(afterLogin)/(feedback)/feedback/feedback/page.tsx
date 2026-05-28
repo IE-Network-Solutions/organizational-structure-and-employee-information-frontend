@@ -389,6 +389,37 @@ const Page = () => {
         );
       },
     },
+    ...(variantType === 'reprimand'
+      ? [
+          {
+            title: 'Action to be taken',
+            dataIndex: 'action',
+            key: 'actionToBeTaken',
+            align: 'left' as const,
+            render: (value: any, record: any) => {
+              return record?.action ? (
+                <Tooltip title={record.action}>
+                  <span
+                    data-cy={`feedback-table-action-to-be-taken-${record?.id}`}
+                    className="text-[14px] font-normal text-[#4b5563]"
+                  >
+                    {record.action.length >= 40
+                      ? `${record.action.slice(0, 40)}...`
+                      : record.action}
+                  </span>
+                </Tooltip>
+              ) : (
+                <span
+                  data-cy={`feedback-table-action-to-be-taken-na-${record?.id}`}
+                  className="text-[14px] text-gray-400"
+                >
+                  N/A
+                </span>
+              );
+            },
+          },
+        ]
+      : []),
     {
       title: 'Given Date',
       dataIndex: 'createdAt',
