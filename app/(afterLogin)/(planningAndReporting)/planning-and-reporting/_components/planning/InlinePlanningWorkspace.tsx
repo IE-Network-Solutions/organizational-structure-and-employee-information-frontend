@@ -349,7 +349,7 @@ function PlanningMetricsRow({
 }: {
   metricTypeName: string | null | undefined;
   isDailySlot: boolean;
-  priority: string;
+  priority: string | undefined;
   setPriority: (v: string) => void;
   weight: number | null;
   setWeight: (v: number | null) => void;
@@ -1517,7 +1517,9 @@ const InlinePlanningWorkspace = forwardRef<
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-outcome-pill"
                             className="inline-flex items-center rounded-full border border-[#BFDBFE] bg-[#EFF6FF] px-2.5 py-0.5 text-[11px] font-semibold text-[#1E40AF]"
                           >
-                            {l.milestoneId ? 'Milestone outcome' : 'Key result outcome'}
+                            {l.milestoneId
+                              ? 'Milestone outcome'
+                              : 'Key result outcome'}
                           </span>
                         ) : null}
                       </div>
