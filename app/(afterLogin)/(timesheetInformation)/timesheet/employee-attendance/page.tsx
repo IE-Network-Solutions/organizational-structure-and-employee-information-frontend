@@ -34,7 +34,9 @@ import AttendanceImportErrorModal from './_components/attendanceImportErrorModal
 import { LuBookmark } from 'react-icons/lu';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import IosShareIcon from '@mui/icons-material/IosShare';
+import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import RuleViolationTable from './_components/ruleViolationTable';
+import MoveToDeductionModal from './_components/ruleViolationTable/moveToDeductionModal';
 
 const EmployeeAttendance = () => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
@@ -81,6 +83,8 @@ const EmployeeAttendance = () => {
     violationFilters,
   } = useEmployeeAttendanceStore();
   const [activeTabKey, setActiveTabKey] = useState('1');
+  const [isBulkMoveToDeductionModalOpen, setIsBulkMoveToDeductionModalOpen] =
+    useState(false);
 
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -464,6 +468,32 @@ const EmployeeAttendance = () => {
         <Tabs
           activeKey={activeTabKey}
           onChange={setActiveTabKey}
+          tabBarExtraContent={
+            activeTabKey === '2' && (selectedRowKeys?.length ?? 0) > 0 ? (
+              <div
+                className="flex items-center gap-4"
+                data-cy="time-attendance-rule-violation-tabbar-bulk-actions-container"
+              >
+                <Button
+                  type="link"
+                  onClick={() => setSelectedRowKeys([])}
+                  className="h-8 px-0 text-sm font-normal !text-[#1677FF]"
+                  data-cy="time-attendance-rule-violation-tabbar-bulk-clear-selection-button"
+                >
+                  Clear Selection
+                </Button>
+                <Button
+                  type="link"
+                  className="h-8 px-0 text-sm font-normal !text-[#1677FF]"
+                  icon={<DriveFileMoveOutlinedIcon fontSize="small" />}
+                  onClick={() => setIsBulkMoveToDeductionModalOpen(true)}
+                  data-cy="time-attendance-rule-violation-tabbar-bulk-move-to-deduction-button"
+                >
+                  Move to Deduction
+                </Button>
+              </div>
+            ) : null
+          }
           items={[
             {
               key: '1',
@@ -514,6 +544,15 @@ const EmployeeAttendance = () => {
               ),
             },
           ]}
+        />
+        <MoveToDeductionModal
+          open={isBulkMoveToDeductionModalOpen}
+          violationIds={selectedRowKeys.map((key) => String(key))}
+          onClose={() => setIsBulkMoveToDeductionModalOpen(false)}
+          onSuccess={() => {
+            setIsBulkMoveToDeductionModalOpen(false);
+            setSelectedRowKeys([]);
+          }}
         />
 
         {/* Hidden File Input */}

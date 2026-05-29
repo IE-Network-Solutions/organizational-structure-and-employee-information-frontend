@@ -41,9 +41,11 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
+import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import statusType from '../statusType';
 import EditRuleViolationModal from './editModal';
 import DeleteRuleViolationModal from './deleteRuleViolation';
+import MoveToDeductionModal from './moveToDeductionModal';
 
 const resolveViolationRuleType = (
   item: AttendanceRuleViolation,
@@ -105,6 +107,11 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
   const [tableData, setTableData] = useState<RuleViolationTableRow[]>([]);
   const [exportSubmenuOpenId, setExportSubmenuOpenId] = useState<string | null>(
     null,
+  );
+  const [isMoveToDeductionModalOpen, setIsMoveToDeductionModalOpen] =
+    useState(false);
+  const [deductionViolationIds, setDeductionViolationIds] = useState<string[]>(
+    [],
   );
   const pathname = usePathname();
   const {
@@ -448,6 +455,18 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
                   className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleOpenMoveToDeductionModal([record.id]);
+                  }}
+                  data-cy="time-attendance-rule-violation-table-button-move-to-deduction"
+                >
+                  <DriveFileMoveOutlinedIcon fontSize="small" />
+                  Move to Deduction
+                </button>
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setSelectedViolation(record.id, record.actionTypes ?? []);
                     setIsShowDeleteRuleViolationModal(true);
                   }}
@@ -542,6 +561,12 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
     );
   };
 
+  const handleOpenMoveToDeductionModal = (violationIds: string[]) => {
+    if (violationIds.length === 0) return;
+    setDeductionViolationIds(violationIds);
+    setIsMoveToDeductionModalOpen(true);
+  };
+
   return (
     <div
       id="time-attendance-rule-violation-table-card"
@@ -625,6 +650,19 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
         />
         <DeleteRuleViolationModal
           setIsShowDeleteRuleViolationModal={setIsShowDeleteRuleViolationModal}
+        />
+        <MoveToDeductionModal
+          open={isMoveToDeductionModalOpen}
+          violationIds={deductionViolationIds}
+          onClose={() => {
+            setIsMoveToDeductionModalOpen(false);
+            setDeductionViolationIds([]);
+          }}
+          onSuccess={() => {
+            setIsMoveToDeductionModalOpen(false);
+            setDeductionViolationIds([]);
+            setSelectedRowKeys?.([]);
+          }}
         />
       </div>
     </div>
