@@ -313,6 +313,7 @@ const AssignServeyModal: React.FC<AssignServeyModalProps> = ({
                 });
               }}
               data-cy="assign-survey-modal-department-select"
+              maxTagCount={1}
             >
               {departmentData?.map((dept: any) => (
                 <Option
@@ -333,7 +334,7 @@ const AssignServeyModal: React.FC<AssignServeyModalProps> = ({
                 data-cy="assign-survey-modal-survey-label"
                 className="text-sm font-medium text-black/[0.85]"
               >
-                Survey{' '}
+                Survey
                 <span
                   data-cy="assign-survey-modal-survey-label-required"
                   className="text-red-500"
