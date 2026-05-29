@@ -57,8 +57,7 @@ export const attendanceCheckInSourceLabels: Record<
 > = {
   [AttendanceCheckInSource.IMPORTED]: 'Imported',
   [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote',
-  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]:
-    'Attendance Device',
+  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]: 'Attendance Device',
 };
 
 export const attendanceCheckOutSourceLabels: Record<
@@ -67,8 +66,7 @@ export const attendanceCheckOutSourceLabels: Record<
 > = {
   [AttendanceCheckOutSource.IMPORTED]: 'Imported',
   [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote',
-  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]:
-    'Attendance Device',
+  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]: 'Attendance Device',
 };
 
 export interface AttendanceRecord extends DateInfo {
