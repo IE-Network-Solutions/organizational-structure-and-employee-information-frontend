@@ -186,6 +186,16 @@ const statusType = (val: string | null | undefined) => {
         Reprimand
       </Tag>
     );
+  } else if (val === 'VP_DEDUCTION') {
+    return (
+      <Tag
+        id="VpDeduction"
+        data-cy="VpDeduction"
+        className="text-[#722ed1] text-xs font-medium py-1 px-2 bg-[#f9f0ff] border border-[#d3adf7]"
+      >
+        VP Deduction
+      </Tag>
+    );
   } else if (val === 'LATE') {
     return (
       <Tag

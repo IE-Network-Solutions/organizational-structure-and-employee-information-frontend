@@ -59,10 +59,16 @@ const ACTION_TYPE_OPTIONS = [
     dataCy:
       'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-salary-deduction-label',
   },
+  {
+    label: 'VP Deduction',
+    value: AttendanceActionType.VP_DEDUCTION,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-vp-deduction-label',
+  },
 ] as const;
 
 const actionCheckboxGroupClassName =
-  'grid w-full grid-cols-1 gap-3 sm:grid-cols-3 [&_.ant-checkbox-wrapper]:m-0 [&_.ant-checkbox-wrapper]:flex [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:items-center [&_.ant-checkbox-wrapper]:gap-2 [&_.ant-checkbox-wrapper]:rounded-md [&_.ant-checkbox-wrapper]:bg-[#F3F4F6] [&_.ant-checkbox-wrapper]:px-3 [&_.ant-checkbox-wrapper]:py-2 [&_.ant-checkbox-wrapper]:after:hidden';
+  'grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 [&_.ant-checkbox-wrapper]:m-0 [&_.ant-checkbox-wrapper]:flex [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:items-center [&_.ant-checkbox-wrapper]:gap-2 [&_.ant-checkbox-wrapper]:rounded-md [&_.ant-checkbox-wrapper]:bg-[#F3F4F6] [&_.ant-checkbox-wrapper]:px-3 [&_.ant-checkbox-wrapper]:py-2 [&_.ant-checkbox-wrapper]:after:hidden';
 
 const DEDUCTION_TYPE_OPTIONS = [
   {
@@ -81,6 +87,93 @@ const DEDUCTION_TYPE_OPTIONS = [
 
 const deductionRadioGroupClassName =
   'grid w-full grid-cols-1 gap-3 sm:grid-cols-3 [&_.ant-radio-wrapper]:m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:w-full [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:gap-2 [&_.ant-radio-wrapper]:rounded-md [&_.ant-radio-wrapper]:bg-[#F3F4F6] [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:py-2 [&_.ant-radio-wrapper]:after:hidden';
+
+const NUMERIC_NAVIGATION_KEYS = new Set([
+  'Backspace',
+  'Delete',
+  'Tab',
+  'Escape',
+  'Enter',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+  'Home',
+  'End',
+]);
+
+const blockNonNumericKeyDown = (
+  event: React.KeyboardEvent<HTMLInputElement>,
+) => {
+  if (
+    NUMERIC_NAVIGATION_KEYS.has(event.key) ||
+    event.ctrlKey ||
+    event.metaKey
+  ) {
+    return;
+  }
+  if (/^\d$/.test(event.key)) {
+    return;
+  }
+  if (event.key === '.') {
+    if (event.currentTarget.value.includes('.')) {
+      event.preventDefault();
+    }
+    return;
+  }
+  event.preventDefault();
+};
+
+const blockNonNumericPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+  const pasted = event.clipboardData.getData('text').trim();
+  if (pasted !== '' && !/^\d+(\.\d+)?$/.test(pasted)) {
+    event.preventDefault();
+  }
+};
+
+const parseNumericValue = (displayValue: string | undefined) => {
+  if (!displayValue) return '' as unknown as number;
+
+  const sanitized = displayValue.replace(/[^\d.]/g, '');
+  const [whole = '', ...fractionalParts] = sanitized.split('.');
+  const normalized =
+    fractionalParts.length === 0
+      ? whole
+      : `${whole}.${fractionalParts.join('')}`;
+
+  if (normalized === '' || normalized === '.') {
+    return '' as unknown as number;
+  }
+
+  return Number(normalized);
+};
+
+const formatNumericValue = (value: string | number | undefined) => {
+  if (value === undefined || value === null || value === '') {
+    return '';
+  }
+  return String(value);
+};
+
+const amountInputNumberProps = {
+  min: 1,
+  step: 0.01,
+  controls: false,
+  inputMode: 'decimal' as const,
+  parser: parseNumericValue,
+  formatter: formatNumericValue,
+  onKeyDown: blockNonNumericKeyDown,
+  onPaste: blockNonNumericPaste,
+};
+
+const amountFieldRules = (requiredMessage: string) => [
+  { required: true, message: requiredMessage },
+  {
+    type: 'number' as const,
+    min: 1,
+    message: 'Enter a valid number',
+  },
+];
 
 /** API may return ruleType as a UUID string or a populated rule-type object. */
 const resolveRuleTypeId = (
@@ -102,20 +195,27 @@ const resolveBreakTypeId = (
   return undefined;
 };
 
+const normalizeActionTypes = (actionTypes?: string | string[]) => {
+  const types = Array.isArray(actionTypes) ? actionTypes : [actionTypes];
+  return types.filter(Boolean) as string[];
+};
+
 const isLetterAction = (actionType?: string | string[]) => {
-  const types = Array.isArray(actionType) ? actionType : [actionType];
+  const types = normalizeActionTypes(actionType);
   return (
     types.includes(AttendanceActionType.WARNING_LETTER) ||
     types.includes(AttendanceActionType.REPRIMAND) ||
-    types.includes(AttendanceActionType.SALARY_DEDUCTION)
+    types.includes(AttendanceActionType.SALARY_DEDUCTION) ||
+    types.includes(AttendanceActionType.VP_DEDUCTION)
   );
 };
 
 const getActionLabel = (actionTypes?: string | string[]): string => {
-  const types = Array.isArray(actionTypes) ? actionTypes : [actionTypes];
-  if (types.includes(AttendanceActionType.REPRIMAND)) return 'Reprimand';
+  const types = normalizeActionTypes(actionTypes);
+  if (types.includes(AttendanceActionType.VP_DEDUCTION)) return 'VP Deduction';
   if (types.includes(AttendanceActionType.SALARY_DEDUCTION))
     return 'Salary Deduction';
+  if (types.includes(AttendanceActionType.REPRIMAND)) return 'Reprimand';
   if (types.includes(AttendanceActionType.WARNING_LETTER)) return 'Warning';
   return 'Warning';
 };
@@ -132,11 +232,57 @@ const getRuleTopic = (
   ruleType?: AttendanceRuleType | string,
   ruleName?: string,
 ): string => {
-  if (ruleName) return ruleName;
   if (ruleType && ruleType in RULE_TYPE_TOPIC_BY_TYPE) {
     return RULE_TYPE_TOPIC_BY_TYPE[ruleType as AttendanceRuleType];
   }
+  if (ruleName) return ruleName;
   return 'Attendance';
+};
+
+const getLetterBodyParagraph = (
+  ruleType?: AttendanceRuleType | string,
+  actionTypes?: string | string[],
+) => {
+  const types = normalizeActionTypes(actionTypes);
+  const isVpDeduction = types.includes(AttendanceActionType.VP_DEDUCTION);
+  const vpClause = isVpDeduction
+    ? ' As a result, {{vp deducted point}} VP points have been deducted.'
+    : '';
+  const absentVpClause = isVpDeduction
+    ? ' As a result, {{vp deducted point}} VP points have been deducted for this absence.'
+    : '';
+
+  switch (ruleType) {
+    case AttendanceRuleType.ABSENT:
+      return `This letter serves as a formal warning for your absence from work on {{violationDates}} without prior notice or approval. In accordance with company policy, regular attendance is required.${absentVpClause}`;
+    case AttendanceRuleType.LATE:
+      return `This letter serves as a formal warning for your late arrival on {{violationDates}}. In accordance with company policy, punctual attendance is required.${vpClause}`;
+    case AttendanceRuleType.EARLY_CLOCK_OUT:
+      return `This letter serves as a formal warning for your early clock-out on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
+    case AttendanceRuleType.MISSED_CHECK_IN_OUT:
+      return `This letter serves as a formal warning for your missed check-in/check-out on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
+    case AttendanceRuleType.BREAK:
+      return `This letter serves as a formal warning regarding your break violation on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
+    default:
+      return `This letter serves as a formal ${getActionLabel(actionTypes).toLowerCase()} regarding your attendance on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
+  }
+};
+
+const getLetterClosingParagraph = (ruleType?: AttendanceRuleType | string) => {
+  switch (ruleType) {
+    case AttendanceRuleType.ABSENT:
+      return 'Repeated absenteeism may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+    case AttendanceRuleType.LATE:
+      return 'Repeated late arrivals may lead to further disciplinary measures. Please ensure punctual attendance moving forward.';
+    case AttendanceRuleType.EARLY_CLOCK_OUT:
+      return 'Repeated early clock-outs may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+    case AttendanceRuleType.MISSED_CHECK_IN_OUT:
+      return 'Repeated missed check-ins/check-outs may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+    case AttendanceRuleType.BREAK:
+      return 'Repeated break violations may lead to further disciplinary measures. Please follow break guidelines moving forward.';
+    default:
+      return 'Repeated violations may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+  }
 };
 
 const getDefaultLetterTemplate = (
@@ -146,18 +292,8 @@ const getDefaultLetterTemplate = (
 ) => {
   const actionLabel = getActionLabel(actionTypes);
   const topic = getRuleTopic(ruleType, ruleName);
-
-  const bodyParagraph =
-    ruleType === AttendanceRuleType.ABSENT
-      ? `This letter serves as a formal warning for your absence from work on {{date}} without prior notice or approval. In accordance with company policy, regular attendance is required. As a result, VP points have been deducted for this absence.`
-      : ruleType === AttendanceRuleType.LATE
-        ? `This letter serves as a formal warning for your late arrival on {{date}}. In accordance with company policy, punctual attendance is required.`
-        : `This letter serves as a formal ${actionLabel.toLowerCase()} regarding your attendance on {{date}}. In accordance with company policy, regular attendance is required.`;
-
-  const closingParagraph =
-    ruleType === AttendanceRuleType.ABSENT
-      ? 'Repeated absenteeism may lead to further disciplinary measures. Please ensure consistent attendance moving forward.'
-      : 'Repeated violations may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+  const bodyParagraph = getLetterBodyParagraph(ruleType, actionTypes);
+  const closingParagraph = getLetterClosingParagraph(ruleType);
 
   return [
     '<p>Dear {{employeeName}},</p>',
@@ -282,6 +418,10 @@ const buildAttendanceRulePayload = (
     }
   }
 
+  if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+    payload.vpDeductionAmount = Number(values.vpDeductionAmount);
+  }
+
   if (isLetterAction(values.actionTypes)) {
     payload.letterTemplate = values.letterTemplate;
   }
@@ -386,6 +526,7 @@ const CreateRuleSidebar = () => {
         isFixed: item.isFixed,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
+        vpDeductionAmount: item.vpDeductionAmount,
         letterTemplate:
           item.letterTemplate ||
           (isLetterAction(item.actionTypes)
@@ -447,6 +588,10 @@ const CreateRuleSidebar = () => {
       }
     }
 
+    if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+      fields.push('vpDeductionAmount');
+    }
+
     return fields;
   };
 
@@ -496,7 +641,7 @@ const CreateRuleSidebar = () => {
     await form.validateFields(getStepTwoFieldsToValidate());
 
     const actionTypes = form.getFieldValue('actionTypes');
-    if (isLetterAction(actionTypes) && !form.getFieldValue('letterTemplate')) {
+    if (isLetterAction(actionTypes)) {
       form.setFieldValue(
         'letterTemplate',
         getDefaultLetterTemplate(
@@ -631,10 +776,10 @@ const CreateRuleSidebar = () => {
                 </span>
               }
               name="resetDays"
-              rules={[{ required: true, message: 'Reset days is required' }]}
+              rules={amountFieldRules('Reset days is required')}
             >
               <InputNumber
-                min={1}
+                {...amountInputNumberProps}
                 className={controlClass}
                 placeholder="30"
                 id="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-input"
@@ -683,13 +828,11 @@ const CreateRuleSidebar = () => {
                   </Tooltip>
                 </span>
               }
-              rules={[
-                { required: true, message: `${dynamicLabel} is required` },
-              ]}
+              rules={amountFieldRules(`${dynamicLabel} is required`)}
               name="ruleAppliedDays"
             >
               <InputNumber
-                min={1}
+                {...amountInputNumberProps}
                 className={controlClass}
                 placeholder="Input"
                 id="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
@@ -749,6 +892,9 @@ const CreateRuleSidebar = () => {
               const showSalaryDeductionFields = actionTypesArray.includes(
                 AttendanceActionType.SALARY_DEDUCTION,
               );
+              const showVpDeductionField = actionTypesArray.includes(
+                AttendanceActionType.VP_DEDUCTION,
+              );
               const showAmountInDays =
                 showSalaryDeductionFields && isFixed === false;
               const showFixedAmount =
@@ -807,16 +953,11 @@ const CreateRuleSidebar = () => {
                             Deductible Amount in Days
                           </span>
                         }
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Deductible amount is required',
-                          },
-                        ]}
+                        rules={amountFieldRules('Deductible amount is required')}
                         name="deductibleSalaryDays"
                       >
                         <InputNumber
-                          min={1}
+                          {...amountInputNumberProps}
                           className={controlClass}
                           placeholder="Add the number of days"
                           id="time-attendance-settings-attendance-rules-create-rule-sidebar-deductible-amount-in-days-input"
@@ -836,20 +977,39 @@ const CreateRuleSidebar = () => {
                             Fixed amount to be deducted
                           </span>
                         }
-                        rules={[
-                          {
-                            required: true,
-                            message: 'Fixed amount is required',
-                          },
-                        ]}
+                        rules={amountFieldRules('Fixed amount is required')}
                         name="deductibleFixedAmount"
                       >
                         <InputNumber
-                          min={1}
+                          {...amountInputNumberProps}
                           className={controlClass}
                           placeholder="Add the fixed amount of money to be deducted"
                           id="time-attendance-settings-attendance-rules-create-rule-sidebar-fixed-amount-input"
                           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-fixed-amount-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                  )}
+                  {showVpDeductionField && (
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <span
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-label"
+                            className="text-sm font-normal text-gray-900 pr-1"
+                          >
+                            VP Deduction Amount
+                          </span>
+                        }
+                        rules={amountFieldRules('VP deduction amount is required')}
+                        name="vpDeductionAmount"
+                      >
+                        <InputNumber
+                          {...amountInputNumberProps}
+                          className={controlClass}
+                          placeholder="Add the VP points to be deducted"
+                          id="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
                         />
                       </Form.Item>
                     </Col>

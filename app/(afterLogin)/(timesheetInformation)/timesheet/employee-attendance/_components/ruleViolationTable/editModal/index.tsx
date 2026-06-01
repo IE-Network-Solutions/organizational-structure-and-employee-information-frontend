@@ -20,6 +20,10 @@ const ACTION_TYPE_OPTIONS = [
     label: 'Salary Deduction',
     value: AttendanceActionType.SALARY_DEDUCTION,
   },
+  {
+    label: 'VP Deduction',
+    value: AttendanceActionType.VP_DEDUCTION,
+  },
 ] as const;
 
 const EditRuleViolationModal = ({

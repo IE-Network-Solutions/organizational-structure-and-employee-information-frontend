@@ -133,6 +133,7 @@ export enum AttendanceActionType {
   WARNING_LETTER = 'WARNING_LETTER',
   REPRIMAND = 'REPRIMAND',
   SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+  VP_DEDUCTION = 'VP_DEDUCTION',
 }
 
 export interface AttendanceRule extends DateInfo {
@@ -145,6 +146,7 @@ export interface AttendanceRule extends DateInfo {
   isFixed?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
+  vpDeductionAmount?: number;
   ruleType: string | AttendanceRuleTypes;
   actionTypes: AttendanceActionType | string;
   letterTemplate?: string;
@@ -178,6 +180,7 @@ export interface AttendanceRule {
   isFixed?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
+  vpDeductionAmount?: number;
   actionTypes: AttendanceActionType | string;
   letterTemplate?: string;
   breakTypeId: string;
