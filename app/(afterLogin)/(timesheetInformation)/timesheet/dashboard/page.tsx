@@ -5,6 +5,7 @@ import DashboardHeader from './_components/adminPanel/DashboardHeader';
 import AdminPanel from './_components/adminPanel';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import PersonalDashboard from './_components/personal';
+import RemoteAttendanceCameraModals from '@/components/common/remoteAttendanceCameraModals';
 
 export default function Dashboard() {
   const { activeTab } = TimeAndAttendaceDashboardStore();
@@ -35,6 +36,7 @@ export default function Dashboard() {
           <PersonalDashboard data-cy="time-attendance-dashboard-personalpanel-view-component" />
         </div>
       )}
+      <RemoteAttendanceCameraModals />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
@@ -12,6 +12,9 @@ import {
 import { getZktCredentials } from '@/store/server/features/timesheet/zkt/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import useAttendanceImportErrorModalStore from '@/store/uistate/features/timesheet/employeeAttendanceImport';
+import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { getCurrentToken } from '@/utils/getCurrentToken';
 import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
@@ -63,6 +66,26 @@ const deleteRuleViolation = async (violationId: string) => {
     url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/${violationId}`,
     method: 'DELETE',
     headers: requestHeaders,
+  });
+};
+
+const addAttendanceViolationsToDeduction = async (data: {
+  payPeriodId: string;
+  violationIds: string[];
+}) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+
+  return await crudRequest({
+    url: `${PAYROLL_URL}/compensation-item-entitlement/attendance-deductions`,
+    method: 'POST',
+    headers: {
+      tenantId,
+      createdBy,
+      Authorization: `Bearer ${token}`,
+    },
+    data,
   });
 };
 
@@ -215,6 +238,31 @@ export const useDeleteRuleViolation = () => {
   );
 };
 
+export const useAddAttendanceViolationsToDeduction = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (data: { payPeriodId: string; violationIds: string[] }) =>
+      addAttendanceViolationsToDeduction(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+        handleSuccessMessage(
+          'POST',
+          'Attendance violations added to deduction successfully.',
+        );
+      },
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            'Failed to add attendance violations to deduction.',
+        });
+      },
+    },
+  );
+};
+
 export const useExportWarningLetter = () => {
   return useMutation(exportWarningLetter);
 };
@@ -222,6 +270,12 @@ export const useExportWarningLetter = () => {
 export const useSetCurrentAttendance = () => {
   const queryClient = useQueryClient();
   return useMutation(setCurrentAttendance, {
+    onMutate: () => {
+      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
+    },
+    onSettled: () => {
+      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
+    },
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('current-attendance');

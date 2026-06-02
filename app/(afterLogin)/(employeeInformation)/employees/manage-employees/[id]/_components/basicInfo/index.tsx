@@ -209,7 +209,7 @@ function BasicInfo({ id }: { id: string }) {
   return (
     <Card
       loading={isLoading}
-      className="mb-3 rounded-lg border border-[#D9D9D9]"
+      className="mb-3 rounded-lg bg-[#F9FAFB]"
       id="basic-info-card"
       data-cy="basic-info-card"
     >

@@ -270,7 +270,7 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
 
   return (
     <div
-      className="mb-3 rounded-lg bg-white p-4 shadow-sm"
+      className="mb-3 rounded-xl bg-[#F9FAFB] p-4"
       data-cy={
         draftMode && draftEditingClientId
           ? `tna-inline-add-material-wizard-draft-edit-${draftEditingClientId}`
@@ -468,7 +468,7 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
         ) : null}
 
         <div
-          className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-2.5 sm:flex-row sm:items-center sm:justify-end"
+          className="mt-3 flex flex-col gap-2 border-gray-100 pt-2.5 sm:flex-row sm:items-center sm:justify-end"
           data-cy="tna-inline-add-material-form-footer"
         >
           <div

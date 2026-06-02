@@ -35,7 +35,6 @@ const SortableLessonMaterialRow: FC<SortableLessonMaterialRowProps> = ({
     transition,
     opacity: isDragging ? 0.65 : 1,
     zIndex: isDragging ? 1 : undefined,
-    backgroundColor: '#fafafa' as const,
   };
 
   return (
@@ -43,7 +42,7 @@ const SortableLessonMaterialRow: FC<SortableLessonMaterialRowProps> = ({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      className="flex items-start justify-between gap-3 rounded-lg px-3 py-3"
+      className="flex items-start justify-between gap-3 rounded-lg px-3 py-2.5 hover:bg-gray-50 transition-colors"
       id={`tnaLessonCardMaterial${item.id}Id`}
       data-cy={`tna-lesson-card-material-${item.id}`}
     >
@@ -53,7 +52,7 @@ const SortableLessonMaterialRow: FC<SortableLessonMaterialRowProps> = ({
       >
         <button
           type="button"
-          className="mt-0.5 inline-flex h-8 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md border border-gray-200 bg-white text-gray-400 outline-none hover:bg-gray-50 active:cursor-grabbing"
+          className="mt-0.5 inline-flex h-8 w-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-gray-400 outline-none hover:text-gray-600 active:cursor-grabbing"
           aria-label={`Drag to reorder ${item.title}`}
           data-cy={`tna-lesson-card-material-grip-${item.id}`}
           {...listeners}
@@ -86,7 +85,7 @@ const SortableLessonMaterialRow: FC<SortableLessonMaterialRowProps> = ({
       <Button
         type="text"
         size="small"
-        className="mt-0.5 shrink-0 inline-flex h-8 w-8 min-w-8 items-center justify-center rounded-md border border-gray-200 !bg-white !p-0 leading-none text-gray-500 hover:!bg-gray-50 hover:!text-gray-700 [&_.ant-btn-icon]:m-0"
+        className="mt-0.5 shrink-0 inline-flex h-8 w-8 min-w-8 items-center justify-center rounded-md !bg-transparent !border-none !p-0 leading-none text-gray-400 hover:!bg-gray-100 hover:!text-gray-700 [&_.ant-btn-icon]:m-0"
         aria-label={`Edit ${item.title}`}
         data-cy={`tna-lesson-card-material-edit-${item.id}`}
         onClick={() => onEditMaterial(item)}

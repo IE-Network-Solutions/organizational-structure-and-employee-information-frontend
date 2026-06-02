@@ -248,6 +248,10 @@ export const useUpdateObjectiveNestedDelete = () => {
   return useMutation(updateKeyResults, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -259,6 +263,10 @@ export const useDeleteObjective = () => {
   return useMutation(deleteObjective, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -273,6 +281,10 @@ export const useCreateObjective = () => {
   return useMutation(createObjective, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -283,6 +295,10 @@ export const useUpdateObjective = () => {
   return useMutation(UpdateObjective, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -294,6 +310,10 @@ export const useUpdateKeyResult = () => {
   return useMutation(updateKeyResult, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -304,6 +324,10 @@ export const useDeleteKeyResult = () => {
   return useMutation(deleteKeyResult, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -318,6 +342,10 @@ export const useDeleteMilestone = () => {
   return useMutation(deleteMilestone, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },

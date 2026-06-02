@@ -38,22 +38,22 @@ interface DroppableFormCategoryCardProps {
 
 const iconMap: Record<string, React.ReactNode> = {
   location: (
-    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+    <Button type="text" className="!border-0 w-8 h-8">
       <LocationOnIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
   contact: (
-    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+    <Button type="text" className="!border-0 w-8 h-8">
       <ContactsIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
   bank: (
-    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+    <Button type="text" className="!border-0 w-8 h-8">
       <AccountBalanceIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
   document: (
-    <Button type="default" className="border border-[#71abfd] w-8 h-8">
+    <Button type="text" className="!border-0 w-8 h-8">
       <AttachFileIcon className="text-lg text-[#71abfd]" />
     </Button>
   ),
@@ -95,13 +95,15 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
       ref={setNodeRef}
       id={`settings-droppable-category-${formTitle}`}
       data-cy={`settings-droppable-category-${formTitle}`}
-      className={`rounded-lg border-2 transition-colors ${
-        isActiveCategory ? 'border-primary' : 'border-transparent'
+      className={`rounded-lg border-2 transition-all ${
+        isActiveCategory
+          ? 'drop-zone-active'
+          : 'border-dashed border-[#D1D5DB] hover:border-[#1E40AF]/40'
       }`}
     >
       <div
         data-cy="settings-category-header-container"
-        className="flex items-center justify-between px-4 py-2 cursor-pointer bg-[#f9fafb] rounded-lg"
+        className="flex items-center justify-between px-4 py-2 cursor-pointer bg-white rounded-lg"
         onClick={() => setExpanded(!expanded)}
         role="button"
         tabIndex={0}
@@ -139,14 +141,14 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
           </Tag>
           {expanded ? (
             <Button
-              type="default"
-              className="border border-[#d9d9d9]"
+              type="text"
+              className="!border-0"
               icon={<IoChevronUp className="text-[#374151]" aria-hidden />}
             />
           ) : (
             <Button
-              type="default"
-              className="border border-[#d9d9d9]"
+              type="text"
+              className="!border-0"
               icon={<IoChevronDown className="text-[#374151]" aria-hidden />}
             />
           )}
@@ -164,8 +166,9 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
                 data-cy={`settings-category-field-${formTitle}-${i}`}
               >
                 <Card
-                  bordered
-                  className="rounded-lg border-[1px] border-[#d9d9d9]"
+                  bordered={false}
+                  className="rounded-lg"
+                  style={{ background: '#ffffff', boxShadow: 'none' }}
                   bodyStyle={{ padding: '12px 16px' }}
                 >
                   <div
@@ -213,11 +216,11 @@ const DroppableFormCategoryCard: React.FC<DroppableFormCategoryCardProps> = ({
                       }}
                     >
                       <Button
-                        type="default"
-                        className="border border-[#d9d9d9] !h-8 w-8"
+                        type="text"
+                        className="!border-0 !w-6 !h-6 !p-0 flex items-center justify-center !bg-transparent"
                         data-cy={`settings-category-field-menu-btn-${formTitle}-${i}`}
                       >
-                        <MoreHorizIcon />
+                        <MoreHorizIcon style={{ fontSize: 14 }} />
                       </Button>
                     </Dropdown>
                   </div>

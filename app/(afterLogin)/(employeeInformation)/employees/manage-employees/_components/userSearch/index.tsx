@@ -71,9 +71,11 @@ const EmployeeSearch: React.FC = () => {
     onSelectChange(dateValue, 'joinedDate');
   };
 
-  const activeStatusValue =
-    allFilterData?.items?.find((item: any) => item.deletedAt === null)
-      ?.deletedAt || 'null';
+  const activeStatusValue = allFilterData?.items?.some(
+    (item: any) => item.deletedAt === null,
+  )
+    ? 'null'
+    : 'null';
   const inactiveStatusValue = allFilterData?.items?.some(
     (item: any) => item.deletedAt !== null,
   )

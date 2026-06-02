@@ -4,10 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Dropdown, Tooltip, Skeleton, Popover, Button } from 'antd';
 import { BsThreeDots } from 'react-icons/bs';
 import { CloseOutlined, DeleteOutlined, SwapOutlined } from '@ant-design/icons';
-import {
-  ClockAnalogIcon,
-  ShareNetworkIcon,
-} from '../../../_components/recruitmentIcons';
+import { ShareNetworkIcon } from '../../../_components/recruitmentIcons';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import RecruitmentPagination from '../../../_components';
 import {
@@ -18,7 +15,6 @@ import ShareToSocialMedia from '../modals/share';
 import ChangeStatusModal from '../modals/changeJobStatus';
 import EditJob from '../modals/editJob/editModal';
 import Link from 'next/link';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import AccessGuard from '@/utils/permissionGuard';
 import { CategoriesManagementStore } from '@/store/uistate/features/feedback/categories';
@@ -277,15 +273,6 @@ const JobCard: React.FC = () => {
 
   const { mutate: deleteJob, isLoading } = useDeleteJobs();
 
-  const { data: departments } = useGetDepartments();
-
-  const getDepartmentName = (jobDepartmentId: string | undefined) => {
-    const department =
-      departments &&
-      departments.find((dept: any) => dept.id === jobDepartmentId);
-    return department ? department.name : '';
-  };
-
   const handleShareModalVisible = (jobId: string) => {
     setShareModalOpen(true);
     setSelectedJobId(jobId);
@@ -372,51 +359,24 @@ const JobCard: React.FC = () => {
               },
             ];
 
-            const filteredMenuItems = menuItemsConfig
-              .filter((item) =>
-                AccessGuard.checkAccess({ permissions: item.permissions }),
-              )
-              .map(({ key, label, icon, onClick }) => ({
-                key,
-                label,
-                icon,
-                onClick,
-              }));
-
-            const actionIconsTop = (
-              <div className="flex items-center gap-2 shrink-0">
-                <Tooltip title="Job matching">
-                  <Link
-                    href={`/recruitment/ai-job-matching/${job?.id}`}
-                    className="flex items-center justify-center w-8 h-8 shrink-0 rounded-lg p-px hover:opacity-95 transition-opacity"
-                    style={{
-                      background:
-                        'linear-gradient(180deg, #1E40AF 0%, #91CAFF 100%)',
-                      borderRadius: 8,
-                    }}
-                    data-cy={`talent-acquisition-job-card-link-applicants-${job?.id}`}
-                    aria-label="Job matching (AI)"
-                  >
-                    <span className="flex h-full w-full items-center justify-center rounded-[7px] bg-white">
-                      <JobCardAiMark />
-                    </span>
-                  </Link>
-                </Tooltip>
-                <Tooltip title="Share">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleShareModalVisible(job?.id);
-                    }}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg text-[#111827] hover:bg-gray-50 shrink-0"
-                    data-cy={`talent-acquisition-job-card-share-${job?.id}`}
-                  >
-                    <ShareNetworkIcon className="shrink-0" />
-                  </button>
-                </Tooltip>
-              </div>
-            );
+            const filteredMenuItems = [
+              {
+                key: 'share',
+                label: 'Share',
+                icon: <ShareNetworkIcon className="shrink-0" />,
+                onClick: () => handleShareModalVisible(job?.id),
+              },
+              ...menuItemsConfig
+                .filter((item) =>
+                  AccessGuard.checkAccess({ permissions: item.permissions }),
+                )
+                .map(({ key, label, icon, onClick }) => ({
+                  key,
+                  label,
+                  icon,
+                  onClick,
+                })),
+            ];
 
             const menuButton = (
               <Popover
@@ -485,7 +445,7 @@ const JobCard: React.FC = () => {
                       type="button"
                       id={`talent-acquisition-job-card-button-menu-${job?.id}`}
                       data-cy={`talent-acquisition-job-card-button-menu-${job?.id}`}
-                      className="flex items-center justify-center w-8 h-8 rounded-[6px] text-gray-600 hover:bg-gray-50 shrink-0 border border-solid border-[#D9D9D9] bg-white cursor-pointer"
+                      className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-800 shrink-0 cursor-pointer bg-transparent border-none"
                     >
                       <BsThreeDots className="w-4 h-4" />
                     </button>
@@ -494,86 +454,97 @@ const JobCard: React.FC = () => {
               </Popover>
             );
 
+            const actionIconsTop = (
+              <div className="flex items-center gap-2 shrink-0">
+                {menuButton}
+              </div>
+            );
+
             return (
               <div
                 key={job?.id ?? index}
                 id={`talent-acquisition-job-card-div-card-${index}`}
                 data-cy={`talent-acquisition-job-card-div-card-${index}`}
-                className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col relative"
+                className="group bg-[#F9FAFB] rounded-xl p-5 flex flex-col relative hover:shadow-md transition-shadow"
               >
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-                    <span
-                      className={`inline-flex items-center rounded-[4px] border border-solid px-3 py-1 text-[12px] font-normal ${
-                        jobStatus === 'Closed'
-                          ? 'border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]'
-                          : 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]'
-                      }`}
-                      data-cy={`talent-acquisition-job-card-div-status-${index}`}
-                    >
-                      {displayStatus(jobStatus)}
-                    </span>
-                    <span className="inline-flex items-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 py-1 text-[12px] font-normal text-[rgba(0,0,0,0.7)] whitespace-nowrap">
-                      Deadline:{' '}
-                      {job?.jobDeadline
-                        ? dayjs(job.jobDeadline).format('DD MMMM YYYY')
-                        : 'Not set'}
-                    </span>
-                  </div>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span
+                    className={`inline-flex items-center rounded-[4px] border border-solid px-3 py-1 text-[12px] font-normal ${
+                      jobStatus === 'Closed'
+                        ? 'border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]'
+                        : 'border-[#B7EB8F] bg-[#F6FFED] text-[#52C41A]'
+                    }`}
+                    data-cy={`talent-acquisition-job-card-div-status-${index}`}
+                  >
+                    {displayStatus(jobStatus)}
+                  </span>
                   {actionIconsTop}
                 </div>
-                <div className="flex items-center justify-between gap-2 mb-2 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
                   <Link
                     id={`talent-acquisition-job-card-link-${job?.id}`}
                     data-cy={`talent-acquisition-job-card-link-${job?.id}`}
                     href={`/recruitment/jobs/${job?.id}`}
-                    className="flex-1 min-w-0"
+                    className="min-w-0 flex-1"
                   >
                     <Tooltip title={job?.jobTitle}>
-                      <h3 className="font-bold text-[20px] leading-tight text-black truncate pr-2">
+                      <h3 className="font-semibold text-[20px] leading-tight text-black truncate">
                         {job?.jobTitle}
                       </h3>
                     </Tooltip>
                   </Link>
-                  {menuButton}
-                </div>
-                <Link
-                  href={`/recruitment/jobs/${job?.id}`}
-                  className="block flex-1 min-w-0"
-                >
-                  <div className="flex items-center gap-1.5 text-[12px] font-normal text-[rgba(0,0,0,0.65)] mb-3">
-                    <span
-                      id={`talent-acquisition-job-departmentId-${index}`}
-                      data-cy={`talent-acquisition-job-departmentId-${index}`}
+                  <Tooltip title="Job matching">
+                    <Link
+                      href={`/recruitment/ai-job-matching/${job?.id}`}
+                      className="hidden group-hover:flex items-center justify-center w-8 h-8 shrink-0 rounded-lg p-px hover:opacity-95 transition-opacity"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, #1E40AF 0%, #91CAFF 100%)',
+                        borderRadius: 8,
+                      }}
+                      data-cy={`talent-acquisition-job-card-link-applicants-${job?.id}`}
+                      aria-label="Job matching (AI)"
                     >
-                      {getDepartmentName(job?.departmentId) || '—'}
-                    </span>
-                    <span className="text-[rgba(0,0,0,0.25)]">•</span>
-                    <span>{applicantCount} Applicants</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {job?.jobLocation && (
-                      <span className="inline-flex items-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 py-1 text-[12px] font-normal text-[rgba(0,0,0,0.7)]">
-                        {job.jobLocation}
+                      <span className="flex h-full w-full items-center justify-center rounded-[7px] bg-white">
+                        <JobCardAiMark />
                       </span>
-                    )}
-                    {job?.employmentType && (
-                      <span className="inline-flex items-center rounded-[4px] border border-solid border-[#D9D9D9] bg-white px-3 py-1 text-[12px] font-normal text-[rgba(0,0,0,0.7)]">
-                        {job.employmentType}
-                      </span>
-                    )}
-                  </div>
-                </Link>
-                <div className="flex items-center justify-end gap-1.5 mt-auto pt-3 border-t border-gray-200">
-                  <ClockAnalogIcon className="w-4 h-4 shrink-0 text-black" />
+                    </Link>
+                  </Tooltip>
+                </div>
+                <div className="flex items-center flex-wrap gap-x-1.5 gap-y-1 text-[12px] font-normal text-#6B7280 mb-1">
                   <span
-                    className="text-[12px] font-normal text-black"
+                    id={`talent-acquisition-job-departmentId-${index}`}
+                    data-cy={`talent-acquisition-job-departmentId-${index}`}
+                  >
+                    {applicantCount} Applicants
+                  </span>
+                  {job?.jobLocation && (
+                    <>
+                      <span className="text-[rgba(0,0,0,0.25)]">•</span>
+                      <span>{job.jobLocation}</span>
+                    </>
+                  )}
+                  {job?.employmentType && (
+                    <>
+                      <span className="text-[rgba(0,0,0,0.25)]">•</span>
+                      <span>{job.employmentType}</span>
+                    </>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-2 mt-1">
+                  <span
+                    className="text-[12px] font-normal text-[rgba(0,0,0,0.7)]"
                     suppressHydrationWarning
                   >
-                    Created{' '}
                     {job?.createdAt
-                      ? dayjs(job.createdAt).fromNow()
-                      : 'Unknown'}
+                      ? dayjs(job.createdAt).format('DD MMMM YYYY')
+                      : '—'}
+                  </span>
+                  <span
+                    className="text-[12px] font-normal text-[rgba(0,0,0,0.7)]"
+                    suppressHydrationWarning
+                  >
+                    {job?.createdAt ? dayjs(job.createdAt).fromNow() : '—'}
                   </span>
                 </div>
               </div>

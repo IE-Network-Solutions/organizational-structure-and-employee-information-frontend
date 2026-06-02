@@ -18,6 +18,46 @@ const createEmployeeSurvey = async (data: any) => {
   });
 };
 
+const assignSurvey = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/form-permissions`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
+
+type UpdateSurveyAssignmentPayload = {
+  id: string;
+  formId: string;
+  users: Array<{ userId: string }>;
+};
+
+const updateSurveyAssignment = async ({
+  id,
+  formId,
+  users,
+}: UpdateSurveyAssignmentPayload) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/form-permissions/survey-vp-assignments/${id}`,
+    method: 'PUT',
+    data: { formId, users },
+    headers,
+  });
+};
+
 /**
  * Sends a request to update an existing category in the system.
  *
@@ -64,6 +104,20 @@ const deleteEmployeeSurvey = async (id: string) => {
   });
 };
 
+const deleteSurveyAssignment = async (id: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/form-permissions/survey-vp-assignments/${id}`,
+    method: 'DELETE',
+    headers,
+  });
+};
+
 /**
  * Custom hook to add a new category using React Query.
  * Automatically invalidates the 'categories' query cache on success.
@@ -76,6 +130,16 @@ export const useCreateEmployeeSurvey = () => {
   return useMutation(createEmployeeSurvey, {
     onSuccess: () => {
       queryClient.invalidateQueries('survey-target-score');
+    },
+  });
+};
+
+export const useAssignSurvey = () => {
+  const queryClient = useQueryClient();
+  return useMutation(assignSurvey, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('survey-target-score');
+      queryClient.invalidateQueries('surveyAssignment');
     },
   });
 };
@@ -96,6 +160,16 @@ export const useUpdateEmployeeSurvey = () => {
     },
   });
 };
+
+export const useUpdateSurveyAssignment = () => {
+  const queryClient = useQueryClient();
+  return useMutation(updateSurveyAssignment, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('surveyAssignment');
+    },
+  });
+};
+
 // eslint-enable-next-line @typescript-eslint/naming-convention
 
 /**
@@ -110,6 +184,15 @@ export const useDeleteEmployeeSurvey = () => {
   return useMutation(deleteEmployeeSurvey, {
     onSuccess: () => {
       queryClient.invalidateQueries('survey-target-score');
+    },
+  });
+};
+
+export const useDeleteSurveyAssignment = () => {
+  const queryClient = useQueryClient();
+  return useMutation(deleteSurveyAssignment, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('surveyAssignment');
     },
   });
 };

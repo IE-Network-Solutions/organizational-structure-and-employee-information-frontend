@@ -125,6 +125,12 @@ interface UserState {
   bankInfoForm: any;
   setBankInfoForm: (bankInfoForm: any) => void;
 
+  /** Last saved bank fields for manage-employee view (overrides stale GET /users cache). */
+  savedBankSnapshot: Record<string, unknown> | null;
+  setSavedBankSnapshot: (
+    savedBankSnapshot: Record<string, unknown> | null,
+  ) => void;
+
   emergencyContact: any;
   setEmergencyContact: (emergencyContact: any) => void;
 
@@ -291,7 +297,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     setProfileFileList: (profileFileList: any) => set({ profileFileList }),
 
     bankInfoForm: {},
-    setBankInfoForm: (bankInfoForm: any) => ({ bankInfoForm }),
+    setBankInfoForm: (bankInfoForm: any) => set({ bankInfoForm }),
+
+    savedBankSnapshot: null,
+    setSavedBankSnapshot: (savedBankSnapshot: Record<string, unknown> | null) =>
+      set({ savedBankSnapshot }),
 
     emergencyContact: {},
     setEmergencyContact: (emergencyContact: any) => ({ emergencyContact }),

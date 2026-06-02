@@ -56,9 +56,8 @@ export const attendanceCheckInSourceLabels: Record<
   string
 > = {
   [AttendanceCheckInSource.IMPORTED]: 'Imported',
-  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote checked in',
-  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]:
-    'Attendance device checked in',
+  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote',
+  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]: 'Attendance Device',
 };
 
 export const attendanceCheckOutSourceLabels: Record<
@@ -66,9 +65,8 @@ export const attendanceCheckOutSourceLabels: Record<
   string
 > = {
   [AttendanceCheckOutSource.IMPORTED]: 'Imported',
-  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote checked out',
-  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]:
-    'Attendance device checked out',
+  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote',
+  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]: 'Attendance Device',
 };
 
 export interface AttendanceRecord extends DateInfo {
@@ -135,6 +133,7 @@ export enum AttendanceActionType {
   WARNING_LETTER = 'WARNING_LETTER',
   REPRIMAND = 'REPRIMAND',
   SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+  VP_DEDUCTION = 'VP_DEDUCTION',
 }
 
 export interface AttendanceRule extends DateInfo {
@@ -147,6 +146,7 @@ export interface AttendanceRule extends DateInfo {
   isFixed?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
+  vpDeductionAmount?: number;
   ruleType: string | AttendanceRuleTypes;
   actionTypes: AttendanceActionType | string;
   letterTemplate?: string;
@@ -180,6 +180,7 @@ export interface AttendanceRule {
   isFixed?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
+  vpDeductionAmount?: number;
   actionTypes: AttendanceActionType | string;
   letterTemplate?: string;
   breakTypeId: string;

@@ -48,6 +48,7 @@ export interface KeyResult {
   };
   targetValue?: string | number;
   currentValue?: string | number;
+  initialValue?: string | number;
   progress?: string | number;
   deletedAt?: string | null;
 }

@@ -3,6 +3,15 @@ import { FC } from 'react';
 import MilestoneTasks from './milestoneTasks';
 import TasksDisplayer from '../reporting/milestone';
 import { BsKey } from 'react-icons/bs';
+import {
+  formatValueForMetric,
+  getKeyResultProgressPercent,
+  getKeyResultProgressRatioText,
+  getMetricTypeName,
+  getMilestoneProgressCounts,
+  getNumericMetricTargetValue,
+} from '@/utils/okrKeyResultProgressDisplay';
+
 interface KeyResultTasksProps {
   keyResult?: any;
   keyResultIndex: number;
@@ -14,6 +23,12 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
   keyResultIndex,
   activeTab,
 }) => {
+  const metricName = getMetricTypeName(keyResult);
+  const krProgressPercent = getKeyResultProgressPercent(keyResult);
+  const krProgressRatioText = getKeyResultProgressRatioText(keyResult);
+  const { total: msTotal } = getMilestoneProgressCounts(keyResult);
+  const numericTarget = getNumericMetricTargetValue(keyResult);
+
   return (
     <div
       className="my-3 pb-8 bg-white rounded-lg border"
@@ -54,11 +69,11 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
               className="font-bold border-none min-w-8 text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
-              {keyResult?.metricType?.name === 'Milestone'
-                ? keyResult?.milestones?.length || 0
-                : keyResult?.metricType?.name === 'Achieve'
+              {metricName === 'Milestone'
+                ? msTotal
+                : metricName === 'Achieve' || metricName === 'Achieved'
                   ? '100'
-                  : Number(keyResult?.targetValue)?.toLocaleString() || 0}
+                  : formatValueForMetric(metricName, numericTarget)}
             </Tag>
           </div>
 
@@ -87,16 +102,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
               className="font-bold border-none min-w-8  text-center text-blue text-[10px]"
               color="#B2B2FF"
             >
-              {keyResult?.metricType?.name === 'Milestone'
-                ? keyResult?.milestones?.filter(
-                    (e: any) => e.status === 'Completed',
-                  )?.length || 0
-                : keyResult?.metricType?.name === 'Achieve'
-                  ? keyResult?.progress
-                  : (
-                      Number(keyResult?.currentValue) +
-                      Number(keyResult?.initialValue)
-                    )?.toLocaleString() || 0}
+              {krProgressRatioText}
             </Tag>
           </div>
 
@@ -125,7 +131,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
               className="font-bold border-none min-w-8 text-center text-green-600 text-[10px]"
               color="#ddf4e9"
             >
-              {keyResult?.progress || 0}%
+              {krProgressPercent}%
             </Tag>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import {
   Table,
@@ -33,13 +33,63 @@ import {
 } from 'react-icons/md';
 import { IoCloseOutline } from 'react-icons/io5';
 import EmployeeSurveyModal from './EmployeeSurveyModal';
-import { useDeleteEmployeeSurvey } from '@/store/server/features/conversation/survey/mutation';
+import {
+  useDeleteEmployeeSurvey,
+  useDeleteSurveyAssignment,
+} from '@/store/server/features/conversation/survey/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { BsThreeDots } from 'react-icons/bs';
+import AssignServeyModal from './AssignServeyModal';
+import { useFetchSurveyAssignment } from '@/store/server/features/feedback/settings/queries';
+import { useFetchedForms } from '@/store/server/features/feedback/form/queries';
 
 const { Option } = Select;
+const SurveyAssignmentEmployeeCell = ({ record }: { record: any }) => {
+  const user = record?.user;
+  if (!user) return <>-</>;
+
+  const name =
+    [user.firstName, user.middleName, user.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim() || '-';
+  const email = user.email || '-';
+
+  return (
+    <div className="flex gap-2" data-cy="employee-survey-table-user-container">
+      <Avatar src={user.profileImage} icon={<UserOutlined />} />
+      <div data-cy="employee-survey-table-user-details">
+        <span data-cy="employee-survey-table-user-name">{name}</span>
+        <div
+          className="text-xs text-gray-500"
+          data-cy="employee-survey-table-user-email"
+        >
+          {email}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SurveyAssignmentDepartmentCell = ({ record }: { record: any }) => {
+  const jobs = record?.user?.employeeJobInformation;
+  const activeJob = Array.isArray(jobs)
+    ? jobs.find((job: any) => job?.isPositionActive)
+    : null;
+  const deptName = activeJob?.department?.name ?? '-';
+
+  return (
+    <span
+      className="text-sm text-gray-500"
+      data-cy="employee-survey-table-department"
+    >
+      {deptName}
+    </span>
+  );
+};
+
 const EmployeeDetails = ({ empId, type }: { empId: string; type: string }) => {
   const { data: userDetails, isLoading, error } = useGetEmployee(empId);
 
@@ -128,7 +178,11 @@ const EmployeeSurveyTable: React.FC = () => {
     useGetDepartmentsWithUsers();
   const { data: months, isLoading: monthsLoading } = useGetAllMonth();
   const { data: activeMonth } = useGetActiveMonth();
+  const { data: formsData, isLoading: formsLoading } = useFetchedForms(100, 1);
+  const { data: surveyAssignmentData, isLoading: surveyAssignmentLoading } =
+    useFetchSurveyAssignment();
   const {
+    targetAchievementViewMode,
     openEmployeeSurvey,
     setOpenEmployeeSurvey,
     userId,
@@ -139,6 +193,8 @@ const EmployeeSurveyTable: React.FC = () => {
     setDepartmentId,
     monthId,
     setMonthId,
+    surveyId,
+    setSurveyId,
     page,
     setPage,
     currentPage,
@@ -150,9 +206,21 @@ const EmployeeSurveyTable: React.FC = () => {
     setFilterDraftDepartmentId,
     filterDraftMonthId,
     setFilterDraftMonthId,
+    filterDraftSurveyId,
+    setFilterDraftSurveyId,
+    openAssignSurveyModal,
+    setOpenAssignSurveyModal,
+    assignSurveyModalInitialValues,
+    setAssignSurveyModalInitialValues,
   } = EmployeeSurveyStore();
+  const isSurveyAssignmentView =
+    targetAchievementViewMode === 'surveyAssignment';
   const { data: employeeSurvey, isLoading: employeeSurveyLoading } =
     useGetEmployeeSurvey(userId, monthId, departmentId, page, currentPage);
+  const {
+    mutate: deleteSurveyAssignment,
+    isLoading: deleteSurveyAssignmentLoading,
+  } = useDeleteSurveyAssignment();
 
   const normalizeNullableId = (value: unknown) =>
     value ? String(value) : (null as any);
@@ -182,6 +250,25 @@ const EmployeeSurveyTable: React.FC = () => {
     if (!m) return '';
     return `${m?.session?.name}-${m?.name}`;
   };
+
+  const surveyOptions = useMemo(
+    () =>
+      (formsData?.items ?? []).map((form: any) => ({
+        value: String(form.id),
+        label: form.name ?? 'Unnamed form',
+      })),
+    [formsData],
+  );
+
+  const getSurveyNameById = (id: string | null) => {
+    if (!id) return '';
+    const form = surveyOptions.find(
+      (item: { value: string; label: string }) =>
+        String(item.value) === String(id),
+    );
+    return form?.label ?? '';
+  };
+
   const { isMobile } = useIsMobile();
 
   const getActiveFilters = () => {
@@ -201,10 +288,17 @@ const EmployeeSurveyTable: React.FC = () => {
       });
     }
 
-    if (monthId != null) {
+    if (!isSurveyAssignmentView && monthId != null) {
       activeFilters.push({
         key: 'monthId',
         label: getMonthLabelById(monthId) || String(monthId),
+      });
+    }
+
+    if (isSurveyAssignmentView && surveyId != null) {
+      activeFilters.push({
+        key: 'surveyId',
+        label: getSurveyNameById(surveyId) || String(surveyId),
       });
     }
 
@@ -222,6 +316,9 @@ const EmployeeSurveyTable: React.FC = () => {
       case 'monthId':
         setMonthId(null as any);
         break;
+      case 'surveyId':
+        setSurveyId(null);
+        break;
       default:
         break;
     }
@@ -235,6 +332,17 @@ const EmployeeSurveyTable: React.FC = () => {
   const { mutate: deleteEmployeeSurvey, isLoading: deleteLoading } =
     useDeleteEmployeeSurvey();
 
+  function handleSurveyAssignmentDelete(id: any) {
+    deleteSurveyAssignment(id, {
+      onSuccess: () => {
+        NotificationMessage.success({
+          message: 'Successfully deleted',
+          description: 'Survey Assignment Deleted Successfully',
+        });
+      },
+    });
+  }
+
   function handleSurveyScore(id: any) {
     deleteEmployeeSurvey(id, {
       onSuccess: () => {
@@ -244,6 +352,28 @@ const EmployeeSurveyTable: React.FC = () => {
         });
       },
     });
+  }
+
+  function getAssignSurveyValuesFromRecord(record: any) {
+    const userId = record?.userId ?? record?.user?.id;
+    const formId = record?.formId ?? record?.form?.id;
+    const jobs = record?.user?.employeeJobInformation;
+    const activeJob = Array.isArray(jobs)
+      ? jobs.find((job: any) => job?.isPositionActive)
+      : null;
+    const departmentId = activeJob?.departmentId ?? activeJob?.department?.id;
+
+    return {
+      assignmentId: record?.id ? String(record.id) : undefined,
+      surveyId: formId ? String(formId) : undefined,
+      userIds: userId ? [String(userId)] : [],
+      departmentIds: departmentId ? [String(departmentId)] : [],
+    };
+  }
+
+  function handleSurveyAssignmentEdit(record: any) {
+    setAssignSurveyModalInitialValues(getAssignSurveyValuesFromRecord(record));
+    setOpenAssignSurveyModal(true);
   }
 
   const columns = [
@@ -353,12 +483,149 @@ const EmployeeSurveyTable: React.FC = () => {
         ) : null,
     },
   ];
+  const surveyAssignmentColumns = [
+    {
+      title: 'Employees',
+      key: 'userId',
+      render: (notused: any, record: any) => (
+        <SurveyAssignmentEmployeeCell record={record} />
+      ),
+    },
+    {
+      title: 'Department',
+      key: 'department',
+      render: (notused: any, record: any) => (
+        <SurveyAssignmentDepartmentCell record={record} />
+      ),
+    },
+    {
+      title: 'Survey Assignment',
+      key: 'surveyAssignment',
+      dataIndex: 'surveyAssignment',
+      render: (notused: any, record: any) => record?.form?.name ?? '-',
+    },
+    {
+      title: 'Action',
+      dataIndex: 'action',
+      key: 'action',
+      render: (notused: any, record: any) => (
+        <Dropdown
+          trigger={['click']}
+          placement="bottomRight"
+          arrow={false}
+          menu={{
+            items: [
+              {
+                key: 'edit',
+                label: 'Edit Assignment',
+                icon: <MdOutlineEdit className="w-4 h-4 " />,
+                className: 'text-xs text-gray-600',
+                onClick: () => handleSurveyAssignmentEdit(record),
+              },
+              {
+                key: 'delete',
+                className: 'text-xs text-gray-600',
+                label: (
+                  <Popconfirm
+                    title="Are you sure you want to remove this survey assignment?"
+                    onConfirm={() => handleSurveyAssignmentDelete(record?.id)}
+                    disabled={deleteSurveyAssignmentLoading}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="top"
+                    data-cy="employee-survey-table-delete-popconfirm"
+                    id="employeeSurveyTableDeletePopconfirm"
+                  >
+                    <span
+                      className="flex items-center gap-2"
+                      data-cy="employee-survey-table-delete-menu-item"
+                    >
+                      <MdOutlineDelete className="w-4 h-4" />
+                      Delete Assignment
+                    </span>
+                  </Popconfirm>
+                ),
+              },
+            ],
+          }}
+        >
+          <button
+            type="button"
+            className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-[#D9D9D9] bg-transparent p-1 font-extrabold text-2xl text-black hover:border-primary hover:text-primary"
+            data-cy="employee-survey-table-action-button"
+            id="employeeSurveyTableActionButton"
+          >
+            <BsThreeDots
+              id="employeeSurveyTableActionButtonIcon"
+              data-cy="employee-survey-table-action-button-icon"
+            />
+          </button>
+        </Dropdown>
+      ),
+    },
+  ];
+
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
       setPage(pageSize);
     }
   };
+  const activeColumns = isSurveyAssignmentView
+    ? surveyAssignmentColumns
+    : columns;
+
+  const filteredSurveyAssignmentItems = useMemo(() => {
+    let items = surveyAssignmentData?.items ?? [];
+
+    if (surveyId) {
+      items = items.filter(
+        (item: any) =>
+          String(item?.formId ?? item?.form?.id) === String(surveyId),
+      );
+    }
+
+    if (departmentId) {
+      items = items.filter((item: any) => {
+        const jobs = item?.user?.employeeJobInformation;
+        const activeJob = Array.isArray(jobs)
+          ? jobs.find((job: any) => job?.isPositionActive)
+          : null;
+        const deptId = activeJob?.departmentId ?? activeJob?.department?.id;
+        return String(deptId) === String(departmentId);
+      });
+    }
+
+    if (userId) {
+      items = items.filter(
+        (item: any) =>
+          String(item?.userId ?? item?.user?.id) === String(userId),
+      );
+    }
+
+    return items;
+  }, [surveyAssignmentData, surveyId, departmentId, userId]);
+
+  const paginatedSurveyAssignmentItems = useMemo(() => {
+    const start = (currentPage - 1) * page;
+    return filteredSurveyAssignmentItems.slice(start, start + page);
+  }, [filteredSurveyAssignmentItems, currentPage, page]);
+
+  const activeDataSource = isSurveyAssignmentView
+    ? paginatedSurveyAssignmentItems
+    : (employeeSurvey?.items ?? []);
+
+  const activeLoading = isSurveyAssignmentView
+    ? surveyAssignmentLoading
+    : employeeSurveyLoading;
+
+  const activePaginationMeta = isSurveyAssignmentView
+    ? {
+        totalItems: filteredSurveyAssignmentItems.length,
+        currentPage,
+      }
+    : employeeSurvey?.meta;
+
   return (
     <div
       className="py-2 rounded-lg border-[1px] border-[#D9D9D9]"
@@ -440,7 +707,11 @@ const EmployeeSurveyTable: React.FC = () => {
               setEmployeeSurveyFilterPopoverOpen(visible);
               if (visible) {
                 setFilterDraftDepartmentId(departmentId);
-                setFilterDraftMonthId(monthId);
+                if (isSurveyAssignmentView) {
+                  setFilterDraftSurveyId(surveyId);
+                } else {
+                  setFilterDraftMonthId(monthId);
+                }
               }
             }}
             placement={isMobile ? 'bottom' : 'bottomRight'}
@@ -545,54 +816,90 @@ const EmployeeSurveyTable: React.FC = () => {
                     </Select>
                   </div>
 
-                  <div
-                    className="flex w-full max-w-full flex-col md:max-w-[461px]"
-                    data-cy="employee-survey-table-mobile-filter-month-section"
-                  >
+                  {isSurveyAssignmentView ? (
                     <div
-                      className="flex flex-row items-center pb-2"
-                      data-cy="employee-survey-table-mobile-filter-month-label-row"
+                      className="flex w-full max-w-full flex-col md:max-w-[461px]"
+                      data-cy="employee-survey-table-mobile-filter-survey-section"
                     >
-                      <span
-                        className="text-sm font-normal leading-[22px] text-[#030712]"
-                        data-cy="employee-survey-table-mobile-filter-month-label"
+                      <div
+                        className="flex flex-row items-center pb-2"
+                        data-cy="employee-survey-table-mobile-filter-survey-label-row"
                       >
-                        Month
-                      </span>
+                        <span
+                          className="text-sm font-normal leading-[22px] text-[#030712]"
+                          data-cy="employee-survey-table-mobile-filter-survey-label"
+                        >
+                          Survey
+                        </span>
+                      </div>
+                      <Select
+                        placeholder="Select"
+                        className="employee-survey-filter-select w-full max-w-full md:max-w-[461px]"
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        options={surveyOptions}
+                        value={filterDraftSurveyId ?? undefined}
+                        onChange={(value) => {
+                          setFilterDraftSurveyId(normalizeNullableId(value));
+                        }}
+                        loading={formsLoading}
+                        getPopupContainer={() => document.body}
+                        popupClassName="employee-survey-filter-select-dropdown"
+                        data-cy="employee-survey-table-survey-filter"
+                        id="employeeSurveyTableSurveyFilter"
+                      />
                     </div>
-                    <Select
-                      placeholder="Select"
-                      className="employee-survey-filter-select w-full max-w-full md:max-w-[461px]"
-                      allowClear
-                      showSearch
-                      value={filterDraftMonthId ?? undefined}
-                      onChange={(value) => {
-                        setFilterDraftMonthId(normalizeNullableId(value));
-                      }}
-                      filterOption={(input, option) =>
-                        (option?.children as any)
-                          .toLowerCase()
-                          .includes(input.toLowerCase())
-                      }
-                      loading={monthsLoading}
-                      getPopupContainer={() => document.body}
-                      popupClassName="employee-survey-filter-select-dropdown"
-                      data-cy="employee-survey-table-month-filter"
-                      id="employeeSurveyTableMonthFilter"
+                  ) : (
+                    <div
+                      className="flex w-full max-w-full flex-col md:max-w-[461px]"
+                      data-cy="employee-survey-table-mobile-filter-month-section"
                     >
-                      {months?.items
-                        ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
-                        ?.map((month: any) => (
-                          <Option
-                            key={month.id}
-                            value={month.id}
-                            data-cy={`employee-survey-table-month-option-${month.id}`}
-                          >
-                            {month?.session?.name}-{month.name}
-                          </Option>
-                        ))}
-                    </Select>
-                  </div>
+                      <div
+                        className="flex flex-row items-center pb-2"
+                        data-cy="employee-survey-table-mobile-filter-month-label-row"
+                      >
+                        <span
+                          className="text-sm font-normal leading-[22px] text-[#030712]"
+                          data-cy="employee-survey-table-mobile-filter-month-label"
+                        >
+                          Month
+                        </span>
+                      </div>
+                      <Select
+                        placeholder="Select"
+                        className="employee-survey-filter-select w-full max-w-full md:max-w-[461px]"
+                        allowClear
+                        showSearch
+                        value={filterDraftMonthId ?? undefined}
+                        onChange={(value) => {
+                          setFilterDraftMonthId(normalizeNullableId(value));
+                        }}
+                        filterOption={(input, option) =>
+                          (option?.children as any)
+                            .toLowerCase()
+                            .includes(input.toLowerCase())
+                        }
+                        loading={monthsLoading}
+                        getPopupContainer={() => document.body}
+                        popupClassName="employee-survey-filter-select-dropdown"
+                        data-cy="employee-survey-table-month-filter"
+                        id="employeeSurveyTableMonthFilter"
+                      >
+                        {months?.items
+                          ?.sort((a: any, b: any) => a.createdAt - b.createdAt)
+                          ?.map((month: any) => (
+                            <Option
+                              key={month.id}
+                              value={month.id}
+                              data-cy={`employee-survey-table-month-option-${month.id}`}
+                            >
+                              {month?.session?.name}-{month.name}
+                            </Option>
+                          ))}
+                      </Select>
+                    </div>
+                  )}
                 </div>
 
                 <div
@@ -604,8 +911,10 @@ const EmployeeSurveyTable: React.FC = () => {
                     onClick={() => {
                       setFilterDraftDepartmentId(null);
                       setFilterDraftMonthId(null);
+                      setFilterDraftSurveyId(null);
                       setDepartmentId(null as any);
                       setMonthId(null as any);
+                      setSurveyId(null);
                       setCurrentPage(1);
                       setEmployeeSurveyFilterPopoverOpen(false);
                     }}
@@ -620,7 +929,15 @@ const EmployeeSurveyTable: React.FC = () => {
                       setDepartmentId(
                         normalizeNullableId(filterDraftDepartmentId),
                       );
-                      setMonthId(normalizeNullableId(filterDraftMonthId));
+                      if (isSurveyAssignmentView) {
+                        setSurveyId(
+                          normalizeNullableId(filterDraftSurveyId) as
+                            | string
+                            | null,
+                        );
+                      } else {
+                        setMonthId(normalizeNullableId(filterDraftMonthId));
+                      }
                       setCurrentPage(1);
                       setEmployeeSurveyFilterPopoverOpen(false);
                     }}
@@ -656,12 +973,13 @@ const EmployeeSurveyTable: React.FC = () => {
         </div>
       </div>
 
-      {employeeSurveyLoading ? (
-        <TableSkeleton columns={columns} />
+      {activeLoading ? (
+        <TableSkeleton columns={activeColumns} />
       ) : (
         <Table
-          columns={columns}
-          dataSource={employeeSurvey?.items}
+          rowKey="id"
+          columns={activeColumns}
+          dataSource={activeDataSource}
           pagination={false}
           className="overflow-x-auto scrollbar-none"
           data-cy="employee-survey-table"
@@ -669,8 +987,8 @@ const EmployeeSurveyTable: React.FC = () => {
         />
       )}
       <CustomPagination
-        total={employeeSurvey?.meta?.totalItems || 0}
-        current={employeeSurvey?.meta?.currentPage || 1}
+        total={activePaginationMeta?.totalItems || 0}
+        current={activePaginationMeta?.currentPage || 1}
         pageSize={page}
         onChange={onPageChange}
         onShowSizeChange={(size) => {
@@ -687,7 +1005,15 @@ const EmployeeSurveyTable: React.FC = () => {
         }}
         data-cy="employee-survey-modal"
       />
-
+      <AssignServeyModal
+        open={openAssignSurveyModal}
+        initialValues={assignSurveyModalInitialValues ?? undefined}
+        onClose={() => {
+          setOpenAssignSurveyModal(false);
+          setAssignSurveyModalInitialValues(null);
+        }}
+        data-cy="assign-survey-modal"
+      />
       <style jsx global data-cy="employee-survey-table-filter-styles">{`
         @media (max-width: 767px) {
           .employee-survey-filter-popover.ant-popover {

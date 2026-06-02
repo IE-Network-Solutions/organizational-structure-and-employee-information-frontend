@@ -1,13 +1,81 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import {
-  getCurrentToken,
-  getOptionalToken,
-} from '@/utils/getCurrentToken';
+import { getCurrentToken, getOptionalToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
-const submitResponseMutation = async (id: string, values: any) => {
+type ResponseDetailApiItem = {
+  id: string;
+  response: string;
+  questionId?: string;
+};
+
+/** Map store `{ id, value }` rows to API `{ id, response }` (accepts either key). */
+function mapResponseDetailItems(
+  details: unknown,
+  questionId?: string,
+): ResponseDetailApiItem[] {
+  const list = Array.isArray(details) ? details : [];
+  return list
+    .map((d: { id?: unknown; value?: unknown; response?: unknown }) => {
+      const id = d?.id;
+      const response = d?.response ?? d?.value ?? '';
+      return {
+        id: id != null ? String(id) : '',
+        response: String(response),
+        ...(questionId != null ? { questionId: String(questionId) } : {}),
+      };
+    })
+    .filter((item) => item.id !== '' && item.id !== 'undefined');
+}
+
+/** POST /responses/public/{formId} — full survey answers in one array. */
+function buildSubmitResponsePayload(values: unknown): Array<{
+  questionId?: string;
+  respondentId?: string | null;
+  responseDetail: ResponseDetailApiItem[];
+}> {
+  if (!Array.isArray(values)) return [];
+  return values.map((q: Record<string, unknown>) => {
+    const questionId = q?.questionId != null ? String(q.questionId) : undefined;
+    return {
+      questionId,
+      respondentId:
+        q?.respondentId === undefined
+          ? undefined
+          : (q.respondentId as string | null),
+      responseDetail: mapResponseDetailItems(q?.responseDetail, questionId),
+    };
+  });
+}
+
+/** PUT /responses/{id} — one question's details flattened. */
+function buildResponseDetailUpdatePayload(values: unknown): {
+  responseDetail: ResponseDetailApiItem[];
+} {
+  if (Array.isArray(values)) {
+    return {
+      responseDetail: values.flatMap((q: Record<string, unknown>) =>
+        mapResponseDetailItems(
+          q?.responseDetail,
+          q?.questionId != null ? String(q.questionId) : undefined,
+        ),
+      ),
+    };
+  }
+
+  if (
+    values &&
+    typeof values === 'object' &&
+    Array.isArray((values as { responseDetail?: unknown }).responseDetail)
+  ) {
+    return values as { responseDetail: ResponseDetailApiItem[] };
+  }
+
+  return { responseDetail: [] };
+}
+
+const submitResponseMutation = async (id: string, values: unknown) => {
   const token = await getOptionalToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -19,61 +87,11 @@ const submitResponseMutation = async (id: string, values: any) => {
     url: `${ORG_DEV_URL}/responses/public/${id}`,
     method: 'post',
     headers,
-    data: values,
+    data: buildSubmitResponsePayload(values),
   });
 };
 
-function buildResponseDetailUpdatePayload(values: any): {
-  responseDetail: any[];
-} {
-  // `values` from the public survey page is the Zustand store shape:
-  // [
-  //   { questionId, respondentId, responseDetail: [{ id, value }, ...] },
-  //   ...
-  // ]
-  // Backend expects:
-  // { responseDetail: [{ id: <uuid>, response: <string> }, ...] }
-  if (Array.isArray(values)) {
-    const flattened = values.flatMap((q: any) => {
-      const details: any[] = Array.isArray(q?.responseDetail)
-        ? q.responseDetail
-        : [];
-      return (
-        details
-          .map((d: any) => {
-            const id = d?.id;
-            const response = d?.response ?? d?.value ?? '';
-            return {
-              // id must be UUID; assume backend already provides UUIDs when pre-filling.
-              id: id != null ? String(id) : '',
-              response: String(response),
-              // Keep questionId if backend ignores/doesn't require it; helps some schemas.
-              questionId:
-                q?.questionId != null ? String(q.questionId) : undefined,
-            };
-          })
-          // Remove empty records (helps avoid backend UUID validation failures).
-          // Remove invalid ids to avoid UUID validation errors.
-          .filter((item: any) => item.id !== '' && item.id !== 'undefined')
-      );
-    });
-
-    return { responseDetail: flattened };
-  }
-
-  // Fallback: if caller already sends the expected shape.
-  if (
-    values &&
-    typeof values === 'object' &&
-    Array.isArray(values.responseDetail)
-  ) {
-    return values;
-  }
-
-  return { responseDetail: [] };
-}
-
-const updateResponseMutation = async (responseId: string, values: any) => {
+const updateResponseMutation = async (responseId: string, values: unknown) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -92,7 +110,7 @@ export const useSubmitFormResponse = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
+    ({ id, values }: { id: string; values: unknown }) =>
       submitResponseMutation(id, values),
     {
       onSuccess: () => {
@@ -106,7 +124,7 @@ export const useUpdateFormResponse = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ responseId, values }: { responseId: string; values: any }) =>
+    ({ responseId, values }: { responseId: string; values: unknown }) =>
       updateResponseMutation(responseId, values),
     {
       onSuccess: () => {
