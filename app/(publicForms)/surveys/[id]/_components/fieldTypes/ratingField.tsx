@@ -145,9 +145,14 @@ const RatingField: React.FC<RatingFieldProps> = ({
       data-cy={`public-survey-rating-${questionId}`}
     >
       <div
-        className="flex items-center gap-0.5"
+        className={`flex items-center gap-0.5 rounded-md ${
+          starError
+            ? 'border border-[#ff4d4f] px-2 py-1'
+            : 'border border-transparent px-0 py-0'
+        }`}
         role="radiogroup"
         aria-label="Star rating"
+        aria-invalid={starError ? true : undefined}
         data-cy={`public-survey-rating-stars-${questionId}`}
       >
         {stars.map((star, index) => {
@@ -194,7 +199,12 @@ const RatingField: React.FC<RatingFieldProps> = ({
         placeholder={feedbackPlaceholder}
         value={feedbackValue}
         onChange={(e) => handleFeedbackChange(e.target.value)}
-        className="rounded-lg"
+        status={feedbackError ? 'error' : undefined}
+        className={`public-survey-rating-feedback rounded-lg ${
+          starError && !feedbackError
+            ? '!border-[#d9d9d9] hover:!border-[#4096ff] focus:!border-[#4096ff] !shadow-none'
+            : ''
+        }`}
         data-cy={`public-survey-rating-feedback-${questionId}`}
       />
       {feedbackError ? (

@@ -763,7 +763,11 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                   <Form.Item
                     name={`question_${q.id}`}
                     required={false}
-                    className="!mb-0"
+                    className={`!mb-0 ${
+                      q.fieldType === FieldType.RATING
+                        ? '[&.ant-form-item-has-error_.public-survey-rating-feedback:not(.ant-input-status-error)]:!shadow-none [&.ant-form-item-has-error_.public-survey-rating-feedback:not(.ant-input-status-error)]:!border-[#d9d9d9]'
+                        : ''
+                    }`}
                     label={null}
                     help={q.fieldType === FieldType.RATING ? '' : undefined}
                     rules={(() => {
