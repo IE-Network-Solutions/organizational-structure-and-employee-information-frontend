@@ -19,7 +19,7 @@ export const getZktConfigurations = async (): Promise<any> => {
     url: `${TIME_AND_ATTENDANCE_URL}/zktconfiguration`,
     method: 'GET',
     headers: requestHeaders,
-    skipEncryption: true,
+    //skipEncryption: true,
   });
 };
 
