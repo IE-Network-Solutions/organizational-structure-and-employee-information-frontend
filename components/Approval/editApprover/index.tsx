@@ -1,6 +1,11 @@
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import {
+  flattenDepartments,
+  isDepartmentEntityType,
+  isUserEntityType,
+} from '@/utils/approval/departmentHelpers';
 import { Button, Form, Input, Modal, Radio, Row, Select, Tooltip } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 
@@ -47,8 +52,34 @@ const EditApproverComponent = ({
   hideWorkflowAppliesSection?: boolean;
   disableNameAndDescription?: boolean;
 }) => {
+  const appliesType =
+    Form.useWatch('workflowAppliesType', form) ?? workflowApplies;
+
+  const workflowTargetOptions = useMemo(() => {
+    if (isDepartmentEntityType(appliesType)) {
+      return flattenDepartments(department).map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
+    }
+
+    if (isUserEntityType(appliesType)) {
+      return (
+        users?.items?.map((list: any) => ({
+          value: list.id,
+          label:
+            `${list.firstName || ''} ${list.middleName || ''} ${list.lastName || ''}`.trim() ||
+            list.id,
+        })) ?? []
+      );
+    }
+
+    return [];
+  }, [appliesType, department, users?.items]);
+
   useEffect(() => {
-    // Prepare approvers data for Form.List
+    if (!selectedItem) return;
+
     const approversData =
       selectedItem?.approvers?.map((approver: any, index: number) => ({
         level: index + 1,
@@ -60,27 +91,17 @@ const EditApproverComponent = ({
       workFlownName: selectedItem?.name,
       description: selectedItem?.description,
       workflowAppliesType: selectedItem?.entityType,
-      workflowAppliesId: selectedItem?.entityId
-        ? selectedItem?.entityType === 'Department'
-          ? department?.find((item: any) => item.id === selectedItem?.entityId)
-              ?.name
-          : selectedItem?.entityType === 'Hierarchy'
-            ? department?.find(
-                (item: any) => item.id === selectedItem?.entityId,
-              )?.name
-            : selectedItem?.entityType === 'User'
-              ? users?.items?.find(
-                  (item: any) => item.id === selectedItem?.entityId,
-                )?.firstName +
-                '  ' +
-                users?.items?.find(
-                  (item: any) => item.id === selectedItem?.entityId,
-                )?.middleName
-              : selectedItem?.entityId
-        : '-',
+      workflowAppliesId: selectedItem?.entityId || undefined,
       approvers: approversData,
     });
-  }, [selectedItem, form]);
+  }, [selectedItem, form, department, users]);
+
+  const handleAppliesTypeChange = (value: string) => {
+    form.setFieldsValue({
+      workflowAppliesType: value,
+      workflowAppliesId: undefined,
+    });
+  };
 
   return (
     <Modal
@@ -152,7 +173,7 @@ const EditApproverComponent = ({
                     },
                   ]}
                 >
-                  <Radio.Group>
+                  <Radio.Group onChange={(e) => handleAppliesTypeChange(e.target.value)}>
                     <Radio value="Department">Department</Radio>
                     <Radio disabled value="Hierarchy">
                       Hierarchy
@@ -162,13 +183,23 @@ const EditApproverComponent = ({
                 </Form.Item>
               </div>
 
-              <Form.Item name="workflowAppliesId" className="mb-0">
+              <Form.Item
+                name="workflowAppliesId"
+                className="mb-0"
+                rules={[
+                  {
+                    required: true,
+                    message: `Please select ${appliesType || 'a target'}!`,
+                  },
+                ]}
+              >
                 <Select
                   showSearch
                   optionFilterProp="label"
                   className="h-10"
                   allowClear
-                  placeholder={`Select ${workflowApplies ? workflowApplies : ''}`}
+                  placeholder={`Select ${appliesType || workflowApplies || ''}`}
+                  options={workflowTargetOptions}
                 />
               </Form.Item>
             </div>

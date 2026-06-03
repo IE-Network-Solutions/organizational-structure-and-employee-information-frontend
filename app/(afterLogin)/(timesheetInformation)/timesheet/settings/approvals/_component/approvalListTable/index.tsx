@@ -24,6 +24,11 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
+import {
+  findDepartmentById,
+  isDepartmentEntityType,
+  isUserEntityType,
+} from '@/utils/approval/departmentHelpers';
 import { IoMdSwap } from 'react-icons/io';
 import WorkflowModal from '../workflowModal';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -89,8 +94,7 @@ const ApprovalListTable = () => {
   };
   const getDepartmentInformation = (id: string) => {
     if (!department || isDepartmentLoading) return null;
-    const departments = department.find((item: any) => item.id === id);
-    return departments;
+    return findDepartmentById(department, id);
   };
 
   const [form] = Form.useForm(); // Form instance
@@ -184,12 +188,9 @@ const ApprovalListTable = () => {
 
           let appliedToValue = '-';
           if (item?.entityId) {
-            if (
-              item?.entityType === 'Department' ||
-              item?.entityType === 'Hierarchy'
-            ) {
+            if (isDepartmentEntityType(item?.entityType)) {
               appliedToValue = departmentInfo?.name || '-';
-            } else if (item?.entityType === 'User') {
+            } else if (isUserEntityType(item?.entityType)) {
               const firstName = employeeInfo?.firstName || '';
               const middleName = employeeInfo?.middleName || '';
               appliedToValue =
