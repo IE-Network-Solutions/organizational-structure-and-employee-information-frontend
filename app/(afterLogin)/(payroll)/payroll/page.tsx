@@ -309,7 +309,7 @@ const Payroll = () => {
     if (bankLetter) {
       // Calculate total net pay for selected items
       const totalNetPay = selectedData.reduce(
-        (sum: number, item: any) => sum + (item.netPay || 0),
+        (sum: number, item: any) => sum + Number(item.netPay || 0),
         0,
       );
       exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
@@ -881,9 +881,13 @@ const Payroll = () => {
     try {
       await generateBankLetter(amount);
     } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : 'An error occurred while generating the bank letter.';
       notification.error({
         message: 'Error Generating Bank Letter',
-        description: 'An error occurred while generating the bank letter.',
+        description,
       });
     } finally {
       setLoading(false);
