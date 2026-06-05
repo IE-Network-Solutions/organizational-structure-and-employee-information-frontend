@@ -103,35 +103,42 @@ const NotePanel = ({ jobId, jobTitle }: NotePanelProps) => {
   return (
     <div
       data-cy="note-panel"
-      className="h-full w-full rounded-md border border-[#D9D9D9] bg-[#F3F4F6] px-4 py-3"
+      className="h-full min-w-0 w-full max-w-full overflow-hidden rounded-md border border-[#D9D9D9] bg-[#F3F4F6] px-4 py-3"
     >
       <div
         data-cy="note-panel-title"
-        className="mb-4 flex items-center justify-between border-b border-[#E5E7EB] pb-4"
+        className="mb-4 flex items-start justify-between gap-2 border-b border-[#E5E7EB] pb-4"
       >
         <h2
           data-cy="note-panel-title-text"
-          className="text-[28px] font-semibold text-gray-900"
+          className="min-w-0 flex-1 break-words text-[28px] font-semibold leading-tight text-gray-900"
         >
           {panelTitle}
         </h2>
         <Button
           size="small"
-          icon={<AddIcon />}
           onClick={!note && !isEditing ? handleStartCreate : handleStartEdit}
-          className="!h-8 !w-8 !rounded-md !border !border-[#D9D9D9] !bg-[#F9FAFB] !text-gray-600"
-        />
+          className="!h-8 !w-8 shrink-0 !rounded-md !border !border-[#D9D9D9] !bg-[#F9FAFB] !text-gray-600"
+        >
+          <AddIcon />
+        </Button>
       </div>
 
       {isEditing ? (
-        <div data-cy="note-panel-editing" className="rounded-[8px] border border-[#D9D9D9] bg-white p-3">
+        <div
+          data-cy="note-panel-editing"
+          className="rounded-[8px] border border-[#D9D9D9] bg-white p-3"
+        >
           <QuillEditor
             theme="snow"
             modules={editorModules}
             value={draftHtml}
             onChange={setDraftHtml}
           />
-          <div data-cy="note-panel-editing-buttons" className="mt-3 flex justify-end gap-2">
+          <div
+            data-cy="note-panel-editing-buttons"
+            className="mt-3 flex justify-end gap-2"
+          >
             <Button onClick={handleCancel} disabled={isSaving}>
               Cancel
             </Button>
@@ -170,7 +177,7 @@ const NotePanel = ({ jobId, jobTitle }: NotePanelProps) => {
           </div>
           <div
             data-cy="note-panel-notes-content"
-            className="prose prose-sm max-w-none text-[14px] leading-7 text-gray-700 [&_p]:mb-4"
+            className="ql-editor text-[14px] leading-7 text-gray-700 [&_p]:mb-4 [&_p:empty]:min-h-[1.2em] break-words"
             dangerouslySetInnerHTML={{ __html: note.note }}
           />
         </>
