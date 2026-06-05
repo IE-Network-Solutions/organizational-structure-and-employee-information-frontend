@@ -666,6 +666,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         : [val.employeeId];
     }
 
+    setCurrentPage(1);
     setFilter(nFilter);
     setBodyRequest((prev) => ({
       ...prev,
