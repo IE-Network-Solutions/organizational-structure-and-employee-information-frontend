@@ -8,7 +8,10 @@ import {
   useGetSingleApprovalLog,
 } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { LeaveRequestStatus, SingleLogRequest } from '@/types/timesheet/settings';
+import {
+  LeaveRequestStatus,
+  SingleLogRequest,
+} from '@/types/timesheet/settings';
 import LeaveRequestStatusTag from '@/app/(afterLogin)/(timesheetInformation)/timesheet/leave-management/leaves/_components/LeaveRequestStatusTag';
 import dayjs from 'dayjs';
 import Image from 'next/image';
@@ -149,9 +152,7 @@ export default function WorkFromHomeRequestDetailModal() {
   const status = normalizeStatus(item?.status);
   const isRejected = status === LeaveRequestStatus.DECLINED;
   const reason =
-    (item?.reason as string) ??
-    (item?.justificationNote as string) ??
-    '';
+    (item?.reason as string) ?? (item?.justificationNote as string) ?? '';
 
   return (
     <Modal
@@ -230,7 +231,12 @@ export default function WorkFromHomeRequestDetailModal() {
                   <Skeleton.Button active size="small" />
                 </div>
               ) : enrichedApprovalData.length === 0 ? (
-                <span className="text-sm text-gray-500">No approval workflow</span>
+                <span
+                  className="text-sm text-gray-500"
+                  data-cy="time-attendance-wfh-request-detail-modal-no-approval-workflow"
+                >
+                  No approval workflow
+                </span>
               ) : (
                 (() => {
                   const sorted = [...enrichedApprovalData].sort(
@@ -245,8 +251,7 @@ export default function WorkFromHomeRequestDetailModal() {
                     (a) => a.status === 'Pending',
                   );
                   return sorted.map((approval, idx) => {
-                    const displayId =
-                      approval.displayUserId ?? approval.userId;
+                    const displayId = approval.displayUserId ?? approval.userId;
                     const isRejectedStep = approval.status === 'Rejected';
                     const isPendingStep = approval.status === 'Pending';
                     const isCurrentStage =
@@ -334,7 +339,10 @@ export default function WorkFromHomeRequestDetailModal() {
               className="mb-6 rounded-lg p-4 bg-[#FFF0F0] border border-red-200"
               data-cy="time-attendance-wfh-request-detail-modal-rejection-reason"
             >
-              <div className="flex gap-3 items-start">
+              <div
+                className="flex gap-3 items-start"
+                data-cy="time-attendance-wfh-request-detail-modal-rejection-reason-inner"
+              >
                 {(rejectorStep?.displayUserId ?? rejectorStep?.userId) && (
                   <Tooltip
                     title={userData(
@@ -352,9 +360,7 @@ export default function WorkFromHomeRequestDetailModal() {
                       data-cy="time-attendance-wfh-request-detail-modal-rejection-reason-avatar"
                     >
                       {userImage(
-                        rejectorStep.displayUserId ??
-                          rejectorStep.userId ??
-                          '',
+                        rejectorStep.displayUserId ?? rejectorStep.userId ?? '',
                       ) ? (
                         <Image
                           src={
@@ -370,7 +376,10 @@ export default function WorkFromHomeRequestDetailModal() {
                           className="object-cover w-full h-full"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-500">
+                        <div
+                          className="w-full h-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-500"
+                          data-cy="time-attendance-wfh-request-detail-modal-rejection-avatar-fallback"
+                        >
                           {userData(
                             rejectorStep.displayUserId ??
                               rejectorStep.userId ??
@@ -385,11 +394,22 @@ export default function WorkFromHomeRequestDetailModal() {
                     </div>
                   </Tooltip>
                 )}
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-gray-900 mb-1">
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy="time-attendance-wfh-request-detail-modal-rejection-reason-content"
+                >
+                  <div
+                    className="font-semibold text-gray-900 mb-1"
+                    data-cy="time-attendance-wfh-request-detail-modal-rejection-reason-title"
+                  >
                     Rejection Reason
                   </div>
-                  <p className="text-sm text-gray-700 m-0">{rejectionComment}</p>
+                  <p
+                    className="text-sm text-gray-700 m-0"
+                    data-cy="time-attendance-wfh-request-detail-modal-rejection-reason-text"
+                  >
+                    {rejectionComment}
+                  </p>
                 </div>
               </div>
             </div>
@@ -404,7 +424,12 @@ export default function WorkFromHomeRequestDetailModal() {
               label={
                 <>
                   Start Date{' '}
-                  <span className="text-red-500">*</span>
+                  <span
+                    className="text-red-500"
+                    data-cy="time-attendance-wfh-request-detail-modal-start-date-required"
+                  >
+                    *
+                  </span>
                 </>
               }
               data-cy="time-attendance-wfh-request-detail-modal-start-date"
@@ -421,7 +446,12 @@ export default function WorkFromHomeRequestDetailModal() {
               label={
                 <>
                   End Date{' '}
-                  <span className="text-red-500">*</span>
+                  <span
+                    className="text-red-500"
+                    data-cy="time-attendance-wfh-request-detail-modal-end-date-required"
+                  >
+                    *
+                  </span>
                 </>
               }
               data-cy="time-attendance-wfh-request-detail-modal-end-date"
@@ -438,7 +468,12 @@ export default function WorkFromHomeRequestDetailModal() {
               label={
                 <>
                   Reason{' '}
-                  <span className="text-red-500">*</span>
+                  <span
+                    className="text-red-500"
+                    data-cy="time-attendance-wfh-request-detail-modal-reason-required"
+                  >
+                    *
+                  </span>
                 </>
               }
               data-cy="time-attendance-wfh-request-detail-modal-reason"

@@ -173,7 +173,9 @@ const EditApproverComponent = ({
                     },
                   ]}
                 >
-                  <Radio.Group onChange={(e) => handleAppliesTypeChange(e.target.value)}>
+                  <Radio.Group
+                    onChange={(e) => handleAppliesTypeChange(e.target.value)}
+                  >
                     <Radio value="Department">Department</Radio>
                     <Radio disabled value="Hierarchy">
                       Hierarchy

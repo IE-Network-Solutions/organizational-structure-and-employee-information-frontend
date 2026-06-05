@@ -124,7 +124,9 @@ const blockNonNumericKeyDown = (
   event.preventDefault();
 };
 
-const blockNonNumericPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+const blockNonNumericPaste = (
+  event: React.ClipboardEvent<HTMLInputElement>,
+) => {
   const pasted = event.clipboardData.getData('text').trim();
   if (pasted !== '' && !/^\d+(\.\d+)?$/.test(pasted)) {
     event.preventDefault();
@@ -953,7 +955,9 @@ const CreateRuleSidebar = () => {
                             Deductible Amount in Days
                           </span>
                         }
-                        rules={amountFieldRules('Deductible amount is required')}
+                        rules={amountFieldRules(
+                          'Deductible amount is required',
+                        )}
                         name="deductibleSalaryDays"
                       >
                         <InputNumber
@@ -1001,7 +1005,9 @@ const CreateRuleSidebar = () => {
                             VP Deduction Amount
                           </span>
                         }
-                        rules={amountFieldRules('VP deduction amount is required')}
+                        rules={amountFieldRules(
+                          'VP deduction amount is required',
+                        )}
                         name="vpDeductionAmount"
                       >
                         <InputNumber

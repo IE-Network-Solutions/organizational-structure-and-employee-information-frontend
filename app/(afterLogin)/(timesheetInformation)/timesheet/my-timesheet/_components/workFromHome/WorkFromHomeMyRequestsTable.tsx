@@ -28,7 +28,9 @@ const EmployeeNameCell = ({ userId }: { userId: string }) => {
 
   if (isLoading) {
     return (
-      <span data-cy="time-attendance-wfh-my-requests-employee-loading">...</span>
+      <span data-cy="time-attendance-wfh-my-requests-employee-loading">
+        ...
+      </span>
     );
   }
   if (isError || !employeeData) {
@@ -37,7 +39,8 @@ const EmployeeNameCell = ({ userId }: { userId: string }) => {
     );
   }
 
-  const fullName = `${employeeData.firstName || '-'} ${employeeData.middleName || '-'} ${employeeData.lastName || '-'}`.trim();
+  const fullName =
+    `${employeeData.firstName || '-'} ${employeeData.middleName || '-'} ${employeeData.lastName || '-'}`.trim();
 
   return (
     <div

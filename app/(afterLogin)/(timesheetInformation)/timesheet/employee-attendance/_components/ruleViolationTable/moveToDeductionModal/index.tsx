@@ -33,12 +33,11 @@ const MoveToDeductionModal = ({
 
   const payPeriodOptions = useMemo(
     () =>
-      (
-        Array.isArray(payPeriods)
-          ? payPeriods
-          : Array.isArray((payPeriods as any)?.items)
-            ? (payPeriods as any).items
-            : []
+      (Array.isArray(payPeriods)
+        ? payPeriods
+        : Array.isArray((payPeriods as any)?.items)
+          ? (payPeriods as any).items
+          : []
       )
         .filter((period: any) => period?.id)
         .map((period: any) => ({
