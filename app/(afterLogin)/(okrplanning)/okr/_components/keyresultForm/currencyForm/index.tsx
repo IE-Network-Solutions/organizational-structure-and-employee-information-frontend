@@ -437,7 +437,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         );
                         if (selectedMetric) {
                           updateKeyResult(index, 'metricTypeId', value);
-                          updateKeyResult(index, 'key_type', selectedMetric.name);
+                          updateKeyResult(
+                            index,
+                            'key_type',
+                            selectedMetric.name,
+                          );
                         }
                       }}
                     >

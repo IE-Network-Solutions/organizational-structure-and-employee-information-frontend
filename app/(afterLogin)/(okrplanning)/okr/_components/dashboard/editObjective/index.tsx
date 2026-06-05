@@ -616,7 +616,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
                   style={{ fontSize: '14px', height: '44px' }}
-                  onChange={(value) => handleObjectiveChange(value, 'metricTypeId')}
+                  onChange={(value) =>
+                    handleObjectiveChange(value, 'metricTypeId')
+                  }
                 >
                   {metrics?.items?.map((metric: any) => (
                     <Select.Option key={metric.id} value={metric.id}>
@@ -752,7 +754,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   fontSize: isMobile ? '14px' : '12px',
                   height: '44px',
                 }}
-                onChange={(value) => handleObjectiveChange(value, 'metricTypeId')}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'metricTypeId')
+                }
               >
                 {metrics?.items?.map((metric: any) => (
                   <Select.Option
