@@ -12,9 +12,49 @@ import dayjs from 'dayjs';
 import CustomPagination from '@/components/customPagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
+import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import UserCard from '@/components/common/userCard/userCard';
 
 const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 const LEAVE_TABLE_SCROLL_X = 1120;
+const ALL_EMPLOYEES_TABLE_SCROLL_X = 1320;
+
+const EmployeeNameCell = ({ userId }: { userId: string }) => {
+  const {
+    isLoading,
+    data: employeeData,
+    isError,
+  } = useGetSimpleEmployee(userId);
+
+  if (isLoading) {
+    return (
+      <span data-cy="time-attendance-wfh-my-requests-employee-loading">...</span>
+    );
+  }
+  if (isError || !employeeData) {
+    return (
+      <span data-cy="time-attendance-wfh-my-requests-employee-error">-</span>
+    );
+  }
+
+  const fullName = `${employeeData.firstName || '-'} ${employeeData.middleName || '-'} ${employeeData.lastName || '-'}`.trim();
+
+  return (
+    <div
+      className="flex items-center gap-1.5"
+      data-cy={`time-attendance-wfh-my-requests-employee-${userId}`}
+    >
+      <UserCard
+        data={employeeData}
+        name={fullName}
+        profileImage={employeeData.profileImage}
+        size="small"
+        nameClassName="text-sm text-gray-700"
+        data-cy="time-attendance-wfh-my-requests-employee-card"
+      />
+    </div>
+  );
+};
 
 function extractWorkFromHomeRejectionReason(item: any): string {
   const approvalComments = item?.approvalComments;
@@ -70,7 +110,13 @@ export default function WorkFromHomeMyRequestsTable({
   showAllEmployees = false,
 }: WorkFromHomeMyRequestsTableProps) {
   const { userId } = useAuthenticationStore();
-  const { setIsShowWorkFromHomeRequestSidebar } = useMyTimesheetStore();
+  const {
+    setIsShowWorkFromHomeRequestSidebar,
+    setIsShowWorkFromHomeRequestDetail,
+    setWorkFromHomeRequestId,
+    setWorkFromHomeRequestWorkflowId,
+    setWorkFromHomeRequestDetail,
+  } = useMyTimesheetStore();
   const { page, limit, setPage, setLimit } = usePagination(1, 10);
   const [tableData, setTableData] = useState<any[]>([]);
 
@@ -98,6 +144,9 @@ export default function WorkFromHomeMyRequestsTable({
 
           return {
             key: item.id,
+            id: item.id,
+            userId: item.userId,
+            approvalWorkflowId: item.approvalWorkflowId ?? null,
             startAt: item.startAt,
             endAt: item.endAt,
             days:
@@ -119,7 +168,35 @@ export default function WorkFromHomeMyRequestsTable({
   const rowCellClass = 'text-sm py-2';
   const cellStyle = { paddingTop: 8, paddingBottom: 8 };
 
+  const openRequestDetail = (record: Record<string, unknown>) => {
+    if (!record.id || !record.approvalWorkflowId) return;
+    setWorkFromHomeRequestId(String(record.id));
+    setWorkFromHomeRequestWorkflowId(String(record.approvalWorkflowId));
+    setWorkFromHomeRequestDetail(record);
+    setIsShowWorkFromHomeRequestDetail(true);
+  };
+
   const columns: TableColumnsType<any> = [
+    ...(showAllEmployees
+      ? [
+          {
+            title: 'Employee Name',
+            dataIndex: 'userId',
+            key: 'userId',
+            width: 200,
+            ellipsis: true,
+            onCell: () => ({ style: cellStyle }),
+            render: (text: string) => (
+              <div
+                className="text-sm text-gray-700"
+                data-cy="time-attendance-wfh-my-requests-cell-employee"
+              >
+                <EmployeeNameCell userId={text} />
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       title: 'Start Date',
       dataIndex: 'startAt',
@@ -275,13 +352,22 @@ export default function WorkFromHomeMyRequestsTable({
               columns={columns}
               dataSource={tableData}
               pagination={false}
-              scroll={{ x: LEAVE_TABLE_SCROLL_X }}
+              scroll={{
+                x: showAllEmployees
+                  ? ALL_EMPLOYEES_TABLE_SCROLL_X
+                  : LEAVE_TABLE_SCROLL_X,
+              }}
               locale={{ emptyText: 'No work from home requests' }}
               rowClassName={(unusedRecord, rowIndex) =>
-                rowIndex % 2 === 1
-                  ? 'wfh-requests-row-even'
-                  : 'wfh-requests-row-odd'
+                `cursor-pointer ${
+                  rowIndex % 2 === 1
+                    ? 'wfh-requests-row-even'
+                    : 'wfh-requests-row-odd'
+                }`
               }
+              onRow={(record) => ({
+                onClick: () => openRequestDetail(record),
+              })}
               data-cy="time-attendance-wfh-my-requests-table"
             />
           )}
