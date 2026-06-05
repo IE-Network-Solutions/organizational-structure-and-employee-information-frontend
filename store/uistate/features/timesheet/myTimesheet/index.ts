@@ -18,6 +18,10 @@ type MyTimesheetState = {
   isShowViewSidebarAttendance: boolean;
   isShowLeaveRequestSidebar: boolean;
   isShowWorkFromHomeRequestSidebar: boolean;
+  isShowWorkFromHomeRequestDetail: boolean;
+  workFromHomeRequestId: string | null;
+  workFromHomeRequestWorkflowId: string | null;
+  workFromHomeRequestDetail: Record<string, unknown> | null;
   isLoading: boolean;
   isShowLeaveRequestDetail: boolean;
   leaveRequestSidebarData: string | null;
@@ -45,6 +49,16 @@ type MyTimesheetAction = {
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
   setIsShowWorkFromHomeRequestSidebar: (
     isShowWorkFromHomeRequestSidebar: boolean,
+  ) => void;
+  setIsShowWorkFromHomeRequestDetail: (
+    isShowWorkFromHomeRequestDetail: boolean,
+  ) => void;
+  setWorkFromHomeRequestId: (workFromHomeRequestId: string | null) => void;
+  setWorkFromHomeRequestWorkflowId: (
+    workFromHomeRequestWorkflowId: string | null,
+  ) => void;
+  setWorkFromHomeRequestDetail: (
+    workFromHomeRequestDetail: Record<string, unknown> | null,
   ) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsShowLeaveRequestDetail: (isShowLeaveRequestDetail: boolean) => void;
@@ -91,6 +105,26 @@ const useMyTimesheetSlice: StateCreator<
   isShowWorkFromHomeRequestSidebar: false,
   setIsShowWorkFromHomeRequestSidebar: (isShowWorkFromHomeRequestSidebar) => {
     set({ isShowWorkFromHomeRequestSidebar });
+  },
+
+  isShowWorkFromHomeRequestDetail: false,
+  setIsShowWorkFromHomeRequestDetail: (isShowWorkFromHomeRequestDetail) => {
+    set({ isShowWorkFromHomeRequestDetail });
+  },
+
+  workFromHomeRequestId: null,
+  setWorkFromHomeRequestId: (workFromHomeRequestId) => {
+    set({ workFromHomeRequestId });
+  },
+
+  workFromHomeRequestWorkflowId: null,
+  setWorkFromHomeRequestWorkflowId: (workFromHomeRequestWorkflowId) => {
+    set({ workFromHomeRequestWorkflowId });
+  },
+
+  workFromHomeRequestDetail: null,
+  setWorkFromHomeRequestDetail: (workFromHomeRequestDetail) => {
+    set({ workFromHomeRequestDetail });
   },
 
   isLoading: false,

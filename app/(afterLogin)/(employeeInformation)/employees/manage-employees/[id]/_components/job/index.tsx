@@ -1001,7 +1001,8 @@ function Job({ id }: { id: string }) {
 
                 // Find the matching basic salary for the active job
                 const matchingSalary = basicSalaryData?.find(
-                  (salary: any) => salary.jobInfoId === activeJob.id && salary.status === true,
+                  (salary: any) =>
+                    salary.jobInfoId === activeJob.id && salary.status === true,
                 );
                 const currentSalary = matchingSalary?.basicSalary || null;
                 const manager =
