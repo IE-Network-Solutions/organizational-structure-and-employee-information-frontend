@@ -100,26 +100,32 @@ const fetchZKTAttendance = async (): Promise<ApiResponse<AttendanceRecord>> => {
   return response as ApiResponse<AttendanceRecord>;
 };
 
+const buildAttendanceQueryParams = (
+  query: RequestCommonQueryData,
+): RequestCommonQueryData => ({
+  page: query.page ?? 1,
+  limit: query.limit ?? 10,
+  ...(query.orderBy ? { orderBy: query.orderBy } : {}),
+  ...(query.orderDirection ? { orderDirection: query.orderDirection } : {}),
+});
+
 const getAttendances = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceRequestBody>,
 ) => {
-  // Check if we should use ZKT endpoint for real-time data (today only)
-  if (shouldUseZKTEndpoint(data)) {
+  const params = buildAttendanceQueryParams(query);
+  const hasPagination = query.page != null || query.limit != null;
+
+  // Use ZKT only for unpaginated real-time today data
+  if (shouldUseZKTEndpoint(data) && !hasPagination) {
     try {
       const zktResponse = await fetchZKTAttendance();
-      // Return ZKT response - it should match the expected ApiResponse format
       return zktResponse;
     } catch (error) {
-      // If ZKT endpoint fails, fall back to standard endpoint
-      // Continue to standard endpoint below
+      // Fall back to standard endpoint below
     }
   }
 
-  // Use standard endpoint for:
-  // - Filtered data (non-today dates, users, types, etc.)
-  // - Exports
-  // - When ZKT fails or credentials are not available
   const requestHeaders = await requestHeader();
   const requestData = {
     ...data,
@@ -130,7 +136,7 @@ const getAttendances = async (
     method: 'POST',
     headers: requestHeaders,
     data: requestData,
-    params: query,
+    params,
   });
 };
 
