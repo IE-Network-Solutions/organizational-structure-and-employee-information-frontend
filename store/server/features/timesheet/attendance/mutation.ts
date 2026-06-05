@@ -292,42 +292,69 @@ const getTodayDate = (): string => {
   return dayjs().format('YYYY-MM-DD');
 };
 
-/**
- * Fetch ZKT attendance data
- */
-const fetchZKTAttendance = async (filter?: {
+const buildZktSyncRequestData = async (filter?: {
   date: { from: string; to: string };
-}): Promise<any> => {
-  // Default to today's date if no filter is provided
+}) => {
   const today = getTodayDate();
-  const requestHeaders = await requestHeader();
   const { zktToken, passUrl } = await getZktCredentials();
-  const dateFilter = filter || {
-    date: {
-      from: today,
-      to: today,
-    },
-  };
-  const requestData = {
+  return {
     passUrl,
     ZKTToken: zktToken,
-    filter: dateFilter,
+    filter: filter || {
+      date: {
+        from: today,
+        to: today,
+      },
+    },
   };
+};
 
+type ZktImportWarning = {
+  line?: number;
+  warning?: string;
+  userId?: string;
+};
+
+const showZktImportWarnings = (importWarnings: ZktImportWarning[]) => {
+  if (!importWarnings.length) return;
+
+  const warningLines = importWarnings
+    .slice(0, 5)
+    .map((warning) => {
+      const lineText = `Line ${warning?.line ?? '-'}`;
+      const warningText = warning?.warning || 'Warning';
+      const userText = warning?.userId ? ` (User: ${warning.userId})` : '';
+      return `${lineText} - ${warningText}${userText}`;
+    })
+    .join('\n');
+
+  const remainingCount = importWarnings.length - 5;
+  const remainingText =
+    remainingCount > 0 ? `\n...and ${remainingCount} more warning(s)` : '';
+
+  NotificationMessage.warning({
+    message: `Sync Warnings (${importWarnings.length})`,
+    description: `${warningLines}${remainingText}`,
+  });
+};
+
+const syncZktAttendance = async (filter?: {
+  date: { from: string; to: string };
+}) => {
+  const requestHeaders = await requestHeader();
+  const requestData = await buildZktSyncRequestData(filter);
   return await crudRequest({
-    url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/sync-zkt`,
     method: 'POST',
     headers: requestHeaders,
     data: requestData,
-
-    // skipEncryption: true,
   });
 };
 
 export const useFetchZKTAttendance = () => {
   return useMutation(
     (filter?: { date: { from: string; to: string } }) =>
-      fetchZKTAttendance(filter),
+      syncZktAttendance(filter),
     {
       onError(error: any) {
         NotificationMessage.error({
@@ -336,6 +363,40 @@ export const useFetchZKTAttendance = () => {
             error?.response?.data?.message ||
             error?.message ||
             'Failed to fetch ZKT attendance data.',
+        });
+      },
+    },
+  );
+};
+
+export const useSyncZktAttendance = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (filter?: { date: { from: string; to: string } }) =>
+      syncZktAttendance(filter),
+    {
+      onSuccess: (response: any) => {
+        queryClient.invalidateQueries('attendance');
+
+        const item = response?.item ?? response?.data?.item;
+        const importWarnings: ZktImportWarning[] = item?.importWarnings ?? [];
+
+        if (importWarnings.length > 0) {
+          showZktImportWarnings(importWarnings);
+        }
+
+        handleSuccessMessage(
+          'POST',
+          item?.message || 'Attendance synced from ZK successfully.',
+        );
+      },
+      onError(error: any) {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to sync attendance from ZK.',
         });
       },
     },
