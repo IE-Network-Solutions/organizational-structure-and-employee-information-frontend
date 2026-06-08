@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Button, Skeleton } from 'antd';
 import 'react-quill/dist/quill.snow.css';
+import './notePanelEditor.css';
 import {
   useCreateRecruiterNote,
   useDeleteRecruiterNote,
@@ -12,8 +13,23 @@ import {
 import { useGetRecruiterNotes } from '@/store/server/features/recruitment/recruiter-note/queries';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import {
+  configureNotePanelQuill,
+  NOTE_PANEL_EDITOR_FORMATS,
+  NOTE_PANEL_FONT_OPTIONS,
+  NOTE_PANEL_SIZE_OPTIONS,
+} from './quillSetup';
 
-const QuillEditor = dynamic(() => import('react-quill'), { ssr: false });
+const QuillEditor = dynamic(
+  () =>
+    import('react-quill').then((module) => {
+      configureNotePanelQuill(
+        module.default.Quill as typeof import('quill').default,
+      );
+      return module.default;
+    }),
+  { ssr: false },
+);
 
 const isNoteEmpty = (html: string) => {
   const text = html
@@ -46,9 +62,12 @@ const NotePanel = ({ jobId, jobTitle }: NotePanelProps) => {
   const editorModules = useMemo(
     () => ({
       toolbar: [
-        [{ font: [] }, { size: [] }],
+        [
+          { font: [...NOTE_PANEL_FONT_OPTIONS] },
+          { size: [...NOTE_PANEL_SIZE_OPTIONS] },
+        ],
         ['bold', 'italic', 'underline'],
-        [{ align: [] }, { list: 'bullet' }],
+        [{ align: [] }],
       ],
     }),
     [],
@@ -125,33 +144,33 @@ const NotePanel = ({ jobId, jobTitle }: NotePanelProps) => {
       </div>
 
       {isEditing ? (
-        <div
-          data-cy="note-panel-editing"
-          className="rounded-[8px] border border-[#D9D9D9] bg-white p-3"
-        >
+        <>
+        <div data-cy="note-panel-editing" className="note-panel-quill">
           <QuillEditor
             theme="snow"
             modules={editorModules}
+            formats={NOTE_PANEL_EDITOR_FORMATS}
             value={draftHtml}
             onChange={setDraftHtml}
           />
-          <div
-            data-cy="note-panel-editing-buttons"
-            className="mt-3 flex justify-end gap-2"
-          >
-            <Button onClick={handleCancel} disabled={isSaving}>
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              onClick={handleSave}
-              loading={isSaving}
-              disabled={isNoteEmpty(draftHtml) && !canSaveWhenEmpty}
-            >
-              Save
-            </Button>
-          </div>
         </div>
+        <div
+        data-cy="note-panel-editing-buttons"
+        className="mt-3 flex justify-end gap-2"
+      >
+        <Button onClick={handleCancel} disabled={isSaving}>
+          Cancel
+        </Button>
+        <Button
+          type="primary"
+          onClick={handleSave}
+          loading={isSaving}
+          disabled={isNoteEmpty(draftHtml) && !canSaveWhenEmpty}
+        >
+          Save
+        </Button>
+      </div>
+      </>
       ) : isLoading ? (
         <div data-cy="note-panel-loading" className="py-8">
           <Skeleton active paragraph={{ rows: 4 }} />
