@@ -1,4 +1,8 @@
 import { groupParentTasks } from '../dataTransformer/plan';
+import {
+  getKeyResultProgressPercent,
+  isMilestoneCompleted,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 export type PlanningTarget = {
   id: string;
@@ -27,11 +31,13 @@ export function buildPlanningTargetsFromObjectives(
     if (obj.deletedAt) return;
     obj.keyResults?.forEach((kr: any) => {
       if (kr.deletedAt) return;
+      if (getKeyResultProgressPercent(kr) >= 100) return;
       const krTitle = kr.title || kr.name || 'Key result';
       const metricTypeName = kr.metricType?.name ?? null;
       if (kr.milestones?.length) {
         kr.milestones.forEach((ms: any) => {
           if (ms.deletedAt) return;
+          if (isMilestoneCompleted(ms)) return;
           out.push({
             id: `okr-kr-${kr.id}-ms-${ms.id}`,
             keyResultId: String(kr.id),
