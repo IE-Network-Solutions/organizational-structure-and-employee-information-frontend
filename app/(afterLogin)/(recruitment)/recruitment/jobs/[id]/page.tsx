@@ -38,6 +38,8 @@ import { IoHourglassOutline } from 'react-icons/io5';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import JobDetailHeaderCardSkeleton from './_components/jobDetailHeaderCardSkeleton';
 import JobDetailInformationTabSkeleton from './_components/jobDetailInformationTabSkeleton';
+import JobChat from './_components/jobChat';
+import { useGetJobChatUnreadCounts } from '@/store/server/features/recruitment/job-chat/queries';
 
 interface Params {
   id: string;
@@ -139,6 +141,8 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   const pathname = usePathname();
 
   const candidateCount = candidateList?.meta?.totalItems ?? 0;
+  const { data: jobChatUnreadCounts } = useGetJobChatUnreadCounts();
+  const jobChatUnreadCount = jobChatUnreadCounts?.[id] ?? 0;
 
   const getDepartmentName = (departmentId: string | undefined) => {
     if (!departmentId) return null;
@@ -1061,6 +1065,29 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                         </div>
                       )}
                     </div>
+                  ),
+                },
+                {
+                  key: 'chat',
+                  label: (
+                    <span
+                      className="inline-flex items-center gap-2"
+                      data-cy="talent-acquisition-job-detail-tab-chat"
+                    >
+                      Chat
+                      {jobChatUnreadCount > 0 && (
+                        <span className="inline-flex min-h-[22px] min-w-[22px] items-center justify-center rounded-[4px] border border-solid border-[#1E40AF] bg-[#1E40AF] px-1.5 text-[12px] font-normal text-white">
+                          {jobChatUnreadCount}
+                        </span>
+                      )}
+                    </span>
+                  ),
+                  children: (
+                    <JobChat
+                      jobId={id}
+                      jobTitle={jobById?.jobTitle}
+                      isActive={activeTabKey === 'chat'}
+                    />
                   ),
                 },
               ]}
