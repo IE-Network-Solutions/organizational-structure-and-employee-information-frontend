@@ -36,6 +36,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   updateKeyResult,
   removeKeyResult,
   disableWeightEdit: disableWeightEditProp,
+  disableMetricTypeEdit: disableMetricTypeEditProp,
   hideRemoveButton,
 }) => {
   const { Option } = Select;
@@ -46,6 +47,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   const isBasic = useIsBasicOkr();
   const disableWeightEdit =
     disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
+  const disableMetricTypeEdit =
+    disableMetricTypeEditProp ?? Number(keyItem?.progress ?? 0) !== 0;
   const [isCardView, setIsCardView] = useState(false);
   const initialValueRules = [
     { required: true, message: 'Please enter the initial value' },
@@ -194,6 +197,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   className="w-full h-10 rounded-lg text-base"
                   popupClassName="text-base"
                   data-cy={`okr-percentage-desktop-type-select-${index}`}
+                  disabled={disableMetricTypeEdit}
                   onChange={(value) => {
                     const selectedMetric = metrics?.items?.find(
                       (metric) => metric.id === value,
@@ -404,6 +408,49 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       className={INPUT_CLASS}
                       aria-label="Key Result Name"
                     />
+                  </Form.Item>
+                  <Form.Item
+                    className="w-44 mb-0"
+                    label={
+                      <KeyResultFieldLabel
+                        label="Metric Type"
+                        tooltip="Select a metric type"
+                      />
+                    }
+                  >
+                    <Select
+                      className={`w-full ${INPUT_CLASS}`}
+                      data-cy={`okr-percentage-desktop-advanced-type-select-${index}`}
+                      placeholder="Select metric type"
+                      disabled={disableMetricTypeEdit}
+                      value={
+                        metrics?.items?.find(
+                          (metric) => metric.name === keyItem.key_type,
+                        )?.id || ''
+                      }
+                      onChange={(value) => {
+                        const selectedMetric = metrics?.items?.find(
+                          (metric) => metric.id === value,
+                        );
+                        if (selectedMetric) {
+                          updateKeyResult(index, 'metricTypeId', value);
+                          updateKeyResult(
+                            index,
+                            'key_type',
+                            selectedMetric.name,
+                          );
+                        }
+                      }}
+                    >
+                      <Option value="" disabled>
+                        Please select a metric type
+                      </Option>
+                      {metrics?.items?.map((metric) => (
+                        <Option key={metric?.id} value={metric?.id}>
+                          {metric?.name}
+                        </Option>
+                      ))}
+                    </Select>
                   </Form.Item>
                   <Form.Item
                     className="w-32 mb-0"

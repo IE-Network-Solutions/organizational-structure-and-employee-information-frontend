@@ -334,6 +334,9 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                   addKeyResultValue={() => {}}
                   embedInOkrSheet={isMobile}
                   disableWeightEdit={true}
+                  disableMetricTypeEdit={
+                    Number(normalizedKeyItem?.progress ?? 0) !== 0
+                  }
                   onSaveSuccess={() => setIsEditing(false)}
                   hideRemoveButton={true}
                 />

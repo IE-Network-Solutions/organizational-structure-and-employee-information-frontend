@@ -1,6 +1,19 @@
 import React, { FC } from 'react';
-import { Col, DatePicker, Form, Row, Select, Dropdown, Button } from 'antd';
-import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  Col,
+  DatePicker,
+  Form,
+  Row,
+  Select,
+  Dropdown,
+  Button,
+  Tooltip,
+} from 'antd';
+import {
+  CloseOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   AttendanceCheckInSource,
   AttendanceCheckOutSource,
@@ -9,10 +22,12 @@ import {
   attendanceRecordTypeOption,
 } from '@/types/timesheet/attendance';
 import { DATE_FORMAT } from '@/utils/constants';
+import dayjs from 'dayjs';
 import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
+import { useSyncZktAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 interface TableFilterProps {
@@ -23,8 +38,25 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
   const { data: employeeData } = useGetAllUsers();
   const { data: breakTypeData } = useGetBreakTypes();
-  const { isShowMobileFilters, setIsShowMobileFilters } =
+  const { isShowMobileFilters, setIsShowMobileFilters, filter } =
     useEmployeeAttendanceStore();
+  const { mutate: syncZktAttendance, isLoading: isSyncingZkt } =
+    useSyncZktAttendance();
+
+  const getSyncDateFilter = () => {
+    const today = dayjs().format('YYYY-MM-DD');
+    if (filter?.date?.from && filter?.date?.to) {
+      return { date: { from: filter.date.from, to: filter.date.to } };
+    }
+    const values = form.getFieldsValue();
+    const from = values.startDate
+      ? dayjs(values.startDate).format('YYYY-MM-DD')
+      : today;
+    const to = values.endDate
+      ? dayjs(values.endDate).format('YYYY-MM-DD')
+      : today;
+    return { date: { from, to } };
+  };
 
   const employeeOptions =
     employeeData?.items?.map((employee: any) => ({
@@ -472,24 +504,41 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             </Form.Item>
           </div>
 
-          <Dropdown
-            overlay={<MobileFilters />}
-            trigger={['click']}
-            open={isShowMobileFilters}
-            onOpenChange={setIsShowMobileFilters}
-            data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
+          <div
+            className="flex items-center gap-2"
+            id="time-attendance-employee-attendance-filter-actions"
+            data-cy="time-attendance-employee-attendance-filter-actions"
           >
-            <Button
-              className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
-              id="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
-              icon={
-                <FilterAltOutlinedIcon className="text-[#374151] text-base" />
-              }
+            <Tooltip title="Sync from ZK">
+              <Button
+                className="h-8 w-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d] p-0"
+                id="time-attendance-employee-attendance-sync-zkt-button"
+                data-cy="time-attendance-employee-attendance-sync-zkt-button"
+                icon={<ReloadOutlined className="text-[#374151]" />}
+                loading={isSyncingZkt}
+                onClick={() => syncZktAttendance(getSyncDateFilter())}
+                aria-label="Sync from ZK"
+              />
+            </Tooltip>
+            <Dropdown
+              overlay={<MobileFilters />}
+              trigger={['click']}
+              open={isShowMobileFilters}
+              onOpenChange={setIsShowMobileFilters}
+              data-cy="time-attendance-employee-attendance-mobile-filter-dropdown"
             >
-              Filter
-            </Button>
-          </Dropdown>
+              <Button
+                className={`h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]`}
+                id="time-attendance-employee-attendance-mobile-filter-toggle-button"
+                data-cy="time-attendance-employee-attendance-mobile-filter-toggle-button"
+                icon={
+                  <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+                }
+              >
+                Filter
+              </Button>
+            </Dropdown>
+          </div>
         </div>
       </div>
     </Form>
