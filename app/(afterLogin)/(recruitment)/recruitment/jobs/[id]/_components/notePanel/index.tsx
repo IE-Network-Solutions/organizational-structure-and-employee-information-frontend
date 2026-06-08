@@ -145,32 +145,32 @@ const NotePanel = ({ jobId, jobTitle }: NotePanelProps) => {
 
       {isEditing ? (
         <>
-        <div data-cy="note-panel-editing" className="note-panel-quill">
-          <QuillEditor
-            theme="snow"
-            modules={editorModules}
-            formats={NOTE_PANEL_EDITOR_FORMATS}
-            value={draftHtml}
-            onChange={setDraftHtml}
-          />
-        </div>
-        <div
-        data-cy="note-panel-editing-buttons"
-        className="mt-3 flex justify-end gap-2"
-      >
-        <Button onClick={handleCancel} disabled={isSaving}>
-          Cancel
-        </Button>
-        <Button
-          type="primary"
-          onClick={handleSave}
-          loading={isSaving}
-          disabled={isNoteEmpty(draftHtml) && !canSaveWhenEmpty}
-        >
-          Save
-        </Button>
-      </div>
-      </>
+          <div data-cy="note-panel-editing" className="note-panel-quill">
+            <QuillEditor
+              theme="snow"
+              modules={editorModules}
+              formats={NOTE_PANEL_EDITOR_FORMATS}
+              value={draftHtml}
+              onChange={setDraftHtml}
+            />
+          </div>
+          <div
+            data-cy="note-panel-editing-buttons"
+            className="mt-3 flex justify-end gap-2"
+          >
+            <Button onClick={handleCancel} disabled={isSaving}>
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              onClick={handleSave}
+              loading={isSaving}
+              disabled={isNoteEmpty(draftHtml) && !canSaveWhenEmpty}
+            >
+              Save
+            </Button>
+          </div>
+        </>
       ) : isLoading ? (
         <div data-cy="note-panel-loading" className="py-8">
           <Skeleton active paragraph={{ rows: 4 }} />

@@ -2,21 +2,21 @@ import type QuillType from 'quill';
 
 let configured = false;
 
-export function configureNotePanelQuill(Quill: typeof QuillType) {
+export function configureNotePanelQuill(quill: typeof QuillType) {
   if (configured) return;
 
-  const SizeStyle: any = Quill.import('attributors/style/size') as {
+  const SizeStyle: any = quill.import('attributors/style/size') as {
     whitelist: string[];
   };
   SizeStyle.whitelist = ['12px', '14px', '16px', '18px', '20px', '24px'];
-  Quill.register(SizeStyle, true);
-  Quill.register('formats/size', SizeStyle, true);
+  quill.register(SizeStyle, true);
+  quill.register('formats/size', SizeStyle, true);
 
-  const FontClass: any = Quill.import('formats/font') as {
+  const FontClass: any = quill.import('formats/font') as {
     whitelist: string[];
   };
   FontClass.whitelist = ['times-new-roman', 'arial', 'calibre'];
-  Quill.register(FontClass, true);
+  quill.register(FontClass, true);
 
   configured = true;
 }
