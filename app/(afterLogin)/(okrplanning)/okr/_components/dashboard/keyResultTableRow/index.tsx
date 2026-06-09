@@ -42,6 +42,11 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Select } from 'antd';
 import dayjs from 'dayjs';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import {
+  collectMilestoneIds,
+  getRemovedMilestoneIds,
+  sanitizeMilestonesForSave,
+} from '../../../_utils/milestoneSave';
 
 const { Option } = Select;
 
@@ -88,8 +93,13 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     number | null
   >(null);
   const [isSavingMilestones, setIsSavingMilestones] = useState(false);
+  const [milestonesSnapshot, setMilestonesSnapshot] = useState<any[] | null>(
+    null,
+  );
   /** Server milestone IDs present when the milestones modal was opened (for DELETE before PUT). */
   const baselineMilestoneIdsRef = useRef<Set<string>>(new Set());
+  /** Server milestone IDs when row inline edit started (for DELETE before PUT). */
+  const originalMilestoneIdsRef = useRef<Set<string>>(new Set());
   const { mutate: updateAndDelete, isLoading: isDeletingKeyResult } =
     useUpdateObjectiveNestedDelete();
   const { mutate: updateKeyResult, mutateAsync: updateKeyResultAsync } =
@@ -99,8 +109,14 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   const { data: metrics } = useGetMetrics();
   const isBasicOkr = useIsBasicOkr();
   const { isMobile, isTablet } = useIsMobile();
-  const { setKeyResultValue, setKeyResultId, setObjectiveId, okrTab } =
-    useOKRStore();
+  const {
+    setKeyResultValue,
+    setKeyResultId,
+    setObjectiveId,
+    okrTab,
+    deletedMilestoneIds,
+    setDeletedMilestoneIds,
+  } = useOKRStore();
 
   const canEditDelete =
     (myOkr || objectiveUserId === userId) && isInActiveSession;
@@ -125,6 +141,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       onRequestInlineEdit(String(keyResult?.id));
       return;
     }
+    setDeletedMilestoneIds([]);
     setOpen(true);
     setKeyResultValue(keyResult);
   };
@@ -136,8 +153,15 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   useEffect(() => {
     if (rowInlineEdit) {
       setRowEditableKeyResult({ ...keyResult });
+      originalMilestoneIdsRef.current = collectMilestoneIds(
+        keyResult?.milestones || [],
+      );
     }
   }, [rowInlineEdit, keyResult]);
+
+  useEffect(() => {
+    setMilestonesSnapshot(null);
+  }, [keyResult?.id, keyResult?.milestones]);
 
   // Seed only when the modal opens. Do not depend on milestone arrays while open;
   // a new parent reference would reset local edits before Save.
@@ -146,12 +170,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     const initial = (rowKeyResult?.milestones || []).map((milestone: any) => ({
       ...milestone,
     }));
-    baselineMilestoneIdsRef.current = new Set(
-      initial
-        .map((m: any) => m?.id)
-        .filter((id: unknown) => id != null && String(id).trim() !== '')
-        .map((id: unknown) => String(id)),
-    );
+    baselineMilestoneIdsRef.current = collectMilestoneIds(initial);
     setEditableMilestones(initial);
     setEditingMilestoneIndex(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- snapshot milestones at open time only
@@ -174,6 +193,13 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
 
   const removeMilestoneAt = (index: number) => {
     setEditableMilestones((prev) => {
+      const removed = prev[index];
+      if (removed?.id && objectiveEditMode) {
+        const removedId = String(removed.id);
+        if (!deletedMilestoneIds.includes(removedId)) {
+          setDeletedMilestoneIds([...deletedMilestoneIds, removedId]);
+        }
+      }
       const remaining = prev.filter((milestoneItem, i) => {
         void milestoneItem;
         return i !== index;
@@ -253,12 +279,16 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     );
   };
 
+  const resolvedKeyResult = milestonesSnapshot
+    ? { ...keyResult, milestones: milestonesSnapshot }
+    : keyResult;
+
   const rowKeyResult =
     objectiveEditMode && editableKeyResult
       ? editableKeyResult
       : rowInlineEdit
         ? rowEditableKeyResult
-        : keyResult;
+        : resolvedKeyResult;
   const isBasicAchieveOrNot =
     isBasicOkr && rowKeyResult?.metricType?.name === 'Achieve';
   const metricName = rowKeyResult?.metricType?.name || 'N/A';
@@ -344,8 +374,38 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     return true;
   };
 
-  const onSaveRowInlineEdit = () => {
+  const onSaveRowInlineEdit = async () => {
     if (!validateRowInlineEdit()) return;
+
+    const metric =
+      rowEditableKeyResult?.metricType?.name || rowEditableKeyResult?.key_type;
+
+    if (metric === 'Milestone') {
+      const removedServerIds = getRemovedMilestoneIds(
+        originalMilestoneIdsRef.current,
+        rowEditableKeyResult?.milestones || [],
+      );
+      const milestones = sanitizeMilestonesForSave(
+        rowEditableKeyResult?.milestones || [],
+        removedServerIds,
+      );
+      const payload = { ...rowEditableKeyResult, milestones };
+
+      try {
+        await Promise.all(
+          removedServerIds.map((id) => deleteMilestoneById(id)),
+        );
+        await updateKeyResultAsync(payload);
+        setMilestonesSnapshot(
+          milestones.map((milestone) => ({ ...milestone })),
+        );
+        onFinishRowInlineEdit?.();
+      } catch {
+        message.error('Could not save key result.');
+      }
+      return;
+    }
+
     updateKeyResult(rowEditableKeyResult, {
       onSuccess: () => onFinishRowInlineEdit?.(),
     });
@@ -389,14 +449,13 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       return;
     }
 
-    const currentIdSet = new Set(
-      editableMilestones
-        .map((m: any) => m?.id)
-        .filter((id: unknown) => id != null && String(id).trim() !== '')
-        .map((id: unknown) => String(id)),
+    const removedServerIds = getRemovedMilestoneIds(
+      baselineMilestoneIdsRef.current,
+      editableMilestones,
     );
-    const removedServerIds = [...baselineMilestoneIdsRef.current].filter(
-      (id) => !currentIdSet.has(id),
+    const milestones = sanitizeMilestonesForSave(
+      editableMilestones,
+      removedServerIds,
     );
 
     setIsSavingMilestones(true);
@@ -404,8 +463,9 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       await Promise.all(removedServerIds.map((id) => deleteMilestoneById(id)));
       await updateKeyResultAsync({
         ...rowKeyResult,
-        milestones: editableMilestones,
+        milestones,
       });
+      setMilestonesSnapshot(milestones.map((milestone) => ({ ...milestone })));
       closeMilestoneModal();
     } catch {
       message.error(
