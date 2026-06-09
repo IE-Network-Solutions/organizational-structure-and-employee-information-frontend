@@ -26,6 +26,12 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 
 const EXPANDED_VP_SKELETON_METRIC_COUNT = 3;
 
+type EmployeeSearchOption = {
+  value: string;
+  searchLabel: string;
+  label: React.ReactNode;
+};
+
 const ExpandedVPDetailsSkeleton = () => (
   <div
     className="w-full min-w-0 max-w-full"
@@ -458,23 +464,23 @@ const VariablePayTable = () => {
       .replace(/\s+/g, ' ');
   };
 
-  const employeeOptions = (allUsers?.items || []).map((employee: any) => ({
-    value: employee.id,
-    searchLabel: getEmployeeFullName(employee.id),
-    label: (
-      <span
-        className="text-[14px]"
-        data-cy={`compensation-benefit-variable-pay-search-option-${employee.id}`}
-      >
-        {getEmployeeFullName(employee.id)}
-      </span>
-    ),
-  }));
+  const employeeOptions: EmployeeSearchOption[] = (allUsers?.items || []).map(
+    (employee: any) => ({
+      value: employee.id,
+      searchLabel: getEmployeeFullName(employee.id),
+      label: (
+        <span
+          className="text-[14px]"
+          data-cy={`compensation-benefit-variable-pay-search-option-${employee.id}`}
+        >
+          {getEmployeeFullName(employee.id)}
+        </span>
+      ),
+    }),
+  );
 
-  const uniqueEmployeeOptions = Array.from(
-    new Map(
-      employeeOptions.map((option: any) => [option.value, option]),
-    ).values(),
+  const uniqueEmployeeOptions: EmployeeSearchOption[] = Array.from(
+    new Map(employeeOptions.map((option) => [option.value, option])).values(),
   );
 
   const columns: TableColumnsType<any> = [
@@ -708,7 +714,7 @@ const VariablePayTable = () => {
                 return;
               }
               const selectedOption = uniqueEmployeeOptions.find(
-                (option: any) => option.value === value,
+                (option) => option.value === value,
               );
               setSelectedEmployeeId(value);
               setEmployeeSearch(selectedOption?.searchLabel || '');
