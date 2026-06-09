@@ -119,6 +119,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setEmployeeId,
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
+    setAttendanceRecordDate,
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data: breakTypeData } = useGetBreakTypes();
@@ -614,8 +615,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               className="border-none hover:bg-transparent"
               id={`${item?.id}buttonPopOverActionForOnEditActionId`}
               onClick={() => {
-                (setEmployeeId(item?.userId),
-                  setEmployeeAttendanceId(item?.id));
+                setEmployeeId(item?.userId);
+                setEmployeeAttendanceId(item?.id);
+                setAttendanceRecordDate(item?.createdAt ?? '');
                 setIsShowEmployeeAttendanceSidebar(true);
               }}
               data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
