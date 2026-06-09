@@ -153,8 +153,14 @@ const ExpandedVPDetailsSkeleton = () => (
   </div>
 );
 
-const ExpandedVPDetails = ({ userId }: { userId: string }) => {
-  const { data: vpScore, isLoading } = useGetVPScore(userId);
+const ExpandedVPDetails = ({
+  userId,
+  monthId,
+}: {
+  userId: string;
+  monthId?: string;
+}) => {
+  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
   const {
     isLoading: isRefreshLoading,
     refetch,
@@ -404,7 +410,12 @@ const VariablePayTable = () => {
         ? searchParams?.selectedMonth
         : [activeMonth?.id];
 
-  const selectedMonthIdsObject = { monthIds: selectedMonthIds };
+  const appliedMonthId = selectedMonthIds.filter(Boolean)[0];
+
+  const variablePayFilterPayload = {
+    monthIds: selectedMonthIds.filter(Boolean),
+    ...(selectedEmployeeId ? { userId: selectedEmployeeId } : {}),
+  };
   const sessionOptions =
     activeCalender?.sessions?.map((session: any) => ({
       label: session?.name,
@@ -423,7 +434,7 @@ const VariablePayTable = () => {
     })) || [];
 
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay(
-    selectedMonthIdsObject,
+    variablePayFilterPayload,
   );
 
   const tableData: any[] =
@@ -447,15 +458,15 @@ const VariablePayTable = () => {
       .replace(/\s+/g, ' ');
   };
 
-  const employeeOptions = tableData.map((employee: any) => ({
-    value: employee.userId,
-    searchLabel: getEmployeeFullName(employee.userId),
+  const employeeOptions = (allUsers?.items || []).map((employee: any) => ({
+    value: employee.id,
+    searchLabel: getEmployeeFullName(employee.id),
     label: (
       <span
         className="text-[14px]"
-        data-cy={`compensation-benefit-variable-pay-search-option-${employee.userId}`}
+        data-cy={`compensation-benefit-variable-pay-search-option-${employee.id}`}
       >
-        {getEmployeeFullName(employee.userId)}
+        {getEmployeeFullName(employee.id)}
       </span>
     ),
   }));
@@ -852,7 +863,10 @@ const VariablePayTable = () => {
                 pagination={false}
                 expandable={{
                   expandedRowRender: (record) => (
-                    <ExpandedVPDetails userId={record.userId} />
+                    <ExpandedVPDetails
+                      userId={record.userId}
+                      monthId={appliedMonthId}
+                    />
                   ),
                   expandIcon: () => null,
                   expandIconColumnIndex: -1,
