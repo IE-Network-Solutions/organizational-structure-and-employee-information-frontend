@@ -6,6 +6,7 @@ type EmployeeAttendanceState = {
   isAbsent: boolean;
   employeeAttendanceId: string | '';
   employeeId: string;
+  attendanceRecordDate: string;
   isShowBreakAttendanceImportSidebar: boolean;
   isShowMobileFilters: boolean;
 };
@@ -17,6 +18,7 @@ type EmployeeAttendanceStateAction = {
   setIsAbsent: (isAbsent: boolean) => void;
   setEmployeeAttendanceId: (employeeAttendanceId: string | '') => void;
   setEmployeeId: (employeeId: string) => void;
+  setAttendanceRecordDate: (attendanceRecordDate: string) => void;
   setIsShowBreakAttendanceImportSidebar: (
     isShowBreakAttendanceImportSidebar: boolean,
   ) => void;
@@ -50,6 +52,10 @@ const employeeAttendanceSlice: StateCreator<
 
   employeeId: '',
   setEmployeeId: (employeeId: string) => set({ employeeId }),
+
+  attendanceRecordDate: '',
+  setAttendanceRecordDate: (attendanceRecordDate: string) =>
+    set({ attendanceRecordDate }),
 
   isShowBreakAttendanceImportSidebar: false,
   setIsShowBreakAttendanceImportSidebar: (
