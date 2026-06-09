@@ -4,6 +4,8 @@ import { Progress, Skeleton } from 'antd';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
+import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
+import { useVariablePayStore } from '@/store/uistate/features/compensation/benefit';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 Chart.register(ArcElement, Tooltip, Legend);
@@ -11,7 +13,19 @@ Chart.register(ArcElement, Tooltip, Legend);
 const VPScoreCard: React.FC = () => {
   const [showAll, setShowAll] = useState(false);
   const userId = useAuthenticationStore.getState().userId;
-  const { data: vpScore, isLoading } = useGetVPScore(userId);
+  const { searchParams } = useVariablePayStore();
+  const { data: activeMonth } = useGetActiveMonth();
+  const selectedMonthIds =
+    typeof searchParams?.selectedMonth === 'string'
+      ? searchParams.selectedMonth.split(',')
+      : Array.isArray(searchParams?.selectedMonth) &&
+          searchParams?.selectedMonth.length > 0
+        ? searchParams.selectedMonth
+        : [activeMonth?.id];
+  const selectedMonthId = selectedMonthIds.filter(Boolean)[0];
+  const { data: vpScore, isLoading } = useGetVPScore(userId, {
+    monthId: selectedMonthId,
+  });
 
   const totalScore = vpScore?.score ?? 0;
   const previousScore = vpScore?.previousScore ?? 0;
