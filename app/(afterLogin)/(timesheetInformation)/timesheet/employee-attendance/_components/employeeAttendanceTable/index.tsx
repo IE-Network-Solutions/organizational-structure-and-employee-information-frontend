@@ -18,7 +18,7 @@ import {
 import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { DATE_FORMAT, DATETIME_FORMAT, TIME_FORMAT } from '@/utils/constants';
+import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
 import {
   AttendanceCheckInSource,
   AttendanceCheckOutSource,
@@ -43,17 +43,6 @@ import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
 import statusType from '../statusType';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
-import {
-  formatAttendanceWallClockTime,
-  formatAttendanceWallClockTimeOrDash,
-} from '@/helpers/attendanceTimeHelper';
-
-const formatAttendanceTimeLabel = (date?: string | null): string | null =>
-  formatAttendanceWallClockTime(date, TIME_FORMAT);
-
-const formatAttendanceCellTime = (date?: string | null): string =>
-  formatAttendanceWallClockTimeOrDash(date, TIME_FORMAT);
 
 /** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
 const hasAttendanceTimestamp = (value: unknown): boolean => {
