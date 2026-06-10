@@ -161,12 +161,14 @@ const ExpandedVPDetailsSkeleton = () => (
 
 const VpScoreCell = ({
   userId,
+  monthId,
   fallbackScore,
 }: {
   userId: string;
+  monthId?: string;
   fallbackScore?: string | number;
 }) => {
-  const { data: vpScore, isLoading } = useGetVPScore(userId);
+  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
   const score = Number(vpScore?.score ?? fallbackScore ?? 0);
 
   if (isLoading && !fallbackScore) {
@@ -192,8 +194,14 @@ const VpScoreCell = ({
   );
 };
 
-const ExpandedVPDetails = ({ userId }: { userId: string }) => {
-  const { data: vpScore, isLoading } = useGetVPScore(userId);
+const ExpandedVPDetails = ({
+  userId,
+  monthId,
+}: {
+  userId: string;
+  monthId?: string;
+}) => {
+  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
   const {
     isLoading: isRefreshLoading,
     refetch,
@@ -561,7 +569,11 @@ const VariablePayTable = () => {
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
       align: 'left',
       render: (vpScore: string, record: any) => (
-        <VpScoreCell userId={record.userId} fallbackScore={vpScore} />
+        <VpScoreCell
+          userId={record.userId}
+          monthId={appliedMonthId}
+          fallbackScore={vpScore}
+        />
       ),
     },
     {
