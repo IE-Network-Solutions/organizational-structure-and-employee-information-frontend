@@ -19,7 +19,6 @@ import { TableColumnsType } from '@/types/table/table';
 import { UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { DATE_FORMAT, DATETIME_FORMAT } from '@/utils/constants';
-import { formatAttendanceClockTime } from '@/helpers/attendanceDateHelpers';
 import {
   AttendanceCheckInSource,
   AttendanceCheckOutSource,
@@ -255,8 +254,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                   className="text-sm font-normal text-[#4d4d4d]"
                 >
                   {attendanceBreak?.endAt ? (
-                    formatAttendanceClockTime(
-                      attendanceBreak.endAt,
+                    dayjs(attendanceBreak?.endAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -276,7 +274,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                 data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.id}-date-div`}
                 className="text-sm font-normal text-[#4d4d4d]"
               >
-                {formatAttendanceClockTime(date, DATETIME_FORMAT)}
+                {date
+                  ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
+                  : '-'}
               </div>
             )}
           </div>
@@ -317,8 +317,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                   className="text-sm font-normal text-[#4d4d4d]"
                 >
                   {attendanceBreak?.startAt ? (
-                    formatAttendanceClockTime(
-                      attendanceBreak.startAt,
+                    dayjs(attendanceBreak?.startAt, 'YYYY-MM-DD HH:mm').format(
                       DATETIME_FORMAT,
                     )
                   ) : (
@@ -338,7 +337,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
                 data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.id}-date-div`}
                 className="text-sm font-normal text-[#4d4d4d]"
               >
-                {formatAttendanceClockTime(date, DATETIME_FORMAT)}
+                {date
+                  ? dayjs(date, 'YYYY-MM-DD HH:mm').format(DATETIME_FORMAT)
+                  : '-'}
               </div>
             )}
           </div>
