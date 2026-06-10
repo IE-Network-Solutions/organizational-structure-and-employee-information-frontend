@@ -27,6 +27,7 @@ import {
 } from '@/helpers/calculateHelper';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { formatAttendanceClockTime } from '@/helpers/attendanceDateHelpers';
 
 const ViewAttendanceSidebar = () => {
   const {
@@ -96,7 +97,7 @@ const ViewAttendanceSidebar = () => {
     return (
       <InfoItem
         value={
-          record?.startAt ? dayjs(record?.startAt).format(TIME_FORMAT) : '-'
+          formatAttendanceClockTime(record?.startAt, TIME_FORMAT)
         }
         info={record?.geolocations[0]?.allowedArea?.title ?? ''}
         data-cy="time-attendance-view-attendance-sidebar-late-info"
@@ -126,7 +127,7 @@ const ViewAttendanceSidebar = () => {
   const earlyInfo = (record: AttendanceRecord | AttendanceBreak) => {
     return (
       <InfoItem
-        value={record?.endAt ? dayjs(record?.endAt).format(TIME_FORMAT) : '-'}
+        value={formatAttendanceClockTime(record?.endAt, TIME_FORMAT)}
         info={
           record?.geolocations[record?.geolocations?.length - 1]?.allowedArea
             ?.title ?? ''
