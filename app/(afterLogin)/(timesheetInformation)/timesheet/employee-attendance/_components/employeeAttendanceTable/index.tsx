@@ -52,15 +52,16 @@ import statusType from '../statusType';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+import {
+  formatAttendanceWallClockTime,
+  formatAttendanceWallClockTimeOrDash,
+} from '@/helpers/attendanceTimeHelper';
 
-const formatAttendanceTimeLabel = (date?: string | null): string | null => {
-  if (!date) return null;
-  const parsed = dayjs(date);
-  return parsed.isValid() ? parsed.format(TIME_FORMAT) : null;
-};
+const formatAttendanceTimeLabel = (date?: string | null): string | null =>
+  formatAttendanceWallClockTime(date, TIME_FORMAT);
 
 const formatAttendanceCellTime = (date?: string | null): string =>
-  formatAttendanceTimeLabel(date) ?? '-';
+  formatAttendanceWallClockTimeOrDash(date, TIME_FORMAT);
 
 /** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
 const hasAttendanceTimestamp = (value: unknown): boolean => {
