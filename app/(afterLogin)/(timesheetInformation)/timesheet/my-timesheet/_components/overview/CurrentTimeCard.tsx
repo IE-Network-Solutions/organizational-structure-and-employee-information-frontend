@@ -21,7 +21,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { formatBreakTypeToStatus } from '@/helpers/formatTo';
 import { BreakType } from '@/types/timesheet/breakType';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
-import { formatAttendanceClockTime } from '@/helpers/attendanceDateHelpers';
 
 const { Text } = Typography;
 
@@ -142,18 +141,12 @@ export default function CurrentTimeCard() {
 
   const todayActivityLine = useMemo(() => {
     if (!currentAttendance?.startAt || !isToday) return null;
-    const inTime = formatAttendanceClockTime(
-      currentAttendance.startAt,
-      TIME_FORMAT_SHORT,
-    );
+    const inTime = dayjs(currentAttendance.startAt).format(TIME_FORMAT_SHORT);
     if (currentAttendance.endAt) {
-      const outTime = formatAttendanceClockTime(
-        currentAttendance.endAt,
-        TIME_FORMAT_SHORT,
-      );
+      const outTime = dayjs(currentAttendance.endAt).format(TIME_FORMAT_SHORT);
       return `In ${inTime}, out ${outTime}`;
     }
-    return `In: ${formatAttendanceClockTime(currentAttendance.startAt, TIME_FORMAT_24)}`;
+    return `In: ${dayjs(currentAttendance.startAt).format(TIME_FORMAT_24)}`;
   }, [currentAttendance, isToday]);
 
   const currentBreakByTime = useMemo(

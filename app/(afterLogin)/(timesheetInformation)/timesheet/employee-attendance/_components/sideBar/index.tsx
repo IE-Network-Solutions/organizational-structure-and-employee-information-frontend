@@ -14,7 +14,7 @@ import {
   formatAttendanceApiDateTime,
   formatAttendanceRecordDateLabel,
   getAttendanceDateBase,
-} from '@/helpers/attendanceDateHelpers';
+} from '../attendanceDateHelpers';
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
