@@ -1,24 +1,15 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
+import { getJobChatHeaders } from './auth';
 import { SendJobMessagePayload } from './interface';
 
-const getAuthHeaders = async () => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
-  return {
-    Authorization: `Bearer ${token}`,
-    tenantId,
-  };
-};
-
-const sendJobChatMessage = async (payload: SendJobMessagePayload) => {
-  const headers = await getAuthHeaders();
-  const { jobId, ...data } = payload;
+const sendJobChatMessage = async (
+  payload: SendJobMessagePayload & { tenantId?: string },
+) => {
+  const { jobId, tenantId, ...data } = payload;
+  const headers = await getJobChatHeaders(tenantId);
 
   return crudRequest({
     url: `${RECRUITMENT_URL}/job-chat/${jobId}/messages`,
@@ -28,8 +19,8 @@ const sendJobChatMessage = async (payload: SendJobMessagePayload) => {
   });
 };
 
-const markJobChatRead = async (jobId: string) => {
-  const headers = await getAuthHeaders();
+const markJobChatRead = async (jobId: string, tenantId?: string) => {
+  const headers = await getJobChatHeaders(tenantId);
 
   return crudRequest({
     url: `${RECRUITMENT_URL}/job-chat/${jobId}/read`,
@@ -42,9 +33,12 @@ const markJobChatRead = async (jobId: string) => {
 export const useSendJobChatMessage = () => {
   const queryClient = useQueryClient();
   return useMutation(sendJobChatMessage, {
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries(['job-chat-messages', variables.jobId]);
+    onSuccess: (notUsed, variables) => {
+      void notUsed;
       queryClient.invalidateQueries(['job-chat-unread-counts']);
+      if (variables?.jobId) {
+        queryClient.invalidateQueries(['job-chat-messages', variables.jobId]);
+      }
     },
     onError: () => {
       NotificationMessage.error({
@@ -57,9 +51,13 @@ export const useSendJobChatMessage = () => {
 
 export const useMarkJobChatRead = () => {
   const queryClient = useQueryClient();
-  return useMutation(markJobChatRead, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['job-chat-unread-counts']);
+  return useMutation(
+    ({ jobId, tenantId }: { jobId: string; tenantId?: string }) =>
+      markJobChatRead(jobId, tenantId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['job-chat-unread-counts']);
+      },
     },
-  });
+  );
 };

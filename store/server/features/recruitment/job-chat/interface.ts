@@ -30,6 +30,7 @@ export interface JobMessage {
   updatedAt: string;
   mentions?: JobMessageMention[];
   files?: JobMessageFile[];
+  readByUserIds?: string[];
 }
 
 export interface JobChatMessagesResponse {
@@ -49,6 +50,7 @@ export interface SendJobMessageFilePayload {
 export interface SendJobMessagePayload {
   jobId: string;
   content?: string;
+  senderName?: string;
   parentMessageId?: string;
   mentionedUserIds?: string[];
   files?: SendJobMessageFilePayload[];

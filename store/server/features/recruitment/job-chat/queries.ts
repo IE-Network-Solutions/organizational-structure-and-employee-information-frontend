@@ -1,35 +1,34 @@
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { getCurrentToken } from '@/utils/getCurrentToken';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryResult } from 'react-query';
+import { getJobChatHeaders } from './auth';
 import { JobChatMessagesResponse, JobChatUnreadCounts } from './interface';
+import { normalizeJobChatMessagesResponse } from './normalize';
 
-const getAuthHeaders = async () => {
-  const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-
-  return {
-    Authorization: `Bearer ${token}`,
-    tenantId,
-  };
-};
-
-const getJobChatMessages = async (
+export const getJobChatMessages = async (
   jobId: string,
   page = 1,
   limit = 50,
+  search = '',
+  tenantId?: string,
 ): Promise<JobChatMessagesResponse> => {
-  const headers = await getAuthHeaders();
-  return crudRequest({
-    url: `${RECRUITMENT_URL}/job-chat/${jobId}/messages?page=${page}&limit=${limit}`,
+  const headers = await getJobChatHeaders(tenantId);
+  const searchParam = search.trim()
+    ? `&search=${encodeURIComponent(search.trim())}`
+    : '';
+
+  const raw = await crudRequest({
+    url: `${RECRUITMENT_URL}/job-chat/${jobId}/messages?page=${page}&limit=${limit}${searchParam}`,
     method: 'GET',
     headers,
   });
+
+  return normalizeJobChatMessagesResponse(raw, page, limit);
 };
 
 const getJobChatUnreadCounts = async (): Promise<JobChatUnreadCounts> => {
-  const headers = await getAuthHeaders();
+  const headers = await getJobChatHeaders();
+
   return crudRequest({
     url: `${RECRUITMENT_URL}/job-chat/unread-counts`,
     method: 'GET',
@@ -41,17 +40,31 @@ export const useGetJobChatMessages = (
   jobId: string,
   page = 1,
   limit = 50,
-  options?: any,
-) =>
-  useQuery(
-    ['job-chat-messages', jobId, page, limit],
-    () => getJobChatMessages(jobId, page, limit),
+  search = '',
+  options?: {
+    tenantId?: string;
+    enabled?: boolean;
+    refetchInterval?: number | false;
+  },
+): UseQueryResult<JobChatMessagesResponse> => {
+  const tenantId = options?.tenantId?.trim() || '';
+  const queryEnabled = !!jobId && !!tenantId && options?.enabled !== false;
+
+  return useQuery<JobChatMessagesResponse>(
+    ['job-chat-messages', jobId, page, limit, search, tenantId],
+    () => getJobChatMessages(jobId, page, limit, search, tenantId),
     {
-      enabled: !!jobId,
+      enabled: queryEnabled,
+      refetchOnMount: 'always',
       refetchOnWindowFocus: false,
-      ...options,
+      refetchInterval: queryEnabled
+        ? (options?.refetchInterval ?? false)
+        : false,
+      staleTime: 0,
+      retry: 1,
     },
   );
+};
 
 export const useGetJobChatUnreadCounts = (options?: any) =>
   useQuery(['job-chat-unread-counts'], getJobChatUnreadCounts, {

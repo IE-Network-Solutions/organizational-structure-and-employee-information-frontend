@@ -1,3 +1,4 @@
+import { resolveJobChatTenantId } from './auth';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { RECRUITMENT_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -12,6 +13,11 @@ type JobChatServerEvents = {
   newMessage: (message: JobMessage) => void;
   jobChatMention: (message: JobMessage) => void;
   unreadCountUpdated: (counts: JobChatUnreadCounts) => void;
+  messageRead: (payload: {
+    jobId: string;
+    userId: string;
+    readAt: string;
+  }) => void;
 };
 
 type JobChatClientEvents = {
@@ -36,10 +42,13 @@ const getSocketUrl = () => {
   return RECRUITMENT_URL.replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
 };
 
-export const getJobChatSocket = async (): Promise<JobChatSocket | null> => {
+export const getJobChatSocket = async (
+  tenantIdOverride?: string,
+): Promise<JobChatSocket | null> => {
   const token = await getCurrentToken();
-  const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
+  const authState = useAuthenticationStore.getState();
+  const tenantId = resolveJobChatTenantId(tenantIdOverride);
+  const userId = authState.userData?.id || authState.userId;
   const socketUrl = getSocketUrl();
 
   if (!token || !tenantId || !userId || !socketUrl) {
