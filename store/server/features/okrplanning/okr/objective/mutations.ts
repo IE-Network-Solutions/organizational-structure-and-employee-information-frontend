@@ -102,25 +102,39 @@ const deleteObjective = async (deletedId: string) => {
   }
 };
 
-export const updateKeyResult = async (values: any) => {
+const getAuthHeaders = async () => {
   const token = await getCurrentToken();
-  try {
-    await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/key-results/${values?.id}`,
-      method: 'PUT',
-      data: values,
-      headers: {
-        Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-        tenantId: tenantId, // Pass tenantId in the headers
-      },
-    });
+  return {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
+};
+
+export const updateKeyResultRequest = async (
+  values: any,
+  options?: { notify?: boolean },
+) => {
+  const headers = await getAuthHeaders();
+  const response = await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/key-results/${values?.id}`,
+    method: 'PUT',
+    data: values,
+    headers,
+  });
+  if (options?.notify !== false) {
     NotificationMessage.success({
       message: 'Successfully Updated',
       description: 'Key result successfully Updated.',
     });
+  }
+  return response;
+};
+
+export const updateKeyResult = async (values: any) => {
+  try {
+    return await updateKeyResultRequest(values, { notify: true });
   } catch (error) {
-    // Handle error (optional)
-    throw error; // Re-throw error if needed for further handling
+    throw error;
   }
 };
 const deleteKeyResult = async (deletedId: string) => {
@@ -171,24 +185,28 @@ const deleteKeyResult = async (deletedId: string) => {
     throw error;
   }
 };
-const deleteMilestone = async (deletedId: string) => {
-  const token = await getCurrentToken();
-  try {
-    const headers = {
-      Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
-      tenantId: tenantId, // Pass tenantId in the headers
-    };
-    const response = await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
-      method: 'DELETE',
-      headers,
-    });
+export const deleteMilestoneRequest = async (
+  deletedId: string,
+  options?: { notify?: boolean },
+) => {
+  const headers = await getAuthHeaders();
+  const response = await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/milestones/${deletedId}`,
+    method: 'DELETE',
+    headers,
+  });
+  if (options?.notify !== false) {
     NotificationMessage.success({
       message: 'Successfully Deleted',
       description: 'Milestone deleted successfully.',
     });
+  }
+  return response;
+};
 
-    return response.data;
+const deleteMilestone = async (deletedId: string) => {
+  try {
+    return await deleteMilestoneRequest(deletedId, { notify: true });
   } catch (error) {
     throw error;
   }

@@ -11,10 +11,10 @@ import {
   message,
 } from 'antd';
 import { FC, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import EditKeyResult from '../editKeyResult';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import {
-  useDeleteMilestone,
   useUpdateObjectiveNestedDelete,
   useUpdateKeyResult,
 } from '@/store/server/features/okrplanning/okr/objective/mutations';
@@ -45,7 +45,7 @@ import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/q
 import {
   collectMilestoneIds,
   getRemovedMilestoneIds,
-  sanitizeMilestonesForSave,
+  persistKeyResultMilestones,
 } from '../../../_utils/milestoneSave';
 
 const { Option } = Select;
@@ -100,11 +100,10 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   const baselineMilestoneIdsRef = useRef<Set<string>>(new Set());
   /** Server milestone IDs when row inline edit started (for DELETE before PUT). */
   const originalMilestoneIdsRef = useRef<Set<string>>(new Set());
+  const queryClient = useQueryClient();
   const { mutate: updateAndDelete, isLoading: isDeletingKeyResult } =
     useUpdateObjectiveNestedDelete();
-  const { mutate: updateKeyResult, mutateAsync: updateKeyResultAsync } =
-    useUpdateKeyResult();
-  const { mutateAsync: deleteMilestoneById } = useDeleteMilestone();
+  const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { userId } = useAuthenticationStore();
   const { data: metrics } = useGetMetrics();
   const isBasicOkr = useIsBasicOkr();
@@ -161,7 +160,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
 
   useEffect(() => {
     setMilestonesSnapshot(null);
-  }, [keyResult?.id, keyResult?.milestones]);
+  }, [keyResult?.id]);
 
   // Seed only when the modal opens. Do not depend on milestone arrays while open;
   // a new parent reference would reset local edits before Save.
@@ -385,20 +384,15 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         originalMilestoneIdsRef.current,
         rowEditableKeyResult?.milestones || [],
       );
-      const milestones = sanitizeMilestonesForSave(
-        rowEditableKeyResult?.milestones || [],
-        removedServerIds,
-      );
-      const payload = { ...rowEditableKeyResult, milestones };
 
       try {
-        await Promise.all(
-          removedServerIds.map((id) => deleteMilestoneById(id)),
-        );
-        await updateKeyResultAsync(payload);
-        setMilestonesSnapshot(
-          milestones.map((milestone) => ({ ...milestone })),
-        );
+        const serverMilestones = await persistKeyResultMilestones({
+          keyResult: rowEditableKeyResult,
+          milestones: rowEditableKeyResult?.milestones || [],
+          removedMilestoneIds: removedServerIds,
+          queryClient,
+        });
+        setMilestonesSnapshot(serverMilestones);
         onFinishRowInlineEdit?.();
       } catch {
         message.error('Could not save key result.');
@@ -453,19 +447,16 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       baselineMilestoneIdsRef.current,
       editableMilestones,
     );
-    const milestones = sanitizeMilestonesForSave(
-      editableMilestones,
-      removedServerIds,
-    );
 
     setIsSavingMilestones(true);
     try {
-      await Promise.all(removedServerIds.map((id) => deleteMilestoneById(id)));
-      await updateKeyResultAsync({
-        ...rowKeyResult,
-        milestones,
+      const serverMilestones = await persistKeyResultMilestones({
+        keyResult: rowKeyResult,
+        milestones: editableMilestones,
+        removedMilestoneIds: removedServerIds,
+        queryClient,
       });
-      setMilestonesSnapshot(milestones.map((milestone) => ({ ...milestone })));
+      setMilestonesSnapshot(serverMilestones);
       closeMilestoneModal();
     } catch {
       message.error(

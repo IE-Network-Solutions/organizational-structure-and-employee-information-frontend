@@ -1,17 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Form, Tooltip, Button } from 'antd';
+import { useQueryClient } from 'react-query';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import KeyResultForm from '../../keyresultForm';
 import { KeyResultSelectedBadge } from '../../keyresultForm/_ui';
 import {
   useOKRStore,
   useEditKeyResultStore,
+  useMilestoneFormStore,
 } from '@/store/uistate/features/okrplanning/okr';
-import {
-  useDeleteMilestone,
-  useUpdateKeyResult,
-} from '@/store/server/features/okrplanning/okr/objective/mutations';
-import { sanitizeMilestonesForSave } from '../../../_utils/milestoneSave';
+import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { persistKeyResultMilestones } from '../../../_utils/milestoneSave';
 import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -30,8 +29,9 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const [form] = Form.useForm();
   const isInline = Boolean(props.inline);
-  const { mutateAsync: updateKeyResultAsync, isLoading } = useUpdateKeyResult();
-  const { mutateAsync: deleteMilestoneById } = useDeleteMilestone();
+  const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
+  const { mutateAsync: updateKeyResultAsync } = useUpdateKeyResult();
   const {
     keyResultValue,
     handleSingleKeyResultChange,
@@ -40,6 +40,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
   } = useOKRStore();
   const { isEditing, setIsEditing, resetEditKeyResult } =
     useEditKeyResultStore();
+  const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
 
   const hasValidKeyResult = (value: any) =>
     value && typeof value === 'object' && !Array.isArray(value);
@@ -64,7 +65,12 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const baseResolved =
     props.open && fetchedKeyResult && Object.keys(fetchedKeyResult).length > 0
-      ? { ...fetchedKeyResult, ...sourceKeyResult }
+      ? {
+          ...sourceKeyResult,
+          ...fetchedKeyResult,
+          milestones:
+            fetchedKeyResult.milestones ?? sourceKeyResult?.milestones ?? [],
+        }
       : sourceKeyResult;
 
   const resolvedDeadline =
@@ -91,6 +97,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const handleModalClose = () => {
     resetEditKeyResult();
+    resetMilestoneForm();
     setDeletedMilestoneIds([]);
     form.resetFields(); // Reset all form fields
     props.onClose(); // Close the modal
@@ -112,13 +119,18 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     form
       .validateFields()
       .then(() => {
-        const keyResult = normalizedKeyItem;
-        if (!keyResult) return;
-
-        const keyType = keyResult?.metricType?.name || keyResult?.key_type;
+        const keyResultForValidation = hasValidKeyResult(keyResultValue)
+          ? { ...normalizedKeyItem, ...keyResultValue }
+          : normalizedKeyItem;
+        const keyType =
+          keyResultForValidation?.metricType?.name ||
+          keyResultForValidation?.key_type;
         if (keyType === 'Milestone') {
           // Check if at least one milestone is added
-          if (!keyResult.milestones || keyResult.milestones.length === 0) {
+          if (
+            !keyResultForValidation.milestones ||
+            keyResultForValidation.milestones.length === 0
+          ) {
             NotificationMessage.warning({
               message:
                 'Please add at least one milestone for each milestone key result.',
@@ -127,17 +139,20 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           }
 
           // Validate that each milestone has a non-empty name/title
-          for (const [mIndex, milestone] of keyResult.milestones.entries()) {
+          for (const [
+            mIndex,
+            milestone,
+          ] of keyResultForValidation.milestones.entries()) {
             if (!milestone?.title || milestone.title.trim() === '') {
               NotificationMessage.warning({
-                message: `Title:${keyResult.title} Milestone ${mIndex + 1} must have a name.`,
+                message: `Title:${keyResultForValidation.title} Milestone ${mIndex + 1} must have a name.`,
               });
               return; // Stop submission if any milestone name is empty
             }
           }
 
           // Calculate the sum of milestone values
-          const milestoneSum = keyResult.milestones.reduce(
+          const milestoneSum = keyResultForValidation.milestones.reduce(
             (sum: number, milestone: Record<string, number>) =>
               sum + Number(milestone.weight),
             0,
@@ -146,7 +161,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           // Check if the sum of milestone values equals 100
           if (milestoneSum !== 100) {
             NotificationMessage.warning({
-              message: `Title:${keyResult.title} key result sum of milestones should equal to 100.`,
+              message: `Title:${keyResultForValidation.title} key result sum of milestones should equal to 100.`,
             });
             return; // Stop submission if the sum is not 100
           }
@@ -159,38 +174,37 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           // Check if at least one milestone is added
 
           if (
-            Number(keyResult?.initialValue) >= Number(keyResult?.targetValue)
+            Number(keyResultForValidation?.initialValue) >=
+            Number(keyResultForValidation?.targetValue)
           ) {
             NotificationMessage.warning({
-              message: `Title:${keyResult.title}: Target value must be greater than the initial value.`,
+              message: `Title:${keyResultForValidation.title}: Target value must be greater than the initial value.`,
             });
             return; // Stop submission if the sum is not 100
           }
         }
 
         // If all checks pass, proceed with the key result update
-        const merged = hasValidKeyResult(keyResultValue)
-          ? { ...normalizedKeyItem, ...keyResultValue }
-          : normalizedKeyItem;
+        const merged = keyResultForValidation;
         const removedMilestoneIds = [...(deletedMilestoneIds || [])];
-        const toSubmit = {
-          ...merged,
-          milestones: sanitizeMilestonesForSave(
-            merged?.milestones || [],
-            removedMilestoneIds,
-          ),
-        };
 
         void (async () => {
+          setIsSaving(true);
           try {
-            if (removedMilestoneIds.length > 0) {
-              await Promise.all(
-                removedMilestoneIds.map((id) => deleteMilestoneById(id)),
-              );
+            if (keyType === 'Milestone') {
+              await persistKeyResultMilestones({
+                keyResult: merged,
+                milestones: merged?.milestones || [],
+                removedMilestoneIds,
+                queryClient,
+              });
+            } else {
+              await updateKeyResultAsync(merged);
             }
-            await updateKeyResultAsync(toSubmit);
+            setIsSaving(false);
             handleModalClose();
           } catch {
+            setIsSaving(false);
             NotificationMessage.error({
               message: 'Error',
               description:
@@ -233,7 +247,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         data-cy="okr-edit-key-result-save-button"
         type="primary"
         onClick={onSubmit}
-        loading={isLoading}
+        loading={isSaving}
         className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
       >
         Save
@@ -425,7 +439,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
             data-cy="okr-edit-key-result-inline-save-button"
             type="primary"
             onClick={onSubmit}
-            loading={isLoading}
+            loading={isSaving}
             className="px-6 h-10 rounded-lg text-sm bg-okr-primary border-okr-primary"
           >
             Save
