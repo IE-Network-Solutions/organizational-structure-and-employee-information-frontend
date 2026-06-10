@@ -90,6 +90,7 @@ export enum APPROVALTYPES {
   BRANCHREQUEST = 'BranchRequest',
   TNA = 'TNA',
   PAYROLL = 'Payroll',
+  CANDIDATE = 'Candidate',
 }
 
 // Enum for aggregate operators

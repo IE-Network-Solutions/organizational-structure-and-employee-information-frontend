@@ -28,6 +28,11 @@ const TABS = [
     label: 'Template Questions',
     path: '/recruitment/settings/customFields',
   },
+  {
+    key: 'approvalWorkflow',
+    label: 'Approval Workflow',
+    path: '/recruitment/settings/approvalWorkflow',
+  },
 ] as const;
 
 const SettingsTabsAndContent: FC<{ children: ReactNode }> = ({ children }) => {

@@ -87,6 +87,15 @@ interface CandidateState {
   // Download loading state
   isDownloading: boolean;
   setIsDownloading: (value: boolean) => void;
+
+  isShowStageApprovalModal: boolean;
+  setIsShowStageApprovalModal: (value: boolean) => void;
+  stageApprovalCandidateId: string | null;
+  setStageApprovalCandidateId: (value: string | null) => void;
+  stageApprovalWorkflowId: string | null;
+  setStageApprovalWorkflowId: (value: string | null) => void;
+  stageApprovalCandidate: any | null;
+  setStageApprovalCandidate: (value: any | null) => void;
 }
 
 export const useCandidateState = create<CandidateState>((set) => ({
@@ -166,4 +175,16 @@ export const useCandidateState = create<CandidateState>((set) => ({
   // Download loading state
   isDownloading: false,
   setIsDownloading: (value) => set({ isDownloading: value }),
+
+  isShowStageApprovalModal: false,
+  setIsShowStageApprovalModal: (value) =>
+    set({ isShowStageApprovalModal: value }),
+  stageApprovalCandidateId: null,
+  setStageApprovalCandidateId: (value) =>
+    set({ stageApprovalCandidateId: value }),
+  stageApprovalWorkflowId: null,
+  setStageApprovalWorkflowId: (value) =>
+    set({ stageApprovalWorkflowId: value }),
+  stageApprovalCandidate: null,
+  setStageApprovalCandidate: (value) => set({ stageApprovalCandidate: value }),
 }));
