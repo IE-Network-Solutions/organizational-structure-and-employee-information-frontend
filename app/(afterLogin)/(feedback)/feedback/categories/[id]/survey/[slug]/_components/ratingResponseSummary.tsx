@@ -82,8 +82,7 @@ export function getRatingDistribution(
     counts.set(star, (counts.get(star) ?? 0) + 1);
   }
 
-  const total = entries.length;
-  const denom = total > 0 ? total : ratedCount;
+  const denom = ratedCount;
   const rows: RatingDistributionRow[] = [];
   for (let s = 1; s <= maxStars; s++) {
     const count = counts.get(s) ?? 0;
@@ -118,7 +117,7 @@ function StarDisplay({
           <StarIcon
             key={i}
             sx={{ fontSize: size }}
-            className="fill-[#fadb14] text-[#fadb14]"
+            className="fill-[#FAAD14] text-[#FAAD14]"
           />
         ) : (
           <StarOutlineOutlinedIcon
@@ -166,35 +165,44 @@ const RatingResponseSummary: React.FC<RatingResponseSummaryProps> = ({
       className="pt-3"
       data-cy={`individual-response-rating-summary-${questionId}`}
     >
-      {average != null ? (
-        <div
-          className="mb-4 flex items-center justify-between gap-1.5"
-          data-cy={`individual-response-rating-average-${questionId}`}
-        >
-          <span
-            data-cy={`individual-response-rating-average-label-${questionId}`}
-            className="text-sm font-normal text-gray-900"
-          >
-            Ratings
-          </span>
-          <div
-            data-cy={`individual-response-rating-average-stars-${questionId}`}
-            className="flex items-center gap-4"
-          >
-            <StarIcon
-              sx={{ fontSize: 24 }}
-              className="fill-[#FAAD14] text-[#FAAD14]"
-              aria-hidden
-            />
+      <div
+        className="mb-4 flex flex-wrap items-center justify-between gap-3"
+        data-cy={`individual-response-rating-average-${questionId}`}
+      >
+        {average != null ? (
+          <>
             <span
-              data-cy={`individual-response-rating-average-value-${questionId}`}
-              className="text-[28px] font-semibold leading-none tabular-nums text-gray-900"
+              data-cy={`individual-response-rating-average-label-${questionId}`}
+              className="text-sm font-normal text-gray-900"
             >
-              {average.toFixed(1)}
+              Ratings
             </span>
-          </div>
-        </div>
-      ) : null}
+            <div
+              data-cy={`individual-response-rating-average-stars-${questionId}`}
+              className="flex items-center gap-4"
+            >
+              <StarIcon
+                sx={{ fontSize: 24 }}
+                className="fill-[#FAAD14] text-[#FAAD14]"
+                aria-hidden
+              />
+              <span
+                data-cy={`individual-response-rating-average-value-${questionId}`}
+                className="text-[28px] font-semibold leading-none tabular-nums text-gray-900"
+              >
+                {average.toFixed(1)}
+              </span>
+            </div>
+          </>
+        ) : (
+          <p
+            className="text-sm text-gray-400"
+            data-cy={`individual-response-rating-no-ratings-${questionId}`}
+          >
+            No ratings submitted yet.
+          </p>
+        )}
+      </div>
 
       <div
         className="space-y-2.5"

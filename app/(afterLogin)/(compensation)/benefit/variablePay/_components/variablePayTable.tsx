@@ -26,6 +26,12 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 
 const EXPANDED_VP_SKELETON_METRIC_COUNT = 3;
 
+type EmployeeSearchOption = {
+  value: string;
+  searchLabel: string;
+  label: React.ReactNode;
+};
+
 const ExpandedVPDetailsSkeleton = () => (
   <div
     className="w-full min-w-0 max-w-full"
@@ -442,7 +448,12 @@ const VariablePayTable = () => {
         ? searchParams?.selectedMonth
         : [activeMonth?.id];
 
-  const selectedMonthIdsObject = { monthIds: selectedMonthIds };
+  const appliedMonthId = selectedMonthIds.filter(Boolean)[0];
+
+  const variablePayFilterPayload = {
+    monthIds: selectedMonthIds.filter(Boolean),
+    ...(selectedEmployeeId ? { userId: selectedEmployeeId } : {}),
+  };
   const sessionOptions =
     activeCalender?.sessions?.map((session: any) => ({
       label: session?.name,
@@ -461,7 +472,7 @@ const VariablePayTable = () => {
     })) || [];
 
   const { data: allUsersVariablePay, isLoading } = useGetVariablePay(
-    selectedMonthIdsObject,
+    variablePayFilterPayload,
   );
 
   const tableData: any[] =
@@ -485,23 +496,23 @@ const VariablePayTable = () => {
       .replace(/\s+/g, ' ');
   };
 
-  const employeeOptions = tableData.map((employee: any) => ({
-    value: employee.userId,
-    searchLabel: getEmployeeFullName(employee.userId),
-    label: (
-      <span
-        className="text-[14px]"
-        data-cy={`compensation-benefit-variable-pay-search-option-${employee.userId}`}
-      >
-        {getEmployeeFullName(employee.userId)}
-      </span>
-    ),
-  }));
+  const employeeOptions: EmployeeSearchOption[] = (allUsers?.items || []).map(
+    (employee: any) => ({
+      value: employee.id,
+      searchLabel: getEmployeeFullName(employee.id),
+      label: (
+        <span
+          className="text-[14px]"
+          data-cy={`compensation-benefit-variable-pay-search-option-${employee.id}`}
+        >
+          {getEmployeeFullName(employee.id)}
+        </span>
+      ),
+    }),
+  );
 
-  const uniqueEmployeeOptions = Array.from(
-    new Map(
-      employeeOptions.map((option: any) => [option.value, option]),
-    ).values(),
+  const uniqueEmployeeOptions: EmployeeSearchOption[] = Array.from(
+    new Map(employeeOptions.map((option) => [option.value, option])).values(),
   );
 
   const columns: TableColumnsType<any> = [
@@ -728,7 +739,7 @@ const VariablePayTable = () => {
                 return;
               }
               const selectedOption = uniqueEmployeeOptions.find(
-                (option: any) => option.value === value,
+                (option) => option.value === value,
               );
               setSelectedEmployeeId(value);
               setEmployeeSearch(selectedOption?.searchLabel || '');
@@ -883,7 +894,10 @@ const VariablePayTable = () => {
                 pagination={false}
                 expandable={{
                   expandedRowRender: (record) => (
-                    <ExpandedVPDetails userId={record.userId} />
+                    <ExpandedVPDetails
+                      userId={record.userId}
+                      monthId={appliedMonthId}
+                    />
                   ),
                   expandIcon: () => null,
                   expandIconColumnIndex: -1,

@@ -332,7 +332,7 @@ const LocationSidebar = () => {
                   </div>
                   <Slider
                     min={0.01}
-                    max={0.5}
+                    max={Math.max(0.5, formValues.distance)}
                     step={0.001}
                     value={formValues.distance}
                     onChange={(value) => {
@@ -397,15 +397,13 @@ const LocationSidebar = () => {
                       {
                         type: 'number',
                         min: 0.01,
-                        max: 10,
-                        message: 'Enter a value between 0.01 and 10 km',
+                        message: 'Enter a value of at least 0.01 km (10 m)',
                       },
                     ]}
                     noStyle
                   >
                     <InputNumber
                       min={0.01}
-                      max={10}
                       step={0.001}
                       precision={3}
                       controls
