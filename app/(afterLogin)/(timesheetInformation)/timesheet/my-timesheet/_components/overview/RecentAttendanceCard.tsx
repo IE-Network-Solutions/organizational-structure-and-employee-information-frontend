@@ -11,6 +11,7 @@ import {
   AttendanceRecordType,
 } from '@/types/timesheet/attendance';
 import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import { formatAttendanceClockTime } from '@/helpers/attendanceDateHelpers';
 
 const { Text } = Typography;
 
@@ -49,10 +50,10 @@ export default function RecentAttendanceCard() {
 
   const renderTimeDisplay = (record: AttendanceRecord) => {
     if (record.startAt && !record.endAt) {
-      return `In: ${dayjs(record.startAt).format('HH:mm:ss')}`;
+      return `In: ${formatAttendanceClockTime(record.startAt, 'HH:mm:ss', '—')}`;
     }
     if (record.startAt && record.endAt) {
-      return `${dayjs(record.startAt).format(TIME_FORMAT)} - ${dayjs(record.endAt).format(TIME_FORMAT)}`;
+      return `${formatAttendanceClockTime(record.startAt, TIME_FORMAT, '—')} - ${formatAttendanceClockTime(record.endAt, TIME_FORMAT, '—')}`;
     }
     return '—';
   };
