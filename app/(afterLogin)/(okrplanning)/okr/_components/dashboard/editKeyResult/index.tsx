@@ -7,7 +7,11 @@ import {
   useOKRStore,
   useEditKeyResultStore,
 } from '@/store/uistate/features/okrplanning/okr';
-import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
+import {
+  useDeleteMilestone,
+  useUpdateKeyResult,
+} from '@/store/server/features/okrplanning/okr/objective/mutations';
+import { sanitizeMilestonesForSave } from '../../../_utils/milestoneSave';
 import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -26,8 +30,14 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const [form] = Form.useForm();
   const isInline = Boolean(props.inline);
-  const { mutate: updateKeyResult, isLoading } = useUpdateKeyResult();
-  const { keyResultValue, handleSingleKeyResultChange } = useOKRStore();
+  const { mutateAsync: updateKeyResultAsync, isLoading } = useUpdateKeyResult();
+  const { mutateAsync: deleteMilestoneById } = useDeleteMilestone();
+  const {
+    keyResultValue,
+    handleSingleKeyResultChange,
+    deletedMilestoneIds,
+    setDeletedMilestoneIds,
+  } = useOKRStore();
   const { isEditing, setIsEditing, resetEditKeyResult } =
     useEditKeyResultStore();
 
@@ -81,6 +91,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
 
   const handleModalClose = () => {
     resetEditKeyResult();
+    setDeletedMilestoneIds([]);
     form.resetFields(); // Reset all form fields
     props.onClose(); // Close the modal
   };
@@ -157,15 +168,36 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           }
         }
 
-        // If all checks pass, proceed with the objective creation
-        const toSubmit = hasValidKeyResult(keyResultValue)
+        // If all checks pass, proceed with the key result update
+        const merged = hasValidKeyResult(keyResultValue)
           ? { ...normalizedKeyItem, ...keyResultValue }
           : normalizedKeyItem;
-        updateKeyResult(toSubmit, {
-          onSuccess: () => {
+        const removedMilestoneIds = [...(deletedMilestoneIds || [])];
+        const toSubmit = {
+          ...merged,
+          milestones: sanitizeMilestonesForSave(
+            merged?.milestones || [],
+            removedMilestoneIds,
+          ),
+        };
+
+        void (async () => {
+          try {
+            if (removedMilestoneIds.length > 0) {
+              await Promise.all(
+                removedMilestoneIds.map((id) => deleteMilestoneById(id)),
+              );
+            }
+            await updateKeyResultAsync(toSubmit);
             handleModalClose();
-          },
-        });
+          } catch {
+            NotificationMessage.error({
+              message: 'Error',
+              description:
+                'Could not save key result. If milestones were removed, try again.',
+            });
+          }
+        })();
       })
       .catch(() => {
         // Validation failed

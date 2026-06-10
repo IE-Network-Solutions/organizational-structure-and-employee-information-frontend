@@ -308,12 +308,20 @@ export const useUpdateObjective = () => {
 export const useUpdateKeyResult = () => {
   const queryClient = useQueryClient();
   return useMutation(updateKeyResult, {
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      void data;
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
       queryClient.invalidateQueries(['okrReport']);
+      if (variables?.id) {
+        queryClient.invalidateQueries([
+          'keyResultForEdit',
+          String(variables.id),
+        ]);
+        queryClient.invalidateQueries(['keyResult', String(variables.id)]);
+      }
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
@@ -346,6 +354,8 @@ export const useDeleteMilestone = () => {
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
       queryClient.invalidateQueries(['okrReport']);
+      queryClient.invalidateQueries('keyResultForEdit');
+      queryClient.invalidateQueries('keyResult');
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
     },
