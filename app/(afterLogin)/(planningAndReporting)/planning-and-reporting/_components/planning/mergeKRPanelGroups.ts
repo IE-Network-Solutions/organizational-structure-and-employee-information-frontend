@@ -2,6 +2,7 @@ import type { PlanOwner, PlanSummary } from '../types';
 import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  isKeyResultFullyCompletedForPlanning,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
@@ -15,6 +16,7 @@ export interface KRPanelAggregatedKR {
   currentValue: string | number;
   progressLabel: string;
   isDeleted: boolean;
+  planningBlocked: boolean;
 }
 
 export interface KRPanelOwnerGroup {
@@ -53,6 +55,7 @@ export function aggregateKeyResultForPanel(
     currentValue: kr.currentValue ?? 0,
     progressLabel: getKeyResultProgressRatioText(kr),
     isDeleted: kr.deletedAt != null,
+    planningBlocked: isKeyResultFullyCompletedForPlanning(kr),
   };
 }
 

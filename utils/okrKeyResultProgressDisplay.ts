@@ -22,8 +22,85 @@ export function getMetricTypeName(kr: {
 }
 
 export function isMilestoneCompleted(m: { status?: string }): boolean {
-  const s = String(m?.status ?? '').trim();
-  return s === 'Completed' || s.toLowerCase() === 'completed';
+  const s = String(m?.status ?? '')
+    .trim()
+    .toLowerCase();
+  return s === 'completed' || s === 'done' || s === 'achieved';
+}
+
+export function isMilestoneKeyResult(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: unknown[];
+}): boolean {
+  if (getMetricTypeName(kr) === 'Milestone') return true;
+  return Array.isArray(kr?.milestones) && kr.milestones.length > 0;
+}
+
+function normalizeKeyResultStatus(kr: {
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+}): string {
+  return String(
+    kr?.status ?? kr?.keyResultCompletionStatus ?? kr?.completionStatus ?? '',
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+}
+
+/** KR was marked incomplete again (e.g. report updated from achieved → on progress). */
+export function isKeyResultReopenedForPlanning(kr: {
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+}): boolean {
+  const status = normalizeKeyResultStatus(kr);
+  if (!status) return false;
+  return (
+    status === 'on_progress' ||
+    status === 'in_progress' ||
+    status === 'pending' ||
+    status === 'not_started' ||
+    status === 'overdue' ||
+    status === 'due_soon' ||
+    status === 'failed'
+  );
+}
+
+/**
+ * Whether planning should be blocked for the whole KR (not individual milestones).
+ * Milestone KRs stay plan-eligible until every milestone is completed.
+ */
+export function isKeyResultFullyCompletedForPlanning(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+  progress?: number | string | null;
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  targetValue?: number | string | null;
+}): boolean {
+  if (isKeyResultReopenedForPlanning(kr)) return false;
+
+  if (isMilestoneKeyResult(kr)) {
+    const milestones = (kr?.milestones ?? []).filter(
+      (m) => m?.deletedAt == null,
+    );
+    if (milestones.length === 0) {
+      return getKeyResultProgressPercent(kr) >= 100;
+    }
+    return milestones.every(isMilestoneCompleted);
+  }
+
+  const status = normalizeKeyResultStatus(kr);
+  if (status === 'achieved' || status === 'completed') return true;
+
+  return getKeyResultProgressPercent(kr) >= 100;
 }
 
 export function getMilestoneProgressCounts(kr: {

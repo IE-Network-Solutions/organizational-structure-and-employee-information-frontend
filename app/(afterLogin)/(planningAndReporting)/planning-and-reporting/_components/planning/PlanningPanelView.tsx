@@ -124,6 +124,7 @@ interface AggregatedKR {
   currentValue: string | number;
   progressLabel: string;
   isDeleted: boolean;
+  planningBlocked: boolean;
 }
 
 interface OwnerKRGroup {
@@ -226,16 +227,18 @@ function KRProgressCard({
     planningTargetsForKr.some((t) => t.id === selectedPlanningTargetId);
   const showPickChrome = isHighlighted || rowSelected;
 
-  const isFullyCompleted = kr.progress >= 100;
+  const isFullyCompleted = kr.planningBlocked;
 
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    planningTargetsForKr.length > 0 &&
-    !isFullyCompleted;
+    planningTargetsForKr.length > 0;
 
   const showCompletedPickHint =
-    inlinePickEnabled && isFullyCompleted && !kr.isDeleted;
+    inlinePickEnabled &&
+    planningTargetsForKr.length === 0 &&
+    isFullyCompleted &&
+    !kr.isDeleted;
 
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
     (t) => ({

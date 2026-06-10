@@ -1,7 +1,8 @@
 import { groupParentTasks } from '../dataTransformer/plan';
 import {
-  getKeyResultProgressPercent,
+  isKeyResultFullyCompletedForPlanning,
   isMilestoneCompleted,
+  isMilestoneKeyResult,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 export type PlanningTarget = {
@@ -31,11 +32,11 @@ export function buildPlanningTargetsFromObjectives(
     if (obj.deletedAt) return;
     obj.keyResults?.forEach((kr: any) => {
       if (kr.deletedAt) return;
-      if (getKeyResultProgressPercent(kr) >= 100) return;
       const krTitle = kr.title || kr.name || 'Key result';
       const metricTypeName = kr.metricType?.name ?? null;
-      if (kr.milestones?.length) {
-        kr.milestones.forEach((ms: any) => {
+
+      if (isMilestoneKeyResult(kr)) {
+        kr.milestones?.forEach((ms: any) => {
           if (ms.deletedAt) return;
           if (isMilestoneCompleted(ms)) return;
           out.push({
@@ -49,17 +50,20 @@ export function buildPlanningTargetsFromObjectives(
             metricTypeName,
           });
         });
-      } else {
-        out.push({
-          id: `okr-kr-${kr.id}`,
-          keyResultId: String(kr.id),
-          keyResultTitle: krTitle,
-          milestoneId: null,
-          parentTaskId: null,
-          isDailySlot: false,
-          metricTypeName,
-        });
+        return;
       }
+
+      if (isKeyResultFullyCompletedForPlanning(kr)) return;
+
+      out.push({
+        id: `okr-kr-${kr.id}`,
+        keyResultId: String(kr.id),
+        keyResultTitle: krTitle,
+        milestoneId: null,
+        parentTaskId: null,
+        isDailySlot: false,
+        metricTypeName,
+      });
     });
   });
 

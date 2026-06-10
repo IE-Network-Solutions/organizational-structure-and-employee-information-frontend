@@ -154,6 +154,7 @@ export const useCreateReportForUnReportedtasks = () => {
         queryClient.invalidateQueries('okrUserPlans');
         queryClient.invalidateQueries('okrPlannedData');
         queryClient.invalidateQueries('planningPeriodsHierarchy');
+        queryClient.invalidateQueries('fetchObjectives');
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -172,6 +173,7 @@ export const useEditReportByReportId = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
+        queryClient.invalidateQueries('fetchObjectives');
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
