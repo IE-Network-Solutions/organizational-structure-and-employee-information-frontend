@@ -96,7 +96,8 @@ const EmployeeAttendanceSideBar = () => {
 
     if (!recordDate) {
       NotificationMessage.warning({
-        message: 'Attendance record date is missing. Please close and try again.',
+        message:
+          'Attendance record date is missing. Please close and try again.',
       });
       return;
     }

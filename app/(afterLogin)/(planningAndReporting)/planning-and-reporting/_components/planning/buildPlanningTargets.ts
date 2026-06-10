@@ -36,6 +36,7 @@ export function buildPlanningTargetsFromObjectives(
       const metricTypeName = kr.metricType?.name ?? null;
 
       if (isMilestoneKeyResult(kr)) {
+        if (isKeyResultFullyCompletedForPlanning(kr)) return;
         kr.milestones?.forEach((ms: any) => {
           if (ms.deletedAt) return;
           if (isMilestoneCompleted(ms)) return;

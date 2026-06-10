@@ -3,6 +3,7 @@ import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   isKeyResultFullyCompletedForPlanning,
+  isKeyResultReopenedForPlanning,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
@@ -148,6 +149,49 @@ export function mergeUserKeyResultsIntoOwnerGroups(
   });
 
   return merged;
+}
+
+/** Reconcile plan-panel display with user KR API (status, milestones) for pick blocking. */
+export function enrichOwnerGroupsPlanningBlocked(
+  groups: KRPanelOwnerGroup[],
+  userKeyResultItems: any[],
+): KRPanelOwnerGroup[] {
+  const apiById = new Map(
+    userKeyResultItems
+      .filter((kr) => kr && kr.deletedAt == null)
+      .map((kr) => [String(kr.id), kr]),
+  );
+
+  return groups.map((group) => ({
+    ...group,
+    krs: group.krs.map((panelKr) => {
+      const apiKr = apiById.get(panelKr.id);
+      const planningSource = apiKr
+        ? {
+            ...apiKr,
+            metricType: apiKr.metricType ?? { name: panelKr.metricType },
+            key_type: apiKr.key_type ?? panelKr.metricType,
+            progress: panelKr.progress,
+            currentValue: panelKr.currentValue ?? apiKr.currentValue,
+            targetValue: panelKr.targetValue ?? apiKr.targetValue,
+            milestones: apiKr.milestones ?? apiKr.Milestones,
+          }
+        : {
+            metricType: { name: panelKr.metricType },
+            key_type: panelKr.metricType,
+            progress: panelKr.progress,
+            currentValue: panelKr.currentValue,
+            targetValue: panelKr.targetValue,
+          };
+
+      const planningBlocked = isKeyResultReopenedForPlanning(planningSource)
+        ? false
+        : isKeyResultFullyCompletedForPlanning(planningSource);
+
+      if (planningBlocked === panelKr.planningBlocked) return panelKr;
+      return { ...panelKr, planningBlocked };
+    }),
+  }));
 }
 
 export type ParentPlanContext = {

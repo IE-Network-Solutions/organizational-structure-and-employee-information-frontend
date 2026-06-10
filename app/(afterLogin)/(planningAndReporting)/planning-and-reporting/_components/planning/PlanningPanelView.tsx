@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Avatar, Dropdown, Spin, Tooltip } from 'antd';
+import { Avatar, Dropdown, Spin } from 'antd';
 import type { MenuProps } from 'antd';
 import { BsKey } from 'react-icons/bs';
 import { MdExpandMore, MdChevronRight } from 'react-icons/md';
@@ -21,6 +21,7 @@ import type {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   aggregateKeyResultForPanel,
+  enrichOwnerGroupsPlanningBlocked,
   mergeUserKeyResultsIntoOwnerGroups,
   type KRPanelOwnerGroup,
   type ParentPlanContext,
@@ -185,11 +186,6 @@ const inlinePickBtnClass =
 const inlinePickBtnSelectedRing =
   'ring-2 ring-[#1E40AF]/40 ring-offset-1 ring-offset-white';
 
-const inlinePickBtnDisabledClass =
-  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] text-[#C4C7CE] cursor-not-allowed opacity-60';
-
-const KR_ACHIEVED_TOOLTIP = 'This Key Result has already been achieved.';
-
 /** Below lg: horizontal carousel; lg+: vertical stack */
 const krCardListClass =
   'flex flex-row flex-nowrap items-start gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 pl-0.5 pr-3 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x scrollbar-hide lg:flex-col lg:items-stretch lg:flex-nowrap lg:gap-2 lg:overflow-x-visible lg:overflow-y-visible lg:overscroll-auto lg:px-1 lg:py-1 lg:pr-1 lg:snap-none lg:touch-auto';
@@ -232,12 +228,8 @@ function KRProgressCard({
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    planningTargetsForKr.length > 0;
-
-  const showCompletedPickHint =
-    inlinePickEnabled &&
-    planningTargetsForKr.length === 0 &&
-    isFullyCompleted &&
+    planningTargetsForKr.length > 0 &&
+    !isFullyCompleted &&
     !kr.isDeleted;
 
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
@@ -257,59 +249,43 @@ function KRProgressCard({
     },
   ];
 
-  const pickButton = showCompletedPickHint ? (
-    <Tooltip title={KR_ACHIEVED_TOOLTIP}>
-      <span
-        className="inline-flex"
-        data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-kr-completed-pick"
-      >
+  const pickButton =
+    showPickControl && onPickPlanningTarget ? (
+      planningTargetsForKr.length === 1 ? (
         <button
-          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-kr-completed"
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-273"
           type="button"
-          disabled
-          aria-label={KR_ACHIEVED_TOOLTIP}
-          className={inlinePickBtnDisabledClass}
-        >
-          <PlusOutlined className="text-[13px]" />
-        </button>
-      </span>
-    </Tooltip>
-  ) : showPickControl && onPickPlanningTarget ? (
-    planningTargetsForKr.length === 1 ? (
-      <button
-        data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-273"
-        type="button"
-        title="Add tasks for this key result"
-        onClick={() => onPickPlanningTarget(planningTargetsForKr[0])}
-        className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
-      >
-        <PlusOutlined className="text-[13px]" />
-      </button>
-    ) : (
-      <Dropdown
-        menu={{
-          items: dropdownMenuItems,
-          onClick: ({ key, domEvent }) => {
-            domEvent.stopPropagation();
-            const t = planningTargetsForKr.find((x) => x.id === key);
-            if (t) onPickPlanningTarget(t);
-          },
-        }}
-        trigger={['click']}
-        placement={pickMenuPlacement}
-        overlayClassName="planning-target-pick-menu"
-      >
-        <button
-          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
-          type="button"
-          title="Choose a milestone or key result to plan against"
+          title="Add tasks for this key result"
+          onClick={() => onPickPlanningTarget(planningTargetsForKr[0])}
           className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
         >
           <PlusOutlined className="text-[13px]" />
         </button>
-      </Dropdown>
-    )
-  ) : null;
+      ) : (
+        <Dropdown
+          menu={{
+            items: dropdownMenuItems,
+            onClick: ({ key, domEvent }) => {
+              domEvent.stopPropagation();
+              const t = planningTargetsForKr.find((x) => x.id === key);
+              if (t) onPickPlanningTarget(t);
+            },
+          }}
+          trigger={['click']}
+          placement={pickMenuPlacement}
+          overlayClassName="planning-target-pick-menu"
+        >
+          <button
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
+            type="button"
+            title="Choose a milestone or key result to plan against"
+            className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
+          >
+            <PlusOutlined className="text-[13px]" />
+          </button>
+        </Dropdown>
+      )
+    ) : null;
 
   useEffect(() => {
     if (showPickChrome && ref.current) {
@@ -1000,12 +976,15 @@ export function KRLeftPanel({
 }: KRPanelProps) {
   const ownerGroups = React.useMemo(() => {
     const base = buildOwnerKRGroups(plans);
-    const merged = mergeUserKeyResultsIntoOwnerGroups(
-      base,
+    const merged = enrichOwnerGroupsPlanningBlocked(
+      mergeUserKeyResultsIntoOwnerGroups(
+        base,
+        userKeyResultItems,
+        plans,
+        transformedData,
+        userId,
+      ),
       userKeyResultItems,
-      plans,
-      transformedData,
-      userId,
     );
     const currentUserOwnerKeys = new Set(
       transformedData
@@ -1038,17 +1017,28 @@ export function KRLeftPanel({
     [planningTargets],
   );
 
+  const blockedKrIds = React.useMemo(() => {
+    const ids = new Set<string>();
+    for (const group of ownerGroups) {
+      for (const kr of group.krs) {
+        if (kr.planningBlocked) ids.add(kr.id);
+      }
+    }
+    return ids;
+  }, [ownerGroups]);
+
   const targetsByKrId = React.useMemo(() => {
     const m = new Map<string, PlanningTarget[]>();
     for (const t of planningTargets) {
       if (t.isDailySlot) continue;
+      if (blockedKrIds.has(t.keyResultId)) continue;
       const kid = t.keyResultId;
       const list = m.get(kid);
       if (list) list.push(t);
       else m.set(kid, [t]);
     }
     return m;
-  }, [planningTargets]);
+  }, [planningTargets, blockedKrIds]);
 
   const showKrTargetsLoadingRow =
     showInlinePick && planningTargetsLoading && !parentPlanContext;
