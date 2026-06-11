@@ -326,12 +326,12 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId, departmentId }) => {
         ? dayjs(candidate.createdAt).format('DD MMMM YYYY')
         : '--',
       approvalStatus: (
-        <div className="flex justify-center gap-2">
-          <Tag color={item?.isInitiated ? 'gold' : 'blue'}>
+        <div className="flex justify-center gap-2" data-cy={`talent-acquisition-my-approval-table-div-approval-status-${item?.candidateId}`}>
+          <Tag color={item?.isInitiated ? 'gold' : 'blue'} data-cy={`talent-acquisition-my-approval-table-tag-approval-status-${item?.candidateId}`}>
             {item?.isInitiated ? 'Pending approval' : 'Ready to initiate'}
           </Tag>
           {selectedStage?.title && (
-            <Tag color="blue">{selectedStage.title}</Tag>
+            <Tag color="blue" data-cy={`talent-acquisition-my-approval-table-tag-selected-stage-${item?.candidateId}`}>{selectedStage.title}</Tag>
           )}
         </div>
       ),
