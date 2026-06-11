@@ -43,12 +43,14 @@ export enum AttendanceCheckOutSource {
   IMPORTED = 'IMPORTED',
   REMOTE_CHECKED_OUT = 'REMOTE_CHECKED_OUT',
   ATTENDANCE_DEVICE_CHECKED_OUT = 'ATTENDANCE_DEVICE_CHECKED_OUT',
+  SYSTEM_UPDATED = 'SYSTEM_UPDATED',
 }
 
 export enum AttendanceCheckInSource {
   IMPORTED = 'IMPORTED',
   REMOTE_CHECKED_IN = 'REMOTE_CHECKED_IN',
   ATTENDANCE_DEVICE_CHECKED_IN = 'ATTENDANCE_DEVICE_CHECKED_IN',
+  SYSTEM_UPDATED = 'SYSTEM_UPDATED',
 }
 
 export const attendanceCheckInSourceLabels: Record<
@@ -58,6 +60,7 @@ export const attendanceCheckInSourceLabels: Record<
   [AttendanceCheckInSource.IMPORTED]: 'Imported',
   [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote',
   [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]: 'Attendance Device',
+  [AttendanceCheckInSource.SYSTEM_UPDATED]: 'System Updated',
 };
 
 export const attendanceCheckOutSourceLabels: Record<
@@ -67,6 +70,7 @@ export const attendanceCheckOutSourceLabels: Record<
   [AttendanceCheckOutSource.IMPORTED]: 'Imported',
   [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote',
   [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]: 'Attendance Device',
+  [AttendanceCheckOutSource.SYSTEM_UPDATED]: 'System Updated',
 };
 
 export interface AttendanceRecord extends DateInfo {

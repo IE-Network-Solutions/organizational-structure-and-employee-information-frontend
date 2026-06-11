@@ -126,6 +126,25 @@ const statusType = (val: string | null | undefined) => {
         {label}
       </Tag>
     );
+  } else if (
+    val === AttendanceCheckInSource.SYSTEM_UPDATED ||
+    val === AttendanceCheckOutSource.SYSTEM_UPDATED
+  ) {
+    const label =
+      val === AttendanceCheckInSource.SYSTEM_UPDATED
+        ? attendanceCheckInSourceLabels[AttendanceCheckInSource.SYSTEM_UPDATED]
+        : attendanceCheckOutSourceLabels[
+            AttendanceCheckOutSource.SYSTEM_UPDATED
+          ];
+    return (
+      <Tag
+        id="roleTypeSystemUpdated"
+        data-cy="roleTypeSystemUpdated"
+        className="text-[#1677ff] text-xs font-medium py-0.5 px-2 bg-[#e6f4ff] border border-[#91caff] hover:bg-sky-50 h-[22px]"
+      >
+        {label}
+      </Tag>
+    );
   } else if (val === null || val === '' || val === undefined) {
     return (
       <Button
