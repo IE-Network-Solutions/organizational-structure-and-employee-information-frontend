@@ -110,6 +110,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     setMoveToTalentPoolModal,
     setSelectedCandidate,
     setSelectedRowKeys,
+    setIsShowStageApprovalModal,
+    setStageApprovalCandidateId,
+    setStageApprovalWorkflowId,
+    setStageApprovalCandidate,
+    setStageApprovalRows,
     searchParams,
     isDownloading,
     setIsDownloading,
@@ -157,6 +162,17 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   const handleMoveToTalentsPool = () => {
     setMoveToTalentPoolModal(true);
     setSelectedCandidate(selectedCandidate);
+  };
+
+  const handleOpenBulkApproval = () => {
+    const rows = Array.isArray(selectedCandidate) ? selectedCandidate : [];
+    const firstRow = rows[0];
+    if (!firstRow) return;
+    setStageApprovalRows(rows);
+    setStageApprovalCandidateId(firstRow.candidateId ?? firstRow.id);
+    setStageApprovalWorkflowId(firstRow.approvalWorkflowId ?? null);
+    setStageApprovalCandidate(firstRow.displayCandidate ?? firstRow);
+    setIsShowStageApprovalModal(true);
   };
 
   useEffect(() => {
@@ -1080,6 +1096,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                         <MyApprovalTable
                           data-cy="talent-acquisition-job-detail-my-approval-table"
                           jobId={id}
+                          departmentId={jobById?.departmentId}
                         />
                       </div>
                     </div>
@@ -1134,6 +1151,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       <Button
                         type="primary"
                         icon={<DoneIcon />}
+                        onClick={handleOpenBulkApproval}
                         className="!inline-flex !h-10 !items-center !rounded-[8px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-3 sm:!px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
                         data-cy="talent-acquisition-job-detail-button-approve-all"
                       >

@@ -12,12 +12,31 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import RecruitmentPagination from '../../../../_components';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import StageApprovalModal from '../stageApprovalModal';
+import { useApprovalFilter } from '@/store/server/features/approver/queries';
+import { APPROVALTYPES } from '@/types/enumTypes';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import {
+  useCandidateApprovalRequests,
+  useCandidatePendingApprovals,
+} from '@/store/server/features/recruitment/candidateApproval/queries';
+import React, { useMemo } from 'react';
 
 interface TableProps {
   jobId: string;
+  departmentId?: string;
 }
 
-const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
+type ApprovalTableRow = CandidateData & {
+  key: string;
+  rawItem: any;
+};
+
+const buildRequestKey = (
+  candidateId?: string,
+  applicantStatusStageId?: string,
+) => `${candidateId ?? ''}|${applicantStatusStageId ?? ''}`;
+
+const MyApprovalTable: React.FC<TableProps> = ({ jobId, departmentId }) => {
   const {
     currentPage,
     pageSize,
@@ -31,11 +50,45 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
     setStageApprovalCandidateId,
     setStageApprovalWorkflowId,
     setStageApprovalCandidate,
+    setStageApprovalRows,
   } = useCandidateState();
 
   const { isMobile, isTablet } = useIsMobile();
+  const userId = useAuthenticationStore((state) => state.userId);
 
-  const { data: candidateList, isLoading: isResponseLoading } =
+  const { data: approvalData, isLoading: isWorkflowLoading } =
+    useApprovalFilter(
+      100,
+      1,
+      'Department',
+      departmentId ?? '',
+      '',
+      APPROVALTYPES.CANDIDATE,
+    );
+
+  const approvalWorkflow = useMemo(() => {
+    if (!departmentId) return null;
+    const workflows = approvalData?.items ?? [];
+    return workflows.find(
+      (workflow: any) =>
+        workflow?.entityId === departmentId &&
+        (workflow?.approvers ?? []).some(
+          (approver: any) => approver?.userId === userId,
+        ),
+    );
+  }, [approvalData?.items, departmentId, userId]);
+
+  const approvalWorkflowId = approvalWorkflow?.id ?? '';
+  const loggedInApprover = useMemo(
+    () =>
+      (approvalWorkflow?.approvers ?? []).find(
+        (approver: any) => approver?.userId === userId,
+      ),
+    [approvalWorkflow?.approvers, userId],
+  );
+  const isFirstApprover = loggedInApprover?.stepOrder === 1;
+
+  const { data: candidateList, isLoading: isCandidateLoading } =
     useGetCandidates(
       jobId,
       searchParams?.whatYouNeed || '',
@@ -46,6 +99,23 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
       pageSize,
       currentPage,
     );
+
+  const { data: existingRequests, isLoading: isRequestsLoading } =
+    useCandidateApprovalRequests(
+      {
+        jobId,
+        approvalWorkflowId,
+      },
+      !!approvalWorkflowId,
+    );
+
+  const { data: pendingApprovals, isLoading: isPendingLoading } =
+    useCandidatePendingApprovals(
+      jobId,
+      approvalWorkflowId,
+      !!approvalWorkflowId,
+    );
+
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -53,23 +123,113 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
     }
   };
 
-  function resolveApprovalWorkflowId(item: any) {
-    return (
-      item?.approvalWorkflowId ??
-      item?.jobCandidate?.[0]?.approvalWorkflowId ??
-      item?.jobCandidate?.[0]?.jobInformation?.approvalWorkflowId ??
-      null
+  const candidateById = useMemo(() => {
+    const map = new Map<string, any>();
+    (candidateList?.items ?? []).forEach((candidate: any) => {
+      if (candidate?.id) map.set(candidate.id, candidate);
+    });
+    return map;
+  }, [candidateList?.items]);
+
+  const requestByCandidateStage = useMemo(() => {
+    const map = new Map<string, any>();
+    (existingRequests?.items ?? []).forEach((request: any) => {
+      map.set(
+        buildRequestKey(request?.candidateId, request?.applicantStatusStageId),
+        request,
+      );
+    });
+    return map;
+  }, [existingRequests?.items]);
+
+  const pendingByRequestId = useMemo(() => {
+    const map = new Map<string, any>();
+    (pendingApprovals?.items ?? []).forEach((request: any) => {
+      const requestId = request?.id ?? request?.requestId;
+      if (requestId) map.set(requestId, request);
+    });
+    return map;
+  }, [pendingApprovals?.items]);
+
+  const approvalRows = useMemo(() => {
+    if (!approvalWorkflowId) return [];
+
+    const pendingRows = Array.from(pendingByRequestId.values()).map(
+      (request: any) => {
+        const candidate = candidateById.get(request?.candidateId);
+        const jobCandidate = candidate?.jobCandidate?.[0];
+        const stage = jobCandidate?.applicantStatusStage;
+        return {
+          ...candidate,
+          ...request,
+          candidateId: request?.candidateId,
+          requestId: request?.id ?? request?.requestId,
+          approvalWorkflowId: request?.approvalWorkflowId ?? approvalWorkflowId,
+          approvers: approvalWorkflow?.approvers ?? [],
+          jobId: request?.jobId ?? jobId,
+          jobCandidateId: jobCandidate?.id,
+          currentStageId:
+            request?.applicantStatusStageId ??
+            jobCandidate?.applicantStatusStageId,
+          currentStageTitle: stage?.title ?? '',
+          isInitiated: true,
+          displayCandidate: candidate,
+        };
+      },
     );
-  }
+
+    const uninitiatedRows = isFirstApprover
+      ? (candidateList?.items ?? [])
+          .map((candidate: any) => {
+            const jobCandidate = candidate?.jobCandidate?.[0];
+            const currentStageId = jobCandidate?.applicantStatusStageId;
+            if (!currentStageId) return null;
+
+            const existingRequest = requestByCandidateStage.get(
+              buildRequestKey(candidate?.id, currentStageId),
+            );
+            if (existingRequest) return null;
+
+            return {
+              ...candidate,
+              candidateId: candidate?.id,
+              requestId: null,
+              approvalWorkflowId,
+              approvers: approvalWorkflow?.approvers ?? [],
+              jobId,
+              jobCandidateId: jobCandidate?.id,
+              currentStageId,
+              currentStageTitle:
+                jobCandidate?.applicantStatusStage?.title ?? '',
+              isInitiated: false,
+              displayCandidate: candidate,
+            };
+          })
+          .filter(Boolean)
+      : [];
+
+    return [...pendingRows, ...uninitiatedRows];
+  }, [
+    approvalWorkflowId,
+    approvalWorkflow?.approvers,
+    candidateById,
+    candidateList?.items,
+    isFirstApprover,
+    jobId,
+    pendingByRequestId,
+    requestByCandidateStage,
+  ]);
 
   const handleOpenStageApproval = (item: any) => {
-    if (!item?.id) return;
-    setStageApprovalCandidateId(item.id);
-    setStageApprovalWorkflowId(resolveApprovalWorkflowId(item));
-    setStageApprovalCandidate(item);
+    if (!item?.candidateId) return;
+    setStageApprovalCandidateId(item.candidateId);
+    setStageApprovalWorkflowId(item.approvalWorkflowId);
+    setStageApprovalCandidate(item.displayCandidate ?? item);
+    setStageApprovalRows([item]);
     setIsShowStageApprovalModal(true);
   };
-  const columns: TableColumnsType<CandidateData> = [
+
+  const columns: TableColumnsType<ApprovalTableRow> = [
     {
       title: 'Name',
       dataIndex: 'candidateName',
@@ -104,7 +264,7 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
           <a
             href={`mailto:${val}`}
             className="text-[#1E40AF] hover:underline"
-            data-cy="talent-acquisition-job-candidate-table-email-link"
+            data-cy="talent-acquisition-my-approval-table-email-link"
           >
             {val}
           </a>
@@ -119,40 +279,41 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
     },
   ];
 
-  const data = candidateList?.items?.map((item: any, index: any) => {
-    const selectedStage = item?.jobCandidate?.[0]?.applicantStatusStage;
+  const data = approvalRows.map((item: any, index: number) => {
+    const candidate = item?.displayCandidate ?? item;
+    const selectedStage = candidate?.jobCandidate?.[0]?.applicantStatusStage;
 
     const handleDownload = () => {
       const link = document.createElement('a');
-      link.href = item?.resumeUrl;
-      link.download = item?.documentName;
+      link.href = candidate?.resumeUrl;
+      link.download = candidate?.documentName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     };
 
     return {
-      key: index,
-      id: item?.id,
-      candidateName: item?.fullName ?? '--',
-      phoneNumber: item?.phone ?? '--',
-      cgpa: item?.CGPA ?? '--',
-      email: item?.email ?? '--',
+      key: item?.requestId ?? item?.candidateId ?? String(index),
+      id: item?.candidateId,
+      candidateName: candidate?.fullName ?? item?.candidateId ?? '--',
+      phoneNumber: candidate?.phone ?? '--',
+      cgpa: candidate?.CGPA ?? '--',
+      email: candidate?.email ?? '--',
       cv: (
         <div
-          id={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
-          data-cy={`talent-acquisition-job-candidate-table-div-cv-${item?.id}`}
-          className={`flex items-center justify-center ${item?.resumeUrl ? '' : 'opacity-40'}`}
+          id={`talent-acquisition-my-approval-table-div-cv-${item?.candidateId}`}
+          data-cy={`talent-acquisition-my-approval-table-div-cv-${item?.candidateId}`}
+          className={`flex items-center justify-center ${candidate?.resumeUrl ? '' : 'opacity-40'}`}
         >
           <button
             type="button"
-            id={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
-            data-cy={`talent-acquisition-job-candidate-table-button-download-cv-${item?.id}`}
+            id={`talent-acquisition-my-approval-table-button-download-cv-${item?.candidateId}`}
+            data-cy={`talent-acquisition-my-approval-table-button-download-cv-${item?.candidateId}`}
             className="flex h-9 w-9 items-center justify-center rounded border-0 bg-transparent text-[#1E40AF] hover:bg-[#EFF6FF] disabled:pointer-events-none"
-            disabled={!item?.resumeUrl}
+            disabled={!candidate?.resumeUrl}
             aria-label={
-              item?.documentName
-                ? `Download ${item.documentName}`
+              candidate?.documentName
+                ? `Download ${candidate.documentName}`
                 : 'Download CV'
             }
             onClick={handleDownload}
@@ -161,37 +322,49 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
           </button>
         </div>
       ),
-      createdAt: dayjs(item?.createdAt).format('DD MMMM YYYY') ?? '--',
-      approvalStatus: selectedStage?.id ? (
-        <Tag color="blue">{selectedStage?.title}</Tag>
-      ) : (
-        '--'
+      createdAt: candidate?.createdAt
+        ? dayjs(candidate.createdAt).format('DD MMMM YYYY')
+        : '--',
+      approvalStatus: (
+        <div className="flex justify-center gap-2">
+          <Tag color={item?.isInitiated ? 'gold' : 'blue'}>
+            {item?.isInitiated ? 'Pending approval' : 'Ready to initiate'}
+          </Tag>
+          {selectedStage?.title && (
+            <Tag color="blue">{selectedStage.title}</Tag>
+          )}
+        </div>
       ),
+      rawItem: item,
     };
   });
 
-  const rowSelection: TableRowSelection<CandidateData> = {
+  const rowSelection: TableRowSelection<ApprovalTableRow> = {
     selectedRowKeys,
     onChange: (newSelectedRowKeys, selectedRows) => {
       setSelectedRowKeys(newSelectedRowKeys);
-      setSelectedCandidate(
-        candidateList?.items?.filter((item: CandidateData) =>
-          selectedRows.some((row: CandidateData) => row.id === item.id),
-        ) || [],
-      );
+      setSelectedCandidate(selectedRows.map((row) => row.rawItem));
     },
   };
+
   const onSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1);
   };
+
+  const isResponseLoading =
+    isWorkflowLoading ||
+    isCandidateLoading ||
+    isRequestsLoading ||
+    isPendingLoading;
+
   return (
     <div
-      id="talent-acquisition-job-candidate-table-div-container"
-      data-cy="talent-acquisition-job-candidate-table-div-container"
+      id="talent-acquisition-my-approval-table-div-container"
+      data-cy="talent-acquisition-my-approval-table-div-container"
       className="min-w-0 overflow-x-auto"
     >
-      <style data-cy="talent-acquisition-job-candidate-action-dropdown-styles">{`
+      <style data-cy="talent-acquisition-my-approval-action-dropdown-styles">{`
           .talent-acquisition-candidate-action-dropdown .ant-dropdown-menu-item {
             display: flex;
             align-items: center;
@@ -204,7 +377,7 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
       {isResponseLoading ? (
         <div
           className="ta-job-detail-candidate-table-skeleton w-full min-w-[960px]"
-          data-cy="talent-acquisition-job-candidate-table-skeleton"
+          data-cy="talent-acquisition-my-approval-table-skeleton"
         >
           <TableSkeleton columns={columns} />
         </div>
@@ -230,11 +403,16 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
                 !target.closest('.ant-dropdown') &&
                 !target.closest('a')
               ) {
-                handleOpenStageApproval(record.rawItem ?? record);
+                handleOpenStageApproval(record.rawItem);
               }
             },
           })}
-          data-cy="talent-acquisition-job-candidate-table"
+          locale={{
+            emptyText: approvalWorkflowId
+              ? 'No candidate approvals assigned to you for this job.'
+              : 'No candidate approval workflow assigned to you for this job.',
+          }}
+          data-cy="talent-acquisition-my-approval-table"
         />
       )}
 
@@ -255,7 +433,7 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId }) => {
             setPageSize(size);
           }}
           onShowSizeChange={onSizeChange}
-          data-cy="talent-acquisition-candidate-table-pagination"
+          data-cy="talent-acquisition-my-approval-table-pagination"
         />
       )}
       <StageApprovalModal />

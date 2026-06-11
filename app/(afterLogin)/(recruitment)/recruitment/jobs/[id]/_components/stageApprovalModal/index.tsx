@@ -9,11 +9,19 @@ import {
   useGetStages,
 } from '@/store/server/features/recruitment/candidate/queries';
 import {
-  useGetSingleApproval,
-  useGetSingleApprovalLog,
-} from '@/store/server/features/timesheet/leaveRequest/queries';
+  useCandidateApprovalLogs,
+  useCandidateApprovalWorkflow,
+} from '@/store/server/features/recruitment/candidateApproval/queries';
+import {
+  useApproveCandidateApproval,
+  useBulkApproveCandidateApproval,
+  useBulkRejectCandidateApproval,
+  useCreateCandidateApprovalRequests,
+  useRejectCandidateApproval,
+} from '@/store/server/features/recruitment/candidateApproval/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { SingleLogRequest } from '@/types/timesheet/settings';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 type ApprovalRecord = {
   approverId: string;
@@ -26,12 +34,6 @@ type ApprovalRecord = {
   action?: string;
 };
 
-function getStageLabel(index: number, title?: string) {
-  if (title) return title;
-  const ordinals = ['1st round', '2nd round', '3rd round', '4th round'];
-  return ordinals[index] ?? `Round ${index + 1}`;
-}
-
 const StageApprovalModal = () => {
   const {
     isShowStageApprovalModal: isShow,
@@ -42,26 +44,47 @@ const StageApprovalModal = () => {
     setStageApprovalWorkflowId,
     stageApprovalCandidate,
     setStageApprovalCandidate,
+    stageApprovalRows,
+    setStageApprovalRows,
+    setSelectedCandidate,
+    setSelectedRowKeys,
   } = useCandidateState();
 
   const [moveToStageId, setMoveToStageId] = useState<string | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: candidateData, isLoading: isCandidateLoading } =
     useGetCandidateById(stageApprovalCandidateId ?? '');
   const { data: statusStages } = useGetStages();
-  const { data: logData, isLoading: isLogLoading } = useGetSingleApprovalLog(
-    stageApprovalCandidateId ?? '',
-    stageApprovalWorkflowId ?? '',
-  );
-  const { data: approverLog } = useGetSingleApproval(
-    stageApprovalCandidateId ?? '',
+  const activeRows = stageApprovalRows?.length
+    ? stageApprovalRows
+    : stageApprovalCandidate
+      ? [stageApprovalCandidate]
+      : [];
+  const primaryApprovalRow = activeRows[0];
+  const primaryRequestId = primaryApprovalRow?.requestId ?? null;
+  const { data: approverLog, isLoading: isLogLoading } =
+    useCandidateApprovalLogs(primaryRequestId);
+  const { data: workflowData } = useCandidateApprovalWorkflow(
+    stageApprovalWorkflowId,
   );
   const { data: usersData } = useGetAllUsers();
+  const { mutateAsync: createApprovalRequests } =
+    useCreateCandidateApprovalRequests();
+  const { mutateAsync: approveCandidateApproval } =
+    useApproveCandidateApproval();
+  const { mutateAsync: rejectCandidateApproval } = useRejectCandidateApproval();
+  const { mutateAsync: bulkApproveCandidateApproval } =
+    useBulkApproveCandidateApproval();
+  const { mutateAsync: bulkRejectCandidateApproval } =
+    useBulkRejectCandidateApproval();
 
   const candidate = candidateData ?? stageApprovalCandidate;
   const jobCandidate = candidate?.jobCandidate?.[0];
-  const currentStageId = jobCandidate?.applicantStatusStageId;
+  const currentStageId =
+    primaryApprovalRow?.currentStageId ?? jobCandidate?.applicantStatusStageId;
   const currentStageTitle =
+    primaryApprovalRow?.currentStageTitle ??
     jobCandidate?.applicantStatusStage?.title ??
     statusStages?.items?.find((stage: any) => stage.id === currentStageId)
       ?.title ??
@@ -89,34 +112,8 @@ const StageApprovalModal = () => {
   };
 
   const enrichedApprovalData = useMemo((): ApprovalRecord[] => {
-    if (!logData || !Array.isArray(logData)) return [];
-    const historicalLogs = Array.isArray(approverLog)
-      ? approverLog
-      : (approverLog?.items ?? []);
-
-    return logData.map((approval: ApprovalRecord) => {
-      const historicalRecord = historicalLogs.find(
-        (log: SingleLogRequest) => log.stepOrder === approval.stepOrder,
-      );
-      const hasActionTaken =
-        historicalRecord &&
-        (historicalRecord.action === 'Approved' ||
-          historicalRecord.action === 'Rejected');
-
-      return {
-        ...approval,
-        approvedUserId: historicalRecord?.approvedUserId,
-        status: hasActionTaken
-          ? historicalRecord!.action === 'Approved'
-            ? 'Approved'
-            : 'Rejected'
-          : approval.status,
-        displayUserId: hasActionTaken
-          ? historicalRecord?.approvedUserId
-          : approval.userId,
-      };
-    });
-  }, [logData, approverLog]);
+    return [];
+  }, []);
 
   const stageOptions = useMemo(
     () =>
@@ -132,19 +129,144 @@ const StageApprovalModal = () => {
     setStageApprovalCandidateId(null);
     setStageApprovalWorkflowId(null);
     setStageApprovalCandidate(null);
+    setStageApprovalRows([]);
     setMoveToStageId(undefined);
   };
 
-  const handleMove = () => {
-    // TODO: Implement the move to stage logic
+  const resolveApprovalRequestIds = async () => {
+    const requestIdByCandidateId = new Map<string, string>();
+    activeRows.forEach((row: any) => {
+      if (row?.candidateId && row?.requestId) {
+        requestIdByCandidateId.set(row.candidateId, row.requestId);
+      }
+    });
+
+    const uninitiatedRows = activeRows.filter((row: any) => !row?.requestId);
+    const rowsByStage = uninitiatedRows.reduce(
+      (acc: Record<string, any[]>, row: any) => {
+        const stageId = row?.currentStageId;
+        if (!stageId) return acc;
+        acc[stageId] = [...(acc[stageId] ?? []), row];
+        return acc;
+      },
+      {},
+    );
+
+    for (const [stageId, rows] of Object.entries(rowsByStage)) {
+      const response = await createApprovalRequests({
+        approvalWorkflowId: stageApprovalWorkflowId ?? '',
+        jobId: rows[0]?.jobId,
+        applicantStatusStageId: stageId,
+        candidateIds: rows.map((row: any) => row.candidateId),
+      });
+
+      (response?.items ?? []).forEach((item: any) => {
+        if (item?.candidateId && item?.id) {
+          requestIdByCandidateId.set(item.candidateId, item.id);
+        }
+      });
+    }
+
+    return requestIdByCandidateId;
   };
 
-  const sortedApprovals = useMemo(
-    () => [...enrichedApprovalData].sort((a, b) => a.stepOrder - b.stepOrder),
-    [enrichedApprovalData],
-  );
+  const buildActionItems = (requestIdByCandidateId: Map<string, string>) => {
+    const targetStage = stageOptions.find(
+      (stage: any) => stage.value === moveToStageId,
+    );
+    const toStatus =
+      typeof targetStage?.label === 'string' ? targetStage.label : '';
 
-  const recruitmentStages = statusStages?.items ?? [];
+    return activeRows.map((row: any) => ({
+      requestId: requestIdByCandidateId.get(row.candidateId) ?? row.requestId,
+      applicantStatusStageId: moveToStageId!,
+      fromStatus: row?.currentStageTitle ?? currentStageTitle,
+      toStatus,
+    }));
+  };
+
+  const handleApprovalAction = async (action: 'approve' | 'reject') => {
+    if (!moveToStageId) {
+      NotificationMessage.error({
+        message: 'Please choose a stage',
+      });
+      return;
+    }
+    if (!activeRows.length || !stageApprovalWorkflowId) {
+      NotificationMessage.error({
+        message: 'Approval request data is missing',
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const requestIdByCandidateId = await resolveApprovalRequestIds();
+      const items = buildActionItems(requestIdByCandidateId);
+      const missingRequest = items.find((item) => !item.requestId);
+      if (missingRequest) {
+        throw new Error('Approval request id was not returned by the backend.');
+      }
+
+      if (items.length === 1) {
+        if (action === 'approve') {
+          await approveCandidateApproval(items[0]);
+        } else {
+          await rejectCandidateApproval(items[0]);
+        }
+      } else if (action === 'approve') {
+        await bulkApproveCandidateApproval({ items });
+      } else {
+        await bulkRejectCandidateApproval({ items });
+      }
+
+      setSelectedCandidate([]);
+      setSelectedRowKeys([]);
+      onClose();
+    } catch (error: any) {
+      NotificationMessage.error({
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          'Candidate approval action failed',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const sortedApprovals = useMemo(() => {
+    const workflowApprovers =
+      primaryApprovalRow?.approvers ?? workflowData?.approvers ?? [];
+    const logs = approverLog?.items ?? [];
+    if (workflowApprovers.length) {
+      return workflowApprovers
+        .map((approver: ApprovalRecord) => {
+          const log = logs.find(
+            (item: SingleLogRequest) => item.stepOrder === approver.stepOrder,
+          );
+          return {
+            ...approver,
+            approvedUserId: log?.approvedUserId,
+            displayUserId: log?.approvedUserId ?? approver.userId,
+            status:
+              log?.action === 'Approved' || log?.action === 'Rejected'
+                ? (log.action as 'Approved' | 'Rejected')
+                : 'Pending',
+          };
+        })
+        .sort(
+          (a: ApprovalRecord, b: ApprovalRecord) => a.stepOrder - b.stepOrder,
+        );
+    }
+
+    return [...enrichedApprovalData].sort((a, b) => a.stepOrder - b.stepOrder);
+  }, [
+    approverLog?.items,
+    enrichedApprovalData,
+    primaryApprovalRow?.approvers,
+    workflowData?.approvers,
+  ]);
 
   return (
     <Modal
@@ -205,66 +327,8 @@ const StageApprovalModal = () => {
               ) : sortedApprovals.length === 0 ? (
                 <div
                   data-cy="talent-acquisition-stage-approval-modal-approval-timeline-empty"
-                  className="flex items-center justify-center gap-2 w-full overflow-x-auto py-2"
-                >
-                  {(recruitmentStages.length > 0
-                    ? recruitmentStages.slice(0, 4)
-                    : [{ id: '1' }, { id: '2' }, { id: '3' }, { id: '4' }]
-                  ).map((stage: any, idx: number, arr: any[]) => {
-                    const isCurrent = stage.id === currentStageId;
-                    const isPast =
-                      recruitmentStages.findIndex(
-                        (s: any) => s.id === currentStageId,
-                      ) > idx;
-                    const connectorColor =
-                      isPast || isCurrent ? '#3636F0' : '#E6F4FF';
-
-                    return (
-                      <React.Fragment key={stage.id ?? idx}>
-                        {idx > 0 && (
-                          <div
-                            data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item"
-                            className="flex-1 min-w-[40px] flex flex-col items-center justify-center gap-1"
-                          >
-                            <span
-                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-label"
-                              className="inline-flex items-center rounded-md border border-solid px-2 py-0.5 text-[11px] font-normal whitespace-nowrap"
-                              style={{
-                                backgroundColor: '#E6F0FF',
-                                color: '#1677FF',
-                                borderColor: '#91CAFF',
-                              }}
-                            >
-                              {getStageLabel(idx - 1, arr[idx - 1]?.title)}
-                            </span>
-                            <div
-                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-connector"
-                              className="w-full h-0.5"
-                              style={{ backgroundColor: connectorColor }}
-                            />
-                          </div>
-                        )}
-                        <div
-                          data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content"
-                          className="flex flex-col items-center gap-1 shrink-0"
-                        >
-                          <div
-                            data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-avatar"
-                            className={`w-10 h-10 rounded-full border-2 flex items-center justify-center bg-gray-100 text-xs font-medium text-gray-500 ${
-                              isCurrent
-                                ? 'border-dashed border-[#3636F0]'
-                                : isPast
-                                  ? 'border-[#3636F0]'
-                                  : 'border-gray-200'
-                            }`}
-                          >
-                            {String(idx + 1)}
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
+                  className="h-12 w-full"
+                />
               ) : (
                 (() => {
                   const primaryColor = '#3636F0';
@@ -277,14 +341,11 @@ const StageApprovalModal = () => {
                     const displayId = approval.displayUserId ?? approval.userId;
                     const isPendingStep = approval.status === 'Pending';
                     const isApprovedStep = approval.status === 'Approved';
+                    const isRejectedStep = approval.status === 'Rejected';
                     const isCurrentStage =
                       isPendingStep && idx === firstPendingIdx;
                     const isConnectorActive =
                       isApprovedStep && idx < firstPendingIdx;
-                    const stageLabel = getStageLabel(
-                      idx,
-                      recruitmentStages[idx]?.title,
-                    );
                     const avatarPx = isCurrentStage ? 48 : 40;
 
                     return (
@@ -292,22 +353,8 @@ const StageApprovalModal = () => {
                         {idx > 0 && (
                           <div
                             data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item"
-                            className="flex-1 min-w-[40px] flex flex-col items-center justify-center gap-1"
+                            className="flex-1 min-w-[40px] flex items-center justify-center"
                           >
-                            <span
-                              className="inline-flex items-center rounded-md border border-solid px-2 py-0.5 text-[11px] font-normal whitespace-nowrap"
-                              style={{
-                                backgroundColor: '#E6F0FF',
-                                color: '#1677FF',
-                                borderColor: '#91CAFF',
-                              }}
-                              data-cy={`talent-acquisition-stage-approval-modal-stage-label-${idx}`}
-                            >
-                              {getStageLabel(
-                                idx - 1,
-                                recruitmentStages[idx - 1]?.title,
-                              )}
-                            </span>
                             <div
                               data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-connector"
                               className="w-full h-0.5"
@@ -321,7 +368,7 @@ const StageApprovalModal = () => {
                         )}
                         <div
                           data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content"
-                          className="flex flex-col items-center gap-1 shrink-0"
+                          className="flex items-center shrink-0"
                         >
                           <Tooltip
                             title={userData(displayId) || 'Approver'}
@@ -338,7 +385,9 @@ const StageApprovalModal = () => {
                                   ? 'w-12 h-12 border-dashed border-[#3636F0]'
                                   : isApprovedStep
                                     ? 'w-10 h-10 border-[#3636F0]'
-                                    : 'w-10 h-10 border-gray-200'
+                                    : isRejectedStep
+                                      ? 'w-10 h-10 border-[#FF4D4F]'
+                                      : 'w-10 h-10 border-gray-200'
                               }`}
                               data-cy={`talent-acquisition-stage-approval-modal-approval-avatar-${approval.stepOrder}`}
                             >
@@ -353,30 +402,11 @@ const StageApprovalModal = () => {
                               ) : (
                                 <div
                                   data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-avatar-fallback"
-                                  className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-medium"
-                                >
-                                  {userData(displayId)
-                                    ?.split(' ')
-                                    .map((n) => n[0])
-                                    .join('')
-                                    .slice(0, 2) ?? '?'}
-                                </div>
+                                  className="w-full h-full bg-gray-200"
+                                />
                               )}
                             </div>
                           </Tooltip>
-                          {idx === 0 && (
-                            <span
-                              className="inline-flex items-center rounded-md border border-solid px-2 py-0.5 text-[11px] font-normal whitespace-nowrap"
-                              style={{
-                                backgroundColor: '#E6F0FF',
-                                color: '#1677FF',
-                                borderColor: '#91CAFF',
-                              }}
-                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-label"
-                            >
-                              {stageLabel}
-                            </span>
-                          )}
                         </div>
                       </React.Fragment>
                     );
@@ -464,11 +494,24 @@ const StageApprovalModal = () => {
             </Button>
             <Button
               type="primary"
-              onClick={handleMove}
-              className="h-10 px-6 rounded-lg !bg-[#1E40AF] hover:!bg-[#1D4ED8] border-0"
-              data-cy="talent-acquisition-stage-approval-modal-move-button"
+              onClick={() => handleApprovalAction('reject')}
+              loading={isSubmitting}
+              disabled={isSubmitting}
+              danger
+              className="h-10 px-6 rounded-lg"
+              data-cy="talent-acquisition-stage-approval-modal-reject-button"
             >
-              Move
+              Reject
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => handleApprovalAction('approve')}
+              loading={isSubmitting}
+              disabled={isSubmitting}
+              className="h-10 px-6 rounded-lg !bg-[#1E40AF] hover:!bg-[#1D4ED8] border-0"
+              data-cy="talent-acquisition-stage-approval-modal-approve-button"
+            >
+              Approve
             </Button>
           </div>
         </div>

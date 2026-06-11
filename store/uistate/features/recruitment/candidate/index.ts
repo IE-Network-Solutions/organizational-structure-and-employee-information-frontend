@@ -96,6 +96,8 @@ interface CandidateState {
   setStageApprovalWorkflowId: (value: string | null) => void;
   stageApprovalCandidate: any | null;
   setStageApprovalCandidate: (value: any | null) => void;
+  stageApprovalRows: any[];
+  setStageApprovalRows: (value: any[]) => void;
 }
 
 export const useCandidateState = create<CandidateState>((set) => ({
@@ -187,4 +189,6 @@ export const useCandidateState = create<CandidateState>((set) => ({
     set({ stageApprovalWorkflowId: value }),
   stageApprovalCandidate: null,
   setStageApprovalCandidate: (value) => set({ stageApprovalCandidate: value }),
+  stageApprovalRows: [],
+  setStageApprovalRows: (value) => set({ stageApprovalRows: value }),
 }));
