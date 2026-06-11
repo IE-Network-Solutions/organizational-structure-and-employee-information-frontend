@@ -89,6 +89,11 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN
         ],
     },
+    {
+      value: AttendanceCheckInSource.SYSTEM_UPDATED,
+      label:
+        attendanceCheckInSourceLabels[AttendanceCheckInSource.SYSTEM_UPDATED],
+    },
   ];
 
   const clockOutMethodOptions = [
@@ -108,6 +113,13 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       label:
         attendanceCheckOutSourceLabels[
           AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT
+        ],
+    },
+    {
+      value: AttendanceCheckOutSource.SYSTEM_UPDATED,
+      label:
+        attendanceCheckOutSourceLabels[
+          AttendanceCheckOutSource.SYSTEM_UPDATED
         ],
     },
   ];
