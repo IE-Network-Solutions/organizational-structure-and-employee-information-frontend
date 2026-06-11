@@ -1,6 +1,15 @@
 'use client';
-import { Input, Popconfirm, Avatar, Dropdown, MenuProps, Tag } from 'antd';
-import { SearchOutlined, EllipsisOutlined } from '@ant-design/icons';
+import {
+  Input,
+  Popconfirm,
+  Avatar,
+  Dropdown,
+  MenuProps,
+  Tag,
+  Card,
+} from 'antd';
+import { SearchOutlined, CalendarOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import dayjs from 'dayjs';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
 import PlanningAssignationPageSkeleton from './_components/planningAssignationPageSkeleton';
@@ -232,7 +241,7 @@ const PlanAssignment: React.FC = () => {
       data-cy="okr-planning-assignation-container-display-div"
     >
       <div
-        className="border border-[#f0f0f0] rounded-xl pt-5 px-8 pb-8 bg-white h-[calc(100vh-320px)] flex flex-col"
+        className="rounded-xl pt-5 px-8 pb-8 bg-white h-[calc(100vh-320px)] flex flex-col"
         id="okr-planning-assignation-main-container"
         data-cy="okr-planning-assignation-main-container"
       >
@@ -294,7 +303,7 @@ const PlanAssignment: React.FC = () => {
             </div>
           ) : (
             <div
-              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
               id="okr-planning-assignation-cards-grid"
               data-cy="okr-planning-assignation-cards-grid"
             >
@@ -306,19 +315,22 @@ const PlanAssignment: React.FC = () => {
                   .slice(0, 2);
 
                 return (
-                  <div
+                  <Card
                     key={item.userId}
-                    className="bg-white border border-[#d9d9d9] rounded-[8px] p-5 hover:shadow-sm transition-shadow relative"
+                    bordered={false}
+                    className="rounded-xl hover:shadow-sm transition-shadow"
+                    style={{ background: '#F9FAFB', boxShadow: 'none' }}
+                    bodyStyle={{ padding: '16px' }}
                     id={`okr-planning-assignation-card-${item.userId}`}
                     data-cy={`okr-planning-assignation-card-${item.userId}`}
                   >
                     <div
-                      className="flex items-center gap-4"
+                      className="flex items-start gap-3"
                       data-cy={`okr-planning-assignation-card-content-${item.userId}`}
                     >
                       {/* Avatar */}
                       <div
-                        className="flex-shrink-0"
+                        className="shrink-0"
                         id={`okr-planning-assignation-card-avatar-wrapper-${item.userId}`}
                         data-cy={`okr-planning-assignation-card-avatar-wrapper-${item.userId}`}
                       >
@@ -331,7 +343,7 @@ const PlanAssignment: React.FC = () => {
                         ) : (
                           <Avatar
                             size={40}
-                            className="bg-[#f0f0f0] text-[#8c8c8c]"
+                            className="bg-[#EFF6FF] text-[#1D4ED8] font-semibold"
                             data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
                           >
                             {initials}
@@ -341,68 +353,76 @@ const PlanAssignment: React.FC = () => {
 
                       {/* Content block */}
                       <div
-                        className="flex-1 min-w-0 flex flex-col justify-center"
+                        className="flex-1 min-w-0"
                         data-cy={`okr-planning-assignation-card-content-block-${item.userId}`}
                       >
-                        {/* Tag */}
+                        {/* Name + 3-dot row */}
                         <div
-                          className="mb-2"
-                          data-cy={`okr-planning-assignation-card-tag-wrapper-${item.userId}`}
+                          className="flex items-start justify-between gap-1"
+                          data-cy={`okr-planning-assignation-card-name-row-${item.userId}`}
+                        >
+                          <p
+                            className="text-sm font-semibold text-gray-800 truncate m-0 leading-5"
+                            id={`okr-planning-assignation-card-name-${item.userId}`}
+                            data-cy={`okr-planning-assignation-card-name-${item.userId}`}
+                          >
+                            {item.employeeName}
+                          </p>
+                          <div
+                            className="shrink-0"
+                            id={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
+                            data-cy={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
+                          >
+                            <Dropdown
+                              menu={{ items: getMenuItems(item) }}
+                              trigger={['click']}
+                              placement="bottomRight"
+                              overlayClassName="custom-menu-dropdown"
+                              data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
+                            >
+                              <button
+                                type="button"
+                                className="flex h-6 w-6 items-center justify-center text-[#8c8c8c] transition-colors hover:text-[#262626] bg-transparent border-none cursor-pointer p-0"
+                                onClick={(e) => e.stopPropagation()}
+                                data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
+                              >
+                                <MoreHorizIcon
+                                  style={{ fontSize: 14 }}
+                                  data-cy={`okr-planning-assignation-card-menu-icon-${item.userId}`}
+                                />
+                              </button>
+                            </Dropdown>
+                          </div>
+                        </div>
+
+                        {/* Tag + Date row */}
+                        <div
+                          className="flex items-center gap-2 mt-2 flex-wrap"
+                          data-cy={`okr-planning-assignation-card-meta-${item.userId}`}
                         >
                           <Tag
-                            className="px-2 py-0.5 text-[12px] font-medium text-[#595959] border-[#d9d9d9] bg-[#fafafa] rounded-[4px]"
+                            className="m-0 rounded-md px-3 py-0.5 border-[#d9d9d9] bg-white text-[#8c8c8c] text-xs font-normal"
                             id={`okr-planning-assignation-card-tag-${item.userId}`}
                             data-cy={`okr-planning-assignation-card-tag-${item.userId}`}
                           >
                             {item.planningPeriodType}
                           </Tag>
-                        </div>
-
-                        {/* Name */}
-                        <p
-                          className="text-[15px] font-semibold text-[#262626] mb-0.5 truncate"
-                          id={`okr-planning-assignation-card-name-${item.userId}`}
-                          data-cy={`okr-planning-assignation-card-name-${item.userId}`}
-                        >
-                          {item.employeeName}
-                        </p>
-
-                        {/* Date */}
-                        <div
-                          className="text-[13px] text-[#8c8c8c]"
-                          data-cy={`okr-planning-assignation-card-date-${item.userId}`}
-                        >
-                          {item.updatedAt
-                            ? dayjs(item.updatedAt).format('DD MMM YYYY')
-                            : '-'}
-                        </div>
-                      </div>
-
-                      {/* Menu button */}
-                      <div
-                        className="flex-shrink-0"
-                        id={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
-                        data-cy={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
-                      >
-                        <Dropdown
-                          menu={{ items: getMenuItems(item) }}
-                          trigger={['click']}
-                          placement="bottomRight"
-                          overlayClassName="custom-menu-dropdown"
-                          data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
-                        >
-                          <button
-                            type="button"
-                            className="flex h-8 w-8 items-center justify-center rounded-[6px] border border-[#d9d9d9] text-[#8c8c8c] transition-colors hover:border-[#2b54ad] hover:text-[#262626]"
-                            onClick={(e) => e.stopPropagation()}
-                            data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
+                          <span
+                            className="flex items-center gap-1 text-xs text-gray-400"
+                            data-cy={`okr-planning-assignation-card-date-${item.userId}`}
                           >
-                            <EllipsisOutlined className="text-lg" />
-                          </button>
-                        </Dropdown>
+                            <CalendarOutlined
+                              style={{ fontSize: 11 }}
+                              data-cy={`okr-planning-assignation-card-date-icon-${item.userId}`}
+                            />
+                            {item.updatedAt
+                              ? dayjs(item.updatedAt).format('DD MMM YYYY')
+                              : '-'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>

@@ -96,10 +96,9 @@ const ViewAttendanceSidebar = () => {
   const lateInfo = (record: AttendanceRecord | AttendanceBreak) => {
     return (
       <InfoItem
-        value={formatAttendanceWallClockTimeOrDash(
-          record?.startAt,
-          TIME_FORMAT,
-        )}
+        value={
+          formatAttendanceWallClockTimeOrDash(record?.startAt, TIME_FORMAT)
+        }
         info={record?.geolocations[0]?.allowedArea?.title ?? ''}
         data-cy="time-attendance-view-attendance-sidebar-late-info"
       >

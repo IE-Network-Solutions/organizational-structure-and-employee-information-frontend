@@ -335,12 +335,10 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       (metric === 'Numeric' ||
         metric === 'Currency' ||
         metric === 'Percentage') &&
-      Number(rowEditableKeyResult?.initialValue) >
+      Number(rowEditableKeyResult?.initialValue) >=
         Number(rowEditableKeyResult?.targetValue)
     ) {
-      message.warning(
-        'Initial value must be less than or equal to target value.',
-      );
+      message.warning('Target value must be greater than the initial value.');
       return false;
     }
     return true;

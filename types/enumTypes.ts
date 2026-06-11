@@ -6,6 +6,7 @@ export enum FieldType {
   TIME = 'time',
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
+  RATING = 'rating',
 }
 export enum ActionPlanStatus {
   SOLVED = 'solved',

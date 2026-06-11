@@ -283,6 +283,28 @@ export default function WorkFromHomeMyRequestsTable({
         );
       },
     },
+    {
+      title: 'Rejected Reason',
+      dataIndex: 'rejectedReason',
+      key: 'rejectedReason',
+      width: 200,
+      ellipsis: true,
+      onCell: () => ({ style: cellStyle }),
+      render: (text: string, record: { status: LeaveRequestStatus }) => {
+        const value =
+          record.status === LeaveRequestStatus.DECLINED ? text || '-' : '-';
+
+        return (
+          <div
+            className={`${rowCellClass} max-w-[200px] truncate text-gray-900`}
+            data-cy="time-attendance-wfh-my-requests-cell-rejected-reason"
+            title={value !== '-' ? value : undefined}
+          >
+            {value}
+          </div>
+        );
+      },
+    },
   ];
 
   const meta = data?.meta;
@@ -329,7 +351,7 @@ export default function WorkFromHomeMyRequestsTable({
             <TableSkeleton columns={columns} />
           ) : (
             <Table
-              className="[&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.wfh-requests-row-even>td]:!bg-[#FAFAFA] [&_tr.wfh-requests-row-odd>td]:!bg-white"
+              className="[&_.ant-table]:min-w-[1120px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.wfh-requests-row-even>td]:!bg-[#FAFAFA] [&_tr.wfh-requests-row-odd>td]:!bg-white"
               columns={columns}
               dataSource={tableData}
               pagination={false}

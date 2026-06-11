@@ -26,7 +26,7 @@ const Positions: React.FC = () => {
         </Col>
         <Col xl={12} lg={12} md={12} sm={24} xs={24}>
           <Card
-            className="border border-gray-200 rounded-lg"
+            className="border-0 rounded-lg"
             id="settings-positions-card"
             data-cy="settings-positions-card"
             bodyStyle={{ padding: 0 }}

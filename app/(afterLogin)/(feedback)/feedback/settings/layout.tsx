@@ -2,11 +2,12 @@
 import React, { FC, ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Breadcrumb, Tabs, Button, Form, Input, Modal } from 'antd';
+import { Breadcrumb, Tabs, Button, Form, Input, Modal, Tooltip } from 'antd';
 import SettingsTextArea from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsTextArea';
 import { SettingsModalHeader } from '@/app/(afterLogin)/(feedback)/feedback/settings/_components/SettingsModalHeader';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
+import { AiOutlineEye } from 'react-icons/ai';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname, useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
@@ -46,7 +47,16 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     recognitionCategoryEditId,
     setRecognitionCategoryEditId,
   } = ConversationStore();
-  const { setOpenEmployeeSurvey } = EmployeeSurveyStore();
+  const {
+    setOpenEmployeeSurvey,
+    setOpenAssignSurveyModal,
+    setAssignSurveyModalInitialValues,
+  } = EmployeeSurveyStore();
+  const {
+    targetAchievementViewMode,
+    toggleTargetAchievementViewMode,
+    setTargetAchievementViewMode,
+  } = EmployeeSurveyStore();
   const { settingActiveTab } = ConversationStore();
   const { setOpenSurveyCategoryModal, setSurveyCategoryEditId } =
     EmployeeSurveyStore();
@@ -106,6 +116,12 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     if (pathname.includes('/survey-category')) return 'surveyCategory';
     return 'defineFeedback';
   };
+  const isTargetAchievementTab = getActiveKey() === 'targetAchievement';
+  const isSurveyAssignmentView =
+    targetAchievementViewMode === 'surveyAssignment';
+  const viewToggleLabel = isSurveyAssignmentView
+    ? 'View Target Achievement'
+    : 'View Survey Assignment';
 
   const handleTabChange = (key: string) => {
     switch (key) {
@@ -116,6 +132,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         router.push('/feedback/settings/recognition');
         break;
       case 'targetAchievement':
+        setTargetAchievementViewMode('targetAssignment');
         router.push('/feedback/settings/target-achievement');
         break;
       case 'meetingType':
@@ -152,6 +169,15 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     },
   ];
 
+  const handleSurveyOrTargetAssignment = () => {
+    if (isSurveyAssignmentView) {
+      setAssignSurveyModalInitialValues(null);
+      setOpenAssignSurveyModal(true);
+    } else {
+      setOpenEmployeeSurvey(true);
+    }
+  };
+
   return (
     <div
       className="min-h-screen"
@@ -181,6 +207,29 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                   },
                 ]}
               />
+            }
+            titleExtra={
+              isTargetAchievementTab ? (
+                <Tooltip title={viewToggleLabel} placement="bottom">
+                  <Button
+                    onClick={toggleTargetAchievementViewMode}
+                    type="default"
+                    className="m-0 !inline-flex !h-10 items-center justify-center gap-2 rounded-lg border border-blue-500 bg-white px-4 text-sm font-medium !leading-[22px] !text-blue-500 shadow-none hover:!border-blue-600 hover:!text-blue-600"
+                    data-cy="target-achievement-toggle-view-btn"
+                  >
+                    <AiOutlineEye
+                      className="size-[16px] shrink-0 text-current"
+                      aria-hidden
+                    />
+                    <span
+                      className={`${isMobile ? 'hidden' : 'inline'} leading-[22px]`}
+                      data-cy="target-achievement-toggle-view-label"
+                    >
+                      {viewToggleLabel}
+                    </span>
+                  </Button>
+                </Tooltip>
+              ) : null
             }
           />
         </div>
@@ -256,9 +305,12 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
                     icon={<FaPlus />}
                     type="primary"
                     // onClick={showDrawer}
-                    onClick={() => setOpenEmployeeSurvey(true)}
+                    onClick={() => handleSurveyOrTargetAssignment()}
                   >
-                    {!isMobile && 'Employee Survey'}
+                    {!isMobile &&
+                      (isSurveyAssignmentView
+                        ? 'Assign Survey'
+                        : 'Employee Score')}
                   </Button>
                 ) : getActiveKey() === 'meetingType' ? (
                   !isMeetingTypeDetailRoute && (

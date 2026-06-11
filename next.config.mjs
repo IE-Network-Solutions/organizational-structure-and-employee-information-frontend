@@ -12,7 +12,7 @@ const nextConfig = {
       'files.ienetworks.co',
       'example.com',
     ],
-    remotePatterns: [
+     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'files.ienetworks.co',
@@ -32,16 +32,14 @@ const nextConfig = {
     PUBLIC_DOMAIN: process.env.PUBLIC_DOMAIN,
     OKR_URL: process.env.OKR_URL,
     APPROVER_URL: process.env.NEXT_PUBLIC_APPROVERS_URL,
-    OKR_URL: process.env.OKR_URL,
     ORG_DEV: process.env.ORG_DEV,
     EMAIL_URL: process.env.EMAIL_URL,
     INCENTIVE_URL: process.env.INCENTIVE_URL,
-    PAYROLL_URL: process.env.PAYROLL_URL,
-    TENANT_BASE_URL: process.env.TENANT_BASE_URL,
-    TENANT_MGMT_URL: process.env.TENANT_BASE_URL,
     AI_BASE_URL: process.env.NEXT_PUBLIC_AI_BASE_URL,
     AI_REC_BASE_URL: process.env.NEXT_PUBLIC_AI_REC_BASE_URL,
     NEXT_PUBLIC_AZURE_APP_SERVICE: process.env.NEXT_PUBLIC_AZURE_APP_SERVICE,
+    NEXT_PUBLIC_ENCRYPTION_DISABLED:
+      process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
   },
 };
 
@@ -51,9 +49,6 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: false,
   sw: 'sw.js',
-  fallbacks: {
-    document: '/offline',
-  },
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

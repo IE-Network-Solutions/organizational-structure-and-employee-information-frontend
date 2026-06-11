@@ -183,15 +183,18 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
           </AccessGuard>
         ) : null
       }
-      className="emergency-contact-card rounded-lg border border-gray-200"
+      className="emergency-contact-card rounded-lg my-6 mt-0"
+      bordered={false}
+      style={{ background: '#F9FAFB', boxShadow: 'none' }}
       id="emergency-contact-card"
       data-cy="emergency-contact-card"
       headStyle={{
         borderBottom: 'none',
         paddingLeft: '16px',
         paddingRight: '16px',
+        background: '#F9FAFB',
       }}
-      bodyStyle={{ padding: '12px 16px 12px 16px' }}
+      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
     >
       {edit.emergencyContact ? (
         <Form

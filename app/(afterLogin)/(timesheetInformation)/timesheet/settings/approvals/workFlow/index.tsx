@@ -17,6 +17,11 @@ import {
   Tag,
 } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
+import {
+  findDepartmentById,
+  flattenDepartments,
+  isDepartmentEntityType,
+} from '@/utils/approval/departmentHelpers';
 
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
 
@@ -141,8 +146,8 @@ const ApprovalWorkFlowModal = ({
     const selectedId = form.getFieldValue('workflowAppliesId');
     if (!selectedId) return '-';
 
-    if (workflowApplies === 'Department') {
-      return departments.find((dept) => dept.id === selectedId)?.name || '-';
+    if (isDepartmentEntityType(workflowApplies)) {
+      return findDepartmentById(departments, selectedId)?.name || '-';
     }
 
     if (workflowApplies === 'User') {
@@ -323,7 +328,10 @@ const ApprovalWorkFlowModal = ({
 
   const workflowTargetOptions = (() => {
     if (workflowApplies === 'Department') {
-      return departments.map((item) => ({ value: item.id, label: item.name }));
+      return flattenDepartments(departments).map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
     }
     if (workflowApplies === 'User') {
       return users.map((item: User) => ({

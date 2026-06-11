@@ -34,7 +34,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     setIsShowLocationSidebar,
     setIsShowCreateRuleSidebar,
     setAttendanceNotificationType,
-    attendanceNotificationType,
     setIsShowNewAccrualRuleSidebar,
     setIsShowCarryOverRuleSidebar,
   } = useTimesheetSettingsStore();
@@ -431,7 +430,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                         <AddIcon data-cy="time-attendance-settings-attendance-rules-add-rule-button-icon" />
                       }
                       className="h-10 text-base font-normal"
-                      disabled={!attendanceNotificationType.length}
                       onClick={() => setIsShowCreateRuleSidebar(true)}
                     >
                       <span

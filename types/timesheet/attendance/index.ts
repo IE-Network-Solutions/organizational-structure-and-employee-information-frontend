@@ -58,10 +58,9 @@ export const attendanceCheckInSourceLabels: Record<
   string
 > = {
   [AttendanceCheckInSource.IMPORTED]: 'Imported',
-  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote checked in',
-  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]:
-    'Attendance device checked in',
-  [AttendanceCheckInSource.SYSTEM_UPDATED]: 'System updated',
+  [AttendanceCheckInSource.REMOTE_CHECKED_IN]: 'Remote',
+  [AttendanceCheckInSource.ATTENDANCE_DEVICE_CHECKED_IN]: 'Attendance Device',
+  [AttendanceCheckInSource.SYSTEM_UPDATED]: 'System Updated',
 };
 
 export const attendanceCheckOutSourceLabels: Record<
@@ -69,10 +68,9 @@ export const attendanceCheckOutSourceLabels: Record<
   string
 > = {
   [AttendanceCheckOutSource.IMPORTED]: 'Imported',
-  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote checked out',
-  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]:
-    'Attendance device checked out',
-  [AttendanceCheckOutSource.SYSTEM_UPDATED]: 'System updated',
+  [AttendanceCheckOutSource.REMOTE_CHECKED_OUT]: 'Remote',
+  [AttendanceCheckOutSource.ATTENDANCE_DEVICE_CHECKED_OUT]: 'Attendance Device',
+  [AttendanceCheckOutSource.SYSTEM_UPDATED]: 'System Updated',
 };
 
 export interface AttendanceRecord extends DateInfo {
@@ -131,15 +129,77 @@ export interface AttendanceNotificationType extends DateInfo {
   id: string;
   title: string;
   unit: AttendanceTypeUnit;
-  attendanceNotificationRules: AttendanceNotificationRule[];
+  attendanceRules: AttendanceRule[];
   isActive: boolean;
 }
 
-export interface AttendanceNotificationRule extends DateInfo {
+export enum AttendanceActionType {
+  WARNING_LETTER = 'WARNING_LETTER',
+  REPRIMAND = 'REPRIMAND',
+  SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+  VP_DEDUCTION = 'VP_DEDUCTION',
+}
+
+export interface AttendanceRule extends DateInfo {
   id: string;
-  title: string;
+  name: string;
   description: string;
-  attendanceNotificationType: string;
-  attendanceNotificationTypeId: string;
-  value: number;
+  effectiveStartDate: string;
+  resetDays: number;
+  ruleAppliedDays: number;
+  isFixed?: boolean;
+  deductibleFixedAmount?: number;
+  deductibleSalaryDays?: number;
+  vpDeductionAmount?: number;
+  ruleType: string | AttendanceRuleTypes;
+  actionTypes: AttendanceActionType | string;
+  letterTemplate?: string;
+  breakType?: string | BreakType;
+}
+
+export enum AttendanceRuleType {
+  EARLY_CLOCK_OUT = 'EARLY_CLOCK_OUT',
+  LATE = 'LATE',
+  ABSENT = 'ABSENT',
+  MISSED_CHECK_IN_OUT = 'MISSED_CHECK_IN_OUT',
+  BREAK = 'BREAK',
+}
+
+export interface AttendanceRuleTypes extends DateInfo {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string;
+  isBreak: boolean;
+  ruleType: AttendanceRuleType | string;
+}
+
+export interface AttendanceRule {
+  id: string;
+  name: string;
+  description: string;
+  effectiveStartDate: string;
+  resetDays: number;
+  ruleAppliedDays: number;
+  isFixed?: boolean;
+  deductibleFixedAmount?: number;
+  deductibleSalaryDays?: number;
+  vpDeductionAmount?: number;
+  actionTypes: AttendanceActionType | string;
+  letterTemplate?: string;
+  breakTypeId: string;
+  attendanceRuleTypeId: string;
+}
+
+export interface AttendanceRuleViolation extends DateInfo {
+  id: string;
+  userId: string;
+  tenantId: string;
+  attendanceRuleId: string;
+  actionTypes: string[];
+  actionTaken: boolean;
+  actionTakenAt: string | null;
+  attendanceRule: AttendanceRule;
+  attendanceRuleTypes?: AttendanceRuleTypes;
+  logs: unknown[];
 }

@@ -171,9 +171,9 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         metric === 'Currency' ||
         metric === 'Percentage'
       ) {
-        if (Number(kr?.initialValue) > Number(kr?.targetValue)) {
+        if (Number(kr?.initialValue) >= Number(kr?.targetValue)) {
           message.warning(
-            `Initial value must be <= target value for "${kr?.title || 'Key Result'}".`,
+            `Target value must be greater than the initial value for "${kr?.title || 'Key Result'}".`,
           );
           return false;
         }

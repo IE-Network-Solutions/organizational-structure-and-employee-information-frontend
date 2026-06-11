@@ -233,7 +233,7 @@ export default function WorkFromHomeRequestDetailModal() {
               ) : enrichedApprovalData.length === 0 ? (
                 <span
                   className="text-sm text-gray-500"
-                  data-cy="time-attendance-wfh-request-detail-modal-approval-empty"
+                  data-cy="time-attendance-wfh-request-detail-modal-no-approval-workflow"
                 >
                   No approval workflow
                 </span>

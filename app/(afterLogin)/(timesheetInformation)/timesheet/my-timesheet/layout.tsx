@@ -20,6 +20,7 @@ import LeaveRequestDetail from './_components/leaveRequestDetail';
 import WorkFromHomeRequestSidebar from './_components/workFromHomeRequestSidebar';
 import WorkFromHomeRequestDetailModal from './_components/workFromHome/WorkFromHomeRequestDetailModal';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import RemoteAttendanceCameraModals from '@/components/common/remoteAttendanceCameraModals';
 
 const MY_TIMESHEET_BASE = '/timesheet/my-timesheet';
 
@@ -264,6 +265,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
       <WorkFromHomeRequestDetailModal data-cy="time-attendance-my-timesheet-work-from-home-request-detail-modal" />
       <LeaveRequestDetail data-cy="time-attendance-my-timesheet-leave-request-detail" />
       <CheckOutSidebar data-cy="time-attendance-my-timesheet-check-out-sidebar" />
+      <RemoteAttendanceCameraModals />
     </div>
   );
 };

@@ -1,4 +1,8 @@
 import type { PlanOwner, PlanSummary } from '../types';
+import {
+  getKeyResultProgressPercent,
+  getKeyResultProgressRatioText,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
 export interface KRPanelAggregatedKR {
@@ -9,6 +13,7 @@ export interface KRPanelAggregatedKR {
   metricType: string;
   targetValue: string | number;
   currentValue: string | number;
+  progressLabel: string;
   isDeleted: boolean;
 }
 
@@ -31,17 +36,28 @@ export function normalizeUserKeyResultItems(data: unknown): any[] {
   return [];
 }
 
-function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
+/** Normalize any KR payload (plan, report, or user API) for the left KR panel cards. */
+export function aggregateKeyResultForPanel(
+  kr: any,
+  taskCount = 0,
+): KRPanelAggregatedKR {
+  const metricType =
+    kr?.metricType?.name || kr?.key_type || kr?.metricType || 'N/A';
   return {
     id: String(kr.id),
     title: (kr.title || kr.name || 'Untitled KR').trim() || 'Untitled KR',
-    progress: Math.min(100, Math.max(0, Number(kr.progress ?? 0))),
-    taskCount: 0,
-    metricType: kr.metricType?.name ?? 'N/A',
+    progress: getKeyResultProgressPercent(kr),
+    taskCount,
+    metricType,
     targetValue: kr.targetValue ?? 0,
     currentValue: kr.currentValue ?? 0,
+    progressLabel: getKeyResultProgressRatioText(kr),
     isDeleted: kr.deletedAt != null,
   };
+}
+
+function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
+  return aggregateKeyResultForPanel(kr, 0);
 }
 
 function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {

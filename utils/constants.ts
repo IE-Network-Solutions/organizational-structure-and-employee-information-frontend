@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+/** Org & employee API. Override in `.env.local` for local backend (see `.env.local.example`). */
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;

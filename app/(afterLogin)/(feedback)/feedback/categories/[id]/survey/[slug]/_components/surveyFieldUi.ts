@@ -16,6 +16,7 @@ export const SURVEY_FIELD_TYPE_LABELS: Record<string, string> = {
   [FieldType.TIME]: 'Time',
   [FieldType.DROPDOWN]: 'Dropdown',
   [FieldType.RADIO]: 'Radio',
+  [FieldType.RATING]: 'Rating',
 };
 
 export function surveyFieldTypeLabel(fieldType: string): string {

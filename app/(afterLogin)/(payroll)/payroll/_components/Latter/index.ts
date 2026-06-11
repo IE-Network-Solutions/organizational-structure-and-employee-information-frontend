@@ -1,6 +1,7 @@
 import { IE_LOGO_BASE64 } from '@/public/image/bankLetterImages';
-import { useGetTenant } from '@/store/server/features/employees/authentication/queries';
+import { useGetCompanyProfileByTenantId } from '@/store/server/features/organizationStructure/companyProfile/mutation';
 import { useGetActiveMonth } from '@/store/server/features/payroll/payroll/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import dayjs from 'dayjs';
 import jsPDF from 'jspdf';
 
@@ -50,34 +51,35 @@ const getImageAsDataUri = async (
 };
 
 export const useGenerateBankLetter = () => {
-  const { data: tenant } = useGetTenant();
+  const tenantId = useAuthenticationStore((state) => state.tenantId);
+  const { data: companyInfo } = useGetCompanyProfileByTenantId(tenantId ?? '');
   const { data: activeMonth } = useGetActiveMonth();
 
   const generateBankLetter = async (amount: number) => {
     try {
-      if (!tenant) {
+      const numericAmount = Number(amount);
+      if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
         throw new Error(
-          'Tenant data is not available. Please ensure you are logged in.',
+          'Invalid amount for the bank letter. Please ensure payroll net pay totals are available.',
         );
       }
 
-      if (!activeMonth) {
+      if (!companyInfo) {
         throw new Error(
-          'Active month data is not available. Please select an active payroll period.',
+          'Company profile is not available. Please ensure you are logged in and company profile is configured.',
         );
       }
 
-      if (!activeMonth.startDate) {
-        throw new Error('Active month start date is missing.');
+      if (!companyInfo.companyName) {
+        throw new Error('Company name is missing from company profile.');
       }
 
-      if (!tenant.companyName) {
-        throw new Error('Company name is missing from tenant data.');
-      }
+      const monthStartDate =
+        activeMonth?.startDate ?? dayjs().startOf('month').toISOString();
 
       const currentDate = dayjs().format('MMMM DD, YYYY');
-      const currentMonth = dayjs(activeMonth.startDate).format('MMMM');
-      const refNumber = `${tenant.companyName.toUpperCase().slice(0, 2)}/FIN/${dayjs().format('DDMMYY')}/001`;
+      const currentMonth = dayjs(monthStartDate).format('MMMM');
+      const refNumber = `${companyInfo.companyName.toUpperCase().slice(0, 2)}/FIN/${dayjs().format('DDMMYY')}/001`;
 
       // Create PDF document
       const doc = new jsPDF();
@@ -85,7 +87,7 @@ export const useGenerateBankLetter = () => {
       let y = 15; // Moved up from 20
 
       // Get the logo data
-      const logoUrl = tenant.logo || '';
+      const logoUrl = companyInfo.logo || '';
 
       const imageResult = await getImageAsDataUri(logoUrl);
 
@@ -177,7 +179,7 @@ export const useGenerateBankLetter = () => {
       doc.setTextColor(68, 68, 68); // Grey color like downloadJobInformation
 
       // First paragraph
-      const paragraph1 = `We hereby authorize your branch to transfer ETB ${amount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
+      const paragraph1 = `We hereby authorize your branch to transfer ETB ${numericAmount.toFixed(2)} for the month of ${currentMonth} for employee salary net payment listed in the attached table from our account to the respective account mentioned with the listed branch of Enat Bank.`;
 
       const textWidth = 180; // Same as downloadJobInformation
       const lines1 = doc.splitTextToSize(paragraph1, textWidth);
@@ -185,7 +187,7 @@ export const useGenerateBankLetter = () => {
       y += lines1.length * 6;
 
       // Second paragraph
-      const paragraph2 = `Please deduct the transfer service charges from ${tenant.companyName} account 0061101660052002 maintained at Mexico Derartu Tulu branch.`;
+      const paragraph2 = `Please deduct the transfer service charges from ${companyInfo.companyName} account 0061101660052002 maintained at Mexico Derartu Tulu branch.`;
       const lines2 = doc.splitTextToSize(paragraph2, textWidth);
       doc.text(lines2, 15, y);
       y += lines2.length * 6 + 8;
@@ -239,7 +241,7 @@ export const useGenerateBankLetter = () => {
       doc.line(emailLineStartX, emailLineY, emailLineEndX, emailLineY);
 
       // Save the PDF (sanitize filename)
-      const sanitizedCompanyName = tenant.companyName
+      const sanitizedCompanyName = companyInfo.companyName
         .replace(/[^a-z0-9]/gi, '_')
         .toLowerCase();
       doc.save(`${sanitizedCompanyName}_bank_letter.pdf`);

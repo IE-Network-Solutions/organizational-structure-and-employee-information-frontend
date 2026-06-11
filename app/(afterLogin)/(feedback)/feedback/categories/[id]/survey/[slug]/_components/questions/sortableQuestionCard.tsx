@@ -11,6 +11,12 @@ import { QuestionsType } from '@/store/server/features/organization-development/
 import { useUpdateQuestions } from '@/store/server/features/feedback/question/mutation';
 import { v4 as uuidv4 } from 'uuid';
 import SurveyQuestionEditorForm from './surveyQuestionEditorForm';
+import RatingQuestionPreview from './ratingQuestionPreview';
+import {
+  buildRatingFields,
+  parseRatingFields,
+  RatingFieldItem,
+} from './ratingFieldUtils';
 import {
   SURVEY_FIELD_TYPE_LABELS,
   coerceSurveyRequired,
@@ -54,12 +60,14 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
   const showEditor = isDraft || isExpanded;
   /** Required is React state (not Form) so Create/Save always sends the real checkbox value. */
   const [surveyQuestionRequired, setSurveyQuestionRequired] = useState(false);
+  const [ratingEditing, setRatingEditing] = useState(false);
   /** Only sync from server when opening the editor — not on every `question` ref (refetch would wipe Required). */
   const wasEditorOpenRef = useRef(false);
 
   useEffect(() => {
     if (!showEditor) {
       wasEditorOpenRef.current = false;
+      setRatingEditing(false);
       return;
     }
     const justOpened = !wasEditorOpenRef.current;
@@ -75,13 +83,26 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
     ) {
       fieldValues = ['', ''];
     }
-    setSurveyQuestionRequired(coerceSurveyRequired(question.required));
+    const isRating = question.fieldType === FieldType.RATING;
+    const ratingParsed = isRating
+      ? parseRatingFields(question.field as RatingFieldItem[])
+      : null;
+    setSurveyQuestionRequired(
+      isRating && isDraft ? true : coerceSurveyRequired(question.required),
+    );
     form.setFieldsValue({
       question: question.question,
       fieldType: question.fieldType,
       field: fieldValues,
+      ...(ratingParsed
+        ? {
+            ratingStarCount: ratingParsed.starCount,
+            ratingDescription: ratingParsed.descriptionLabel,
+            ratingDescriptionRequired: ratingParsed.descriptionRequired,
+          }
+        : {}),
     });
-  }, [showEditor, question, form]);
+  }, [showEditor, question, form, isDraft]);
 
   const {
     attributes,
@@ -119,11 +140,19 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
     question.fieldType === FieldType.MULTIPLE_CHOICE ||
     question.fieldType === FieldType.CHECKBOX;
 
+  const showRatingEditor = question.fieldType === FieldType.RATING;
+  /** Rich rating layout when expanded (saved questions); collapse stays one-line like other types. */
+  const showRatingPreview =
+    showRatingEditor && showEditor && !isDraft && !ratingEditing;
+  const showRatingForm =
+    showEditor && (isDraft || !showRatingEditor || ratingEditing);
+
   const handleSave = async (values: Record<string, unknown>) => {
     const fieldType = String(values.fieldType);
     const isChoiceType =
       fieldType === FieldType.MULTIPLE_CHOICE ||
       fieldType === FieldType.CHECKBOX;
+    const isRatingType = fieldType === FieldType.RATING;
     const updatedData = {
       ...question,
       formId,
@@ -137,12 +166,21 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
               id: question.field?.[idx]?.id ?? uuidv4(),
             }),
           )
-        : [],
+        : isRatingType
+          ? buildRatingFields(Number(values.ratingStarCount), {
+              descriptionLabel: values.ratingDescription as string,
+              descriptionRequired: Boolean(values.ratingDescriptionRequired),
+              existingFields: question.field as RatingFieldItem[],
+            })
+          : [],
     };
     updateQuestion(
       { data: updatedData, id: question.id },
       {
-        onSuccess: () => onUpdated(),
+        onSuccess: () => {
+          setRatingEditing(false);
+          onUpdated();
+        },
       },
     );
   };
@@ -158,6 +196,10 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
   const handleCancel = () => {
     if (isDraft && onDraftCancel) {
       onDraftCancel();
+      return;
+    }
+    if (showRatingEditor && ratingEditing) {
+      setRatingEditing(false);
       return;
     }
     onToggle();
@@ -256,17 +298,29 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
           className="px-2 pb-3 pt-2"
           data-cy={`survey-question-editor-${question.id}`}
         >
-          <SurveyQuestionEditorForm
-            form={form}
-            questionId={question.id}
-            showChoiceEditor={showChoiceEditor}
-            primaryAction={isDraft ? 'create' : 'save'}
-            submitLoading={isDraft ? createLoading : isLoading}
-            surveyQuestionRequired={surveyQuestionRequired}
-            onSurveyQuestionRequiredChange={setSurveyQuestionRequired}
-            onCancel={handleCancel}
-            onFinish={handleFormFinish}
-          />
+          {showRatingPreview ? (
+            <RatingQuestionPreview
+              questionId={question.id}
+              questionText={question.question}
+              required={question.required}
+              field={question.field as RatingFieldItem[]}
+              onEditRating={() => setRatingEditing(true)}
+            />
+          ) : null}
+          {showRatingForm ? (
+            <SurveyQuestionEditorForm
+              form={form}
+              questionId={question.id}
+              showChoiceEditor={showChoiceEditor}
+              showRatingEditor={showRatingEditor}
+              primaryAction={isDraft ? 'create' : 'save'}
+              submitLoading={isDraft ? createLoading : isLoading}
+              surveyQuestionRequired={surveyQuestionRequired}
+              onSurveyQuestionRequiredChange={setSurveyQuestionRequired}
+              onCancel={handleCancel}
+              onFinish={handleFormFinish}
+            />
+          ) : null}
         </div>
       )}
     </div>

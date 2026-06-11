@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Row, Col, Card, Radio } from 'antd';
+import { Row, Col, Card } from 'antd';
 import {
   DndContext,
   PointerSensor,
@@ -20,11 +20,11 @@ import type { FieldTypeValue } from './_components/DraggableFieldTypeCard';
 const FIELD_TYPES = [
   {
     id: 'textField',
-    label: <Radio>Text Field</Radio>,
+    label: 'Text Field',
     description: (
       <p
         data-cy="settings-custom-fields-text-field-description"
-        className="px-6 text-xs"
+        className="text-xs"
       >
         Input field for text
       </p>
@@ -33,11 +33,11 @@ const FIELD_TYPES = [
   },
   {
     id: 'textArea',
-    label: <Radio>Text Area</Radio>,
+    label: 'Text Area',
     description: (
       <p
         data-cy="settings-custom-fields-text-area-description"
-        className="px-6 text-xs"
+        className="text-xs"
       >
         Input field for larger text
       </p>
@@ -46,11 +46,11 @@ const FIELD_TYPES = [
   },
   {
     id: 'checkbox',
-    label: <Radio>Checkbox</Radio>,
+    label: 'Checkbox',
     description: (
       <p
         data-cy="settings-custom-fields-checkbox-description"
-        className="px-6 text-xs"
+        className="text-xs"
       >
         Input field for multiple values
       </p>
@@ -59,12 +59,9 @@ const FIELD_TYPES = [
   },
   {
     id: 'radio',
-    label: <Radio>Radio box</Radio>,
+    label: 'Radio box',
     description: (
-      <p
-        data-cy="settings-custom-fields-radio-description"
-        className="px-6 text-xs"
-      >
+      <p data-cy="settings-custom-fields-radio-description" className="text-xs">
         Input field for single value
       </p>
     ),
@@ -72,11 +69,11 @@ const FIELD_TYPES = [
   },
   {
     id: 'dropdown',
-    label: <Radio>Dropdown</Radio>,
+    label: 'Dropdown',
     description: (
       <p
         data-cy="settings-custom-fields-dropdown-description"
-        className="px-6 text-xs"
+        className="text-xs"
       >
         Input field for selecting a value
       </p>
@@ -235,39 +232,64 @@ const CustomFieldsPage: React.FC = () => {
       data-cy="settings-custom-fields-page"
     >
       <style data-cy="settings-custom-fields-page-style" jsx global>{`
-        #settings-custom-fields-page
-          .custom-fields-radio-neutral
-          .ant-radio-checked
-          .ant-radio-inner {
-          border-color: #8c8c8c !important;
-          background-color: #fff !important;
+        @keyframes drag-item-pulse {
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45);
+          }
+          50% {
+            box-shadow: 0 0 0 5px rgba(30, 64, 175, 0);
+          }
         }
-        #settings-custom-fields-page
-          .custom-fields-radio-neutral
-          .ant-radio-checked
-          .ant-radio-inner::after {
-          background-color: #fff;
+        .drag-item-active {
+          border-color: #1e40af !important;
+          animation: drag-item-pulse 1s ease-in-out infinite;
         }
-        #settings-custom-fields-page
-          .custom-fields-radio-neutral
-          .ant-radio-wrapper:hover
-          .ant-radio-inner,
-        #settings-custom-fields-page
-          .custom-fields-radio-neutral
-          .ant-radio:hover
-          .ant-radio-inner {
-          border-color: #8c8c8c;
+
+        @keyframes drop-zone-pulse {
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 7px rgba(30, 64, 175, 0);
+          }
+        }
+        .drop-zone-active {
+          border-color: #1e40af !important;
+          border-style: solid !important;
+          animation: drop-zone-pulse 1s ease-in-out infinite;
         }
       `}</style>
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <Row gutter={24}>
           <Col xs={24} md={10} lg={10}>
             <Card
-              bordered
-              className="mb-4 custom-fields-radio-neutral border-[1px] border-[#D9D9D9] rounded-lg"
+              bordered={false}
+              className="mb-4 rounded-xl"
+              style={{ boxShadow: 'none', background: '#F9FAFB' }}
               id="settings-custom-fields-field-types-card"
               data-cy="settings-custom-fields-field-types-card"
-              headStyle={{ borderBottom: 'none' }}
+              title={
+                <div data-cy="settings-custom-fields-field-types-title">
+                  <p
+                    className="text-sm font-semibold text-gray-800 m-0"
+                    data-cy="settings-custom-fields-field-types-heading"
+                  >
+                    Field Types
+                  </p>
+                  <p
+                    className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                    data-cy="settings-custom-fields-field-types-subheading"
+                  >
+                    Drag a type onto a form section
+                  </p>
+                </div>
+              }
+              headStyle={{
+                borderBottom: '1px solid #F3F4F6',
+                background: '#F9FAFB',
+              }}
             >
               <div
                 data-cy="settings-custom-fields-field-types-list"
@@ -287,11 +309,31 @@ const CustomFieldsPage: React.FC = () => {
           </Col>
           <Col xs={24} md={14} lg={14}>
             <Card
-              bordered
-              headStyle={{ borderBottom: 'none' }}
+              bordered={false}
               id="settings-custom-fields-form-categories-card"
               data-cy="settings-custom-fields-form-categories-card"
-              className="border-[1px] border-[#D9D9D9] rounded-lg"
+              className="rounded-xl"
+              style={{ boxShadow: 'none', background: '#F9FAFB' }}
+              title={
+                <div data-cy="settings-custom-fields-form-sections-title">
+                  <p
+                    className="text-sm font-semibold text-gray-800 m-0"
+                    data-cy="settings-custom-fields-form-sections-heading"
+                  >
+                    Form Sections
+                  </p>
+                  <p
+                    className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                    data-cy="settings-custom-fields-form-sections-subheading"
+                  >
+                    Drop field types here to add custom fields
+                  </p>
+                </div>
+              }
+              headStyle={{
+                borderBottom: '1px solid #F3F4F6',
+                background: '#F9FAFB',
+              }}
             >
               <div
                 data-cy="settings-custom-fields-form-categories-list"
