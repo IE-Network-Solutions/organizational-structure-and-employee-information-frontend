@@ -334,83 +334,86 @@ const StageApprovalModal = () => {
                   const primaryColor = '#3636F0';
                   const notReachedColor = '#E6F4FF';
                   const firstPendingIdx = sortedApprovals.findIndex(
-                    (a) => a.status === 'Pending',
+                    (a: ApprovalRecord) => a.status === 'Pending',
                   );
 
-                  return sortedApprovals.map((approval, idx) => {
-                    const displayId = approval.displayUserId ?? approval.userId;
-                    const isPendingStep = approval.status === 'Pending';
-                    const isApprovedStep = approval.status === 'Approved';
-                    const isRejectedStep = approval.status === 'Rejected';
-                    const isCurrentStage =
-                      isPendingStep && idx === firstPendingIdx;
-                    const isConnectorActive =
-                      isApprovedStep && idx < firstPendingIdx;
-                    const avatarPx = isCurrentStage ? 48 : 40;
+                  return sortedApprovals.map(
+                    (approval: ApprovalRecord, idx: number) => {
+                      const displayId =
+                        approval.displayUserId ?? approval.userId;
+                      const isPendingStep = approval.status === 'Pending';
+                      const isApprovedStep = approval.status === 'Approved';
+                      const isRejectedStep = approval.status === 'Rejected';
+                      const isCurrentStage =
+                        isPendingStep && idx === firstPendingIdx;
+                      const isConnectorActive =
+                        isApprovedStep && idx < firstPendingIdx;
+                      const avatarPx = isCurrentStage ? 48 : 40;
 
-                    return (
-                      <React.Fragment key={approval.stepOrder}>
-                        {idx > 0 && (
-                          <div
-                            data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item"
-                            className="flex-1 min-w-[40px] flex items-center justify-center"
-                          >
+                      return (
+                        <React.Fragment key={approval.stepOrder}>
+                          {idx > 0 && (
                             <div
-                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-connector"
-                              className="w-full h-0.5"
-                              style={{
-                                backgroundColor: isConnectorActive
-                                  ? primaryColor
-                                  : notReachedColor,
-                              }}
-                            />
-                          </div>
-                        )}
-                        <div
-                          data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content"
-                          className="flex items-center shrink-0"
-                        >
-                          <Tooltip
-                            title={userData(displayId) || 'Approver'}
-                            placement="bottom"
-                            overlayInnerStyle={{
-                              background: '#000',
-                              color: '#fff',
-                              borderRadius: 8,
-                            }}
-                          >
-                            <div
-                              className={`relative shrink-0 rounded-full overflow-hidden border-2 transition-transform ${
-                                isCurrentStage
-                                  ? 'w-12 h-12 border-dashed border-[#3636F0]'
-                                  : isApprovedStep
-                                    ? 'w-10 h-10 border-[#3636F0]'
-                                    : isRejectedStep
-                                      ? 'w-10 h-10 border-[#FF4D4F]'
-                                      : 'w-10 h-10 border-gray-200'
-                              }`}
-                              data-cy={`talent-acquisition-stage-approval-modal-approval-avatar-${approval.stepOrder}`}
+                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item"
+                              className="flex-1 min-w-[40px] flex items-center justify-center"
                             >
-                              {displayId && userImage(displayId) ? (
-                                <Image
-                                  src={userImage(displayId) ?? ''}
-                                  alt={userData(displayId)}
-                                  width={avatarPx}
-                                  height={avatarPx}
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : (
-                                <div
-                                  data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-avatar-fallback"
-                                  className="w-full h-full bg-gray-200"
-                                />
-                              )}
+                              <div
+                                data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-connector"
+                                className="w-full h-0.5"
+                                style={{
+                                  backgroundColor: isConnectorActive
+                                    ? primaryColor
+                                    : notReachedColor,
+                                }}
+                              />
                             </div>
-                          </Tooltip>
-                        </div>
-                      </React.Fragment>
-                    );
-                  });
+                          )}
+                          <div
+                            data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content"
+                            className="flex items-center shrink-0"
+                          >
+                            <Tooltip
+                              title={userData(displayId) || 'Approver'}
+                              placement="bottom"
+                              overlayInnerStyle={{
+                                background: '#000',
+                                color: '#fff',
+                                borderRadius: 8,
+                              }}
+                            >
+                              <div
+                                className={`relative shrink-0 rounded-full overflow-hidden border-2 transition-transform ${
+                                  isCurrentStage
+                                    ? 'w-12 h-12 border-dashed border-[#3636F0]'
+                                    : isApprovedStep
+                                      ? 'w-10 h-10 border-[#3636F0]'
+                                      : isRejectedStep
+                                        ? 'w-10 h-10 border-[#FF4D4F]'
+                                        : 'w-10 h-10 border-gray-200'
+                                }`}
+                                data-cy={`talent-acquisition-stage-approval-modal-approval-avatar-${approval.stepOrder}`}
+                              >
+                                {displayId && userImage(displayId) ? (
+                                  <Image
+                                    src={userImage(displayId) ?? ''}
+                                    alt={userData(displayId)}
+                                    width={avatarPx}
+                                    height={avatarPx}
+                                    className="object-cover w-full h-full"
+                                  />
+                                ) : (
+                                  <div
+                                    data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-avatar-fallback"
+                                    className="w-full h-full bg-gray-200"
+                                  />
+                                )}
+                              </div>
+                            </Tooltip>
+                          </div>
+                        </React.Fragment>
+                      );
+                    },
+                  );
                 })()
               )}
             </div>

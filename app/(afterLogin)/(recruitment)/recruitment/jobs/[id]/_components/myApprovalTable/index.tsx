@@ -1,8 +1,5 @@
 import { useGetCandidates } from '@/store/server/features/recruitment/candidate/queries';
-import {
-  CandidateData,
-  useCandidateState,
-} from '@/store/uistate/features/recruitment/candidate';
+import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { Table, TableColumnsType, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { MdOutlineFileDownload } from 'react-icons/md';
@@ -26,8 +23,16 @@ interface TableProps {
   departmentId?: string;
 }
 
-type ApprovalTableRow = CandidateData & {
+type ApprovalTableRow = {
   key: string;
+  id?: string;
+  candidateName: string;
+  phoneNumber: string;
+  cgpa: string | number;
+  email: string;
+  cv: React.ReactNode;
+  createdAt: string;
+  approvalStatus: React.ReactNode;
   rawItem: any;
 };
 
@@ -279,65 +284,78 @@ const MyApprovalTable: React.FC<TableProps> = ({ jobId, departmentId }) => {
     },
   ];
 
-  const data = approvalRows.map((item: any, index: number) => {
-    const candidate = item?.displayCandidate ?? item;
-    const selectedStage = candidate?.jobCandidate?.[0]?.applicantStatusStage;
+  const data: ApprovalTableRow[] = approvalRows.map(
+    (item: any, index: number) => {
+      const candidate = item?.displayCandidate ?? item;
+      const selectedStage = candidate?.jobCandidate?.[0]?.applicantStatusStage;
 
-    const handleDownload = () => {
-      const link = document.createElement('a');
-      link.href = candidate?.resumeUrl;
-      link.download = candidate?.documentName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    };
+      const handleDownload = () => {
+        const link = document.createElement('a');
+        link.href = candidate?.resumeUrl;
+        link.download = candidate?.documentName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
 
-    return {
-      key: item?.requestId ?? item?.candidateId ?? String(index),
-      id: item?.candidateId,
-      candidateName: candidate?.fullName ?? item?.candidateId ?? '--',
-      phoneNumber: candidate?.phone ?? '--',
-      cgpa: candidate?.CGPA ?? '--',
-      email: candidate?.email ?? '--',
-      cv: (
-        <div
-          id={`talent-acquisition-my-approval-table-div-cv-${item?.candidateId}`}
-          data-cy={`talent-acquisition-my-approval-table-div-cv-${item?.candidateId}`}
-          className={`flex items-center justify-center ${candidate?.resumeUrl ? '' : 'opacity-40'}`}
-        >
-          <button
-            type="button"
-            id={`talent-acquisition-my-approval-table-button-download-cv-${item?.candidateId}`}
-            data-cy={`talent-acquisition-my-approval-table-button-download-cv-${item?.candidateId}`}
-            className="flex h-9 w-9 items-center justify-center rounded border-0 bg-transparent text-[#1E40AF] hover:bg-[#EFF6FF] disabled:pointer-events-none"
-            disabled={!candidate?.resumeUrl}
-            aria-label={
-              candidate?.documentName
-                ? `Download ${candidate.documentName}`
-                : 'Download CV'
-            }
-            onClick={handleDownload}
+      return {
+        key: item?.requestId ?? item?.candidateId ?? String(index),
+        id: item?.candidateId,
+        candidateName: candidate?.fullName ?? item?.candidateId ?? '--',
+        phoneNumber: candidate?.phone ?? '--',
+        cgpa: candidate?.CGPA ?? '--',
+        email: candidate?.email ?? '--',
+        cv: (
+          <div
+            id={`talent-acquisition-my-approval-table-div-cv-${item?.candidateId}`}
+            data-cy={`talent-acquisition-my-approval-table-div-cv-${item?.candidateId}`}
+            className={`flex items-center justify-center ${candidate?.resumeUrl ? '' : 'opacity-40'}`}
           >
-            <MdOutlineFileDownload size={22} className="text-[#1E40AF]" />
-          </button>
-        </div>
-      ),
-      createdAt: candidate?.createdAt
-        ? dayjs(candidate.createdAt).format('DD MMMM YYYY')
-        : '--',
-      approvalStatus: (
-        <div className="flex justify-center gap-2" data-cy={`talent-acquisition-my-approval-table-div-approval-status-${item?.candidateId}`}>
-          <Tag color={item?.isInitiated ? 'gold' : 'blue'} data-cy={`talent-acquisition-my-approval-table-tag-approval-status-${item?.candidateId}`}>
-            {item?.isInitiated ? 'Pending approval' : 'Ready to initiate'}
-          </Tag>
-          {selectedStage?.title && (
-            <Tag color="blue" data-cy={`talent-acquisition-my-approval-table-tag-selected-stage-${item?.candidateId}`}>{selectedStage.title}</Tag>
-          )}
-        </div>
-      ),
-      rawItem: item,
-    };
-  });
+            <button
+              type="button"
+              id={`talent-acquisition-my-approval-table-button-download-cv-${item?.candidateId}`}
+              data-cy={`talent-acquisition-my-approval-table-button-download-cv-${item?.candidateId}`}
+              className="flex h-9 w-9 items-center justify-center rounded border-0 bg-transparent text-[#1E40AF] hover:bg-[#EFF6FF] disabled:pointer-events-none"
+              disabled={!candidate?.resumeUrl}
+              aria-label={
+                candidate?.documentName
+                  ? `Download ${candidate.documentName}`
+                  : 'Download CV'
+              }
+              onClick={handleDownload}
+            >
+              <MdOutlineFileDownload size={22} className="text-[#1E40AF]" />
+            </button>
+          </div>
+        ),
+        createdAt: candidate?.createdAt
+          ? dayjs(candidate.createdAt).format('DD MMMM YYYY')
+          : '--',
+        approvalStatus: (
+          <div
+            className="flex justify-center gap-2"
+            data-cy={`talent-acquisition-my-approval-table-div-approval-status-${item?.candidateId}`}
+          >
+            <Tag
+              color={item?.isInitiated ? 'gold' : 'blue'}
+              data-cy={`talent-acquisition-my-approval-table-tag-approval-status-${item?.candidateId}`}
+            >
+              {item?.isInitiated ? 'Pending approval' : 'Ready to initiate'}
+            </Tag>
+            {selectedStage?.title && (
+              <Tag
+                color="blue"
+                data-cy={`talent-acquisition-my-approval-table-tag-selected-stage-${item?.candidateId}`}
+              >
+                {selectedStage.title}
+              </Tag>
+            )}
+          </div>
+        ),
+        rawItem: item,
+      };
+    },
+  );
 
   const rowSelection: TableRowSelection<ApprovalTableRow> = {
     selectedRowKeys,
