@@ -21,6 +21,7 @@ import type {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   aggregateKeyResultForPanel,
+  buildBlockedKeyResultIdSet,
   enrichOwnerGroupsPlanningBlocked,
   mergeUserKeyResultsIntoOwnerGroups,
   type KRPanelOwnerGroup,
@@ -777,6 +778,7 @@ function ParentPlanTasksSection({
   onPickPlanningTarget,
   loading,
   expandToFill,
+  blockedKrIds,
 }: {
   title: string;
   slots: PlanningTarget[];
@@ -784,6 +786,7 @@ function ParentPlanTasksSection({
   selectedPlanningTargetId: string | null;
   onPickPlanningTarget?: (target: PlanningTarget) => void;
   loading: boolean;
+  blockedKrIds?: Set<string>;
   /** Fills KR column height when Key Results list is hidden (child cadence). */
   expandToFill?: boolean;
 }) {
@@ -889,7 +892,10 @@ function ParentPlanTasksSection({
           >
             {slots.map((slot) => {
               const selected = selectedPlanningTargetId === slot.id;
-              const canPick = showPick && !!onPickPlanningTarget;
+              const canPick =
+                showPick &&
+                !!onPickPlanningTarget &&
+                !blockedKrIds?.has(slot.keyResultId);
               return (
                 <li
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-li-710"
@@ -1011,21 +1017,19 @@ export function KRLeftPanel({
 
   const showInlinePick = inlinePlanningMode && activeTab === 1 && !threadPlan;
 
+  const blockedKrIds = React.useMemo(() => {
+    const panelKrs = ownerGroups.flatMap((g) => g.krs);
+    return buildBlockedKeyResultIdSet(userKeyResultItems, panelKrs);
+  }, [ownerGroups, userKeyResultItems]);
+
   /** Parent-plan rows (daily-under-weekly etc.) — picked from the plan section only, not KR +. */
   const parentPlanSlots = React.useMemo(
-    () => planningTargets.filter((t) => t.isDailySlot),
-    [planningTargets],
+    () =>
+      planningTargets.filter(
+        (t) => t.isDailySlot && !blockedKrIds.has(t.keyResultId),
+      ),
+    [planningTargets, blockedKrIds],
   );
-
-  const blockedKrIds = React.useMemo(() => {
-    const ids = new Set<string>();
-    for (const group of ownerGroups) {
-      for (const kr of group.krs) {
-        if (kr.planningBlocked) ids.add(kr.id);
-      }
-    }
-    return ids;
-  }, [ownerGroups]);
 
   const targetsByKrId = React.useMemo(() => {
     const m = new Map<string, PlanningTarget[]>();
@@ -1110,6 +1114,7 @@ export function KRLeftPanel({
               selectedPlanningTargetId={selectedPlanningTargetId}
               onPickPlanningTarget={onPickPlanningTarget}
               loading={planningTargetsLoading}
+              blockedKrIds={blockedKrIds}
               expandToFill={isChildCadence}
             />
           ) : null}

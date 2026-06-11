@@ -1,9 +1,11 @@
 import { groupParentTasks } from '../dataTransformer/plan';
 import {
   isKeyResultFullyCompletedForPlanning,
+  isKeyResultReopenedForPlanning,
   isMilestoneCompleted,
   isMilestoneKeyResult,
 } from '@/utils/okrKeyResultProgressDisplay';
+import { buildBlockedKeyResultIdSet } from './mergeKRPanelGroups';
 
 export type PlanningTarget = {
   id: string;
@@ -71,6 +73,105 @@ export function buildPlanningTargetsFromObjectives(
   return out;
 }
 
+function findMilestoneInKeyResult(kr: any, milestoneId: string | null) {
+  if (!milestoneId || !kr) return null;
+  const list = kr.milestones ?? kr.Milestones ?? [];
+  return list.find((m: any) => String(m?.id) === String(milestoneId)) ?? null;
+}
+
+/** Merge objective / plan KR payload with user KR API for planning eligibility. */
+export function mergeKeyResultWithUserApi(
+  kr: any,
+  userKeyResultItems: any[],
+): any {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
+  if (!apiKr) return kr;
+  return {
+    ...kr,
+    ...apiKr,
+    metricType: apiKr.metricType ?? kr?.metricType,
+    key_type: apiKr.key_type ?? kr?.key_type,
+    milestones: apiKr.milestones ?? apiKr.Milestones ?? kr?.milestones,
+    progress: apiKr.progress ?? kr?.progress,
+    currentValue: apiKr.currentValue ?? kr?.currentValue,
+    targetValue: apiKr.targetValue ?? kr?.targetValue,
+    status: apiKr.status ?? kr?.status,
+    keyResultCompletionStatus:
+      apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+  };
+}
+
+/** True when the whole KR must not offer planning (+ hidden everywhere). */
+export function isKeyResultBlockedForPlanning(
+  kr: any,
+  userKeyResultItems: any[] = [],
+): boolean {
+  const source = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  if (isKeyResultReopenedForPlanning(source)) return false;
+  return isKeyResultFullyCompletedForPlanning(source);
+}
+
+/** True when a milestone row must not offer planning. */
+export function isMilestoneBlockedForPlanning(
+  kr: any,
+  milestone: any,
+  userKeyResultItems: any[] = [],
+): boolean {
+  if (isKeyResultBlockedForPlanning(kr, userKeyResultItems)) return true;
+  const source = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  const msList = source.milestones ?? source.Milestones ?? [];
+  const resolved =
+    msList.find((m: any) => String(m?.id) === String(milestone?.id)) ??
+    milestone;
+  return isMilestoneCompleted(resolved);
+}
+
+/** True when a planning target (KR / milestone / daily slot) must not show + or add UI. */
+export function isPlanningTargetBlocked(
+  target:
+    | Pick<PlanningTarget, 'keyResultId' | 'milestoneId'>
+    | null
+    | undefined,
+  userKeyResultItems: any[] = [],
+): boolean {
+  if (!target) return false;
+
+  if (
+    buildBlockedKeyResultIdSet(userKeyResultItems).has(
+      String(target.keyResultId),
+    )
+  ) {
+    return true;
+  }
+
+  const apiKr = userKeyResultItems.find(
+    (k) =>
+      k && k.deletedAt == null && String(k.id) === String(target.keyResultId),
+  );
+  if (!apiKr) return false;
+
+  if (isKeyResultReopenedForPlanning(apiKr)) return false;
+  if (isKeyResultFullyCompletedForPlanning(apiKr)) return true;
+
+  if (target.milestoneId) {
+    const ms = findMilestoneInKeyResult(apiKr, target.milestoneId);
+    if (ms && isMilestoneCompleted(ms)) return true;
+  }
+
+  return false;
+}
+
+/** Drop slots for achieved KRs / milestones (user KR API is source of truth when present). */
+export function filterPlanningTargetsByBlockedKeyResults(
+  targets: PlanningTarget[],
+  userKeyResultItems: any[],
+): PlanningTarget[] {
+  if (!targets.length) return targets;
+  return targets.filter((t) => !isPlanningTargetBlocked(t, userKeyResultItems));
+}
+
 /** Daily: one row per weekly parent task (slot for daily sub-tasks). */
 export function buildPlanningTargetsFromDailyHierarchy(
   hierarchy: any,
@@ -89,9 +190,14 @@ export function buildPlanningTargetsFromDailyHierarchy(
 
   groups.forEach((objective: any) => {
     objective.keyResults?.forEach((kr: any) => {
+      if (kr.deletedAt) return;
+      if (isKeyResultFullyCompletedForPlanning(kr)) return;
+
       const krTitle = kr.title || kr.name || 'Key result';
       const metricTypeName = kr.metricType?.name ?? null;
       kr.milestones?.forEach((ms: any) => {
+        if (ms.deletedAt) return;
+        if (isMilestoneCompleted(ms)) return;
         ms.tasks?.forEach((t: any) => {
           out.push({
             id: `daily-${kr.id}-${ms.id}-${t.id}`,

@@ -9,6 +9,10 @@ import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
 } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  isKeyResultBlockedForPlanning,
+  isMilestoneBlockedForPlanning,
+} from './buildPlanningTargets';
 
 interface Milestone {
   id: number;
@@ -53,6 +57,7 @@ interface CollapseComponentProps {
     string,
     Record<string | 'noMilestone', any[]>
   >;
+  userKeyResultItems?: any[];
 }
 
 const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
@@ -64,6 +69,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
   mkAsATask,
   setMKAsATask,
   handleAddBoard,
+  userKeyResultItems = [],
 }) => {
   const { statuses, setClickStatus } = useClickStatus();
 
@@ -272,103 +278,107 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             </div>
                           )}
 
-                        {!hasMilestone && (
-                          <div
-                            data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-208"
-                            className="flex items-center gap-3"
-                          >
-                            {kr?.metricType?.name === NAME.ACHIEVE ? (
-                              <div
-                                id={`plan-keyresult-dropdown-${kr?.id ?? ''}`}
-                                data-cy={`plan-keyresult-dropdown-${kr?.id ?? ''}`}
-                              >
-                                <Dropdown.Button
-                                  type="primary"
-                                  icon={<DownOutlined />}
-                                  disabled={Number(kr?.progress) == 100}
-                                  menu={{
-                                    items: [
-                                      {
-                                        key: 'plan-keyresult-as-task',
-                                        label: 'Plan Key Result as a Task',
-                                        disabled:
-                                          Number(kr?.progress) == 100 ||
-                                          form
-                                            ?.getFieldValue(`names-${kr?.id}`)
-                                            ?.some((i: any) => i?.achieveMK),
-                                        onClick: () => {
-                                          setMKAsATask({
-                                            title: kr?.title,
-                                            mid: kr?.id,
-                                          });
-                                          handleAddBoard(kr?.id, {
-                                            keyResultId: kr.id,
-                                            milestoneId: null,
-                                            planningPeriodId,
-                                            planningUserId,
-                                            userId,
-                                          });
+                        {!hasMilestone &&
+                          !isKeyResultBlockedForPlanning(
+                            kr,
+                            userKeyResultItems,
+                          ) && (
+                            <div
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-208"
+                              className="flex items-center gap-3"
+                            >
+                              {kr?.metricType?.name === NAME.ACHIEVE ? (
+                                <div
+                                  id={`plan-keyresult-dropdown-${kr?.id ?? ''}`}
+                                  data-cy={`plan-keyresult-dropdown-${kr?.id ?? ''}`}
+                                >
+                                  <Dropdown.Button
+                                    type="primary"
+                                    icon={<DownOutlined />}
+                                    disabled={Number(kr?.progress) == 100}
+                                    menu={{
+                                      items: [
+                                        {
+                                          key: 'plan-keyresult-as-task',
+                                          label: 'Plan Key Result as a Task',
+                                          disabled:
+                                            Number(kr?.progress) == 100 ||
+                                            form
+                                              ?.getFieldValue(`names-${kr?.id}`)
+                                              ?.some((i: any) => i?.achieveMK),
+                                          onClick: () => {
+                                            setMKAsATask({
+                                              title: kr?.title,
+                                              mid: kr?.id,
+                                            });
+                                            handleAddBoard(kr?.id, {
+                                              keyResultId: kr.id,
+                                              milestoneId: null,
+                                              planningPeriodId,
+                                              planningUserId,
+                                              userId,
+                                            });
+                                          },
                                         },
-                                      },
-                                    ],
-                                  }}
-                                  onClick={() => {
-                                    setMKAsATask(null);
+                                      ],
+                                    }}
+                                    onClick={() => {
+                                      setMKAsATask(null);
+                                      handleAddBoard(kr?.id, {
+                                        keyResultId: kr.id,
+                                        milestoneId: null,
+                                        planningPeriodId,
+                                        planningUserId,
+                                        userId,
+                                      });
+                                    }}
+                                  >
+                                    <span
+                                      data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-255"
+                                      className="sm:hidden"
+                                    >
+                                      Add Task
+                                    </span>
+                                    <span
+                                      data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-256"
+                                      className="hidden sm:inline"
+                                    >
+                                      Add plan Task
+                                    </span>
+                                  </Dropdown.Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  id={`plan-as-task_${kr?.id ?? ''}`}
+                                  data-cy={`plan-as-task_${kr?.id ?? ''}`}
+                                  onClick={() =>
                                     handleAddBoard(kr?.id, {
                                       keyResultId: kr.id,
                                       milestoneId: null,
                                       planningPeriodId,
                                       planningUserId,
                                       userId,
-                                    });
-                                  }}
+                                    })
+                                  }
+                                  type="primary"
+                                  disabled={Number(kr?.progress) == 100}
                                 >
                                   <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-255"
+                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-277"
                                     className="sm:hidden"
                                   >
                                     Add Task
                                   </span>
                                   <span
-                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-256"
+                                    data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-278"
                                     className="hidden sm:inline"
                                   >
                                     Add plan Task
                                   </span>
-                                </Dropdown.Button>
-                              </div>
-                            ) : (
-                              <Button
-                                id={`plan-as-task_${kr?.id ?? ''}`}
-                                data-cy={`plan-as-task_${kr?.id ?? ''}`}
-                                onClick={() =>
-                                  handleAddBoard(kr?.id, {
-                                    keyResultId: kr.id,
-                                    milestoneId: null,
-                                    planningPeriodId,
-                                    planningUserId,
-                                    userId,
-                                  })
-                                }
-                                type="primary"
-                                disabled={Number(kr?.progress) == 100}
-                              >
-                                <span
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-277"
-                                  className="sm:hidden"
-                                >
-                                  Add Task
-                                </span>
-                                <span
-                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-278"
-                                  className="hidden sm:inline"
-                                >
-                                  Add plan Task
-                                </span>
-                              </Button>
-                            )}
-                          </div>
-                        )}
+                                </Button>
+                              )}
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -406,74 +416,86 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                   {ml?.title}
                                 </span>
                               </div>
-                              <div
-                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-306"
-                                className="flex items-center gap-3"
-                              >
-                                <span
-                                  id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
-                                  data-cy={`plan-milestone-dropdown-${kr?.id ?? ''}-${ml?.id ?? ''}`}
+                              {!isMilestoneBlockedForPlanning(
+                                kr,
+                                ml,
+                                userKeyResultItems,
+                              ) ? (
+                                <div
+                                  data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-306"
+                                  className="flex items-center gap-3"
                                 >
-                                  <Dropdown.Button
-                                    type="primary"
-                                    icon={<DownOutlined />}
-                                    disabled={ml?.status === 'Completed'}
-                                    menu={{
-                                      items: [
-                                        {
-                                          key: 'plan-milestone-as-task',
-                                          label: 'Plan Milestone as a Task',
-                                          disabled:
-                                            statuses[ml?.id] ||
-                                            ml?.status === 'Completed' ||
-                                            form?.getFieldValue(
-                                              `names-${kr?.id + ml?.id}`,
-                                            )?.[0]?.achieveMK,
-                                          onClick: () => {
-                                            if (!statuses[ml?.id]) {
-                                              setMKAsATask({
-                                                title: ml?.title,
-                                                mid: ml?.id,
-                                              });
-                                              handleAddBoard(kr?.id + ml?.id, {
-                                                keyResultId: kr.id,
-                                                milestoneId: ml.id,
-                                                planningPeriodId,
-                                                planningUserId,
-                                                userId,
-                                              });
-                                              setClickStatus(ml?.id + '', true); // Store click status in Zustand
-                                            }
-                                          },
-                                        },
-                                      ],
-                                    }}
-                                    onClick={() => {
-                                      setMKAsATask(null);
-                                      handleAddBoard(kr?.id + ml?.id, {
-                                        keyResultId: kr.id,
-                                        milestoneId: ml.id,
-                                        planningPeriodId,
-                                        planningUserId,
-                                        userId,
-                                      });
-                                    }}
+                                  <span
+                                    id={`plan-as-task_${kr?.id ?? ''}${ml?.id ?? ''}`}
+                                    data-cy={`plan-milestone-dropdown-${kr?.id ?? ''}-${ml?.id ?? ''}`}
                                   >
-                                    <span
-                                      data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-356"
-                                      className="sm:hidden"
+                                    <Dropdown.Button
+                                      type="primary"
+                                      icon={<DownOutlined />}
+                                      disabled={ml?.status === 'Completed'}
+                                      menu={{
+                                        items: [
+                                          {
+                                            key: 'plan-milestone-as-task',
+                                            label: 'Plan Milestone as a Task',
+                                            disabled:
+                                              statuses[ml?.id] ||
+                                              ml?.status === 'Completed' ||
+                                              form?.getFieldValue(
+                                                `names-${kr?.id + ml?.id}`,
+                                              )?.[0]?.achieveMK,
+                                            onClick: () => {
+                                              if (!statuses[ml?.id]) {
+                                                setMKAsATask({
+                                                  title: ml?.title,
+                                                  mid: ml?.id,
+                                                });
+                                                handleAddBoard(
+                                                  kr?.id + ml?.id,
+                                                  {
+                                                    keyResultId: kr.id,
+                                                    milestoneId: ml.id,
+                                                    planningPeriodId,
+                                                    planningUserId,
+                                                    userId,
+                                                  },
+                                                );
+                                                setClickStatus(
+                                                  ml?.id + '',
+                                                  true,
+                                                ); // Store click status in Zustand
+                                              }
+                                            },
+                                          },
+                                        ],
+                                      }}
+                                      onClick={() => {
+                                        setMKAsATask(null);
+                                        handleAddBoard(kr?.id + ml?.id, {
+                                          keyResultId: kr.id,
+                                          milestoneId: ml.id,
+                                          planningPeriodId,
+                                          planningUserId,
+                                          userId,
+                                        });
+                                      }}
                                     >
-                                      Add Task
-                                    </span>
-                                    <span
-                                      data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-357"
-                                      className="hidden sm:inline"
-                                    >
-                                      Add plan Task
-                                    </span>
-                                  </Dropdown.Button>
-                                </span>
-                              </div>
+                                      <span
+                                        data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-356"
+                                        className="sm:hidden"
+                                      >
+                                        Add Task
+                                      </span>
+                                      <span
+                                        data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-357"
+                                        className="hidden sm:inline"
+                                      >
+                                        Add plan Task
+                                      </span>
+                                    </Dropdown.Button>
+                                  </span>
+                                </div>
+                              ) : null}
                             </div>
                           </div>
 

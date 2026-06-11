@@ -26,6 +26,7 @@ import {
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
+import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
 import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
@@ -206,7 +207,7 @@ function Page() {
         (userKeyResultsLoading && planSummaries.length === 0);
 
   const { targets: planningTargets, isLoading: planningTargetsLoading } =
-    usePlanningTargets(userId, selectedTab?.id);
+    usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
@@ -228,6 +229,15 @@ function Page() {
   useEffect(() => {
     if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
   }, [inlinePlanningMode]);
+
+  useEffect(() => {
+    if (
+      activePlanningTarget &&
+      isPlanningTargetBlocked(activePlanningTarget, userKeyResultItems)
+    ) {
+      setSelectedPlanningTargetId(null);
+    }
+  }, [activePlanningTarget, userKeyResultItems]);
 
   useEffect(() => {
     if (inlineEditPlanId) setSelectedPlanningTargetId(null);
@@ -520,6 +530,7 @@ function Page() {
                     <InlinePlanningWorkspace
                       planningPeriodLabel={inlinePlanningPeriodLabel}
                       activeTarget={activePlanningTarget}
+                      userKeyResultItems={userKeyResultItems}
                       onClearTarget={() => setSelectedPlanningTargetId(null)}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
@@ -647,6 +658,7 @@ function Page() {
               hideHeaderCloseButton
               planningPeriodLabel={inlinePlanningPeriodLabel}
               activeTarget={activePlanningTarget}
+              userKeyResultItems={userKeyResultItems}
               onClearTarget={() => setSelectedPlanningTargetId(null)}
               onExit={handleMobileInlineExit}
               editPlanId={inlineEditPlanId}

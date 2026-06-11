@@ -1,7 +1,9 @@
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { Button, Form, Spin, Tooltip } from 'antd';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { normalizeUserKeyResultItems } from '../planning/mergeKRPanelGroups';
 import { useUpdatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -45,6 +47,11 @@ function EditPlan() {
   const { mutate: updateTask, isLoading } = useUpdatePlanTasks();
 
   const { data: objective } = useFetchObjectives(userId);
+  const { data: userKeyResultsRaw } = useGetUserKeyResult(userId);
+  const userKeyResultItems = useMemo(
+    () => normalizeUserKeyResultItems(userKeyResultsRaw),
+    [userKeyResultsRaw],
+  );
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: planGroupData, isLoading: loadingPlanGroupData } =
     useGetPlanningById(selectedPlanId);
@@ -423,6 +430,7 @@ function EditPlan() {
                 handleAddBoard={handleAddBoard}
                 handleAddName={handleAddName}
                 weights={weights}
+                userKeyResultItems={userKeyResultItems}
               />
             ) : (
               <PlanningHierarchyComponent
@@ -436,6 +444,7 @@ function EditPlan() {
                 handleAddBoard={handleAddBoard}
                 handleAddName={handleAddName}
                 weights={weights}
+                userKeyResultItems={userKeyResultItems}
               />
             )}
           </Form>

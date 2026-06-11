@@ -151,6 +151,28 @@ export function mergeUserKeyResultsIntoOwnerGroups(
   return merged;
 }
 
+/** KR ids that must not show a planning + (all cadences: daily / weekly / monthly). */
+export function buildBlockedKeyResultIdSet(
+  userKeyResultItems: any[],
+  panelKrs: Array<{ id: string; planningBlocked: boolean }> = [],
+): Set<string> {
+  const ids = new Set<string>();
+
+  for (const raw of userKeyResultItems) {
+    if (!raw || raw.deletedAt != null) continue;
+    if (isKeyResultReopenedForPlanning(raw)) continue;
+    if (isKeyResultFullyCompletedForPlanning(raw)) {
+      ids.add(String(raw.id));
+    }
+  }
+
+  for (const kr of panelKrs) {
+    if (kr.planningBlocked) ids.add(String(kr.id));
+  }
+
+  return ids;
+}
+
 /** Reconcile plan-panel display with user KR API (status, milestones) for pick blocking. */
 export function enrichOwnerGroupsPlanningBlocked(
   groups: KRPanelOwnerGroup[],
