@@ -113,8 +113,12 @@ export const useSubmitFormResponse = () => {
     ({ id, values }: { id: string; values: unknown }) =>
       submitResponseMutation(id, values),
     {
-      onSuccess: () => {
+      onSuccess: (responseData, { id }) => {
+        void responseData;
         queryClient.invalidateQueries('employee');
+        queryClient.invalidateQueries(['allIndividualResponses', id]);
+        queryClient.invalidateQueries(['allSummaryResult', id]);
+        queryClient.invalidateQueries(['individualResponses', id]);
       },
     },
   );
@@ -129,6 +133,9 @@ export const useUpdateFormResponse = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('employee');
+        queryClient.invalidateQueries(['allIndividualResponses']);
+        queryClient.invalidateQueries(['allSummaryResult']);
+        queryClient.invalidateQueries(['individualResponses']);
       },
     },
   );

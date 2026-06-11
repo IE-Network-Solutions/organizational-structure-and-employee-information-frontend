@@ -52,15 +52,16 @@ import statusType from '../statusType';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+import {
+  formatAttendanceWallClockTime,
+  formatAttendanceWallClockTimeOrDash,
+} from '@/helpers/attendanceTimeHelper';
 
-const formatAttendanceTimeLabel = (date?: string | null): string | null => {
-  if (!date) return null;
-  const parsed = dayjs(date);
-  return parsed.isValid() ? parsed.format(TIME_FORMAT) : null;
-};
+const formatAttendanceTimeLabel = (date?: string | null): string | null =>
+  formatAttendanceWallClockTime(date, TIME_FORMAT);
 
 const formatAttendanceCellTime = (date?: string | null): string =>
-  formatAttendanceTimeLabel(date) ?? '-';
+  formatAttendanceWallClockTimeOrDash(date, TIME_FORMAT);
 
 /** Row uses API `startAt` / `endAt` mapped to `clockIn` / `clockOut`. */
 const hasAttendanceTimestamp = (value: unknown): boolean => {
@@ -119,6 +120,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setEmployeeId,
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
+    setAttendanceRecordDate,
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
   const { data: breakTypeData } = useGetBreakTypes();
@@ -614,8 +616,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               className="border-none hover:bg-transparent"
               id={`${item?.id}buttonPopOverActionForOnEditActionId`}
               onClick={() => {
-                (setEmployeeId(item?.userId),
-                  setEmployeeAttendanceId(item?.id));
+                setEmployeeId(item?.userId);
+                setEmployeeAttendanceId(item?.id);
+                setAttendanceRecordDate(item?.createdAt ?? '');
                 setIsShowEmployeeAttendanceSidebar(true);
               }}
               data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}
@@ -712,6 +715,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
         : [val.employeeId];
     }
 
+    setCurrentPage(1);
     setFilter(nFilter);
     setBodyRequest((prev) => ({
       ...prev,

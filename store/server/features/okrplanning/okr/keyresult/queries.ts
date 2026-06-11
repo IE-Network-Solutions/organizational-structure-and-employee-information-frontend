@@ -140,7 +140,7 @@ const getKeyResult = async (id: string) => {
   }
 };
 
-const getKeyResultFromPlanning = async (id: string) => {
+export const fetchKeyResultFromPlanning = async (id: string) => {
   const token = await getCurrentToken();
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -178,7 +178,7 @@ const getKeyResultFromPlanning = async (id: string) => {
 export const useGetKeyResultForEdit = (id: string, enabled = true) =>
   useQuery<KeyResult>(
     ['keyResultForEdit', id],
-    () => getKeyResultFromPlanning(id),
+    () => fetchKeyResultFromPlanning(id),
     { keepPreviousData: true, enabled: !!id && enabled },
   );
 

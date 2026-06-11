@@ -182,7 +182,11 @@ export const useFetchedAllIndividualResponsesByFormId = (formId: string) => {
   return useQuery<any>(
     ['allIndividualResponses', formId],
     () => fetchAllIndividualResponsesByformId(formId),
-    { enabled: !!formId },
+    {
+      enabled: !!formId,
+      refetchOnWindowFocus: true,
+      staleTime: 0,
+    },
   );
 };
 

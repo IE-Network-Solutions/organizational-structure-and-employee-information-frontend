@@ -1,5 +1,6 @@
 'use client';
 
+import { useJobState } from '@/store/uistate/features/recruitment/jobs';
 import { ConfigProvider } from 'antd';
 import React from 'react';
 
@@ -11,6 +12,7 @@ export default function RecruitmentLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { activePanel } = useJobState();
   return (
     <ConfigProvider
       theme={{
@@ -21,7 +23,7 @@ export default function RecruitmentLayout({
       }}
     >
       <div
-        className="box-border -mx-2 min-h-0 w-[calc(100%+16px)] px-2 md:-mx-6 md:w-[calc(100%+48px)] md:px-6"
+        className={`box-border -mx-2 min-h-0 w-[calc(100%+16px)] px-2 ${activePanel === null ? 'md:-mx-6' : ''}  md:w-[calc(100%+48px)] md:px-6`}
         style={{ fontFamily: TA_FONT }}
         data-cy="talent-acquisition-recruitment-layout"
       >
