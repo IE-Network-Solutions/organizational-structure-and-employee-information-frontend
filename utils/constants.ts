@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+/** Org & employee API. Override in `.env.local` for local backend (see `.env.local.example`). */
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
@@ -31,7 +32,7 @@ export const TIME_FORMAT = 'hh:mm A';
 
 export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID;
 export const TIME_AND_ATTENDANCE_URL =
-  "http://localhost:8020/api/v1";
+  process.env.NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL;
 export const TNA_URL = process.env.NEXT_PUBLIC_TRAIN_AND_LEARNING_URL;
 
 export const INCENTIVE_URL = process.env.INCENTIVE_URL;
