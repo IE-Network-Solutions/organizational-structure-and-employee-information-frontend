@@ -7,9 +7,7 @@ import { useQuery, useQueryClient } from 'react-query';
 const getVpScore = async (id: number | string, monthId?: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const monthQuery = monthId
-    ? `?monthId=${encodeURIComponent(monthId)}`
-    : '';
+  const monthQuery = monthId ? `?monthId=${encodeURIComponent(monthId)}` : '';
   return crudRequest({
     url: `${OKR_URL}/vp-score-instance/score/${id}${monthQuery}`,
     method: 'GET',

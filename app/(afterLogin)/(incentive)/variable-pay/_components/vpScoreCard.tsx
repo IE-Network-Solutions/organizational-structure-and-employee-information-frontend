@@ -81,7 +81,7 @@ const VPScoreCard: React.FC = () => {
             const item = criteria?.[index];
             const score = Number(item?.score ?? 0).toFixed(2);
             const weight = Number(item?.weight ?? 0).toFixed(2);
-            return `Score: ${score} / ${weight}`;
+            return `Score: ${score} out of ${weight}`;
           },
         },
       },
@@ -226,7 +226,7 @@ const VPScoreCard: React.FC = () => {
                           className="whitespace-nowrap text-[14px] text-gray-500"
                           data-cy={`variable-pay-criteria-item-score-${index}`}
                         >
-                          {score}/{weight}
+                          {score} out of {weight}
                         </span>
                       </div>
                     </div>
@@ -291,7 +291,7 @@ const VPScoreCard: React.FC = () => {
                         className="whitespace-nowrap text-[14px] text-gray-500"
                         data-cy={`variable-pay-criteria-item-score-desktop-${index}`}
                       >
-                        {score}/{weight}
+                        {score} out of {weight}
                       </span>
                     </div>
                   </div>
