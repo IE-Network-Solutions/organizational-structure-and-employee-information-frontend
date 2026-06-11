@@ -169,6 +169,41 @@ const ExpandedVPDetailsSkeleton = () => (
   </div>
 );
 
+const VpScoreCell = ({
+  userId,
+  monthId,
+  fallbackScore,
+}: {
+  userId: string;
+  monthId?: string;
+  fallbackScore?: string | number;
+}) => {
+  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
+  const score = Number(vpScore?.score ?? fallbackScore ?? 0);
+
+  if (isLoading && !fallbackScore) {
+    return (
+      <Skeleton.Input
+        active
+        size="small"
+        style={{ width: 48, height: 18, minWidth: 0 }}
+        data-cy={`compensation-benefit-variable-pay-score-skeleton-${userId}`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="text-left"
+      data-testid="variable-pay-score"
+      id="compensation-benefit-variable-pay-score"
+      data-cy="compensation-benefit-variable-pay-score"
+    >
+      {score ? score.toFixed(2) : '-'}
+    </div>
+  );
+};
+
 const ExpandedVPDetails = ({
   userId,
   monthId,
@@ -197,10 +232,15 @@ const ExpandedVPDetails = ({
       ? '#f0484a'
       : '#1c3ca5';
 
+  const criteriaWeightSum = criteria.reduce(
+    (acc: number, c: any) => acc + Number(c.weight || 0),
+    0,
+  );
+  const maxScore = Number(vpScore?.maxScore ?? 0);
   const totalWeight =
-    criteria.reduce((acc: number, c: any) => acc + Number(c.weight || 0), 0) ||
-    40;
-  const totalPercentage = Math.min((totalScore / totalWeight) * 100, 100);
+    maxScore > 0 ? maxScore : criteriaWeightSum > 0 ? criteriaWeightSum : 40;
+  const totalPercentage =
+    totalWeight > 0 ? Math.min((totalScore / totalWeight) * 100, 100) : 0;
 
   // Show *all* criteria for this user.
   // The backend returns the full breakdown; previously we were slicing to 3.
@@ -248,7 +288,7 @@ const ExpandedVPDetails = ({
                 className="text-gray-500 text-[14px] font-medium"
                 data-cy="expanded-vp-details-total-card-subtitle"
               >
-                Out of {totalWeight}%
+                Out of {totalWeight.toFixed(2)}%
               </span>
             </div>
 
@@ -530,15 +570,12 @@ const VariablePayTable = () => {
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
       align: 'left',
-      render: (text: string) => (
-        <div
-          className="text-left"
-          data-testid="variable-pay-score"
-          id="compensation-benefit-variable-pay-score"
-          data-cy="compensation-benefit-variable-pay-score"
-        >
-          {text || '-'}
-        </div>
+      render: (vpScore: string, record: any) => (
+        <VpScoreCell
+          userId={record.userId}
+          monthId={appliedMonthId}
+          fallbackScore={vpScore}
+        />
       ),
     },
     {

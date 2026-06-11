@@ -187,6 +187,20 @@ export const useGetAllCalculatedVpScore = (
       keepPreviousData: true,
       enabled,
       onSuccess: async (emp) => {
+        emp?.forEach((employee: any) => {
+          if (!employee?.userId) return;
+          const currentVpScore = queryClient.getQueryData([
+            'VPScores',
+            employee.userId,
+          ]) as any;
+          if (employee.vpScore != null) {
+            queryClient.setQueryData(['VPScores', employee.userId], {
+              ...currentVpScore,
+              score: employee.vpScore,
+            });
+          }
+        });
+
         const currentVp = queryClient.getQueryData(['variablePay']) as any;
 
         if (!currentVp) {
