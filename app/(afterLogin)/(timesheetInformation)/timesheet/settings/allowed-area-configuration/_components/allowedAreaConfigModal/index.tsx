@@ -239,9 +239,12 @@ const AllowedAreaConfigModal = () => {
       return;
     }
 
-    createConfiguration(buildCreateAllowedAreaConfigurationPayload(submitValues), {
-      onSuccess: onClose,
-    });
+    createConfiguration(
+      buildCreateAllowedAreaConfigurationPayload(submitValues),
+      {
+        onSuccess: onClose,
+      },
+    );
   };
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [
@@ -252,7 +255,8 @@ const AllowedAreaConfigModal = () => {
       size: 'large',
       onClick: onClose,
       id: 'time-attendance-settings-allowed-area-config-modal-cancel-button',
-      'data-cy': 'time-attendance-settings-allowed-area-config-modal-cancel-button',
+      'data-cy':
+        'time-attendance-settings-allowed-area-config-modal-cancel-button',
     },
     {
       label: isEditMode ? 'Update' : 'Create',
@@ -263,7 +267,8 @@ const AllowedAreaConfigModal = () => {
       loading: isSaving,
       onClick: () => form.submit(),
       id: 'time-attendance-settings-allowed-area-config-modal-submit-button',
-      'data-cy': 'time-attendance-settings-allowed-area-config-modal-submit-button',
+      'data-cy':
+        'time-attendance-settings-allowed-area-config-modal-submit-button',
     },
   ];
 
@@ -311,7 +316,10 @@ const AllowedAreaConfigModal = () => {
           <Form.Item
             name="configType"
             label={
-              <span className="text-sm font-normal text-gray-900">
+              <span
+                className="text-sm font-normal text-gray-900"
+                data-cy="time-attendance-settings-allowed-area-config-config-type-label"
+              >
                 Config Type
               </span>
             }
@@ -330,7 +338,10 @@ const AllowedAreaConfigModal = () => {
           <Form.Item
             name="departmentId"
             label={
-              <span className="text-sm font-normal text-gray-900">
+              <span
+                className="text-sm font-normal text-gray-900"
+                data-cy="time-attendance-settings-allowed-area-config-department-label"
+              >
                 Department
               </span>
             }
@@ -354,7 +365,10 @@ const AllowedAreaConfigModal = () => {
             <Form.Item
               name="userIds"
               label={
-                <span className="text-sm font-normal text-gray-900">
+                <span
+                  className="text-sm font-normal text-gray-900"
+                  data-cy="time-attendance-settings-allowed-area-config-users-label"
+                >
                   Users
                 </span>
               }

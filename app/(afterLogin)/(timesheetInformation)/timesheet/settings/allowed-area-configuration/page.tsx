@@ -59,7 +59,10 @@ const Page = () => {
           data-cy="time-attendance-settings-allowed-area-config-cards-container"
         >
           {items.length === 0 ? (
-            <div className="col-span-full py-8">
+            <div
+              className="col-span-full py-8"
+              data-cy="time-attendance-settings-allowed-area-config-empty-container"
+            >
               <Empty
                 description="No allowed area configurations yet"
                 data-cy="time-attendance-settings-allowed-area-config-empty"

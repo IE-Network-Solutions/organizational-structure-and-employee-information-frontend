@@ -56,7 +56,10 @@ const ConfigCard: FC<ConfigCardProps> = ({ item }) => {
           id={`time-attendance-settings-allowed-area-config-card-${item.id}-header`}
           data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-header`}
         >
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div
+            className="flex items-center gap-2 flex-1 min-w-0"
+            data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-title-row`}
+          >
             {isUserBased ? (
               <PersonOutlineOutlinedIcon className="text-[#4d4d4d] shrink-0" />
             ) : (
@@ -94,18 +97,54 @@ const ConfigCard: FC<ConfigCardProps> = ({ item }) => {
           id={`time-attendance-settings-allowed-area-config-card-${item.id}-info`}
           data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-info`}
         >
-          <div className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700 w-fit">
-            <span className="font-normal mr-1">Config Type:</span>
-            <span>{configTypeLabel}</span>
+          <div
+            className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700 w-fit"
+            data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-config-type`}
+          >
+            <span
+              className="font-normal mr-1"
+              data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-config-type-label`}
+            >
+              Config Type:
+            </span>
+            <span
+              data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-config-type-value`}
+            >
+              {configTypeLabel}
+            </span>
           </div>
-          <div className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700 w-fit">
-            <span className="font-normal mr-1">Department:</span>
-            <span>{departmentName ?? item.departmentId ?? '—'}</span>
+          <div
+            className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700 w-fit"
+            data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-department`}
+          >
+            <span
+              className="font-normal mr-1"
+              data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-department-label`}
+            >
+              Department:
+            </span>
+            <span
+              data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-department-value`}
+            >
+              {departmentName ?? item.departmentId ?? '—'}
+            </span>
           </div>
           {isUserBased && (
-            <div className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700 w-fit">
-              <span className="font-normal mr-1">Assigned Users:</span>
-              <span>{assignedUserCount}</span>
+            <div
+              className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700 w-fit"
+              data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-assigned-users`}
+            >
+              <span
+                className="font-normal mr-1"
+                data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-assigned-users-label`}
+              >
+                Assigned Users:
+              </span>
+              <span
+                data-cy={`time-attendance-settings-allowed-area-config-card-${item.id}-assigned-users-value`}
+              >
+                {assignedUserCount}
+              </span>
             </div>
           )}
         </div>
