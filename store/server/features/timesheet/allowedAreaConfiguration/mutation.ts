@@ -105,36 +105,9 @@ export const useUpdateAllowedAreaConfiguration = () => {
 export const useDeleteAllowedAreaConfiguration = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteAllowedAreaConfiguration, {
-    onSuccess: async (_, id) => {
-      queryClient.setQueriesData<ApiResponseLike>(
-        { queryKey: ['allowed-area-configurations'], exact: false },
-        (currentData) => {
-          if (!currentData?.items || !Array.isArray(currentData.items)) {
-            return currentData;
-          }
-          return {
-            ...currentData,
-            items: currentData.items.filter(
-              (item: AllowedAreaConfiguration) => item.id !== id,
-            ),
-          };
-        },
-      );
-
-      queryClient.invalidateQueries({
-        queryKey: ['allowed-area-configurations'],
-        exact: false,
-      });
-      await queryClient.refetchQueries(['allowed-area-configurations'], {
-        active: true,
-        stale: true,
-      });
+    onSuccess: async () => {
+      await invalidateAllowedAreaConfigurations(queryClient);
       handleSuccessMessage('DELETE');
     },
   });
-};
-
-type ApiResponseLike = {
-  items?: AllowedAreaConfiguration[];
-  [key: string]: unknown;
 };
