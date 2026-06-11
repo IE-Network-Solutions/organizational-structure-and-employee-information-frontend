@@ -52,6 +52,7 @@ export interface AttendanceSetShiftRequestBody {
   isSignIn?: boolean;
   breakTypeId?: string;
   userId: string;
+  departmentId?: string;
 }
 export interface EditAttendance {
   earlyByMinutes: number;

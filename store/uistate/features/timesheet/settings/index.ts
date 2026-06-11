@@ -11,6 +11,7 @@ type TimesheetSettingsState = {
   isShowTypeAndPoliciesSidebarEdit: boolean;
   isErrorPlan: boolean;
   isShowClosedDateSidebar: boolean;
+  isShowAllowedAreaConfigModal: boolean;
   isShowBreakTypeSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
 
@@ -19,6 +20,7 @@ type TimesheetSettingsState = {
   leaveTypeId: string | null;
   attendanceRuleId: string | null;
   allowedAreaId: string | null;
+  allowedAreaConfigId: string | null;
   leaveRequestId: string | null;
   selectedClosedDate: any | null;
   selectedBreakType: any | null;
@@ -50,6 +52,9 @@ type TimesheetSettingsStateAction = {
   ) => void;
   setIsErrorPlan: (isErrorPlan: boolean) => void;
   setIsShowClosedDateSidebar: (isShowClosedDateSidebar: boolean) => void;
+  setIsShowAllowedAreaConfigModal: (
+    isShowAllowedAreaConfigModal: boolean,
+  ) => void;
   setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
 
@@ -60,6 +65,7 @@ type TimesheetSettingsStateAction = {
   setLeaveTypeId: (leaveTypeId: string | null) => void;
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
   setAllowedAreaId: (allowedAreaId: string | null) => void;
+  setAllowedAreaConfigId: (allowedAreaConfigId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
   setSelectedClosedDate: (closedDate: any | null) => void;
   setSelectedBreakType: (breakType: any | null) => void;
@@ -135,6 +141,11 @@ const timesheetSettingsSlice: StateCreator<
     set({ isShowClosedDateSidebar });
   },
 
+  isShowAllowedAreaConfigModal: false,
+  setIsShowAllowedAreaConfigModal: (isShowAllowedAreaConfigModal: boolean) => {
+    set({ isShowAllowedAreaConfigModal });
+  },
+
   isShowBreakTypeSidebar: false,
   setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => {
     set({ isShowBreakTypeSidebar });
@@ -168,6 +179,11 @@ const timesheetSettingsSlice: StateCreator<
   allowedAreaId: null,
   setAllowedAreaId: (allowedAreaId: string | null) => {
     set({ allowedAreaId });
+  },
+
+  allowedAreaConfigId: null,
+  setAllowedAreaConfigId: (allowedAreaConfigId: string | null) => {
+    set({ allowedAreaConfigId });
   },
 
   leaveRequestId: null,

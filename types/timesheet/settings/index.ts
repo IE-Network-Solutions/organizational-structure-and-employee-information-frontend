@@ -54,6 +54,29 @@ export interface AllowedArea extends DateInfo {
   allowedUserAccesses?: AllowedUserAccess[];
 }
 
+export enum AllowedAreaResolverType {
+  DEPARTMENT_BASED = 'department_based',
+  USER_BASED = 'user_based',
+}
+
+export interface UserAllowedAreaConfig {
+  id: string;
+  userId: string;
+  allowedAreaConfigurationId: string;
+}
+
+export interface AllowedAreaConfiguration extends DateInfo {
+  id: string;
+  tenantId?: string;
+  departmentId?: string | null;
+  configType: string;
+  userAllowedAreaConfigs?: UserAllowedAreaConfig[];
+  /** @deprecated use configType */
+  resolverType?: AllowedAreaResolverType;
+  /** @deprecated use userAllowedAreaConfigs */
+  userIds?: string[];
+}
+
 export interface CarryOverRule extends DateInfo {
   id: string;
   title: string;
