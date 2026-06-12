@@ -15,14 +15,12 @@ import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/ma
 import { useGetCourseRatings } from '@/store/server/features/tna/courseRating/queries';
 import StarIcon from '@mui/icons-material/Star';
 
-
 interface CourseCardProps {
   item: Course;
   refetch: any;
   className?: string;
 }
 const formatRating = (value: number) => value.toFixed(1);
-
 
 const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
   const router = useRouter();
@@ -35,9 +33,6 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
   } = useDeleteCourseManagement();
   const { course } = useTnaManagementCoursePageStore();
   const { data: reviews = [] } = useGetCourseRatings(item?.id ?? '');
-
-
-
 
   useEffect(() => {
     if (isSuccess) {
@@ -57,7 +52,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
     const total = activeReviews.reduce((sum, review) => sum + review.rating, 0);
     return Math.round((total / activeReviews.length) * 10) / 10;
   }, [course?.rating, activeReviews]);
-  
+
   return (
     <Spin spinning={isLoading} data-cy={`tna-course-card-spinner-${item?.id}`}>
       <div
@@ -102,20 +97,20 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               {item?.courseCategory?.title || 'Uncategorized'}
             </span>
             {averageRating != null ? (
-          <div
-            className="inline-flex items-center gap-1 text-sm font-semibold text-gray-900"
-            data-cy="tna-course-feedback-and-ratings-average"
-          >
-            <StarIcon
-              sx={{ fontSize: 12 }}
-              className="fill-[#FAAD14] text-[#FAAD14]"
-              aria-hidden
-            />
-            <span data-cy="tna-course-feedback-and-ratings-average-value">
-              {formatRating(averageRating)}
-            </span>
-          </div>
-        ) : null}
+              <div
+                className="inline-flex items-center gap-1 text-sm font-semibold text-gray-900"
+                data-cy="tna-course-feedback-and-ratings-average"
+              >
+                <StarIcon
+                  sx={{ fontSize: 12 }}
+                  className="fill-[#FAAD14] text-[#FAAD14]"
+                  aria-hidden
+                />
+                <span data-cy="tna-course-feedback-and-ratings-average-value">
+                  {formatRating(averageRating)}
+                </span>
+              </div>
+            ) : null}
             {item?.isDraft && (
               <span
                 className="text-[12px] font-medium leading-none text-[#000000]"

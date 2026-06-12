@@ -4,7 +4,6 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { CourseRating, CourseRatingsResponse } from './interface';
 
-
 const getCourseRatings = async (
   courseId: string,
 ): Promise<CourseRatingsResponse> => {

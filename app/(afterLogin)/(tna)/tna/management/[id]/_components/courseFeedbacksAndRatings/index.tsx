@@ -56,7 +56,7 @@ const StarDisplay = ({
       aria-hidden
       data-cy="tna-course-feedback-star-display"
     >
-      {Array.from({ length: STAR_COUNT }, (_, index) => {
+      {Array.from({ length: STAR_COUNT }, (notused, index) => {
         const filled = index < filledCount;
         return filled ? (
           <StarIcon
@@ -91,7 +91,7 @@ const InteractiveStarRating = ({
     aria-label="Rate this course"
     data-cy="tna-course-feedback-rate-stars"
   >
-    {Array.from({ length: STAR_COUNT }, (_, index) => {
+    {Array.from({ length: STAR_COUNT }, (notused, index) => {
       const starValue = index + 1;
       const filled = starValue <= value;
 
@@ -272,7 +272,17 @@ const CourseFeedbacksAndRatings = () => {
 
   const getReviewMenuItems = (): MenuProps['items'] => [
     { key: 'edit', label: 'Edit' },
-    { key: 'delete', label: <span className="text-red-500">Delete</span> },
+    {
+      key: 'delete',
+      label: (
+        <span
+          data-cy={`tna-course-feedback-review-delete-button`}
+          className="text-red-500"
+        >
+          Delete
+        </span>
+      ),
+    },
   ];
 
   const handleReviewMenuClick = (review: CourseRating, key: string) => {
@@ -294,15 +304,24 @@ const CourseFeedbacksAndRatings = () => {
         className="rounded-lg bg-[#FAFAFA] p-3"
         data-cy={`tna-course-feedback-review-card-${index}`}
       >
-        <div className="flex items-start gap-3">
+        <div
+          data-cy={`tna-course-feedback-review-container-${index}`}
+          className="flex items-start gap-3"
+        >
           <Avatar
             size={32}
             icon={<UserOutlined />}
             className="shrink-0 bg-[#D9D9D9] text-white"
             data-cy={`tna-course-feedback-review-avatar-${index}`}
           />
-          <div className="min-w-0 flex-1">
-            <div className="mb-1 flex items-start justify-between gap-2">
+          <div
+            data-cy={`tna-course-feedback-review-author-container-${index}`}
+            className="min-w-0 flex-1"
+          >
+            <div
+              data-cy={`tna-course-feedback-review-author-row-${index}`}
+              className="mb-1 flex items-start justify-between gap-2"
+            >
               <p
                 className="text-xs font-medium text-gray-500"
                 data-cy={`tna-course-feedback-review-author-${index}`}
