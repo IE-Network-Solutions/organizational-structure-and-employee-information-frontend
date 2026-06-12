@@ -155,7 +155,10 @@ export function mergeUserKeyResultsIntoOwnerGroups(
 /** KR ids that must not show a planning + (all cadences: daily / weekly / monthly). */
 export function buildBlockedKeyResultIdSet(
   userKeyResultItems: any[],
-  panelKrs: Array<{ id: string; planningBlocked: boolean }> = [],
+  panelKrs: Pick<
+    KRPanelAggregatedKR,
+    'id' | 'metricType' | 'progress' | 'currentValue' | 'targetValue'
+  >[] = [],
 ): Set<string> {
   const ids = new Set<string>();
 
