@@ -42,6 +42,7 @@ import JobDetailInformationTabSkeleton from './_components/jobDetailInformationT
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import NotePanel from './_components/notePanel';
+import JobChat from './_components/jobChat';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -143,19 +144,6 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     pageSize,
     currentPage,
   );
-
-  function RightPanel() {
-    switch (activePanel) {
-      case 'chat':
-        return <div>Chat Panel</div>;
-
-      case 'notes':
-        return <NotePanel jobId={id} jobTitle={jobById?.jobTitle} />;
-
-      default:
-        return null;
-    }
-  }
 
   const pathname = usePathname();
 
@@ -526,6 +514,7 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                           type="primary"
                           onClick={() => setActivePanel('chat')}
                           className="h-10 w-10 rounded-lg"
+                          data-cy="talent-acquisition-job-detail-chat-panel-button"
                         >
                           <QuestionAnswerOutlinedIcon fontSize="medium" />
                         </Button>
@@ -1223,7 +1212,17 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
               <Separator />
               <Panel defaultSize={30} className="min-h-0">
                 <div className="h-full min-h-0 overflow-y-auto pl-1">
-                  <RightPanel />
+                  {activePanel === 'chat' && (
+                    <JobChat
+                      jobId={id}
+                      jobTenantId={jobById?.tenantId}
+                      jobTitle={jobById?.jobTitle}
+                      isActive
+                    />
+                  )}
+                  {activePanel === 'notes' && (
+                    <NotePanel jobId={id} jobTitle={jobById?.jobTitle} />
+                  )}
                 </div>
               </Panel>
             </>

@@ -26,12 +26,16 @@ export const crudRequest = async ({
   responseType,
 }: RequestParams) => {
   const { userId, tenantId } = useAuthenticationStore.getState();
+  const resolvedTenantId = String(
+    headers.tenantid || headers.tenantId || tenantId || '',
+  ).trim();
 
   headers = {
     ...headers,
-    requestedBy: userId,
-    createdBy: userId,
-    tenantId,
+    requestedBy: String(headers.userId || userId || ''),
+    createdBy: String(headers.userId || userId || ''),
+    tenantId: resolvedTenantId,
+    tenantid: resolvedTenantId,
   };
 
   try {
