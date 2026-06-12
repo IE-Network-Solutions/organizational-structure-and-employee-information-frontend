@@ -1,8 +1,10 @@
 import type { PlanOwner, PlanSummary } from '../types';
 import {
+  buildKrPlanningSource,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   isKeyResultFullyCompletedForPlanning,
+  resolveKrPlanningBlocked,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
@@ -157,15 +159,26 @@ export function buildBlockedKeyResultIdSet(
 ): Set<string> {
   const ids = new Set<string>();
 
-  for (const raw of userKeyResultItems) {
-    if (!raw || raw.deletedAt != null) continue;
-    if (isKeyResultFullyCompletedForPlanning(raw)) {
-      ids.add(String(raw.id));
+  const apiById = new Map(
+    userKeyResultItems
+      .filter((kr) => kr && kr.deletedAt == null)
+      .map((kr) => [String(kr.id), kr]),
+  );
+
+  for (const panelKr of panelKrs) {
+    const apiKr = apiById.get(String(panelKr.id));
+    if (resolveKrPlanningBlocked(panelKr, apiKr)) {
+      ids.add(String(panelKr.id));
     }
   }
 
-  for (const kr of panelKrs) {
-    if (kr.planningBlocked) ids.add(String(kr.id));
+  for (const raw of userKeyResultItems) {
+    if (!raw || raw.deletedAt != null) continue;
+    const id = String(raw.id);
+    if (ids.has(id)) continue;
+    if (isKeyResultFullyCompletedForPlanning(raw)) {
+      ids.add(id);
+    }
   }
 
   return ids;
@@ -186,29 +199,24 @@ export function enrichOwnerGroupsPlanningBlocked(
     ...group,
     krs: group.krs.map((panelKr) => {
       const apiKr = apiById.get(panelKr.id);
-      const planningSource = apiKr
-        ? {
-            ...apiKr,
-            metricType: apiKr.metricType ?? { name: panelKr.metricType },
-            key_type: apiKr.key_type ?? panelKr.metricType,
-            milestones: apiKr.milestones ?? apiKr.Milestones,
-            currentValue: apiKr.currentValue ?? panelKr.currentValue,
-            targetValue: apiKr.targetValue ?? panelKr.targetValue,
-            initialValue: apiKr.initialValue ?? panelKr.currentValue,
-          }
-        : {
-            metricType: { name: panelKr.metricType },
-            key_type: panelKr.metricType,
-            progress: panelKr.progress,
-            currentValue: panelKr.currentValue,
-            targetValue: panelKr.targetValue,
-          };
+      const planningSource = buildKrPlanningSource(panelKr, apiKr);
+      const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
+      const apiProgress = apiKr
+        ? getKeyResultProgressPercent(planningSource)
+        : 0;
+      const progress = Math.max(panelKr.progress, apiProgress);
+      const progressLabel = apiKr
+        ? getKeyResultProgressRatioText(planningSource)
+        : panelKr.progressLabel;
 
-      const planningBlocked =
-        isKeyResultFullyCompletedForPlanning(planningSource);
-
-      if (planningBlocked === panelKr.planningBlocked) return panelKr;
-      return { ...panelKr, planningBlocked };
+      if (
+        planningBlocked === panelKr.planningBlocked &&
+        progress === panelKr.progress &&
+        progressLabel === panelKr.progressLabel
+      ) {
+        return panelKr;
+      }
+      return { ...panelKr, planningBlocked, progress, progressLabel };
     }),
   }));
 }

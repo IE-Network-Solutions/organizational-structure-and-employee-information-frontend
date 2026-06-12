@@ -84,6 +84,8 @@ function EditReport() {
             queryClient.invalidateQueries('okrUserPlans');
             queryClient.invalidateQueries('okrPlannedData');
             queryClient.invalidateQueries('planningPeriodsHierarchy');
+            queryClient.invalidateQueries('fetchObjectives');
+            queryClient.invalidateQueries('ObjectiveInformation');
             onClose();
           },
         },

@@ -961,6 +961,8 @@ export interface KRPanelProps {
   userKeyResultItems?: any[];
   /** Unreported parent plan for current cadence (planning period hierarchy). */
   parentPlanContext?: ParentPlanContext | null;
+  /** False while user KR API is loading/refetching — hides + until eligibility is current. */
+  planningPickReady?: boolean;
 }
 
 export function KRLeftPanel({
@@ -979,6 +981,7 @@ export function KRLeftPanel({
   onPickPlanningTarget,
   userKeyResultItems = [],
   parentPlanContext = null,
+  planningPickReady = true,
 }: KRPanelProps) {
   const ownerGroups = React.useMemo(() => {
     const base = buildOwnerKRGroups(plans);
@@ -1015,7 +1018,8 @@ export function KRLeftPanel({
     ? (threadEntities.find((p) => p.id === activeThread.id) ?? null)
     : null;
 
-  const showInlinePick = inlinePlanningMode && activeTab === 1 && !threadPlan;
+  const showInlinePick =
+    inlinePlanningMode && activeTab === 1 && !threadPlan && planningPickReady;
 
   const blockedKrIds = React.useMemo(() => {
     const panelKrs = ownerGroups.flatMap((g) => g.krs);

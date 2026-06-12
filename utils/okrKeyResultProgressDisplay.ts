@@ -109,6 +109,72 @@ export function isKeyResultFullyCompletedForPlanning(kr: {
   return getKeyResultProgressPercent(kr) >= 100;
 }
 
+/** Merge plan-panel KR row with user KR API for eligibility (shared by panel + targets). */
+export function buildKrPlanningSource(
+  panelKr: {
+    metricType?: string;
+    progress?: number;
+    currentValue?: string | number;
+    targetValue?: string | number;
+  },
+  apiKr?: any | null,
+) {
+  if (!apiKr) {
+    return {
+      metricType: { name: panelKr.metricType },
+      key_type: panelKr.metricType,
+      progress: panelKr.progress,
+      currentValue: panelKr.currentValue,
+      targetValue: panelKr.targetValue,
+    };
+  }
+  return {
+    ...apiKr,
+    metricType: apiKr.metricType ?? { name: panelKr.metricType },
+    key_type: apiKr.key_type ?? panelKr.metricType,
+    milestones: apiKr.milestones ?? apiKr.Milestones,
+    currentValue: apiKr.currentValue ?? panelKr.currentValue,
+    targetValue: apiKr.targetValue ?? panelKr.targetValue,
+    initialValue: apiKr.initialValue ?? panelKr.currentValue,
+  };
+}
+
+/**
+ * Whether + / planning slots must be hidden for a panel KR.
+ * Panel progress can be ahead of a stale user-KR API response until refetch completes;
+ * only reopen when API shows measured progress below 100%.
+ */
+export function resolveKrPlanningBlocked(
+  panelKr: {
+    metricType?: string;
+    progress?: number;
+    currentValue?: string | number;
+    targetValue?: string | number;
+  },
+  apiKr?: any | null,
+): boolean {
+  const planningSource = buildKrPlanningSource(panelKr, apiKr);
+
+  if (apiKr && isKeyResultReopenedForPlanning(planningSource)) {
+    return false;
+  }
+
+  if (isMilestoneKeyResult(planningSource)) {
+    return isKeyResultFullyCompletedForPlanning(planningSource);
+  }
+
+  const panelProgress = Number(panelKr.progress ?? 0);
+  if (!apiKr) {
+    return (
+      panelProgress >= 100 ||
+      isKeyResultFullyCompletedForPlanning(planningSource)
+    );
+  }
+
+  const apiProgress = getKeyResultProgressPercent(planningSource);
+  return Math.max(apiProgress, panelProgress) >= 100;
+}
+
 export function getMilestoneProgressCounts(kr: {
   milestones?: Array<{ status?: string }>;
 }): { completed: number; total: number } {

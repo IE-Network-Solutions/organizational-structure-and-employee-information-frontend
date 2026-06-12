@@ -174,8 +174,14 @@ function Page() {
     userId,
   } = usePlanningData();
 
-  const { data: userKeyResultsRaw, isLoading: userKeyResultsLoading } =
-    useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId);
+  const {
+    data: userKeyResultsRaw,
+    isLoading: userKeyResultsLoading,
+    isFetching: userKeyResultsFetching,
+  } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
+    refetchOnMount: 'always',
+    staleTime: 0,
+  });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
@@ -186,6 +192,8 @@ function Page() {
     () => normalizeUserKeyResultItems(userKeyResultsRaw),
     [userKeyResultsRaw],
   );
+
+  const planningPickReady = !userKeyResultsLoading && !userKeyResultsFetching;
 
   const parentPlanContext = useMemo(
     () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
@@ -231,13 +239,20 @@ function Page() {
   }, [inlinePlanningMode]);
 
   useEffect(() => {
+    if (!planningPickReady && selectedPlanningTargetId) {
+      setSelectedPlanningTargetId(null);
+    }
+  }, [planningPickReady, selectedPlanningTargetId]);
+
+  useEffect(() => {
     if (
+      planningPickReady &&
       activePlanningTarget &&
       isPlanningTargetBlocked(activePlanningTarget, userKeyResultItems)
     ) {
       setSelectedPlanningTargetId(null);
     }
-  }, [activePlanningTarget, userKeyResultItems]);
+  }, [activePlanningTarget, userKeyResultItems, planningPickReady]);
 
   useEffect(() => {
     if (inlineEditPlanId) setSelectedPlanningTargetId(null);
@@ -500,6 +515,7 @@ function Page() {
                   }
                   userKeyResultItems={userKeyResultItems}
                   parentPlanContext={parentPlanContext}
+                  planningPickReady={planningPickReady}
                 />
               )}
             </div>
@@ -646,6 +662,7 @@ function Page() {
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
                 userKeyResultItems={userKeyResultItems}
                 parentPlanContext={parentPlanContext}
+                planningPickReady={planningPickReady}
               />
             )}
           </div>

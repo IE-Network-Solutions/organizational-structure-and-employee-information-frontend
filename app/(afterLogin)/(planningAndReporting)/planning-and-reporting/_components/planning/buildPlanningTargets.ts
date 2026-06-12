@@ -1,11 +1,11 @@
 import { groupParentTasks } from '../dataTransformer/plan';
 import {
+  getKeyResultProgressPercent,
   isKeyResultFullyCompletedForPlanning,
   isMilestoneCompleted,
   isMilestoneKeyResult,
+  resolveKrPlanningBlocked,
 } from '@/utils/okrKeyResultProgressDisplay';
-import { buildBlockedKeyResultIdSet } from './mergeKRPanelGroups';
-
 export type PlanningTarget = {
   id: string;
   keyResultId: string;
@@ -107,8 +107,18 @@ export function isKeyResultBlockedForPlanning(
   kr: any,
   userKeyResultItems: any[] = [],
 ): boolean {
-  const source = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  return isKeyResultFullyCompletedForPlanning(source);
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
+  return resolveKrPlanningBlocked(
+    {
+      metricType: kr?.metricType?.name ?? kr?.key_type,
+      progress: getKeyResultProgressPercent(kr),
+      currentValue: kr?.currentValue,
+      targetValue: kr?.targetValue,
+    },
+    apiKr,
+  );
 }
 
 /** True when a milestone row must not offer planning. */
@@ -136,21 +146,26 @@ export function isPlanningTargetBlocked(
 ): boolean {
   if (!target) return false;
 
+  const apiKr = userKeyResultItems.find(
+    (k) =>
+      k && k.deletedAt == null && String(k.id) === String(target.keyResultId),
+  );
+
   if (
-    buildBlockedKeyResultIdSet(userKeyResultItems).has(
-      String(target.keyResultId),
+    resolveKrPlanningBlocked(
+      {
+        metricType: apiKr?.metricType?.name ?? apiKr?.key_type,
+        progress: apiKr ? getKeyResultProgressPercent(apiKr) : 0,
+        currentValue: apiKr?.currentValue,
+        targetValue: apiKr?.targetValue,
+      },
+      apiKr,
     )
   ) {
     return true;
   }
 
-  const apiKr = userKeyResultItems.find(
-    (k) =>
-      k && k.deletedAt == null && String(k.id) === String(target.keyResultId),
-  );
   if (!apiKr) return false;
-
-  if (isKeyResultFullyCompletedForPlanning(apiKr)) return true;
 
   if (target.milestoneId) {
     const ms = findMilestoneInKeyResult(apiKr, target.milestoneId);
