@@ -15,6 +15,7 @@ import {
   formatAttendanceRecordDateLabel,
   getAttendanceDateBase,
 } from '../attendanceDateHelpers';
+import { parseAttendanceWallClockTime } from '@/helpers/attendanceTimeHelper';
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
@@ -158,13 +159,13 @@ const EmployeeAttendanceSideBar = () => {
         startAt: currentAttendanceData.startAt
           ? applyTimeToAttendanceDate(
               recordDate,
-              dayjs(currentAttendanceData.startAt),
+              parseAttendanceWallClockTime(currentAttendanceData.startAt)!,
             )
           : dateBase,
         endAt: currentAttendanceData.endAt
           ? applyTimeToAttendanceDate(
               recordDate,
-              dayjs(currentAttendanceData.endAt),
+              parseAttendanceWallClockTime(currentAttendanceData.endAt)!,
             )
           : dateBase,
         status: formatToAttendanceStatuses(currentAttendanceData)?.[0]?.status,

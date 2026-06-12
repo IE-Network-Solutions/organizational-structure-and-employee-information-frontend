@@ -26,6 +26,16 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 
 const EXPANDED_VP_SKELETON_METRIC_COUNT = 3;
 
+const formatVpScoreValue = (value: number): string => {
+  if (!Number.isFinite(value)) return '0';
+  return Math.abs(value % 1) < 1e-9
+    ? String(Math.round(value))
+    : value.toFixed(2);
+};
+
+const formatCriteriaScoreOutOf = (achieved: number, total: number): string =>
+  `${formatVpScoreValue(achieved)} out of ${formatVpScoreValue(total)}`;
+
 type EmployeeSearchOption = {
   value: string;
   searchLabel: string;
@@ -102,7 +112,7 @@ const ExpandedVPDetailsSkeleton = () => (
           (unused: unknown, metricIndex: number) => (
             <div
               key={`expanded-vp-sk-metric-${metricIndex}`}
-              className="box-border flex h-[108px] w-[256px] min-w-[256px] max-w-[256px] flex-shrink-0 flex-col justify-between overflow-hidden border border-gray-200 bg-white p-4 shadow-sm [&_.ant-skeleton-input]:!max-w-full"
+              className="box-border flex h-[124px] w-[256px] min-w-[256px] max-w-[256px] flex-shrink-0 flex-col justify-between overflow-hidden border border-gray-200 bg-white p-4 shadow-sm [&_.ant-skeleton-input]:!max-w-full"
               style={{ borderRadius: '8px' }}
               data-cy={`expanded-vp-details-skeleton-metric-card-${metricIndex}`}
             >
@@ -159,6 +169,41 @@ const ExpandedVPDetailsSkeleton = () => (
   </div>
 );
 
+const VpScoreCell = ({
+  userId,
+  monthId,
+  fallbackScore,
+}: {
+  userId: string;
+  monthId?: string;
+  fallbackScore?: string | number;
+}) => {
+  const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
+  const score = Number(vpScore?.score ?? fallbackScore ?? 0);
+
+  if (isLoading && !fallbackScore) {
+    return (
+      <Skeleton.Input
+        active
+        size="small"
+        style={{ width: 48, height: 18, minWidth: 0 }}
+        data-cy={`compensation-benefit-variable-pay-score-skeleton-${userId}`}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="text-left"
+      data-testid="variable-pay-score"
+      id="compensation-benefit-variable-pay-score"
+      data-cy="compensation-benefit-variable-pay-score"
+    >
+      {score ? score.toFixed(2) : '-'}
+    </div>
+  );
+};
+
 const ExpandedVPDetails = ({
   userId,
   monthId,
@@ -187,10 +232,15 @@ const ExpandedVPDetails = ({
       ? '#f0484a'
       : '#1c3ca5';
 
+  const criteriaWeightSum = criteria.reduce(
+    (acc: number, c: any) => acc + Number(c.weight || 0),
+    0,
+  );
+  const maxScore = Number(vpScore?.maxScore ?? 0);
   const totalWeight =
-    criteria.reduce((acc: number, c: any) => acc + Number(c.weight || 0), 0) ||
-    40;
-  const totalPercentage = Math.min((totalScore / totalWeight) * 100, 100);
+    maxScore > 0 ? maxScore : criteriaWeightSum > 0 ? criteriaWeightSum : 40;
+  const totalPercentage =
+    totalWeight > 0 ? Math.min((totalScore / totalWeight) * 100, 100) : 0;
 
   // Show *all* criteria for this user.
   // The backend returns the full breakdown; previously we were slicing to 3.
@@ -238,7 +288,7 @@ const ExpandedVPDetails = ({
                 className="text-gray-500 text-[14px] font-medium"
                 data-cy="expanded-vp-details-total-card-subtitle"
               >
-                Out of {totalWeight}%
+                Out of {totalWeight.toFixed(2)}%
               </span>
             </div>
 
@@ -302,56 +352,47 @@ const ExpandedVPDetails = ({
           {/* Criteria cards */}
           {displayCriteria.map((card: any, index: number) => {
             const score = Number(card?.score ?? 0);
-            const weight = Number(card?.weight ?? 1);
-            // Avoid divide-by-zero if weight is missing/invalid.
-            const safeWeight = weight > 0 ? weight : 1;
-            const curPercentage = Math.min((score / safeWeight) * 100, 100);
+            const total = Number(card?.maxScore ?? card?.weight ?? 1);
+            const safeTotal = total > 0 ? total : 1;
+            const curPercentage = Math.min((score / safeTotal) * 100, 100);
+            const previousScore = Number(card?.previousScore ?? 0);
+            const monthChange = (score - previousScore).toFixed(2);
+            const isMonthChangeNegative = score - previousScore < 0;
 
             return (
               <div
                 key={index}
                 className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-[256px] flex-shrink-0"
-                style={{ height: '108px', borderRadius: '8px' }}
+                style={{ height: '124px', borderRadius: '8px' }}
                 data-cy={`expanded-vp-details-metric-card-${index}`}
               >
-                <div
-                  className="flex justify-between items-center"
-                  data-cy={`expanded-vp-details-metric-card-header-${index}`}
+                <span
+                  className="text-gray-500 text-[14px] font-medium truncate"
+                  data-cy={`expanded-vp-details-metric-card-title-${index}`}
                 >
-                  <span
-                    className="text-gray-500 text-[14px] font-medium truncate pr-2"
-                    data-cy={`expanded-vp-details-metric-card-title-${index}`}
-                  >
-                    {card?.name || 'OKR'}
-                  </span>
-                  <span
-                    className="text-gray-500 text-[14px] font-medium flex-shrink-0"
-                    data-cy={`expanded-vp-details-metric-card-subtitle-${index}`}
-                  >
-                    Out of {safeWeight.toFixed(2)}%
-                  </span>
-                </div>
+                  {card?.name || 'OKR'}
+                </span>
 
                 <div
-                  className="flex items-center gap-3"
-                  data-cy={`expanded-vp-details-metric-card-progress-row-${index}`}
+                  className="flex items-center gap-3 min-w-0"
+                  data-cy={`expanded-vp-details-metric-card-score-row-${index}`}
                 >
+                  <span
+                    className="text-[20px] font-bold text-gray-800 leading-none whitespace-nowrap shrink-0"
+                    data-cy={`expanded-vp-details-metric-card-score-${index}`}
+                  >
+                    {formatCriteriaScoreOutOf(score, safeTotal)}
+                  </span>
                   <Progress
                     percent={curPercentage}
                     showInfo={false}
                     strokeColor={getCriteriaProgressColor(card?.name || '')}
                     trailColor="#f3f4f6"
-                    className="flex-1 m-0 [&_.ant-progress-inner]:!bg-gray-100"
+                    className="flex-1 m-0 min-w-0 [&_.ant-progress-inner]:!bg-gray-100"
                     data-cy={`expanded-vp-details-metric-card-progress-${index}`}
                     strokeWidth={8}
                     strokeLinecap="round"
                   />
-                  <span
-                    className="text-gray-600 text-[14px] font-medium w-8 text-right"
-                    data-cy={`expanded-vp-details-metric-card-progress-value-${index}`}
-                  >
-                    {curPercentage.toFixed(0)}%
-                  </span>
                 </div>
 
                 <div
@@ -359,10 +400,11 @@ const ExpandedVPDetails = ({
                   data-cy={`expanded-vp-details-metric-card-footer-${index}`}
                 >
                   <span
-                    className="text-[12px] text-green-500 font-medium"
+                    className={`text-[12px] font-medium ${!isMonthChangeNegative ? 'text-green-500' : 'text-red-500'}`}
                     data-cy={`expanded-vp-details-metric-card-footer-text-${index}`}
                   >
-                    +0.00{' '}
+                    {!isMonthChangeNegative ? '+' : ''}
+                    {monthChange}{' '}
                     <span
                       className="text-gray-400 font-normal"
                       data-cy={`expanded-vp-details-metric-card-footer-subtext-${index}`}
@@ -528,15 +570,12 @@ const VariablePayTable = () => {
       key: 'VpScore',
       sorter: (a, b) => (a.VpScore || 0) - (b.VpScore || 0),
       align: 'left',
-      render: (text: string) => (
-        <div
-          className="text-left"
-          data-testid="variable-pay-score"
-          id="compensation-benefit-variable-pay-score"
-          data-cy="compensation-benefit-variable-pay-score"
-        >
-          {text || '-'}
-        </div>
+      render: (vpScore: string, record: any) => (
+        <VpScoreCell
+          userId={record.userId}
+          monthId={appliedMonthId}
+          fallbackScore={vpScore}
+        />
       ),
     },
     {
