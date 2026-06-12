@@ -1,7 +1,6 @@
 import { groupParentTasks } from '../dataTransformer/plan';
 import {
   isKeyResultFullyCompletedForPlanning,
-  isKeyResultReopenedForPlanning,
   isMilestoneCompleted,
   isMilestoneKeyResult,
 } from '@/utils/okrKeyResultProgressDisplay';
@@ -109,7 +108,6 @@ export function isKeyResultBlockedForPlanning(
   userKeyResultItems: any[] = [],
 ): boolean {
   const source = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  if (isKeyResultReopenedForPlanning(source)) return false;
   return isKeyResultFullyCompletedForPlanning(source);
 }
 
@@ -152,7 +150,6 @@ export function isPlanningTargetBlocked(
   );
   if (!apiKr) return false;
 
-  if (isKeyResultReopenedForPlanning(apiKr)) return false;
   if (isKeyResultFullyCompletedForPlanning(apiKr)) return true;
 
   if (target.milestoneId) {

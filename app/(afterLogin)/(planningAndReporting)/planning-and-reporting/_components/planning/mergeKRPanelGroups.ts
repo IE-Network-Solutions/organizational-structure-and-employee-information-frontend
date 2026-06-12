@@ -3,7 +3,6 @@ import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   isKeyResultFullyCompletedForPlanning,
-  isKeyResultReopenedForPlanning,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
@@ -160,7 +159,6 @@ export function buildBlockedKeyResultIdSet(
 
   for (const raw of userKeyResultItems) {
     if (!raw || raw.deletedAt != null) continue;
-    if (isKeyResultReopenedForPlanning(raw)) continue;
     if (isKeyResultFullyCompletedForPlanning(raw)) {
       ids.add(String(raw.id));
     }
@@ -193,10 +191,10 @@ export function enrichOwnerGroupsPlanningBlocked(
             ...apiKr,
             metricType: apiKr.metricType ?? { name: panelKr.metricType },
             key_type: apiKr.key_type ?? panelKr.metricType,
-            progress: panelKr.progress,
-            currentValue: panelKr.currentValue ?? apiKr.currentValue,
-            targetValue: panelKr.targetValue ?? apiKr.targetValue,
             milestones: apiKr.milestones ?? apiKr.Milestones,
+            currentValue: apiKr.currentValue ?? panelKr.currentValue,
+            targetValue: apiKr.targetValue ?? panelKr.targetValue,
+            initialValue: apiKr.initialValue ?? panelKr.currentValue,
           }
         : {
             metricType: { name: panelKr.metricType },
@@ -206,9 +204,8 @@ export function enrichOwnerGroupsPlanningBlocked(
             targetValue: panelKr.targetValue,
           };
 
-      const planningBlocked = isKeyResultReopenedForPlanning(planningSource)
-        ? false
-        : isKeyResultFullyCompletedForPlanning(planningSource);
+      const planningBlocked =
+        isKeyResultFullyCompletedForPlanning(planningSource);
 
       if (planningBlocked === panelKr.planningBlocked) return panelKr;
       return { ...panelKr, planningBlocked };

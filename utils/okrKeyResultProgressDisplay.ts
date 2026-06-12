@@ -50,23 +50,33 @@ function normalizeKeyResultStatus(kr: {
     .replace(/[\s-]+/g, '_');
 }
 
+const IN_PROGRESS_KR_STATUSES = new Set([
+  'on_progress',
+  'in_progress',
+  'pending',
+  'not_started',
+  'overdue',
+  'due_soon',
+  'failed',
+]);
+
 /** KR was marked incomplete again (e.g. report updated from achieved → on progress). */
 export function isKeyResultReopenedForPlanning(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: Array<{ status?: string }>;
+  progress?: number | string | null;
   status?: string;
   keyResultCompletionStatus?: string;
   completionStatus?: string;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  targetValue?: number | string | null;
 }): boolean {
   const status = normalizeKeyResultStatus(kr);
-  if (!status) return false;
-  return (
-    status === 'on_progress' ||
-    status === 'in_progress' ||
-    status === 'pending' ||
-    status === 'not_started' ||
-    status === 'overdue' ||
-    status === 'due_soon' ||
-    status === 'failed'
-  );
+  if (!status || !IN_PROGRESS_KR_STATUSES.has(status)) return false;
+  // Status alone is not enough — many achieved KRs keep an in-progress status while at 100%.
+  return getKeyResultProgressPercent(kr) < 100;
 }
 
 /**
@@ -85,8 +95,6 @@ export function isKeyResultFullyCompletedForPlanning(kr: {
   initialValue?: number | string | null;
   targetValue?: number | string | null;
 }): boolean {
-  if (isKeyResultReopenedForPlanning(kr)) return false;
-
   if (isMilestoneKeyResult(kr)) {
     const milestones = (kr?.milestones ?? []).filter(
       (m) => m?.deletedAt == null,
@@ -97,9 +105,7 @@ export function isKeyResultFullyCompletedForPlanning(kr: {
     return milestones.every(isMilestoneCompleted);
   }
 
-  const status = normalizeKeyResultStatus(kr);
-  if (status === 'achieved' || status === 'completed') return true;
-
+  // Non-milestone KRs: measured progress is the sole gate (status can lag after report updates).
   return getKeyResultProgressPercent(kr) >= 100;
 }
 
