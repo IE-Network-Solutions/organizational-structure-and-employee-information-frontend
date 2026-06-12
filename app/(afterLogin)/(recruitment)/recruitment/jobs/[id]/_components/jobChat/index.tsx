@@ -282,7 +282,7 @@ const normalizeSentMessage = (
 const getMessagePreview = (message: JobMessage) => {
   if (message.content?.trim()) {
     const trimmed = message.content.trim();
-    return trimmed.length > 140 ? `${trimmed.slice(0, 140)}…` : trimmed;
+    return trimmed.length > 140 ? `${trimmed.slice(0, 140)}...` : trimmed;
   }
 
   if ((message.files || []).length > 0) {
@@ -716,6 +716,41 @@ const JobChat = ({
       .map((user) => user.id);
   };
 
+  const isComposerMention = useCallback(
+    (token: string) => {
+      const alias = normalizeMentionAlias(token);
+      if (!alias) return false;
+
+      return users.some((user) => {
+        if (!user?.id || user.id === currentUserId) return false;
+        return (mentionAliasByUserId.get(user.id) || []).includes(alias);
+      });
+    },
+    [currentUserId, mentionAliasByUserId, users],
+  );
+
+  const renderComposerContent = useCallback(
+    (value: string) =>
+      value.split(/(@[A-Za-z0-9._-]+)/g).map((part, index) => {
+        const isMention = part.startsWith('@') && isComposerMention(part);
+
+        if (!isMention) {
+          return <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>;
+        }
+
+        return (
+          <span
+            key={`${part}-${index}`}
+            className="font-semibold text-[#1E40AF]"
+            data-cy="talent-acquisition-job-chat-composer-mention-highlight"
+          >
+            {part}
+          </span>
+        );
+      }),
+    [isComposerMention],
+  );
+
   const renderMessageContent = (
     value: string,
     mentions: JobMessage['mentions'],
@@ -738,7 +773,7 @@ const JobChat = ({
       return (
         <span
           key={`${part}-${index}`}
-          className="rounded-[4px] bg-[#BAE0FF] px-1 font-semibold text-[#1E40AF]"
+          className="font-semibold text-[#1E40AF]"
           data-cy="talent-acquisition-job-chat-mention-highlight"
         >
           {part}
@@ -1210,11 +1245,11 @@ const JobChat = ({
 
   return (
     <div
-      className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[8px] border border-solid border-[#E5E7EB] bg-white font-['Calibri']"
+      className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-[8px] border border-solid border-[#E5E7EB] bg-[#F0F2F5] font-['Calibri']"
       data-cy="talent-acquisition-job-chat"
     >
       <div
-        className="shrink-0 border-0 border-b border-solid border-[#E5E7EB] px-4 pb-3 pt-4"
+        className="shrink-0 border-0 border-b border-solid border-[#E5E7EB] bg-white px-4 pb-3 pt-4"
         data-cy="talent-acquisition-job-chat-header"
       >
         <div
@@ -1308,7 +1343,7 @@ const JobChat = ({
       </div>
 
       <div
-        className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-4"
+        className="min-h-0 flex-1 overflow-y-auto bg-[#F0F2F5] px-4 py-4"
         data-cy="talent-acquisition-job-chat-message-list"
       >
         {showInitialLoading ? (
@@ -1344,6 +1379,14 @@ const JobChat = ({
           >
             {visibleMessages.map((message) => {
               const isMine = message.senderId === currentUserId;
+              const sender =
+                userById.get(message.senderId) ||
+                (isMine ? currentUserData : undefined);
+              const senderName = getUserName(sender);
+              const profileImage =
+                sender?.profileImage ||
+                sender?.employeeInformation?.profileImage ||
+                sender?.avatar;
               const parent = getParentMessage(message.parentMessageId);
               const readByOtherUserIds = (message.readByUserIds || []).filter(
                 (userId) => userId && userId !== currentUserId,
@@ -1352,7 +1395,17 @@ const JobChat = ({
               const formattedTime = formatChatTime(message.createdAt);
               const isReplyTarget = replyTo?.id === message.id;
               const isMenuOpen = openMenuMessageId === message.id;
-              const messageMenuButtonClass = `mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-[6px] border-0 bg-transparent text-[rgba(0,0,0,0.45)] transition-opacity hover:bg-[#F5F5F5] hover:text-[#1E40AF] ${
+              const bubbleBg = isMine ? 'bg-[#D6EBFF]' : 'bg-white';
+              const bubbleRadius = isMine
+                ? 'rounded-[12px_12px_4px_12px]'
+                : 'rounded-[12px_12px_12px_4px]';
+              const tailPosition = isMine
+                ? 'absolute -right-[6px] bottom-0'
+                : 'absolute -left-[6px] bottom-0';
+              const tailClip = isMine
+                ? 'polygon(0 0, 100% 100%, 0 100%)'
+                : 'polygon(100% 0, 100% 100%, 0 100%)';
+              const messageMenuButtonClass = `mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-[6px] border-0 bg-transparent text-[rgba(0,0,0,0.45)] transition-opacity hover:bg-[#F5F5F5] hover:text-[#1E40AF] ${
                 isMenuOpen
                   ? 'opacity-100'
                   : 'opacity-0 group-hover/message:opacity-100'
@@ -1362,10 +1415,28 @@ const JobChat = ({
                 <div
                   key={message.id}
                   data-cy="talent-acquisition-job-chat-message"
-                  className={`group/message flex w-full items-start gap-1 ${
+                  className={`group/message flex w-full items-end gap-2 ${
                     isMine ? 'justify-end' : 'justify-start'
                   }`}
                 >
+                  {!isMine && (
+                    <Avatar
+                      size={28}
+                      src={profileImage || undefined}
+                      className="shrink-0 self-end"
+                      style={{
+                        backgroundColor: profileImage
+                          ? undefined
+                          : getParticipantAvatarColor(message.senderId),
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                      data-cy="talent-acquisition-job-chat-message-avatar"
+                    >
+                      {!profileImage ? getUserAvatarText(senderName) : null}
+                    </Avatar>
+                  )}
+
                   {isMine && (
                     <Dropdown
                       menu={{ items: getMessageActionMenuItems(message) }}
@@ -1387,97 +1458,123 @@ const JobChat = ({
                     </Dropdown>
                   )}
 
-                  <div
-                    className={`max-w-[88%] rounded-[8px] px-3 py-2.5 text-[14px] leading-5 text-black ${
-                      isMine ? 'bg-[#E3F2FD]' : 'bg-[#F5F5F5]'
-                    } ${isReplyTarget ? 'ring-2 ring-[#1E40AF]/25' : ''}`}
-                    data-cy="talent-acquisition-job-chat-message-bubble"
-                  >
-                    {parent && (
-                      <div
-                        className="mb-2"
-                        data-cy="talent-acquisition-job-chat-message-parent"
-                      >
-                        <ReplyQuoteBlock
-                          message={parent}
-                          senderName={getSenderDisplayName(parent.senderId)}
-                          variant="inline"
-                        />
-                      </div>
-                    )}
-                    {message.content && (
-                      <div
-                        className="whitespace-pre-wrap break-words"
-                        data-cy="talent-acquisition-job-chat-message-content"
-                      >
-                        {renderMessageContent(
-                          message.content,
-                          message.mentions,
-                        )}
-                      </div>
-                    )}
-                    {(message.files || []).length > 0 && (
-                      <div
-                        className="mt-2 space-y-1"
-                        data-cy="talent-acquisition-job-chat-message-files"
-                      >
-                        {(message.files || []).map((file) => {
-                          const isImage = String(
-                            file.fileType || '',
-                          ).startsWith('image/');
+                  <div className="relative max-w-[88%]">
+                    <div
+                      className={`relative px-3 py-2.5 text-[14px] leading-5 text-black ${bubbleBg} ${bubbleRadius} ${
+                        isReplyTarget ? 'ring-2 ring-[#1E40AF]/25' : ''
+                      }`}
+                      data-cy="talent-acquisition-job-chat-message-bubble"
+                    >
+                      {parent && (
+                        <div
+                          className="mb-2"
+                          data-cy="talent-acquisition-job-chat-message-parent"
+                        >
+                          <ReplyQuoteBlock
+                            message={parent}
+                            senderName={getSenderDisplayName(parent.senderId)}
+                            variant="inline"
+                          />
+                        </div>
+                      )}
+                      {message.content && (
+                        <div
+                          className="whitespace-pre-wrap break-words"
+                          data-cy="talent-acquisition-job-chat-message-content"
+                        >
+                          {renderMessageContent(
+                            message.content,
+                            message.mentions,
+                          )}
+                        </div>
+                      )}
+                      {(message.files || []).length > 0 && (
+                        <div
+                          className="mt-2 space-y-1"
+                          data-cy="talent-acquisition-job-chat-message-files"
+                        >
+                          {(message.files || []).map((file) => {
+                            const isImage = String(
+                              file.fileType || '',
+                            ).startsWith('image/');
 
-                          if (isImage) {
+                            if (isImage) {
+                              return (
+                                <a
+                                  key={file.id || file.fileUrl}
+                                  href={file.fileUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="block overflow-hidden rounded-[8px] border border-solid border-[#91CAFF]"
+                                  data-cy="talent-acquisition-job-chat-message-image-link"
+                                >
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={file.fileUrl}
+                                    alt={file.fileName || 'Shared image'}
+                                    className="max-h-72 w-full object-cover"
+                                    data-cy="talent-acquisition-job-chat-message-image"
+                                  />
+                                </a>
+                              );
+                            }
+
                             return (
                               <a
                                 key={file.id || file.fileUrl}
                                 href={file.fileUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="block overflow-hidden rounded-[8px] border border-solid border-[#91CAFF]"
-                                data-cy="talent-acquisition-job-chat-message-image-link"
+                                className="flex items-center gap-2 rounded-[6px] bg-white/70 px-2 py-1 text-[13px] text-[#1E40AF] underline"
+                                data-cy="talent-acquisition-job-chat-message-file-link"
                               >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={file.fileUrl}
-                                  alt={file.fileName || 'Shared image'}
-                                  className="max-h-72 w-full object-cover"
-                                  data-cy="talent-acquisition-job-chat-message-image"
-                                />
+                                <FileText size={14} />
+                                <span
+                                  className="truncate"
+                                  data-cy="talent-acquisition-job-chat-message-file-name"
+                                >
+                                  {file.fileName || 'Attachment'}
+                                </span>
                               </a>
                             );
-                          }
-
-                          return (
-                            <a
-                              key={file.id || file.fileUrl}
-                              href={file.fileUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center gap-2 rounded-[6px] bg-white/70 px-2 py-1 text-[13px] text-[#1E40AF] underline"
-                              data-cy="talent-acquisition-job-chat-message-file-link"
-                            >
-                              <FileText size={14} />
-                              <span
-                                className="truncate"
-                                data-cy="talent-acquisition-job-chat-message-file-name"
-                              >
-                                {file.fileName || 'Attachment'}
-                              </span>
-                            </a>
-                          );
-                        })}
+                          })}
+                        </div>
+                      )}
+                      <div
+                        className="mt-1.5 flex items-center justify-end gap-1 text-[11px] leading-none text-[rgba(0,0,0,0.45)]"
+                        data-cy="talent-acquisition-job-chat-message-meta"
+                      >
+                        <span data-cy="talent-acquisition-job-chat-message-time">
+                          {formattedTime}
+                        </span>
+                        {isMine && <ChatMessageStatus isRead={isRead} />}
                       </div>
-                    )}
-                    <div
-                      className="mt-1.5 flex items-center justify-end gap-1 text-[11px] leading-none text-[rgba(0,0,0,0.45)]"
-                      data-cy="talent-acquisition-job-chat-message-meta"
-                    >
-                      <span data-cy="talent-acquisition-job-chat-message-time">
-                        {formattedTime}
-                      </span>
-                      {isMine && <ChatMessageStatus isRead={isRead} />}
                     </div>
+                    <span
+                      className={`pointer-events-none ${tailPosition} h-3 w-3 ${bubbleBg}`}
+                      style={{ clipPath: tailClip }}
+                      aria-hidden
+                      data-cy="talent-acquisition-job-chat-message-tail"
+                    />
                   </div>
+
+                  {isMine && (
+                    <Avatar
+                      size={28}
+                      src={profileImage || undefined}
+                      className="shrink-0 self-end"
+                      style={{
+                        backgroundColor: profileImage
+                          ? undefined
+                          : getParticipantAvatarColor(message.senderId),
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
+                      data-cy="talent-acquisition-job-chat-message-avatar"
+                    >
+                      {!profileImage ? getUserAvatarText(senderName) : null}
+                    </Avatar>
+                  )}
 
                   {!isMine && (
                     <Dropdown
@@ -1650,38 +1747,50 @@ const JobChat = ({
               </div>
             )}
 
-            <Input.TextArea
-              ref={textareaRef}
-              data-cy="talent-acquisition-job-chat-message-input"
-              value={content}
-              onChange={handleContentChange}
-              onKeyDown={handleComposerKeyDown}
-              onClick={(event) =>
-                updateMentionState(
-                  content,
-                  event.currentTarget.selectionStart ?? content.length,
-                )
-              }
-              onSelect={(event) =>
-                updateMentionState(
-                  content,
-                  event.currentTarget.selectionStart ?? content.length,
-                )
-              }
-              onKeyUp={(event) =>
-                updateMentionState(
-                  content,
-                  event.currentTarget.selectionStart ?? content.length,
-                )
-              }
-              placeholder={
-                replyTo
-                  ? `Reply to ${getSenderDisplayName(replyTo.senderId)}...`
-                  : 'Type a message... use @ to mention someone to chat'
-              }
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              className="!min-h-10 !resize-none !rounded-[8px] !border-[#D9D9D9] !py-2.5 !pl-10 !pr-12 !text-[14px] placeholder:!text-[rgba(0,0,0,0.35)]"
-            />
+            <div
+              className="relative"
+              data-cy="talent-acquisition-job-chat-composer-textarea-wrapper"
+            >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-0 overflow-hidden whitespace-pre-wrap break-words rounded-[8px] border border-transparent py-2.5 pl-10 pr-12 text-[14px] leading-[22px] text-black"
+                data-cy="talent-acquisition-job-chat-composer-mirror"
+              >
+                {content ? renderComposerContent(content) : null}
+              </div>
+              <Input.TextArea
+                ref={textareaRef}
+                data-cy="talent-acquisition-job-chat-message-input"
+                value={content}
+                onChange={handleContentChange}
+                onKeyDown={handleComposerKeyDown}
+                onClick={(event) =>
+                  updateMentionState(
+                    content,
+                    event.currentTarget.selectionStart ?? content.length,
+                  )
+                }
+                onSelect={(event) =>
+                  updateMentionState(
+                    content,
+                    event.currentTarget.selectionStart ?? content.length,
+                  )
+                }
+                onKeyUp={(event) =>
+                  updateMentionState(
+                    content,
+                    event.currentTarget.selectionStart ?? content.length,
+                  )
+                }
+                placeholder={
+                  replyTo
+                    ? `Reply to ${getSenderDisplayName(replyTo.senderId)}...`
+                    : 'Type a message... use @ to mention someone to chat'
+                }
+                autoSize={{ minRows: 1, maxRows: 4 }}
+                className="relative z-[1] !min-h-10 !resize-none !rounded-[8px] !border-[#D9D9D9] !bg-transparent !py-2.5 !pl-10 !pr-12 !text-[14px] !text-transparent caret-black placeholder:!text-[rgba(0,0,0,0.35)]"
+              />
+            </div>
             <div
               className="absolute left-2 top-1/2 z-10 -translate-y-1/2"
               data-cy="talent-acquisition-job-chat-file-input"
