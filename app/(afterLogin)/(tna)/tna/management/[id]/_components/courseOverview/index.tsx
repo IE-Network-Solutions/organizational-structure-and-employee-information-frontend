@@ -1,6 +1,7 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
 import { MdOutlineAccessTime, MdOutlineFileCopy } from 'react-icons/md';
+import CourseFeedbacksAndRatings from '../courseFeedbacksAndRatings';
 
 const formatDuration = (totalMinutes: number) => {
   const safeMinutes = Number.isFinite(totalMinutes)
@@ -27,11 +28,12 @@ const CourseOverview = () => {
       0,
     ) ?? 0;
   return (
-    <BlockWrapper
-      withBackground={false}
-      className="bg-white border border-gray-200 overflow-hidden"
-      data-cy="tna-course-overview-wrapper"
-    >
+    <>
+      <BlockWrapper
+        withBackground={false}
+        className="bg-white border border-gray-200 overflow-hidden"
+        data-cy="tna-course-overview-wrapper"
+      >
       <div
         className="bg-white border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900"
         id="tnaCourseOverviewTitleId"
@@ -97,7 +99,10 @@ const CourseOverview = () => {
           </div>
         </div>
       </div>
-    </BlockWrapper>
+      </BlockWrapper>
+
+      <CourseFeedbacksAndRatings />
+    </>
   );
 };
 
