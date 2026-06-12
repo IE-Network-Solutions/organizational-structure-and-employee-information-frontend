@@ -143,8 +143,8 @@ export type PersistKeyResultMilestonesArgs = {
 const hasMilestoneList = (value: unknown): value is { milestones: any[] } =>
   Boolean(
     value &&
-      typeof value === 'object' &&
-      Array.isArray((value as { milestones?: unknown }).milestones),
+    typeof value === 'object' &&
+    Array.isArray((value as { milestones?: unknown }).milestones),
   );
 
 /**
@@ -168,7 +168,9 @@ export const persistKeyResultMilestones = async ({
   }
 
   const payload = buildKeyResultMilestoneUpdatePayload(keyResult, sanitized);
-  const updateResponse = await updateKeyResultRequest(payload, { notify: true });
+  const updateResponse = await updateKeyResultRequest(payload, {
+    notify: true,
+  });
 
   const keyResultId = String(keyResult?.id ?? '');
   const fresh = hasMilestoneList(updateResponse)

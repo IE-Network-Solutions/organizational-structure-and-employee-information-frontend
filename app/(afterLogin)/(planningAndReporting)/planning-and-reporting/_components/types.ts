@@ -29,6 +29,7 @@ export interface Milestone {
   id: string;
   name?: string;
   title?: string;
+  status?: string;
   tasks: PlanTask[];
   parentTask?: any[];
 }
@@ -50,6 +51,8 @@ export interface KeyResult {
   currentValue?: string | number;
   initialValue?: string | number;
   progress?: string | number;
+  status?: string;
+  keyResultCompletionStatus?: string;
   deletedAt?: string | null;
 }
 

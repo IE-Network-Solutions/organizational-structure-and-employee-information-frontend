@@ -151,6 +151,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
       id: milestone.id || '',
       name: milestone.name,
       title: milestone.title || milestone.name,
+      status: milestone.status,
       tasks: (milestone.tasks || [])
         .filter(planGroupedTaskHasContent)
         .map((task: any) => transformTask(task, viewMode)),
@@ -248,6 +249,8 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     currentValue,
     initialValue,
     progress: getKeyResultProgressPercent(progressPayload),
+    status: keyResult.status,
+    keyResultCompletionStatus: keyResult.keyResultCompletionStatus,
     deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
   };
 };

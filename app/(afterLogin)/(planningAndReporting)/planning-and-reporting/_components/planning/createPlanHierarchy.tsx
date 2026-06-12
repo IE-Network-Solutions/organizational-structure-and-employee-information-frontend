@@ -3,6 +3,10 @@ import { Button } from 'antd';
 import DefaultCardForm from '../planForms/defaultForm';
 import { groupParentTasks } from '../dataTransformer/plan';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
+import {
+  isKeyResultBlockedForPlanning,
+  isMilestoneBlockedForPlanning,
+} from './buildPlanningTargets';
 
 interface Plan {
   id: string;
@@ -55,6 +59,7 @@ interface CollapseComponentProps {
     string,
     Record<string | 'noMilestone', any[]>
   >;
+  userKeyResultItems?: any[];
 }
 
 const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
@@ -66,6 +71,7 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
   mkAsATask,
   setMKAsATask,
   handleAddBoard,
+  userKeyResultItems = [],
 }) => {
   const formattedData = groupParentTasks(
     planningPeriodHierarchy?.parentPlan?.plans?.find(
@@ -108,6 +114,17 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                       milestone.id,
                       task.id,
                     );
+                    const showAddTask =
+                      !isKeyResultBlockedForPlanning(
+                        keyResult,
+                        userKeyResultItems,
+                      ) &&
+                      !isMilestoneBlockedForPlanning(
+                        keyResult,
+                        milestone,
+                        userKeyResultItems,
+                      ) &&
+                      !statuses[milestone.id];
                     return (
                       <div
                         key={task.id}
@@ -138,41 +155,38 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                               {task.task}
                             </span>
                           </div>
-                          <Button
-                            type="primary"
-                            className="bg-[#3D41FF] hover:bg-[#3236e6] border-none rounded-md px-4 font-bold h-8 flex-shrink-0"
-                            onClick={() => {
-                              setMKAsATask(null);
-                              handleAddBoard(compositeKey, {
-                                keyResultId: keyResult.id,
-                                milestoneId: milestone.id,
-                                parentTaskId: task.id,
-                                planningPeriodId,
-                                planningUserId,
-                                userId,
-                                parentPlanId: parentParentId,
-                                targetValue: task.targetValue,
-                              });
-                            }}
-                            disabled={
-                              statuses[milestone.id] ||
-                              milestone.status === 'Completed' ||
-                              Number(keyResult.progress) === 100
-                            }
-                          >
-                            <span
-                              data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-145"
-                              className="sm:hidden"
+                          {showAddTask ? (
+                            <Button
+                              type="primary"
+                              className="bg-[#3D41FF] hover:bg-[#3236e6] border-none rounded-md px-4 font-bold h-8 flex-shrink-0"
+                              onClick={() => {
+                                setMKAsATask(null);
+                                handleAddBoard(compositeKey, {
+                                  keyResultId: keyResult.id,
+                                  milestoneId: milestone.id,
+                                  parentTaskId: task.id,
+                                  planningPeriodId,
+                                  planningUserId,
+                                  userId,
+                                  parentPlanId: parentParentId,
+                                  targetValue: task.targetValue,
+                                });
+                              }}
                             >
-                              Add Task
-                            </span>
-                            <span
-                              data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-146"
-                              className="hidden sm:inline"
-                            >
-                              Add plan Task
-                            </span>
-                          </Button>
+                              <span
+                                data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-145"
+                                className="sm:hidden"
+                              >
+                                Add Task
+                              </span>
+                              <span
+                                data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-146"
+                                className="hidden sm:inline"
+                              >
+                                Add plan Task
+                              </span>
+                            </Button>
+                          ) : null}
                         </div>
 
                         <div
@@ -203,6 +217,10 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
               {/* Render tasks without milestones as cards */}
               {keyResult.tasks.map((task) => {
                 const compositeKey = buildKey(keyResult.id, null, task.id);
+                const showAddTask = !isKeyResultBlockedForPlanning(
+                  keyResult,
+                  userKeyResultItems,
+                );
                 return (
                   <div
                     key={task.id}
@@ -233,40 +251,38 @@ const PlanningHierarchyComponent: React.FC<CollapseComponentProps> = ({
                           {task.task}
                         </span>
                       </div>
-                      <Button
-                        type="primary"
-                        className="bg-[#3D41FF] hover:bg-[#3236e6] border-none rounded-md px-4 font-bold h-8 flex-shrink-0"
-                        onClick={() => {
-                          setMKAsATask(null);
-                          handleAddBoard(compositeKey, {
-                            keyResultId: keyResult.id,
-                            milestoneId: null,
-                            parentTaskId: task.id,
-                            planningPeriodId,
-                            planningUserId,
-                            userId,
-                            parentPlanId: parentParentId,
-                            targetValue: task.targetValue,
-                          });
-                        }}
-                        disabled={
-                          statuses[keyResult.id] ||
-                          Number(keyResult.progress) === 100
-                        }
-                      >
-                        <span
-                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-217"
-                          className="sm:hidden"
+                      {showAddTask ? (
+                        <Button
+                          type="primary"
+                          className="bg-[#3D41FF] hover:bg-[#3236e6] border-none rounded-md px-4 font-bold h-8 flex-shrink-0"
+                          onClick={() => {
+                            setMKAsATask(null);
+                            handleAddBoard(compositeKey, {
+                              keyResultId: keyResult.id,
+                              milestoneId: null,
+                              parentTaskId: task.id,
+                              planningPeriodId,
+                              planningUserId,
+                              userId,
+                              parentPlanId: parentParentId,
+                              targetValue: task.targetValue,
+                            });
+                          }}
                         >
-                          Add Task
-                        </span>
-                        <span
-                          data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-218"
-                          className="hidden sm:inline"
-                        >
-                          Add plan Task
-                        </span>
-                      </Button>
+                          <span
+                            data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-217"
+                            className="sm:hidden"
+                          >
+                            Add Task
+                          </span>
+                          <span
+                            data-cy="planning-and-reporting-components-planning-createplanhierarchy-tsx-createplanhierarchy-span-218"
+                            className="hidden sm:inline"
+                          >
+                            Add plan Task
+                          </span>
+                        </Button>
+                      ) : null}
                     </div>
 
                     <div
