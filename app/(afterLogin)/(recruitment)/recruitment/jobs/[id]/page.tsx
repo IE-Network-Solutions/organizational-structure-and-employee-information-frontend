@@ -2,7 +2,7 @@
 /* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useState } from 'react';
-import { FaUserPlus, FaTimes, FaCheck } from 'react-icons/fa';
+import { FaTimes, FaCheck, FaUserPlus } from 'react-icons/fa';
 import { MdOutlineFileDownload } from 'react-icons/md';
 import { useRouter } from 'next/navigation';
 import CreateCandidate from './_components/createCandidate';
@@ -39,13 +39,14 @@ import { IoHourglassOutline } from 'react-icons/io5';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import JobDetailHeaderCardSkeleton from './_components/jobDetailHeaderCardSkeleton';
 import JobDetailInformationTabSkeleton from './_components/jobDetailInformationTabSkeleton';
+import MyApprovalTable from './_components/myApprovalTable';
+import DoneIcon from '@mui/icons-material/Done';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
 import NotePanel from './_components/notePanel';
 import JobChat from './_components/jobChat';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import CloseIcon from '@mui/icons-material/Close';
-
 interface Params {
   id: string;
 }
@@ -116,6 +117,11 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
     setMoveToTalentPoolModal,
     setSelectedCandidate,
     setSelectedRowKeys,
+    setIsShowStageApprovalModal,
+    setStageApprovalCandidateId,
+    setStageApprovalWorkflowId,
+    setStageApprovalCandidate,
+    setStageApprovalRows,
     searchParams,
     isDownloading,
     setIsDownloading,
@@ -165,6 +171,17 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
   const handleMoveToTalentsPool = () => {
     setMoveToTalentPoolModal(true);
     setSelectedCandidate(selectedCandidate);
+  };
+
+  const handleOpenBulkApproval = () => {
+    const rows = Array.isArray(selectedCandidate) ? selectedCandidate : [];
+    const firstRow = rows[0];
+    if (!firstRow) return;
+    setStageApprovalRows(rows);
+    setStageApprovalCandidateId(firstRow.candidateId ?? firstRow.id);
+    setStageApprovalWorkflowId(firstRow.approvalWorkflowId ?? null);
+    setStageApprovalCandidate(firstRow.displayCandidate ?? firstRow);
+    setIsShowStageApprovalModal(true);
   };
 
   useEffect(() => {
@@ -1153,6 +1170,28 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                           </div>
                         ),
                       },
+                      {
+                        key: 'myApprovals',
+                        label: (
+                          <span
+                            className="inline-flex items-center gap-2"
+                            data-cy="talent-acquisition-job-detail-tab-my-approvals"
+                          >
+                            My Approvals
+                          </span>
+                        ),
+                        children: (
+                          <div className="pt-0">
+                            <div className="mt-6 rounded-[8px] border border-solid border-[#E5E7EB]">
+                              <MyApprovalTable
+                                data-cy="talent-acquisition-job-detail-my-approval-table"
+                                jobId={id}
+                                departmentId={jobById?.departmentId}
+                              />
+                            </div>
+                          </div>
+                        ),
+                      },
                     ]}
                     tabBarExtraContent={
                       activeTabKey === 'candidates' ? (
@@ -1195,6 +1234,32 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                             <span className="hidden sm:inline">
                               Add Candidate
                             </span>
+                          </Button>
+                        </div>
+                      ) : activeTabKey === 'myApprovals' &&
+                        selectedCandidate?.length > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2 pb-2 pr-0">
+                          <Button
+                            type="primary"
+                            icon={<DoneIcon />}
+                            onClick={handleOpenBulkApproval}
+                            className="!inline-flex !h-10 !items-center !rounded-[8px] !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-3 sm:!px-4 !text-[14px] !font-normal !text-white hover:!border-[#1D4ED8] hover:!bg-[#1D4ED8]"
+                            data-cy="talent-acquisition-job-detail-button-approve-all"
+                          >
+                            <span className="hidden sm:inline">
+                              Approve All
+                            </span>
+                          </Button>
+                          <Button
+                            type="text"
+                            onClick={() => {
+                              setSelectedCandidate([]);
+                              setSelectedRowKeys([]);
+                            }}
+                            className="!inline-flex !h-10 !items-center !px-3 sm:!px-4 !text-[16px] !font-normal !text-[#1E40AF]"
+                            data-cy="talent-acquisition-job-detail-button-clear-selection"
+                          >
+                            Clear Selection
                           </Button>
                         </div>
                       ) : null
