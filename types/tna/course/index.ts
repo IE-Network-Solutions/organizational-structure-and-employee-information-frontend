@@ -58,5 +58,6 @@ export interface Course extends DateInfo {
   userIds?: string[];
   preparedBy: string;
   isDraft: boolean;
+  rating?: number | null;
   tenantId: string;
 }
