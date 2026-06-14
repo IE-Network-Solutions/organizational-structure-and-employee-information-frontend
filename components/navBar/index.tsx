@@ -2,6 +2,8 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
@@ -1088,6 +1090,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const handleLogout = async () => {
     try {
+      // Sign out of the shared Firebase session first so logout propagates to
+      // Core and the other products on this origin; otherwise AuthBridge would
+      // immediately re-populate the token from the still-active session.
+      try {
+        await signOut(auth);
+      } catch {
+        // Still clear local state if Firebase sign-out fails.
+      }
+
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
@@ -1111,7 +1122,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setTenantId('');
       setLocalId('');
 
-      router.push('/authentication/login');
+      // Core owns login at the origin root, outside this app's /workspace basePath.
+      window.location.assign('/login');
     } catch (error) {}
   };
 

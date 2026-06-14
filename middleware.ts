@@ -2,6 +2,31 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
 
+/**
+ * Core owns the single login page at the origin root (outside this app's
+ * /workspace basePath). Send unauthenticated users there with a `redirect` back
+ * to where they were headed. The shared `token` cookie means a user already
+ * signed in on Core never reaches this redirect.
+ */
+function coreLoginUrl(req: NextRequest): URL {
+  const here = `${req.nextUrl.basePath}${req.nextUrl.pathname}${req.nextUrl.search}`;
+  const url = new URL('/login', req.url);
+  url.searchParams.set('redirect', here);
+  return url;
+}
+
+/**
+ * A redirect to one of this app's own routes, preserving the /workspace
+ * basePath. `new URL('/dashboard', req.url)` would drop the prefix and land on
+ * the origin root (Core); cloning req.nextUrl keeps the basePath.
+ */
+function workspaceUrl(req: NextRequest, pathname: string): URL {
+  const url = req.nextUrl.clone();
+  url.pathname = pathname;
+  url.search = '';
+  return url;
+}
+
 export function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
@@ -43,7 +68,7 @@ export function middleware(req: NextRequest) {
       excludedPath.some((path) => pathname.startsWith(path));
     const isRootPath = pathname === '/';
     if (!isExcludedPath && !token) {
-      return NextResponse.redirect(new URL('/authentication/login', req.url));
+      return NextResponse.redirect(coreLoginUrl(req));
     }
 
     if (
@@ -52,7 +77,7 @@ export function middleware(req: NextRequest) {
       !pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
       return NextResponse.redirect(
-        new URL('/organization/settings/fiscalYear/fiscalYearCard', req.url),
+        workspaceUrl(req, '/organization/settings/fiscalYear/fiscalYearCard'),
       );
     }
     if (pathname === '/onboarding') return NextResponse.next();
@@ -61,9 +86,9 @@ export function middleware(req: NextRequest) {
 
     if (!isExcludedPath && isRootPath) {
       if (token) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
+        return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
       } else {
-        return NextResponse.redirect(new URL('/authentication/login', req.url));
+        return NextResponse.redirect(coreLoginUrl(req));
       }
     }
 
@@ -75,7 +100,7 @@ export function middleware(req: NextRequest) {
         !loggedUserRole ||
         (loggedUserRole !== 'owner' && loggedUserRole !== 'admin')
       ) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
+        return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
       }
     }
 

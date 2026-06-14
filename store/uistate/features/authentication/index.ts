@@ -105,7 +105,7 @@ export const useAuthenticationStore = create<StoreState>()(
           set({ isCheckingPermissions }),
       }),
       {
-        name: 'authentications-storage', // Unique name for the storage
+        name: 'workspace-auth', // Per-product key (shared origin) — do not reuse across products
         getStorage: () => localStorage, // Use localStorage for persistence
         partialize: (state) => ({
           token: state.token,

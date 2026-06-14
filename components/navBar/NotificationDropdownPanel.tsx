@@ -170,22 +170,25 @@ export function NotificationDropdownPanel({
     ) {
       return;
     }
-    navigator.serviceWorker.getRegistration('/').then((existing) => {
+    // SW scripts/scopes live under the /workspace basePath (shared origin with Core).
+    navigator.serviceWorker.getRegistration('/workspace/').then((existing) => {
       if (!existing || !existing.active) {
-        navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
+        navigator.serviceWorker.register('/workspace/sw.js', {
+          scope: '/workspace/',
           updateViaCache: 'imports',
         });
       }
     });
-    navigator.serviceWorker.getRegistration('/push/').then((existing) => {
-      if (!existing || !existing.active) {
-        navigator.serviceWorker.register('/sw-push.js', {
-          scope: '/push/',
-          updateViaCache: 'imports',
-        });
-      }
-    });
+    navigator.serviceWorker
+      .getRegistration('/workspace/push/')
+      .then((existing) => {
+        if (!existing || !existing.active) {
+          navigator.serviceWorker.register('/workspace/sw-push.js', {
+            scope: '/workspace/push/',
+            updateViaCache: 'imports',
+          });
+        }
+      });
   }, [userId, pushPermission]);
 
   const handleEnablePush = async () => {
