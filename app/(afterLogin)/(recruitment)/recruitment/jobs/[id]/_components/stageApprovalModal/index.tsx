@@ -18,6 +18,7 @@ import {
   useBulkRejectCandidateApproval,
   useCreateCandidateApprovalRequests,
   useRejectCandidateApproval,
+  type CandidateApprovalActionPayload,
 } from '@/store/server/features/recruitment/candidateApproval/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { SingleLogRequest } from '@/types/timesheet/settings';
@@ -32,6 +33,30 @@ type ApprovalRecord = {
   status: 'Approved' | 'Rejected' | 'Pending';
   approvalWorkflowId: string;
   action?: string;
+};
+
+type StageInfo = {
+  id: string;
+  title: string;
+  level: number;
+};
+
+const getStageLevel = (
+  stageById: Map<string, StageInfo>,
+  stageId?: string,
+): number | null => {
+  const level = stageById.get(stageId ?? '')?.level;
+  return Number.isFinite(level) ? level : null;
+};
+
+const resolveActionFromLevels = (
+  currentLevel: number | null,
+  targetLevel: number | null,
+): 'approve' | 'reject' | null => {
+  if (currentLevel === null || targetLevel === null) return null;
+  if (targetLevel > currentLevel) return 'approve';
+  if (targetLevel < currentLevel) return 'reject';
+  return null;
 };
 
 const StageApprovalModal = () => {
@@ -115,6 +140,19 @@ const StageApprovalModal = () => {
     return [];
   }, []);
 
+  const stageById = useMemo(() => {
+    const map = new Map<string, StageInfo>();
+    (statusStages?.items ?? []).forEach((stage: any) => {
+      if (!stage?.id) return;
+      map.set(stage.id, {
+        id: stage.id,
+        title: stage.title ?? '',
+        level: Number(stage.level),
+      });
+    });
+    return map;
+  }, [statusStages?.items]);
+
   const stageOptions = useMemo(
     () =>
       (statusStages?.items ?? []).map((stage: any) => ({
@@ -123,6 +161,26 @@ const StageApprovalModal = () => {
       })),
     [statusStages?.items],
   );
+
+  const moveToActionHint = useMemo(() => {
+    if (!moveToStageId || !currentStageId) return null;
+    if (moveToStageId === currentStageId) {
+      return 'Select a different stage to continue.';
+    }
+
+    const action = resolveActionFromLevels(
+      getStageLevel(stageById, currentStageId),
+      getStageLevel(stageById, moveToStageId),
+    );
+
+    if (action === 'approve') {
+      return 'Moving to a higher-level stage will approve this candidate.';
+    }
+    if (action === 'reject') {
+      return 'Moving to a lower-level stage will reject this candidate.';
+    }
+    return 'Stage levels are missing or equal. Choose another stage.';
+  }, [currentStageId, moveToStageId, stageById]);
 
   const onClose = () => {
     setIsShow(false);
@@ -171,21 +229,45 @@ const StageApprovalModal = () => {
   };
 
   const buildActionItems = (requestIdByCandidateId: Map<string, string>) => {
-    const targetStage = stageOptions.find(
-      (stage: any) => stage.value === moveToStageId,
-    );
-    const toStatus =
-      typeof targetStage?.label === 'string' ? targetStage.label : '';
+    const targetStage = stageById.get(moveToStageId ?? '');
+    const toStatus = targetStage?.title ?? '';
 
-    return activeRows.map((row: any) => ({
-      requestId: requestIdByCandidateId.get(row.candidateId) ?? row.requestId,
-      applicantStatusStageId: moveToStageId!,
-      fromStatus: row?.currentStageTitle ?? currentStageTitle,
-      toStatus,
-    }));
+    return activeRows.map((row: any) => {
+      const rowCurrentStageId = row?.currentStageId ?? currentStageId;
+      return {
+        payload: {
+          requestId:
+            requestIdByCandidateId.get(row.candidateId) ?? row.requestId,
+          applicantStatusStageId: moveToStageId!,
+          fromStatus: row?.currentStageTitle ?? currentStageTitle,
+          toStatus,
+        } satisfies CandidateApprovalActionPayload,
+        rowCurrentStageId,
+      };
+    });
   };
 
-  const handleApprovalAction = async (action: 'approve' | 'reject') => {
+  const submitApprovalItems = async (
+    approveItems: CandidateApprovalActionPayload[],
+    rejectItems: CandidateApprovalActionPayload[],
+  ) => {
+    if (approveItems.length === 1 && rejectItems.length === 0) {
+      await approveCandidateApproval(approveItems[0]);
+      return;
+    }
+    if (rejectItems.length === 1 && approveItems.length === 0) {
+      await rejectCandidateApproval(rejectItems[0]);
+      return;
+    }
+    if (approveItems.length > 0) {
+      await bulkApproveCandidateApproval({ items: approveItems });
+    }
+    if (rejectItems.length > 0) {
+      await bulkRejectCandidateApproval({ items: rejectItems });
+    }
+  };
+
+  const handleMoveTo = async () => {
     if (!moveToStageId) {
       NotificationMessage.error({
         message: 'Please choose a stage',
@@ -199,26 +281,50 @@ const StageApprovalModal = () => {
       return;
     }
 
+    const targetLevel = getStageLevel(stageById, moveToStageId);
+    if (targetLevel === null) {
+      NotificationMessage.error({
+        message: 'Target stage level is missing',
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const requestIdByCandidateId = await resolveApprovalRequestIds();
-      const items = buildActionItems(requestIdByCandidateId);
-      const missingRequest = items.find((item) => !item.requestId);
+      const actionItems = buildActionItems(requestIdByCandidateId);
+      const missingRequest = actionItems.find((item) => !item.payload.requestId);
       if (missingRequest) {
         throw new Error('Approval request id was not returned by the backend.');
       }
 
-      if (items.length === 1) {
-        if (action === 'approve') {
-          await approveCandidateApproval(items[0]);
-        } else {
-          await rejectCandidateApproval(items[0]);
+      const approveItems: CandidateApprovalActionPayload[] = [];
+      const rejectItems: CandidateApprovalActionPayload[] = [];
+
+      for (const item of actionItems) {
+        if (item.rowCurrentStageId === moveToStageId) {
+          throw new Error('Cannot move to the same stage.');
         }
-      } else if (action === 'approve') {
-        await bulkApproveCandidateApproval({ items });
-      } else {
-        await bulkRejectCandidateApproval({ items });
+
+        const action = resolveActionFromLevels(
+          getStageLevel(stageById, item.rowCurrentStageId),
+          targetLevel,
+        );
+
+        if (!action) {
+          throw new Error(
+            'Stage level is missing or unchanged. Choose a higher or lower stage.',
+          );
+        }
+
+        if (action === 'approve') {
+          approveItems.push(item.payload);
+        } else {
+          rejectItems.push(item.payload);
+        }
       }
+
+      await submitApprovalItems(approveItems, rejectItems);
 
       setSelectedCandidate([]);
       setSelectedRowKeys([]);
@@ -481,6 +587,14 @@ const StageApprovalModal = () => {
                 className="w-full"
                 data-cy="talent-acquisition-stage-approval-modal-move-to-select"
               />
+              {moveToActionHint && (
+                <p
+                  className="mt-2 mb-0 text-xs text-gray-500"
+                  data-cy="talent-acquisition-stage-approval-modal-move-to-hint"
+                >
+                  {moveToActionHint}
+                </p>
+              )}
             </Form.Item>
           </Form>
 
@@ -497,24 +611,13 @@ const StageApprovalModal = () => {
             </Button>
             <Button
               type="primary"
-              onClick={() => handleApprovalAction('reject')}
+              onClick={handleMoveTo}
               loading={isSubmitting}
-              disabled={isSubmitting}
-              danger
-              className="h-10 px-6 rounded-lg"
-              data-cy="talent-acquisition-stage-approval-modal-reject-button"
-            >
-              Reject
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => handleApprovalAction('approve')}
-              loading={isSubmitting}
-              disabled={isSubmitting}
+              disabled={!moveToStageId || isSubmitting}
               className="h-10 px-6 rounded-lg !bg-[#1E40AF] hover:!bg-[#1D4ED8] border-0"
-              data-cy="talent-acquisition-stage-approval-modal-approve-button"
+              data-cy="talent-acquisition-stage-approval-modal-move-to-button"
             >
-              Approve
+              Move to
             </Button>
           </div>
         </div>
