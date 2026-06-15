@@ -58,6 +58,7 @@ const refetchPlanningQueries = (
     queryClient.invalidateQueries('okrReports', opts),
     queryClient.invalidateQueries('okrPlannedData', opts),
     queryClient.invalidateQueries('planningPeriodsHierarchy', opts),
+    queryClient.invalidateQueries('fetchObjectives', opts),
   ]);
 };
 

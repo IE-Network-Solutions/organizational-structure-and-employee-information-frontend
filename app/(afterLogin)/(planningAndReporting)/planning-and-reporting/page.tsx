@@ -26,6 +26,7 @@ import {
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
+import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
 import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
@@ -173,8 +174,14 @@ function Page() {
     userId,
   } = usePlanningData();
 
-  const { data: userKeyResultsRaw, isLoading: userKeyResultsLoading } =
-    useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId);
+  const {
+    data: userKeyResultsRaw,
+    isLoading: userKeyResultsLoading,
+    isFetching: userKeyResultsFetching,
+  } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
+    refetchOnMount: 'always',
+    staleTime: 0,
+  });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
@@ -185,6 +192,8 @@ function Page() {
     () => normalizeUserKeyResultItems(userKeyResultsRaw),
     [userKeyResultsRaw],
   );
+
+  const planningPickReady = !userKeyResultsLoading && !userKeyResultsFetching;
 
   const parentPlanContext = useMemo(
     () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
@@ -206,7 +215,7 @@ function Page() {
         (userKeyResultsLoading && planSummaries.length === 0);
 
   const { targets: planningTargets, isLoading: planningTargetsLoading } =
-    usePlanningTargets(userId, selectedTab?.id);
+    usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
@@ -228,6 +237,22 @@ function Page() {
   useEffect(() => {
     if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
   }, [inlinePlanningMode]);
+
+  useEffect(() => {
+    if (!planningPickReady && selectedPlanningTargetId) {
+      setSelectedPlanningTargetId(null);
+    }
+  }, [planningPickReady, selectedPlanningTargetId]);
+
+  useEffect(() => {
+    if (
+      planningPickReady &&
+      activePlanningTarget &&
+      isPlanningTargetBlocked(activePlanningTarget, userKeyResultItems)
+    ) {
+      setSelectedPlanningTargetId(null);
+    }
+  }, [activePlanningTarget, userKeyResultItems, planningPickReady]);
 
   useEffect(() => {
     if (inlineEditPlanId) setSelectedPlanningTargetId(null);
@@ -490,6 +515,7 @@ function Page() {
                   }
                   userKeyResultItems={userKeyResultItems}
                   parentPlanContext={parentPlanContext}
+                  planningPickReady={planningPickReady}
                 />
               )}
             </div>
@@ -520,6 +546,7 @@ function Page() {
                     <InlinePlanningWorkspace
                       planningPeriodLabel={inlinePlanningPeriodLabel}
                       activeTarget={activePlanningTarget}
+                      userKeyResultItems={userKeyResultItems}
                       onClearTarget={() => setSelectedPlanningTargetId(null)}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
@@ -635,6 +662,7 @@ function Page() {
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
                 userKeyResultItems={userKeyResultItems}
                 parentPlanContext={parentPlanContext}
+                planningPickReady={planningPickReady}
               />
             )}
           </div>
@@ -647,6 +675,7 @@ function Page() {
               hideHeaderCloseButton
               planningPeriodLabel={inlinePlanningPeriodLabel}
               activeTarget={activePlanningTarget}
+              userKeyResultItems={userKeyResultItems}
               onClearTarget={() => setSelectedPlanningTargetId(null)}
               onExit={handleMobileInlineExit}
               editPlanId={inlineEditPlanId}

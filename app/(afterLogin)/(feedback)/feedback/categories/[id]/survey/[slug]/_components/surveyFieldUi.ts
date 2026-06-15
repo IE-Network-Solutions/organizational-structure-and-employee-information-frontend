@@ -32,10 +32,13 @@ export function isSurveyChoiceFieldType(fieldType: string): boolean {
   );
 }
 
-/** Multiple choice & checkbox: same bar summary as Insights; dropdown/radio keep list UI. */
+/** Choice questions summarized with bar + count in the Responses tab. */
 export function isSurveyBarSummaryChoiceType(fieldType: string): boolean {
   return (
-    fieldType === FieldType.MULTIPLE_CHOICE || fieldType === FieldType.CHECKBOX
+    fieldType === FieldType.MULTIPLE_CHOICE ||
+    fieldType === FieldType.CHECKBOX ||
+    fieldType === FieldType.DROPDOWN ||
+    fieldType === FieldType.RADIO
   );
 }
 

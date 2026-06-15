@@ -11,7 +11,7 @@ const createApprover = async (values: any) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${APPROVER_URL}/approver`,
+    url: ` https://approval-2226-preview.ienetworks.co/api/v1/approver`,
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,

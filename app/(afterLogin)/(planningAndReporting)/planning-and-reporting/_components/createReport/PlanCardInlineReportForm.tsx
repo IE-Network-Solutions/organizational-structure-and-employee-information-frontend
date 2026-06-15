@@ -136,6 +136,8 @@ export function PlanCardInlineReportForm({
             queryClient.invalidateQueries('okrUserPlans');
             queryClient.invalidateQueries('okrPlannedData');
             queryClient.invalidateQueries('planningPeriodsHierarchy');
+            queryClient.invalidateQueries('fetchObjectives');
+            queryClient.invalidateQueries('ObjectiveInformation');
             handleClose();
           },
         },
@@ -153,6 +155,8 @@ export function PlanCardInlineReportForm({
           queryClient.invalidateQueries('okrUserPlans');
           queryClient.invalidateQueries('okrPlannedData');
           queryClient.invalidateQueries('planningPeriodsHierarchy');
+          queryClient.invalidateQueries('fetchObjectives');
+          queryClient.invalidateQueries('ObjectiveInformation');
           handleClose();
         },
       },

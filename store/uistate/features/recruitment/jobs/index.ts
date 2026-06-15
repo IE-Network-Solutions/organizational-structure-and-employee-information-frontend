@@ -31,6 +31,8 @@ interface SearchParams {
   closedDate: string;
 }
 
+export type JobDetailActivePanel = 'chat' | 'notes' | null;
+
 interface JobState {
   addNewDrawer: boolean;
   setAddNewDrawer: (value: boolean) => void;
@@ -78,6 +80,9 @@ interface JobState {
 
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string) => void;
+
+  activePanel: JobDetailActivePanel;
+  setActivePanel: (value: JobDetailActivePanel) => void;
 }
 
 export const useJobState = create<JobState>((set) => ({
@@ -163,4 +168,7 @@ export const useJobState = create<JobState>((set) => ({
       searchParams: { ...state.searchParams, [key]: stringValue },
     }));
   },
+
+  activePanel: null,
+  setActivePanel: (value) => set({ activePanel: value }),
 }));

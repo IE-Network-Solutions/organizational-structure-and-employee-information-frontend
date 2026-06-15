@@ -1,7 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { KeyResult } from '@/store/uistate/features/okrplanning/okr/interface';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryOptions } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_URL } from '@/utils/constants';
@@ -88,10 +88,16 @@ const getKeyResultByUser = async (
   return { items: [] }; // Return empty array if no ID is provided
 };
 
+type UserKeyResultQueryOptions = Pick<
+  UseQueryOptions<ResponseData>,
+  'refetchOnMount' | 'staleTime'
+>;
+
 export const useGetUserKeyResult = (
   postId: number | string | undefined | null,
   fiscalYearId?: string,
   sessionId?: string,
+  queryOptions?: UserKeyResultQueryOptions,
 ) =>
   useQuery<ResponseData>(
     ['ObjectiveInformation', postId, fiscalYearId, sessionId],
@@ -100,6 +106,7 @@ export const useGetUserKeyResult = (
     {
       keepPreviousData: true,
       enabled: !!postId, // Only fetch when we have a user id (e.g. reportsToId)
+      ...queryOptions,
     },
   );
 
@@ -140,7 +147,7 @@ const getKeyResult = async (id: string) => {
   }
 };
 
-const getKeyResultFromPlanning = async (id: string) => {
+export const fetchKeyResultFromPlanning = async (id: string) => {
   const token = await getCurrentToken();
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -178,7 +185,7 @@ const getKeyResultFromPlanning = async (id: string) => {
 export const useGetKeyResultForEdit = (id: string, enabled = true) =>
   useQuery<KeyResult>(
     ['keyResultForEdit', id],
-    () => getKeyResultFromPlanning(id),
+    () => fetchKeyResultFromPlanning(id),
     { keepPreviousData: true, enabled: !!id && enabled },
   );
 
