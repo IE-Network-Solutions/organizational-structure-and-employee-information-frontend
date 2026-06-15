@@ -46,7 +46,10 @@ const getStageLevel = (
   stageId?: string,
 ): number | null => {
   const level = stageById.get(stageId ?? '')?.level;
-  return Number.isFinite(level) ? level : null;
+  if (typeof level !== 'number' || !Number.isFinite(level)) {
+    return null;
+  }
+  return level;
 };
 
 const resolveActionFromLevels = (
