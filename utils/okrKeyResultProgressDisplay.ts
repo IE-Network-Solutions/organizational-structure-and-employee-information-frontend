@@ -22,8 +22,157 @@ export function getMetricTypeName(kr: {
 }
 
 export function isMilestoneCompleted(m: { status?: string }): boolean {
-  const s = String(m?.status ?? '').trim();
-  return s === 'Completed' || s.toLowerCase() === 'completed';
+  const s = String(m?.status ?? '')
+    .trim()
+    .toLowerCase();
+  return s === 'completed' || s === 'done' || s === 'achieved';
+}
+
+export function isMilestoneKeyResult(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: unknown[];
+}): boolean {
+  if (getMetricTypeName(kr) === 'Milestone') return true;
+  return Array.isArray(kr?.milestones) && kr.milestones.length > 0;
+}
+
+function normalizeKeyResultStatus(kr: {
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+}): string {
+  return String(
+    kr?.status ?? kr?.keyResultCompletionStatus ?? kr?.completionStatus ?? '',
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+}
+
+const IN_PROGRESS_KR_STATUSES = new Set([
+  'on_progress',
+  'in_progress',
+  'pending',
+  'not_started',
+  'overdue',
+  'due_soon',
+  'failed',
+]);
+
+/** KR was marked incomplete again (e.g. report updated from achieved → on progress). */
+export function isKeyResultReopenedForPlanning(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: Array<{ status?: string }>;
+  progress?: number | string | null;
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  targetValue?: number | string | null;
+}): boolean {
+  const status = normalizeKeyResultStatus(kr);
+  if (!status || !IN_PROGRESS_KR_STATUSES.has(status)) return false;
+  // Status alone is not enough — many achieved KRs keep an in-progress status while at 100%.
+  return getKeyResultProgressPercent(kr) < 100;
+}
+
+/**
+ * Whether planning should be blocked for the whole KR (not individual milestones).
+ * Milestone KRs stay plan-eligible until every milestone is completed.
+ */
+export function isKeyResultFullyCompletedForPlanning(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+  progress?: number | string | null;
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  targetValue?: number | string | null;
+}): boolean {
+  if (isMilestoneKeyResult(kr)) {
+    const milestones = (kr?.milestones ?? []).filter(
+      (m) => m?.deletedAt == null,
+    );
+    if (milestones.length === 0) {
+      return getKeyResultProgressPercent(kr) >= 100;
+    }
+    return milestones.every(isMilestoneCompleted);
+  }
+
+  // Non-milestone KRs: measured progress is the sole gate (status can lag after report updates).
+  return getKeyResultProgressPercent(kr) >= 100;
+}
+
+/** Merge plan-panel KR row with user KR API for eligibility (shared by panel + targets). */
+export function buildKrPlanningSource(
+  panelKr: {
+    metricType?: string;
+    progress?: number;
+    currentValue?: string | number;
+    targetValue?: string | number;
+  },
+  apiKr?: any | null,
+) {
+  if (!apiKr) {
+    return {
+      metricType: { name: panelKr.metricType },
+      key_type: panelKr.metricType,
+      progress: panelKr.progress,
+      currentValue: panelKr.currentValue,
+      targetValue: panelKr.targetValue,
+    };
+  }
+  return {
+    ...apiKr,
+    metricType: apiKr.metricType ?? { name: panelKr.metricType },
+    key_type: apiKr.key_type ?? panelKr.metricType,
+    milestones: apiKr.milestones ?? apiKr.Milestones,
+    currentValue: apiKr.currentValue ?? panelKr.currentValue,
+    targetValue: apiKr.targetValue ?? panelKr.targetValue,
+    initialValue: apiKr.initialValue ?? panelKr.currentValue,
+  };
+}
+
+/**
+ * Whether + / planning slots must be hidden for a panel KR.
+ * Panel progress can be ahead of a stale user-KR API response until refetch completes;
+ * only reopen when API shows measured progress below 100%.
+ */
+export function resolveKrPlanningBlocked(
+  panelKr: {
+    metricType?: string;
+    progress?: number;
+    currentValue?: string | number;
+    targetValue?: string | number;
+  },
+  apiKr?: any | null,
+): boolean {
+  const planningSource = buildKrPlanningSource(panelKr, apiKr);
+
+  if (apiKr && isKeyResultReopenedForPlanning(planningSource)) {
+    return false;
+  }
+
+  if (isMilestoneKeyResult(planningSource)) {
+    return isKeyResultFullyCompletedForPlanning(planningSource);
+  }
+
+  const panelProgress = Number(panelKr.progress ?? 0);
+  if (!apiKr) {
+    return (
+      panelProgress >= 100 ||
+      isKeyResultFullyCompletedForPlanning(planningSource)
+    );
+  }
+
+  const apiProgress = getKeyResultProgressPercent(planningSource);
+  return Math.max(apiProgress, panelProgress) >= 100;
 }
 
 export function getMilestoneProgressCounts(kr: {

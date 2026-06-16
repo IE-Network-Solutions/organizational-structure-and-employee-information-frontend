@@ -129,8 +129,10 @@ export const useGetCandidates = (
 };
 
 export const useGetCandidateById = (candidateId: string) => {
-  return useQuery(['candidate', candidateId], () =>
-    getCandidateById(candidateId),
+  return useQuery(
+    ['candidate', candidateId],
+    () => getCandidateById(candidateId),
+    { enabled: !!candidateId },
   );
 };
 

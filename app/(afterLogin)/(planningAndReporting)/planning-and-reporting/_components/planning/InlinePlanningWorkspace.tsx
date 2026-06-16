@@ -41,7 +41,10 @@ import {
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NAME } from '@/types/enumTypes';
-import type { PlanningTarget } from './buildPlanningTargets';
+import {
+  isPlanningTargetBlocked,
+  type PlanningTarget,
+} from './buildPlanningTargets';
 
 type DraftLine = {
   id: string;
@@ -465,6 +468,8 @@ interface InlinePlanningWorkspaceProps {
   /** Active period name from toolbar (e.g. Weekly, Monthly) */
   planningPeriodLabel: string;
   activeTarget: PlanningTarget | null;
+  /** User KR API — hides add (+) UI when target KR is achieved */
+  userKeyResultItems?: any[];
   /** Clear selected key result / slot (closes composer until + is used again) */
   onClearTarget: () => void;
   onExit: () => void;
@@ -481,6 +486,7 @@ const InlinePlanningWorkspace = forwardRef<
   {
     planningPeriodLabel,
     activeTarget,
+    userKeyResultItems = [],
     onClearTarget,
     onExit,
     hideHeaderCloseButton = false,
@@ -532,6 +538,17 @@ const InlinePlanningWorkspace = forwardRef<
     () => draftLines.reduce((s, l) => s + (Number(l.weight) || 0), 0),
     [draftLines],
   );
+
+  const activeTargetBlocked = useMemo(
+    () => isPlanningTargetBlocked(activeTarget, userKeyResultItems),
+    [activeTarget, userKeyResultItems],
+  );
+
+  useEffect(() => {
+    if (activeTarget && activeTargetBlocked) {
+      onClearTarget();
+    }
+  }, [activeTarget, activeTargetBlocked, onClearTarget]);
 
   useEffect(() => {
     editHydratedRef.current = null;
@@ -1157,6 +1174,7 @@ const InlinePlanningWorkspace = forwardRef<
           ) : null}
 
           {activeTarget &&
+          !activeTargetBlocked &&
           !composerCollapsed &&
           !editingDraftId &&
           !loadingEditPlan ? (

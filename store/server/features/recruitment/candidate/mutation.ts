@@ -243,8 +243,15 @@ export const useChangeCandidateStatus = () => {
         queryClient.invalidateQueries('candidates');
         queryClient.invalidateQueries('allCandidates');
         NotificationMessage.success({
-          message: 'Candidate moved to talent pool successfully!',
-          description: 'Candidate has been successfully moved to talent pool',
+          message: 'Candidate stage updated successfully!',
+          description: 'Candidate has been successfully moved',
+        });
+      },
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message:
+            error?.response?.data?.message ||
+            'Failed to update candidate stage',
         });
       },
     },
