@@ -36,6 +36,8 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     setAttendanceNotificationType,
     setIsShowNewAccrualRuleSidebar,
     setIsShowCarryOverRuleSidebar,
+    setIsShowAllowedAreaConfigModal,
+    setAllowedAreaConfigId,
   } = useTimesheetSettingsStore();
 
   const { setOpenModal } = useApprovalStore();
@@ -45,6 +47,8 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     if (pathname.includes('/break-type')) return 'break-type';
     if (pathname.includes('/leave-types-and-policies'))
       return 'leave-types-and-policies';
+    if (pathname.includes('/allowed-area-configuration'))
+      return 'allowed-area-configuration';
     if (pathname.includes('/allowed-areas')) return 'allowed-areas';
     if (pathname.includes('/attendance-rules')) return 'attendance-rules';
     // if (pathname.includes('/imported-logs')) return 'imported-logs';
@@ -69,6 +73,9 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         break;
       case 'leave-types-and-policies':
         router.push('/timesheet/settings/leave-types-and-policies');
+        break;
+      case 'allowed-area-configuration':
+        router.push('/timesheet/settings/allowed-area-configuration');
         break;
       case 'allowed-areas':
         router.push('/timesheet/settings/allowed-areas');
@@ -153,6 +160,18 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           id="time-attendance-settings-allowed-areas-tab-label"
         >
           Allowed Areas
+        </div>
+      ),
+    },
+    {
+      key: 'allowed-area-configuration',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'allowed-area-configuration' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-allowed-area-configuration-tab-label"
+          id="time-attendance-settings-allowed-area-configuration-tab-label"
+        >
+          Allowed Area Configuration
         </div>
       ),
     },
@@ -414,6 +433,33 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                         className="hidden md:inline"
                       >
                         {!isMobile && 'Add Location'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'allowed-area-configuration' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateAllowedArea]}
+                    data-cy="time-attendance-settings-allowed-area-configuration-add-button-access-guard"
+                  >
+                    <Button
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-allowed-area-configuration-add-button-icon" />
+                      }
+                      className="h-10 w-10 sm:w-auto"
+                      type="primary"
+                      id="time-attendance-settings-allowed-area-configuration-add-button"
+                      data-cy="time-attendance-settings-allowed-area-configuration-add-button"
+                      onClick={() => {
+                        setAllowedAreaConfigId(null);
+                        setIsShowAllowedAreaConfigModal(true);
+                      }}
+                    >
+                      <span
+                        id="time-attendance-settings-allowed-area-configuration-add-button-label"
+                        data-cy="time-attendance-settings-allowed-area-configuration-add-button-label"
+                        className="hidden md:inline"
+                      >
+                        {!isMobile && 'Add Allowed Area Configuration'}
                       </span>
                     </Button>
                   </AccessGuard>
