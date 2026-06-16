@@ -157,8 +157,20 @@ const formatNumericValue = (value: string | number | undefined) => {
   return String(value);
 };
 
-const amountInputNumberProps = {
+const integerInputNumberProps = {
   min: 1,
+  step: 1,
+  precision: 0,
+  controls: false,
+  inputMode: 'numeric' as const,
+  parser: parseNumericValue,
+  formatter: formatNumericValue,
+  onKeyDown: blockNonNumericKeyDown,
+  onPaste: blockNonNumericPaste,
+};
+
+const decimalAmountInputNumberProps = {
+  min: 0.01,
   step: 0.01,
   controls: false,
   inputMode: 'decimal' as const,
@@ -168,12 +180,21 @@ const amountInputNumberProps = {
   onPaste: blockNonNumericPaste,
 };
 
-const amountFieldRules = (requiredMessage: string) => [
+const integerFieldRules = (requiredMessage: string) => [
   { required: true, message: requiredMessage },
   {
     type: 'number' as const,
     min: 1,
     message: 'Enter a valid number',
+  },
+];
+
+const decimalAmountFieldRules = (requiredMessage: string) => [
+  { required: true, message: requiredMessage },
+  {
+    type: 'number' as const,
+    min: 0.01,
+    message: 'Enter a valid amount',
   },
 ];
 
@@ -778,10 +799,10 @@ const CreateRuleSidebar = () => {
                 </span>
               }
               name="resetDays"
-              rules={amountFieldRules('Reset days is required')}
+              rules={integerFieldRules('Reset days is required')}
             >
               <InputNumber
-                {...amountInputNumberProps}
+                {...integerInputNumberProps}
                 className={controlClass}
                 placeholder="30"
                 id="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-input"
@@ -830,11 +851,11 @@ const CreateRuleSidebar = () => {
                   </Tooltip>
                 </span>
               }
-              rules={amountFieldRules(`${dynamicLabel} is required`)}
+              rules={integerFieldRules(`${dynamicLabel} is required`)}
               name="ruleAppliedDays"
             >
               <InputNumber
-                {...amountInputNumberProps}
+                {...integerInputNumberProps}
                 className={controlClass}
                 placeholder="Input"
                 id="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
@@ -955,13 +976,13 @@ const CreateRuleSidebar = () => {
                             Deductible Amount in Days
                           </span>
                         }
-                        rules={amountFieldRules(
+                        rules={integerFieldRules(
                           'Deductible amount is required',
                         )}
                         name="deductibleSalaryDays"
                       >
                         <InputNumber
-                          {...amountInputNumberProps}
+                          {...integerInputNumberProps}
                           className={controlClass}
                           placeholder="Add the number of days"
                           id="time-attendance-settings-attendance-rules-create-rule-sidebar-deductible-amount-in-days-input"
@@ -981,11 +1002,13 @@ const CreateRuleSidebar = () => {
                             Fixed amount to be deducted
                           </span>
                         }
-                        rules={amountFieldRules('Fixed amount is required')}
+                        rules={decimalAmountFieldRules(
+                          'Fixed amount is required',
+                        )}
                         name="deductibleFixedAmount"
                       >
                         <InputNumber
-                          {...amountInputNumberProps}
+                          {...decimalAmountInputNumberProps}
                           className={controlClass}
                           placeholder="Add the fixed amount of money to be deducted"
                           id="time-attendance-settings-attendance-rules-create-rule-sidebar-fixed-amount-input"
@@ -1005,13 +1028,13 @@ const CreateRuleSidebar = () => {
                             VP Deduction Amount
                           </span>
                         }
-                        rules={amountFieldRules(
+                        rules={decimalAmountFieldRules(
                           'VP deduction amount is required',
                         )}
                         name="vpDeductionAmount"
                       >
                         <InputNumber
-                          {...amountInputNumberProps}
+                          {...decimalAmountInputNumberProps}
                           className={controlClass}
                           placeholder="Add the VP points to be deducted"
                           id="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
