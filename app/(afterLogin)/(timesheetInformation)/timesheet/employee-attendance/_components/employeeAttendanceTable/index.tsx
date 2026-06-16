@@ -77,10 +77,93 @@ const getFilteredAttendanceBreak = (
   if (!attendanceRecord?.attendanceBreaks?.length) return undefined;
   if (breakTypeId) {
     return attendanceRecord.attendanceBreaks.find(
-      (b) => b.breakTypeId === breakTypeId,
+      (b) =>
+        b.breakTypeId === breakTypeId || b.breakType?.id === breakTypeId,
     );
   }
   return attendanceRecord.attendanceBreaks[0];
+};
+
+const getRowCheckInSource = (
+  record: {
+    checkInSource?: AttendanceCheckInSource;
+    status?: AttendanceRecord;
+  },
+  breakTypeId?: string,
+): AttendanceCheckInSource | undefined => {
+  if (!breakTypeId) return record.checkInSource;
+  return getFilteredAttendanceBreak(record.status, breakTypeId)?.checkInSource;
+};
+
+const getRowCheckOutSource = (
+  record: {
+    checkOutSource?: AttendanceCheckOutSource;
+    status?: AttendanceRecord;
+  },
+  breakTypeId?: string,
+): AttendanceCheckOutSource | undefined => {
+  if (!breakTypeId) return record.checkOutSource;
+  return getFilteredAttendanceBreak(record.status, breakTypeId)?.checkOutSource;
+};
+
+const getRowCheckInTimestamp = (
+  record: { clockIn?: string | null; status?: AttendanceRecord },
+  breakTypeId?: string,
+): string | null | undefined => {
+  if (!breakTypeId) return record.clockIn;
+  return getFilteredAttendanceBreak(record.status, breakTypeId)?.endAt;
+};
+
+const getRowCheckOutTimestamp = (
+  record: { clockOut?: string | null; status?: AttendanceRecord },
+  breakTypeId?: string,
+): string | null | undefined => {
+  if (!breakTypeId) return record.clockOut;
+  return getFilteredAttendanceBreak(record.status, breakTypeId)?.startAt;
+};
+
+const shouldShowCheckInMethod = (
+  record: {
+    checkInSource?: AttendanceCheckInSource;
+    clockIn?: string | null;
+    status?: AttendanceRecord;
+  },
+  breakTypeId?: string,
+): boolean => {
+  const checkInSource = getRowCheckInSource(record, breakTypeId);
+  const checkInTimestamp = getRowCheckInTimestamp(record, breakTypeId);
+
+  if (breakTypeId) {
+    const attendanceBreak = getFilteredAttendanceBreak(
+      record.status,
+      breakTypeId,
+    );
+    if (!attendanceBreak) return false;
+  }
+
+  return hasAttendanceTimestamp(checkInTimestamp) || Boolean(checkInSource);
+};
+
+const shouldShowCheckOutMethod = (
+  record: {
+    checkOutSource?: AttendanceCheckOutSource;
+    clockOut?: string | null;
+    status?: AttendanceRecord;
+  },
+  breakTypeId?: string,
+): boolean => {
+  const checkOutSource = getRowCheckOutSource(record, breakTypeId);
+  const checkOutTimestamp = getRowCheckOutTimestamp(record, breakTypeId);
+
+  if (breakTypeId) {
+    const attendanceBreak = getFilteredAttendanceBreak(
+      record.status,
+      breakTypeId,
+    );
+    if (!attendanceBreak) return false;
+  }
+
+  return hasAttendanceTimestamp(checkOutTimestamp) || Boolean(checkOutSource);
 };
 
 const MISSED_BREAK_BADGE_CLASS =
@@ -503,8 +586,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'checkInSource',
       key: 'checkInSource',
       width: 120,
-      render: (val: AttendanceCheckInSource | undefined, record: any) => {
-        if (!hasAttendanceTimestamp(record.clockIn)) {
+      render: (_val: AttendanceCheckInSource | undefined, record: any) => {
+        const checkInSource = getRowCheckInSource(
+          record,
+          filter?.breakTypeId,
+        );
+
+        if (!shouldShowCheckInMethod(record, filter?.breakTypeId)) {
           return (
             <div
               id={`time-attendance-employee-attendance-row-remote-check-in-div-${record.key}`}
@@ -525,8 +613,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               id={`time-attendance-employee-attendance-row-remote-check-in-badge-${record.key}`}
               data-cy="time-attendance-employee-attendance-row-remote-check-in-badge-div"
             >
-              {val ? (
-                statusType(val)
+              {checkInSource ? (
+                statusType(checkInSource)
               ) : (
                 <span
                   className="text-sm font-normal text-[#4d4d4d]"
@@ -553,8 +641,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'checkOutSource',
       key: 'checkOutSource',
       width: 120,
-      render: (val: AttendanceCheckOutSource | undefined, record: any) => {
-        if (!hasAttendanceTimestamp(record.clockOut)) {
+      render: (_val: AttendanceCheckOutSource | undefined, record: any) => {
+        const checkOutSource = getRowCheckOutSource(
+          record,
+          filter?.breakTypeId,
+        );
+
+        if (!shouldShowCheckOutMethod(record, filter?.breakTypeId)) {
           return (
             <div
               id={`time-attendance-employee-attendance-row-remote-check-out-div-${record.key}`}
@@ -575,8 +668,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               id={`time-attendance-employee-attendance-row-remote-check-out-badge-${record.key}`}
               data-cy="time-attendance-employee-attendance-row-remote-check-out-badge-div"
             >
-              {val ? (
-                statusType(val)
+              {checkOutSource ? (
+                statusType(checkOutSource)
               ) : (
                 <span
                   className="text-sm font-normal text-[#4d4d4d]"
