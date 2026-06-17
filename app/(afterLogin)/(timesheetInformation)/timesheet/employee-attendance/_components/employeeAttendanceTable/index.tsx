@@ -77,8 +77,7 @@ const getFilteredAttendanceBreak = (
   if (!attendanceRecord?.attendanceBreaks?.length) return undefined;
   if (breakTypeId) {
     return attendanceRecord.attendanceBreaks.find(
-      (b) =>
-        b.breakTypeId === breakTypeId || b.breakType?.id === breakTypeId,
+      (b) => b.breakTypeId === breakTypeId || b.breakType?.id === breakTypeId,
     );
   }
   return attendanceRecord.attendanceBreaks[0];
@@ -586,11 +585,9 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'checkInSource',
       key: 'checkInSource',
       width: 120,
-      render: (_val: AttendanceCheckInSource | undefined, record: any) => {
-        const checkInSource = getRowCheckInSource(
-          record,
-          filter?.breakTypeId,
-        );
+      render: (val: AttendanceCheckInSource | undefined, record: any) => {
+        const checkInSource =
+          getRowCheckInSource(record, filter?.breakTypeId) ?? val;
 
         if (!shouldShowCheckInMethod(record, filter?.breakTypeId)) {
           return (
@@ -641,11 +638,11 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'checkOutSource',
       key: 'checkOutSource',
       width: 120,
-      render: (_val: AttendanceCheckOutSource | undefined, record: any) => {
+      render: (val: AttendanceCheckOutSource | undefined, record: any) => {
         const checkOutSource = getRowCheckOutSource(
           record,
           filter?.breakTypeId,
-        );
+        ) ?? val;
 
         if (!shouldShowCheckOutMethod(record, filter?.breakTypeId)) {
           return (

@@ -406,7 +406,8 @@ export const useSyncZktAttendance = () => {
 
         handleSuccessMessage(
           'POST',
-          item?.message || 'Attendance synced from attendance machine successfully.',
+          item?.message ||
+            'Attendance synced from attendance machine successfully.',
         );
       },
       onError(error: any) {
@@ -437,7 +438,8 @@ export const useSyncZktBreak = () => {
 
       handleSuccessMessage(
         'POST',
-        item?.message || 'Break attendance synced from attendance machine successfully.',
+        item?.message ||
+          'Break attendance synced from attendance machine successfully.',
       );
     },
     onError(error: any) {

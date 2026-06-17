@@ -551,7 +551,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
           >
             {isMobile ? (
               <Tooltip title={syncLabel}>
-                <span>
+                <span data-cy="time-attendance-employee-attendance-sync-zkt-tooltip-wrapper">
                   <Button
                     type="primary"
                     size="large"
