@@ -14,6 +14,7 @@ interface JobFormValues {
   employmentType: string;
   jobDeadline: string;
   jobTitle: string;
+  hiringManagerId?: string;
   jobStatus: string;
   jobLocation: string;
   quantity: string;
