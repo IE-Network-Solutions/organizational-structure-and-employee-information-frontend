@@ -735,7 +735,9 @@ const JobChat = ({
         const isMention = part.startsWith('@') && isComposerMention(part);
 
         if (!isMention) {
-          return <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>;
+          return (
+            <React.Fragment key={`${part}-${index}`}>{part}</React.Fragment>
+          );
         }
 
         return (
@@ -1458,7 +1460,10 @@ const JobChat = ({
                     </Dropdown>
                   )}
 
-                  <div className="relative max-w-[88%]" data-cy="talent-acquisition-job-chat-message-bubble-wrapper">
+                  <div
+                    className="relative max-w-[88%]"
+                    data-cy="talent-acquisition-job-chat-message-bubble-wrapper"
+                  >
                     <div
                       className={`relative px-3 py-2.5 text-[14px] leading-5 text-black ${bubbleBg} ${bubbleRadius} ${
                         isReplyTarget ? 'ring-2 ring-[#1E40AF]/25' : ''
