@@ -107,6 +107,8 @@ export interface AttendanceBreak extends DateInfo {
   geolocations: Geolocation[];
   earlyByMinutes: number;
   lateByMinutes: number;
+  checkInSource?: AttendanceCheckInSource;
+  checkOutSource?: AttendanceCheckOutSource;
 }
 
 export interface AttendanceImport extends DateInfo {
