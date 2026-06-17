@@ -296,7 +296,9 @@ const StageApprovalModal = () => {
       setIsSubmitting(true);
       const requestIdByCandidateId = await resolveApprovalRequestIds();
       const actionItems = buildActionItems(requestIdByCandidateId);
-      const missingRequest = actionItems.find((item) => !item.payload.requestId);
+      const missingRequest = actionItems.find(
+        (item) => !item.payload.requestId,
+      );
       if (missingRequest) {
         throw new Error('Approval request id was not returned by the backend.');
       }

@@ -186,7 +186,12 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               className="w-full h-11 okr-planning-assignation-assignee-select"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
-              tagRender={() => <span className="hidden" />}
+              tagRender={() => (
+                <span
+                  className="hidden"
+                  data-cy="okr-planning-assignation-assignee-hidden-tag"
+                />
+              )}
               searchValue={assigneeSearchValue}
               onSearch={setAssigneeSearchValue}
               onDropdownVisibleChange={setAssigneeDropdownOpen}
@@ -435,7 +440,12 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               className="w-full h-11 okr-planning-assignation-plan-select"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
-              tagRender={() => <span className="hidden" />}
+              tagRender={() => (
+                <span
+                  className="hidden"
+                  data-cy="okr-planning-assignation-plan-hidden-tag"
+                />
+              )}
               searchValue={planSearchValue}
               onSearch={setPlanSearchValue}
               onDropdownVisibleChange={setPlanDropdownOpen}
