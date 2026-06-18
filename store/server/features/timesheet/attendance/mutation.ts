@@ -333,19 +333,19 @@ export const useSetCurrentAttendance = () => {
     (data: AttendanceSetShiftRequestBody) =>
       setCurrentAttendance(data, queryClient),
     {
-    onMutate: () => {
-      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
+      onMutate: () => {
+        useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
+      },
+      onSettled: () => {
+        useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      onSuccess: (_, variables: any) => {
+        queryClient.invalidateQueries('current-attendance');
+        const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
+      },
     },
-    onSettled: () => {
-      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('current-attendance');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  },
   );
 };
 

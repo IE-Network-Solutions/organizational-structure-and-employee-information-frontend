@@ -109,7 +109,11 @@ const MoveToTalentPoolIcon = () => (
   </svg>
 );
 
-const JOB_DETAIL_TAB_KEYS = ['candidates', 'information', 'myApprovals'] as const;
+const JOB_DETAIL_TAB_KEYS = [
+  'candidates',
+  'information',
+  'myApprovals',
+] as const;
 type JobDetailTabKey = (typeof JOB_DETAIL_TAB_KEYS)[number];
 
 const isJobDetailTabKey = (value: string | null): value is JobDetailTabKey =>

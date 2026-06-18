@@ -319,7 +319,8 @@ const StageApprovalModal = () => {
     const targetStage = stageById.get(moveToStageId);
     if (targetStage?.isFinal && !isFinalApprover) {
       NotificationMessage.error({
-        message: 'Only the final approver can move candidates to a final stage.',
+        message:
+          'Only the final approver can move candidates to a final stage.',
       });
       return;
     }
